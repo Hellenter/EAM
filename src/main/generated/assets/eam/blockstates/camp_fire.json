@@ -11,7 +11,16 @@
       },
       "when": {
         "char": "0",
-        "sticks": "1|2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1_lying"
+      },
+      "when": {
+        "char": "0",
+        "sticks": "1|2"
       }
     },
     {
@@ -20,7 +29,16 @@
       },
       "when": {
         "char": "1",
-        "sticks": "1|2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1_lying_char_1"
+      },
+      "when": {
+        "char": "1",
+        "sticks": "1|2"
       }
     },
     {
@@ -29,7 +47,16 @@
       },
       "when": {
         "char": "2",
-        "sticks": "1|2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1_lying_char_2"
+      },
+      "when": {
+        "char": "2",
+        "sticks": "1|2"
       }
     },
     {
@@ -38,7 +65,16 @@
       },
       "when": {
         "char": "0",
-        "sticks": "2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2_lying"
+      },
+      "when": {
+        "char": "0",
+        "sticks": "2"
       }
     },
     {
@@ -47,7 +83,16 @@
       },
       "when": {
         "char": "1",
-        "sticks": "2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2_lying_char_1"
+      },
+      "when": {
+        "char": "1",
+        "sticks": "2"
       }
     },
     {
@@ -56,7 +101,16 @@
       },
       "when": {
         "char": "2",
-        "sticks": "2|3|4|5|6|7|8|9"
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2_lying_char_2"
+      },
+      "when": {
+        "char": "2",
+        "sticks": "2"
       }
     },
     {
@@ -246,6 +300,30 @@
       "when": {
         "char": "2",
         "sticks": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_coals_1"
+      },
+      "when": {
+        "coals": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_coals_2"
+      },
+      "when": {
+        "coals": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_coals_3"
+      },
+      "when": {
+        "coals": "3"
       }
     },
     {

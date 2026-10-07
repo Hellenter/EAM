@@ -44,6 +44,11 @@ public final class CampFireLogic {
 		return litTicks >= settings.scorchTicks() ? CampFireBlock.SCORCHED : CampFireBlock.FRESH;
 	}
 
+	/** Size of the coal heap, 0 to {@link CampFireBlock#MAX_COALS}: the first burnt stick leaves coals, then one size per 3 sticks. */
+	public static int coalStage(int burntSticks) {
+		return Math.min(CampFireBlock.MAX_COALS, (burntSticks + 2) / 3);
+	}
+
 	/** Sticks a broken fire gives back: unburnt sticks only when it is not burning. */
 	public static int sticksDropped(int sticks, boolean lit) {
 		return lit ? 0 : sticks;

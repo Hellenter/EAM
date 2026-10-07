@@ -26,10 +26,10 @@ class CampFireLogicTest {
 	}
 
 	@Test
-	void burnsThreeSticksAMinute() {
-		assertEquals(3, 20 * 60 / SETTINGS.ticksPerStick());
-		assertFalse(CampFireLogic.burnsStick(399, SETTINGS));
-		assertTrue(CampFireLogic.burnsStick(400, SETTINGS));
+	void burnsOneStickEveryThirtySeconds() {
+		assertEquals(30 * 20, SETTINGS.ticksPerStick());
+		assertFalse(CampFireLogic.burnsStick(599, SETTINGS));
+		assertTrue(CampFireLogic.burnsStick(600, SETTINGS));
 	}
 
 	@Test
@@ -53,6 +53,16 @@ class CampFireLogicTest {
 	void burningFireKeepsItsSticks() {
 		assertEquals(7, CampFireLogic.sticksDropped(7, false));
 		assertEquals(0, CampFireLogic.sticksDropped(7, true));
+	}
+
+	@Test
+	void coalsGrowWithBurntSticks() {
+		assertEquals(0, CampFireLogic.coalStage(0));
+		assertEquals(1, CampFireLogic.coalStage(1));
+		assertEquals(1, CampFireLogic.coalStage(3));
+		assertEquals(2, CampFireLogic.coalStage(4));
+		assertEquals(3, CampFireLogic.coalStage(7));
+		assertEquals(3, CampFireLogic.coalStage(40));
 	}
 
 	@Test
