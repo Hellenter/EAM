@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "io.github.hellenter.eam.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": [],
+	"client": [
+		"survival.hunger.HudMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

@@ -1,6 +1,7 @@
 package io.github.hellenter.eam;
 
 import io.github.hellenter.eam.core.config.EamConfig;
+import io.github.hellenter.eam.survival.hunger.HungerModule;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -20,8 +21,9 @@ public class Eam implements ModInitializer {
 		config = EamConfig.load();
 		LOGGER.info("EAM loaded, modules: {}", config);
 
-		// Each mechanic registers itself here, guarded by its config flag, e.g.:
-		// if (config.thirst()) ThirstModule.init();
+		// Each mechanic registers itself here, guarded by its config flag.
+		HungerModule.registerAttachments();
+		if (config.hunger()) HungerModule.init();
 	}
 
 	public static EamConfig config() {
