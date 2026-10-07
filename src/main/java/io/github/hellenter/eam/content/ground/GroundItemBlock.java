@@ -26,17 +26,22 @@ import org.jspecify.annotations.Nullable;
 public class GroundItemBlock extends Block {
 	public static final IntegerProperty POSITION = IntegerProperty.create("position", 0, GroundItemLogic.POSITIONS - 1);
 
+	private final GroundItemLogic.Shape shape;
 	private final VoxelShape[] shapes = new VoxelShape[GroundItemLogic.POSITIONS];
 
-	/** Size of the item in model pixels: width (x), height and depth (z). */
-	public GroundItemBlock(double sizeX, double height, double sizeZ, BlockBehaviour.Properties properties) {
+	public GroundItemBlock(GroundItemLogic.Shape shape, BlockBehaviour.Properties properties) {
 		super(properties);
+		this.shape = shape;
 		for (int position = 0; position < shapes.length; position++) {
-			double x = GroundItemLogic.minX(position, sizeX);
-			double z = GroundItemLogic.minZ(position, sizeZ);
-			shapes[position] = Block.box(x, 0, z, x + sizeX, height, z + sizeZ);
+			GroundItemLogic.Box box = shape.at(position);
+			shapes[position] = Block.box(box.minX(), 0, box.minZ(), box.maxX(), box.height(), box.maxZ());
 		}
 		registerDefaultState(stateDefinition.any().setValue(POSITION, 0));
+	}
+
+	/** How the item lies at each position; the block models are generated from it. */
+	public GroundItemLogic.Shape shape() {
+		return shape;
 	}
 
 	@Override

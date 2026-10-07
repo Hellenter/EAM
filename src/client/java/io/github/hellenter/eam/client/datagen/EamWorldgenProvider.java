@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Pebbles, flint shards and sticks on the surface. In forests a pebble tries to spawn once every 2 chunks
- * and a flint shard 16 times less often; in the mountains they lie only on stone and gravel, with flint
- * shards 8 times rarer. Sticks lie under tree crowns, three tries per chunk in any overworld biome.
+ * Pebbles, flint shards and sticks on the surface. In forests a pebble tries to spawn twice per chunk and
+ * a flint shard 16 times less often; in the mountains they lie only on stone and gravel, with flint shards
+ * 8 times rarer. Sticks lie under tree crowns, 12 tries per chunk in any overworld biome.
  */
 public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	/** How far above the ground a tree crown counts for a stick under it. */
@@ -61,15 +61,15 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		var stick = features.getOrThrow(EamWorldgen.GROUND_STICK);
 
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_FOREST, pebble,
-				onSurface(RarityFilter.onAverageOnceEvery(2), forestFloor()));
+				onSurface(CountPlacement.of(2), forestFloor()));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_FOREST, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(32), forestFloor()));
+				onSurface(RarityFilter.onAverageOnceEvery(8), forestFloor()));
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_MOUNTAIN, pebble,
-				onSurface(RarityFilter.onAverageOnceEvery(2), stoneOrGravel()));
+				onSurface(CountPlacement.of(2), stoneOrGravel()));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_MOUNTAIN, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(16), stoneOrGravel()));
+				onSurface(RarityFilter.onAverageOnceEvery(4), stoneOrGravel()));
 		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_UNDER_TREES, stick,
-				onSurface(CountPlacement.of(3), BlockPredicate.allOf(forestFloor(), underLeaves())));
+				onSurface(CountPlacement.of(12), BlockPredicate.allOf(forestFloor(), underLeaves())));
 	}
 
 	private static Feature groundItem(Block block) {

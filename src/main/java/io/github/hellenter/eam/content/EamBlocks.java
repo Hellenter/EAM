@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
+import io.github.hellenter.eam.content.ground.GroundItemLogic;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,13 +20,13 @@ import java.util.function.Function;
 /** Blocks added by EAM. Their items are in {@link EamItems}. Registered whatever the config says. */
 public final class EamBlocks {
 	/** A pebble lying on the ground, a bit smaller than a button. */
-	public static final Block PEBBLE = register("pebble", p -> new GroundItemBlock(3, 2, 3, p), groundItem(MapColor.STONE));
+	public static final Block PEBBLE = register("pebble", p -> new GroundItemBlock(GroundItemLogic.small(3, 2, 3), p), groundItem(MapColor.STONE));
 
 	/** A flint shard lying on the ground. */
-	public static final Block FLINT_SHARD = register("flint_shard", p -> new GroundItemBlock(3, 1, 2, p), groundItem(MapColor.COLOR_BLACK));
+	public static final Block FLINT_SHARD = register("flint_shard", p -> new GroundItemBlock(GroundItemLogic.small(3, 1, 2), p), groundItem(MapColor.COLOR_BLACK));
 
-	/** A stick lying under trees. Has no item of its own: it drops a vanilla stick. */
-	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(4, 1, 1, p),
+	/** A stick as long as the block, lying under trees. Has no item of its own: it drops a vanilla stick. */
+	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(GroundItemLogic.fullLength(1, 1), p),
 			groundItem(MapColor.WOOD).sound(SoundType.WOOD));
 
 	/** A fire pit fed with sticks; see {@link CampFireBlock}. Drops come from its block entity, not a loot table. */
