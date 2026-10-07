@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.survival.thirst;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.survival.progression.ProgressionModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -45,7 +46,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Map;
 
 /**
- * Thirst: a 0..20 water bar that drains with activity and time, refills from drinks and water sources,
+ * Thirst: a water bar that grows with the XP level (see {@link ProgressionModule}), drains with activity and time, refills from drinks and water sources,
  * and hurts the player at zero.
  */
 public final class ThirstModule {
@@ -83,15 +84,22 @@ public final class ThirstModule {
 	public static final ResourceKey<DamageType> DEHYDRATION = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("dehydration"));
 
 	/** Default water restored per item. Every potion counts, the water bottle included. */
-	private static final Map<Item, Integer> DRINKS = Map.of(
-			Items.POTION, 6,
-			Items.MILK_BUCKET, 8,
-			Items.HONEY_BOTTLE, 2,
-			Items.MUSHROOM_STEW, 3,
-			Items.BEETROOT_SOUP, 3,
-			Items.RABBIT_STEW, 3,
-			Items.SUSPICIOUS_STEW, 3,
-			Items.MELON_SLICE, 1
+	private static final Map<Item, Integer> DRINKS = Map.ofEntries(
+			Map.entry(Items.POTION, 6),
+			Map.entry(Items.MILK_BUCKET, 8),
+			Map.entry(Items.HONEY_BOTTLE, 2),
+			Map.entry(Items.MUSHROOM_STEW, 3),
+			Map.entry(Items.BEETROOT_SOUP, 3),
+			Map.entry(Items.RABBIT_STEW, 3),
+			Map.entry(Items.SUSPICIOUS_STEW, 3),
+			Map.entry(Items.MELON_SLICE, 1),
+			// Fruits: half a droplet.
+			Map.entry(Items.APPLE, 1),
+			Map.entry(Items.SWEET_BERRIES, 1),
+			Map.entry(Items.GLOW_BERRIES, 1),
+			Map.entry(Items.CHORUS_FRUIT, 1),
+			Map.entry(Items.GOLDEN_APPLE, 1),
+			Map.entry(Items.ENCHANTED_GOLDEN_APPLE, 1)
 	);
 
 	private static boolean enabled;
@@ -145,9 +153,15 @@ public final class ThirstModule {
 		ThirstLogic.Environment environment = new ThirstLogic.Environment(
 				level.getDifficulty() == Difficulty.PEACEFUL,
 				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature(),
-				player.hasEffect(FOOD_POISONING));
+				player.hasEffect(FOOD_POISONING),
+				ProgressionModule.inGracePeriod(player));
 
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
+		int max = ProgressionModule.capacity(player);
+		if (thirst.max() != max) {
+			thirst = thirst.withMax(max);
+			player.setAttached(THIRST, thirst);
+		}
 		ThirstLogic.TickResult result = ThirstLogic.tick(thirst, player.getAttachedOrCreate(COUNTERS), settings, environment);
 
 		if (!result.thirst().equals(thirst)) {

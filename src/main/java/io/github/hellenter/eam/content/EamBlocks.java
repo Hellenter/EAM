@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 
 import net.minecraft.core.Registry;
@@ -26,6 +27,16 @@ public final class EamBlocks {
 	/** A stick lying under trees. Has no item of its own: it drops a vanilla stick. */
 	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(4, 1, 1, p),
 			groundItem(MapColor.WOOD).sound(SoundType.WOOD));
+
+	/** A fire pit fed with sticks; see {@link CampFireBlock}. Drops come from its block entity, not a loot table. */
+	public static final Block CAMP_FIRE = register("camp_fire", CampFireBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.PODZOL)
+			.strength(1.0F)
+			.sound(SoundType.WOOD)
+			.lightLevel(state -> state.getValue(CampFireBlock.LIT) ? 15 : 0)
+			.noOcclusion()
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
 
 	private EamBlocks() {
 	}

@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 
 import org.jspecify.annotations.Nullable;
 
-/** Ten water droplets above the food bar, drawn right to left like food. */
+/** Water droplets above the food bar, as many as the bar holds, drawn right to left like food. */
 public final class ThirstHud {
 	private static final Identifier ID = Eam.id("thirst");
 	private static final Identifier FULL = Eam.id("hud/thirst_full");
@@ -45,7 +45,7 @@ public final class ThirstHud {
 
 		int xRight = graphics.guiWidth() / 2 + 91;
 		int y = graphics.guiHeight() - HudStatusBarHeightRegistry.getHeight(ID);
-		for (int i = 0; i < Thirst.MAX / 2; i++) {
+		for (int i = 0; i < (thirst.max() + 1) / 2; i++) {
 			int x = xRight - i * 8 - 9;
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, EMPTY, x, y, 9, 9);
 			if (i * 2 + 1 < thirst.water()) {

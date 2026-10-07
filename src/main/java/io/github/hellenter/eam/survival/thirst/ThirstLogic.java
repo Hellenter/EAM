@@ -16,8 +16,9 @@ public final class ThirstLogic {
 	 * @param peaceful the difficulty is peaceful: no drain, slow refill
 	 * @param hot      the player stands in a hot biome
 	 * @param poisoned the player has food poisoning
+	 * @param grace    the player just spawned: thirst does not drain and exhaustion is dropped
 	 */
-	public record Environment(boolean peaceful, boolean hot, boolean poisoned) {
+	public record Environment(boolean peaceful, boolean hot, boolean poisoned, boolean grace) {
 	}
 
 	/**
@@ -44,6 +45,10 @@ public final class ThirstLogic {
 				next = thirst.add(1);
 			}
 			return new TickResult(next, new ThirstCounters(0.0F, timer, sipCooldown, immunity), false);
+		}
+
+		if (environment.grace()) {
+			return new TickResult(thirst, new ThirstCounters(0.0F, 0, sipCooldown, immunity), false);
 		}
 
 		float passive = settings.passiveExhaustion() * (environment.hot() ? settings.hotMultiplier() : 1.0F);
@@ -84,8 +89,9 @@ public final class ThirstLogic {
 		return counters.immunity() == 0 && roll < (dirtyWater ? poisoning.dirtyWaterChance() : poisoning.chance());
 	}
 
+	/** Sprinting needs more than 30% of the water bar; with a full-size bar this is "more than 6", like vanilla food. */
 	public static boolean canSprint(Thirst thirst) {
-		return thirst.water() > Thirst.SPRINT_THRESHOLD;
+		return thirst.water() * 10 > thirst.max() * 3;
 	}
 
 	public static boolean canSip(Thirst thirst, ThirstCounters counters) {

@@ -1,11 +1,14 @@
 package io.github.hellenter.eam;
 
+import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
+import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 
@@ -31,11 +34,14 @@ public class Eam implements ModInitializer {
 		HungerModule.registerTypes();
 		ThirstModule.register();
 		EamBlocks.register();
+		EamBlockEntities.register();
 		EamItems.register();
 		EamEntities.register();
 		EamWorldgen.init();
+		CampFireModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
+		if (config.progression()) ProgressionModule.init();
 		if (config.hunger()) HungerModule.init();
 		if (config.thirst()) ThirstModule.init();
 		if (config.stackSizes()) StackSizeModule.init();

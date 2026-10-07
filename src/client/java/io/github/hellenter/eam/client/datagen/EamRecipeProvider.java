@@ -48,6 +48,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(EamItems.FLINT_SHARD, 4)
 						.unlockedBy(getHasName(EamItems.FLINT_SHARD), has(EamItems.FLINT_SHARD))
 						.save(output, "eam:flint_from_shards");
+
+				shapeless(RecipeCategory.DECORATIONS, EamItems.CAMP_FIRE)
+						.requires(Items.STICK, 3)
+						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+						.save(output);
 			}
 		};
 	}

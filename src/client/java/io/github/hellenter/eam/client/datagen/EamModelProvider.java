@@ -32,6 +32,7 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.PEBBLE, ModelLocationUtils.getModelLocation(EamBlocks.PEBBLE), 3, 2, 3);
 		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD), 3, 1, 2);
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"), 4, 1, 1);
+		CampFireModels.generate(generators);
 	}
 
 	/** One small box per position on the top face; the block state picks the model by position. */

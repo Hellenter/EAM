@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.campfire.CampFireModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -35,6 +36,9 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.PEBBLE, "Pebble");
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
 			builder.add(EamBlocks.GROUND_STICK, "Stick");
+			builder.add(EamBlocks.CAMP_FIRE, "Camp Fire");
+			builder.add("block.eam.camp_fire.needs_sticks", "Put at least %s sticks on the fire to light it");
+			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
 			builder.add(EamEntities.PEBBLE, "Pebble");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
@@ -69,6 +73,9 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.PEBBLE, "Камушек");
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
 			builder.add(EamBlocks.GROUND_STICK, "Палка");
+			builder.add(EamBlocks.CAMP_FIRE, "Походный костёр");
+			builder.add("block.eam.camp_fire.needs_sticks", "Чтобы разжечь костёр, положите в него не меньше %s палок");
+			builder.add(CampFireModule.IGNITERS, "Растопка для костра");
 			builder.add(EamEntities.PEBBLE, "Камушек");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");

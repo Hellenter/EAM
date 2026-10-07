@@ -1,4 +1,6 @@
 {
+  "block.eam.camp_fire": "Camp Fire",
+  "block.eam.camp_fire.needs_sticks": "Put at least %s sticks on the fire to light it",
   "block.eam.flint_shard": "Flint Shard",
   "block.eam.ground_stick": "Stick",
   "block.eam.pebble": "Pebble",
@@ -22,5 +24,6 @@
   "item.eam.leather_flask": "Leather Flask",
   "item.eam.leather_thread": "Leather Thread",
   "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s",
+  "tag.item.eam.camp_fire_igniters": "Camp Fire Igniters",
   "tag.item.eam.flask_threads": "Flask Threads"
 }

@@ -1,0 +1,179 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_ring"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "1|2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "1|2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_3"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_3_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_4"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_4_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_5"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_5_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_6"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_6_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_7"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_7_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_8"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_8_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_9"
+      },
+      "when": {
+        "lit": "false",
+        "sticks": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_9_lit"
+      },
+      "when": {
+        "lit": "true",
+        "sticks": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_fire"
+      },
+      "when": {
+        "lit": "true"
+      }
+    }
+  ]
+}
