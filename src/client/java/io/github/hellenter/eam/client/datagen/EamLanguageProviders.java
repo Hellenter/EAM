@@ -18,6 +18,9 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
+			builder.add("death.attack.eam.dehydration.player", "%1$s died of thirst while fighting %2$s");
+			builder.add("effect.eam.food_poisoning", "Food Poisoning");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
 			builder.add("gui.eam.nutrient.fat", "Fat");
@@ -38,6 +41,9 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
+			builder.add("death.attack.eam.dehydration.player", "%1$s умер от жажды, сражаясь с %2$s");
+			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");
 			builder.add("gui.eam.nutrient.fat", "Жиры");

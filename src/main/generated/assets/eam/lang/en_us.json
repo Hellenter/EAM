@@ -1,4 +1,7 @@
 {
+  "death.attack.eam.dehydration": "%1$s died of thirst",
+  "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",
+  "effect.eam.food_poisoning": "Food Poisoning",
   "gui.eam.nutrient.carbs": "Carbs",
   "gui.eam.nutrient.carbs.short": "C",
   "gui.eam.nutrient.fat": "Fat",

@@ -2,6 +2,7 @@ package io.github.hellenter.eam;
 
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
+import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 
 import net.fabricmc.api.ModInitializer;
@@ -22,9 +23,13 @@ public class Eam implements ModInitializer {
 		config = EamConfig.load();
 		LOGGER.info("EAM loaded, modules: {}", config);
 
-		// Each mechanic registers itself here, guarded by its config flag.
+		// Registries are filled whatever the config says, so client and server always match.
 		HungerModule.registerTypes();
+		ThirstModule.register();
+
+		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.hunger()) HungerModule.init();
+		if (config.thirst()) ThirstModule.init();
 		if (config.stackSizes()) StackSizeModule.init();
 	}
 
