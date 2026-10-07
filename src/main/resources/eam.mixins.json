@@ -6,7 +6,8 @@
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",
-		"survival.thirst.PlayerThirstMixin"
+		"survival.thirst.PlayerThirstMixin",
+		"world.items.ItemInstanceMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
