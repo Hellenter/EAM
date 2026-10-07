@@ -12,9 +12,9 @@ public final class FlaskLogic {
 	/** Half droplets a charcoal filter cleans before it is spent. */
 	public static final int FILTER_USES = 64;
 	/** Water bar colour of a full flask (light blue). */
-	public static final int BAR_COLOR_FULL = 0x8FD8FF;
+	public static final int BAR_COLOR_FULL = 0x33B0FF;
 	/** Water bar colour of a nearly empty flask (dark blue). */
-	public static final int BAR_COLOR_LOW = 0x0A2470;
+	public static final int BAR_COLOR_LOW = 0x0820A8;
 
 	private FlaskLogic() {
 	}

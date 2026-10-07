@@ -1,19 +1,24 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class EamRecipeProvider extends FabricRecipeProvider {
@@ -43,6 +48,13 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(EamItems.FLASK_THREADS)
 						.unlockedBy(getHasName(Items.LEATHER), has(Items.LEATHER))
 						.save(output);
+
+				// Upgrading a flask keeps the water in it.
+				CustomCraftingRecipeBuilder.customCrafting(RecipeCategory.TOOLS, (common, book) -> new FilterFlaskRecipe(common, book,
+								new ItemStackTemplate(EamItems.FILTERED_LEATHER_FLASK),
+								List.of(Ingredient.of(EamItems.LEATHER_FLASK), tag(ItemTags.COALS), tag(EamItems.FLASK_THREADS))))
+						.unlockedBy(getHasName(EamItems.LEATHER_FLASK), has(EamItems.LEATHER_FLASK))
+						.save(output, "eam:filtered_leather_flask_from_flask");
 
 				shapeless(RecipeCategory.MISC, Items.FLINT)
 						.requires(EamItems.FLINT_SHARD, 4)

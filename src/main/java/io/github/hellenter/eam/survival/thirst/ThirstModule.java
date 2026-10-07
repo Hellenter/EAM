@@ -37,6 +37,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.BlockHitResult;
@@ -75,6 +76,8 @@ public final class ThirstModule {
 			Eam.id("filter"),
 			DataComponentType.<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT).build());
 
+	public static final RecipeSerializer<FilterFlaskRecipe> FILTER_FLASK_RECIPE = Registry.register(
+			BuiltInRegistries.RECIPE_SERIALIZER, Eam.id("filter_flask"), FilterFlaskRecipe.SERIALIZER);
 	public static final Holder<MobEffect> FOOD_POISONING = Registry.registerForHolder(
 			BuiltInRegistries.MOB_EFFECT, Eam.id("food_poisoning"), new FoodPoisoningEffect());
 
