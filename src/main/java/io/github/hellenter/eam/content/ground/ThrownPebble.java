@@ -39,7 +39,7 @@ public class ThrownPebble extends ThrowableItemProjectile {
 
 	@Override
 	public void handleEntityEvent(byte id) {
-		if (id == HIT_EVENT) {
+		if (id == HIT_EVENT && !getItem().isEmpty()) {
 			ItemParticleOption particle = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(getItem()));
 			for (int i = 0; i < 8; i++) {
 				level().addParticle(particle, getX(), getY(), getZ(), 0.0, 0.0, 0.0);

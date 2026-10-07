@@ -34,6 +34,7 @@ public final class EamBlocks {
 		return BlockBehaviour.Properties.of()
 				.mapColor(color)
 				.noCollision()
+				.replaceable()
 				.instabreak()
 				.sound(SoundType.STONE)
 				.pushReaction(PushReaction.POPPED);
