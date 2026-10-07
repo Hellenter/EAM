@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,20 +82,24 @@ public class FlaskItem extends Item {
 		return ItemUseAnimation.DRINK;
 	}
 
-	/** Both flasks show how much water is left; the filter state is in the tooltip. */
+	/**
+	 * The vanilla bar under the icon shows the filter like durability; the water level is drawn above the icon on
+	 * the client ({@link FlaskLogic#barWidth}, {@link FlaskLogic#barColor}).
+	 */
 	@Override
 	public boolean isBarVisible(ItemStack flask) {
-		return !flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).isEmpty();
+		Integer filter = flask.get(ThirstModule.FILTER);
+		return filter != null && filter < FlaskLogic.FILTER_USES;
 	}
 
 	@Override
 	public int getBarWidth(ItemStack flask) {
-		return FlaskLogic.barWidth(flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).amount());
+		return Mth.clamp(Math.round(13.0F * flask.getOrDefault(ThirstModule.FILTER, 0) / FlaskLogic.FILTER_USES), 0, 13);
 	}
 
 	@Override
 	public int getBarColor(ItemStack flask) {
-		return FlaskLogic.barColor(flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).amount());
+		return Mth.hsvToRgb(Math.max(0.0F, (float) flask.getOrDefault(ThirstModule.FILTER, 0) / FlaskLogic.FILTER_USES) / 3.0F, 1.0F, 1.0F);
 	}
 
 	@Override
