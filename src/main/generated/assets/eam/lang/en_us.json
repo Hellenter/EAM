@@ -11,5 +11,12 @@
   "gui.eam.nutrient.value": "%s: %s / %s",
   "gui.eam.nutrition.balanced": "Balanced diet: hunger is slower, regeneration is faster",
   "gui.eam.nutrition.unbalanced": "Keep all three at %s or more for a bonus",
-  "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s"
+  "item.eam.filtered_leather_flask": "Leather Flask with Charcoal Filter",
+  "item.eam.flask.filter": "Filter: %s/%s",
+  "item.eam.flask.filter_spent": "Filter is spent",
+  "item.eam.flask.water": "Water: %s/%s",
+  "item.eam.leather_flask": "Leather Flask",
+  "item.eam.leather_thread": "Leather Thread",
+  "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s",
+  "tag.item.eam.flask_threads": "Flask Threads"
 }
