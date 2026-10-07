@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -23,5 +24,12 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(ThirstModule.DIRTY_WATER)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+		builder(EamWorldgen.HAS_SCATTERED_PEBBLES)
+				.forceAddTag(BiomeTags.IS_FOREST)
+				.forceAddTag(BiomeTags.IS_TAIGA)
+				.forceAddTag(BiomeTags.IS_MOUNTAIN)
+				.forceAddTag(BiomeTags.IS_HILL);
+		builder(EamWorldgen.HAS_PEBBLES_NEAR_GRAVEL)
+				.forceAddTag(BiomeTags.IS_OVERWORLD);
 	}
 }

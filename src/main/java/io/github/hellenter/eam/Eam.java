@@ -1,6 +1,9 @@
 package io.github.hellenter.eam;
 
+import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -27,7 +30,10 @@ public class Eam implements ModInitializer {
 		// Registries are filled whatever the config says, so client and server always match.
 		HungerModule.registerTypes();
 		ThirstModule.register();
+		EamBlocks.register();
 		EamItems.register();
+		EamEntities.register();
+		EamWorldgen.init();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.hunger()) HungerModule.init();

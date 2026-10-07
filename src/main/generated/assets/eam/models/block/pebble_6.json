@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        }
+      },
+      "from": [
+        8.5,
+        0.0,
+        4.5
+      ],
+      "to": [
+        11.5,
+        2.0,
+        7.5
+      ]
+    }
+  ],
+  "textures": {
+    "all": "eam:block/pebble",
+    "particle": "eam:block/pebble"
+  }
+}

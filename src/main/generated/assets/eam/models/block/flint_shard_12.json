@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        }
+      },
+      "from": [
+        0.5,
+        0.0,
+        13.0
+      ],
+      "to": [
+        3.5,
+        1.0,
+        15.0
+      ]
+    }
+  ],
+  "textures": {
+    "all": "eam:block/flint_shard",
+    "particle": "eam:block/flint_shard"
+  }
+}

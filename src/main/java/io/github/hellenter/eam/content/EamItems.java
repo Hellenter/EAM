@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
@@ -13,6 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -32,6 +34,13 @@ public final class EamItems {
 			.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
 			.component(ThirstModule.FILTER, FlaskLogic.FILTER_USES));
 
+	/** Thrown like a snowball; sneak-use lays it on the ground. */
+	public static final Item PEBBLE = register("pebble", p -> new PebbleItem(EamBlocks.PEBBLE, p),
+			new Item.Properties().useBlockDescriptionPrefix());
+
+	public static final Item FLINT_SHARD = register("flint_shard", p -> new BlockItem(EamBlocks.FLINT_SHARD, p),
+			new Item.Properties().useBlockDescriptionPrefix());
+
 	/** Thread that stitches a flask: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -43,6 +52,10 @@ public final class EamItems {
 				output.insertAfter(Items.LEATHER, LEATHER_THREAD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(output ->
 				output.insertAfter(Items.MILK_BUCKET, LEATHER_FLASK, FILTERED_LEATHER_FLASK));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.FLINT, PEBBLE, FLINT_SHARD));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
+				output.insertAfter(Items.SNOWBALL, PEBBLE));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

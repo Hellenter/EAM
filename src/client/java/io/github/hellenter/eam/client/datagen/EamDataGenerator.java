@@ -15,6 +15,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamBiomeTagProvider::new);
 		pack.addProvider(EamItemTagProvider::new);
 		pack.addProvider(EamRecipeProvider::new);
+		pack.addProvider(EamBlockLootProvider::new);
+		pack.addProvider(EamWorldgenProvider::new);
 		pack.addProvider(EamModelProvider::new);
 		pack.addProvider(EamThirstSettingsProvider::new);
 		pack.addProvider(EamLanguageProviders.English::new);
@@ -24,5 +26,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void buildRegistry(RegistrySetBuilder registryBuilder) {
 		registryBuilder.add(Registries.DAMAGE_TYPE, EamDamageTypeProvider::bootstrap);
+		registryBuilder.add(Registries.FEATURE, EamWorldgenProvider::bootstrapFeatures);
+		registryBuilder.add(Registries.PLACED_FEATURE, EamWorldgenProvider::bootstrapPlacedFeatures);
 	}
 }

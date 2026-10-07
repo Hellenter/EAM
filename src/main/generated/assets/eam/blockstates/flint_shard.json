@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "position=0": {
+      "model": "eam:block/flint_shard_0"
+    },
+    "position=1": {
+      "model": "eam:block/flint_shard_1"
+    },
+    "position=10": {
+      "model": "eam:block/flint_shard_10"
+    },
+    "position=11": {
+      "model": "eam:block/flint_shard_11"
+    },
+    "position=12": {
+      "model": "eam:block/flint_shard_12"
+    },
+    "position=13": {
+      "model": "eam:block/flint_shard_13"
+    },
+    "position=14": {
+      "model": "eam:block/flint_shard_14"
+    },
+    "position=15": {
+      "model": "eam:block/flint_shard_15"
+    },
+    "position=2": {
+      "model": "eam:block/flint_shard_2"
+    },
+    "position=3": {
+      "model": "eam:block/flint_shard_3"
+    },
+    "position=4": {
+      "model": "eam:block/flint_shard_4"
+    },
+    "position=5": {
+      "model": "eam:block/flint_shard_5"
+    },
+    "position=6": {
+      "model": "eam:block/flint_shard_6"
+    },
+    "position=7": {
+      "model": "eam:block/flint_shard_7"
+    },
+    "position=8": {
+      "model": "eam:block/flint_shard_8"
+    },
+    "position=9": {
+      "model": "eam:block/flint_shard_9"
+    }
+  }
+}
