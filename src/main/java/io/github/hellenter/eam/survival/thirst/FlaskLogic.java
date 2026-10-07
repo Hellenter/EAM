@@ -68,4 +68,12 @@ public final class FlaskLogic {
 		}
 		return color;
 	}
+
+	/**
+	 * Whether a drinking sound plays on this use tick: every 4 ticks once the first ~22% of the drink has passed, like
+	 * vanilla consumables.
+	 */
+	public static boolean isGulpTick(int useTicks, int ticksRemaining) {
+		return useTicks - ticksRemaining > (int) (useTicks * 0.21875F) && ticksRemaining % 4 == 0;
+	}
 }
