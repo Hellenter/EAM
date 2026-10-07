@@ -1,0 +1,4 @@
+{
+  "death.attack.eam.dehydration": "%1$s died of thirst",
+  "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s"
+}

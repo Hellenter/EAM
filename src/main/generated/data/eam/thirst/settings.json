@@ -1,0 +1,13 @@
+{
+  "activity_multiplier": 1.0,
+  "dehydration_damage": 1.0,
+  "dehydration_interval": 80,
+  "exhaustion_per_point": 4.0,
+  "hot_multiplier": 2.0,
+  "hot_temperature": 1.5,
+  "passive_exhaustion": 0.003,
+  "peaceful_refill_interval": 20,
+  "sip_cooldown": 16,
+  "source_sip": 2,
+  "sprint_threshold": 6
+}
