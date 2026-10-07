@@ -54,4 +54,12 @@ class CampFireLogicTest {
 		assertEquals(7, CampFireLogic.sticksDropped(7, false));
 		assertEquals(0, CampFireLogic.sticksDropped(7, true));
 	}
+
+	@Test
+	void sticksBlackenTheLongerTheFireBurns() {
+		assertEquals(CampFireBlock.FRESH, CampFireLogic.charStage(0, SETTINGS));
+		assertEquals(CampFireBlock.FRESH, CampFireLogic.charStage(599, SETTINGS));
+		assertEquals(CampFireBlock.SCORCHED, CampFireLogic.charStage(600, SETTINGS));
+		assertEquals(CampFireBlock.CHARRED, CampFireLogic.charStage(1800, SETTINGS));
+	}
 }

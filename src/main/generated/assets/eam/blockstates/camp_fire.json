@@ -10,16 +10,25 @@
         "model": "eam:block/camp_fire_stick_1"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "1|2|3|4|5|6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_1_lit"
+        "model": "eam:block/camp_fire_stick_1_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "1|2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_1_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "1|2|3|4|5|6|7|8|9"
       }
     },
@@ -28,16 +37,25 @@
         "model": "eam:block/camp_fire_stick_2"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "2|3|4|5|6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_2_lit"
+        "model": "eam:block/camp_fire_stick_2_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "2|3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_2_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "2|3|4|5|6|7|8|9"
       }
     },
@@ -46,16 +64,25 @@
         "model": "eam:block/camp_fire_stick_3"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "3|4|5|6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_3_lit"
+        "model": "eam:block/camp_fire_stick_3_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "3|4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_3_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "3|4|5|6|7|8|9"
       }
     },
@@ -64,16 +91,25 @@
         "model": "eam:block/camp_fire_stick_4"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "4|5|6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_4_lit"
+        "model": "eam:block/camp_fire_stick_4_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "4|5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_4_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "4|5|6|7|8|9"
       }
     },
@@ -82,16 +118,25 @@
         "model": "eam:block/camp_fire_stick_5"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "5|6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_5_lit"
+        "model": "eam:block/camp_fire_stick_5_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "5|6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_5_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "5|6|7|8|9"
       }
     },
@@ -100,16 +145,25 @@
         "model": "eam:block/camp_fire_stick_6"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "6|7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_6_lit"
+        "model": "eam:block/camp_fire_stick_6_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "6|7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_6_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "6|7|8|9"
       }
     },
@@ -118,16 +172,25 @@
         "model": "eam:block/camp_fire_stick_7"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "7|8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_7_lit"
+        "model": "eam:block/camp_fire_stick_7_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "7|8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_7_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "7|8|9"
       }
     },
@@ -136,16 +199,25 @@
         "model": "eam:block/camp_fire_stick_8"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "8|9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_8_lit"
+        "model": "eam:block/camp_fire_stick_8_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "8|9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_8_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "8|9"
       }
     },
@@ -154,16 +226,25 @@
         "model": "eam:block/camp_fire_stick_9"
       },
       "when": {
-        "lit": "false",
+        "char": "0",
         "sticks": "9"
       }
     },
     {
       "apply": {
-        "model": "eam:block/camp_fire_stick_9_lit"
+        "model": "eam:block/camp_fire_stick_9_char_1"
       },
       "when": {
-        "lit": "true",
+        "char": "1",
+        "sticks": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/camp_fire_stick_9_char_2"
+      },
+      "when": {
+        "char": "2",
         "sticks": "9"
       }
     },

@@ -1,7 +1,9 @@
 {
   "burn_ticks": 900,
+  "char_ticks": 1800,
   "cook_ticks": 900,
   "max_charcoal": 16,
+  "scorch_ticks": 600,
   "sticks_per_charcoal": 3,
   "sticks_to_light": 6,
   "ticks_per_stick": 400

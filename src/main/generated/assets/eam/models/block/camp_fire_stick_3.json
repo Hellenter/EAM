@@ -4,22 +4,58 @@
     {
       "faces": {
         "down": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ]
         },
         "east": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            4.0,
+            9.0,
+            16.0
+          ]
         },
         "north": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            4.0,
+            9.0,
+            16.0
+          ]
         },
         "south": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            4.0,
+            9.0,
+            16.0
+          ]
         },
         "up": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ]
         },
         "west": {
-          "texture": "#all"
+          "texture": "#all",
+          "uv": [
+            7.0,
+            4.0,
+            9.0,
+            16.0
+          ]
         }
       },
       "from": [
@@ -45,7 +81,7 @@
     }
   ],
   "textures": {
-    "all": "minecraft:block/campfire_log",
-    "particle": "minecraft:block/campfire_log"
+    "all": "eam:block/camp_fire_stick",
+    "particle": "eam:block/camp_fire_stick"
   }
 }

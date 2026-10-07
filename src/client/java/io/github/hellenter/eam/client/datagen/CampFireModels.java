@@ -17,17 +17,16 @@ import java.util.stream.IntStream;
 
 /**
  * Camp fire models: a ring of stones, up to nine sticks leaning together like a teepee, and flames when lit.
- * Multipart, so each stick shows once the fire holds that many. Uses vanilla campfire and cobblestone textures as
- * placeholders.
+ * Multipart, so each stick shows once the fire holds that many, with the texture of how burnt the sticks are.
  */
 final class CampFireModels {
 	private static final String STONE = "minecraft:block/cobblestone";
-	private static final String LOG = "minecraft:block/campfire_log";
-	private static final String LOG_LIT = "minecraft:block/campfire_log_lit";
+	/** Stick textures by {@link CampFireBlock#CHAR}: fresh wood, scorched, charred black. */
+	private static final String[] STICK = {"eam:block/camp_fire_stick", "eam:block/camp_fire_stick_scorched", "eam:block/camp_fire_stick_charred"};
 	private static final String FIRE = "minecraft:block/campfire_fire";
 
 	private static final int STONES = 8;
-	private static final double STONE_RADIUS = 6.0;
+	private static final double STONE_RADIUS = 6.25;
 	private static final double STICK_LENGTH = 12.0;
 
 	private CampFireModels() {
@@ -44,13 +43,13 @@ final class CampFireModels {
 		for (int stick = 1; stick <= CampFireBlock.MAX_STICKS; stick++) {
 			int index = stick;
 			Integer[] laterCounts = IntStream.rangeClosed(stick + 1, CampFireBlock.MAX_STICKS).boxed().toArray(Integer[]::new);
-			for (boolean lit : new boolean[] {false, true}) {
-				Identifier model = Eam.id("block/camp_fire_stick_" + stick + (lit ? "_lit" : ""));
-				String texture = lit ? LOG_LIT : LOG;
+			for (int stage = CampFireBlock.FRESH; stage <= CampFireBlock.CHARRED; stage++) {
+				Identifier model = Eam.id("block/camp_fire_stick_" + stick + (stage == CampFireBlock.FRESH ? "" : "_char_" + stage));
+				String texture = STICK[stage];
 				generators.modelOutput.accept(model, () -> model(texture, single(stickElement(index))));
 				blockState.with(BlockModelGenerators.condition()
 								.term(CampFireBlock.STICKS, stick, laterCounts)
-								.term(CampFireBlock.LIT, lit),
+								.term(CampFireBlock.CHAR, stage),
 						BlockModelGenerators.plainVariant(model));
 			}
 		}
@@ -67,8 +66,8 @@ final class CampFireModels {
 				elements.add(element);
 			}
 			JsonObject model = model(STONE, elements);
-			model.getAsJsonObject("textures").addProperty("log", LOG);
-			model.getAsJsonObject("textures").addProperty("particle", LOG);
+			model.getAsJsonObject("textures").addProperty("log", STICK[CampFireBlock.FRESH]);
+			model.getAsJsonObject("textures").addProperty("particle", STICK[CampFireBlock.FRESH]);
 			return model;
 		});
 		generators.registerSimpleItemModel(EamItems.CAMP_FIRE, inventory);
@@ -81,9 +80,9 @@ final class CampFireModels {
 			double x = 8 + STONE_RADIUS * Math.cos(Math.toRadians(angle));
 			double z = 8 + STONE_RADIUS * Math.sin(Math.toRadians(angle));
 			// Every other stone is a bit smaller, so the ring looks hand-made.
-			double half = i % 2 == 0 ? 2.0 : 1.5;
-			double height = i % 2 == 0 ? 2.0 : 1.5;
-			JsonObject element = box(x - half, 0, z - 1.5, x + half, height, z + 1.5);
+			double half = i % 2 == 0 ? 1.5 : 1.0;
+			double height = i % 2 == 0 ? 1.5 : 1.0;
+			JsonObject element = box(x - half, 0, z - 1.0, x + half, height, z + 1.0);
 			JsonObject rotation = new JsonObject();
 			rotation.add("origin", vector(x, 0, z));
 			rotation.addProperty("axis", "y");
@@ -112,6 +111,12 @@ final class CampFireModels {
 		double turn = Math.toDegrees(Math.atan2(-Math.cos(Math.toRadians(around)), -Math.sin(Math.toRadians(around))));
 
 		JsonObject element = box(x - 1, 0, z - 1, x + 1, length, z + 1);
+		// Explicit UVs: each side is a 2 pixel wide strip of the stick texture, the ends a 2x2 patch.
+		JsonObject faces = element.getAsJsonObject("faces");
+		for (String face : faces.keySet()) {
+			boolean end = face.equals("up") || face.equals("down");
+			faces.getAsJsonObject(face).add("uv", end ? vector4(7, 7, 9, 9) : vector4(7, 16 - length, 9, 16));
+		}
 		JsonObject rotation = new JsonObject();
 		rotation.add("origin", vector(x, 0, z));
 		rotation.addProperty("x", round(tilt));

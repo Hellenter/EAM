@@ -13,6 +13,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param burnTicks         ticks cooked food may stay on a lit fire before it burns away
  * @param sticksPerCharcoal burnt sticks that make one charcoal
  * @param maxCharcoal       most charcoal one fire drops
+ * @param scorchTicks       ticks a fire has burnt before its sticks look scorched
+ * @param charTicks         ticks a fire has burnt before its sticks look charred black
  */
 public record CampFireSettings(
 		int sticksToLight,
@@ -20,9 +22,11 @@ public record CampFireSettings(
 		int cookTicks,
 		int burnTicks,
 		int sticksPerCharcoal,
-		int maxCharcoal
+		int maxCharcoal,
+		int scorchTicks,
+		int charTicks
 ) {
-	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 400, 900, 900, 3, 16);
+	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 400, 900, 900, 3, 16, 600, 1800);
 
 	public static final Codec<CampFireSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, CampFireBlock.MAX_STICKS).fieldOf("sticks_to_light").orElse(DEFAULT.sticksToLight).forGetter(CampFireSettings::sticksToLight),
@@ -30,6 +34,8 @@ public record CampFireSettings(
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("cook_ticks").orElse(DEFAULT.cookTicks).forGetter(CampFireSettings::cookTicks),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("burn_ticks").orElse(DEFAULT.burnTicks).forGetter(CampFireSettings::burnTicks),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sticks_per_charcoal").orElse(DEFAULT.sticksPerCharcoal).forGetter(CampFireSettings::sticksPerCharcoal),
-			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("max_charcoal").orElse(DEFAULT.maxCharcoal).forGetter(CampFireSettings::maxCharcoal)
+			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("max_charcoal").orElse(DEFAULT.maxCharcoal).forGetter(CampFireSettings::maxCharcoal),
+			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("scorch_ticks").orElse(DEFAULT.scorchTicks).forGetter(CampFireSettings::scorchTicks),
+			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("char_ticks").orElse(DEFAULT.charTicks).forGetter(CampFireSettings::charTicks)
 	).apply(instance, CampFireSettings::new));
 }

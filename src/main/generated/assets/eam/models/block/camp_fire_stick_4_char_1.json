@@ -1,0 +1,87 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ]
+        },
+        "east": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            16.0
+          ]
+        },
+        "north": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            16.0
+          ]
+        },
+        "up": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            7.0,
+            9.0,
+            9.0
+          ]
+        },
+        "west": {
+          "texture": "#all",
+          "uv": [
+            7.0,
+            5.0,
+            9.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        10.447,
+        0.0,
+        9.893
+      ],
+      "rotation": {
+        "origin": [
+          11.447,
+          0.0,
+          10.893
+        ],
+        "x": 27.036,
+        "y": -130.0,
+        "z": 0
+      },
+      "to": [
+        12.447,
+        11.0,
+        11.893
+      ]
+    }
+  ],
+  "textures": {
+    "all": "eam:block/camp_fire_stick_scorched",
+    "particle": "eam:block/camp_fire_stick_scorched"
+  }
+}

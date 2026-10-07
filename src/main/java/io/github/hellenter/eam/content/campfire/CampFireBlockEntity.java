@@ -55,6 +55,8 @@ public class CampFireBlockEntity extends BlockEntity {
 	private final int[] cooked = new int[SLOTS];
 	private int fuelTicks;
 	private int burntSticks;
+	/** Ticks the fire has burnt since it last ran out of sticks; the sticks blacken with it. */
+	private int litTicks;
 
 	public CampFireBlockEntity(BlockPos pos, BlockState state) {
 		super(EamBlockEntities.CAMP_FIRE, pos, state);
@@ -96,13 +98,21 @@ public class CampFireBlockEntity extends BlockEntity {
 		}
 
 		fire.fuelTicks++;
+		fire.litTicks++;
+		int charStage = CampFireLogic.charStage(fire.litTicks, settings);
+		if (charStage != state.getValue(CampFireBlock.CHAR)) {
+			state = state.setValue(CampFireBlock.CHAR, charStage);
+			level.setBlock(pos, state, Block.UPDATE_ALL);
+		}
 		if (CampFireLogic.burnsStick(fire.fuelTicks, settings)) {
 			fire.fuelTicks = 0;
 			fire.burntSticks++;
 			int sticks = Math.max(0, state.getValue(CampFireBlock.STICKS) - 1);
 			BlockState burnt = state.setValue(CampFireBlock.STICKS, sticks);
 			if (sticks == 0) {
-				burnt = burnt.setValue(CampFireBlock.LIT, false);
+				// An empty pit starts over: new sticks put in it are fresh.
+				burnt = burnt.setValue(CampFireBlock.LIT, false).setValue(CampFireBlock.CHAR, CampFireBlock.FRESH);
+				fire.litTicks = 0;
 				level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 1.0F);
 			}
 			level.setBlock(pos, burnt, Block.UPDATE_ALL);
@@ -226,6 +236,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		copyInto(input.getIntArray("Cooked").orElse(new int[0]), cooked);
 		fuelTicks = input.getIntOr("FuelTicks", 0);
 		burntSticks = input.getIntOr("BurntSticks", 0);
+		litTicks = input.getIntOr("LitTicks", 0);
 	}
 
 	private static void copyInto(int[] from, int[] to) {
@@ -241,6 +252,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		output.putIntArray("Cooked", cooked);
 		output.putInt("FuelTicks", fuelTicks);
 		output.putInt("BurntSticks", burntSticks);
+		output.putInt("LitTicks", litTicks);
 	}
 
 	@Override
