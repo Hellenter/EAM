@@ -7,7 +7,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator generator) {
 		FabricDataGenerator.Pack pack = generator.createPack();
-		// Providers are added here as content appears, e.g.:
-		// pack.addProvider(EamRecipeProvider::new);
+		pack.addProvider(EamLanguageProviders.English::new);
+		pack.addProvider(EamLanguageProviders.Russian::new);
 	}
 }
