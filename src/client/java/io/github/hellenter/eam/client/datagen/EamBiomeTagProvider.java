@@ -24,12 +24,14 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(ThirstModule.DIRTY_WATER)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
-		builder(EamWorldgen.HAS_SCATTERED_PEBBLES)
+		builder(EamWorldgen.HAS_FOREST_PEBBLES)
 				.forceAddTag(BiomeTags.IS_FOREST)
-				.forceAddTag(BiomeTags.IS_TAIGA)
+				.forceAddTag(BiomeTags.IS_TAIGA);
+		builder(EamWorldgen.HAS_MOUNTAIN_PEBBLES)
 				.forceAddTag(BiomeTags.IS_MOUNTAIN)
 				.forceAddTag(BiomeTags.IS_HILL);
-		builder(EamWorldgen.HAS_PEBBLES_NEAR_GRAVEL)
+		// Any biome: the feature itself only places sticks under leaves.
+		builder(EamWorldgen.HAS_GROUND_STICKS)
 				.forceAddTag(BiomeTags.IS_OVERWORLD);
 	}
 }

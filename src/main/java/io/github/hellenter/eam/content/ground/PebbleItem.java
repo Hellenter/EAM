@@ -16,6 +16,9 @@ import net.minecraft.world.level.block.Block;
 
 /** Pebble: use throws it like a snowball, sneak-use on a block lays it down. */
 public class PebbleItem extends BlockItem {
+	/** Default delay between throws (the item's use_cooldown component), rounded down to whole ticks: 13 ticks = 650 ms. */
+	public static final float THROW_COOLDOWN_SECONDS = 0.667F;
+
 	public PebbleItem(Block block, Properties properties) {
 		super(block, properties);
 	}

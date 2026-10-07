@@ -29,14 +29,14 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateBlockStateModels(BlockModelGenerators generators) {
 		// Sizes in model pixels: width (x), height, depth (z). Match the shapes in EamBlocks.
-		groundItem(generators, EamBlocks.PEBBLE, 3, 2, 3);
-		groundItem(generators, EamBlocks.FLINT_SHARD, 3, 1, 2);
+		groundItem(generators, EamBlocks.PEBBLE, ModelLocationUtils.getModelLocation(EamBlocks.PEBBLE), 3, 2, 3);
+		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD), 3, 1, 2);
+		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"), 4, 1, 1);
 		CampFireModels.generate(generators);
 	}
 
 	/** One small box per position on the top face; the block state picks the model by position. */
-	private static void groundItem(BlockModelGenerators generators, Block block, double sizeX, double height, double sizeZ) {
-		Identifier texture = ModelLocationUtils.getModelLocation(block); // eam:block/<id>, same path as the texture
+	private static void groundItem(BlockModelGenerators generators, Block block, Identifier texture, double sizeX, double height, double sizeZ) {
 		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(
 				PropertyDispatch.initial(GroundItemBlock.POSITION).generate(position -> {
 					Identifier model = ModelLocationUtils.getModelLocation(block, "_" + position);

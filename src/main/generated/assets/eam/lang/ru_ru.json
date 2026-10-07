@@ -2,6 +2,7 @@
   "block.eam.camp_fire": "Походный костёр",
   "block.eam.camp_fire.needs_sticks": "Чтобы разжечь костёр, положите в него не меньше %s палок",
   "block.eam.flint_shard": "Осколок кремня",
+  "block.eam.ground_stick": "Палка",
   "block.eam.pebble": "Камушек",
   "death.attack.eam.dehydration": "%1$s умер от жажды",
   "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",

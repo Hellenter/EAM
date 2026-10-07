@@ -35,6 +35,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.filter_spent", "Filter is spent");
 			builder.add(EamBlocks.PEBBLE, "Pebble");
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
+			builder.add(EamBlocks.GROUND_STICK, "Stick");
 			builder.add(EamBlocks.CAMP_FIRE, "Camp Fire");
 			builder.add("block.eam.camp_fire.needs_sticks", "Put at least %s sticks on the fire to light it");
 			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
@@ -71,6 +72,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
 			builder.add(EamBlocks.PEBBLE, "Камушек");
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
+			builder.add(EamBlocks.GROUND_STICK, "Палка");
 			builder.add(EamBlocks.CAMP_FIRE, "Походный костёр");
 			builder.add("block.eam.camp_fire.needs_sticks", "Чтобы разжечь костёр, положите в него не меньше %s палок");
 			builder.add(CampFireModule.IGNITERS, "Растопка для костра");

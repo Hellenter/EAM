@@ -2,6 +2,7 @@
   "block.eam.camp_fire": "Camp Fire",
   "block.eam.camp_fire.needs_sticks": "Put at least %s sticks on the fire to light it",
   "block.eam.flint_shard": "Flint Shard",
+  "block.eam.ground_stick": "Stick",
   "block.eam.pebble": "Pebble",
   "death.attack.eam.dehydration": "%1$s died of thirst",
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",

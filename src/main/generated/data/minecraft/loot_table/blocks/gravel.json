@@ -1,0 +1,60 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "condition": "minecraft:tool/can_silk_touch",
+              "name": "minecraft:gravel"
+            },
+            {
+              "type": "minecraft:alternatives",
+              "children": [
+                {
+                  "type": "minecraft:item",
+                  "condition": {
+                    "type": "minecraft:table_bonus",
+                    "chances": [
+                      0.016666668,
+                      0.023809524,
+                      0.041666668,
+                      0.16666667
+                    ],
+                    "enchantment": "minecraft:fortune"
+                  },
+                  "name": "minecraft:flint"
+                },
+                {
+                  "type": "minecraft:item",
+                  "condition": {
+                    "type": "minecraft:table_bonus",
+                    "chances": [
+                      0.1,
+                      0.14285715,
+                      0.25,
+                      1.0
+                    ],
+                    "enchantment": "minecraft:fortune"
+                  },
+                  "name": "eam:flint_shard"
+                },
+                {
+                  "type": "minecraft:item",
+                  "name": "minecraft:gravel"
+                }
+              ],
+              "condition": {
+                "type": "minecraft:survives_explosion"
+              }
+            }
+          ]
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

@@ -20,28 +20,31 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 public final class EamWorldgen {
 	public static final ResourceKey<Feature> PEBBLE = feature("pebble");
 	public static final ResourceKey<Feature> FLINT_SHARD = feature("flint_shard");
+	public static final ResourceKey<Feature> GROUND_STICK = feature("ground_stick");
 
-	/** Pebbles scattered in forests and mountains. */
-	public static final ResourceKey<PlacedFeature> PEBBLE_SCATTERED = placed("pebble_scattered");
-	/** Pebbles next to surface gravel, in any overworld biome. */
-	public static final ResourceKey<PlacedFeature> PEBBLE_NEAR_GRAVEL = placed("pebble_near_gravel");
-	public static final ResourceKey<PlacedFeature> FLINT_SHARD_SCATTERED = placed("flint_shard_scattered");
-	public static final ResourceKey<PlacedFeature> FLINT_SHARD_NEAR_GRAVEL = placed("flint_shard_near_gravel");
+	/** Pebbles on the forest floor. */
+	public static final ResourceKey<PlacedFeature> PEBBLE_FOREST = placed("pebble_forest");
+	public static final ResourceKey<PlacedFeature> FLINT_SHARD_FOREST = placed("flint_shard_forest");
+	/** Pebbles on stone and gravel in the mountains. */
+	public static final ResourceKey<PlacedFeature> PEBBLE_MOUNTAIN = placed("pebble_mountain");
+	public static final ResourceKey<PlacedFeature> FLINT_SHARD_MOUNTAIN = placed("flint_shard_mountain");
+	/** Sticks on the ground under tree crowns. */
+	public static final ResourceKey<PlacedFeature> GROUND_STICK_UNDER_TREES = placed("ground_stick_under_trees");
 
-	/** Biomes with scattered pebbles and flint shards: forests and mountains. */
-	public static final TagKey<Biome> HAS_SCATTERED_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_scattered_pebbles"));
-	/** Biomes where pebbles and flint shards lie next to surface gravel. */
-	public static final TagKey<Biome> HAS_PEBBLES_NEAR_GRAVEL = TagKey.create(Registries.BIOME, Eam.id("has_pebbles_near_gravel"));
+	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
+	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));
+	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
 
 	private EamWorldgen() {
 	}
 
 	public static void init() {
 		GenerationStep.Decoration step = GenerationStep.Decoration.VEGETAL_DECORATION;
-		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SCATTERED_PEBBLES), step, PEBBLE_SCATTERED);
-		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SCATTERED_PEBBLES), step, FLINT_SHARD_SCATTERED);
-		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_PEBBLES_NEAR_GRAVEL), step, PEBBLE_NEAR_GRAVEL);
-		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_PEBBLES_NEAR_GRAVEL), step, FLINT_SHARD_NEAR_GRAVEL);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_FOREST_PEBBLES), step, PEBBLE_FOREST);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_FOREST_PEBBLES), step, FLINT_SHARD_FOREST);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_PEBBLES), step, PEBBLE_MOUNTAIN);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_PEBBLES), step, FLINT_SHARD_MOUNTAIN);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_UNDER_TREES);
 	}
 
 	private static ResourceKey<Feature> feature(String name) {
