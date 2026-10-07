@@ -1,0 +1,18 @@
+{
+	"base_max_food": 6,
+	"max_food_step": 2,
+	"levels_per_step": 5,
+	"max_food_cap": 20,
+	"exhaustion_per_point": 4.0,
+	"passive_exhaustion": 0.0025,
+	"regen_interval_ticks": 600,
+	"regen_min_food": 1,
+	"regen_exhaustion": 4.0,
+	"starvation_interval_ticks": 80,
+	"starvation_damage": 1.0,
+	"starting_nutrients": 50,
+	"nutrient_decay": 2,
+	"balance_threshold": 70,
+	"balanced_hunger_factor": 2.0,
+	"balanced_regen_factor": 1.5
+}

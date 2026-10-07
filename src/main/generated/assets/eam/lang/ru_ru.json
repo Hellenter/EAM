@@ -1,5 +1,15 @@
 {
   "death.attack.eam.dehydration": "%1$s умер от жажды",
   "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",
-  "effect.eam.food_poisoning": "Пищевое отравление"
+  "effect.eam.food_poisoning": "Пищевое отравление",
+  "gui.eam.nutrient.carbs": "Углеводы",
+  "gui.eam.nutrient.carbs.short": "У",
+  "gui.eam.nutrient.fat": "Жиры",
+  "gui.eam.nutrient.fat.short": "Ж",
+  "gui.eam.nutrient.protein": "Белки",
+  "gui.eam.nutrient.protein.short": "Б",
+  "gui.eam.nutrient.value": "%s: %s / %s",
+  "gui.eam.nutrition.balanced": "Питание сбалансировано: голод медленнее, регенерация быстрее",
+  "gui.eam.nutrition.unbalanced": "Держите все три шкалы на %s или выше для бонуса",
+  "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s"
 }

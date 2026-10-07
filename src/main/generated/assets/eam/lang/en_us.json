@@ -1,5 +1,15 @@
 {
   "death.attack.eam.dehydration": "%1$s died of thirst",
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",
-  "effect.eam.food_poisoning": "Food Poisoning"
+  "effect.eam.food_poisoning": "Food Poisoning",
+  "gui.eam.nutrient.carbs": "Carbs",
+  "gui.eam.nutrient.carbs.short": "C",
+  "gui.eam.nutrient.fat": "Fat",
+  "gui.eam.nutrient.fat.short": "F",
+  "gui.eam.nutrient.protein": "Protein",
+  "gui.eam.nutrient.protein.short": "P",
+  "gui.eam.nutrient.value": "%s: %s / %s",
+  "gui.eam.nutrition.balanced": "Balanced diet: hunger is slower, regeneration is faster",
+  "gui.eam.nutrition.unbalanced": "Keep all three at %s or more for a bonus",
+  "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s"
 }
