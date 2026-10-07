@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "position=0": {
+      "model": "eam:block/pebble_0"
+    },
+    "position=1": {
+      "model": "eam:block/pebble_1"
+    },
+    "position=10": {
+      "model": "eam:block/pebble_10"
+    },
+    "position=11": {
+      "model": "eam:block/pebble_11"
+    },
+    "position=12": {
+      "model": "eam:block/pebble_12"
+    },
+    "position=13": {
+      "model": "eam:block/pebble_13"
+    },
+    "position=14": {
+      "model": "eam:block/pebble_14"
+    },
+    "position=15": {
+      "model": "eam:block/pebble_15"
+    },
+    "position=2": {
+      "model": "eam:block/pebble_2"
+    },
+    "position=3": {
+      "model": "eam:block/pebble_3"
+    },
+    "position=4": {
+      "model": "eam:block/pebble_4"
+    },
+    "position=5": {
+      "model": "eam:block/pebble_5"
+    },
+    "position=6": {
+      "model": "eam:block/pebble_6"
+    },
+    "position=7": {
+      "model": "eam:block/pebble_7"
+    },
+    "position=8": {
+      "model": "eam:block/pebble_8"
+    },
+    "position=9": {
+      "model": "eam:block/pebble_9"
+    }
+  }
+}

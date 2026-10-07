@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -30,6 +32,9 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Filter is spent");
+			builder.add(EamBlocks.PEBBLE, "Pebble");
+			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
+			builder.add(EamEntities.PEBBLE, "Pebble");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
 			builder.add("gui.eam.nutrient.fat", "Fat");
@@ -60,6 +65,9 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
+			builder.add(EamBlocks.PEBBLE, "Камушек");
+			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
+			builder.add(EamEntities.PEBBLE, "Камушек");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");
 			builder.add("gui.eam.nutrient.fat", "Жиры");

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:flint_shard",
+    "eam:flint_shard",
+    "eam:flint_shard",
+    "eam:flint_shard"
+  ],
+  "result": {
+    "id": "minecraft:flint"
+  }
+}

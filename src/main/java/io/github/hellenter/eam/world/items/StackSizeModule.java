@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.world.items;
 
+import io.github.hellenter.eam.content.ground.GroundItemBlock;
+
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
 import net.minecraft.core.component.DataComponents;
@@ -50,8 +52,10 @@ public final class StackSizeModule {
 		return StackSizeLogic.stackMaxStackSize(contents != null && contents.is(Potions.WATER), current);
 	}
 
+	/** Loose ground items (pebbles, flint shards) place a block but stack as small items. */
 	private static boolean placesSameNamedBlock(Item item) {
 		return item instanceof BlockItem blockItem
+				&& !(blockItem.getBlock() instanceof GroundItemBlock)
 				&& BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).equals(BuiltInRegistries.ITEM.getKey(item));
 	}
 }
