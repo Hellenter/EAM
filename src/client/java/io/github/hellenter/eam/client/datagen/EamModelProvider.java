@@ -28,21 +28,20 @@ public class EamModelProvider extends FabricModelProvider {
 
 	@Override
 	public void generateBlockStateModels(BlockModelGenerators generators) {
-		// Sizes in model pixels: width (x), height, depth (z). Match the shapes in EamBlocks.
-		groundItem(generators, EamBlocks.PEBBLE, ModelLocationUtils.getModelLocation(EamBlocks.PEBBLE), 3, 2, 3);
-		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD), 3, 1, 2);
-		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"), 4, 1, 1);
+		groundItem(generators, EamBlocks.PEBBLE, ModelLocationUtils.getModelLocation(EamBlocks.PEBBLE));
+		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD));
+		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
 	}
 
-	/** One small box per position on the top face; the block state picks the model by position. */
-	private static void groundItem(BlockModelGenerators generators, Block block, Identifier texture, double sizeX, double height, double sizeZ) {
+	/** One box per position on the top face, from the block's own shape; the block state picks the model by position. */
+	private static void groundItem(BlockModelGenerators generators, Block block, Identifier texture) {
+		GroundItemLogic.Shape shape = ((GroundItemBlock) block).shape();
 		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(
 				PropertyDispatch.initial(GroundItemBlock.POSITION).generate(position -> {
 					Identifier model = ModelLocationUtils.getModelLocation(block, "_" + position);
-					double x = GroundItemLogic.minX(position, sizeX);
-					double z = GroundItemLogic.minZ(position, sizeZ);
-					generators.modelOutput.accept(model, () -> boxModel(texture, x, height, z, x + sizeX, z + sizeZ));
+					GroundItemLogic.Box box = shape.at(position);
+					generators.modelOutput.accept(model, () -> boxModel(texture, box.minX(), box.height(), box.minZ(), box.maxX(), box.maxZ()));
 					return BlockModelGenerators.plainVariant(model);
 				})));
 	}

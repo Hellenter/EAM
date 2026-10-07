@@ -28,4 +28,12 @@ class GroundItemLogicTest {
 		assertEquals(1.0, GroundItemLogic.minZ(0, 2));
 		assertEquals(13.0, GroundItemLogic.minZ(15, 2));
 	}
+
+	@Test
+	void fullLengthItemSpansTheBlockAndTurnsEveryOtherPosition() {
+		GroundItemLogic.Shape stick = GroundItemLogic.fullLength(1, 1);
+		assertEquals(new GroundItemLogic.Box(0, 1.5, 16, 2.5, 1), stick.at(0));
+		assertEquals(new GroundItemLogic.Box(1.5, 0, 2.5, 16, 1), stick.at(1));
+		assertEquals(new GroundItemLogic.Box(0, 13.5, 16, 14.5, 1), stick.at(14));
+	}
 }
