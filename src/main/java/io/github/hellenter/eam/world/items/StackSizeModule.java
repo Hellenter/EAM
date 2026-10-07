@@ -8,7 +8,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 
 /**
- * Lowers default stack sizes MITE-style by editing the {@code max_stack_size} item component.
+ * Changes default stack sizes MITE-style by editing the {@code max_stack_size} item component.
  * The rules are in {@link StackSizeLogic}.
  */
 public final class StackSizeModule {
