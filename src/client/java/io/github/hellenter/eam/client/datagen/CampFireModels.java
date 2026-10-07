@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
-import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -56,21 +55,7 @@ final class CampFireModels {
 		blockState.with(BlockModelGenerators.condition().term(CampFireBlock.LIT, true), BlockModelGenerators.plainVariant(fire));
 		generators.blockStateOutput.accept(blockState);
 
-		// The item looks like a freshly placed fire: the ring and three sticks.
-		Identifier inventory = Eam.id("block/camp_fire_inventory");
-		generators.modelOutput.accept(inventory, () -> {
-			JsonArray elements = ringElements();
-			for (int stick = 1; stick <= CampFireBlock.PLACED_STICKS; stick++) {
-				JsonObject element = stickElement(stick);
-				retexture(element, "#log");
-				elements.add(element);
-			}
-			JsonObject model = model(STONE, elements);
-			model.getAsJsonObject("textures").addProperty("log", STICK[CampFireBlock.FRESH]);
-			model.getAsJsonObject("textures").addProperty("particle", STICK[CampFireBlock.FRESH]);
-			return model;
-		});
-		generators.registerSimpleItemModel(EamItems.CAMP_FIRE, inventory);
+		// The item uses Maxim's flat icon, eam:item/camp_fire; see EamModelProvider.
 	}
 
 	private static JsonArray ringElements() {
@@ -165,13 +150,6 @@ final class CampFireModels {
 		element.add("to", vector(x2, y2, z2));
 		element.add("faces", faces);
 		return element;
-	}
-
-	private static void retexture(JsonObject element, String texture) {
-		JsonObject faces = element.getAsJsonObject("faces");
-		for (String face : faces.keySet()) {
-			faces.getAsJsonObject(face).addProperty("texture", texture);
-		}
 	}
 
 	private static JsonArray single(JsonObject element) {

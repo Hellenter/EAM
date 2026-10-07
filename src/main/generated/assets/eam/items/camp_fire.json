@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "eam:block/camp_fire_inventory"
+    "model": "eam:item/camp_fire"
   }
 }
