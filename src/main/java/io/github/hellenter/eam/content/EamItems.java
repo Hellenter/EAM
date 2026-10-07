@@ -41,6 +41,9 @@ public final class EamItems {
 	public static final Item FLINT_SHARD = register("flint_shard", p -> new BlockItem(EamBlocks.FLINT_SHARD, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
+	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
+			new Item.Properties().useBlockDescriptionPrefix());
+
 	/** Thread that stitches a flask: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -56,6 +59,8 @@ public final class EamItems {
 				output.insertAfter(Items.FLINT, PEBBLE, FLINT_SHARD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
 				output.insertAfter(Items.SNOWBALL, PEBBLE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
+				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

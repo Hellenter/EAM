@@ -1,4 +1,6 @@
 {
+  "block.eam.camp_fire": "Походный костёр",
+  "block.eam.camp_fire.needs_sticks": "Чтобы разжечь костёр, положите в него не меньше %s палок",
   "block.eam.flint_shard": "Осколок кремня",
   "block.eam.pebble": "Камушек",
   "death.attack.eam.dehydration": "%1$s умер от жажды",
@@ -21,5 +23,6 @@
   "item.eam.leather_flask": "Кожаная фляга",
   "item.eam.leather_thread": "Кожаная нить",
   "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s",
+  "tag.item.eam.camp_fire_igniters": "Растопка для костра",
   "tag.item.eam.flask_threads": "Нити для фляги"
 }

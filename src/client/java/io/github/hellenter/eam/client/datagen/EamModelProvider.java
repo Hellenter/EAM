@@ -31,6 +31,7 @@ public class EamModelProvider extends FabricModelProvider {
 		// Sizes in model pixels: width (x), height, depth (z). Match the shapes in EamBlocks.
 		groundItem(generators, EamBlocks.PEBBLE, 3, 2, 3);
 		groundItem(generators, EamBlocks.FLINT_SHARD, 3, 1, 2);
+		CampFireModels.generate(generators);
 	}
 
 	/** One small box per position on the top face; the block state picks the model by position. */

@@ -1,6 +1,8 @@
 package io.github.hellenter.eam;
 
+import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamWorldgen;
@@ -31,9 +33,11 @@ public class Eam implements ModInitializer {
 		HungerModule.registerTypes();
 		ThirstModule.register();
 		EamBlocks.register();
+		EamBlockEntities.register();
 		EamItems.register();
 		EamEntities.register();
 		EamWorldgen.init();
+		CampFireModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.hunger()) HungerModule.init();

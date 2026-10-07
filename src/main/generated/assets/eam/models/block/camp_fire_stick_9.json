@@ -1,0 +1,51 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        }
+      },
+      "from": [
+        10.83,
+        0.0,
+        3.786
+      ],
+      "rotation": {
+        "origin": [
+          11.83,
+          0.0,
+          4.786
+        ],
+        "x": 33.367,
+        "y": -50.0,
+        "z": 0
+      },
+      "to": [
+        12.83,
+        10.0,
+        5.786
+      ]
+    }
+  ],
+  "textures": {
+    "all": "minecraft:block/campfire_log",
+    "particle": "minecraft:block/campfire_log"
+  }
+}
