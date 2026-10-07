@@ -80,4 +80,16 @@ class FlaskLogicTest {
 	private static int brightness(int rgb) {
 		return (rgb >> 16 & 0xFF) + (rgb >> 8 & 0xFF) + (rgb & 0xFF);
 	}
+
+	@Test
+	void gulpsDuringTheDrinkNotOnlyAtTheEnd() {
+		int gulps = 0;
+		for (int remaining = 24; remaining > 0; remaining--) {
+			if (FlaskLogic.isGulpTick(24, remaining)) {
+				gulps++;
+			}
+		}
+		assertEquals(4, gulps);
+		assertFalse(FlaskLogic.isGulpTick(24, 24));
+	}
 }

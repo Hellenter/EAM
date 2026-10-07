@@ -72,6 +72,14 @@ public class FlaskItem extends Item {
 		return flask;
 	}
 
+	/** Gulping sounds while drinking, on the same cadence as vanilla potions. */
+	@Override
+	public void onUseTick(Level level, LivingEntity user, ItemStack flask, int ticksRemaining) {
+		if (FlaskLogic.isGulpTick(DRINK_TICKS, ticksRemaining)) {
+			user.playSound(SoundEvents.GENERIC_DRINK.value(), 0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
+		}
+	}
+
 	@Override
 	public int getUseDuration(ItemStack flask, LivingEntity user) {
 		return DRINK_TICKS;
