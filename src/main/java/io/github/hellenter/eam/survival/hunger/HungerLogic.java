@@ -14,8 +14,11 @@ public final class HungerLogic {
 	public record FoodState(int food, float saturation, float exhaustion, int tickTimer) {
 	}
 
-	/** What the tick needs to know about the player and the world. */
-	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced) {
+	/**
+	 * What the tick needs to know about the player and the world. During the {@code grace} period after spawning,
+	 * hunger does not drain: all exhaustion is dropped.
+	 */
+	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean grace) {
 	}
 
 	/**
@@ -23,13 +26,6 @@ public final class HungerLogic {
 	 * {@code pointSpent} is true when exhaustion used up a point of saturation or food, which also drains nutrients.
 	 */
 	public record TickResult(FoodState state, float heal, float starvationDamage, boolean pointSpent) {
-	}
-
-	/** Food bar size: grows with the XP level, as in MITE. */
-	public static int maxFood(int xpLevel, HungerRules rules) {
-		int steps = Math.max(xpLevel, 0) / rules.levelsPerStep();
-		long size = rules.baseMaxFood() + (long) steps * rules.maxFoodStep();
-		return (int) Math.min(size, rules.maxFoodCap());
 	}
 
 	public static boolean needsFood(int food, int maxFood) {
@@ -49,7 +45,7 @@ public final class HungerLogic {
 	public static TickResult tick(FoodState in, TickContext context, HungerRules rules) {
 		int food = Math.min(in.food(), context.maxFood());
 		float saturation = Math.min(in.saturation(), food);
-		float exhaustion = in.exhaustion() + rules.passiveExhaustion();
+		float exhaustion = context.grace() ? 0.0F : in.exhaustion() + rules.passiveExhaustion();
 		int timer = in.tickTimer();
 		float perPoint = rules.exhaustionPerPoint() * (context.balanced() ? rules.balancedHungerFactor() : 1.0F);
 		int regenInterval = context.balanced()
@@ -89,7 +85,7 @@ public final class HungerLogic {
 	}
 
 	/** Adds a food's nutrients, each capped at {@link Nutrition#MAX}. */
-	public static Nutrition eat(Nutrition current, int protein, int fat, int carbs) {
+	public static Nutrition eat(Nutrition current, float protein, float fat, float carbs) {
 		return new Nutrition(
 				clamp(current.protein() + protein),
 				clamp(current.fat() + fat),
@@ -98,7 +94,7 @@ public final class HungerLogic {
 	}
 
 	/** Lowers every nutrient by {@code amount}, not below zero. */
-	public static Nutrition decay(Nutrition current, int amount) {
+	public static Nutrition decay(Nutrition current, float amount) {
 		return eat(current, -amount, -amount, -amount);
 	}
 
@@ -107,7 +103,7 @@ public final class HungerLogic {
 		return nutrition.protein() >= threshold && nutrition.fat() >= threshold && nutrition.carbs() >= threshold;
 	}
 
-	private static int clamp(int value) {
-		return Math.clamp(value, 0, Nutrition.MAX);
+	private static float clamp(float value) {
+		return Math.clamp(value, 0.0F, Nutrition.MAX);
 	}
 }

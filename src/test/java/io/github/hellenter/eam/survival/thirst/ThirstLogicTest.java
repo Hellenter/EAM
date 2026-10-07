@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 class ThirstLogicTest {
 	private static final ThirstSettings SETTINGS = ThirstSettings.DEFAULT;
-	private static final ThirstLogic.Environment NORMAL = new ThirstLogic.Environment(false, false, false);
-	private static final ThirstLogic.Environment HOT = new ThirstLogic.Environment(false, true, false);
-	private static final ThirstLogic.Environment POISONED = new ThirstLogic.Environment(false, false, true);
-	private static final ThirstLogic.Environment PEACEFUL = new ThirstLogic.Environment(true, false, false);
+	private static final ThirstLogic.Environment NORMAL = new ThirstLogic.Environment(false, false, false, false);
+	private static final ThirstLogic.Environment HOT = new ThirstLogic.Environment(false, true, false, false);
+	private static final ThirstLogic.Environment POISONED = new ThirstLogic.Environment(false, false, true, false);
+	private static final ThirstLogic.Environment PEACEFUL = new ThirstLogic.Environment(true, false, false, false);
 
 	@Test
 	void passiveDrainCostsOnePointPerThreshold() {
@@ -83,8 +83,10 @@ class ThirstLogicTest {
 
 	@Test
 	void sprintNeedsMoreThanThreshold() {
-		assertFalse(ThirstLogic.canSprint(new Thirst(Thirst.SPRINT_THRESHOLD)));
-		assertTrue(ThirstLogic.canSprint(new Thirst(Thirst.SPRINT_THRESHOLD + 1)));
+		assertFalse(ThirstLogic.canSprint(new Thirst(6)));
+		assertTrue(ThirstLogic.canSprint(new Thirst(7)));
+		assertFalse(ThirstLogic.canSprint(new Thirst(1, 6)));
+		assertTrue(ThirstLogic.canSprint(new Thirst(2, 6)));
 	}
 
 	@Test
@@ -129,5 +131,29 @@ class ThirstLogicTest {
 	void poisoningDrainsThirst() {
 		ThirstCounters counters = ThirstLogic.addPoisoning(ThirstCounters.ZERO, SETTINGS);
 		assertEquals(SETTINGS.poisoning().thirstExhaustion(), counters.exhaustion(), 1.0E-6F);
+	}
+
+	@Test
+	void gracePeriodStopsThirst() {
+		ThirstLogic.Environment grace = new ThirstLogic.Environment(false, true, false, true);
+		Thirst thirst = new Thirst(10);
+		ThirstCounters counters = ThirstCounters.ZERO.withExhaustion(7.9F);
+		for (int i = 0; i < 10_000; i++) {
+			ThirstLogic.TickResult result = ThirstLogic.tick(thirst, counters, SETTINGS, grace);
+			thirst = result.thirst();
+			counters = result.counters();
+		}
+		assertEquals(10, thirst.water());
+		assertEquals(0.0F, counters.exhaustion());
+	}
+
+	@Test
+	void waterBarFollowsItsSize() {
+		Thirst small = Thirst.full().withMax(6);
+		assertEquals(6, small.water());
+		assertTrue(small.isFull());
+		assertEquals(6, small.add(5).water());
+		assertEquals(6, small.withMax(8).water());
+		assertFalse(small.withMax(8).isFull());
 	}
 }
