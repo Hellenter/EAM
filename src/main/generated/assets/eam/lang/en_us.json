@@ -1,0 +1,12 @@
+{
+  "gui.eam.nutrient.carbs": "Carbs",
+  "gui.eam.nutrient.carbs.short": "C",
+  "gui.eam.nutrient.fat": "Fat",
+  "gui.eam.nutrient.fat.short": "F",
+  "gui.eam.nutrient.protein": "Protein",
+  "gui.eam.nutrient.protein.short": "P",
+  "gui.eam.nutrient.value": "%s: %s / %s",
+  "gui.eam.nutrition.balanced": "Balanced diet: hunger is slower, regeneration is faster",
+  "gui.eam.nutrition.unbalanced": "Keep all three at %s or more for a bonus",
+  "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s"
+}
