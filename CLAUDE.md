@@ -9,7 +9,7 @@ https://claude.ai/code/artifact/8f7d07be-d5a5-4a64-94f2-e52552ec5d37
 
 ## Stack
 
-- Minecraft 26.3, Java 25, Fabric Loader 0.19.5, Fabric API 0.161.0+26.3, Loom 1.18-SNAPSHOT, Gradle 9.5.1.
+- Minecraft 26.3, Java 25, Fabric Loader 0.19.5, Fabric API 0.161.0+26.3, Loom 1.18-SNAPSHOT, Gradle 9.7.0.
 - Minecraft is unobfuscated since 26.1: use official Mojang class and method names. There are no mappings
   (Yarn is discontinued). Dependencies use `implementation`, not `modImplementation`.
 - Versions live in `gradle.properties`; check https://fabricmc.net/develop before bumping.
