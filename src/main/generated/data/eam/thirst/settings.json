@@ -7,6 +7,14 @@
   "hot_temperature": 1.5,
   "passive_exhaustion": 0.003,
   "peaceful_refill_interval": 20,
+  "poisoning": {
+    "chance": 0.4,
+    "dirty_water_chance": 0.6,
+    "duration": 600,
+    "food_exhaustion": 0.02,
+    "immunity": 6000,
+    "thirst_exhaustion": 0.03
+  },
   "sip_cooldown": 16,
   "source_sip": 2
 }

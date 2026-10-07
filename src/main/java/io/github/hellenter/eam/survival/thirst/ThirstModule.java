@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,12 +25,16 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -54,6 +59,12 @@ public final class ThirstModule {
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Eam.id("hydration"),
 			DataComponentType.<Hydration>builder().persistent(Hydration.CODEC).networkSynchronized(Hydration.STREAM_CODEC).build());
+
+	public static final Holder<MobEffect> FOOD_POISONING = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, Eam.id("food_poisoning"), new FoodPoisoningEffect());
+
+	/** Biomes whose water poisons more often (jungles, swamps). */
+	public static final TagKey<Biome> DIRTY_WATER = TagKey.create(Registries.BIOME, Eam.id("dirty_water"));
 
 	public static final ResourceKey<DamageType> DEHYDRATION = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("dehydration"));
 
@@ -119,7 +130,8 @@ public final class ThirstModule {
 		ServerLevel level = player.level();
 		ThirstLogic.Environment environment = new ThirstLogic.Environment(
 				level.getDifficulty() == Difficulty.PEACEFUL,
-				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature());
+				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature(),
+				player.hasEffect(FOOD_POISONING));
 
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
 		ThirstLogic.TickResult result = ThirstLogic.tick(thirst, player.getAttachedOrCreate(COUNTERS), settings, environment);
@@ -151,6 +163,16 @@ public final class ThirstModule {
 		return off || thirst == null || player.getAbilities().mayfly || ThirstLogic.canSprint(thirst);
 	}
 
+	/** One tick of food poisoning: costs water and food. */
+	static void poisoningTick(ServerPlayer player) {
+		if (!enabled || player.getAbilities().invulnerable) {
+			return;
+		}
+		ThirstSettings settings = ThirstModule.settings;
+		player.setAttached(COUNTERS, ThirstLogic.addPoisoning(player.getAttachedOrCreate(COUNTERS), settings));
+		player.getFoodData().addExhaustion(settings.poisoning().foodExhaustion());
+	}
+
 	static void drink(ServerPlayer player, int water) {
 		if (enabled) {
 			player.setAttached(THIRST, player.getAttachedOrCreate(THIRST).add(water));
@@ -176,5 +198,10 @@ public final class ThirstModule {
 		player.setAttached(COUNTERS, counters.withSipCooldown(settings.sipCooldown()));
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS,
 				0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
+
+		boolean dirtyWater = level.getBiome(hit.getBlockPos()).is(DIRTY_WATER);
+		if (ThirstLogic.poisonsOnSip(counters, settings, dirtyWater, level.getRandom().nextFloat())) {
+			player.addEffect(new MobEffectInstance(FOOD_POISONING, settings.poisoning().duration()));
+		}
 	}
 }

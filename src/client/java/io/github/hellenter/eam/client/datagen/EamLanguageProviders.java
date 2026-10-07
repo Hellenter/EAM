@@ -20,6 +20,7 @@ public final class EamLanguageProviders {
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
 			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
 			builder.add("death.attack.eam.dehydration.player", "%1$s died of thirst while fighting %2$s");
+			builder.add("effect.eam.food_poisoning", "Food Poisoning");
 		}
 	}
 
@@ -32,6 +33,7 @@ public final class EamLanguageProviders {
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
 			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
 			builder.add("death.attack.eam.dehydration.player", "%1$s умер от жажды, сражаясь с %2$s");
+			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
 		}
 	}
 }

@@ -8,9 +8,10 @@ import org.junit.jupiter.api.Test;
 
 class ThirstLogicTest {
 	private static final ThirstSettings SETTINGS = ThirstSettings.DEFAULT;
-	private static final ThirstLogic.Environment NORMAL = new ThirstLogic.Environment(false, false);
-	private static final ThirstLogic.Environment HOT = new ThirstLogic.Environment(false, true);
-	private static final ThirstLogic.Environment PEACEFUL = new ThirstLogic.Environment(true, false);
+	private static final ThirstLogic.Environment NORMAL = new ThirstLogic.Environment(false, false, false);
+	private static final ThirstLogic.Environment HOT = new ThirstLogic.Environment(false, true, false);
+	private static final ThirstLogic.Environment POISONED = new ThirstLogic.Environment(false, false, true);
+	private static final ThirstLogic.Environment PEACEFUL = new ThirstLogic.Environment(true, false, false);
 
 	@Test
 	void passiveDrainCostsOnePointPerThreshold() {
@@ -29,7 +30,7 @@ class ThirstLogicTest {
 
 	@Test
 	void heatDrainsFaster() {
-		ThirstCounters counters = new ThirstCounters(1.0F, 0, 0);
+		ThirstCounters counters = new ThirstCounters(1.0F, 0, 0, 0);
 		float normal = ThirstLogic.tick(Thirst.full(), counters, SETTINGS, NORMAL).counters().exhaustion();
 		float hot = ThirstLogic.tick(Thirst.full(), counters, SETTINGS, HOT).counters().exhaustion();
 		assertEquals((normal - 1.0F) * SETTINGS.hotMultiplier(), hot - 1.0F, 1.0E-6F);
@@ -60,7 +61,7 @@ class ThirstLogicTest {
 
 	@Test
 	void waterResetsDehydrationTimer() {
-		ThirstCounters counters = new ThirstCounters(0.0F, SETTINGS.dehydrationInterval() - 1, 0);
+		ThirstCounters counters = new ThirstCounters(0.0F, SETTINGS.dehydrationInterval() - 1, 0, 0);
 		ThirstLogic.TickResult result = ThirstLogic.tick(new Thirst(1), counters, SETTINGS, NORMAL);
 		assertFalse(result.dehydrate());
 		assertEquals(0, result.counters().damageTimer());
@@ -69,7 +70,7 @@ class ThirstLogicTest {
 	@Test
 	void peacefulRefillsWithoutDrain() {
 		Thirst thirst = new Thirst(10);
-		ThirstCounters counters = new ThirstCounters(3.9F, 0, 0);
+		ThirstCounters counters = new ThirstCounters(3.9F, 0, 0, 0);
 		for (int i = 0; i < SETTINGS.peacefulRefillInterval(); i++) {
 			ThirstLogic.TickResult result = ThirstLogic.tick(thirst, counters, SETTINGS, PEACEFUL);
 			assertFalse(result.dehydrate());
@@ -97,5 +98,36 @@ class ThirstLogicTest {
 	void waterIsClamped() {
 		assertEquals(Thirst.MAX, new Thirst(15).add(10).water());
 		assertEquals(0, new Thirst(1).add(-5).water());
+	}
+
+	@Test
+	void poisoningChanceDependsOnBiome() {
+		PoisoningSettings poisoning = SETTINGS.poisoning();
+		float between = (poisoning.chance() + poisoning.dirtyWaterChance()) / 2.0F;
+		assertFalse(ThirstLogic.poisonsOnSip(ThirstCounters.ZERO, SETTINGS, false, between));
+		assertTrue(ThirstLogic.poisonsOnSip(ThirstCounters.ZERO, SETTINGS, true, between));
+		assertTrue(ThirstLogic.poisonsOnSip(ThirstCounters.ZERO, SETTINGS, false, 0.0F));
+	}
+
+	@Test
+	void immunityStartsWhenPoisoningEnds() {
+		ThirstCounters counters = ThirstCounters.ZERO;
+		for (int i = 0; i < 100; i++) {
+			counters = ThirstLogic.tick(Thirst.full(), counters, SETTINGS, POISONED).counters();
+		}
+		assertEquals(SETTINGS.poisoning().immunity(), counters.immunity());
+		assertFalse(ThirstLogic.poisonsOnSip(counters, SETTINGS, true, 0.0F));
+
+		for (int i = 0; i < SETTINGS.poisoning().immunity(); i++) {
+			counters = ThirstLogic.tick(Thirst.full(), counters, SETTINGS, NORMAL).counters();
+		}
+		assertEquals(0, counters.immunity());
+		assertTrue(ThirstLogic.poisonsOnSip(counters, SETTINGS, true, 0.0F));
+	}
+
+	@Test
+	void poisoningDrainsThirst() {
+		ThirstCounters counters = ThirstLogic.addPoisoning(ThirstCounters.ZERO, SETTINGS);
+		assertEquals(SETTINGS.poisoning().thirstExhaustion(), counters.exhaustion(), 1.0E-6F);
 	}
 }

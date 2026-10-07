@@ -18,6 +18,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param peacefulRefillInterval    ticks between +1 water in peaceful
  * @param sourceSip                 water restored by one sip from a water source
  * @param sipCooldown               ticks between sips from a water source
+ * @param poisoning                 food poisoning from sips at a water source
  */
 public record ThirstSettings(
 		float exhaustionPerPoint,
@@ -29,10 +30,11 @@ public record ThirstSettings(
 		float dehydrationDamage,
 		int peacefulRefillInterval,
 		int sourceSip,
-		int sipCooldown
+		int sipCooldown,
+		PoisoningSettings poisoning
 ) {
 	public static final ThirstSettings DEFAULT = new ThirstSettings(
-			4.0F, 1.0F, 0.003F, 2.0F, 1.5F, 80, 1.0F, 20, 2, 16
+			4.0F, 1.0F, 0.003F, 2.0F, 1.5F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT
 	);
 
 	public static final Codec<ThirstSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -45,6 +47,7 @@ public record ThirstSettings(
 			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("dehydration_damage").orElse(DEFAULT.dehydrationDamage).forGetter(ThirstSettings::dehydrationDamage),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("peaceful_refill_interval").orElse(DEFAULT.peacefulRefillInterval).forGetter(ThirstSettings::peacefulRefillInterval),
 			Codec.intRange(0, Thirst.MAX).fieldOf("source_sip").orElse(DEFAULT.sourceSip).forGetter(ThirstSettings::sourceSip),
-			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sip_cooldown").orElse(DEFAULT.sipCooldown).forGetter(ThirstSettings::sipCooldown)
+			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sip_cooldown").orElse(DEFAULT.sipCooldown).forGetter(ThirstSettings::sipCooldown),
+			PoisoningSettings.CODEC.fieldOf("poisoning").orElse(DEFAULT.poisoning).forGetter(ThirstSettings::poisoning)
 	).apply(instance, ThirstSettings::new));
 }

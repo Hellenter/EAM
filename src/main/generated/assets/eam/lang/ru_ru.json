@@ -1,4 +1,5 @@
 {
   "death.attack.eam.dehydration": "%1$s умер от жажды",
-  "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s"
+  "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",
+  "effect.eam.food_poisoning": "Пищевое отравление"
 }

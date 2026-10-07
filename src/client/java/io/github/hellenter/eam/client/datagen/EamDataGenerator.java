@@ -12,6 +12,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		FabricDataGenerator.Pack pack = generator.createPack();
 		pack.addProvider(EamDamageTypeProvider::new);
 		pack.addProvider(EamDamageTypeTagProvider::new);
+		pack.addProvider(EamBiomeTagProvider::new);
 		pack.addProvider(EamThirstSettingsProvider::new);
 		pack.addProvider(EamLanguageProviders.English::new);
 		pack.addProvider(EamLanguageProviders.Russian::new);

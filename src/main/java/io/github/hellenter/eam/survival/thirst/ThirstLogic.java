@@ -15,8 +15,9 @@ public final class ThirstLogic {
 	 *
 	 * @param peaceful the difficulty is peaceful: no drain, slow refill
 	 * @param hot      the player stands in a hot biome
+	 * @param poisoned the player has food poisoning
 	 */
-	public record Environment(boolean peaceful, boolean hot) {
+	public record Environment(boolean peaceful, boolean hot, boolean poisoned) {
 	}
 
 	/**
@@ -33,6 +34,7 @@ public final class ThirstLogic {
 
 	public static TickResult tick(Thirst thirst, ThirstCounters counters, ThirstSettings settings, Environment environment) {
 		int sipCooldown = Math.max(counters.sipCooldown() - 1, 0);
+		int immunity = environment.poisoned() ? settings.poisoning().immunity() : Math.max(counters.immunity() - 1, 0);
 
 		if (environment.peaceful()) {
 			int timer = counters.damageTimer() + 1;
@@ -41,7 +43,7 @@ public final class ThirstLogic {
 				timer = 0;
 				next = thirst.add(1);
 			}
-			return new TickResult(next, new ThirstCounters(0.0F, timer, sipCooldown), false);
+			return new TickResult(next, new ThirstCounters(0.0F, timer, sipCooldown, immunity), false);
 		}
 
 		float passive = settings.passiveExhaustion() * (environment.hot() ? settings.hotMultiplier() : 1.0F);
@@ -62,7 +64,24 @@ public final class ThirstLogic {
 			}
 		}
 
-		return new TickResult(next, new ThirstCounters(exhaustion, timer, sipCooldown), dehydrate);
+		return new TickResult(next, new ThirstCounters(exhaustion, timer, sipCooldown, immunity), dehydrate);
+	}
+
+	/** Thirst share of one tick of food poisoning. */
+	public static ThirstCounters addPoisoning(ThirstCounters counters, ThirstSettings settings) {
+		float exhaustion = counters.exhaustion() + settings.poisoning().thirstExhaustion();
+		return counters.withExhaustion(Math.min(exhaustion, MAX_EXHAUSTION));
+	}
+
+	/**
+	 * Whether a sip from a water source poisons the player.
+	 *
+	 * @param dirtyWater the water is in a biome tagged {@code eam:dirty_water}
+	 * @param roll       a uniform random number in [0, 1)
+	 */
+	public static boolean poisonsOnSip(ThirstCounters counters, ThirstSettings settings, boolean dirtyWater, float roll) {
+		PoisoningSettings poisoning = settings.poisoning();
+		return counters.immunity() == 0 && roll < (dirtyWater ? poisoning.dirtyWaterChance() : poisoning.chance());
 	}
 
 	public static boolean canSprint(Thirst thirst) {
