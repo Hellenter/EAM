@@ -22,7 +22,7 @@ public class Eam implements ModInitializer {
 		LOGGER.info("EAM loaded, modules: {}", config);
 
 		// Each mechanic registers itself here, guarded by its config flag.
-		HungerModule.registerAttachments();
+		HungerModule.registerTypes();
 		if (config.hunger()) HungerModule.init();
 	}
 

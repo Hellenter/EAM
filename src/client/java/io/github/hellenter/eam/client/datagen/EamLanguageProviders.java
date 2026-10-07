@@ -1,0 +1,53 @@
+package io.github.hellenter.eam.client.datagen;
+
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
+
+import net.minecraft.core.HolderLookup;
+
+import java.util.concurrent.CompletableFuture;
+
+public final class EamLanguageProviders {
+	private EamLanguageProviders() {
+	}
+
+	public static class English extends FabricLanguageProvider {
+		public English(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+			super(output, "en_us", registries);
+		}
+
+		@Override
+		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
+			builder.add("gui.eam.nutrient.protein", "Protein");
+			builder.add("gui.eam.nutrient.fat", "Fat");
+			builder.add("gui.eam.nutrient.carbs", "Carbs");
+			builder.add("gui.eam.nutrient.protein.short", "P");
+			builder.add("gui.eam.nutrient.fat.short", "F");
+			builder.add("gui.eam.nutrient.carbs.short", "C");
+			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
+			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
+			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
+		}
+	}
+
+	public static class Russian extends FabricLanguageProvider {
+		public Russian(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+			super(output, "ru_ru", registries);
+		}
+
+		@Override
+		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
+			builder.add("gui.eam.nutrient.protein", "Белки");
+			builder.add("gui.eam.nutrient.fat", "Жиры");
+			builder.add("gui.eam.nutrient.carbs", "Углеводы");
+			builder.add("gui.eam.nutrient.protein.short", "Б");
+			builder.add("gui.eam.nutrient.fat.short", "Ж");
+			builder.add("gui.eam.nutrient.carbs.short", "У");
+			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
+			builder.add("gui.eam.nutrition.balanced", "Питание сбалансировано: голод медленнее, регенерация быстрее");
+			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
+		}
+	}
+}

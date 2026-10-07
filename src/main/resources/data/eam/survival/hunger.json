@@ -9,5 +9,10 @@
 	"regen_min_food": 1,
 	"regen_exhaustion": 4.0,
 	"starvation_interval_ticks": 80,
-	"starvation_damage": 1.0
+	"starvation_damage": 1.0,
+	"starting_nutrients": 50,
+	"nutrient_decay": 2,
+	"balance_threshold": 70,
+	"balanced_hunger_factor": 2.0,
+	"balanced_regen_factor": 1.5
 }

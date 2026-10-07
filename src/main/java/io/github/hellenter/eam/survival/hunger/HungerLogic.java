@@ -15,11 +15,14 @@ public final class HungerLogic {
 	}
 
 	/** What the tick needs to know about the player and the world. */
-	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful) {
+	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced) {
 	}
 
-	/** New food state plus the health to restore and the starvation damage to deal this tick. */
-	public record TickResult(FoodState state, float heal, float starvationDamage) {
+	/**
+	 * New food state plus the health to restore and the starvation damage to deal this tick.
+	 * {@code pointSpent} is true when exhaustion used up a point of saturation or food, which also drains nutrients.
+	 */
+	public record TickResult(FoodState state, float heal, float starvationDamage, boolean pointSpent) {
 	}
 
 	/** Food bar size: grows with the XP level, as in MITE. */
@@ -48,9 +51,15 @@ public final class HungerLogic {
 		float saturation = Math.min(in.saturation(), food);
 		float exhaustion = in.exhaustion() + rules.passiveExhaustion();
 		int timer = in.tickTimer();
+		float perPoint = rules.exhaustionPerPoint() * (context.balanced() ? rules.balancedHungerFactor() : 1.0F);
+		int regenInterval = context.balanced()
+				? Math.max(1, Math.round(rules.regenIntervalTicks() / rules.balancedRegenFactor()))
+				: rules.regenIntervalTicks();
 
-		if (exhaustion > rules.exhaustionPerPoint()) {
-			exhaustion -= rules.exhaustionPerPoint();
+		boolean pointSpent = false;
+		if (exhaustion > perPoint) {
+			exhaustion -= perPoint;
+			pointSpent = true;
 			if (saturation > 0.0F) {
 				saturation = Math.max(saturation - 1.0F, 0.0F);
 			} else if (!context.peaceful()) {
@@ -66,7 +75,7 @@ public final class HungerLogic {
 				timer = 0;
 			}
 		} else if (context.naturalRegen() && context.hurt() && food >= rules.regenMinFood()) {
-			if (++timer >= rules.regenIntervalTicks()) {
+			if (++timer >= regenInterval) {
 				heal = 1.0F;
 				exhaustion += rules.regenExhaustion();
 				timer = 0;
@@ -76,6 +85,29 @@ public final class HungerLogic {
 		}
 
 		exhaustion = Math.min(exhaustion, MAX_EXHAUSTION);
-		return new TickResult(new FoodState(food, saturation, exhaustion, timer), heal, starvation);
+		return new TickResult(new FoodState(food, saturation, exhaustion, timer), heal, starvation, pointSpent);
+	}
+
+	/** Adds a food's nutrients, each capped at {@link Nutrition#MAX}. */
+	public static Nutrition eat(Nutrition current, int protein, int fat, int carbs) {
+		return new Nutrition(
+				clamp(current.protein() + protein),
+				clamp(current.fat() + fat),
+				clamp(current.carbs() + carbs)
+		);
+	}
+
+	/** Lowers every nutrient by {@code amount}, not below zero. */
+	public static Nutrition decay(Nutrition current, int amount) {
+		return eat(current, -amount, -amount, -amount);
+	}
+
+	/** A balanced diet keeps all three nutrients at or above the threshold. */
+	public static boolean balanced(Nutrition nutrition, int threshold) {
+		return nutrition.protein() >= threshold && nutrition.fat() >= threshold && nutrition.carbs() >= threshold;
+	}
+
+	private static int clamp(int value) {
+		return Math.clamp(value, 0, Nutrition.MAX);
 	}
 }
