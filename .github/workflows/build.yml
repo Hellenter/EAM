@@ -1,0 +1,35 @@
+name: build
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: build and test
+        run: ./gradlew build
+      - name: run datagen
+        run: ./gradlew runDatagen
+      - name: check generated data is committed
+        run: |
+          changes=$(git status --porcelain -- src/main/generated ':!src/main/generated/.cache')
+          if [ -n "$changes" ]; then
+            echo "Generated data is out of date. Run ./gradlew runDatagen and commit the result:"
+            echo "$changes"
+            exit 1
+          fi
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Artifacts
+          path: build/libs/
