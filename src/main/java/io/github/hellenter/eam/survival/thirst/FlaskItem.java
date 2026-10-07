@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,7 +29,6 @@ import java.util.function.Consumer;
  */
 public class FlaskItem extends Item {
 	private static final int DRINK_TICKS = 24;
-	private static final int WATER_BAR_COLOR = 0x3478DC;
 
 	public FlaskItem(Properties properties) {
 		super(properties);
@@ -83,29 +81,20 @@ public class FlaskItem extends Item {
 		return ItemUseAnimation.DRINK;
 	}
 
-	/** A filtered flask shows its filter like durability; a plain one shows how much water is left. */
+	/** Both flasks show how much water is left; the filter state is in the tooltip. */
 	@Override
 	public boolean isBarVisible(ItemStack flask) {
-		Integer filter = flask.get(ThirstModule.FILTER);
-		return filter != null ? filter < FlaskLogic.FILTER_USES : !flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).isEmpty();
+		return !flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).isEmpty();
 	}
 
 	@Override
 	public int getBarWidth(ItemStack flask) {
-		Integer filter = flask.get(ThirstModule.FILTER);
-		if (filter != null) {
-			return Mth.clamp(Math.round(13.0F * filter / FlaskLogic.FILTER_USES), 0, 13);
-		}
-		return Math.round(13.0F * flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).amount() / FlaskLogic.CAPACITY);
+		return FlaskLogic.barWidth(flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).amount());
 	}
 
 	@Override
 	public int getBarColor(ItemStack flask) {
-		Integer filter = flask.get(ThirstModule.FILTER);
-		if (filter != null) {
-			return Mth.hsvToRgb(Math.max(0.0F, (float) filter / FlaskLogic.FILTER_USES) / 3.0F, 1.0F, 1.0F);
-		}
-		return WATER_BAR_COLOR;
+		return FlaskLogic.barColor(flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY).amount());
 	}
 
 	@Override
