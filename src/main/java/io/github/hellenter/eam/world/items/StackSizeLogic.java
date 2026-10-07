@@ -19,6 +19,8 @@ public final class StackSizeLogic {
 	public static final int NUGGET = 64;
 	/** Potions, including splash and lingering ones. */
 	public static final int POTION = 4;
+	/** Empty glass bottles and water bottles. */
+	public static final int BOTTLE = 8;
 	/** Everything else: sticks, seeds, redstone, arrows and other small items. */
 	public static final int SMALL_ITEM = 32;
 
@@ -40,6 +42,9 @@ public final class StackSizeLogic {
 	 * @return the new max stack size
 	 */
 	public static int maxStackSize(String path, boolean placesBlock, boolean food, int vanillaMax) {
+		if (path.equals("glass_bottle")) {
+			return BOTTLE;
+		}
 		if (POTIONS.contains(path)) {
 			return POTION;
 		}
@@ -47,6 +52,17 @@ public final class StackSizeLogic {
 			return vanillaMax;
 		}
 		return Math.min(vanillaMax, limit(path, placesBlock, food));
+	}
+
+	/**
+	 * Water bottles are {@code potion} items told apart only by their contents, so they get their limit
+	 * per stack instead of from the item's default components.
+	 *
+	 * @param drinkableWater the stack is a plain (not splash or lingering) bottle of water
+	 * @param current        the stack's max stack size from its components
+	 */
+	public static int stackMaxStackSize(boolean drinkableWater, int current) {
+		return drinkableWater ? BOTTLE : current;
 	}
 
 	private static int limit(String path, boolean placesBlock, boolean food) {

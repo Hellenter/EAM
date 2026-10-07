@@ -20,6 +20,8 @@ https://claude.ai/code/artifact/8f7d07be-d5a5-4a64-94f2-e52552ec5d37
 - `./gradlew runDatagen` — regenerate `src/main/generated/`. Commit the output; CI fails if it is stale.
 - `./gradlew runClient` / `runServer` — run the game (needs a desktop for the client).
 - `./gradlew genSources` — decompiled Minecraft sources for reading vanilla code.
+- Gradle needs a Java 25 JDK. A fresh cloud container has only Java 21: `apt-get install -y openjdk-25-jdk-headless`,
+  then `export JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
 
 ## Layout
 
@@ -59,5 +61,6 @@ flag in `EamConfig`.
 
 - One mechanic or content piece per branch and PR. CI (`.github/workflows/build.yml`) must be green.
 - Every PR says how to check it in game.
-- Subagents in `.claude/agents/`: `player`, `mobs`, `content` implement; `vanilla-research` finds hook
+- Subagents in `.claude/agents/`: `player`, `mobs`, `content` (ores, tool tiers, mining, worldgen) and
+  `items` (any new item or block with its datagen) implement; `vanilla-research` finds hook
   points in vanilla code; `reviewer` checks a diff against the rules above before the PR is marked ready.

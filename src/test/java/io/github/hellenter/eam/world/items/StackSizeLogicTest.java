@@ -2,6 +2,7 @@ package io.github.hellenter.eam.world.items;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -26,6 +27,7 @@ class StackSizeLogicTest {
 			"potion, false, false, 1, 4",
 			"splash_potion, false, false, 1, 4",
 			"lingering_potion, false, false, 1, 4",
+			"glass_bottle, false, false, 64, 8",
 			"wheat_seeds, false, false, 64, 32",
 			"redstone, false, false, 64, 32",
 			"stick, false, false, 64, 32",
@@ -35,5 +37,11 @@ class StackSizeLogicTest {
 	})
 	void maxStackSize(String path, boolean placesBlock, boolean food, int vanillaMax, int expected) {
 		assertEquals(expected, StackSizeLogic.maxStackSize(path, placesBlock, food, vanillaMax));
+	}
+
+	@Test
+	void waterBottlesStackToEight() {
+		assertEquals(8, StackSizeLogic.stackMaxStackSize(true, 4));
+		assertEquals(4, StackSizeLogic.stackMaxStackSize(false, 4));
 	}
 }
