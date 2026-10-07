@@ -11,5 +11,12 @@
   "gui.eam.nutrient.value": "%s: %s / %s",
   "gui.eam.nutrition.balanced": "Питание сбалансировано: голод медленнее, регенерация быстрее",
   "gui.eam.nutrition.unbalanced": "Держите все три шкалы на %s или выше для бонуса",
-  "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s"
+  "item.eam.filtered_leather_flask": "Кожаная фляга с угольным фильтром",
+  "item.eam.flask.filter": "Фильтр: %s/%s",
+  "item.eam.flask.filter_spent": "Фильтр забит",
+  "item.eam.flask.water": "Вода: %s/%s",
+  "item.eam.leather_flask": "Кожаная фляга",
+  "item.eam.leather_thread": "Кожаная нить",
+  "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s",
+  "tag.item.eam.flask_threads": "Нити для фляги"
 }

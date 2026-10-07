@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * Balance numbers for thirst, read from {@code data/eam/thirst/settings.json} so datapacks can override them.
  * A missing or invalid field falls back to its default; encoding always writes every field.
  *
- * @param exhaustionPerPoint        exhaustion that costs one point of water (vanilla food uses 4.0)
+ * @param exhaustionPerPoint        exhaustion that costs one point of water (vanilla food uses 4.0; thirst drains half as fast)
  * @param activityMultiplier        share of vanilla food exhaustion (sprinting, jumping, mining, fighting)
  *                                  that also goes to thirst
  * @param passiveExhaustion         exhaustion added every tick just for being alive
@@ -19,6 +19,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param sourceSip                 water restored by one sip from a water source
  * @param sipCooldown               ticks between sips from a water source
  * @param poisoning                 food poisoning from sips at a water source
+ * @param flask                     leather flasks
  */
 public record ThirstSettings(
 		float exhaustionPerPoint,
@@ -31,10 +32,11 @@ public record ThirstSettings(
 		int peacefulRefillInterval,
 		int sourceSip,
 		int sipCooldown,
-		PoisoningSettings poisoning
+		PoisoningSettings poisoning,
+		FlaskSettings flask
 ) {
 	public static final ThirstSettings DEFAULT = new ThirstSettings(
-			4.0F, 1.0F, 0.003F, 2.0F, 1.5F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT
+			8.0F, 1.0F, 0.003F, 2.0F, 1.5F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT, FlaskSettings.DEFAULT
 	);
 
 	public static final Codec<ThirstSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -48,6 +50,7 @@ public record ThirstSettings(
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("peaceful_refill_interval").orElse(DEFAULT.peacefulRefillInterval).forGetter(ThirstSettings::peacefulRefillInterval),
 			Codec.intRange(0, Thirst.MAX).fieldOf("source_sip").orElse(DEFAULT.sourceSip).forGetter(ThirstSettings::sourceSip),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sip_cooldown").orElse(DEFAULT.sipCooldown).forGetter(ThirstSettings::sipCooldown),
-			PoisoningSettings.CODEC.fieldOf("poisoning").orElse(DEFAULT.poisoning).forGetter(ThirstSettings::poisoning)
+			PoisoningSettings.CODEC.fieldOf("poisoning").orElse(DEFAULT.poisoning).forGetter(ThirstSettings::poisoning),
+			FlaskSettings.CODEC.fieldOf("flask").orElse(DEFAULT.flask).forGetter(ThirstSettings::flask)
 	).apply(instance, ThirstSettings::new));
 }
