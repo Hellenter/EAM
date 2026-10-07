@@ -17,6 +17,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,12 +27,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.biome.Biome;
@@ -59,6 +62,17 @@ public final class ThirstModule {
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Eam.id("hydration"),
 			DataComponentType.<Hydration>builder().persistent(Hydration.CODEC).networkSynchronized(Hydration.STREAM_CODEC).build());
+
+	public static final DataComponentType<FlaskWater> FLASK_WATER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Eam.id("flask_water"),
+			DataComponentType.<FlaskWater>builder().persistent(FlaskWater.CODEC).networkSynchronized(FlaskWater.STREAM_CODEC).build());
+
+	/** Charcoal filter uses left on a filtered flask. */
+	public static final DataComponentType<Integer> FILTER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Eam.id("filter"),
+			DataComponentType.<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT).build());
 
 	public static final Holder<MobEffect> FOOD_POISONING = Registry.registerForHolder(
 			BuiltInRegistries.MOB_EFFECT, Eam.id("food_poisoning"), new FoodPoisoningEffect());
@@ -173,6 +187,40 @@ public final class ThirstModule {
 		player.getFoodData().addExhaustion(settings.poisoning().foodExhaustion());
 	}
 
+	/** Fills a flask from a water source; the server rolls whether the water is dirty. */
+	public static void fillFlask(ServerPlayer player, ItemStack flask) {
+		FlaskWater current = flask.getOrDefault(FLASK_WATER, FlaskWater.EMPTY);
+		flask.set(FLASK_WATER, FlaskLogic.fill(current, settings.flask(), player.getRandom().nextFloat()));
+	}
+
+	/** One drink from a flask: water for the player, wear for the filter, maybe food poisoning. */
+	public static void drinkFromFlask(ServerPlayer player, ItemStack flask) {
+		FlaskWater current = flask.getOrDefault(FLASK_WATER, FlaskWater.EMPTY);
+		FlaskLogic.Drink drink = FlaskLogic.drink(current, flask.getOrDefault(FILTER, -1));
+
+		flask.set(FLASK_WATER, drink.remaining());
+		if (drink.filter() >= 0) {
+			flask.set(FILTER, drink.filter());
+		}
+		drink(player, drink.water());
+		if (drink.poisons() && enabled) {
+			poison(player, settings.flask().poisoningDuration());
+		}
+	}
+
+	/** Whether the player has room for more water. Runs on both sides; true when the bar is not synced. */
+	public static boolean canDrink(Player player) {
+		Thirst thirst = player.getAttached(THIRST);
+		return thirst == null || !thirst.isFull();
+	}
+
+	/** Food poisoning, unless the player is still immune after the last bout. */
+	private static void poison(ServerPlayer player, int duration) {
+		if (player.getAttachedOrCreate(COUNTERS).immunity() == 0) {
+			player.addEffect(new MobEffectInstance(FOOD_POISONING, duration));
+		}
+	}
+
 	static void drink(ServerPlayer player, int water) {
 		if (enabled) {
 			player.setAttached(THIRST, player.getAttachedOrCreate(THIRST).add(water));
@@ -201,7 +249,7 @@ public final class ThirstModule {
 
 		boolean dirtyWater = level.getBiome(hit.getBlockPos()).is(DIRTY_WATER);
 		if (ThirstLogic.poisonsOnSip(counters, settings, dirtyWater, level.getRandom().nextFloat())) {
-			player.addEffect(new MobEffectInstance(FOOD_POISONING, settings.poisoning().duration()));
+			poison(player, settings.poisoning().duration());
 		}
 	}
 }

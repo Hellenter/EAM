@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:leather",
+    "minecraft:leather",
+    "minecraft:leather",
+    "#eam:flask_threads"
+  ],
+  "result": {
+    "id": "eam:leather_flask"
+  }
+}

@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamItems;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
@@ -21,6 +23,13 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
 			builder.add("death.attack.eam.dehydration.player", "%1$s died of thirst while fighting %2$s");
 			builder.add("effect.eam.food_poisoning", "Food Poisoning");
+			builder.add("item.eam.leather_thread", "Leather Thread");
+			builder.add(EamItems.FLASK_THREADS, "Flask Threads");
+			builder.add("item.eam.leather_flask", "Leather Flask");
+			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
+			builder.add("item.eam.flask.water", "Water: %s/%s");
+			builder.add("item.eam.flask.filter", "Filter: %s/%s");
+			builder.add("item.eam.flask.filter_spent", "Filter is spent");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
 			builder.add("gui.eam.nutrient.fat", "Fat");
@@ -44,6 +53,13 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
 			builder.add("death.attack.eam.dehydration.player", "%1$s умер от жажды, сражаясь с %2$s");
 			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
+			builder.add("item.eam.leather_thread", "Кожаная нить");
+			builder.add(EamItems.FLASK_THREADS, "Нити для фляги");
+			builder.add("item.eam.leather_flask", "Кожаная фляга");
+			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
+			builder.add("item.eam.flask.water", "Вода: %s/%s");
+			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
+			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");
 			builder.add("gui.eam.nutrient.fat", "Жиры");
