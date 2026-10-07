@@ -1,0 +1,12 @@
+{
+  "type": "eam:filter_flask",
+  "category": "equipment",
+  "ingredients": [
+    "eam:leather_flask",
+    "#minecraft:coals",
+    "#eam:flask_threads"
+  ],
+  "result": {
+    "id": "eam:filtered_leather_flask"
+  }
+}
