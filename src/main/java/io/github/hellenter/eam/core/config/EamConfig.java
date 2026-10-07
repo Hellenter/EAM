@@ -24,15 +24,17 @@ import java.nio.file.Path;
 public record EamConfig(
 		boolean hunger,
 		boolean thirst,
+		boolean progression,
 		boolean mining,
 		boolean stackSizes,
 		boolean mobs
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
 			Codec.BOOL.optionalFieldOf("thirst", DEFAULT.thirst).forGetter(EamConfig::thirst),
+			Codec.BOOL.optionalFieldOf("progression", DEFAULT.progression).forGetter(EamConfig::progression),
 			Codec.BOOL.optionalFieldOf("mining", DEFAULT.mining).forGetter(EamConfig::mining),
 			Codec.BOOL.optionalFieldOf("stack_sizes", DEFAULT.stackSizes).forGetter(EamConfig::stackSizes),
 			Codec.BOOL.optionalFieldOf("mobs", DEFAULT.mobs).forGetter(EamConfig::mobs)

@@ -1,0 +1,7 @@
+{
+	"base_capacity": 6,
+	"capacity_step": 2,
+	"levels_per_step": 5,
+	"max_capacity": 20,
+	"grace_period_ticks": 2400
+}

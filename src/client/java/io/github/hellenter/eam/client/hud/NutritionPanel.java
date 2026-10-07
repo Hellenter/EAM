@@ -67,13 +67,13 @@ public final class NutritionPanel {
 		int top = container.eam$getTopPos() - HEIGHT - 2;
 		int threshold = stats.balanceThreshold();
 		boolean balanced = HungerLogic.balanced(nutrition, threshold);
-		int[] values = {nutrition.protein(), nutrition.fat(), nutrition.carbs()};
+		float[] values = {nutrition.protein(), nutrition.fat(), nutrition.carbs()};
 
 		for (int i = 0; i < BARS.size(); i++) {
 			Bar bar = BARS.get(i);
 			int left = container.eam$getLeftPos() + 2 + i * CELL_WIDTH;
 			int barLeft = left + LABEL_WIDTH;
-			int value = values[i];
+			int value = Math.round(values[i]);
 
 			graphics.text(font, Component.translatable("gui.eam.nutrient." + bar.key() + ".short"), left, top + 1,
 					balanced ? LABEL_BALANCED : LABEL, true);
