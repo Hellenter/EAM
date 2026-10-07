@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "eam",
+	"version": "${version}",
+	"name": "EAM",
+	"description": "Hardcore survival overhaul inspired by MITE: hunger, thirst, mining, farming, mobs and new content.",
+	"authors": [
+		"Hellenter"
+	],
+	"contact": {
+		"sources": "https://github.com/Hellenter/EAM"
+	},
+	"license": "All-Rights-Reserved",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.hellenter.eam.Eam"
+		],
+		"client": [
+			"io.github.hellenter.eam.client.EamClient"
+		],
+		"fabric-datagen": [
+			"io.github.hellenter.eam.client.datagen.EamDataGenerator"
+		]
+	},
+	"mixins": [
+		"eam.mixins.json",
+		{
+			"config": "eam.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
