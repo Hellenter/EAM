@@ -66,4 +66,18 @@ class FlaskLogicTest {
 		assertTrue(drink.remaining().isEmpty());
 		assertFalse(drink.remaining().contaminated());
 	}
+
+	@Test
+	void barIsLightBlueWhenFullAndDarkensAsWaterRunsOut() {
+		assertEquals(13, FlaskLogic.barWidth(FlaskLogic.CAPACITY));
+		assertEquals(FlaskLogic.BAR_COLOR_FULL, FlaskLogic.barColor(FlaskLogic.CAPACITY));
+		assertEquals(FlaskLogic.BAR_COLOR_LOW, FlaskLogic.barColor(1));
+		for (int amount = 2; amount <= FlaskLogic.CAPACITY; amount++) {
+			assertTrue(brightness(FlaskLogic.barColor(amount)) > brightness(FlaskLogic.barColor(amount - 1)));
+		}
+	}
+
+	private static int brightness(int rgb) {
+		return (rgb >> 16 & 0xFF) + (rgb >> 8 & 0xFF) + (rgb & 0xFF);
+	}
 }
