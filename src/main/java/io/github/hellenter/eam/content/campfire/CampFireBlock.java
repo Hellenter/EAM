@@ -56,17 +56,22 @@ public class CampFireBlock extends BaseEntityBlock {
 	public static final int CHARRED = 2;
 	/** How burnt the sticks look; they blacken the longer the fire burns. */
 	public static final IntegerProperty CHAR = IntegerProperty.create("char", FRESH, CHARRED);
+	/** Sticks lie on the ground instead of standing as a teepee when there are fewer than this. */
+	public static final int STANDING_STICKS = 3;
+	public static final int MAX_COALS = 3;
+	/** How big the heap of coals in the middle is; it grows with the sticks the fire has burnt. */
+	public static final IntegerProperty COALS = IntegerProperty.create("coals", 0, MAX_COALS);
 
 	private static final VoxelShape SHAPE = Block.column(14.0, 0.0, 8.0);
 
 	public CampFireBlock(BlockBehaviour.Properties properties) {
 		super(properties);
-		registerDefaultState(stateDefinition.any().setValue(STICKS, PLACED_STICKS).setValue(LIT, false).setValue(CHAR, FRESH));
+		registerDefaultState(stateDefinition.any().setValue(STICKS, PLACED_STICKS).setValue(LIT, false).setValue(CHAR, FRESH).setValue(COALS, 0));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(STICKS, LIT, CHAR);
+		builder.add(STICKS, LIT, CHAR, COALS);
 	}
 
 	@Override

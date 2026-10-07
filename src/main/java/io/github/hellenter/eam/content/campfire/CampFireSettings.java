@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * them. A missing or invalid field falls back to its default.
  *
  * @param sticksToLight     sticks the fire needs before it can be lit
- * @param ticksPerStick     ticks a lit fire takes to burn one stick (400 = 3 sticks a minute)
+ * @param ticksPerStick     ticks a lit fire takes to burn one stick (600 = one stick every 30 seconds)
  * @param cookTicks         ticks food lies on a lit fire before it is cooked
  * @param burnTicks         ticks cooked food may stay on a lit fire before it burns away
  * @param sticksPerCharcoal burnt sticks that make one charcoal
@@ -26,7 +26,7 @@ public record CampFireSettings(
 		int scorchTicks,
 		int charTicks
 ) {
-	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 400, 900, 900, 3, 16, 600, 1800);
+	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 600, 900, 900, 3, 16, 600, 1800);
 
 	public static final Codec<CampFireSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, CampFireBlock.MAX_STICKS).fieldOf("sticks_to_light").orElse(DEFAULT.sticksToLight).forGetter(CampFireSettings::sticksToLight),

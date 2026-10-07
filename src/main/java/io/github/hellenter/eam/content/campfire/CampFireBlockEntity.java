@@ -108,7 +108,8 @@ public class CampFireBlockEntity extends BlockEntity {
 			fire.fuelTicks = 0;
 			fire.burntSticks++;
 			int sticks = Math.max(0, state.getValue(CampFireBlock.STICKS) - 1);
-			BlockState burnt = state.setValue(CampFireBlock.STICKS, sticks);
+			BlockState burnt = state.setValue(CampFireBlock.STICKS, sticks)
+					.setValue(CampFireBlock.COALS, CampFireLogic.coalStage(fire.burntSticks));
 			if (sticks == 0) {
 				// An empty pit starts over: new sticks put in it are fresh.
 				burnt = burnt.setValue(CampFireBlock.LIT, false).setValue(CampFireBlock.CHAR, CampFireBlock.FRESH);
