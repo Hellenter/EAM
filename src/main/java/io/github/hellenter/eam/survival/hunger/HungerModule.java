@@ -2,6 +2,7 @@ package io.github.hellenter.eam.survival.hunger;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.survival.hunger.FoodDataAccessor;
+import io.github.hellenter.eam.survival.progression.ProgressionModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -21,7 +22,7 @@ import net.minecraft.world.food.FoodData;
 import net.minecraft.world.level.gamerules.GameRules;
 
 /**
- * MITE hunger: a food bar that grows with the XP level, passive hunger, slow natural regeneration that
+ * MITE hunger: a food bar that grows with the XP level (see {@link ProgressionModule}), passive hunger, slow natural regeneration that
  * does not use saturation, starvation that kills on every difficulty, and weaker food. On top of that, food
  * carries protein, fat and carbs; keeping all three high slows hunger and speeds up regeneration.
  */
@@ -79,7 +80,7 @@ public final class HungerModule {
 	/** Replaces {@code FoodData.tick} while the module is on. */
 	public static void tick(FoodData foodData, ServerPlayer player) {
 		HungerRules current = rules;
-		int maxFood = HungerLogic.maxFood(player.experienceLevel, current);
+		int maxFood = ProgressionModule.capacity(player);
 		HungerStats stats = new HungerStats(maxFood, current.balanceThreshold());
 		if (!stats.equals(player.getAttached(STATS))) {
 			player.setAttached(STATS, stats);
@@ -100,7 +101,8 @@ public final class HungerModule {
 						player.isHurt(),
 						level.getGameRules().get(GameRules.NATURAL_HEALTH_REGENERATION),
 						level.getDifficulty() == Difficulty.PEACEFUL,
-						HungerLogic.balanced(nutrition, current.balanceThreshold())
+						HungerLogic.balanced(nutrition, current.balanceThreshold()),
+						ProgressionModule.inGracePeriod(player)
 				),
 				current
 		);

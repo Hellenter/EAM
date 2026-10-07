@@ -9,10 +9,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 /** A player's protein, fat and carbs, each from 0 to {@link #MAX}. Saved and synced for the inventory screen. */
-public record Nutrition(int protein, int fat, int carbs) {
+public record Nutrition(float protein, float fat, float carbs) {
 	public static final int MAX = 100;
 
-	private static final Codec<Integer> LEVEL = Codec.intRange(0, MAX);
+	private static final Codec<Float> LEVEL = Codec.floatRange(0.0F, MAX);
 
 	public static final Codec<Nutrition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			LEVEL.fieldOf("protein").forGetter(Nutrition::protein),
@@ -21,13 +21,13 @@ public record Nutrition(int protein, int fat, int carbs) {
 	).apply(instance, Nutrition::new));
 
 	public static final StreamCodec<ByteBuf, Nutrition> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.VAR_INT, Nutrition::protein,
-			ByteBufCodecs.VAR_INT, Nutrition::fat,
-			ByteBufCodecs.VAR_INT, Nutrition::carbs,
+			ByteBufCodecs.FLOAT, Nutrition::protein,
+			ByteBufCodecs.FLOAT, Nutrition::fat,
+			ByteBufCodecs.FLOAT, Nutrition::carbs,
 			Nutrition::new
 	);
 
-	public static Nutrition of(int level) {
+	public static Nutrition of(float level) {
 		return new Nutrition(level, level, level);
 	}
 }

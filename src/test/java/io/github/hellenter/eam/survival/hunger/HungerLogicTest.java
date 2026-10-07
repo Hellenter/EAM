@@ -12,19 +12,8 @@ import org.junit.jupiter.api.Test;
 
 class HungerLogicTest {
 	private static final HungerRules RULES = HungerRules.DEFAULT;
-	private static final TickContext HEALTHY = new TickContext(20, false, true, false, false);
-	private static final TickContext HURT = new TickContext(20, true, true, false, false);
-
-	@Test
-	void foodBarGrowsEveryFiveLevels() {
-		assertEquals(6, HungerLogic.maxFood(0, RULES));
-		assertEquals(6, HungerLogic.maxFood(4, RULES));
-		assertEquals(8, HungerLogic.maxFood(5, RULES));
-		assertEquals(18, HungerLogic.maxFood(30, RULES));
-		assertEquals(20, HungerLogic.maxFood(35, RULES));
-		assertEquals(20, HungerLogic.maxFood(Integer.MAX_VALUE, RULES));
-		assertEquals(6, HungerLogic.maxFood(-3, RULES));
-	}
+	private static final TickContext HEALTHY = new TickContext(20, false, true, false, false, false);
+	private static final TickContext HURT = new TickContext(20, true, true, false, false, false);
 
 	@Test
 	void eatingStopsAtTheFoodBarSize() {
@@ -49,7 +38,7 @@ class HungerLogicTest {
 
 	@Test
 	void foodAboveTheBarIsClamped() {
-		TickResult result = HungerLogic.tick(new FoodState(20, 10.0F, 0.0F, 0), new TickContext(6, false, true, false, false), RULES);
+		TickResult result = HungerLogic.tick(new FoodState(20, 10.0F, 0.0F, 0), new TickContext(6, false, true, false, false, false), RULES);
 		assertEquals(6, result.state().food());
 		assertEquals(6.0F, result.state().saturation());
 	}
@@ -75,7 +64,7 @@ class HungerLogicTest {
 
 	@Test
 	void peacefulNeverDrainsFood() {
-		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 4.0F, 0), new TickContext(20, false, true, true, false), RULES);
+		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 4.0F, 0), new TickContext(20, false, true, true, false, false), RULES);
 		assertEquals(10, result.state().food());
 	}
 
@@ -100,7 +89,7 @@ class HungerLogicTest {
 
 	@Test
 	void noRegenerationWithoutTheGameRule() {
-		TickContext noRegen = new TickContext(20, true, false, false, false);
+		TickContext noRegen = new TickContext(20, true, false, false, false, false);
 		TickResult result = HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, RULES.regenIntervalTicks() - 1), noRegen, RULES);
 		assertEquals(0.0F, result.heal());
 		assertEquals(0, result.state().tickTimer());
@@ -121,7 +110,7 @@ class HungerLogicTest {
 
 	@Test
 	void balancedDietHalvesHunger() {
-		TickContext balanced = new TickContext(20, false, true, false, true);
+		TickContext balanced = new TickContext(20, false, true, false, true, false);
 		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 7.0F, 0), balanced, RULES);
 		assertEquals(10, result.state().food());
 		assertFalse(result.pointSpent());
@@ -133,7 +122,7 @@ class HungerLogicTest {
 
 	@Test
 	void balancedDietSpeedsUpRegeneration() {
-		TickContext balancedHurt = new TickContext(20, true, true, false, true);
+		TickContext balancedHurt = new TickContext(20, true, true, false, true, false);
 		int interval = Math.round(RULES.regenIntervalTicks() / RULES.balancedRegenFactor());
 		assertEquals(400, interval);
 		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 0.0F, interval - 1), balancedHurt, RULES);
@@ -144,12 +133,24 @@ class HungerLogicTest {
 	void nutrientsAreCappedAndDecay() {
 		Nutrition full = HungerLogic.eat(Nutrition.of(90), 25, 5, 0);
 		assertEquals(new Nutrition(100, 95, 90), full);
-		assertEquals(new Nutrition(0, 0, 0), HungerLogic.decay(Nutrition.of(1), 2));
+		assertEquals(new Nutrition(0, 0, 0), HungerLogic.decay(Nutrition.of(0.25F), 0.5F));
+		assertEquals(Nutrition.of(49.5F), HungerLogic.decay(Nutrition.of(50), RULES.nutrientDecay()));
 	}
 
 	@Test
 	void balanceNeedsAllThreeNutrients() {
 		assertTrue(HungerLogic.balanced(Nutrition.of(70), 70));
 		assertFalse(HungerLogic.balanced(new Nutrition(100, 100, 69), 70));
+	}
+
+	@Test
+	void gracePeriodStopsHunger() {
+		TickContext grace = new TickContext(20, false, true, false, false, true);
+		FoodState state = new FoodState(10, 0.0F, 3.9F, 0);
+		for (int i = 0; i < 10_000; i++) {
+			state = HungerLogic.tick(state, grace, RULES).state();
+		}
+		assertEquals(10, state.food());
+		assertEquals(0.0F, state.exhaustion());
 	}
 }

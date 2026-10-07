@@ -11,6 +11,10 @@ public final class FlaskLogic {
 	public static final int SIP = 2;
 	/** Half droplets a charcoal filter cleans before it is spent. */
 	public static final int FILTER_USES = 64;
+	/** Water bar colour of a full flask (light blue). */
+	public static final int BAR_COLOR_FULL = 0x8FD8FF;
+	/** Water bar colour of a nearly empty flask (dark blue). */
+	public static final int BAR_COLOR_LOW = 0x0A2470;
 
 	private FlaskLogic() {
 	}
@@ -46,5 +50,22 @@ public final class FlaskLogic {
 		int filterAfter = filter < 0 ? -1 : Math.max(filter - water, 0);
 		FlaskWater remaining = new FlaskWater(current.amount() - water, current.contaminated());
 		return new Drink(water, remaining, filterAfter, current.contaminated() && !filtered && water > 0);
+	}
+
+	/** Water bar length (0..13) for the item slot. */
+	public static int barWidth(int amount) {
+		return Math.clamp(Math.round(13.0F * amount / CAPACITY), 0, 13);
+	}
+
+	/** Water bar colour: light blue when full, darkening towards dark blue as the flask empties. */
+	public static int barColor(int amount) {
+		float t = Math.clamp((float) (amount - 1) / (CAPACITY - 1), 0.0F, 1.0F);
+		int color = 0;
+		for (int shift = 0; shift <= 16; shift += 8) {
+			int low = BAR_COLOR_LOW >> shift & 0xFF;
+			int full = BAR_COLOR_FULL >> shift & 0xFF;
+			color |= Math.round(low + (full - low) * t) << shift;
+		}
+		return color;
 	}
 }
