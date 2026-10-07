@@ -36,6 +36,14 @@ public final class CampFireLogic {
 		return Math.min(burntSticks / settings.sticksPerCharcoal(), settings.maxCharcoal());
 	}
 
+	/** How burnt the sticks look after the fire has burnt {@code litTicks}: 0 fresh, 1 scorched, 2 charred. */
+	public static int charStage(int litTicks, CampFireSettings settings) {
+		if (litTicks >= settings.charTicks()) {
+			return CampFireBlock.CHARRED;
+		}
+		return litTicks >= settings.scorchTicks() ? CampFireBlock.SCORCHED : CampFireBlock.FRESH;
+	}
+
 	/** Sticks a broken fire gives back: unburnt sticks only when it is not burning. */
 	public static int sticksDropped(int sticks, boolean lit) {
 		return lit ? 0 : sticks;
