@@ -36,7 +36,7 @@ public final class EamItems {
 
 	/** Thrown like a snowball; sneak-use lays it on the ground. */
 	public static final Item PEBBLE = register("pebble", p -> new PebbleItem(EamBlocks.PEBBLE, p),
-			new Item.Properties().useBlockDescriptionPrefix());
+			new Item.Properties().useBlockDescriptionPrefix().useCooldown(PebbleItem.THROW_COOLDOWN_SECONDS));
 
 	public static final Item FLINT_SHARD = register("flint_shard", p -> new BlockItem(EamBlocks.FLINT_SHARD, p),
 			new Item.Properties().useBlockDescriptionPrefix());

@@ -34,6 +34,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.filter_spent", "Filter is spent");
 			builder.add(EamBlocks.PEBBLE, "Pebble");
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
+			builder.add(EamBlocks.GROUND_STICK, "Stick");
 			builder.add(EamEntities.PEBBLE, "Pebble");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
@@ -67,6 +68,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
 			builder.add(EamBlocks.PEBBLE, "Камушек");
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
+			builder.add(EamBlocks.GROUND_STICK, "Палка");
 			builder.add(EamEntities.PEBBLE, "Камушек");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");

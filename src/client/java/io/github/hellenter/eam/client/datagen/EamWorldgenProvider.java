@@ -36,13 +36,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Pebbles and flint shards on the surface. Flint shards are 8 times rarer than pebbles: in forests and
- * mountains a pebble tries to spawn once every 2 chunks and a shard once every 16; next to surface gravel
- * a pebble tries twice per chunk and a shard once every 4 chunks.
+ * Pebbles, flint shards and sticks on the surface. In forests a pebble tries to spawn once every 2 chunks
+ * and a flint shard 16 times less often; in the mountains they lie only on stone and gravel, with flint
+ * shards 8 times rarer. Sticks lie under tree crowns, three tries per chunk in any overworld biome.
  */
 public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
-	/** Within this many blocks sideways of surface gravel counts as "next to gravel". */
-	private static final int GRAVEL_RADIUS = 2;
+	/** How far above the ground a tree crown counts for a stick under it. */
+	private static final int CROWN_HEIGHT = 12;
 
 	public EamWorldgenProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -51,21 +51,25 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	public static void bootstrapFeatures(BootstrapContext<Feature> context) {
 		context.register(EamWorldgen.PEBBLE, groundItem(EamBlocks.PEBBLE));
 		context.register(EamWorldgen.FLINT_SHARD, groundItem(EamBlocks.FLINT_SHARD));
+		context.register(EamWorldgen.GROUND_STICK, groundItem(EamBlocks.GROUND_STICK));
 	}
 
 	public static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
 		var pebble = features.getOrThrow(EamWorldgen.PEBBLE);
 		var flintShard = features.getOrThrow(EamWorldgen.FLINT_SHARD);
+		var stick = features.getOrThrow(EamWorldgen.GROUND_STICK);
 
-		PlacementUtils.register(context, EamWorldgen.PEBBLE_SCATTERED, pebble,
-				onSurface(RarityFilter.onAverageOnceEvery(2), naturalGround()));
-		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_SCATTERED, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(16), naturalGround()));
-		PlacementUtils.register(context, EamWorldgen.PEBBLE_NEAR_GRAVEL, pebble,
-				onSurface(CountPlacement.of(2), nearGravel()));
-		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_NEAR_GRAVEL, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(4), nearGravel()));
+		PlacementUtils.register(context, EamWorldgen.PEBBLE_FOREST, pebble,
+				onSurface(RarityFilter.onAverageOnceEvery(2), forestFloor()));
+		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_FOREST, flintShard,
+				onSurface(RarityFilter.onAverageOnceEvery(32), forestFloor()));
+		PlacementUtils.register(context, EamWorldgen.PEBBLE_MOUNTAIN, pebble,
+				onSurface(RarityFilter.onAverageOnceEvery(2), stoneOrGravel()));
+		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_MOUNTAIN, flintShard,
+				onSurface(RarityFilter.onAverageOnceEvery(16), stoneOrGravel()));
+		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_UNDER_TREES, stick,
+				onSurface(CountPlacement.of(3), BlockPredicate.allOf(forestFloor(), underLeaves())));
 	}
 
 	private static Feature groundItem(Block block) {
@@ -83,22 +87,28 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		);
 	}
 
-	/** Dirt, grass, stone or gravel underneath. */
-	private static BlockPredicate naturalGround() {
+	/** Dirt, grass, podzol, moss, mud, stone or gravel underneath. */
+	private static BlockPredicate forestFloor() {
 		return BlockPredicate.anyOf(
-				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.DIRT),
+				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.SUBSTRATE_OVERWORLD),
+				stoneOrGravel()
+		);
+	}
+
+	private static BlockPredicate stoneOrGravel() {
+		return BlockPredicate.anyOf(
 				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.BASE_STONE_OVERWORLD),
 				BlockPredicate.matchesBlocks(Direction.DOWN, Blocks.GRAVEL)
 		);
 	}
 
-	/** Natural ground with gravel within {@link #GRAVEL_RADIUS} blocks around and below. */
-	private static BlockPredicate nearGravel() {
-		BlockPredicate noGravel = BlockPredicate.volumeMatch(
-				new Vec3i(-GRAVEL_RADIUS, -2, -GRAVEL_RADIUS),
-				new Vec3i(GRAVEL_RADIUS, -1, GRAVEL_RADIUS),
-				BlockPredicate.not(BlockPredicate.matchesBlocks(Blocks.GRAVEL)));
-		return BlockPredicate.allOf(naturalGround(), BlockPredicate.not(noGravel));
+	/** Leaves somewhere in the column above, up to {@link #CROWN_HEIGHT} blocks. */
+	private static BlockPredicate underLeaves() {
+		BlockPredicate noLeaves = BlockPredicate.volumeMatch(
+				new Vec3i(0, 1, 0),
+				new Vec3i(0, CROWN_HEIGHT, 0),
+				BlockPredicate.not(BlockPredicate.matchesTag(BlockTags.LEAVES)));
+		return BlockPredicate.not(noLeaves);
 	}
 
 	@Override
@@ -106,11 +116,13 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		var features = registries.lookupOrThrow(Registries.FEATURE);
 		entries.add(features, EamWorldgen.PEBBLE);
 		entries.add(features, EamWorldgen.FLINT_SHARD);
+		entries.add(features, EamWorldgen.GROUND_STICK);
 		var placedFeatures = registries.lookupOrThrow(Registries.PLACED_FEATURE);
-		entries.add(placedFeatures, EamWorldgen.PEBBLE_SCATTERED);
-		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_SCATTERED);
-		entries.add(placedFeatures, EamWorldgen.PEBBLE_NEAR_GRAVEL);
-		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_NEAR_GRAVEL);
+		entries.add(placedFeatures, EamWorldgen.PEBBLE_FOREST);
+		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_FOREST);
+		entries.add(placedFeatures, EamWorldgen.PEBBLE_MOUNTAIN);
+		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_MOUNTAIN);
+		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_UNDER_TREES);
 	}
 
 	@Override

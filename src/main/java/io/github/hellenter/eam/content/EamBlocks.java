@@ -23,6 +23,10 @@ public final class EamBlocks {
 	/** A flint shard lying on the ground. */
 	public static final Block FLINT_SHARD = register("flint_shard", p -> new GroundItemBlock(3, 1, 2, p), groundItem(MapColor.COLOR_BLACK));
 
+	/** A stick lying under trees. Has no item of its own: it drops a vanilla stick. */
+	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(4, 1, 1, p),
+			groundItem(MapColor.WOOD).sound(SoundType.WOOD));
+
 	private EamBlocks() {
 	}
 

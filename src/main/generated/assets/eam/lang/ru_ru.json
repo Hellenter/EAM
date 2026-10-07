@@ -1,5 +1,6 @@
 {
   "block.eam.flint_shard": "Осколок кремня",
+  "block.eam.ground_stick": "Палка",
   "block.eam.pebble": "Камушек",
   "death.attack.eam.dehydration": "%1$s умер от жажды",
   "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",
