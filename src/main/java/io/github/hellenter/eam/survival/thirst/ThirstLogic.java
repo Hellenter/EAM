@@ -65,8 +65,8 @@ public final class ThirstLogic {
 		return new TickResult(next, new ThirstCounters(exhaustion, timer, sipCooldown), dehydrate);
 	}
 
-	public static boolean canSprint(Thirst thirst, ThirstSettings settings) {
-		return thirst.water() > settings.sprintThreshold();
+	public static boolean canSprint(Thirst thirst) {
+		return thirst.water() > Thirst.SPRINT_THRESHOLD;
 	}
 
 	public static boolean canSip(Thirst thirst, ThirstCounters counters) {

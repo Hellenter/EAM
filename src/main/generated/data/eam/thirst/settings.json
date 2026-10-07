@@ -8,6 +8,5 @@
   "passive_exhaustion": 0.003,
   "peaceful_refill_interval": 20,
   "sip_cooldown": 16,
-  "source_sip": 2,
-  "sprint_threshold": 6
+  "source_sip": 2
 }

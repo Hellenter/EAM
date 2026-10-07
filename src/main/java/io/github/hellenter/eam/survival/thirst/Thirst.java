@@ -12,6 +12,11 @@ import net.minecraft.network.codec.StreamCodec;
  */
 public record Thirst(int water) {
 	public static final int MAX = 20;
+	/**
+	 * At or below this much water the player cannot sprint, like vanilla food. A constant, not data: the client
+	 * predicts sprinting and only the server reads datapacks.
+	 */
+	public static final int SPRINT_THRESHOLD = 6;
 
 	public static final Codec<Thirst> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, MAX).fieldOf("water").forGetter(Thirst::water)

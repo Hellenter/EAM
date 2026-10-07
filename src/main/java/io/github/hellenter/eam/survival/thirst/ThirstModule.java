@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
@@ -82,6 +83,13 @@ public final class ThirstModule {
 		PayloadTypeRegistry.serverboundPlay().register(DrinkFromSourcePayload.TYPE, DrinkFromSourcePayload.STREAM_CODEC);
 		DefaultItemComponentEvents.MODIFY.register(context -> DRINKS.forEach((item, water) ->
 				context.modify(item, components -> components.set(HYDRATION, new Hydration(water)))));
+		// A world played with thirst on keeps the saved bar; drop it so a disabled module leaves no HUD behind.
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			if (!enabled) {
+				handler.player.removeAttached(THIRST);
+				handler.player.removeAttached(COUNTERS);
+			}
+		});
 	}
 
 	/** Turns the mechanic on: drain, damage, drinking. */
@@ -124,7 +132,7 @@ public final class ThirstModule {
 		if (result.dehydrate()) {
 			player.hurtServer(level, player.damageSources().source(DEHYDRATION), settings.dehydrationDamage());
 		}
-		if (player.isSprinting() && !ThirstLogic.canSprint(result.thirst(), settings)) {
+		if (player.isSprinting() && !ThirstLogic.canSprint(result.thirst())) {
 			player.setSprinting(false);
 		}
 	}
@@ -139,7 +147,8 @@ public final class ThirstModule {
 	/** Whether thirst lets the player sprint. Runs on both sides; the client reads the synced bar. */
 	public static boolean canSprint(Player player) {
 		Thirst thirst = player.getAttached(THIRST);
-		return thirst == null || player.getAbilities().mayfly || ThirstLogic.canSprint(thirst, settings);
+		boolean off = !player.level().isClientSide() && !enabled;
+		return off || thirst == null || player.getAbilities().mayfly || ThirstLogic.canSprint(thirst);
 	}
 
 	static void drink(ServerPlayer player, int water) {
@@ -151,7 +160,7 @@ public final class ThirstModule {
 	private static void sipFromSource(ServerPlayer player) {
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
 		ThirstCounters counters = player.getAttachedOrCreate(COUNTERS);
-		if (!player.isAlive() || !player.getMainHandItem().isEmpty() || !ThirstLogic.canSip(thirst, counters)) {
+		if (!player.isAlive() || player.isSpectator() || !player.getMainHandItem().isEmpty() || !ThirstLogic.canSip(thirst, counters)) {
 			return;
 		}
 

@@ -82,8 +82,8 @@ class ThirstLogicTest {
 
 	@Test
 	void sprintNeedsMoreThanThreshold() {
-		assertFalse(ThirstLogic.canSprint(new Thirst(SETTINGS.sprintThreshold()), SETTINGS));
-		assertTrue(ThirstLogic.canSprint(new Thirst(SETTINGS.sprintThreshold() + 1), SETTINGS));
+		assertFalse(ThirstLogic.canSprint(new Thirst(Thirst.SPRINT_THRESHOLD)));
+		assertTrue(ThirstLogic.canSprint(new Thirst(Thirst.SPRINT_THRESHOLD + 1)));
 	}
 
 	@Test
