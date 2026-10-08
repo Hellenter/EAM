@@ -2,17 +2,23 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
+import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -94,8 +100,47 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(Items.STICK, 3)
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
 						.save(output);
+
+				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
+			}
+
+			/**
+			 * Copies of the vanilla recipes for {@link EarlyToolsModule#REMOVED_TOOLS}, saved under the vanilla ids. They load
+			 * only with the module off; with it on they are skipped, and the vanilla recipe they override is gone.
+			 */
+			private void earlyToolRecipes(RecipeOutput removable) {
+				tool(removable, RecipeCategory.TOOLS, Items.WOODEN_PICKAXE, ItemTags.WOODEN_TOOL_MATERIALS, "XXX", " # ", " # ");
+				tool(removable, RecipeCategory.TOOLS, Items.WOODEN_AXE, ItemTags.WOODEN_TOOL_MATERIALS, "XX", "X#", " #");
+				tool(removable, RecipeCategory.COMBAT, Items.STONE_SWORD, ItemTags.STONE_TOOL_MATERIALS, "X", "X", "#");
+				tool(removable, RecipeCategory.TOOLS, Items.STONE_SHOVEL, ItemTags.STONE_TOOL_MATERIALS, "X", "#", "#");
+				tool(removable, RecipeCategory.TOOLS, Items.STONE_PICKAXE, ItemTags.STONE_TOOL_MATERIALS, "XXX", " # ", " # ");
+				tool(removable, RecipeCategory.TOOLS, Items.STONE_AXE, ItemTags.STONE_TOOL_MATERIALS, "XX", "X#", " #");
+				tool(removable, RecipeCategory.TOOLS, Items.STONE_HOE, ItemTags.STONE_TOOL_MATERIALS, "XX", " #", " #");
+				tool(removable, RecipeCategory.COMBAT, Items.STONE_SPEAR, ItemTags.STONE_TOOL_MATERIALS, "  X", " # ", "#  ");
+			}
+
+			private void tool(RecipeOutput removable, RecipeCategory category, Item result, TagKey<Item> material, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('#', Items.STICK)
+						.define('X', material);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				// Same unlock as vanilla: stone tools with their material, wooden ones with a stick.
+				if (material == ItemTags.STONE_TOOL_MATERIALS) {
+					recipe.unlockedBy("has_cobblestone", has(material));
+				} else {
+					recipe.unlockedBy("has_stick", has(Items.STICK));
+				}
+				recipe.save(removable);
 			}
 		};
+	}
+
+	/** Keeps the namespace each recipe was saved with: the early tool recipes must land on the vanilla ids. */
+	@Override
+	protected Identifier getRecipeIdentifier(Identifier identifier) {
+		return identifier;
 	}
 
 	@Override

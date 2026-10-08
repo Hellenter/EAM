@@ -13,6 +13,8 @@ import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
+import io.github.hellenter.eam.world.ores.OreModule;
+import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -42,6 +44,7 @@ public class Eam implements ModInitializer {
 		EamWorldgen.init();
 		CampFireModule.register();
 		BlockBreakingModule.register();
+		EarlyToolsModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -50,6 +53,8 @@ public class Eam implements ModInitializer {
 		if (config.stackSizes()) StackSizeModule.init();
 		if (config.mining()) HandBreakingModule.init();
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
+		if (config.removeEarlyTools()) EarlyToolsModule.init();
+		if (config.ores()) OreModule.init();
 	}
 
 	public static EamConfig config() {

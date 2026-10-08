@@ -40,6 +40,10 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		for (int i = 0; i < flintChances.length; i++) {
 			flintChances[i] = SHARD_CHANCES[i] / FLINT_RARITY;
 		}
+		// Copper ore drops like iron ore: one raw copper, Fortune with the ore formula.
+		add(Blocks.COPPER_ORE, block -> createOreDrop(block, Items.RAW_COPPER));
+		add(Blocks.DEEPSLATE_COPPER_ORE, block -> createOreDrop(block, Items.RAW_COPPER));
+
 		add(Blocks.GRAVEL, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
 				LootItem.lootTableItem(Items.FLINT)
 						.when(BonusLevelTableCondition.bonusLevelFlatChance(fortune, flintChances))
