@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.brewing.SilverBrewingRecipe;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
@@ -12,7 +14,17 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
 import net.minecraft.advancements.Advancement;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.PotionsPredicate;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.PotionIngredient;
 import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -118,6 +130,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output);
 
 				silverRecipes();
+				brewingRecipes();
 
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
@@ -198,6 +211,50 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silver(RecipeCategory.COMBAT, EamItems.SILVER_CHESTPLATE, false, "X X", "XXX", "XXX");
 				silver(RecipeCategory.COMBAT, EamItems.SILVER_LEGGINGS, false, "XXX", "X X", "X X");
 				silver(RecipeCategory.COMBAT, EamItems.SILVER_BOOTS, false, "X X", "X X");
+			}
+
+			/** The silver brewing stand, its fuel and reagents, and what it brews. */
+			private void brewingRecipes() {
+				shaped(RecipeCategory.BREWING, EamItems.SILVER_BREWING_STAND)
+						.define('S', EamItems.SILVER_INGOT)
+						.define('#', ItemTags.STONE_CRAFTING_MATERIALS)
+						.pattern(" S ")
+						.pattern(" S ")
+						.pattern("###")
+						.unlockedBy(getHasName(EamItems.SILVER_INGOT), has(EamItems.SILVER_INGOT))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.LAPIS_GUNPOWDER_MIX)
+						.requires(Items.LAPIS_LAZULI, 2)
+						.requires(Items.GUNPOWDER)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.SILVER_REDSTONE_DUST)
+						.requires(EamItems.SILVER_NUGGET, 3)
+						.requires(Items.REDSTONE)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.FLOWER_MIX)
+						.requires(Items.DANDELION)
+						.requires(Items.POPPY)
+						.requires(Items.CORNFLOWER)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+
+				silverBrewing(Potions.WATER, EamItems.SILVER_REDSTONE_DUST, BrewingModule.HOLY_WATER);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.GLOW_BERRIES, BrewingModule.LIGHT_NIGHT_VISION);
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FLOWER_MIX, BrewingModule.LIGHT_REGENERATION);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.SUGAR, BrewingModule.LIGHT_SWIFTNESS);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.GLISTERING_MELON_SLICE, BrewingModule.LIGHT_HEALING_POTION);
+			}
+
+			private void silverBrewing(Holder<Potion> input, Item reagent, Holder<Potion> result) {
+				SilverBrewingRecipe recipe = new SilverBrewingRecipe(
+						PotionIngredient.of(Items.POTION, PotionsPredicate.ofPotion(input)),
+						PotionIngredient.of(reagent),
+						new ItemStackTemplate(Items.POTION, DataComponentPatch.builder()
+								.set(DataComponents.POTION_CONTENTS, new PotionContents(result)).build()));
+				String name = result.unwrapKey().orElseThrow().identifier().getPath();
+				output.accept(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("eam", "silver_brewing/" + name)), recipe, null);
 			}
 
 			private void silver(RecipeCategory category, Item result, boolean tool, String... pattern) {

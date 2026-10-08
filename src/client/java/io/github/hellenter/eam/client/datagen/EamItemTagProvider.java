@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -53,6 +54,10 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT, EamItems.SILVER_INGOT));
 
+		// What the silver brewing stand takes in its reagent slot; its recipes are data/eam/recipe/silver_brewing/.
+		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
+				Items.SUGAR, Items.GLISTERING_MELON_SLICE));
+
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,
 				Items.BEACON, Items.CONDUIT, Items.RESPAWN_ANCHOR, Items.LODESTONE));
@@ -78,7 +83,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				// Workstations and containers.
 				.addAll(keys(Items.FURNACE, Items.BLAST_FURNACE, Items.SMOKER, Items.CHEST, Items.TRAPPED_CHEST, Items.BARREL,
 						Items.ENDER_CHEST, Items.SHULKER_BOX, Items.SMITHING_TABLE, Items.FLETCHING_TABLE, Items.CARTOGRAPHY_TABLE,
-						Items.LOOM, Items.STONECUTTER, Items.GRINDSTONE, Items.LECTERN, Items.COMPOSTER, Items.BREWING_STAND,
+						Items.LOOM, Items.STONECUTTER, Items.GRINDSTONE, Items.LECTERN, Items.COMPOSTER, Items.BREWING_STAND, EamItems.SILVER_BREWING_STAND,
 						Items.CAULDRON, Items.JUKEBOX, Items.NOTE_BLOCK, Items.CHISELED_BOOKSHELF, Items.BEEHIVE, Items.ARMOR_STAND))
 				// Redstone machines.
 				.addAll(keys(Items.PISTON, Items.STICKY_PISTON, Items.OBSERVER, Items.DISPENSER, Items.DROPPER, Items.HOPPER,

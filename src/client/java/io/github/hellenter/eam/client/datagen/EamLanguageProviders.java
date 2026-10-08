@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -17,6 +18,15 @@ import java.util.concurrent.CompletableFuture;
 
 public final class EamLanguageProviders {
 	private EamLanguageProviders() {
+	}
+
+	/** A potion's name in each of its containers; vanilla looks them up by the potion's name. */
+	private static void potion(FabricLanguageProvider.TranslationBuilder builder, String name, String potion, String splash,
+			String lingering, String arrow) {
+		builder.add("item.minecraft.potion.effect." + name, potion);
+		builder.add("item.minecraft.splash_potion.effect." + name, splash);
+		builder.add("item.minecraft.lingering_potion.effect." + name, lingering);
+		builder.add("item.minecraft.tipped_arrow.effect." + name, arrow);
 	}
 
 	public static class English extends FabricLanguageProvider {
@@ -65,6 +75,22 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_BOOTS, "Silver Boots");
 			builder.add(SilverGear.TOOL_MATERIALS, "Silver Tool Materials");
 			builder.add(SilverGear.REPAIRS_ARMOR, "Silver Armor Repair Materials");
+			builder.add(EamBlocks.SILVER_BREWING_STAND, "Silver Brewing Stand");
+			builder.add("container.eam.silver_brewing_stand", "Silver Brewing Stand");
+			builder.add(EamItems.LAPIS_GUNPOWDER_MIX, "Lapis-Gunpowder Mix");
+			builder.add(EamItems.SILVER_REDSTONE_DUST, "Silver-Redstone Dust");
+			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
+			builder.add(BrewingModule.REAGENTS, "Silver Brewing Reagents");
+			builder.add("effect.eam.light_healing", "Light Healing");
+			potion(builder, "holy_water", "Holy Water", "Splash Holy Water", "Lingering Holy Water", "Arrow of Holy Water");
+			potion(builder, "light_night_vision", "Light Potion of Night Vision", "Light Splash Potion of Night Vision",
+					"Light Lingering Potion of Night Vision", "Arrow of Light Night Vision");
+			potion(builder, "light_regeneration", "Light Potion of Regeneration", "Light Splash Potion of Regeneration",
+					"Light Lingering Potion of Regeneration", "Arrow of Light Regeneration");
+			potion(builder, "light_swiftness", "Light Potion of Swiftness", "Light Splash Potion of Swiftness",
+					"Light Lingering Potion of Swiftness", "Arrow of Light Swiftness");
+			potion(builder, "light_healing", "Light Potion of Healing", "Light Splash Potion of Healing",
+					"Light Lingering Potion of Healing", "Arrow of Light Healing");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Cools in %s s");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Cooled: it is an iron ingot again");
 			builder.add("item.eam.hot_iron_ingot.forge", "Forge into iron plates on an anvil");
@@ -136,6 +162,22 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_BOOTS, "Серебряные ботинки");
 			builder.add(SilverGear.TOOL_MATERIALS, "Материалы для серебряных инструментов");
 			builder.add(SilverGear.REPAIRS_ARMOR, "Материалы для починки серебряной брони");
+			builder.add(EamBlocks.SILVER_BREWING_STAND, "Серебряная варочная стойка");
+			builder.add("container.eam.silver_brewing_stand", "Серебряная варочная стойка");
+			builder.add(EamItems.LAPIS_GUNPOWDER_MIX, "Лазуритово-пороховая смесь");
+			builder.add(EamItems.SILVER_REDSTONE_DUST, "Серебряно-редстоуновый порошок");
+			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
+			builder.add(BrewingModule.REAGENTS, "Ингредиенты для серебряной стойки");
+			builder.add("effect.eam.light_healing", "Лёгкое исцеление");
+			potion(builder, "holy_water", "Святая вода", "Взрывная святая вода", "Оседающая святая вода", "Стрела святой воды");
+			potion(builder, "light_night_vision", "Лёгкое зелье ночного зрения", "Взрывное лёгкое зелье ночного зрения",
+					"Оседающее лёгкое зелье ночного зрения", "Стрела лёгкого ночного зрения");
+			potion(builder, "light_regeneration", "Лёгкое зелье регенерации", "Взрывное лёгкое зелье регенерации",
+					"Оседающее лёгкое зелье регенерации", "Стрела лёгкой регенерации");
+			potion(builder, "light_swiftness", "Лёгкое зелье стремительности", "Взрывное лёгкое зелье стремительности",
+					"Оседающее лёгкое зелье стремительности", "Стрела лёгкой стремительности");
+			potion(builder, "light_healing", "Лёгкое зелье исцеления", "Взрывное лёгкое зелье исцеления",
+					"Оседающее лёгкое зелье исцеления", "Стрела лёгкого исцеления");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Остынет через %s с");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Остыло и снова стало железным слитком");
 			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне железные пластины");

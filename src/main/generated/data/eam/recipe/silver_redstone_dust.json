@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:silver_nugget",
+    "eam:silver_nugget",
+    "eam:silver_nugget",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "eam:silver_redstone_dust"
+  }
+}
