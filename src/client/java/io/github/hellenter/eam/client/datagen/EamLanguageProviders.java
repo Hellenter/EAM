@@ -45,6 +45,11 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Filter is spent");
+			builder.add(EamItems.HOT_IRON_INGOT, "Hot Iron");
+			builder.add(EamItems.IRON_PLATE, "Iron Plate");
+			builder.add("item.eam.hot_iron_ingot.cools_in", "Cools in %s s");
+			builder.add("item.eam.hot_iron_ingot.cooled", "Cooled: it is an iron ingot again");
+			builder.add("item.eam.hot_iron_ingot.forge", "Forge into iron plates on an anvil");
 			builder.add(EamBlocks.PEBBLE, "Pebble");
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
 			builder.add(EamBlocks.GROUND_STICK, "Stick");
@@ -94,6 +99,11 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
+			builder.add(EamItems.HOT_IRON_INGOT, "Раскалённое железо");
+			builder.add(EamItems.IRON_PLATE, "Железная пластина");
+			builder.add("item.eam.hot_iron_ingot.cools_in", "Остынет через %s с");
+			builder.add("item.eam.hot_iron_ingot.cooled", "Остыло и снова стало железным слитком");
+			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне железные пластины");
 			builder.add(EamBlocks.PEBBLE, "Камушек");
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
 			builder.add(EamBlocks.GROUND_STICK, "Палка");

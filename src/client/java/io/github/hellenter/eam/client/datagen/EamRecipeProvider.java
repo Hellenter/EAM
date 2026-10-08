@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
+import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -15,6 +16,7 @@ import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -22,6 +24,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
@@ -115,6 +118,47 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
+				ironPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				ironIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+			}
+
+			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates. Plates come only from the anvil. */
+			private void ironPlateRecipes(RecipeOutput enabled) {
+				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_IRON_INGOT, 0.0F, 200)
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(enabled, "eam:hot_iron_ingot_from_smelting");
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_IRON_INGOT, 0.0F, 100)
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(enabled, "eam:hot_iron_ingot_from_blasting");
+				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_HELMET, "XXX", "X X");
+				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
+				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
+				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_BOOTS, "X X", "X X");
+			}
+
+			/** Copies of the vanilla iron armor recipes under the vanilla ids, loaded only with the plates off, like the early tools. */
+			private void ironIngotArmorRecipes(RecipeOutput removable) {
+				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_HELMET, "XXX", "X X");
+				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
+				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
+				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_BOOTS, "X X", "X X");
+			}
+
+			/** Plate recipes get our own ids; the ingot copies keep the vanilla ones so they shadow the vanilla recipes. */
+			private void ironArmor(RecipeOutput output, Item material, boolean ownId, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('X', material);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(material), has(material));
+				if (ownId) {
+					recipe.save(output, "eam:" + getItemName(result));
+				} else {
+					recipe.save(output);
+				}
 			}
 
 			/**
