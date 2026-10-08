@@ -30,6 +30,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(EamWorldgen.HAS_MOUNTAIN_PEBBLES)
 				.forceAddTag(BiomeTags.IS_MOUNTAIN)
 				.forceAddTag(BiomeTags.IS_HILL);
+		builder(EamWorldgen.HAS_SHORE_PEBBLES)
+				.add(Biomes.STONY_SHORE);
 		// Any biome: the feature itself only places sticks under leaves.
 		builder(EamWorldgen.HAS_GROUND_STICKS)
 				.forceAddTag(BiomeTags.IS_OVERWORLD);
