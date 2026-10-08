@@ -5,7 +5,9 @@
 	"mixins": [
 		"mobs.vanilla.AbstractArrowMixin",
 		"mobs.vanilla.ClipContextMixin",
+		"mobs.vanilla.LivingEntityDeathDropsMixin",
 		"mobs.vanilla.MobAccessor",
+		"mobs.vanilla.MobSunBurnMixin",
 		"mobs.vanilla.TargetGoalAccessor",
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
