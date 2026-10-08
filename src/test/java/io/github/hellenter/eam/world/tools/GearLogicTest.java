@@ -1,0 +1,43 @@
+package io.github.hellenter.eam.world.tools;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+class GearLogicTest {
+	// Sets are helmet, chestplate, leggings, boots.
+
+	@Test
+	void fullIronSetGivesTwelve() {
+		assertArrayEquals(new int[] {2, 5, 4, 1}, GearLogic.scaleSet(new int[] {2, 6, 5, 2}, GearLogic.ARMOR_FACTOR));
+	}
+
+	@Test
+	void otherSetsLoseAboutAFifth() {
+		assertArrayEquals(new int[] {1, 2, 2, 1}, GearLogic.scaleSet(new int[] {1, 3, 2, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 3, 2, 1}, GearLogic.scaleSet(new int[] {2, 4, 3, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 4, 3, 1}, GearLogic.scaleSet(new int[] {2, 5, 4, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 4, 2, 1}, GearLogic.scaleSet(new int[] {2, 5, 3, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {3, 6, 5, 2}, GearLogic.scaleSet(new int[] {3, 8, 6, 3}, GearLogic.ARMOR_FACTOR));
+	}
+
+	@Test
+	void pieceWithArmorKeepsAPoint() {
+		assertArrayEquals(new int[] {1, 0, 0, 0}, GearLogic.scaleSet(new int[] {1, 0, 0, 0}, 0.3));
+	}
+
+	@Test
+	void toolDurability() {
+		assertEquals(Optional.of(24), GearLogic.toolDurability("copper_pickaxe"));
+		assertEquals(Optional.of(250), GearLogic.toolDurability("iron_sword"));
+		assertEquals(Optional.empty(), GearLogic.toolDurability("golden_pickaxe"));
+	}
+
+	@Test
+	void copperArmorHalved() {
+		assertEquals(88, GearLogic.copperArmorDurability(176));
+	}
+}
