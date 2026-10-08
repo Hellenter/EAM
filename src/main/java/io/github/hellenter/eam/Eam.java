@@ -9,6 +9,7 @@ import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
+import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
@@ -59,6 +60,7 @@ public class Eam implements ModInitializer {
 		if (config.mining()) HandBreakingModule.init();
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 		if (config.mobs()) ThroughLeavesModule.init();
+		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();
 		if (config.crafting()) CraftingModule.init();
