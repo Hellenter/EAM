@@ -17,6 +17,10 @@
           "type": "minecraft:item",
           "name": "minecraft:flint",
           "weight": 2
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 22
         }
       ],
       "rolls": 1

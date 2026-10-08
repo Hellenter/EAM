@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
@@ -19,8 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 /**
- * What one sifted gravel gives: always exactly one item. Flint shards and copper nuggets as often as each other, as
- * from broken gravel; whole flint rarely.
+ * What one sifted gravel gives: nothing half the time, else one item. Flint shards and copper nuggets as often as each
+ * other, as from broken gravel; whole flint rarely.
  */
 public class EamSieveLootProvider extends SimpleFabricLootTableSubProvider {
 	public EamSieveLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -38,6 +39,8 @@ public class EamSieveLootProvider extends SimpleFabricLootTableSubProvider {
 				.setRolls(ContextIntProviders.exactly(1))
 				.add(LootItem.lootTableItem(EamItems.FLINT_SHARD).setWeight(10))
 				.add(LootItem.lootTableItem(Items.COPPER_NUGGET).setWeight(10))
-				.add(LootItem.lootTableItem(Items.FLINT).setWeight(2))));
+				.add(LootItem.lootTableItem(Items.FLINT).setWeight(2))
+				// As heavy as all the items together: half the sifts give nothing.
+				.add(EmptyLootItem.emptyItem().setWeight(22))));
 	}
 }
