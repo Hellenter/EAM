@@ -25,7 +25,10 @@
 		"world.crafting.ResultSlotMixin",
 		"world.forging.AnvilMenuMixin",
 		"world.items.ItemInstanceMixin",
-		"world.mining.BlockStateBaseMixin"
+		"world.mining.BlockStateBaseMixin",
+		"world.structures.ChunkGeneratorMixin",
+		"world.structures.JigsawPlacementMixin",
+		"world.structures.PlayerAdvancementsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

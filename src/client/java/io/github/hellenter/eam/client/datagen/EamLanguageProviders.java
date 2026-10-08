@@ -36,6 +36,8 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("commands.eam.villages.locked", "Only abandoned villages generate in new chunks");
+			builder.add("commands.eam.villages.unlocked", "Normal villages generate in new chunks");
 			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
 			builder.add("death.attack.eam.dehydration.player", "%1$s died of thirst while fighting %2$s");
 			builder.add("effect.eam.food_poisoning", "Food Poisoning");
@@ -123,6 +125,8 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			builder.add("commands.eam.villages.locked", "В новых чанках появляются только заброшенные деревни");
+			builder.add("commands.eam.villages.unlocked", "В новых чанках появляются обычные деревни");
 			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
 			builder.add("death.attack.eam.dehydration.player", "%1$s умер от жажды, сражаясь с %2$s");
 			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
