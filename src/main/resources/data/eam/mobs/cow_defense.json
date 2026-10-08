@@ -1,0 +1,9 @@
+{
+  "damage": 2.0,
+  "attack_cooldown_ticks": 30,
+  "give_up_ticks": 100,
+  "retreat_ticks": 60,
+  "chase_speed": 1.8,
+  "retreat_speed": 1.8,
+  "knockback": 0.5
+}
