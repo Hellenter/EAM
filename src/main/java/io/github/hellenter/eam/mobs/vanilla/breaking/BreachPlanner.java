@@ -127,7 +127,7 @@ public final class BreachPlanner {
 				continue; // A cheaper way here was already expanded.
 			}
 			expanded++;
-			if (reaches(node.x, node.y, node.z, tx, ty, tz)) {
+			if (reaches(terrain, node.x, node.y, node.z, tx, ty, tz)) {
 				return new Plan(route(node), true, expanded);
 			}
 			int d = distance(node.x, node.y, node.z, tx, ty, tz);
@@ -228,8 +228,21 @@ public final class BreachPlanner {
 		return cell == SOLID || cell > 0;
 	}
 
-	private static boolean reaches(int x, int y, int z, int tx, int ty, int tz) {
-		return Math.abs(x - tx) + Math.abs(z - tz) <= 1 && Math.abs(y - ty) <= 1;
+	/**
+	 * The mob can hit the target from here: next to it on the same level, or one block higher or lower when the cell
+	 * its line of sight crosses is open. A mob on a ledge above a player in a one-block hole has the roof over the
+	 * player's head between their eyes, and one in a hole below has the block above its own head in the way.
+	 */
+	private static boolean reaches(Terrain t, int x, int y, int z, int tx, int ty, int tz) {
+		if (Math.abs(x - tx) + Math.abs(z - tz) > 1) {
+			return false;
+		}
+		return switch (y - ty) {
+			case 0 -> true;
+			case 1 -> t.cell(tx, ty + 2, tz) == AIR;
+			case -1 -> t.cell(x, y + 2, z) == AIR;
+			default -> false;
+		};
 	}
 
 	private static int distance(int x, int y, int z, int tx, int ty, int tz) {

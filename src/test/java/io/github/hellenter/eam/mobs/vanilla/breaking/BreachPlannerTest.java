@@ -86,6 +86,38 @@ class BreachPlannerTest {
 	}
 
 	@Test
+	void ledgeOverAPlayerInARoofedHoleIsNotEnough() {
+		// Player in a one-block hole in dirt ground with a dirt roof over his head. From the ledge next to the hole
+		// the roof blocks the zombie's line of sight, so it must dig down to the player's level.
+		World world = new World();
+		for (int x = -1; x <= 6; x++) {
+			for (int z = -2; z <= 2; z++) {
+				world.set(x, -1, z, DIRT).set(x, -2, z, DIRT);
+			}
+		}
+		world.set(3, -1, 0, BreachPlanner.AIR).set(3, 1, 0, DIRT);
+		BreachPlanner.Plan plan = planner.plan(world, 0, 0, 0, 3, -1, 0, 2);
+		assertTrue(plan.reaches());
+		assertTrue(plan.firstBreakingStep() >= 0, "stopped on the ledge without breaking anything");
+		long last = plan.steps().getLast().feet();
+		assertEquals(-1, BlockPos.getY(last));
+	}
+
+	@Test
+	void ledgeOverAnOpenHoleIsEnough() {
+		World world = new World();
+		for (int x = -1; x <= 6; x++) {
+			for (int z = -2; z <= 2; z++) {
+				world.set(x, -1, z, DIRT).set(x, -2, z, DIRT);
+			}
+		}
+		world.set(3, -1, 0, BreachPlanner.AIR);
+		BreachPlanner.Plan plan = planner.plan(world, 0, 0, 0, 3, -1, 0, 2);
+		assertTrue(plan.reaches());
+		assertEquals(-1, plan.firstBreakingStep());
+	}
+
+	@Test
 	void neverBreaksTheBlockUnderTheMob() {
 		// Target right below the mob in a dirt pit: the mob digs a staircase from the side, not straight down.
 		World world = new World();

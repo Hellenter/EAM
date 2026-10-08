@@ -7,6 +7,11 @@
     "minecraft:zombified_piglin",
     "minecraft:spider",
     "minecraft:cave_spider",
-    "minecraft:vindicator"
+    "minecraft:vindicator",
+    "minecraft:skeleton",
+    "minecraft:stray",
+    "minecraft:bogged",
+    "minecraft:parched",
+    "minecraft:wither_skeleton"
   ]
 }
