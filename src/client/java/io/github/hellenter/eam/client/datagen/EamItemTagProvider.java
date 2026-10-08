@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
@@ -11,6 +12,8 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -40,6 +43,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
+		// Ingots the blast furnace recipe accepts; the iron-only-in-blast-furnace change adds iron and copper here.
+		builder(TagKey.create(Registries.ITEM, Eam.id("blast_furnace_ingots"))).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		// Vanilla tool and armor tags: enchanting, and the 5 s craft times below.
 		builder(ItemTags.SWORDS).add(EamItems.SILVER_SWORD.builtInRegistryHolder().key());
 		builder(ItemTags.SHOVELS).add(EamItems.SILVER_SHOVEL.builtInRegistryHolder().key());
