@@ -1,5 +1,7 @@
 {
   "values": [
+    "minecraft:iron_ingot",
+    "minecraft:copper_ingot",
     "eam:silver_ingot"
   ]
 }

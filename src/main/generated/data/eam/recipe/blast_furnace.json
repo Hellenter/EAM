@@ -1,0 +1,21 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "eam:blast_furnace_iron"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": "minecraft:smooth_stone",
+    "I": "#eam:blast_furnace_ingots",
+    "X": "minecraft:furnace"
+  },
+  "pattern": [
+    "III",
+    "IXI",
+    "###"
+  ],
+  "result": {
+    "id": "minecraft:blast_furnace"
+  }
+}
