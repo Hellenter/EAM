@@ -10,5 +10,6 @@
 	"nutrient_decay": 0.5,
 	"balance_threshold": 70,
 	"balanced_hunger_factor": 2.0,
-	"balanced_regen_factor": 1.5
+	"balanced_regen_factor": 1.5,
+	"malnourished_regen_factor": 1.5
 }
