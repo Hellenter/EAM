@@ -7,6 +7,7 @@ import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.core.config.EamConfig;
+import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -40,6 +41,7 @@ public class Eam implements ModInitializer {
 		EamEntities.register();
 		EamWorldgen.init();
 		CampFireModule.register();
+		BlockBreakingModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -47,6 +49,7 @@ public class Eam implements ModInitializer {
 		if (config.thirst()) ThirstModule.init();
 		if (config.stackSizes()) StackSizeModule.init();
 		if (config.mining()) HandBreakingModule.init();
+		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 	}
 
 	public static EamConfig config() {
