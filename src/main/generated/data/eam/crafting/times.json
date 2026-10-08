@@ -1,0 +1,19 @@
+{
+  "crafting_table_multiplier": 0.5,
+  "default_seconds": 1.0,
+  "rules": [
+    {
+      "seconds": 10.0,
+      "tag": "eam:craft_time/ten_seconds"
+    },
+    {
+      "per_ingredient": true,
+      "seconds": 5.0,
+      "tag": "eam:craft_time/armor"
+    },
+    {
+      "seconds": 5.0,
+      "tag": "eam:craft_time/five_seconds"
+    }
+  ]
+}
