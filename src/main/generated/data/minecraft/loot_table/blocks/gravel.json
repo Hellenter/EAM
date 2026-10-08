@@ -44,6 +44,20 @@
                 },
                 {
                   "type": "minecraft:item",
+                  "condition": {
+                    "type": "minecraft:table_bonus",
+                    "chances": [
+                      0.11111112,
+                      0.16666667,
+                      0.33333334,
+                      1.0
+                    ],
+                    "enchantment": "minecraft:fortune"
+                  },
+                  "name": "minecraft:copper_nugget"
+                },
+                {
+                  "type": "minecraft:item",
                   "name": "minecraft:gravel"
                 }
               ],
@@ -52,37 +66,6 @@
               }
             }
           ]
-        }
-      ],
-      "rolls": 1
-    },
-    {
-      "condition": {
-        "type": "minecraft:all_of",
-        "terms": [
-          {
-            "type": "minecraft:inverted",
-            "term": "minecraft:tool/can_silk_touch"
-          },
-          {
-            "type": "minecraft:survives_explosion"
-          }
-        ]
-      },
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "condition": {
-            "type": "minecraft:table_bonus",
-            "chances": [
-              0.1,
-              0.14285715,
-              0.25,
-              1.0
-            ],
-            "enchantment": "minecraft:fortune"
-          },
-          "name": "minecraft:copper_nugget"
         }
       ],
       "rolls": 1
