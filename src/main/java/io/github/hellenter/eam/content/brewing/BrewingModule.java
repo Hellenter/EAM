@@ -58,8 +58,11 @@ public final class BrewingModule {
 	public static final MenuType<SilverBrewingStandMenu> MENU = Registry.register(BuiltInRegistries.MENU, Eam.id("silver_brewing_stand"),
 			new MenuType<>(SilverBrewingStandMenu::new, FeatureFlags.VANILLA_SET));
 
+	/** Vanilla Instant Health's color, so a light healing potion looks like a vanilla one. */
+	private static final int LIGHT_HEALING_COLOR = 0xF82423;
+
 	public static final Holder<MobEffect> LIGHT_HEALING = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Eam.id("light_healing"),
-			new LightHealingEffect(MobEffectCategory.BENEFICIAL, 0xF87D9F));
+			new LightHealingEffect(MobEffectCategory.BENEFICIAL, LIGHT_HEALING_COLOR));
 
 	/** Brewed from water with silver-redstone dust; the base of every light potion. No effect of its own. */
 	public static final Holder<Potion> HOLY_WATER = potion("holy_water");
@@ -72,8 +75,14 @@ public final class BrewingModule {
 	public static final Holder<Potion> LIGHT_SWIFTNESS = potion("light_swiftness",
 			new MobEffectInstance(MobEffects.SPEED, SilverBrewingLogic.lightDuration(3600)));
 	public static final Holder<Potion> LIGHT_HEALING_POTION = potion("light_healing", new MobEffectInstance(LIGHT_HEALING, 1));
+	public static final Holder<Potion> LIGHT_WEAKNESS = potion("light_weakness",
+			new MobEffectInstance(MobEffects.WEAKNESS, SilverBrewingLogic.lightDuration(1800)));
+	public static final Holder<Potion> LIGHT_STRENGTH = potion("light_strength",
+			new MobEffectInstance(MobEffects.STRENGTH, SilverBrewingLogic.lightDuration(3600)));
 
-	public static final List<Holder<Potion>> POTIONS = List.of(HOLY_WATER, LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS, LIGHT_HEALING_POTION);
+	/** Potions with an effect; gunpowder turns each into its splash version, and they get the silver stopper. */
+	public static final List<Holder<Potion>> LIGHT_POTIONS = List.of(LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS,
+			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH);
 
 	private static boolean replaceInStructures;
 

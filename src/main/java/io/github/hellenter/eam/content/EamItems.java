@@ -109,6 +109,9 @@ public final class EamItems {
 	/** Turns holy water into a light regeneration potion. */
 	public static final Item FLOWER_MIX = register("flower_mix", Item::new, new Item.Properties());
 
+	/** Turns holy water into a light strength potion. */
+	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", Item::new, new Item.Properties());
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -159,7 +162,7 @@ public final class EamItems {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertAfter(Items.BREWING_STAND, SILVER_BREWING_STAND));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.BLAZE_POWDER, LAPIS_GUNPOWDER_MIX, SILVER_REDSTONE_DUST, FLOWER_MIX));
+				output.insertAfter(Items.BLAZE_POWDER, LAPIS_GUNPOWDER_MIX, SILVER_REDSTONE_DUST, FLOWER_MIX, FERMENTED_ENDER_EYE));
 	}
 
 	private static Item blockItem(String name, Block block) {
