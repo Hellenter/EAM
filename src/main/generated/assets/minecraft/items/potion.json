@@ -1,0 +1,54 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/light_potion",
+          "tints": [
+            {
+              "type": "minecraft:potion",
+              "default": -13083194
+            }
+          ]
+        },
+        "when": [
+          {
+            "potion": "eam:holy_water"
+          },
+          {
+            "potion": "eam:light_night_vision"
+          },
+          {
+            "potion": "eam:light_regeneration"
+          },
+          {
+            "potion": "eam:light_swiftness"
+          },
+          {
+            "potion": "eam:light_healing"
+          },
+          {
+            "potion": "eam:light_weakness"
+          },
+          {
+            "potion": "eam:light_strength"
+          }
+        ]
+      }
+    ],
+    "component": "minecraft:potion_contents",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/potion",
+      "tints": [
+        {
+          "type": "minecraft:potion",
+          "default": -13083194
+        }
+      ]
+    },
+    "property": "minecraft:component"
+  }
+}

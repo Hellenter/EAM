@@ -82,6 +82,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.LAPIS_GUNPOWDER_MIX, "Lapis-Gunpowder Mix");
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Silver-Redstone Dust");
 			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
+			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
 			builder.add(BrewingModule.REAGENTS, "Silver Brewing Reagents");
 			builder.add("effect.eam.light_healing", "Light Healing");
 			potion(builder, "holy_water", "Holy Water", "Splash Holy Water", "Lingering Holy Water", "Arrow of Holy Water");
@@ -93,6 +94,10 @@ public final class EamLanguageProviders {
 					"Light Lingering Potion of Swiftness", "Arrow of Light Swiftness");
 			potion(builder, "light_healing", "Light Potion of Healing", "Light Splash Potion of Healing",
 					"Light Lingering Potion of Healing", "Arrow of Light Healing");
+			potion(builder, "light_weakness", "Light Potion of Weakness", "Light Splash Potion of Weakness",
+					"Light Lingering Potion of Weakness", "Arrow of Light Weakness");
+			potion(builder, "light_strength", "Light Potion of Strength", "Light Splash Potion of Strength",
+					"Light Lingering Potion of Strength", "Arrow of Light Strength");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Cools in %s s");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Cooled: it is an iron ingot again");
 			builder.add("item.eam.hot_iron_ingot.forge", "Forge on an anvil: 2 make an iron plate");
@@ -171,6 +176,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.LAPIS_GUNPOWDER_MIX, "Лазуритово-пороховая смесь");
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Серебряно-редстоуновый порошок");
 			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
+			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
 			builder.add(BrewingModule.REAGENTS, "Ингредиенты для серебряной стойки");
 			builder.add("effect.eam.light_healing", "Лёгкое исцеление");
 			potion(builder, "holy_water", "Святая вода", "Взрывная святая вода", "Оседающая святая вода", "Стрела святой воды");
@@ -182,6 +188,10 @@ public final class EamLanguageProviders {
 					"Оседающее лёгкое зелье стремительности", "Стрела лёгкой стремительности");
 			potion(builder, "light_healing", "Лёгкое зелье исцеления", "Взрывное лёгкое зелье исцеления",
 					"Оседающее лёгкое зелье исцеления", "Стрела лёгкого исцеления");
+			potion(builder, "light_weakness", "Лёгкое зелье слабости", "Взрывное лёгкое зелье слабости",
+					"Оседающее лёгкое зелье слабости", "Стрела лёгкой слабости");
+			potion(builder, "light_strength", "Лёгкое зелье силы", "Взрывное лёгкое зелье силы",
+					"Оседающее лёгкое зелье силы", "Стрела лёгкой силы");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Остынет через %s с");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Остыло и снова стало железным слитком");
 			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне: из 2 выйдет железная пластина");
