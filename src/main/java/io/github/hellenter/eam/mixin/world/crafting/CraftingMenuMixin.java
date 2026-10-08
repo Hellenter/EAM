@@ -19,18 +19,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** The shared result update of the inventory grid and the crafting table: tool check and craft timer restart. */
+/** The shared result update of the inventory grid and the crafting table: what the result slot shows and how the craft goes on. */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin {
 	@ModifyVariable(method = "slotChangedCraftingGrid", ordinal = 0, at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/inventory/ResultContainer;setItem(ILnet/minecraft/world/item/ItemStack;)V"))
-	private static ItemStack eam$needsTool(ItemStack result, AbstractContainerMenu menu) {
+	private static ItemStack eam$shownResult(ItemStack result, AbstractContainerMenu menu) {
 		return CraftingModule.result(menu, result);
 	}
 
 	@Inject(method = "slotChangedCraftingGrid", at = @At("TAIL"))
 	private static void eam$restartTimer(AbstractContainerMenu menu, ServerLevel level, Player player, CraftingContainer container,
 			ResultContainer resultSlots, @Nullable RecipeHolder<CraftingRecipe> recipeHint, CallbackInfo ci) {
-		CraftingModule.resultChanged(menu, player, container, resultSlots);
+		CraftingModule.resultChanged(menu, player, container);
 	}
 }
