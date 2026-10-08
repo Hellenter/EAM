@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A sieve: a frame of planks on four stick legs with a mesh of leather thread. Gravel used on it sifts for a while and
- * always gives one item from {@link SieveModule#LOOT}. Each sift wears the mesh; after {@link SieveLogic#USES} sifts
+ * gives what {@link SieveModule#LOOT} rolls, nothing half the time. Each sift wears the mesh; after {@link SieveLogic#USES} sifts
  * the sieve falls apart into sticks. How worn it is travels with the item as its damage.
  */
 public class SieveBlock extends BaseEntityBlock {
