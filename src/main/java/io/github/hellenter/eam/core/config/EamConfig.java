@@ -31,9 +31,11 @@ public record EamConfig(
 		boolean mobBlockBreaking,
 		boolean removeEarlyTools,
 		boolean ores,
-		boolean crafting
+		boolean crafting,
+		boolean mobRunning,
+		boolean defensiveCows
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -45,7 +47,9 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("mob_block_breaking", DEFAULT.mobBlockBreaking).forGetter(EamConfig::mobBlockBreaking),
 			Codec.BOOL.optionalFieldOf("remove_early_tools", DEFAULT.removeEarlyTools).forGetter(EamConfig::removeEarlyTools),
 			Codec.BOOL.optionalFieldOf("ores", DEFAULT.ores).forGetter(EamConfig::ores),
-			Codec.BOOL.optionalFieldOf("crafting", DEFAULT.crafting).forGetter(EamConfig::crafting)
+			Codec.BOOL.optionalFieldOf("crafting", DEFAULT.crafting).forGetter(EamConfig::crafting),
+			Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(EamConfig::mobRunning),
+			Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(EamConfig::defensiveCows)
 	).apply(instance, EamConfig::new));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
