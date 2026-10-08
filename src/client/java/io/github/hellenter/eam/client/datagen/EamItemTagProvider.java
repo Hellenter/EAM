@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
@@ -35,9 +36,22 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				Items.FLINT.builtInRegistryHolder().key(),
 				EamItems.FLINT_SHARD.builtInRegistryHolder().key());
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
-		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key());
+		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
+				EamItems.SILVER_AXE.builtInRegistryHolder().key());
 
-		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT));
+		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
+		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
+		// Vanilla tool and armor tags: enchanting, and the 5 s craft times below.
+		builder(ItemTags.SWORDS).add(EamItems.SILVER_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SHOVELS).add(EamItems.SILVER_SHOVEL.builtInRegistryHolder().key());
+		builder(ItemTags.PICKAXES).add(EamItems.SILVER_PICKAXE.builtInRegistryHolder().key());
+		builder(ItemTags.HOES).add(EamItems.SILVER_HOE.builtInRegistryHolder().key());
+		builder(ItemTags.HEAD_ARMOR).add(EamItems.SILVER_HELMET.builtInRegistryHolder().key());
+		builder(ItemTags.CHEST_ARMOR).add(EamItems.SILVER_CHESTPLATE.builtInRegistryHolder().key());
+		builder(ItemTags.LEG_ARMOR).add(EamItems.SILVER_LEGGINGS.builtInRegistryHolder().key());
+		builder(ItemTags.FOOT_ARMOR).add(EamItems.SILVER_BOOTS.builtInRegistryHolder().key());
+
+		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT, EamItems.SILVER_INGOT));
 
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,

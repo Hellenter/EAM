@@ -23,6 +23,7 @@ public final class EamWorldgen {
 	public static final ResourceKey<Feature> GROUND_STICK = feature("ground_stick");
 	/** Copper ore veins the size of diamond veins; they replace vanilla copper when the ores module is on. */
 	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
+	public static final ResourceKey<Feature> ORE_SILVER = feature("ore_silver");
 
 	/** Pebbles on the forest floor. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_FOREST = placed("pebble_forest");
@@ -36,10 +37,16 @@ public final class EamWorldgen {
 	/** Sticks on the ground under tree crowns. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_UNDER_TREES = placed("ground_stick_under_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
+	/** Silver veins in every overworld biome, 2.5 times fewer than copper. */
+	public static final ResourceKey<PlacedFeature> ORE_SILVER_PLACED = placed("ore_silver");
+	/** As many silver veins again in the mountains, so they have twice the silver. */
+	public static final ResourceKey<PlacedFeature> ORE_SILVER_MOUNTAIN = placed("ore_silver_mountain");
 
 	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));
 	public static final TagKey<Biome> HAS_SHORE_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_shore_pebbles"));
+	public static final TagKey<Biome> HAS_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_silver_ore"));
+	public static final TagKey<Biome> HAS_MOUNTAIN_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mountain_silver_ore"));
 	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
 
 	private EamWorldgen() {
@@ -54,6 +61,9 @@ public final class EamWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, PEBBLE_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, FLINT_SHARD_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_UNDER_TREES);
+		GenerationStep.Decoration ores = GenerationStep.Decoration.UNDERGROUND_ORES;
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SILVER_ORE), ores, ORE_SILVER_PLACED);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_SILVER_ORE), ores, ORE_SILVER_MOUNTAIN);
 	}
 
 	private static ResourceKey<Feature> feature(String name) {

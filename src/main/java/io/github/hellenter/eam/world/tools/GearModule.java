@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.world.tools;
 
+import io.github.hellenter.eam.content.silver.SilverGear;
+
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
 import net.minecraft.core.component.DataComponents;
@@ -21,7 +23,7 @@ import java.util.Map;
 
 /**
  * Weaker gear: copper and iron tools wear out sooner, player armor gives less protection and copper armor wears out
- * twice as fast. Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
+ * twice as fast (silver copies copper). Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
  * {@link GearLogic}.
  */
 public final class GearModule {
@@ -33,7 +35,8 @@ public final class GearModule {
 			ArmorMaterials.GOLD,
 			ArmorMaterials.DIAMOND,
 			ArmorMaterials.TURTLE_SCUTE,
-			ArmorMaterials.NETHERITE
+			ArmorMaterials.NETHERITE,
+			SilverGear.ARMOR
 	);
 
 	/** Set order used by {@link GearLogic#scaleSet}. */
@@ -66,7 +69,7 @@ public final class GearModule {
 			}
 
 			Integer maxDamage = builder.get(DataComponents.MAX_DAMAGE);
-			if (asset.equals(EquipmentAssets.COPPER) && maxDamage != null) {
+			if ((asset.equals(EquipmentAssets.COPPER) || asset.equals(SilverGear.ASSET)) && maxDamage != null) {
 				builder.set(DataComponents.MAX_DAMAGE, GearLogic.copperArmorDurability(maxDamage));
 			}
 		}));
