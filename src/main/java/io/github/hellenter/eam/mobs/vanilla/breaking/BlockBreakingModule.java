@@ -36,6 +36,8 @@ public final class BlockBreakingModule {
 	public static final TagKey<Block> HAND_BREAKABLE = HandBreakingModule.HAND_BREAKABLE;
 
 	private static final int GOAL_PRIORITY = 1;
+	/** Same priority as the vanilla "attack the nearest player" target goal. */
+	private static final int SENSE_PRIORITY = 2;
 	private static final int DECAY_INTERVAL = 20;
 	/** Set {@code -Deam.debug.blockBreaking=true} to log how much route planning costs. */
 	private static final boolean DEBUG = Boolean.getBoolean("eam.debug.blockBreaking");
@@ -81,7 +83,9 @@ public final class BlockBreakingModule {
 				return; // Already added: the same entity loaded again.
 			}
 		}
-		List<TargetGoal> targetGoals = ((MobAccessor) mob).eam$targetSelector().getAvailableGoals().stream()
+		GoalSelector targets = ((MobAccessor) mob).eam$targetSelector();
+		targets.addGoal(SENSE_PRIORITY, new SensePlayerGoal(mob));
+		List<TargetGoal> targetGoals = targets.getAvailableGoals().stream()
 				.map(WrappedGoal::getGoal)
 				.filter(TargetGoal.class::isInstance)
 				.map(TargetGoal.class::cast)
