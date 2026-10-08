@@ -18,7 +18,9 @@ import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.ores.OreModule;
+import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
+import io.github.hellenter.eam.world.tools.GearModule;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -50,6 +52,7 @@ public class Eam implements ModInitializer {
 		SieveModule.register();
 		BlockBreakingModule.register();
 		EarlyToolsModule.register();
+		DiamondGearModule.register();
 		CraftingModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
@@ -64,6 +67,8 @@ public class Eam implements ModInitializer {
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();
 		if (config.crafting()) CraftingModule.init();
+		if (config.gear()) GearModule.init();
+		if (config.removeDiamondGear()) DiamondGearModule.init();
 	}
 
 	public static EamConfig config() {
