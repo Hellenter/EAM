@@ -30,12 +30,16 @@ public final class EamWorldgen {
 	/** Pebbles on stone and gravel in the mountains. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_MOUNTAIN = placed("pebble_mountain");
 	public static final ResourceKey<PlacedFeature> FLINT_SHARD_MOUNTAIN = placed("flint_shard_mountain");
+	/** Pebbles on stone and gravel along stony shores, more than anywhere else. */
+	public static final ResourceKey<PlacedFeature> PEBBLE_SHORE = placed("pebble_shore");
+	public static final ResourceKey<PlacedFeature> FLINT_SHARD_SHORE = placed("flint_shard_shore");
 	/** Sticks on the ground under tree crowns. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_UNDER_TREES = placed("ground_stick_under_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
 
 	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));
+	public static final TagKey<Biome> HAS_SHORE_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_shore_pebbles"));
 	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
 
 	private EamWorldgen() {
@@ -47,6 +51,8 @@ public final class EamWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_FOREST_PEBBLES), step, FLINT_SHARD_FOREST);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_PEBBLES), step, PEBBLE_MOUNTAIN);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_PEBBLES), step, FLINT_SHARD_MOUNTAIN);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, PEBBLE_SHORE);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, FLINT_SHARD_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_UNDER_TREES);
 	}
 

@@ -46,7 +46,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Pebbles, flint shards and sticks on the surface. In forests a pebble gets 0.53 tries per chunk on average
  * (8 tries, each kept 1 time in 15) and a flint shard 1 try in 20 chunks; in the mountains they lie only on
- * stone and gravel, with a flint shard 1 try in 10 chunks. Sticks lie under tree crowns, 1 try per chunk in
+ * stone and gravel, with a flint shard 1 try in 10 chunks. Stony shores get 2.5 times the forest's pebbles
+ * (1.33 tries per chunk) and one flint shard try for every 6 pebble tries. Sticks lie under tree crowns, 1 try per chunk in
  * any overworld biome.
  * <p>
  * Copper ore: 12 veins per chunk instead of vanilla's 16, at vanilla heights, each the size of an average diamond vein
@@ -93,6 +94,10 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				onSurface(stoneOrGravel(), CountPlacement.of(8), RarityFilter.onAverageOnceEvery(15)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_MOUNTAIN, flintShard,
 				onSurface(stoneOrGravel(), RarityFilter.onAverageOnceEvery(10)));
+		PlacementUtils.register(context, EamWorldgen.PEBBLE_SHORE, pebble,
+				onSurface(stoneOrGravel(), CountPlacement.of(4), RarityFilter.onAverageOnceEvery(3)));
+		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_SHORE, flintShard,
+				onSurface(stoneOrGravel(), CountPlacement.of(2), RarityFilter.onAverageOnceEvery(9)));
 		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_UNDER_TREES, stick,
 				onSurface(BlockPredicate.allOf(forestFloor(), underLeaves()), CountPlacement.of(1)));
 		PlacementUtils.register(context, EamWorldgen.ORE_COPPER_PLACED, copper, List.of(
@@ -164,6 +169,8 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_FOREST);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_MOUNTAIN);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_MOUNTAIN);
+		entries.add(placedFeatures, EamWorldgen.PEBBLE_SHORE);
+		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_SHORE);
 		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_UNDER_TREES);
 		entries.add(placedFeatures, EamWorldgen.ORE_COPPER_PLACED);
 	}
