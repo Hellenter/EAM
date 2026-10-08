@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
+import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -122,6 +123,51 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
 				ironPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				ironIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				blastFurnaceRecipe(withConditions(output, BlastFurnaceModule.IRON_ONLY));
+				furnaceIronRecipes(withConditions(output, ResourceConditions.not(BlastFurnaceModule.IRON_ONLY)));
+			}
+
+			/** The blast furnace takes any ingot from {@link BlastFurnaceModule#INGOTS}, since iron can no longer be smelted without one. */
+			private void blastFurnaceRecipe(RecipeOutput enabled) {
+				shaped(RecipeCategory.DECORATIONS, Items.BLAST_FURNACE)
+						.define('I', BlastFurnaceModule.INGOTS)
+						.define('X', Items.FURNACE)
+						.define('#', Items.SMOOTH_STONE)
+						.pattern("III")
+						.pattern("IXI")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.SMOOTH_STONE), has(Items.SMOOTH_STONE))
+						.save(enabled, "eam:blast_furnace");
+			}
+
+			/**
+			 * Copies of the vanilla furnace recipes that yield iron, and of the iron ingot blast furnace recipe, under the vanilla
+			 * ids. They load only with {@link BlastFurnaceModule} off; with it on the furnace cannot smelt iron at all.
+			 */
+			private void furnaceIronRecipes(RecipeOutput removable) {
+				// Same as vanilla oreSmelting, which always saves to the unconditioned output.
+				for (Item ore : List.of(Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.RAW_IRON)) {
+					SimpleCookingRecipeBuilder.smelting(Ingredient.of(ore), RecipeCategory.MISC, CookingBookCategory.MISC, Items.IRON_INGOT, 0.7F, 200)
+							.group("iron_ingot")
+							.unlockedBy(getHasName(ore), has(ore))
+							.save(removable, getItemName(Items.IRON_INGOT) + "_from_smelting_" + getItemName(ore));
+				}
+				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_AXE, Items.IRON_HOE,
+								Items.IRON_SWORD, Items.IRON_SPEAR, Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS,
+								Items.IRON_BOOTS, Items.IRON_HORSE_ARMOR, Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE,
+								Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS, Items.IRON_NAUTILUS_ARMOR),
+								RecipeCategory.MISC, CookingBookCategory.MISC, Items.IRON_NUGGET, 0.1F, 200)
+						.unlockedBy(getHasName(Items.IRON_NUGGET), has(Items.IRON_NUGGET))
+						.save(removable, getSmeltingRecipeName(Items.IRON_NUGGET));
+				shaped(RecipeCategory.DECORATIONS, Items.BLAST_FURNACE)
+						.define('I', Items.IRON_INGOT)
+						.define('X', Items.FURNACE)
+						.define('#', Items.SMOOTH_STONE)
+						.pattern("III")
+						.pattern("IXI")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.SMOOTH_STONE), has(Items.SMOOTH_STONE))
+						.save(removable);
 			}
 
 			/** Silver smelts like copper, packs into nuggets and blocks like iron, and makes copper-shaped tools and armor. */
@@ -169,10 +215,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates. Plates come only from the anvil. */
 			private void ironPlateRecipes(RecipeOutput enabled) {
+				// The furnace heats iron only while iron is not blast-furnace-only.
 				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
 								EamItems.HOT_IRON_INGOT, 0.0F, 200)
 						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
-						.save(enabled, "eam:hot_iron_ingot_from_smelting");
+						.save(withConditions(enabled, ResourceConditions.not(BlastFurnaceModule.IRON_ONLY)), "eam:hot_iron_ingot_from_smelting");
 				SimpleCookingRecipeBuilder.blasting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
 								EamItems.HOT_IRON_INGOT, 0.0F, 100)
 						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))

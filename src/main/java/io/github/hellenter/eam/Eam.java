@@ -22,6 +22,7 @@ import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.ores.OreModule;
+import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 import io.github.hellenter.eam.world.tools.GearModule;
@@ -62,6 +63,7 @@ public class Eam implements ModInitializer {
 		CraftingModule.register();
 		ForgingModule.register();
 		SilverModule.register();
+		BlastFurnaceModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();

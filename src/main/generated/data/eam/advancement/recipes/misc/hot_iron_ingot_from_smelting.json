@@ -1,6 +1,12 @@
 {
   "fabric:load_conditions": [
     {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "eam:blast_furnace_iron"
+      }
+    },
+    {
       "condition": "eam:iron_plates_enabled"
     }
   ],
