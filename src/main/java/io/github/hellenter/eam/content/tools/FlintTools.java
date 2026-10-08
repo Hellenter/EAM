@@ -21,9 +21,15 @@ public final class FlintTools {
 	/** Breaks 10 logs, a bit faster than the hatchet but still slower than a wooden axe. */
 	public static final ToolMaterial AXE = new ToolMaterial(BlockTags.INCORRECT_FOR_WOODEN_TOOL, 10, 1.75F, 0.0F, 5, REPAIR_MATERIALS);
 
+	/** Lasts 24 hits; mines plants and cobwebs like a sword. */
+	public static final ToolMaterial KNIFE = new ToolMaterial(BlockTags.INCORRECT_FOR_WOODEN_TOOL, 24, 1.5F, 0.0F, 5, REPAIR_MATERIALS);
+
 	/** Attack damage added to the player's base 1; a wooden axe adds 6. */
 	public static final float HATCHET_DAMAGE = 3.0F;
 	public static final float AXE_DAMAGE = 4.0F;
+	/** 3 HP per hit, attacks as fast as a sword. */
+	public static final float KNIFE_DAMAGE = 2.0F;
+	public static final float KNIFE_ATTACK_SPEED = -2.4F;
 	public static final float HATCHET_ATTACK_SPEED = -3.0F;
 	public static final float AXE_ATTACK_SPEED = -3.2F;
 

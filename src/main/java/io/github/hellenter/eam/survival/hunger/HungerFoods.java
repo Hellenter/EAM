@@ -6,6 +6,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.Consumables;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -13,23 +17,31 @@ import java.util.Map;
  * MITE-style food values: about 60% of vanilla nutrition and less saturation, so raw food barely helps and
  * cooked meat and stews matter. Every food also gets {@link Nutrients}: meat and fish give protein and fat,
  * plants and baked goods give carbs, so a balanced diet needs both. Golden apples and golden carrots keep
- * their vanilla food values.
+ * their vanilla food values. Seeds are edible too: a quick snack worth one point, mostly fat and protein.
+ * They stay plantable, since vanilla tries to place a block item before eating it.
  */
 final class HungerFoods {
 	/** {@code nutrition < 0} keeps the vanilla {@code food} component and only adds nutrients. */
-	private record Values(int nutrition, float saturationModifier, boolean alwaysEdible, Nutrients nutrients) {
+	/** {@code consumable != null} adds a {@code consumable} component to items that are not food in vanilla. */
+	private record Values(int nutrition, float saturationModifier, boolean alwaysEdible, Nutrients nutrients,
+			@Nullable Consumable consumable) {
 	}
 
 	private static Values food(int nutrition, float saturationModifier, int protein, int fat, int carbs) {
-		return new Values(nutrition, saturationModifier, false, new Nutrients(protein, fat, carbs));
+		return new Values(nutrition, saturationModifier, false, new Nutrients(protein, fat, carbs), null);
 	}
 
 	private static Values alwaysEdible(int nutrition, float saturationModifier, int protein, int fat, int carbs) {
-		return new Values(nutrition, saturationModifier, true, new Nutrients(protein, fat, carbs));
+		return new Values(nutrition, saturationModifier, true, new Nutrients(protein, fat, carbs), null);
 	}
 
 	private static Values vanillaFood(int protein, int fat, int carbs) {
-		return new Values(-1, 0.0F, false, new Nutrients(protein, fat, carbs));
+		return new Values(-1, 0.0F, false, new Nutrients(protein, fat, carbs), null);
+	}
+
+	/** Seeds are eaten as fast as dried kelp. */
+	private static Values seed(int protein, int fat, int carbs) {
+		return new Values(1, 0.1F, false, new Nutrients(protein, fat, carbs), Consumables.DRIED_KELP);
 	}
 
 	//                                                        nutrition, saturation, protein, fat, carbs
@@ -65,6 +77,13 @@ final class HungerFoods {
 			Map.entry(Items.SWEET_BERRIES, food(1, 0.1F, 0, 0, 3)),
 			Map.entry(Items.GLOW_BERRIES, food(1, 0.1F, 0, 0, 3)),
 			Map.entry(Items.DRIED_KELP, food(1, 0.2F, 1, 0, 2)),
+			// Seeds: a handful barely takes the edge off hunger.
+			Map.entry(Items.WHEAT_SEEDS, seed(1, 1, 1)),
+			Map.entry(Items.BEETROOT_SEEDS, seed(1, 1, 1)),
+			Map.entry(Items.MELON_SEEDS, seed(1, 2, 0)),
+			Map.entry(Items.PUMPKIN_SEEDS, seed(1, 2, 0)),
+			Map.entry(Items.TORCHFLOWER_SEEDS, seed(1, 1, 0)),
+			Map.entry(Items.PITCHER_POD, seed(1, 1, 1)),
 			Map.entry(Items.CHORUS_FRUIT, alwaysEdible(2, 0.3F, 0, 0, 5)),
 			Map.entry(Items.GOLDEN_CARROT, vanillaFood(1, 0, 8)),
 			Map.entry(Items.GOLDEN_APPLE, vanillaFood(0, 0, 10)),
@@ -97,6 +116,9 @@ final class HungerFoods {
 				food.alwaysEdible();
 			}
 			builder.set(DataComponents.FOOD, food.build());
+			if (values.consumable() != null) {
+				builder.set(DataComponents.CONSUMABLE, values.consumable());
+			}
 		}));
 	}
 }

@@ -10,7 +10,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +33,8 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.FLINT_SHARD);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);
 
-		// Overrides vanilla gravel: rare whole flint, else a flint shard with vanilla's flint chance, else gravel.
+		// Overrides vanilla gravel: rare whole flint, else a flint shard with vanilla's flint chance, else gravel;
+		// plus a copper nugget with the flint shard's chance.
 		var fortune = enchantments.getOrThrow(Enchantments.FORTUNE);
 		float[] flintChances = new float[SHARD_CHANCES.length];
 		for (int i = 0; i < flintChances.length; i++) {
@@ -42,6 +45,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 						.when(BonusLevelTableCondition.bonusLevelFlatChance(fortune, flintChances))
 						.otherwise(LootItem.lootTableItem(EamItems.FLINT_SHARD)
 								.when(BonusLevelTableCondition.bonusLevelFlatChance(fortune, SHARD_CHANCES)))
-						.otherwise(LootItem.lootTableItem(block)))));
+						.otherwise(LootItem.lootTableItem(block))))
+				// A copper nugget on top of the usual drop, as often as a flint shard.
+				.withPool(applyExplosionCondition(block, LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.COPPER_NUGGET)
+								.when(BonusLevelTableCondition.bonusLevelFlatChance(fortune, SHARD_CHANCES)))
+						.when(doesNotHaveSilkTouch()))));
 	}
 }
