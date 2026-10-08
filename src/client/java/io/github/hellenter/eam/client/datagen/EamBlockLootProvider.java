@@ -56,6 +56,10 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(Blocks.COPPER_ORE, block -> createOreDrop(block, Items.RAW_COPPER));
 		add(Blocks.DEEPSLATE_COPPER_ORE, block -> createOreDrop(block, Items.RAW_COPPER));
 
+		add(EamBlocks.SILVER_ORE, block -> createOreDrop(block, EamItems.RAW_SILVER));
+		add(EamBlocks.DEEPSLATE_SILVER_ORE, block -> createOreDrop(block, EamItems.RAW_SILVER));
+		dropSelf(EamBlocks.SILVER_BLOCK);
+
 		add(Blocks.GRAVEL, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
 				LootItem.lootTableItem(Items.FLINT)
 						.when(BonusLevelTableCondition.bonusLevelFlatChance(fortune, flintChances))

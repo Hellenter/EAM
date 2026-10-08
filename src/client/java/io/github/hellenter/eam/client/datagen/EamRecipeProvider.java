@@ -116,10 +116,55 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				silverRecipes();
+
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
 				ironPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				ironIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+			}
+
+			/** Silver smelts like copper, packs into nuggets and blocks like iron, and makes copper-shaped tools and armor. */
+			private void silverRecipes() {
+				for (Item smeltable : List.of(EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER)) {
+					SimpleCookingRecipeBuilder.smelting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.SILVER_INGOT, 0.7F, 200)
+							.group("silver_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:silver_ingot_from_smelting_" + getItemName(smeltable));
+					SimpleCookingRecipeBuilder.blasting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.SILVER_INGOT, 0.7F, 100)
+							.group("silver_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:silver_ingot_from_blasting_" + getItemName(smeltable));
+				}
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.SILVER_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.SILVER_BLOCK,
+						"eam:silver_block", null, "eam:silver_ingot_from_silver_block", "silver_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.SILVER_NUGGET, RecipeCategory.MISC, EamItems.SILVER_INGOT,
+						"eam:silver_ingot_from_nuggets", "silver_ingot", "eam:silver_nugget", null);
+
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_SWORD, true, "X", "X", "#");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_SHOVEL, true, "X", "#", "#");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_PICKAXE, true, "XXX", " # ", " # ");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_AXE, true, "XX", "X#", " #");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_HOE, true, "XX", " #", " #");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_HELMET, false, "XXX", "X X");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_CHESTPLATE, false, "X X", "XXX", "XXX");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_LEGGINGS, false, "XXX", "X X", "X X");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_BOOTS, false, "X X", "X X");
+			}
+
+			private void silver(RecipeCategory category, Item result, boolean tool, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('X', EamItems.SILVER_INGOT);
+				if (tool) {
+					recipe.define('#', Items.STICK);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.SILVER_INGOT), has(EamItems.SILVER_INGOT))
+						.save(output);
 			}
 
 			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates. Plates come only from the anvil. */
