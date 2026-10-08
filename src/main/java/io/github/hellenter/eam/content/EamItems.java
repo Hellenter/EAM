@@ -10,6 +10,7 @@ import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
+import io.github.hellenter.eam.world.forging.HotIronItem;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 
@@ -64,6 +65,12 @@ public final class EamItems {
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
 
+	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
+	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", HotIronItem::new, new Item.Properties());
+
+	/** Forged from hot iron on an anvil; iron armor is made of these. */
+	public static final Item IRON_PLATE = register("iron_plate", Item::new, new Item.Properties().stacksTo(16));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -89,6 +96,8 @@ public final class EamItems {
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
 				output.insertBefore(Items.WOODEN_SWORD, FLINT_KNIFE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.IRON_INGOT, HOT_IRON_INGOT, IRON_PLATE));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

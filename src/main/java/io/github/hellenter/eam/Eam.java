@@ -14,6 +14,7 @@ import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
+import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.ores.OreModule;
@@ -53,6 +54,7 @@ public class Eam implements ModInitializer {
 		EarlyToolsModule.register();
 		DiamondGearModule.register();
 		CraftingModule.register();
+		ForgingModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -67,6 +69,7 @@ public class Eam implements ModInitializer {
 		if (config.crafting()) CraftingModule.init();
 		if (config.gear()) GearModule.init();
 		if (config.removeDiamondGear()) DiamondGearModule.init();
+		if (config.ironPlates()) ForgingModule.init();
 	}
 
 	public static EamConfig config() {
