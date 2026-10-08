@@ -3,6 +3,8 @@
 	"package": "io.github.hellenter.eam.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"mobs.vanilla.MobAccessor",
+		"mobs.vanilla.TargetGoalAccessor",
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",

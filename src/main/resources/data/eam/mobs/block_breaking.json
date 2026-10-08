@@ -1,0 +1,8 @@
+{
+  "ticks_per_hardness": 600,
+  "replan_ticks": 40,
+  "max_nodes": 1200,
+  "search_radius": 16,
+  "decay_delay_ticks": 200,
+  "decay_per_tick": 0.25
+}

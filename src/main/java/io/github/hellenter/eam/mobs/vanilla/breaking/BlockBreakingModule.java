@@ -1,0 +1,128 @@
+package io.github.hellenter.eam.mobs.vanilla.breaking;
+
+import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
+
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+
+import java.util.List;
+
+/**
+ * Melee mobs in {@link #BREAKERS} break through blocks a player could break bare-handed ({@link #HAND_BREAKABLE}) to
+ * reach a target that walled itself in. Respects the {@code mob_griefing} game rule. Numbers are in
+ * {@code data/eam/mobs/block_breaking.json}.
+ */
+public final class BlockBreakingModule {
+	/** Mobs that break blocks to reach their target. */
+	public static final TagKey<EntityType<?>> BREAKERS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("breaks_blocks"));
+	/** Targets mobs dig toward: players. A datapack can add villagers and other mobs. */
+	public static final TagKey<EntityType<?>> TARGETS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("block_breaking_targets"));
+	/** Blocks a player can break bare-handed; mobs can break the same ones. Filled by the mining module. */
+	public static final TagKey<Block> HAND_BREAKABLE = TagKey.create(Registries.BLOCK, Eam.id("hand_breakable"));
+
+	private static final int GOAL_PRIORITY = 1;
+	private static final int DECAY_INTERVAL = 20;
+	/** Set {@code -Deam.debug.blockBreaking=true} to log how much route planning costs. */
+	private static final boolean DEBUG = Boolean.getBoolean("eam.debug.blockBreaking");
+
+	private static volatile BlockBreakingSettings settings = BlockBreakingSettings.DEFAULT;
+	private static BreachPlanner planner = planner(BlockBreakingSettings.DEFAULT);
+
+	private static long plans;
+	private static long expandedNodes;
+	private static long planNanos;
+	private static long maxPlanNanos;
+
+	private BlockBreakingModule() {
+	}
+
+	/** Settings load whatever the config says, so the data is always valid. */
+	public static void register() {
+		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(BlockBreakingSettingsLoader.ID, new BlockBreakingSettingsLoader());
+	}
+
+	public static void init() {
+		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+			if (entity instanceof Mob mob && mob.is(BREAKERS)) {
+				addGoal(mob);
+			}
+		});
+		ServerTickEvents.END_LEVEL_TICK.register(level -> {
+			long time = level.getGameTime();
+			if (time % DECAY_INTERVAL == 0) {
+				BlockDamage.tick(level, settings, DECAY_INTERVAL);
+			}
+			if (DEBUG && time % 200 == 0 && level.dimension() == Level.OVERWORLD) {
+				logStats();
+			}
+		});
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> BlockDamage.clear());
+	}
+
+	private static void addGoal(Mob mob) {
+		GoalSelector goals = ((MobAccessor) mob).eam$goalSelector();
+		for (WrappedGoal wrapped : goals.getAvailableGoals()) {
+			if (wrapped.getGoal() instanceof BreakThroughGoal) {
+				return; // Already added: the same entity loaded again.
+			}
+		}
+		List<TargetGoal> targetGoals = ((MobAccessor) mob).eam$targetSelector().getAvailableGoals().stream()
+				.map(WrappedGoal::getGoal)
+				.filter(TargetGoal.class::isInstance)
+				.map(TargetGoal.class::cast)
+				.toList();
+		goals.addGoal(GOAL_PRIORITY, new BreakThroughGoal(mob, targetGoals));
+	}
+
+	public static BlockBreakingSettings settings() {
+		return settings;
+	}
+
+	static BreachPlanner planner() {
+		return planner;
+	}
+
+	static void setSettings(BlockBreakingSettings value) {
+		settings = value;
+		planner = planner(value);
+	}
+
+	private static BreachPlanner planner(BlockBreakingSettings value) {
+		// A block of distance to the target weighs like ten blocks of walking: mobs head for the target
+		// instead of searching every detour that is cheaper than breaking a wall.
+		return new BreachPlanner(value.maxNodes(), value.searchRadius(), 5, 10);
+	}
+
+	static void recordPlan(int expanded, long nanos) {
+		plans++;
+		expandedNodes += expanded;
+		planNanos += nanos;
+		maxPlanNanos = Math.max(maxPlanNanos, nanos);
+	}
+
+	private static void logStats() {
+		if (plans > 0) {
+			Eam.LOGGER.info("Block breaking: {} plans in 10 s, avg {} nodes, avg {} us, max {} us, {} ms/tick",
+					plans, expandedNodes / plans, planNanos / plans / 1000, maxPlanNanos / 1000,
+					String.format("%.3f", planNanos / 200.0 / 1_000_000.0));
+		}
+		plans = 0;
+		expandedNodes = 0;
+		planNanos = 0;
+		maxPlanNanos = 0;
+	}
+}
