@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlockEntity;
 import io.github.hellenter.eam.content.campfire.CampFireBlockEntity;
 import io.github.hellenter.eam.content.sieve.SieveBlockEntity;
 
@@ -18,6 +19,9 @@ public final class EamBlockEntities {
 
 	public static final BlockEntityType<SieveBlockEntity> SIEVE = register("sieve",
 			new BlockEntityType<>(SieveBlockEntity::new, Set.of(EamBlocks.SIEVE)));
+
+	public static final BlockEntityType<SilverBrewingStandBlockEntity> SILVER_BREWING_STAND = register("silver_brewing_stand",
+			new BlockEntityType<>(SilverBrewingStandBlockEntity::new, Set.of(EamBlocks.SILVER_BREWING_STAND)));
 
 	private EamBlockEntities() {
 	}

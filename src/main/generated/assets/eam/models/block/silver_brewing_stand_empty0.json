@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/brewing_stand_empty0",
+  "textures": {
+    "particle": "eam:block/silver_brewing_stand",
+    "stand": "eam:block/silver_brewing_stand"
+  }
+}

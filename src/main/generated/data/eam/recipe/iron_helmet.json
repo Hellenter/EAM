@@ -1,0 +1,20 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "eam:iron_plates_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "eam:iron_plate"
+  },
+  "pattern": [
+    "PPP",
+    "I I"
+  ],
+  "result": {
+    "id": "minecraft:iron_helmet"
+  }
+}

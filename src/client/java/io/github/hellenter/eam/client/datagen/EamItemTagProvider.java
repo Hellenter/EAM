@@ -2,9 +2,12 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
+import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -34,7 +37,26 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				Items.FLINT.builtInRegistryHolder().key(),
 				EamItems.FLINT_SHARD.builtInRegistryHolder().key());
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
-		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key());
+		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
+				EamItems.SILVER_AXE.builtInRegistryHolder().key());
+
+		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
+		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
+		// Vanilla tool and armor tags: enchanting, and the 5 s craft times below.
+		builder(ItemTags.SWORDS).add(EamItems.SILVER_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SHOVELS).add(EamItems.SILVER_SHOVEL.builtInRegistryHolder().key());
+		builder(ItemTags.PICKAXES).add(EamItems.SILVER_PICKAXE.builtInRegistryHolder().key());
+		builder(ItemTags.HOES).add(EamItems.SILVER_HOE.builtInRegistryHolder().key());
+		builder(ItemTags.HEAD_ARMOR).add(EamItems.SILVER_HELMET.builtInRegistryHolder().key());
+		builder(ItemTags.CHEST_ARMOR).add(EamItems.SILVER_CHESTPLATE.builtInRegistryHolder().key());
+		builder(ItemTags.LEG_ARMOR).add(EamItems.SILVER_LEGGINGS.builtInRegistryHolder().key());
+		builder(ItemTags.FOOT_ARMOR).add(EamItems.SILVER_BOOTS.builtInRegistryHolder().key());
+
+		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT, EamItems.SILVER_INGOT));
+
+		// What the silver brewing stand takes in its reagent slot; its recipes are data/eam/recipe/silver_brewing/.
+		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
+				Items.SUGAR, Items.GLISTERING_MELON_SLICE));
 
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,
@@ -61,7 +83,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				// Workstations and containers.
 				.addAll(keys(Items.FURNACE, Items.BLAST_FURNACE, Items.SMOKER, Items.CHEST, Items.TRAPPED_CHEST, Items.BARREL,
 						Items.ENDER_CHEST, Items.SHULKER_BOX, Items.SMITHING_TABLE, Items.FLETCHING_TABLE, Items.CARTOGRAPHY_TABLE,
-						Items.LOOM, Items.STONECUTTER, Items.GRINDSTONE, Items.LECTERN, Items.COMPOSTER, Items.BREWING_STAND,
+						Items.LOOM, Items.STONECUTTER, Items.GRINDSTONE, Items.LECTERN, Items.COMPOSTER, Items.BREWING_STAND, EamItems.SILVER_BREWING_STAND,
 						Items.CAULDRON, Items.JUKEBOX, Items.NOTE_BLOCK, Items.CHISELED_BOOKSHELF, Items.BEEHIVE, Items.ARMOR_STAND))
 				// Redstone machines.
 				.addAll(keys(Items.PISTON, Items.STICKY_PISTON, Items.OBSERVER, Items.DISPENSER, Items.DROPPER, Items.HOPPER,

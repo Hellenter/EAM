@@ -20,7 +20,10 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+
+import java.util.List;
 
 public class EamModelProvider extends FabricModelProvider {
 	public EamModelProvider(FabricPackOutput output) {
@@ -34,6 +37,10 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
 		SieveModels.generate(generators);
+		generators.createTrivialCube(EamBlocks.SILVER_ORE);
+		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
+		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);
+		BrewingStandModels.generate(generators);
 	}
 
 	/** One box per position on the top face, from the block's own shape; the block state picks the model by position. */
@@ -102,7 +109,19 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.FLINT_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.PEBBLE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_SHARD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.HOT_IRON_INGOT, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.IRON_PLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAMP_FIRE, ModelTemplates.FLAT_ITEM);
+		for (Item item : List.of(EamItems.SILVER_BREWING_STAND, EamItems.LAPIS_GUNPOWDER_MIX, EamItems.SILVER_REDSTONE_DUST, EamItems.FLOWER_MIX)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.RAW_SILVER, EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET,
+				EamItems.SILVER_HELMET, EamItems.SILVER_CHESTPLATE, EamItems.SILVER_LEGGINGS, EamItems.SILVER_BOOTS)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.SILVER_SWORD, EamItems.SILVER_SHOVEL, EamItems.SILVER_PICKAXE, EamItems.SILVER_AXE, EamItems.SILVER_HOE)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
 		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
 		generators.generateBow(EamItems.SLINGSHOT);

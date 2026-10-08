@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 
@@ -82,6 +83,15 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.SIEVE.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key());
 
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key(),
+				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
+		// Like copper ore and the iron block: a copper pickaxe or better.
+		builder(BlockTags.NEEDS_STONE_TOOL).add(EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key());
+
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
+		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
+		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);
 	}
 }

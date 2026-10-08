@@ -10,7 +10,7 @@ public final class GearLogic {
 	/** Armor points left after the cut: a full iron set goes from 15 to 12. */
 	public static final double ARMOR_FACTOR = 0.8;
 
-	/** Copper armor wears out twice as fast as in vanilla. */
+	/** Copper armor wears out twice as fast as in vanilla; so does silver armor, which copies copper. */
 	public static final int COPPER_ARMOR_DURABILITY_DIVISOR = 2;
 
 	private static final Map<String, Integer> TOOL_DURABILITY = Map.ofEntries(
@@ -19,6 +19,12 @@ public final class GearLogic {
 			Map.entry("copper_shovel", 48),
 			Map.entry("copper_sword", 120),
 			Map.entry("copper_hoe", 48),
+			// Silver tools last as long as copper ones.
+			Map.entry("silver_pickaxe", 24),
+			Map.entry("silver_axe", 36),
+			Map.entry("silver_shovel", 48),
+			Map.entry("silver_sword", 120),
+			Map.entry("silver_hoe", 48),
 			Map.entry("iron_pickaxe", 120),
 			Map.entry("iron_axe", 120),
 			Map.entry("iron_shovel", 180),

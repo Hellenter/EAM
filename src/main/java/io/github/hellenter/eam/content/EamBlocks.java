@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
@@ -10,9 +11,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
@@ -47,6 +52,24 @@ public final class EamBlocks {
 			.sound(SoundType.WOOD)
 			.noOcclusion()
 			.ignitedByLava());
+
+	/** Silver ore: like copper ore, a bit rarer and more common in the mountains. */
+	public static final Block SILVER_ORE = register("silver_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.COPPER_ORE));
+
+	public static final Block DEEPSLATE_SILVER_ORE = register("deepslate_silver_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.DEEPSLATE_COPPER_ORE));
+
+	public static final Block SILVER_BLOCK = register("silver_block", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.instrument(NoteBlockInstrument.BELL)
+			.requiresCorrectToolForDrops()
+			.strength(5.0F, 6.0F)
+			.sound(SoundType.METAL));
+
+	/** A brewing stand for holy water and light potions; stands in structures instead of the vanilla one. */
+	public static final Block SILVER_BREWING_STAND = register("silver_brewing_stand", SilverBrewingStandBlock::new,
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BREWING_STAND).mapColor(MapColor.METAL));
 
 	private EamBlocks() {
 	}

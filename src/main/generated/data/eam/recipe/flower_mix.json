@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:dandelion",
+    "minecraft:poppy",
+    "minecraft:cornflower"
+  ],
+  "result": {
+    "id": "eam:flower_mix"
+  }
+}

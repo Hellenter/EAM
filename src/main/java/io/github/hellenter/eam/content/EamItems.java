@@ -1,8 +1,12 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
+import io.github.hellenter.eam.content.silver.SilverGear;
+import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
@@ -10,6 +14,7 @@ import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
+import io.github.hellenter.eam.world.forging.HotIronItem;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 
@@ -22,6 +27,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.block.Block;
 
 import java.util.function.Function;
 
@@ -64,6 +71,44 @@ public final class EamItems {
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
 
+	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
+	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", HotIronItem::new, new Item.Properties());
+
+	/** Forged from hot iron on an anvil; iron armor is made of these. */
+	public static final Item IRON_PLATE = register("iron_plate", Item::new, new Item.Properties().stacksTo(16));
+
+	public static final Item SILVER_ORE = blockItem("silver_ore", EamBlocks.SILVER_ORE);
+	public static final Item DEEPSLATE_SILVER_ORE = blockItem("deepslate_silver_ore", EamBlocks.DEEPSLATE_SILVER_ORE);
+	public static final Item SILVER_BLOCK = blockItem("silver_block", EamBlocks.SILVER_BLOCK);
+	public static final Item RAW_SILVER = register("raw_silver", Item::new, new Item.Properties());
+	public static final Item SILVER_INGOT = register("silver_ingot", Item::new, new Item.Properties());
+	public static final Item SILVER_NUGGET = register("silver_nugget", Item::new, new Item.Properties());
+
+	/** Silver tools have copper's stats and hit undead harder. */
+	public static final Item SILVER_SWORD = silverTool("silver_sword", new Item.Properties().sword(SilverGear.TOOL, 3.0F, -2.4F));
+	public static final Item SILVER_SHOVEL = silverTool("silver_shovel", new Item.Properties().shovel(SilverGear.TOOL, 1.5F, -3.0F));
+	public static final Item SILVER_PICKAXE = silverTool("silver_pickaxe", new Item.Properties().pickaxe(SilverGear.TOOL, 1.0F, -2.8F));
+	public static final Item SILVER_AXE = silverTool("silver_axe", new Item.Properties().axe(SilverGear.TOOL, 7.0F, -3.2F));
+	public static final Item SILVER_HOE = silverTool("silver_hoe", new Item.Properties().hoe(SilverGear.TOOL, -1.0F, -2.0F));
+
+	/** Silver armor has copper's stats and hurts undead that hit its wearer. */
+	public static final Item SILVER_HELMET = silverArmor("silver_helmet", ArmorType.HELMET);
+	public static final Item SILVER_CHESTPLATE = silverArmor("silver_chestplate", ArmorType.CHESTPLATE);
+	public static final Item SILVER_LEGGINGS = silverArmor("silver_leggings", ArmorType.LEGGINGS);
+	public static final Item SILVER_BOOTS = silverArmor("silver_boots", ArmorType.BOOTS);
+
+	public static final Item SILVER_BREWING_STAND = blockItem("silver_brewing_stand", EamBlocks.SILVER_BREWING_STAND);
+
+	/** Fuel of the silver brewing stand: one is enough for three brews. */
+	public static final Item LAPIS_GUNPOWDER_MIX = register("lapis_gunpowder_mix", Item::new, new Item.Properties()
+			.component(BrewingModule.SILVER_BREWING_FUEL, SilverBrewingLogic.MIX_FUEL_USES));
+
+	/** Turns water bottles into holy water in the silver stand. */
+	public static final Item SILVER_REDSTONE_DUST = register("silver_redstone_dust", Item::new, new Item.Properties());
+
+	/** Turns holy water into a light regeneration potion. */
+	public static final Item FLOWER_MIX = register("flower_mix", Item::new, new Item.Properties());
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -71,6 +116,7 @@ public final class EamItems {
 	}
 
 	public static void register() {
+		registerBrewingTabs();
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.LEATHER, LEATHER_THREAD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(output ->
@@ -89,6 +135,44 @@ public final class EamItems {
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
 				output.insertBefore(Items.WOODEN_SWORD, FLINT_KNIFE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.IRON_INGOT, HOT_IRON_INGOT, IRON_PLATE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output ->
+				output.insertAfter(Items.DEEPSLATE_COPPER_ORE, SILVER_ORE, DEEPSLATE_SILVER_ORE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output ->
+				output.insertAfter(Items.GOLD_BLOCK, SILVER_BLOCK));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.RAW_GOLD, RAW_SILVER));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.GOLD_NUGGET, SILVER_NUGGET));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.GOLD_INGOT, SILVER_INGOT));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
+				output.insertAfter(Items.COPPER_HOE, SILVER_SHOVEL, SILVER_PICKAXE, SILVER_AXE, SILVER_HOE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
+			output.insertAfter(Items.COPPER_SWORD, SILVER_SWORD);
+			output.insertAfter(Items.COPPER_BOOTS, SILVER_HELMET, SILVER_CHESTPLATE, SILVER_LEGGINGS, SILVER_BOOTS);
+		});
+	}
+
+	private static void registerBrewingTabs() {
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
+				output.insertAfter(Items.BREWING_STAND, SILVER_BREWING_STAND));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.BLAZE_POWDER, LAPIS_GUNPOWDER_MIX, SILVER_REDSTONE_DUST, FLOWER_MIX));
+	}
+
+	private static Item blockItem(String name, Block block) {
+		return register(name, p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
+	}
+
+	private static Item silverTool(String name, Item.Properties properties) {
+		return register(name, Item::new, properties.component(SilverModule.UNDEAD_DAMAGE_BONUS, SilverGear.UNDEAD_DAMAGE_BONUS));
+	}
+
+	private static Item silverArmor(String name, ArmorType type) {
+		return register(name, Item::new, new Item.Properties().humanoidArmor(SilverGear.ARMOR, type)
+				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

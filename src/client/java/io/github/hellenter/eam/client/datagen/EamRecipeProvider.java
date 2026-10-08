@@ -1,8 +1,12 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.brewing.SilverBrewingRecipe;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
+import io.github.hellenter.eam.world.forging.ForgingModule;
+import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -10,11 +14,22 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
 import net.minecraft.advancements.Advancement;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.PotionsPredicate;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.PotionIngredient;
 import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -22,6 +37,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
@@ -113,8 +129,193 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				silverRecipes();
+				brewingRecipes();
+
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
+				ironPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				ironIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				blastFurnaceRecipe(withConditions(output, BlastFurnaceModule.IRON_ONLY));
+				furnaceIronRecipes(withConditions(output, ResourceConditions.not(BlastFurnaceModule.IRON_ONLY)));
+			}
+
+			/** The blast furnace takes any ingot from {@link BlastFurnaceModule#INGOTS}, since iron can no longer be smelted without one. */
+			private void blastFurnaceRecipe(RecipeOutput enabled) {
+				shaped(RecipeCategory.DECORATIONS, Items.BLAST_FURNACE)
+						.define('I', BlastFurnaceModule.INGOTS)
+						.define('X', Items.FURNACE)
+						.define('#', Items.SMOOTH_STONE)
+						.pattern("III")
+						.pattern("IXI")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.SMOOTH_STONE), has(Items.SMOOTH_STONE))
+						.save(enabled, "eam:blast_furnace");
+			}
+
+			/**
+			 * Copies of the vanilla furnace recipes that yield iron, and of the iron ingot blast furnace recipe, under the vanilla
+			 * ids. They load only with {@link BlastFurnaceModule} off; with it on the furnace cannot smelt iron at all.
+			 */
+			private void furnaceIronRecipes(RecipeOutput removable) {
+				// Same as vanilla oreSmelting, which always saves to the unconditioned output.
+				for (Item ore : List.of(Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.RAW_IRON)) {
+					SimpleCookingRecipeBuilder.smelting(Ingredient.of(ore), RecipeCategory.MISC, CookingBookCategory.MISC, Items.IRON_INGOT, 0.7F, 200)
+							.group("iron_ingot")
+							.unlockedBy(getHasName(ore), has(ore))
+							.save(removable, getItemName(Items.IRON_INGOT) + "_from_smelting_" + getItemName(ore));
+				}
+				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_AXE, Items.IRON_HOE,
+								Items.IRON_SWORD, Items.IRON_SPEAR, Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS,
+								Items.IRON_BOOTS, Items.IRON_HORSE_ARMOR, Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE,
+								Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS, Items.IRON_NAUTILUS_ARMOR),
+								RecipeCategory.MISC, CookingBookCategory.MISC, Items.IRON_NUGGET, 0.1F, 200)
+						.unlockedBy(getHasName(Items.IRON_NUGGET), has(Items.IRON_NUGGET))
+						.save(removable, getSmeltingRecipeName(Items.IRON_NUGGET));
+				shaped(RecipeCategory.DECORATIONS, Items.BLAST_FURNACE)
+						.define('I', Items.IRON_INGOT)
+						.define('X', Items.FURNACE)
+						.define('#', Items.SMOOTH_STONE)
+						.pattern("III")
+						.pattern("IXI")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.SMOOTH_STONE), has(Items.SMOOTH_STONE))
+						.save(removable);
+			}
+
+			/** Silver smelts like copper, packs into nuggets and blocks like iron, and makes copper-shaped tools and armor. */
+			private void silverRecipes() {
+				for (Item smeltable : List.of(EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER)) {
+					SimpleCookingRecipeBuilder.smelting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.SILVER_INGOT, 0.7F, 200)
+							.group("silver_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:silver_ingot_from_smelting_" + getItemName(smeltable));
+					SimpleCookingRecipeBuilder.blasting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.SILVER_INGOT, 0.7F, 100)
+							.group("silver_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:silver_ingot_from_blasting_" + getItemName(smeltable));
+				}
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.SILVER_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.SILVER_BLOCK,
+						"eam:silver_block", null, "eam:silver_ingot_from_silver_block", "silver_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.SILVER_NUGGET, RecipeCategory.MISC, EamItems.SILVER_INGOT,
+						"eam:silver_ingot_from_nuggets", "silver_ingot", "eam:silver_nugget", null);
+
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_SWORD, true, "X", "X", "#");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_SHOVEL, true, "X", "#", "#");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_PICKAXE, true, "XXX", " # ", " # ");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_AXE, true, "XX", "X#", " #");
+				silver(RecipeCategory.TOOLS, EamItems.SILVER_HOE, true, "XX", " #", " #");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_HELMET, false, "XXX", "X X");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_CHESTPLATE, false, "X X", "XXX", "XXX");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_LEGGINGS, false, "XXX", "X X", "X X");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_BOOTS, false, "X X", "X X");
+			}
+
+			/** The silver brewing stand, its fuel and reagents, and what it brews. */
+			private void brewingRecipes() {
+				shaped(RecipeCategory.BREWING, EamItems.SILVER_BREWING_STAND)
+						.define('S', EamItems.SILVER_INGOT)
+						.define('#', ItemTags.STONE_CRAFTING_MATERIALS)
+						.pattern(" S ")
+						.pattern(" S ")
+						.pattern("###")
+						.unlockedBy(getHasName(EamItems.SILVER_INGOT), has(EamItems.SILVER_INGOT))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.LAPIS_GUNPOWDER_MIX)
+						.requires(Items.LAPIS_LAZULI, 2)
+						.requires(Items.GUNPOWDER)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.SILVER_REDSTONE_DUST)
+						.requires(EamItems.SILVER_NUGGET, 3)
+						.requires(Items.REDSTONE)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.FLOWER_MIX)
+						.requires(Items.DANDELION)
+						.requires(Items.POPPY)
+						.requires(Items.CORNFLOWER)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
+
+				silverBrewing(Potions.WATER, EamItems.SILVER_REDSTONE_DUST, BrewingModule.HOLY_WATER);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.GLOW_BERRIES, BrewingModule.LIGHT_NIGHT_VISION);
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FLOWER_MIX, BrewingModule.LIGHT_REGENERATION);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.SUGAR, BrewingModule.LIGHT_SWIFTNESS);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.GLISTERING_MELON_SLICE, BrewingModule.LIGHT_HEALING_POTION);
+			}
+
+			private void silverBrewing(Holder<Potion> input, Item reagent, Holder<Potion> result) {
+				SilverBrewingRecipe recipe = new SilverBrewingRecipe(
+						PotionIngredient.of(Items.POTION, PotionsPredicate.ofPotion(input)),
+						PotionIngredient.of(reagent),
+						new ItemStackTemplate(Items.POTION, DataComponentPatch.builder()
+								.set(DataComponents.POTION_CONTENTS, new PotionContents(result)).build()));
+				String name = result.unwrapKey().orElseThrow().identifier().getPath();
+				output.accept(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("eam", "silver_brewing/" + name)), recipe, null);
+			}
+
+			private void silver(RecipeCategory category, Item result, boolean tool, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('X', EamItems.SILVER_INGOT);
+				if (tool) {
+					recipe.define('#', Items.STICK);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.SILVER_INGOT), has(EamItems.SILVER_INGOT))
+						.save(output);
+			}
+
+			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates and ingots. Plates come only from the anvil. */
+			private void ironPlateRecipes(RecipeOutput enabled) {
+				// The furnace heats iron only while iron is not blast-furnace-only.
+				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_IRON_INGOT, 0.0F, 200)
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(withConditions(enabled, ResourceConditions.not(BlastFurnaceModule.IRON_ONLY)), "eam:hot_iron_ingot_from_smelting");
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_IRON_INGOT, 0.0F, 100)
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(enabled, "eam:hot_iron_ingot_from_blasting");
+				plateArmor(enabled, Items.IRON_HELMET, "PPP", "I I");
+				plateArmor(enabled, Items.IRON_CHESTPLATE, "I I", "PPP", "IPI");
+				plateArmor(enabled, Items.IRON_LEGGINGS, "PIP", "P P", "I I");
+				plateArmor(enabled, Items.IRON_BOOTS, "I I", "P P");
+			}
+
+			/** Copies of the vanilla iron armor recipes under the vanilla ids, loaded only with the plates off, like the early tools. */
+			private void ironIngotArmorRecipes(RecipeOutput removable) {
+				ironArmor(removable, Items.IRON_HELMET, "XXX", "X X");
+				ironArmor(removable, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
+				ironArmor(removable, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
+				ironArmor(removable, Items.IRON_BOOTS, "X X", "X X");
+			}
+
+			/** Iron armor from about as many plates as ingots, under our own ids. */
+			private void plateArmor(RecipeOutput output, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('P', EamItems.IRON_PLATE)
+						.define('I', Items.IRON_INGOT);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.IRON_PLATE), has(EamItems.IRON_PLATE))
+						.save(output, "eam:" + getItemName(result));
+			}
+
+			/** The ingot copies keep the vanilla ids so they shadow the vanilla recipes. */
+			private void ironArmor(RecipeOutput output, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('X', Items.IRON_INGOT);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(output);
 			}
 
 			/**

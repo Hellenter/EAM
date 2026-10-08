@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gunpowder"
+  ],
+  "result": {
+    "id": "eam:lapis_gunpowder_mix"
+  }
+}
