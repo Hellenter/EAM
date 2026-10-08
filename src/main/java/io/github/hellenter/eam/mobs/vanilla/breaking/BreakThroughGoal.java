@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 final class BreakThroughGoal extends Goal {
 	private static final double REACH_SQR = 2.5 * 2.5;
+	private static final double CLOSE_SQR = 3.0 * 3.0;
 	private static final int SWING_INTERVAL = 20;
 	private static final int STUCK_TICKS = 100;
 	private static final int BLOCKED_BACKOFF = 4;
@@ -84,7 +86,7 @@ final class BreakThroughGoal extends Goal {
 
 	@Override
 	public boolean canContinueToUse() {
-		return plan != null && mob.getTarget() == target && validTarget(target);
+		return plan != null && mob.getTarget() == target && validTarget(target) && !archerSees(target);
 	}
 
 	@Override
@@ -253,12 +255,24 @@ final class BreakThroughGoal extends Goal {
 		return mob.distanceToSqr(entity) <= (double) radius * radius;
 	}
 
+	/** An archer that sees its target (skeletons see through leaves) shoots instead of digging. */
+	private boolean archerSees(LivingEntity goal) {
+		return mob instanceof RangedAttackMob && mob.getSensing().hasLineOfSight(goal);
+	}
+
 	/** Vanilla pathfinding already gets there: nothing to break. */
 	private boolean targetReachable() {
-		Path path = mob.getNavigation().getPath();
-		if (path != null && path.canReach()) {
+		LivingEntity goal = mob.getTarget();
+		boolean seen = mob.getSensing().hasLineOfSight(goal);
+		if (archerSees(goal)) {
 			return true;
 		}
-		return mob.distanceToSqr(mob.getTarget()) < 4.0 && mob.getSensing().hasLineOfSight(mob.getTarget());
+		if (mob.distanceToSqr(goal) < CLOSE_SQR) {
+			// Right next to the target the path always "reaches" it, but a block may still be in the way of the
+			// attack (a roof over a player in a hole): only line of sight tells.
+			return seen;
+		}
+		Path path = mob.getNavigation().getPath();
+		return path != null && path.canReach();
 	}
 }
