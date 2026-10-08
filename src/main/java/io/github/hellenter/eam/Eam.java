@@ -24,6 +24,8 @@ import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.ores.OreModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
+import io.github.hellenter.eam.world.structures.StructureRemovalModule;
+import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 import io.github.hellenter.eam.world.tools.GearModule;
@@ -62,6 +64,7 @@ public class Eam implements ModInitializer {
 		EarlyToolsModule.register();
 		DiamondGearModule.register();
 		CraftingModule.register();
+		VillageModule.register();
 		ForgingModule.register();
 		SilverModule.register();
 		BlastFurnaceModule.register();
@@ -83,6 +86,8 @@ public class Eam implements ModInitializer {
 		if (config.crafting()) CraftingModule.init();
 		if (config.gear()) GearModule.init();
 		if (config.removeDiamondGear()) DiamondGearModule.init();
+		if (config.lockedVillages()) VillageModule.init();
+		if (config.removeStructures()) StructureRemovalModule.init();
 		if (config.ironPlates()) ForgingModule.init();
 		if (config.silver()) SilverModule.init();
 		if (config.silver()) BrewingModule.init();

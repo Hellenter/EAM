@@ -9,6 +9,8 @@
   "block.eam.silver_block": "Block of Silver",
   "block.eam.silver_brewing_stand": "Silver Brewing Stand",
   "block.eam.silver_ore": "Silver Ore",
+  "commands.eam.villages.locked": "Only abandoned villages generate in new chunks",
+  "commands.eam.villages.unlocked": "Normal villages generate in new chunks",
   "container.eam.silver_brewing_stand": "Silver Brewing Stand",
   "death.attack.eam.dehydration": "%1$s died of thirst",
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",

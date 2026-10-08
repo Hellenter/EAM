@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:village/plains/town_centers",
+    "minecraft:village/desert/town_centers",
+    "minecraft:village/savanna/town_centers",
+    "minecraft:village/snowy/town_centers",
+    "minecraft:village/taiga/town_centers"
+  ]
+}

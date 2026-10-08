@@ -40,24 +40,30 @@ public record EamConfig(
 		boolean mobRunning,
 		boolean defensiveCows,
 		boolean blastFurnaceIron,
-		boolean silver
+		boolean silver,
+		boolean lockedVillages,
+		boolean removeStructures
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
 	 * the same flat JSON object; add new flags here.
 	 */
-	private record LaterFlags(boolean mobRunning, boolean defensiveCows, boolean blastFurnaceIron, boolean silver) {
+	private record LaterFlags(boolean mobRunning, boolean defensiveCows, boolean blastFurnaceIron, boolean silver,
+			boolean lockedVillages, boolean removeStructures) {
 		private static final MapCodec<LaterFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(LaterFlags::mobRunning),
 				Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(LaterFlags::defensiveCows),
 				Codec.BOOL.optionalFieldOf("blast_furnace_iron", DEFAULT.blastFurnaceIron).forGetter(LaterFlags::blastFurnaceIron),
-				Codec.BOOL.optionalFieldOf("silver", DEFAULT.silver).forGetter(LaterFlags::silver)
+				Codec.BOOL.optionalFieldOf("silver", DEFAULT.silver).forGetter(LaterFlags::silver),
+				Codec.BOOL.optionalFieldOf("locked_villages", DEFAULT.lockedVillages).forGetter(LaterFlags::lockedVillages),
+				Codec.BOOL.optionalFieldOf("remove_structures", DEFAULT.removeStructures).forGetter(LaterFlags::removeStructures)
 		).apply(instance, LaterFlags::new));
 
 		private static LaterFlags of(EamConfig config) {
-			return new LaterFlags(config.mobRunning, config.defensiveCows, config.blastFurnaceIron, config.silver);
+			return new LaterFlags(config.mobRunning, config.defensiveCows, config.blastFurnaceIron, config.silver, config.lockedVillages,
+					config.removeStructures);
 		}
 	}
 
@@ -80,7 +86,7 @@ public record EamConfig(
 	).apply(instance, (hunger, thirst, progression, mining, stackSizes, mobs, mobBlockBreaking, removeEarlyTools, ores, crafting,
 			gear, removeDiamondGear, mobDrops, ironPlates, later) -> new EamConfig(hunger, thirst, progression, mining, stackSizes, mobs,
 			mobBlockBreaking, removeEarlyTools, ores, crafting, gear, removeDiamondGear, mobDrops, ironPlates, later.mobRunning,
-			later.defensiveCows, later.blastFurnaceIron, later.silver)));
+			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
