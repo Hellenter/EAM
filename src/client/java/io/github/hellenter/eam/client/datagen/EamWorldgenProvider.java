@@ -32,13 +32,15 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Pebbles, flint shards and sticks on the surface. In forests a pebble tries to spawn twice per chunk and
- * a flint shard 16 times less often; in the mountains they lie only on stone and gravel, with flint shards
- * 8 times rarer. Sticks lie under tree crowns, 12 tries per chunk in any overworld biome.
+ * Pebbles, flint shards and sticks on the surface. In forests a pebble gets 0.8 tries per chunk on average
+ * (4 tries, each kept 1 time in 5) and a flint shard 16 times fewer; in the mountains they lie only on stone
+ * and gravel, with flint shards 8 times rarer. Sticks lie under tree crowns, 3 tries per chunk in any
+ * overworld biome.
  */
 public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	/** How far above the ground a tree crown counts for a stick under it. */
@@ -61,15 +63,15 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		var stick = features.getOrThrow(EamWorldgen.GROUND_STICK);
 
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_FOREST, pebble,
-				onSurface(CountPlacement.of(2), forestFloor()));
+				onSurface(forestFloor(), CountPlacement.of(4), RarityFilter.onAverageOnceEvery(5)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_FOREST, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(8), forestFloor()));
+				onSurface(forestFloor(), RarityFilter.onAverageOnceEvery(20)));
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_MOUNTAIN, pebble,
-				onSurface(CountPlacement.of(2), stoneOrGravel()));
+				onSurface(stoneOrGravel(), CountPlacement.of(4), RarityFilter.onAverageOnceEvery(5)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_MOUNTAIN, flintShard,
-				onSurface(RarityFilter.onAverageOnceEvery(4), stoneOrGravel()));
+				onSurface(stoneOrGravel(), RarityFilter.onAverageOnceEvery(10)));
 		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_UNDER_TREES, stick,
-				onSurface(CountPlacement.of(12), BlockPredicate.allOf(forestFloor(), underLeaves())));
+				onSurface(BlockPredicate.allOf(forestFloor(), underLeaves()), CountPlacement.of(3)));
 	}
 
 	private static Feature groundItem(Block block) {
@@ -77,14 +79,14 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockStateProvider.of(block), GroundItemBlock.POSITION, UniformInt.of(0, GroundItemLogic.POSITIONS - 1)));
 	}
 
-	private static List<PlacementModifier> onSurface(PlacementModifier frequency, BlockPredicate ground) {
-		return List.of(
-				frequency,
-				InSquarePlacement.spread(),
-				PlacementUtils.HEIGHTMAP_NO_LEAVES,
-				BiomeFilter.biome(),
-				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, ground))
-		);
+	/** {@code frequency} decides how many tries a chunk gets; each try lands on a random surface spot. */
+	private static List<PlacementModifier> onSurface(BlockPredicate ground, PlacementModifier... frequency) {
+		List<PlacementModifier> modifiers = new ArrayList<>(List.of(frequency));
+		modifiers.add(InSquarePlacement.spread());
+		modifiers.add(PlacementUtils.HEIGHTMAP_NO_LEAVES);
+		modifiers.add(BiomeFilter.biome());
+		modifiers.add(BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, ground)));
+		return modifiers;
 	}
 
 	/** Dirt, grass, podzol, moss, mud, stone or gravel underneath. */
