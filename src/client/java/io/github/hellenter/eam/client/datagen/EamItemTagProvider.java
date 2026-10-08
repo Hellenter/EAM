@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
+import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -35,6 +36,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				EamItems.FLINT_SHARD.builtInRegistryHolder().key());
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key());
+
+		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT));
 
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,
