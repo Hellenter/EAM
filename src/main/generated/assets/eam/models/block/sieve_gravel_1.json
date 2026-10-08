@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#gravel"
+        },
+        "east": {
+          "texture": "#gravel"
+        },
+        "north": {
+          "texture": "#gravel"
+        },
+        "south": {
+          "texture": "#gravel"
+        },
+        "up": {
+          "texture": "#gravel"
+        },
+        "west": {
+          "texture": "#gravel"
+        }
+      },
+      "from": [
+        2.0,
+        12.5,
+        2.0
+      ],
+      "to": [
+        14.0,
+        13.0,
+        14.0
+      ]
+    }
+  ],
+  "textures": {
+    "gravel": "minecraft:block/gravel",
+    "particle": "minecraft:block/gravel"
+  }
+}

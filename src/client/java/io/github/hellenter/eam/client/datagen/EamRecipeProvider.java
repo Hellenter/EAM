@@ -101,6 +101,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
 						.save(output);
 
+				// Threads stretched over a frame of planks on stick legs.
+				shaped(RecipeCategory.DECORATIONS, EamItems.SIEVE)
+						.define('T', EamItems.FLASK_THREADS)
+						.define('P', ItemTags.PLANKS)
+						.define('S', Items.STICK)
+						.pattern("TTT")
+						.pattern("P P")
+						.pattern("S S")
+						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
+						.save(output);
+
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 			}
 

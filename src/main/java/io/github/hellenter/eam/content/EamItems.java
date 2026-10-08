@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.PebbleItem;
+import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
@@ -59,6 +60,10 @@ public final class EamItems {
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
 
+	/** The sieve block; its damage is how many gravel it has sifted. */
+	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
+			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -78,6 +83,8 @@ public final class EamItems {
 				output.insertAfter(Items.BOW, SLINGSHOT));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
+				output.insertAfter(Items.COMPOSTER, SIEVE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->

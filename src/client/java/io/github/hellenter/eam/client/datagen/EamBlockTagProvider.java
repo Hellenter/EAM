@@ -78,7 +78,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		tag.add(EamBlocks.CAMP_FIRE.builtInRegistryHolder().key(),
 				EamBlocks.PEBBLE.builtInRegistryHolder().key(),
 				EamBlocks.FLINT_SHARD.builtInRegistryHolder().key(),
-				EamBlocks.GROUND_STICK.builtInRegistryHolder().key());
+				EamBlocks.GROUND_STICK.builtInRegistryHolder().key(),
+				EamBlocks.SIEVE.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key());
 
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 	}
