@@ -17,6 +17,7 @@
 		"world.crafting.BlockStateBaseCraftingMixin",
 		"world.crafting.CraftingMenuMixin",
 		"world.crafting.CraftingTableBlockMixin",
+		"world.crafting.ResultSlotAccessor",
 		"world.crafting.ResultSlotMixin",
 		"world.items.ItemInstanceMixin",
 		"world.mining.BlockStateBaseMixin"

@@ -48,7 +48,7 @@ public final class CraftProgress {
 		CraftTimer timer = timed.eam$craftTimer();
 		int total = timer.total();
 		int progress = timer.progress();
-		if (total <= 0 || progress >= total) {
+		if (!timer.running() || total <= 0 || progress >= total) {
 			return;
 		}
 		int width = Math.max(1, arrow.width() * progress / total);

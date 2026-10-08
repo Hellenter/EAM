@@ -50,7 +50,7 @@ public class CraftingTableMenu extends CraftingMenu {
 		return CraftingModule.isCraftingTool(tools.getItem(0));
 	}
 
-	/** One craft was taken: wear the tool down, and stop crafting if it broke. */
+	/** One craft finished: wear the tool down, and stop crafting if it broke. */
 	void damageTool(Player player) {
 		ItemStack tool = tools.getItem(0);
 		if (tool.isEmpty() || !(player instanceof ServerPlayer serverPlayer)) {

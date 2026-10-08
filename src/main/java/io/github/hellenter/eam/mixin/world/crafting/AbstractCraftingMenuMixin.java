@@ -7,7 +7,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractCraftingMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.ResultContainer;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,11 +17,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Every crafting menu carries a craft timer, synced to the client as two data slots. */
+/** Every crafting menu carries a craft timer, synced to the client as three data slots. */
 @Mixin(AbstractCraftingMenu.class)
 public abstract class AbstractCraftingMenuMixin implements TimedCraftingMenu {
 	@Unique
 	private CraftTimer eam$craftTimer;
+
+	@Shadow
+	@Final
+	protected ResultContainer resultSlots;
 
 	@Shadow
 	protected abstract Player owner();
@@ -29,6 +35,7 @@ public abstract class AbstractCraftingMenuMixin implements TimedCraftingMenu {
 		eam$craftTimer = new CraftTimer(this::owner);
 		eam$addDataSlot(eam$craftTimer.progressSlot());
 		eam$addDataSlot(eam$craftTimer.totalSlot());
+		eam$addDataSlot(eam$craftTimer.flagsSlot());
 	}
 
 	@Unique
@@ -39,5 +46,10 @@ public abstract class AbstractCraftingMenuMixin implements TimedCraftingMenu {
 	@Override
 	public CraftTimer eam$craftTimer() {
 		return eam$craftTimer;
+	}
+
+	@Override
+	public ResultContainer eam$resultSlots() {
+		return resultSlots;
 	}
 }
