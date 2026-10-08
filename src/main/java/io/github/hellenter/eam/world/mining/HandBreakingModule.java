@@ -12,8 +12,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Without a tool in the main hand only blocks in {@link #HAND_BREAKABLE} (and blocks that break instantly)
- * can be broken; everything else gets no break progress at all. The rule is in {@link HandBreakingLogic}.
+ * Player block breaking. Without a tool in the main hand only blocks in {@link #HAND_BREAKABLE} (and blocks
+ * that break instantly) can be broken; everything else gets no break progress at all ({@link HandBreakingLogic}).
+ * Everything breaks slower, and nothing breaks instantly ({@link BreakTimeLogic}).
  */
 public final class HandBreakingModule {
 	/** Blocks a player can break with an empty hand or a non-tool item. */
@@ -33,11 +34,12 @@ public final class HandBreakingModule {
 		if (!enabled || original <= 0.0F) {
 			return original;
 		}
-		return HandBreakingLogic.destroyProgress(
+		float progress = HandBreakingLogic.destroyProgress(
 				original,
 				player.getMainHandItem().has(DataComponents.TOOL),
 				state.is(HAND_BREAKABLE),
 				state.getDestroySpeed(level, pos)
 		);
+		return BreakTimeLogic.destroyProgress(progress);
 	}
 }
