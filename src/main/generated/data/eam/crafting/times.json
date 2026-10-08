@@ -15,5 +15,10 @@
       "seconds": 5.0,
       "tag": "eam:craft_time/five_seconds"
     }
+  ],
+  "tool_speed_bonus": [
+    0.15,
+    0.25,
+    0.35
   ]
 }

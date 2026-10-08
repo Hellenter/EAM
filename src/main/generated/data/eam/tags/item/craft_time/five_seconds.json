@@ -25,6 +25,9 @@
       "required": false
     },
     "eam:flint_knife",
+    "eam:copper_knife",
+    "eam:silver_knife",
+    "eam:iron_knife",
     "minecraft:shears",
     "minecraft:flint_and_steel",
     "minecraft:fishing_rod",

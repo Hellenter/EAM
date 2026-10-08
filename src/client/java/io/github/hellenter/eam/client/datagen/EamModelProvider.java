@@ -107,6 +107,9 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.FLINT_HATCHET, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
+		generators.generateFlatItem(EamItems.COPPER_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
+		generators.generateFlatItem(EamItems.SILVER_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
+		generators.generateFlatItem(EamItems.IRON_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.PEBBLE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_SHARD, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.HOT_IRON_INGOT, ModelTemplates.FLAT_ITEM);

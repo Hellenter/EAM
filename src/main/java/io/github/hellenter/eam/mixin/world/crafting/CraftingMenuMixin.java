@@ -24,8 +24,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CraftingMenuMixin {
 	@ModifyVariable(method = "slotChangedCraftingGrid", ordinal = 0, at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/inventory/ResultContainer;setItem(ILnet/minecraft/world/item/ItemStack;)V"))
-	private static ItemStack eam$shownResult(ItemStack result, AbstractContainerMenu menu) {
-		return CraftingModule.result(menu, result);
+	private static ItemStack eam$shownResult(ItemStack result, AbstractContainerMenu menu, ServerLevel level, Player player,
+			CraftingContainer container) {
+		return CraftingModule.result(menu, result, container);
 	}
 
 	@Inject(method = "slotChangedCraftingGrid", at = @At("TAIL"))

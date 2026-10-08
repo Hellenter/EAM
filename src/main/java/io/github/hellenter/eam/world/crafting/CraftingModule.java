@@ -32,7 +32,9 @@ import org.jspecify.annotations.Nullable;
  * Crafting takes time: a click on the offered result starts the craft, and when it has run (by hand at full time, on
  * a crafting table at {@link CraftTimeRules#craftingTableMultiplier()}) the ingredients are used up and the result
  * waits in the slot; the next craft follows while the grid still makes it. The crafter block is not touched.
- * The crafting table needs a tool in its own slot, kept in the table between uses.
+ * The crafting table needs a tool in one of its three tool slots, kept in the table between uses; tools are not used
+ * up but make crafting faster. Crafting with metal needs a tool of the tier below it in the table, so the inventory
+ * grid cannot craft with metal at all ({@link CraftingTierLogic}).
  */
 public final class CraftingModule {
 	private static final Component CRAFTING_TITLE = Component.translatable("container.crafting");
@@ -86,10 +88,22 @@ public final class CraftingModule {
 				new CraftingTableMenu(containerId, inventory, table.tools(), ContainerLevelAccess.create(level, pos)), CRAFTING_TITLE);
 	}
 
-	/** Server: what the result slot shows: finished crafts, else what the grid makes. A table without a tool makes nothing. */
-	public static ItemStack result(AbstractContainerMenu menu, ItemStack result) {
-		ItemStack preview = menu instanceof CraftingTableMenu table && !table.hasTool() ? ItemStack.EMPTY : result;
+	/**
+	 * Server: what the result slot shows: finished crafts, else what the grid makes. A table without a tool makes nothing,
+	 * and metal needs a tool of the tier below it.
+	 */
+	public static ItemStack result(AbstractContainerMenu menu, ItemStack result, CraftingContainer grid) {
+		ItemStack preview = mayCraft(menu, result, grid) ? result : ItemStack.EMPTY;
 		return menu instanceof TimedCraftingMenu timed ? timed.eam$craftTimer().updatePreview(preview) : preview;
+	}
+
+	private static boolean mayCraft(AbstractContainerMenu menu, ItemStack result, CraftingContainer grid) {
+		if (menu instanceof CraftingTableMenu table) {
+			// The table menu exists only while the module is on.
+			return table.hasTool() && CraftingTierLogic.canCraft(CraftingTiers.materialTier(grid, result), table.bestToolTier());
+		}
+		return !enabled || !(menu instanceof TimedCraftingMenu)
+				|| CraftingTierLogic.canCraft(CraftingTiers.materialTier(grid, result), CraftingTierLogic.NONE);
 	}
 
 	/** Server: the grid was evaluated again; the craft goes on, starts over or stops. */
@@ -101,7 +115,7 @@ public final class CraftingModule {
 		ItemStack preview = timer.preview();
 		int ticks = !enabled || preview.isEmpty() || player.hasInfiniteMaterials()
 				? 0
-				: rules.ticks(preview, ingredients(grid), menu instanceof CraftingTableMenu);
+				: rules.ticks(preview, ingredients(grid), menu instanceof CraftingTableMenu table ? table.toolTiers() : null);
 		timer.afterPreview(ticks);
 	}
 
@@ -187,9 +201,6 @@ public final class CraftingModule {
 			// Vanilla take: stats, recipe unlocks, ingredients used up, remainders; the grid is evaluated again.
 			((ResultSlotAccessor) slot).eam$setRemoveCount(crafted.getCount());
 			slot.onTake(player, crafted);
-			if (menu instanceof CraftingTableMenu table) {
-				table.damageTool(player);
-			}
 		} finally {
 			timer.setCompleting(false);
 		}

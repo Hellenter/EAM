@@ -98,6 +98,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
 						.save(output);
 
+				// Metal knives: ingot and stick, made in a crafting table with a knife of the tier below.
+				knife(EamItems.COPPER_KNIFE, Items.COPPER_INGOT);
+				knife(EamItems.SILVER_KNIFE, EamItems.SILVER_INGOT);
+				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
+
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
 						.requires(Items.FLINT, 3)
@@ -184,6 +189,14 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 			}
 
 			/** Silver smelts like copper, packs into nuggets and blocks like iron, and makes copper-shaped tools and armor. */
+			private void knife(Item knife, Item ingot) {
+				shapeless(RecipeCategory.COMBAT, knife)
+						.requires(Items.STICK)
+						.requires(ingot)
+						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+			}
+
 			private void silverRecipes() {
 				for (Item smeltable : List.of(EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER)) {
 					SimpleCookingRecipeBuilder.smelting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
