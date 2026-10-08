@@ -34,9 +34,10 @@ public record EamConfig(
 		boolean crafting,
 		boolean gear,
 		boolean removeDiamondGear,
+		boolean mobDrops,
 		boolean ironPlates
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -51,6 +52,7 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("crafting", DEFAULT.crafting).forGetter(EamConfig::crafting),
 			Codec.BOOL.optionalFieldOf("gear", DEFAULT.gear).forGetter(EamConfig::gear),
 			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear),
+			Codec.BOOL.optionalFieldOf("mob_drops", DEFAULT.mobDrops).forGetter(EamConfig::mobDrops),
 			Codec.BOOL.optionalFieldOf("iron_plates", DEFAULT.ironPlates).forGetter(EamConfig::ironPlates)
 	).apply(instance, EamConfig::new));
 

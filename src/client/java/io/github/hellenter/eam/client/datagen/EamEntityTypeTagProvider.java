@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
+import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -34,5 +35,6 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(SKELETONS);
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS);
 		builder(BlockBreakingModule.TARGETS).add(EntityTypeIds.PLAYER);
+		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
 	}
 }
