@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.vanilla.breaking;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
+import io.github.hellenter.eam.world.mining.HandBreakingModule;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -31,8 +32,8 @@ public final class BlockBreakingModule {
 	public static final TagKey<EntityType<?>> BREAKERS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("breaks_blocks"));
 	/** Targets mobs dig toward: players. A datapack can add villagers and other mobs. */
 	public static final TagKey<EntityType<?>> TARGETS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("block_breaking_targets"));
-	/** Blocks a player can break bare-handed; mobs can break the same ones. Filled by the mining module. */
-	public static final TagKey<Block> HAND_BREAKABLE = TagKey.create(Registries.BLOCK, Eam.id("hand_breakable"));
+	/** Mobs break the same blocks a player can break bare-handed. */
+	public static final TagKey<Block> HAND_BREAKABLE = HandBreakingModule.HAND_BREAKABLE;
 
 	private static final int GOAL_PRIORITY = 1;
 	private static final int DECAY_INTERVAL = 20;

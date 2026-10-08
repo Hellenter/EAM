@@ -9,7 +9,8 @@
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",
 		"survival.thirst.PlayerThirstMixin",
-		"world.items.ItemInstanceMixin"
+		"world.items.ItemInstanceMixin",
+		"world.mining.BlockStateBaseMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

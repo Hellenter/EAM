@@ -1,0 +1,43 @@
+package io.github.hellenter.eam.world.mining;
+
+import io.github.hellenter.eam.Eam;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+
+/**
+ * Without a tool in the main hand only blocks in {@link #HAND_BREAKABLE} (and blocks that break instantly)
+ * can be broken; everything else gets no break progress at all. The rule is in {@link HandBreakingLogic}.
+ */
+public final class HandBreakingModule {
+	/** Blocks a player can break with an empty hand or a non-tool item. */
+	public static final TagKey<Block> HAND_BREAKABLE = TagKey.create(Registries.BLOCK, Eam.id("hand_breakable"));
+
+	private static boolean enabled;
+
+	private HandBreakingModule() {
+	}
+
+	public static void init() {
+		enabled = true;
+	}
+
+	/** Called from the mixin on both sides, so the client does not show cracks the server rejects. */
+	public static float destroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos, float original) {
+		if (!enabled || original <= 0.0F) {
+			return original;
+		}
+		return HandBreakingLogic.destroyProgress(
+				original,
+				player.getMainHandItem().has(DataComponents.TOOL),
+				state.is(HAND_BREAKABLE),
+				state.getDestroySpeed(level, pos)
+		);
+	}
+}

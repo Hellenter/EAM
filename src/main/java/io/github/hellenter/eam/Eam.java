@@ -12,6 +12,7 @@ import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
+import io.github.hellenter.eam.world.mining.HandBreakingModule;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -47,6 +48,7 @@ public class Eam implements ModInitializer {
 		if (config.hunger()) HungerModule.init();
 		if (config.thirst()) ThirstModule.init();
 		if (config.stackSizes()) StackSizeModule.init();
+		if (config.mining()) HandBreakingModule.init();
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 	}
 

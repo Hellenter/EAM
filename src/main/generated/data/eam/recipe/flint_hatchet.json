@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:flint",
+    "eam:leather_thread"
+  ],
+  "result": {
+    "id": "eam:flint_hatchet"
+  }
+}
