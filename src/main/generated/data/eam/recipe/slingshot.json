@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "minecraft:leather",
+    "#eam:flask_threads",
+    "#eam:flask_threads"
+  ],
+  "result": {
+    "id": "eam:slingshot"
+  }
+}

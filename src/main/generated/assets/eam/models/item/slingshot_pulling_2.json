@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "eam:item/slingshot_pulling_2"
+  }
+}
