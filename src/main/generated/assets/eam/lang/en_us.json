@@ -22,9 +22,12 @@
   "item.eam.flask.filter": "Filter: %s/%s",
   "item.eam.flask.filter_spent": "Filter is spent",
   "item.eam.flask.water": "Water: %s/%s",
+  "item.eam.flint_axe": "Flint Axe",
+  "item.eam.flint_hatchet": "Flint Hatchet",
   "item.eam.leather_flask": "Leather Flask",
   "item.eam.leather_thread": "Leather Thread",
   "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s",
   "tag.item.eam.camp_fire_igniters": "Camp Fire Igniters",
-  "tag.item.eam.flask_threads": "Flask Threads"
+  "tag.item.eam.flask_threads": "Flask Threads",
+  "tag.item.eam.flint_tool_materials": "Flint Tool Materials"
 }

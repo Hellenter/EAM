@@ -61,6 +61,21 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.FLINT_SHARD), has(EamItems.FLINT_SHARD))
 						.save(output, "eam:flint_from_shards");
 
+				// Four ingredients fit the inventory grid: the hatchet is made without a crafting table.
+				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_HATCHET)
+						.requires(Items.STICK, 2)
+						.requires(Items.FLINT)
+						.requires(EamItems.LEATHER_THREAD)
+						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
+						.save(output);
+
+				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
+						.requires(Items.STICK, 2)
+						.requires(Items.FLINT, 3)
+						.requires(EamItems.LEATHER_THREAD)
+						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
+						.save(output);
+
 				shapeless(RecipeCategory.DECORATIONS, EamItems.CAMP_FIRE)
 						.requires(Items.STICK, 3)
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))

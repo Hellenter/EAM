@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.PebbleItem;
+import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
@@ -44,6 +45,12 @@ public final class EamItems {
 	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
+	public static final Item FLINT_HATCHET = register("flint_hatchet", Item::new, new Item.Properties()
+			.axe(FlintTools.HATCHET, FlintTools.HATCHET_DAMAGE, FlintTools.HATCHET_ATTACK_SPEED));
+
+	public static final Item FLINT_AXE = register("flint_axe", Item::new, new Item.Properties()
+			.axe(FlintTools.AXE, FlintTools.AXE_DAMAGE, FlintTools.AXE_ATTACK_SPEED));
+
 	/** Thread that stitches a flask: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -61,6 +68,8 @@ public final class EamItems {
 				output.insertAfter(Items.SNOWBALL, PEBBLE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
+				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
