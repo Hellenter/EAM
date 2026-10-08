@@ -17,7 +17,8 @@ import java.util.stream.IntStream;
 /**
  * Camp fire models: a ring of stones, up to nine sticks leaning together like a teepee (fewer than three lie on the
  * ground as if fallen), a heap of coals that grows as sticks burn, and flames when lit. Multipart, so each stick shows
- * once the fire holds that many, with the texture of how burnt the sticks are.
+ * once the fire holds that many, with the texture of how burnt its group of sticks is: sticks put on a blackening
+ * fire start fresh (see {@link io.github.hellenter.eam.content.campfire.StickPile}).
  */
 final class CampFireModels {
 	private static final String STONE = "minecraft:block/cobblestone";
@@ -54,25 +55,18 @@ final class CampFireModels {
 		for (int stick = 1; stick <= CampFireBlock.MAX_STICKS; stick++) {
 			int index = stick;
 			// Standing while the fire holds at least STANDING_STICKS sticks; stick 1 and 2 then lie when fewer are left.
-			int from = Math.max(stick, CampFireBlock.STANDING_STICKS);
-			Integer[] standingRest = IntStream.rangeClosed(from + 1, CampFireBlock.MAX_STICKS).boxed().toArray(Integer[]::new);
+			int[] standing = range(Math.max(stick, CampFireBlock.STANDING_STICKS), CampFireBlock.MAX_STICKS);
+			int[] lying = range(stick, CampFireBlock.STANDING_STICKS - 1);
 			for (int stage = CampFireBlock.FRESH; stage <= CampFireBlock.CHARRED; stage++) {
 				String suffix = stage == CampFireBlock.FRESH ? "" : "_char_" + stage;
 				String texture = STICK[stage];
-				Identifier standing = Eam.id("block/camp_fire_stick_" + stick + suffix);
-				generators.modelOutput.accept(standing, () -> model(texture, single(stickElement(index))));
-				blockState.with(BlockModelGenerators.condition()
-								.term(CampFireBlock.STICKS, from, standingRest)
-								.term(CampFireBlock.CHAR, stage),
-						BlockModelGenerators.plainVariant(standing));
+				Identifier standingModel = Eam.id("block/camp_fire_stick_" + stick + suffix);
+				generators.modelOutput.accept(standingModel, () -> model(texture, single(stickElement(index))));
+				addStick(blockState, stick, standing, stage, standingModel);
 				if (stick < CampFireBlock.STANDING_STICKS) {
-					Identifier lying = Eam.id("block/camp_fire_stick_" + stick + "_lying" + suffix);
-					generators.modelOutput.accept(lying, () -> model(texture, single(lyingStickElement(index))));
-					Integer[] lyingRest = IntStream.range(stick + 1, CampFireBlock.STANDING_STICKS).boxed().toArray(Integer[]::new);
-					blockState.with(BlockModelGenerators.condition()
-									.term(CampFireBlock.STICKS, stick, lyingRest)
-									.term(CampFireBlock.CHAR, stage),
-							BlockModelGenerators.plainVariant(lying));
+					Identifier lyingModel = Eam.id("block/camp_fire_stick_" + stick + "_lying" + suffix);
+					generators.modelOutput.accept(lyingModel, () -> model(texture, single(lyingStickElement(index))));
+					addStick(blockState, stick, lying, stage, lyingModel);
 				}
 			}
 		}
@@ -86,6 +80,31 @@ final class CampFireModels {
 		generators.blockStateOutput.accept(blockState);
 
 		// The item uses Maxim's flat icon, eam:item/camp_fire; see EamModelProvider.
+	}
+
+	/**
+	 * Shows stick {@code stick} with {@code model} while the fire holds {@code sticks} sticks: with the old sticks'
+	 * look when it is one of them, else with the look of the sticks put in later.
+	 */
+	private static void addStick(MultiPartGenerator blockState, int stick, int[] sticks, int stage, Identifier model) {
+		blockState.with(BlockModelGenerators.condition()
+						.term(CampFireBlock.STICKS, sticks[0], rest(sticks))
+						.term(CampFireBlock.OLD_STICKS, stick, rest(range(stick, CampFireBlock.MAX_STICKS)))
+						.term(CampFireBlock.CHAR, stage),
+				BlockModelGenerators.plainVariant(model));
+		blockState.with(BlockModelGenerators.condition()
+						.term(CampFireBlock.STICKS, sticks[0], rest(sticks))
+						.term(CampFireBlock.OLD_STICKS, 0, rest(range(0, stick - 1)))
+						.term(CampFireBlock.NEW_CHAR, stage),
+				BlockModelGenerators.plainVariant(model));
+	}
+
+	private static int[] range(int from, int to) {
+		return IntStream.rangeClosed(from, to).toArray();
+	}
+
+	private static Integer[] rest(int[] values) {
+		return IntStream.of(values).skip(1).boxed().toArray(Integer[]::new);
 	}
 
 	private static JsonArray ringElements() {
