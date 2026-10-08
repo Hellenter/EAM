@@ -36,7 +36,8 @@ final class BreakThroughGoal extends Goal {
 
 	private final Mob mob;
 	private final List<TargetGoal> targetGoals;
-	private int cooldown;
+	/** Game time of the next check whether the target is walled in. */
+	private long nextCheck;
 	private int replanIn;
 	private int stuckTicks;
 	private int workTicks;
@@ -47,21 +48,25 @@ final class BreakThroughGoal extends Goal {
 	private long[] work;
 	/** The last plan found no way to the target at all. */
 	private boolean lastPlanBlocked;
+	/** The mob was hitting a block last tick. */
+	private boolean hitting;
 
 	BreakThroughGoal(Mob mob, List<TargetGoal> targetGoals) {
 		this.mob = mob;
 		this.targetGoals = targetGoals;
 		// Spread the checks of many mobs over different ticks.
-		this.cooldown = mob.getRandom().nextInt(BlockBreakingModule.settings().replanTicks());
+		this.nextCheck = mob.getRandom().nextInt(BlockBreakingModule.settings().replanTicks());
 		setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
 	}
 
 	@Override
 	public boolean canUse() {
-		if (--cooldown > 0) {
+		long now = mob.level().getGameTime();
+		if (now < nextCheck) {
 			return false;
 		}
-		cooldown = BlockBreakingModule.settings().replanTicks();
+		int interval = BlockBreakingModule.settings().replanTicks();
+		nextCheck = now + interval;
 		if (!validTarget(mob.getTarget()) || targetReachable()) {
 			return false;
 		}
@@ -72,7 +77,7 @@ final class BreakThroughGoal extends Goal {
 		target = null;
 		if (plan == null && lastPlanBlocked) {
 			// Walled in by blocks mobs cannot break: the search used its whole budget, so wait longer.
-			cooldown *= BLOCKED_BACKOFF;
+			nextCheck = now + (long) interval * BLOCKED_BACKOFF;
 		}
 		return false;
 	}
@@ -89,6 +94,7 @@ final class BreakThroughGoal extends Goal {
 
 	@Override
 	public void start() {
+		hitting = false;
 		replanIn = BlockBreakingModule.settings().replanTicks();
 		stuckTicks = 0;
 		workTicks = 0;
@@ -101,7 +107,7 @@ final class BreakThroughGoal extends Goal {
 		standAt = null;
 		target = null;
 		mob.getNavigation().stop();
-		cooldown = BlockBreakingModule.settings().replanTicks();
+		nextCheck = mob.level().getGameTime() + BlockBreakingModule.settings().replanTicks();
 	}
 
 	@Override
@@ -110,7 +116,8 @@ final class BreakThroughGoal extends Goal {
 		for (TargetGoal goal : targetGoals) {
 			((TargetGoalAccessor) goal).eam$setUnseenTicks(0);
 		}
-		if (--replanIn <= 0 || stuckTicks > STUCK_TICKS) {
+		// While the mob is hitting a block the route stays the same: re-plan once it breaks or the mob gets stuck.
+		if (--replanIn <= 0 && !hitting || stuckTicks > STUCK_TICKS) {
 			replanIn = BlockBreakingModule.settings().replanTicks();
 			stuckTicks = 0;
 			if (!replan()) {
@@ -132,6 +139,7 @@ final class BreakThroughGoal extends Goal {
 			}
 		}
 
+		hitting = false;
 		if (mob.getEyePosition().distanceToSqr(Vec3.atCenterOf(pos)) > REACH_SQR) {
 			stuckTicks++;
 			if (mob.getNavigation().isDone()) {
@@ -154,9 +162,7 @@ final class BreakThroughGoal extends Goal {
 			return;
 		}
 		stuckTicks = 0;
-		if (BlockDamage.work(level, pos, state, total, mob)) {
-			replanIn = Math.min(replanIn, 1);
-		}
+		hitting = !BlockDamage.work(level, pos, state, total, mob);
 	}
 
 	/** The next block of the current step that still stands, or null when the step is open. */

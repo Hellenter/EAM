@@ -15,7 +15,7 @@ class BreachPlannerTest {
 	private static final int DIRT = 300;
 	private static final int PLANKS = 1200;
 
-	private final BreachPlanner planner = new BreachPlanner(1200, 16, 5, 10);
+	private final BreachPlanner planner = new BreachPlanner(600, 16, 5, 150);
 
 	/** Flat stone floor at y = -1, air above, plus whatever blocks a test puts in. */
 	private static final class World implements BreachPlanner.Terrain {

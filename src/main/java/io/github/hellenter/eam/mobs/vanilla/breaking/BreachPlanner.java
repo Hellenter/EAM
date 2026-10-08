@@ -63,20 +63,23 @@ public final class BreachPlanner {
 	private final int maxNodes;
 	private final int radius;
 	private final int walkTicks;
-	private final int heuristicWeight;
+	private final int distanceTicks;
+	/** Reused by every expansion; the planner runs on the server thread only. */
+	private final LongArrayList breaks = new LongArrayList(8);
 
 	/**
 	 * @param maxNodes        most nodes one search expands
 	 * @param radius          the search stays within this many blocks of the mob on each axis
 	 * @param walkTicks       cost of walking one block, in ticks
-	 * @param heuristicWeight how much a block of distance to the target weighs against walking it; above 1 the search
-	 *                        heads for the target instead of trying every detour cheaper than breaking a wall
+	 * @param distanceTicks   what one block of distance to the target is estimated to cost, in ticks. Far above
+	 *                        {@code walkTicks} on purpose: the search heads for the target instead of trying every
+	 *                        detour that is cheaper than breaking a wall, which keeps it small
 	 */
-	public BreachPlanner(int maxNodes, int radius, int walkTicks, int heuristicWeight) {
+	public BreachPlanner(int maxNodes, int radius, int walkTicks, int distanceTicks) {
 		this.maxNodes = maxNodes;
 		this.radius = radius;
 		this.walkTicks = walkTicks;
-		this.heuristicWeight = heuristicWeight;
+		this.distanceTicks = distanceTicks;
 	}
 
 	private static final class Node implements Comparable<Node> {
@@ -145,7 +148,8 @@ public final class BreachPlanner {
 			return;
 		}
 		int y = from.y;
-		LongArrayList breaks = new LongArrayList(4);
+		LongArrayList breaks = this.breaks;
+		breaks.clear();
 
 		// Flat move, or a drop when there is no floor.
 		if (clear(t, nx, y, nz, height, breaks)) {
@@ -233,7 +237,7 @@ public final class BreachPlanner {
 	}
 
 	private int heuristic(int x, int y, int z, int tx, int ty, int tz) {
-		return distance(x, y, z, tx, ty, tz) * walkTicks * heuristicWeight;
+		return distance(x, y, z, tx, ty, tz) * distanceTicks;
 	}
 
 	private static List<Step> route(Node end) {

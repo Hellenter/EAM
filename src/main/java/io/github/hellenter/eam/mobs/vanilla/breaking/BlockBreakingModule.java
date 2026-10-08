@@ -86,6 +86,9 @@ public final class BlockBreakingModule {
 				.filter(TargetGoal.class::isInstance)
 				.map(TargetGoal.class::cast)
 				.toList();
+		for (TargetGoal goal : targetGoals) {
+			goal.setUnseenMemoryTicks(settings.targetMemoryTicks());
+		}
 		goals.addGoal(GOAL_PRIORITY, new BreakThroughGoal(mob, targetGoals));
 	}
 
@@ -103,9 +106,9 @@ public final class BlockBreakingModule {
 	}
 
 	private static BreachPlanner planner(BlockBreakingSettings value) {
-		// A block of distance to the target weighs like ten blocks of walking: mobs head for the target
-		// instead of searching every detour that is cheaper than breaking a wall.
-		return new BreachPlanner(value.maxNodes(), value.searchRadius(), 5, 10);
+		// Walking a block takes a zombie about 5 ticks. A block of distance to the target is estimated like breaking
+		// half a dirt block, so the search heads for the target instead of flooding every open cell nearby.
+		return new BreachPlanner(value.maxNodes(), value.searchRadius(), 5, value.ticksPerHardness() / 4);
 	}
 
 	static void recordPlan(int expanded, long nanos) {
