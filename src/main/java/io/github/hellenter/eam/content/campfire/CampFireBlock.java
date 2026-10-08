@@ -54,8 +54,12 @@ public class CampFireBlock extends BaseEntityBlock {
 	public static final int FRESH = 0;
 	public static final int SCORCHED = 1;
 	public static final int CHARRED = 2;
-	/** How burnt the sticks look; they blacken the longer the fire burns. */
+	/** How burnt the old sticks look; they blacken the longer the fire burns. */
 	public static final IntegerProperty CHAR = IntegerProperty.create("char", FRESH, CHARRED);
+	/** Sticks in the old group; the sticks above them were put in later and blacken on their own. See {@link StickPile}. */
+	public static final IntegerProperty OLD_STICKS = IntegerProperty.create("old_sticks", 0, MAX_STICKS);
+	/** How burnt the sticks put in later look. */
+	public static final IntegerProperty NEW_CHAR = IntegerProperty.create("new_char", FRESH, CHARRED);
 	/** Sticks lie on the ground instead of standing as a teepee when there are fewer than this. */
 	public static final int STANDING_STICKS = 3;
 	public static final int MAX_COALS = 3;
@@ -66,12 +70,23 @@ public class CampFireBlock extends BaseEntityBlock {
 
 	public CampFireBlock(BlockBehaviour.Properties properties) {
 		super(properties);
-		registerDefaultState(stateDefinition.any().setValue(STICKS, PLACED_STICKS).setValue(LIT, false).setValue(CHAR, FRESH).setValue(COALS, 0));
+		registerDefaultState(stateDefinition.any().setValue(STICKS, PLACED_STICKS).setValue(LIT, false).setValue(CHAR, FRESH).setValue(COALS, 0)
+				.setValue(OLD_STICKS, PLACED_STICKS).setValue(NEW_CHAR, FRESH));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(STICKS, LIT, CHAR, COALS);
+		builder.add(STICKS, LIT, CHAR, COALS, OLD_STICKS, NEW_CHAR);
+	}
+
+	public static StickPile pile(BlockState state) {
+		return new StickPile(state.getValue(STICKS), Math.min(state.getValue(OLD_STICKS), state.getValue(STICKS)),
+				state.getValue(CHAR), state.getValue(NEW_CHAR));
+	}
+
+	public static BlockState withPile(BlockState state, StickPile pile) {
+		return state.setValue(STICKS, pile.sticks()).setValue(OLD_STICKS, pile.old())
+				.setValue(CHAR, pile.oldChar()).setValue(NEW_CHAR, pile.newChar());
 	}
 
 	@Override
@@ -100,7 +115,11 @@ public class CampFireBlock extends BaseEntityBlock {
 			return InteractionResult.FAIL;
 		}
 		if (!level.isClientSide()) {
-			level.setBlock(pos, state.setValue(STICKS, sticks + 1), Block.UPDATE_ALL);
+			StickPile pile = pile(state);
+			if (pile.startsNewGroup() && level.getBlockEntity(pos) instanceof CampFireBlockEntity fire) {
+				fire.startNewGroup();
+			}
+			level.setBlock(pos, withPile(state, pile.add()), Block.UPDATE_ALL);
 			level.playSound(null, pos, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
 			level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 			stack.consume(1, player);

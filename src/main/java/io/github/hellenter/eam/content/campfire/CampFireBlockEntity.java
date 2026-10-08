@@ -55,8 +55,10 @@ public class CampFireBlockEntity extends BlockEntity {
 	private final int[] cooked = new int[SLOTS];
 	private int fuelTicks;
 	private int burntSticks;
-	/** Ticks the fire has burnt since it last ran out of sticks; the sticks blacken with it. */
+	/** Ticks the old sticks have burnt; they blacken with it. */
 	private int litTicks;
+	/** Ticks the sticks put in later have burnt; see {@link StickPile}. */
+	private int newLitTicks;
 
 	public CampFireBlockEntity(BlockPos pos, BlockState state) {
 		super(EamBlockEntities.CAMP_FIRE, pos, state);
@@ -98,22 +100,32 @@ public class CampFireBlockEntity extends BlockEntity {
 		}
 
 		fire.fuelTicks++;
+		StickPile pile = CampFireBlock.pile(state);
 		fire.litTicks++;
-		int charStage = CampFireLogic.charStage(fire.litTicks, settings);
-		if (charStage != state.getValue(CampFireBlock.CHAR)) {
-			state = state.setValue(CampFireBlock.CHAR, charStage);
+		if (pile.fresh() > 0) {
+			fire.newLitTicks++;
+		}
+		StickPile charred = pile.withChar(CampFireLogic.charStage(fire.litTicks, settings), CampFireLogic.charStage(fire.newLitTicks, settings));
+		if (!charred.equals(pile)) {
+			pile = charred;
+			state = CampFireBlock.withPile(state, pile);
 			level.setBlock(pos, state, Block.UPDATE_ALL);
 		}
 		if (CampFireLogic.burnsStick(fire.fuelTicks, settings)) {
 			fire.fuelTicks = 0;
 			fire.burntSticks++;
-			int sticks = Math.max(0, state.getValue(CampFireBlock.STICKS) - 1);
-			BlockState burnt = state.setValue(CampFireBlock.STICKS, sticks)
+			if (pile.burnPromotes()) {
+				fire.litTicks = fire.newLitTicks;
+				fire.newLitTicks = 0;
+			}
+			pile = pile.burn();
+			BlockState burnt = CampFireBlock.withPile(state, pile)
 					.setValue(CampFireBlock.COALS, CampFireLogic.coalStage(fire.burntSticks));
-			if (sticks == 0) {
+			if (pile.sticks() == 0) {
 				// An empty pit starts over: new sticks put in it are fresh.
-				burnt = burnt.setValue(CampFireBlock.LIT, false).setValue(CampFireBlock.CHAR, CampFireBlock.FRESH);
+				burnt = burnt.setValue(CampFireBlock.LIT, false);
 				fire.litTicks = 0;
+				fire.newLitTicks = 0;
 				level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 1.0F);
 			}
 			level.setBlock(pos, burnt, Block.UPDATE_ALL);
@@ -155,6 +167,12 @@ public class CampFireBlockEntity extends BlockEntity {
 	/** -1 or 1: the side of the centre a slot is on along z. */
 	public static int slotZ(int slot) {
 		return slot < 2 ? -1 : 1;
+	}
+
+	/** A stick put on sticks that already blacken starts a group of its own, fresh. */
+	public void startNewGroup() {
+		newLitTicks = 0;
+		setChanged();
 	}
 
 	public NonNullList<ItemStack> getItems() {
@@ -238,6 +256,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		fuelTicks = input.getIntOr("FuelTicks", 0);
 		burntSticks = input.getIntOr("BurntSticks", 0);
 		litTicks = input.getIntOr("LitTicks", 0);
+		newLitTicks = input.getIntOr("NewLitTicks", 0);
 	}
 
 	private static void copyInto(int[] from, int[] to) {
@@ -254,6 +273,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		output.putInt("FuelTicks", fuelTicks);
 		output.putInt("BurntSticks", burntSticks);
 		output.putInt("LitTicks", litTicks);
+		output.putInt("NewLitTicks", newLitTicks);
 	}
 
 	@Override
