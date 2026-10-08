@@ -113,8 +113,19 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		modifiers.add(InSquarePlacement.spread());
 		modifiers.add(PlacementUtils.HEIGHTMAP_NO_LEAVES);
 		modifiers.add(BiomeFilter.biome());
-		modifiers.add(BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, ground)));
+		modifiers.add(BlockPredicateFilter.forPredicate(BlockPredicate.allOf(freeSpot(), ground)));
 		return modifiers;
+	}
+
+	/**
+	 * Air, or ground cover the item lies on top of in its place: forests are carpeted with leaf litter,
+	 * grass and ferns, which left almost no air spots for pebbles and sticks.
+	 */
+	private static BlockPredicate freeSpot() {
+		return BlockPredicate.anyOf(
+				BlockPredicate.ONLY_IN_AIR_PREDICATE,
+				BlockPredicate.matchesBlocks(Blocks.LEAF_LITTER, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.BUSH, Blocks.SHORT_DRY_GRASS)
+		);
 	}
 
 	/** Dirt, grass, podzol, moss, mud, stone or gravel underneath. */

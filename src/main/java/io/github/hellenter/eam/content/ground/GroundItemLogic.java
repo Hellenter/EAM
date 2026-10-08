@@ -1,7 +1,10 @@
 package io.github.hellenter.eam.content.ground;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Where a loose ground item (pebble, flint shard) lies on top of a block. The top face is split into a
+ * Where a loose ground item (pebble, flint shard, stick) lies on top of a block. The top face is split into a
  * 4x4 grid of cells, so there are 16 positions; the item sits in the middle of its cell.
  */
 public final class GroundItemLogic {
@@ -30,9 +33,50 @@ public final class GroundItemLogic {
 		return (position / GRID) * CELL + (CELL - sizeZ) / 2;
 	}
 
-	/** A ground item's box at one position, in model pixels. */
-	public record Box(double minX, double minZ, double maxX, double maxZ, double height) {
+	/**
+	 * A ground item's box at one position, in model pixels, turned by {@code angle} degrees about the
+	 * vertical axis through the middle of the block (the same rotation as a block model element's).
+	 */
+	public record Box(double minX, double minZ, double maxX, double maxZ, double height, double angle) {
+		public Box(double minX, double minZ, double maxX, double maxZ, double height) {
+			this(minX, minZ, maxX, maxZ, height, 0);
+		}
+
+		/**
+		 * @return axis-aligned boxes covering this one, for the outline and hit box: the box itself when it
+		 *         is not turned, otherwise one small box around each of {@link #OUTLINE_SEGMENTS} pieces along x.
+		 */
+		public List<Box> outline() {
+			if (angle == 0) {
+				return List.of(this);
+			}
+			double radians = Math.toRadians(angle);
+			double cos = Math.cos(radians);
+			double sin = Math.sin(radians);
+			double step = (maxX - minX) / OUTLINE_SEGMENTS;
+			double depth = maxZ - minZ;
+			// Half extents of one turned piece, step long and depth wide.
+			double halfX = (Math.abs(cos) * step + Math.abs(sin) * depth) / 2;
+			double halfZ = (Math.abs(sin) * step + Math.abs(cos) * depth) / 2;
+			List<Box> boxes = new ArrayList<>(OUTLINE_SEGMENTS);
+			for (int i = 0; i < OUTLINE_SEGMENTS; i++) {
+				double x = minX + step * (i + 0.5) - 8;
+				double z = (minZ + maxZ) / 2 - 8;
+				// Rotation about +y: x' = x cos + z sin, z' = -x sin + z cos.
+				double centerX = 8 + x * cos + z * sin;
+				double centerZ = 8 - x * sin + z * cos;
+				boxes.add(new Box(centerX - halfX, centerZ - halfZ, centerX + halfX, centerZ + halfZ, height));
+			}
+			return boxes;
+		}
 	}
+
+	/** Pieces a turned box's outline is made of. */
+	public static final int OUTLINE_SEGMENTS = 6;
+	/** Length of a stick lying diagonally, short enough to stay inside the block at every offset. */
+	public static final double DIAGONAL_LENGTH = 12;
+	/** Distance in model pixels between the parallel lines diagonal sticks lie on. */
+	public static final double DIAGONAL_SPACING = 2.5;
 
 	/** How a ground item lies at each of the 16 positions. */
 	@FunctionalInterface
@@ -50,15 +94,22 @@ public final class GroundItemLogic {
 	}
 
 	/**
-	 * A thin item as long as the whole block. The row picks how far from the edge it lies; even columns
-	 * lie along x and odd ones along z, so half of the positions are turned.
+	 * A thin stick. The column picks how it lies: along x, along z (both as long as the whole block), or
+	 * diagonally one way or the other; the row picks how far from the middle of the block.
 	 */
-	public static Shape fullLength(double thickness, double height) {
+	public static Shape stick(double thickness, double height) {
 		return position -> {
-			double offset = (position / GRID) * CELL + (CELL - thickness) / 2;
-			return position % 2 == 0
-					? new Box(0, offset, 16, offset + thickness, height)
-					: new Box(offset, 0, offset + thickness, 16, height);
+			int row = position / GRID;
+			if (position % 4 < 2) {
+				double offset = row * CELL + (CELL - thickness) / 2;
+				return position % 2 == 0
+						? new Box(0, offset, 16, offset + thickness, height)
+						: new Box(offset, 0, offset + thickness, 16, height);
+			}
+			double z = 8 + (row - (GRID - 1) / 2.0) * DIAGONAL_SPACING - thickness / 2;
+			double x = 8 - DIAGONAL_LENGTH / 2;
+			double angle = position % 2 == 0 ? 45 : -45;
+			return new Box(x, z, x + DIAGONAL_LENGTH, z + thickness, height, angle);
 		};
 	}
 
