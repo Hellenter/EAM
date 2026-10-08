@@ -1,6 +1,7 @@
 package io.github.hellenter.eam;
 
 import io.github.hellenter.eam.content.EamBlockEntities;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
@@ -62,6 +63,7 @@ public class Eam implements ModInitializer {
 		CraftingModule.register();
 		ForgingModule.register();
 		SilverModule.register();
+		BrewingModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -81,6 +83,7 @@ public class Eam implements ModInitializer {
 		if (config.removeDiamondGear()) DiamondGearModule.init();
 		if (config.ironPlates()) ForgingModule.init();
 		if (config.silver()) SilverModule.init();
+		if (config.silver()) BrewingModule.init();
 	}
 
 	public static EamConfig config() {

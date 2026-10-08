@@ -40,6 +40,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);
+		BrewingStandModels.generate(generators);
 	}
 
 	/** One box per position on the top face, from the block's own shape; the block state picks the model by position. */
@@ -111,6 +112,9 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.HOT_IRON_INGOT, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.IRON_PLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAMP_FIRE, ModelTemplates.FLAT_ITEM);
+		for (Item item : List.of(EamItems.SILVER_BREWING_STAND, EamItems.LAPIS_GUNPOWDER_MIX, EamItems.SILVER_REDSTONE_DUST, EamItems.FLOWER_MIX)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
 		for (Item item : List.of(EamItems.RAW_SILVER, EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET,
 				EamItems.SILVER_HELMET, EamItems.SILVER_CHESTPLATE, EamItems.SILVER_LEGGINGS, EamItems.SILVER_BOOTS)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);

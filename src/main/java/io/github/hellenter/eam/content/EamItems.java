@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -95,6 +97,18 @@ public final class EamItems {
 	public static final Item SILVER_LEGGINGS = silverArmor("silver_leggings", ArmorType.LEGGINGS);
 	public static final Item SILVER_BOOTS = silverArmor("silver_boots", ArmorType.BOOTS);
 
+	public static final Item SILVER_BREWING_STAND = blockItem("silver_brewing_stand", EamBlocks.SILVER_BREWING_STAND);
+
+	/** Fuel of the silver brewing stand: one is enough for three brews. */
+	public static final Item LAPIS_GUNPOWDER_MIX = register("lapis_gunpowder_mix", Item::new, new Item.Properties()
+			.component(BrewingModule.SILVER_BREWING_FUEL, SilverBrewingLogic.MIX_FUEL_USES));
+
+	/** Turns water bottles into holy water in the silver stand. */
+	public static final Item SILVER_REDSTONE_DUST = register("silver_redstone_dust", Item::new, new Item.Properties());
+
+	/** Turns holy water into a light regeneration potion. */
+	public static final Item FLOWER_MIX = register("flower_mix", Item::new, new Item.Properties());
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -102,6 +116,7 @@ public final class EamItems {
 	}
 
 	public static void register() {
+		registerBrewingTabs();
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.LEATHER, LEATHER_THREAD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(output ->
@@ -138,6 +153,13 @@ public final class EamItems {
 			output.insertAfter(Items.COPPER_SWORD, SILVER_SWORD);
 			output.insertAfter(Items.COPPER_BOOTS, SILVER_HELMET, SILVER_CHESTPLATE, SILVER_LEGGINGS, SILVER_BOOTS);
 		});
+	}
+
+	private static void registerBrewingTabs() {
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
+				output.insertAfter(Items.BREWING_STAND, SILVER_BREWING_STAND));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
+				output.insertAfter(Items.BLAZE_POWDER, LAPIS_GUNPOWDER_MIX, SILVER_REDSTONE_DUST, FLOWER_MIX));
 	}
 
 	private static Item blockItem(String name, Block block) {

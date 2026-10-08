@@ -3,6 +3,7 @@
 	"package": "io.github.hellenter.eam.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
 		"mobs.vanilla.AbstractArrowMixin",
 		"mobs.vanilla.ClipContextMixin",

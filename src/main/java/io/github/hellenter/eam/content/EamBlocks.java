@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
@@ -65,6 +66,10 @@ public final class EamBlocks {
 			.requiresCorrectToolForDrops()
 			.strength(5.0F, 6.0F)
 			.sound(SoundType.METAL));
+
+	/** A brewing stand for holy water and light potions; stands in structures instead of the vanilla one. */
+	public static final Block SILVER_BREWING_STAND = register("silver_brewing_stand", SilverBrewingStandBlock::new,
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BREWING_STAND).mapColor(MapColor.METAL));
 
 	private EamBlocks() {
 	}
