@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
+import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 
@@ -36,6 +37,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(SKELETONS);
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS);
 		builder(BlockBreakingModule.TARGETS).add(EntityTypeIds.PLAYER);
+		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
