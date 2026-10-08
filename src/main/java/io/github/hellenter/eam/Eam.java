@@ -89,6 +89,7 @@ public class Eam implements ModInitializer {
 		if (config.lockedVillages()) VillageModule.init();
 		if (config.removeStructures()) StructureRemovalModule.init();
 		if (config.ironPlates()) ForgingModule.init();
+		if (config.anvilTiers()) ForgingModule.initAnvilTiers();
 		if (config.silver()) SilverModule.init();
 		if (config.silver()) BrewingModule.init();
 	}

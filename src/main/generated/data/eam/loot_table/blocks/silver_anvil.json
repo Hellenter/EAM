@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:copy_state",
+            "block": "eam:silver_anvil",
+            "properties": [
+              "wear"
+            ]
+          },
+          "name": "eam:silver_anvil"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

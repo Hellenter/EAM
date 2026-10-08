@@ -3,6 +3,8 @@
     "minecraft:crafting_table",
     "minecraft:crafter",
     "minecraft:anvil",
+    "eam:copper_anvil",
+    "eam:silver_anvil",
     "minecraft:enchanting_table",
     "minecraft:beacon",
     "minecraft:conduit",

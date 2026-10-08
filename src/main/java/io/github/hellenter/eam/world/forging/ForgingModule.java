@@ -20,8 +20,13 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil hammers two hot iron into a plate in five
@@ -43,6 +48,7 @@ public final class ForgingModule {
 			ResourceConditionType.create(Eam.id("iron_plates_enabled"), MapCodec.unit(EnabledCondition::new));
 
 	private static boolean enabled;
+	private static boolean anvilTiers;
 
 	private ForgingModule() {
 	}
@@ -50,6 +56,63 @@ public final class ForgingModule {
 	/** The component and condition types must exist even with the module off, or saved items and recipe files fail to load. */
 	public static void register() {
 		ResourceConditions.register(ENABLED_TYPE);
+	}
+
+	/** Copper and silver anvils work only on items of their tier and below; the iron anvil works on everything. */
+	public static void initAnvilTiers() {
+		anvilTiers = true;
+	}
+
+	/** Server: the tier the menu reports for the anvil block at its position. */
+	public static int anvilTier(ForgingAnvilMenu menu) {
+		return anvilTiers ? menu.eam$access().evaluate((level, pos) -> AnvilTiers.anvilTier(level.getBlockState(pos)), AnvilTiers.IRON)
+				: AnvilTiers.IRON;
+	}
+
+	/**
+	 * Both sides, before the vanilla anvil result: true when this anvil is too weak for the item in its left slot, which
+	 * then gets no result at all, not even a new name.
+	 */
+	public static boolean tooWeak(ForgingAnvilMenu menu) {
+		ItemStack item = menu.eam$inputSlots().getItem(0);
+		return !item.isEmpty() && !ForgingLogic.canWorkOn(menu.eam$forge().anvilTier(), AnvilTiers.itemTier(item));
+	}
+
+	public static boolean isHammer(ItemStack stack) {
+		return stack.is(ForgingTags.HAMMERS);
+	}
+
+	/**
+	 * Both sides, on a shift-click: a hammer from the inventory goes into the empty hammer slot, and the hammer slot
+	 * empties into the inventory. Returns null when the vanilla anvil should handle the click.
+	 */
+	public static @Nullable ItemStack quickMoveHammer(AbstractContainerMenu menu, int slotIndex) {
+		int hammerIndex = menu.slots.size() - 1;
+		int inventoryStart = ((ItemCombinerMenu) menu).getResultSlot() + 1;
+		if (slotIndex < 0 || slotIndex > hammerIndex || !(menu.slots.get(hammerIndex) instanceof HammerSlot hammerSlot)) {
+			return null;
+		}
+		Slot slot = menu.slots.get(slotIndex);
+		ItemStack stack = slot.getItem();
+		ItemStack clicked = stack.copy();
+		AbstractContainerMenuAccessor accessor = (AbstractContainerMenuAccessor) menu;
+		boolean moved;
+		if (slotIndex == hammerIndex) {
+			moved = accessor.eam$moveItemStackTo(stack, inventoryStart, hammerIndex, true);
+		} else if (slotIndex >= inventoryStart && isHammer(stack) && !hammerSlot.hasItem()) {
+			moved = accessor.eam$moveItemStackTo(stack, hammerIndex, hammerIndex + 1, false);
+		} else {
+			return null;
+		}
+		if (!moved) {
+			return ItemStack.EMPTY;
+		}
+		if (stack.isEmpty()) {
+			slot.setByPlayer(ItemStack.EMPTY);
+		} else {
+			slot.setChanged();
+		}
+		return clicked;
 	}
 
 	public static void init() {
@@ -65,7 +128,8 @@ public final class ForgingModule {
 	/** Both sides: hot iron in the left slot can be forged now. */
 	private static boolean canForge(ForgingAnvilMenu menu, long now) {
 		ItemStack input = menu.eam$inputSlots().getItem(0);
-		return input.is(EamItems.HOT_IRON_INGOT) && ForgingLogic.canForge(input.getCount(),
+		return input.is(EamItems.HOT_IRON_INGOT) && menu.eam$forge().anvilTier() >= ForgingLogic.PLATE_ANVIL_TIER
+				&& ForgingLogic.canForge(input.getCount(),
 				menu.eam$inputSlots().getItem(1).isEmpty(), ForgingLogic.isCooled(coolsAt(input), now));
 	}
 
@@ -103,13 +167,13 @@ public final class ForgingModule {
 			return false;
 		}
 		if (!player.level().isClientSide() && !forge.running() && (input == ContainerInput.PICKUP || input == ContainerInput.QUICK_MOVE)) {
-			forge.start(forgeTicks(player));
+			forge.start(forgeTicks(menu, player));
 		}
 		return true;
 	}
 
-	private static int forgeTicks(Player player) {
-		return player.hasInfiniteMaterials() ? 0 : ForgingLogic.FORGE_TICKS;
+	private static int forgeTicks(ForgingAnvilMenu menu, Player player) {
+		return player.hasInfiniteMaterials() ? 0 : ForgingLogic.forgeTicks(AnvilTiers.hammerTier(menu.eam$hammer().getItem(0)));
 	}
 
 	/** Both sides: only forged plates can be taken from the result slot, and they cost no experience. */
@@ -166,18 +230,25 @@ public final class ForgingModule {
 		// Updates the result slot through the vanilla slot change.
 		menu.eam$inputSlots().removeItem(0, ForgingLogic.HOT_IRON_PER_PLATE);
 		if (canForge(menu, now)) {
-			forge.start(forgeTicks(player));
+			forge.start(forgeTicks(menu, player));
 		} else {
 			forge.stop();
 		}
 		menu.eam$access().execute((level, pos) -> level.levelEvent(LevelEvent.SOUND_ANVIL_USED, pos, 0));
 	}
 
-	/** Server, when the menu closes: the plate being hammered is dropped and forged plates go to the player. */
+	/**
+	 * Server, when the menu closes: the plate being hammered is dropped, forged plates and the hammer go to the player.
+	 * Runs whatever the config says, since the hammer slot is always there.
+	 */
 	public static void closed(ForgingAnvilMenu menu, Player player) {
 		AnvilForge forge = menu.eam$forge();
 		if (player.level().isClientSide()) {
 			return;
+		}
+		ItemStack hammer = menu.eam$hammer().removeItemNoUpdate(0);
+		if (!hammer.isEmpty()) {
+			AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, hammer);
 		}
 		forge.stop();
 		ItemStack output = forge.output();

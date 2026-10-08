@@ -7,6 +7,7 @@ import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
+import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -71,7 +72,15 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
 				Items.RAW_IRON_BLOCK))
 				.addAll(keys(Items.COPPER_BLOCK.asList().toArray(Item[]::new)));
-		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,
+		builder(ForgingTags.HAMMER_TIERS.get(0));
+		builder(ForgingTags.HAMMER_TIERS.get(1)).addAll(keys(EamItems.COPPER_HAMMER, EamItems.SILVER_HAMMER));
+		builder(ForgingTags.HAMMER_TIERS.get(2)).add(EamItems.IRON_HAMMER.builtInRegistryHolder().key());
+		builder(ForgingTags.HAMMERS).addTag(ForgingTags.HAMMER_TIERS.get(0)).addTag(ForgingTags.HAMMER_TIERS.get(1))
+				.addTag(ForgingTags.HAMMER_TIERS.get(2));
+		builder(ItemTags.ANVIL).addAll(keys(EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL));
+
+		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, EamItems.COPPER_ANVIL,
+				EamItems.SILVER_ANVIL, Items.ENCHANTING_TABLE,
 				Items.BEACON, Items.CONDUIT, Items.RESPAWN_ANCHOR, Items.LODESTONE));
 		// Vanilla tags are not generated here, so the datagen cannot check them: refer to them as optional.
 		builder(CraftingTags.ARMOR)
@@ -87,7 +96,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.HOES)
 				.addOptionalTag(ItemTags.SWORDS)
 				.addOptionalTag(ItemTags.SPEARS)
-				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
+				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, EamItems.COPPER_HAMMER,
+						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.

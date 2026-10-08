@@ -103,6 +103,13 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				knife(EamItems.SILVER_KNIFE, EamItems.SILVER_INGOT);
 				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
 
+				// Anvils like the vanilla one, from their own metal; hammers: two ingots across a stick handle.
+				anvil(EamItems.COPPER_ANVIL, Items.COPPER_BLOCK.weathering().unaffected(), Items.COPPER_INGOT);
+				anvil(EamItems.SILVER_ANVIL, EamItems.SILVER_BLOCK, EamItems.SILVER_INGOT);
+				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
+				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
+				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
+
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
 						.requires(Items.FLINT, 3)
@@ -193,6 +200,28 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				shapeless(RecipeCategory.COMBAT, knife)
 						.requires(Items.STICK)
 						.requires(ingot)
+						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+			}
+
+			private void anvil(Item anvil, Item block, Item ingot) {
+				shaped(RecipeCategory.DECORATIONS, anvil)
+						.define('B', block)
+						.define('I', ingot)
+						.pattern("BBB")
+						.pattern(" I ")
+						.pattern("III")
+						.unlockedBy(getHasName(block), has(block))
+						.save(output);
+			}
+
+			private void hammer(Item hammer, Item ingot) {
+				shaped(RecipeCategory.TOOLS, hammer)
+						.define('I', ingot)
+						.define('S', Items.STICK)
+						.pattern("ISI")
+						.pattern(" S ")
+						.pattern(" S ")
 						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
 			}

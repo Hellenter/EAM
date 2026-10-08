@@ -4,6 +4,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -11,7 +12,8 @@ import java.util.function.Supplier;
  * hot iron for it from the left slot and adds the plate to {@link #output()}, which the result slot then shows and
  * the player takes. While the left slot still holds enough hot iron, the next plate starts right away.
  * <p>
- * The client only gets the synced progress and flags, to draw the arrow and predict clicks.
+ * The client only gets the synced progress, total, flags and anvil tier, to draw the arrow, predict clicks and tell
+ * which items this anvil cannot work on.
  */
 public final class AnvilForge {
 	private static final int RUNNING = 1;
@@ -19,6 +21,7 @@ public final class AnvilForge {
 	private static final int ACTIVE = 4;
 
 	private final Supplier<Player> owner;
+	private final IntSupplier anvilTier;
 	private long start;
 	private int total;
 	private boolean running;
@@ -26,7 +29,9 @@ public final class AnvilForge {
 	private ItemStack output = ItemStack.EMPTY;
 
 	private int clientProgress;
+	private int clientTotal;
 	private int clientFlags;
+	private int clientAnvilTier = AnvilTiers.IRON;
 
 	private final DataSlot progressSlot = new DataSlot() {
 		@Override
@@ -37,6 +42,30 @@ public final class AnvilForge {
 		@Override
 		public void set(int value) {
 			clientProgress = value;
+		}
+	};
+
+	private final DataSlot totalSlot = new DataSlot() {
+		@Override
+		public int get() {
+			return total();
+		}
+
+		@Override
+		public void set(int value) {
+			clientTotal = value;
+		}
+	};
+
+	private final DataSlot anvilTierSlot = new DataSlot() {
+		@Override
+		public int get() {
+			return anvilTier();
+		}
+
+		@Override
+		public void set(int value) {
+			clientAnvilTier = value;
 		}
 	};
 
@@ -52,8 +81,28 @@ public final class AnvilForge {
 		}
 	};
 
-	public AnvilForge(Supplier<Player> owner) {
+	/** @param anvilTier server: the tier of the anvil block this menu was opened on */
+	public AnvilForge(Supplier<Player> owner, IntSupplier anvilTier) {
 		this.owner = owner;
+		this.anvilTier = anvilTier;
+	}
+
+	public DataSlot totalSlot() {
+		return totalSlot;
+	}
+
+	public DataSlot anvilTierSlot() {
+		return anvilTierSlot;
+	}
+
+	/** Ticks the plate being hammered takes. */
+	public int total() {
+		return client() ? clientTotal : total;
+	}
+
+	/** Tier of the anvil: 2 for copper and silver, 3 for iron. */
+	public int anvilTier() {
+		return client() ? clientAnvilTier : anvilTier.getAsInt();
 	}
 
 	public DataSlot progressSlot() {

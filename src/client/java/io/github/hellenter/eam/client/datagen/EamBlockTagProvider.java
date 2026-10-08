@@ -87,6 +87,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
 		// Like copper ore and the iron block: a copper pickaxe or better.
+		// Our anvils are anvils: the menu accepts them, they fall and hurt like the vanilla one.
+		builder(BlockTags.ANVIL).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(), EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(),
+				EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
 		builder(BlockTags.NEEDS_STONE_TOOL).add(EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key());
 
