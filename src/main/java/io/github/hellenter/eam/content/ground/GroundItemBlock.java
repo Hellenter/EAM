@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
@@ -33,8 +34,11 @@ public class GroundItemBlock extends Block {
 		super(properties);
 		this.shape = shape;
 		for (int position = 0; position < shapes.length; position++) {
-			GroundItemLogic.Box box = shape.at(position);
-			shapes[position] = Block.box(box.minX(), 0, box.minZ(), box.maxX(), box.height(), box.maxZ());
+			VoxelShape outline = Shapes.empty();
+			for (GroundItemLogic.Box box : shape.at(position).outline()) {
+				outline = Shapes.or(outline, Block.box(box.minX(), 0, box.minZ(), box.maxX(), box.height(), box.maxZ()));
+			}
+			shapes[position] = outline;
 		}
 		registerDefaultState(stateDefinition.any().setValue(POSITION, 0));
 	}
