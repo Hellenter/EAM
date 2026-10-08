@@ -4,6 +4,9 @@
     "minecraft:glow_berries",
     "eam:flower_mix",
     "minecraft:sugar",
-    "minecraft:glistering_melon_slice"
+    "minecraft:glistering_melon_slice",
+    "minecraft:fermented_spider_eye",
+    "eam:fermented_ender_eye",
+    "minecraft:gunpowder"
   ]
 }

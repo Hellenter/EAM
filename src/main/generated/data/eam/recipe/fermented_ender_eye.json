@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:ender_eye",
+    "eam:silver_nugget",
+    "eam:silver_nugget",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "eam:fermented_ender_eye"
+  }
+}

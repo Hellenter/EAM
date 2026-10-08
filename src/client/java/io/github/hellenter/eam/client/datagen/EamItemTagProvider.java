@@ -56,7 +56,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		// What the silver brewing stand takes in its reagent slot; its recipes are data/eam/recipe/silver_brewing/.
 		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
-				Items.SUGAR, Items.GLISTERING_MELON_SLICE));
+				Items.SUGAR, Items.GLISTERING_MELON_SLICE, Items.FERMENTED_SPIDER_EYE, EamItems.FERMENTED_ENDER_EYE, Items.GUNPOWDER));
 
 		builder(CraftingTags.TOOL_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.TOOL_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));

@@ -252,21 +252,37 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(Items.CORNFLOWER)
 						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
 						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.FERMENTED_ENDER_EYE)
+						.requires(Items.ENDER_EYE)
+						.requires(EamItems.SILVER_NUGGET, 2)
+						.requires(Items.REDSTONE)
+						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
+						.save(output);
 
 				silverBrewing(Potions.WATER, EamItems.SILVER_REDSTONE_DUST, BrewingModule.HOLY_WATER);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.GLOW_BERRIES, BrewingModule.LIGHT_NIGHT_VISION);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FLOWER_MIX, BrewingModule.LIGHT_REGENERATION);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.SUGAR, BrewingModule.LIGHT_SWIFTNESS);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.GLISTERING_MELON_SLICE, BrewingModule.LIGHT_HEALING_POTION);
+				silverBrewing(BrewingModule.HOLY_WATER, Items.FERMENTED_SPIDER_EYE, BrewingModule.LIGHT_WEAKNESS);
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FERMENTED_ENDER_EYE, BrewingModule.LIGHT_STRENGTH);
+				// Gunpowder makes a splash potion of the same light potion, as in the vanilla stand.
+				for (Holder<Potion> potion : BrewingModule.LIGHT_POTIONS) {
+					silverBrewing(Items.POTION, potion, Items.GUNPOWDER, Items.SPLASH_POTION, potion,
+							"splash_" + potion.unwrapKey().orElseThrow().identifier().getPath());
+				}
 			}
 
 			private void silverBrewing(Holder<Potion> input, Item reagent, Holder<Potion> result) {
+				silverBrewing(Items.POTION, input, reagent, Items.POTION, result, result.unwrapKey().orElseThrow().identifier().getPath());
+			}
+
+			private void silverBrewing(Item inputBottle, Holder<Potion> input, Item reagent, Item resultBottle, Holder<Potion> result, String name) {
 				SilverBrewingRecipe recipe = new SilverBrewingRecipe(
-						PotionIngredient.of(Items.POTION, PotionsPredicate.ofPotion(input)),
+						PotionIngredient.of(inputBottle, PotionsPredicate.ofPotion(input)),
 						PotionIngredient.of(reagent),
-						new ItemStackTemplate(Items.POTION, DataComponentPatch.builder()
+						new ItemStackTemplate(resultBottle, DataComponentPatch.builder()
 								.set(DataComponents.POTION_CONTENTS, new PotionContents(result)).build()));
-				String name = result.unwrapKey().orElseThrow().identifier().getPath();
 				output.accept(ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath("eam", "silver_brewing/" + name)), recipe, null);
 			}
 
