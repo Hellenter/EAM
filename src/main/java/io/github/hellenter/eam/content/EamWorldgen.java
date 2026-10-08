@@ -21,6 +21,8 @@ public final class EamWorldgen {
 	public static final ResourceKey<Feature> PEBBLE = feature("pebble");
 	public static final ResourceKey<Feature> FLINT_SHARD = feature("flint_shard");
 	public static final ResourceKey<Feature> GROUND_STICK = feature("ground_stick");
+	/** Copper ore veins the size of diamond veins; they replace vanilla copper when the ores module is on. */
+	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
 
 	/** Pebbles on the forest floor. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_FOREST = placed("pebble_forest");
@@ -30,6 +32,7 @@ public final class EamWorldgen {
 	public static final ResourceKey<PlacedFeature> FLINT_SHARD_MOUNTAIN = placed("flint_shard_mountain");
 	/** Sticks on the ground under tree crowns. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_UNDER_TREES = placed("ground_stick_under_trees");
+	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
 
 	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));

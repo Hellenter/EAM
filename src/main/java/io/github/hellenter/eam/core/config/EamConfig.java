@@ -27,9 +27,11 @@ public record EamConfig(
 		boolean progression,
 		boolean mining,
 		boolean stackSizes,
-		boolean mobs
+		boolean mobs,
+		boolean removeEarlyTools,
+		boolean ores
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -37,7 +39,9 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("progression", DEFAULT.progression).forGetter(EamConfig::progression),
 			Codec.BOOL.optionalFieldOf("mining", DEFAULT.mining).forGetter(EamConfig::mining),
 			Codec.BOOL.optionalFieldOf("stack_sizes", DEFAULT.stackSizes).forGetter(EamConfig::stackSizes),
-			Codec.BOOL.optionalFieldOf("mobs", DEFAULT.mobs).forGetter(EamConfig::mobs)
+			Codec.BOOL.optionalFieldOf("mobs", DEFAULT.mobs).forGetter(EamConfig::mobs),
+			Codec.BOOL.optionalFieldOf("remove_early_tools", DEFAULT.removeEarlyTools).forGetter(EamConfig::removeEarlyTools),
+			Codec.BOOL.optionalFieldOf("ores", DEFAULT.ores).forGetter(EamConfig::ores)
 	).apply(instance, EamConfig::new));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
