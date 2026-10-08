@@ -7,12 +7,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "X": "eam:iron_plate"
+    "I": "minecraft:iron_ingot",
+    "P": "eam:iron_plate"
   },
   "pattern": [
-    "X X",
-    "XXX",
-    "XXX"
+    "I I",
+    "PPP",
+    "IPI"
   ],
   "result": {
     "id": "minecraft:iron_chestplate"

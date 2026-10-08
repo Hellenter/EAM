@@ -38,7 +38,7 @@
   "item.eam.hot_iron_ingot": "Hot Iron",
   "item.eam.hot_iron_ingot.cooled": "Cooled: it is an iron ingot again",
   "item.eam.hot_iron_ingot.cools_in": "Cools in %s s",
-  "item.eam.hot_iron_ingot.forge": "Forge into iron plates on an anvil",
+  "item.eam.hot_iron_ingot.forge": "Forge on an anvil: 2 make an iron plate",
   "item.eam.iron_plate": "Iron Plate",
   "item.eam.lapis_gunpowder_mix": "Lapis-Gunpowder Mix",
   "item.eam.leather_flask": "Leather Flask",

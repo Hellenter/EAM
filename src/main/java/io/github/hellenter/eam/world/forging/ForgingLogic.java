@@ -6,6 +6,10 @@ public final class ForgingLogic {
 	public static final int COOL_TICKS = 60 * 20;
 	/** Marks hot iron still in the furnace output: its cooling has not started. */
 	public static final long NOT_STARTED = Long.MAX_VALUE;
+	/** Hot iron hammered into one iron plate. */
+	public static final int HOT_IRON_PER_PLATE = 2;
+	/** Ticks the anvil takes for one plate: five seconds. */
+	public static final int FORGE_TICKS = 5 * 20;
 
 	private ForgingLogic() {
 	}
@@ -29,10 +33,20 @@ public final class ForgingLogic {
 	}
 
 	/**
-	 * Iron plates the anvil forges: one per hot ingot in the left slot, nothing when the right slot holds anything or
-	 * the iron has cooled.
+	 * Whether the anvil can forge a plate from the hot iron in its left slot: enough of it, still hot, and nothing in
+	 * the right slot.
 	 */
-	public static int plates(int hotIron, boolean additionEmpty, boolean cooled) {
-		return additionEmpty && !cooled ? hotIron : 0;
+	public static boolean canForge(int hotIron, boolean additionEmpty, boolean cooled) {
+		return additionEmpty && !cooled && hotIron >= HOT_IRON_PER_PLATE;
+	}
+
+	/** A plate is done once it has been hammered for {@code total} ticks; a plate with no time is done at once. */
+	public static boolean forged(long now, long start, int total) {
+		return now - start >= total;
+	}
+
+	/** Ticks hammered so far, never above {@code total}. */
+	public static int progress(long now, long start, int total) {
+		return (int) Math.clamp(now - start, 0, total);
 	}
 }
