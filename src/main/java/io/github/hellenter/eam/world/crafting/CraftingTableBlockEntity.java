@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-/** Added to the vanilla crafting table: keeps the crafting tool between uses and drops it when the table is broken. */
+/** Added to the vanilla crafting table: keeps the crafting tools between uses and drops them when the table is broken. */
 public class CraftingTableBlockEntity extends BlockEntity {
-	private final SimpleContainer tools = new SimpleContainer(1) {
+	private final SimpleContainer tools = new SimpleContainer(CraftingTableMenu.TOOL_COUNT) {
 		@Override
 		public void setChanged() {
 			super.setChanged();
@@ -38,15 +38,22 @@ public class CraftingTableBlockEntity extends BlockEntity {
 	@Override
 	protected void loadAdditional(ValueInput input) {
 		super.loadAdditional(input);
+		// Tables from before there were three slots kept one tool under "Tool".
 		tools.setItem(0, input.read("Tool", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+		for (int i = 0; i < tools.getContainerSize(); i++) {
+			int slot = i;
+			input.read("Tool" + i, ItemStack.CODEC).ifPresent(stack -> tools.setItem(slot, stack));
+		}
 	}
 
 	@Override
 	protected void saveAdditional(ValueOutput output) {
 		super.saveAdditional(output);
-		ItemStack tool = tools.getItem(0);
-		if (!tool.isEmpty()) {
-			output.store("Tool", ItemStack.CODEC, tool);
+		for (int i = 0; i < tools.getContainerSize(); i++) {
+			ItemStack tool = tools.getItem(i);
+			if (!tool.isEmpty()) {
+				output.store("Tool" + i, ItemStack.CODEC, tool);
+			}
 		}
 	}
 }

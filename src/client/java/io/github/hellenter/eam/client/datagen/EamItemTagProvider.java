@@ -58,7 +58,19 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
 				Items.SUGAR, Items.GLISTERING_MELON_SLICE));
 
-		builder(CraftingTags.CRAFTING_TABLE_TOOLS).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.TOOL_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.TOOL_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));
+		builder(CraftingTags.TOOL_TIERS.get(2)).add(EamItems.IRON_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.CRAFTING_TABLE_TOOLS).addTag(CraftingTags.TOOL_TIERS.get(0)).addTag(CraftingTags.TOOL_TIERS.get(1))
+				.addTag(CraftingTags.TOOL_TIERS.get(2));
+		// Crafting with these needs a tool of the tier below in the table; iron plates count as iron.
+		builder(CraftingTags.MATERIAL_TIERS.get(0)).add(Items.FLINT.builtInRegistryHolder().key());
+		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT));
+		builder(CraftingTags.MATERIAL_TIERS.get(2)).addAll(keys(Items.IRON_INGOT, EamItems.IRON_PLATE));
+		builder(CraftingTags.TIER_FREE).addAll(keys(Items.COPPER_INGOT, Items.COPPER_NUGGET, Items.RAW_COPPER_BLOCK,
+				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
+				Items.RAW_IRON_BLOCK))
+				.addAll(keys(Items.COPPER_BLOCK.asList().toArray(Item[]::new)));
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, Items.ENCHANTING_TABLE,
 				Items.BEACON, Items.CONDUIT, Items.RESPAWN_ANCHOR, Items.LODESTONE));
 		// Vanilla tags are not generated here, so the datagen cannot check them: refer to them as optional.
@@ -75,7 +87,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.HOES)
 				.addOptionalTag(ItemTags.SWORDS)
 				.addOptionalTag(ItemTags.SPEARS)
-				.addAll(keys(EamItems.FLINT_KNIFE, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
+				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.

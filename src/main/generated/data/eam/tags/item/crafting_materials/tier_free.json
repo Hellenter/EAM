@@ -1,0 +1,22 @@
+{
+  "values": [
+    "minecraft:copper_ingot",
+    "minecraft:copper_nugget",
+    "minecraft:raw_copper_block",
+    "eam:silver_ingot",
+    "eam:silver_nugget",
+    "eam:silver_block",
+    "minecraft:iron_ingot",
+    "minecraft:iron_nugget",
+    "minecraft:iron_block",
+    "minecraft:raw_iron_block",
+    "minecraft:copper_block",
+    "minecraft:exposed_copper",
+    "minecraft:weathered_copper",
+    "minecraft:oxidized_copper",
+    "minecraft:waxed_copper_block",
+    "minecraft:waxed_exposed_copper",
+    "minecraft:waxed_weathered_copper",
+    "minecraft:waxed_oxidized_copper"
+  ]
+}

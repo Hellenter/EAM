@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
+import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
@@ -63,6 +64,17 @@ public final class EamItems {
 
 	public static final Item FLINT_KNIFE = register("flint_knife", KnifeItem::new, new Item.Properties()
 			.sword(FlintTools.KNIFE, FlintTools.KNIFE_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+
+	public static final Item COPPER_KNIFE = register("copper_knife", KnifeItem::new, new Item.Properties()
+			.sword(MetalKnives.COPPER, MetalKnives.TIER_2_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+
+	/** Hits undead harder, like the other silver weapons. */
+	public static final Item SILVER_KNIFE = register("silver_knife", KnifeItem::new, new Item.Properties()
+			.sword(MetalKnives.SILVER, MetalKnives.TIER_2_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED)
+			.component(SilverModule.UNDEAD_DAMAGE_BONUS, SilverGear.UNDEAD_DAMAGE_BONUS));
+
+	public static final Item IRON_KNIFE = register("iron_knife", KnifeItem::new, new Item.Properties()
+			.sword(MetalKnives.IRON, MetalKnives.IRON_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
 
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
@@ -134,7 +146,7 @@ public final class EamItems {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
-				output.insertBefore(Items.WOODEN_SWORD, FLINT_KNIFE));
+				output.insertBefore(Items.WOODEN_SWORD, FLINT_KNIFE, COPPER_KNIFE, SILVER_KNIFE, IRON_KNIFE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.IRON_INGOT, HOT_IRON_INGOT, IRON_PLATE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output ->

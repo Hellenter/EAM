@@ -1,5 +1,7 @@
 {
   "values": [
-    "eam:flint_knife"
+    "#eam:crafting_table_tools/tier_1",
+    "#eam:crafting_table_tools/tier_2",
+    "#eam:crafting_table_tools/tier_3"
   ]
 }
