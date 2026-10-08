@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content.ground;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.slingshot.SlingshotLogic;
 
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,15 +15,26 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-/** A thrown pebble: flies like a snowball, hurts for half a heart and falls to the ground as an item. */
+/**
+ * A thrown pebble: flies like a snowball, hurts for half a heart and falls to the ground as an item.
+ * Shot from a slingshot it hurts more, less the farther it flew.
+ */
 public class ThrownPebble extends ThrowableItemProjectile {
 	/** Half a heart. */
 	public static final float DAMAGE = 1.0F;
 
 	private static final byte HIT_EVENT = 3;
+
+	/** Draw power of the slingshot that shot it; 0 when thrown by hand. */
+	private float slingshotPower;
+	/** Where the slingshot shot it from, for damage falloff. */
+	private Vec3 shotFrom = Vec3.ZERO;
 
 	public ThrownPebble(EntityType<? extends ThrownPebble> type, Level level) {
 		super(type, level);
@@ -30,6 +42,12 @@ public class ThrownPebble extends ThrowableItemProjectile {
 
 	public ThrownPebble(Level level, LivingEntity owner, ItemStack itemStack) {
 		super(EamEntities.PEBBLE, owner, level, itemStack);
+	}
+
+	/** Marks this pebble as shot from a slingshot drawn to the given power, from where it is now. */
+	public void fromSlingshot(float power) {
+		slingshotPower = power;
+		shotFrom = position();
 	}
 
 	@Override
@@ -51,7 +69,10 @@ public class ThrownPebble extends ThrowableItemProjectile {
 	protected void onHitEntity(EntityHitResult hitResult) {
 		super.onHitEntity(hitResult);
 		if (level() instanceof ServerLevel serverLevel) {
-			hitResult.getEntity().hurtServer(serverLevel, damageSources().thrown(this, getOwner()), DAMAGE);
+			float damage = slingshotPower > 0.0F
+					? SlingshotLogic.damage(slingshotPower, shotFrom.distanceTo(hitResult.getEntity().position()))
+					: DAMAGE;
+			hitResult.getEntity().hurtServer(serverLevel, damageSources().thrown(this, getOwner()), damage);
 		}
 	}
 
@@ -65,5 +86,21 @@ public class ThrownPebble extends ThrowableItemProjectile {
 			}
 			discard();
 		}
+	}
+
+	@Override
+	protected void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		if (slingshotPower > 0.0F) {
+			output.putFloat("SlingshotPower", slingshotPower);
+			output.store("ShotFrom", Vec3.CODEC, shotFrom);
+		}
+	}
+
+	@Override
+	protected void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		slingshotPower = input.getFloatOr("SlingshotPower", 0.0F);
+		shotFrom = input.read("ShotFrom", Vec3.CODEC).orElse(Vec3.ZERO);
 	}
 }

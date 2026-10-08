@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.PebbleItem;
+import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
@@ -44,7 +45,10 @@ public final class EamItems {
 	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
-	/** Thread that stitches a flask: leather thread or plain string. */
+	/** Drawn like a bow, shoots pebbles. */
+	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
+
+	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
 	private EamItems() {
@@ -59,6 +63,8 @@ public final class EamItems {
 				output.insertAfter(Items.FLINT, PEBBLE, FLINT_SHARD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
 				output.insertAfter(Items.SNOWBALL, PEBBLE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
+				output.insertAfter(Items.BOW, SLINGSHOT));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
 	}
