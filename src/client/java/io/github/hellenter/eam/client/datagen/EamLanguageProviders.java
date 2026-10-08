@@ -93,7 +93,7 @@ public final class EamLanguageProviders {
 					"Light Lingering Potion of Healing", "Arrow of Light Healing");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Cools in %s s");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Cooled: it is an iron ingot again");
-			builder.add("item.eam.hot_iron_ingot.forge", "Forge into iron plates on an anvil");
+			builder.add("item.eam.hot_iron_ingot.forge", "Forge on an anvil: 2 make an iron plate");
 			builder.add(EamBlocks.PEBBLE, "Pebble");
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
 			builder.add(EamBlocks.GROUND_STICK, "Stick");
@@ -180,7 +180,7 @@ public final class EamLanguageProviders {
 					"Оседающее лёгкое зелье исцеления", "Стрела лёгкого исцеления");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Остынет через %s с");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Остыло и снова стало железным слитком");
-			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне железные пластины");
+			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне: из 2 выйдет железная пластина");
 			builder.add(EamBlocks.PEBBLE, "Камушек");
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
 			builder.add(EamBlocks.GROUND_STICK, "Палка");

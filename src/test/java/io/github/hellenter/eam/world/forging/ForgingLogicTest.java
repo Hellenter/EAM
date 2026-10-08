@@ -30,9 +30,20 @@ class ForgingLogicTest {
 	}
 
 	@Test
-	void anvilForgesOnePlatePerHotIngot() {
-		assertEquals(5, ForgingLogic.plates(5, true, false));
-		assertEquals(0, ForgingLogic.plates(5, false, false));
-		assertEquals(0, ForgingLogic.plates(5, true, true));
+	void anvilForgesOnePlateFromTwoHotIngots() {
+		assertTrue(ForgingLogic.canForge(2, true, false));
+		assertTrue(ForgingLogic.canForge(5, true, false));
+		assertFalse(ForgingLogic.canForge(1, true, false));
+		assertFalse(ForgingLogic.canForge(5, false, false));
+		assertFalse(ForgingLogic.canForge(5, true, true));
+	}
+
+	@Test
+	void plateTakesFiveSeconds() {
+		assertFalse(ForgingLogic.forged(1099, 1000, ForgingLogic.FORGE_TICKS));
+		assertTrue(ForgingLogic.forged(1100, 1000, ForgingLogic.FORGE_TICKS));
+		assertTrue(ForgingLogic.forged(1000, 1000, 0));
+		assertEquals(50, ForgingLogic.progress(1050, 1000, ForgingLogic.FORGE_TICKS));
+		assertEquals(100, ForgingLogic.progress(1500, 1000, ForgingLogic.FORGE_TICKS));
 	}
 }

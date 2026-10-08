@@ -270,7 +270,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output);
 			}
 
-			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates. Plates come only from the anvil. */
+			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates and ingots. Plates come only from the anvil. */
 			private void ironPlateRecipes(RecipeOutput enabled) {
 				// The furnace heats iron only while iron is not blast-furnace-only.
 				SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.IRON_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
@@ -281,33 +281,41 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 								EamItems.HOT_IRON_INGOT, 0.0F, 100)
 						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
 						.save(enabled, "eam:hot_iron_ingot_from_blasting");
-				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_HELMET, "XXX", "X X");
-				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
-				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
-				ironArmor(enabled, EamItems.IRON_PLATE, true, Items.IRON_BOOTS, "X X", "X X");
+				plateArmor(enabled, Items.IRON_HELMET, "PPP", "I I");
+				plateArmor(enabled, Items.IRON_CHESTPLATE, "I I", "PPP", "IPI");
+				plateArmor(enabled, Items.IRON_LEGGINGS, "PIP", "P P", "I I");
+				plateArmor(enabled, Items.IRON_BOOTS, "I I", "P P");
 			}
 
 			/** Copies of the vanilla iron armor recipes under the vanilla ids, loaded only with the plates off, like the early tools. */
 			private void ironIngotArmorRecipes(RecipeOutput removable) {
-				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_HELMET, "XXX", "X X");
-				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
-				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
-				ironArmor(removable, Items.IRON_INGOT, false, Items.IRON_BOOTS, "X X", "X X");
+				ironArmor(removable, Items.IRON_HELMET, "XXX", "X X");
+				ironArmor(removable, Items.IRON_CHESTPLATE, "X X", "XXX", "XXX");
+				ironArmor(removable, Items.IRON_LEGGINGS, "XXX", "X X", "X X");
+				ironArmor(removable, Items.IRON_BOOTS, "X X", "X X");
 			}
 
-			/** Plate recipes get our own ids; the ingot copies keep the vanilla ones so they shadow the vanilla recipes. */
-			private void ironArmor(RecipeOutput output, Item material, boolean ownId, Item result, String... pattern) {
+			/** Iron armor from about as many plates as ingots, under our own ids. */
+			private void plateArmor(RecipeOutput output, Item result, String... pattern) {
 				var recipe = shaped(RecipeCategory.COMBAT, result)
-						.define('X', material);
+						.define('P', EamItems.IRON_PLATE)
+						.define('I', Items.IRON_INGOT);
 				for (String row : pattern) {
 					recipe.pattern(row);
 				}
-				recipe.unlockedBy(getHasName(material), has(material));
-				if (ownId) {
-					recipe.save(output, "eam:" + getItemName(result));
-				} else {
-					recipe.save(output);
+				recipe.unlockedBy(getHasName(EamItems.IRON_PLATE), has(EamItems.IRON_PLATE))
+						.save(output, "eam:" + getItemName(result));
+			}
+
+			/** The ingot copies keep the vanilla ids so they shadow the vanilla recipes. */
+			private void ironArmor(RecipeOutput output, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('X', Items.IRON_INGOT);
+				for (String row : pattern) {
+					recipe.pattern(row);
 				}
+				recipe.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(output);
 			}
 
 			/**
