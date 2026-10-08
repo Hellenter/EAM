@@ -37,7 +37,7 @@
   "item.eam.hot_iron_ingot": "Раскалённое железо",
   "item.eam.hot_iron_ingot.cooled": "Остыло и снова стало железным слитком",
   "item.eam.hot_iron_ingot.cools_in": "Остынет через %s с",
-  "item.eam.hot_iron_ingot.forge": "Выкуйте на наковальне железные пластины",
+  "item.eam.hot_iron_ingot.forge": "Выкуйте на наковальне: из 2 выйдет железная пластина",
   "item.eam.iron_plate": "Железная пластина",
   "item.eam.lapis_gunpowder_mix": "Лазуритово-пороховая смесь",
   "item.eam.leather_flask": "Кожаная фляга",

@@ -2,10 +2,12 @@ package io.github.hellenter.eam.world.forging;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.mixin.world.crafting.AbstractContainerMenuAccessor;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
@@ -15,11 +17,16 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LevelEvent;
 
 /**
- * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil forges hot iron into plates, and hot iron
- * left alone turns back into an ingot a minute after it leaves the furnace. The recipes are datagen files that load
+ * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil hammers two hot iron into a plate in five
+ * seconds, and hot iron left alone turns back into an ingot a minute after it leaves the furnace. Iron armor takes
+ * plates and ingots. The recipes are datagen files that load
  * only while the {@code iron_plates} flag is on ({@link #ENABLED}); with it off the vanilla ingot armor recipes return.
  */
 public final class ForgingModule {
@@ -47,6 +54,7 @@ public final class ForgingModule {
 
 	public static void init() {
 		enabled = true;
+		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(ForgingModule::tick));
 	}
 
 	/** Game time at which {@code stack} cools; hot iron still in the furnace output has not started cooling. */
@@ -54,13 +62,135 @@ public final class ForgingModule {
 		return stack.getOrDefault(COOLS_AT, ForgingLogic.NOT_STARTED);
 	}
 
-	/** What the anvil forges from {@code input} and {@code addition}: iron plates, or empty when it is not forging. */
-	public static ItemStack anvilResult(ItemStack input, ItemStack addition, long now) {
-		if (!enabled || !input.is(EamItems.HOT_IRON_INGOT)) {
-			return ItemStack.EMPTY;
+	/** Both sides: hot iron in the left slot can be forged now. */
+	private static boolean canForge(ForgingAnvilMenu menu, long now) {
+		ItemStack input = menu.eam$inputSlots().getItem(0);
+		return input.is(EamItems.HOT_IRON_INGOT) && ForgingLogic.canForge(input.getCount(),
+				menu.eam$inputSlots().getItem(1).isEmpty(), ForgingLogic.isCooled(coolsAt(input), now));
+	}
+
+	/**
+	 * Both sides, instead of the vanilla anvil result. Returns true when the anvil is forging: the result slot then
+	 * shows the forged plates, else the plate on offer. The client keeps what the server sends it.
+	 */
+	public static boolean updateResult(ForgingAnvilMenu menu, Player player) {
+		AnvilForge forge = menu.eam$forge();
+		if (!forge.active()) {
+			return false;
 		}
-		int plates = ForgingLogic.plates(input.getCount(), addition.isEmpty(), ForgingLogic.isCooled(coolsAt(input), now));
-		return plates > 0 ? new ItemStack(EamItems.IRON_PLATE, plates) : ItemStack.EMPTY;
+		boolean canForge = canForge(menu, player.level().getGameTime());
+		if (player.level().isClientSide()) {
+			return canForge || forge.hasOutput();
+		}
+		if (!canForge) {
+			forge.stop();
+		}
+		ItemStack output = forge.output();
+		if (output.isEmpty() && !canForge) {
+			return false;
+		}
+		menu.eam$resultSlots().setItem(0, output.isEmpty() ? new ItemStack(EamItems.IRON_PLATE) : output.copy());
+		return true;
+	}
+
+	/**
+	 * Both sides, before a click is handled: a click on the offered plate starts forging instead of taking it. Returns
+	 * true when the click is used up.
+	 */
+	public static boolean clickResult(ForgingAnvilMenu menu, int slotIndex, int resultSlot, ContainerInput input, Player player) {
+		AnvilForge forge = menu.eam$forge();
+		if (slotIndex != resultSlot || !forge.active() || forge.hasOutput() || !canForge(menu, player.level().getGameTime())) {
+			return false;
+		}
+		if (!player.level().isClientSide() && !forge.running() && (input == ContainerInput.PICKUP || input == ContainerInput.QUICK_MOVE)) {
+			forge.start(forgeTicks(player));
+		}
+		return true;
+	}
+
+	private static int forgeTicks(Player player) {
+		return player.hasInfiniteMaterials() ? 0 : ForgingLogic.FORGE_TICKS;
+	}
+
+	/** Both sides: only forged plates can be taken from the result slot, and they cost no experience. */
+	public static boolean mayTakeResult(ForgingAnvilMenu menu) {
+		return menu.eam$forge().active() && menu.eam$forge().hasOutput();
+	}
+
+	/**
+	 * Both sides, when something is taken from the result slot. Returns true when that was forged plates, which were
+	 * paid for already: the vanilla take must not use up the slots, take experience or wear the anvil.
+	 */
+	public static boolean takeOutput(ForgingAnvilMenu menu, Player player) {
+		AnvilForge forge = menu.eam$forge();
+		if (!mayTakeResult(menu)) {
+			return false;
+		}
+		// A shift-click into a nearly full inventory leaves some plates in the slot.
+		ItemStack left = menu.eam$resultSlots().getItem(0);
+		if (!left.isEmpty()) {
+			if (!player.level().isClientSide()) {
+				forge.setOutput(left.copy());
+			}
+		} else if (player.level().isClientSide()) {
+			forge.outputTakenOnClient();
+		} else {
+			forge.setOutput(ItemStack.EMPTY);
+			if (!updateResult(menu, player)) {
+				menu.eam$resultSlots().setItem(0, ItemStack.EMPTY);
+			}
+		}
+		return true;
+	}
+
+	/** Server, every tick for the open menu: finish a plate that has been hammered long enough. */
+	private static void tick(ServerPlayer player) {
+		if (!(player.containerMenu instanceof ForgingAnvilMenu menu) || !menu.eam$forge().due()) {
+			return;
+		}
+		AnvilForge forge = menu.eam$forge();
+		long now = player.level().getGameTime();
+		if (!canForge(menu, now)) {
+			forge.stop();
+			return;
+		}
+		ItemStack plate = new ItemStack(EamItems.IRON_PLATE);
+		ItemStack output = forge.output();
+		if (output.isEmpty()) {
+			forge.setOutput(plate);
+		} else if (ItemStack.isSameItemSameComponents(output, plate) && output.getCount() < output.getMaxStackSize()) {
+			output.grow(1);
+		} else {
+			AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, plate);
+		}
+		// Updates the result slot through the vanilla slot change.
+		menu.eam$inputSlots().removeItem(0, ForgingLogic.HOT_IRON_PER_PLATE);
+		if (canForge(menu, now)) {
+			forge.start(forgeTicks(player));
+		} else {
+			forge.stop();
+		}
+		menu.eam$access().execute((level, pos) -> level.levelEvent(LevelEvent.SOUND_ANVIL_USED, pos, 0));
+	}
+
+	/** Server, when the menu closes: the plate being hammered is dropped and forged plates go to the player. */
+	public static void closed(ForgingAnvilMenu menu, Player player) {
+		AnvilForge forge = menu.eam$forge();
+		if (player.level().isClientSide()) {
+			return;
+		}
+		forge.stop();
+		ItemStack output = forge.output();
+		if (!output.isEmpty()) {
+			forge.setOutput(ItemStack.EMPTY);
+			menu.eam$resultSlots().setItem(0, ItemStack.EMPTY);
+			AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, output);
+		}
+	}
+
+	/** Whether this server forges plates. The client learns it from the menu's synced flags, not from here. */
+	static boolean enabled() {
+		return enabled;
 	}
 
 	private record EnabledCondition() implements ResourceCondition {

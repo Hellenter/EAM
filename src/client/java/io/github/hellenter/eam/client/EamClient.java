@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
+import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
 import io.github.hellenter.eam.content.EamBlockEntities;
@@ -38,5 +39,6 @@ public class EamClient implements ClientModInitializer {
 		MenuScreens.<BrewingStandMenu, BrewingStandScreen>register(BrewingModule.MENU, BrewingStandScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();
+		AnvilProgress.register();
 	}
 }
