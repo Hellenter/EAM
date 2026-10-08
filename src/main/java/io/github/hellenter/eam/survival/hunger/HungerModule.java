@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +18,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -48,6 +51,10 @@ public final class HungerModule {
 			Eam.id("nutrients"),
 			DataComponentType.<Nutrients>builder().persistent(Nutrients.CODEC).networkSynchronized(Nutrients.STREAM_CODEC).build()
 	);
+
+	/** Given while any nutrient is at zero. */
+	public static final Holder<MobEffect> MALNOURISHED = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, Eam.id("malnourished"), new MalnourishedEffect());
 
 	private static boolean enabled;
 	private static volatile HungerRules rules = HungerRules.DEFAULT;
@@ -102,7 +109,8 @@ public final class HungerModule {
 						level.getGameRules().get(GameRules.NATURAL_HEALTH_REGENERATION),
 						level.getDifficulty() == Difficulty.PEACEFUL,
 						HungerLogic.balanced(nutrition, current.balanceThreshold()),
-						ProgressionModule.inGracePeriod(player)
+						ProgressionModule.inGracePeriod(player),
+						HungerLogic.malnourished(nutrition)
 				),
 				current
 		);
@@ -114,8 +122,10 @@ public final class HungerModule {
 		accessor.eam$setTickTimer(state.tickTimer());
 
 		if (result.pointSpent()) {
-			setNutrition(player, HungerLogic.decay(nutrition, current.nutrientDecay()));
+			nutrition = HungerLogic.decay(nutrition, current.nutrientDecay());
+			setNutrition(player, nutrition);
 		}
+		updateMalnourished(player, HungerLogic.malnourished(nutrition));
 		if (result.heal() > 0.0F) {
 			player.heal(result.heal());
 		}
@@ -129,6 +139,16 @@ public final class HungerModule {
 		if (enabled) {
 			Nutrition before = nutrition(player, rules);
 			setNutrition(player, HungerLogic.eat(before, nutrients.protein(), nutrients.fat(), nutrients.carbs()));
+		}
+	}
+
+	/** Keeps the effect on while a nutrient is at zero, so milk only clears it for a tick. */
+	private static void updateMalnourished(ServerPlayer player, boolean malnourished) {
+		boolean has = player.hasEffect(MALNOURISHED);
+		if (malnourished && !has) {
+			player.addEffect(new MobEffectInstance(MALNOURISHED, MobEffectInstance.INFINITE_DURATION, 0, false, true, true));
+		} else if (!malnourished && has) {
+			player.removeEffect(MALNOURISHED);
 		}
 	}
 

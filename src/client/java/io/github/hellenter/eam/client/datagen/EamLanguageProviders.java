@@ -26,6 +26,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
 			builder.add("death.attack.eam.dehydration.player", "%1$s died of thirst while fighting %2$s");
 			builder.add("effect.eam.food_poisoning", "Food Poisoning");
+			builder.add("effect.eam.malnourished", "Malnourished");
 			builder.add("item.eam.leather_thread", "Leather Thread");
 			builder.add(EamItems.FLASK_THREADS, "Flask Threads");
 			builder.add("item.eam.leather_flask", "Leather Flask");
@@ -63,6 +64,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
 			builder.add("death.attack.eam.dehydration.player", "%1$s умер от жажды, сражаясь с %2$s");
 			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
+			builder.add("effect.eam.malnourished", "Истощение");
 			builder.add("item.eam.leather_thread", "Кожаная нить");
 			builder.add(EamItems.FLASK_THREADS, "Нити для фляги");
 			builder.add("item.eam.leather_flask", "Кожаная фляга");

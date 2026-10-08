@@ -18,7 +18,8 @@ public final class HungerLogic {
 	 * What the tick needs to know about the player and the world. During the {@code grace} period after spawning,
 	 * hunger does not drain: all exhaustion is dropped.
 	 */
-	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean grace) {
+	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean grace,
+			boolean malnourished) {
 	}
 
 	/**
@@ -48,9 +49,14 @@ public final class HungerLogic {
 		float exhaustion = context.grace() ? 0.0F : in.exhaustion() + rules.passiveExhaustion();
 		int timer = in.tickTimer();
 		float perPoint = rules.exhaustionPerPoint() * (context.balanced() ? rules.balancedHungerFactor() : 1.0F);
-		int regenInterval = context.balanced()
-				? Math.max(1, Math.round(rules.regenIntervalTicks() / rules.balancedRegenFactor()))
-				: rules.regenIntervalTicks();
+		float regenFactor = 1.0F;
+		if (context.balanced()) {
+			regenFactor /= rules.balancedRegenFactor();
+		}
+		if (context.malnourished()) {
+			regenFactor *= rules.malnourishedRegenFactor();
+		}
+		int regenInterval = Math.max(1, Math.round(rules.regenIntervalTicks() * regenFactor));
 
 		boolean pointSpent = false;
 		if (exhaustion > perPoint) {
@@ -101,6 +107,11 @@ public final class HungerLogic {
 	/** A balanced diet keeps all three nutrients at or above the threshold. */
 	public static boolean balanced(Nutrition nutrition, int threshold) {
 		return nutrition.protein() >= threshold && nutrition.fat() >= threshold && nutrition.carbs() >= threshold;
+	}
+
+	/** Malnourished: any nutrient has run out. */
+	public static boolean malnourished(Nutrition nutrition) {
+		return nutrition.protein() <= 0.0F || nutrition.fat() <= 0.0F || nutrition.carbs() <= 0.0F;
 	}
 
 	private static float clamp(float value) {
