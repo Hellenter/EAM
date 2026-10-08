@@ -34,6 +34,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_flask", "Leather Flask");
 			builder.add(EamItems.FLINT_HATCHET, "Flint Hatchet");
 			builder.add(EamItems.FLINT_AXE, "Flint Axe");
+			builder.add(EamItems.FLINT_KNIFE, "Flint Knife");
 			builder.add(FlintTools.REPAIR_MATERIALS, "Flint Tool Materials");
 			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
 			builder.add("item.eam.flask.water", "Water: %s/%s");
@@ -76,6 +77,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_flask", "Кожаная фляга");
 			builder.add(EamItems.FLINT_HATCHET, "Кремнёвый топорик");
 			builder.add(EamItems.FLINT_AXE, "Кремнёвый топор");
+			builder.add(EamItems.FLINT_KNIFE, "Кремнёвый нож");
 			builder.add(FlintTools.REPAIR_MATERIALS, "Материалы для кремнёвых инструментов");
 			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
