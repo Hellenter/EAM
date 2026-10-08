@@ -19,6 +19,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param balanceThreshold       all three nutrients at or above this give the balanced diet bonus
  * @param balancedHungerFactor   with the bonus, a point of saturation or food costs this many times more exhaustion
  * @param balancedRegenFactor    with the bonus, natural regeneration is this many times faster
+ * @param malnourishedRegenFactor while malnourished (a nutrient at zero), natural regeneration takes this many times longer
  */
 public record HungerRules(
 		float exhaustionPerPoint,
@@ -32,9 +33,10 @@ public record HungerRules(
 		float nutrientDecay,
 		int balanceThreshold,
 		float balancedHungerFactor,
-		float balancedRegenFactor
+		float balancedRegenFactor,
+		float malnourishedRegenFactor
 ) {
-	public static final HungerRules DEFAULT = new HungerRules(4.0F, 0.0025F, 600, 1, 4.0F, 80, 1.0F, 50, 0.5F, 70, 2.0F, 1.5F);
+	public static final HungerRules DEFAULT = new HungerRules(4.0F, 0.0025F, 600, 1, 4.0F, 80, 1.0F, 50, 0.5F, 70, 2.0F, 1.5F, 1.5F);
 
 	private static final Codec<Integer> POSITIVE_INT = Codec.intRange(1, Integer.MAX_VALUE);
 	private static final Codec<Integer> NON_NEGATIVE_INT = Codec.intRange(0, Integer.MAX_VALUE);
@@ -53,6 +55,7 @@ public record HungerRules(
 			Codec.floatRange(0.0F, Nutrition.MAX).optionalFieldOf("nutrient_decay", DEFAULT.nutrientDecay).forGetter(HungerRules::nutrientDecay),
 			Codec.intRange(0, Nutrition.MAX).optionalFieldOf("balance_threshold", DEFAULT.balanceThreshold).forGetter(HungerRules::balanceThreshold),
 			POSITIVE_FLOAT.optionalFieldOf("balanced_hunger_factor", DEFAULT.balancedHungerFactor).forGetter(HungerRules::balancedHungerFactor),
-			POSITIVE_FLOAT.optionalFieldOf("balanced_regen_factor", DEFAULT.balancedRegenFactor).forGetter(HungerRules::balancedRegenFactor)
+			POSITIVE_FLOAT.optionalFieldOf("balanced_regen_factor", DEFAULT.balancedRegenFactor).forGetter(HungerRules::balancedRegenFactor),
+			POSITIVE_FLOAT.optionalFieldOf("malnourished_regen_factor", DEFAULT.malnourishedRegenFactor).forGetter(HungerRules::malnourishedRegenFactor)
 	).apply(instance, HungerRules::new));
 }
