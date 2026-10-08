@@ -1,0 +1,91 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:pickaxes",
+      "required": false
+    },
+    {
+      "id": "#minecraft:axes",
+      "required": false
+    },
+    {
+      "id": "#minecraft:shovels",
+      "required": false
+    },
+    {
+      "id": "#minecraft:hoes",
+      "required": false
+    },
+    {
+      "id": "#minecraft:swords",
+      "required": false
+    },
+    {
+      "id": "#minecraft:spears",
+      "required": false
+    },
+    "eam:flint_knife",
+    "minecraft:shears",
+    "minecraft:flint_and_steel",
+    "minecraft:fishing_rod",
+    "minecraft:carrot_on_a_stick",
+    "minecraft:warped_fungus_on_a_stick",
+    "minecraft:bow",
+    "minecraft:crossbow",
+    "minecraft:shield",
+    "minecraft:mace",
+    "minecraft:brush",
+    "minecraft:spyglass",
+    "minecraft:compass",
+    "minecraft:recovery_compass",
+    "minecraft:clock",
+    "eam:camp_fire",
+    "minecraft:campfire",
+    "minecraft:soul_campfire",
+    "minecraft:furnace",
+    "minecraft:blast_furnace",
+    "minecraft:smoker",
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    "minecraft:barrel",
+    "minecraft:ender_chest",
+    "minecraft:shulker_box",
+    "minecraft:smithing_table",
+    "minecraft:fletching_table",
+    "minecraft:cartography_table",
+    "minecraft:loom",
+    "minecraft:stonecutter",
+    "minecraft:grindstone",
+    "minecraft:lectern",
+    "minecraft:composter",
+    "minecraft:brewing_stand",
+    "minecraft:cauldron",
+    "minecraft:jukebox",
+    "minecraft:note_block",
+    "minecraft:chiseled_bookshelf",
+    "minecraft:beehive",
+    "minecraft:armor_stand",
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+    "minecraft:observer",
+    "minecraft:dispenser",
+    "minecraft:dropper",
+    "minecraft:hopper",
+    "minecraft:daylight_detector",
+    "minecraft:comparator",
+    "minecraft:repeater",
+    {
+      "id": "#minecraft:boats",
+      "required": false
+    },
+    {
+      "id": "#minecraft:chest_boats",
+      "required": false
+    },
+    "minecraft:minecart",
+    "minecraft:chest_minecart",
+    "minecraft:furnace_minecart",
+    "minecraft:hopper_minecart",
+    "minecraft:tnt_minecart"
+  ]
+}

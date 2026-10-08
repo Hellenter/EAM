@@ -11,6 +11,13 @@
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",
 		"survival.thirst.PlayerThirstMixin",
+		"world.crafting.AbstractContainerMenuAccessor",
+		"world.crafting.AbstractContainerMenuMixin",
+		"world.crafting.AbstractCraftingMenuMixin",
+		"world.crafting.BlockStateBaseCraftingMixin",
+		"world.crafting.CraftingMenuMixin",
+		"world.crafting.CraftingTableBlockMixin",
+		"world.crafting.ResultSlotMixin",
 		"world.items.ItemInstanceMixin",
 		"world.mining.BlockStateBaseMixin"
 	],
