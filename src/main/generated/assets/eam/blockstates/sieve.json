@@ -1,0 +1,60 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "eam:block/sieve"
+      },
+      "when": {
+        "wear": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_wear_1"
+      },
+      "when": {
+        "wear": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_wear_2"
+      },
+      "when": {
+        "wear": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_gravel_1"
+      },
+      "when": {
+        "gravel": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_gravel_2"
+      },
+      "when": {
+        "gravel": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_gravel_3"
+      },
+      "when": {
+        "gravel": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/sieve_gravel_4"
+      },
+      "when": {
+        "gravel": "4"
+      }
+    }
+  ]
+}

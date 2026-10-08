@@ -4,6 +4,7 @@
   "block.eam.flint_shard": "Flint Shard",
   "block.eam.ground_stick": "Stick",
   "block.eam.pebble": "Pebble",
+  "block.eam.sieve": "Sieve",
   "death.attack.eam.dehydration": "%1$s died of thirst",
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",
   "effect.eam.food_poisoning": "Food Poisoning",

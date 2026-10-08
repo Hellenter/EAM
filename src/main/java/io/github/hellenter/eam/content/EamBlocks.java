@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
+import io.github.hellenter.eam.content.sieve.SieveBlock;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,6 +39,14 @@ public final class EamBlocks {
 			.noOcclusion()
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
+
+	/** Sifts gravel; see {@link SieveBlock}. Drops itself with its wear as item damage. */
+	public static final Block SIEVE = register("sieve", SieveBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.strength(1.5F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava());
 
 	private EamBlocks() {
 	}

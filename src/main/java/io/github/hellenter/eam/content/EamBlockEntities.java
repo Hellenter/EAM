@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.campfire.CampFireBlockEntity;
+import io.github.hellenter.eam.content.sieve.SieveBlockEntity;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,6 +15,9 @@ import java.util.Set;
 public final class EamBlockEntities {
 	public static final BlockEntityType<CampFireBlockEntity> CAMP_FIRE = register("camp_fire",
 			new BlockEntityType<>(CampFireBlockEntity::new, Set.of(EamBlocks.CAMP_FIRE)));
+
+	public static final BlockEntityType<SieveBlockEntity> SIEVE = register("sieve",
+			new BlockEntityType<>(SieveBlockEntity::new, Set.of(EamBlocks.SIEVE)));
 
 	private EamBlockEntities() {
 	}

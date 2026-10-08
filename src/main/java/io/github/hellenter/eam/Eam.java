@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamWorldgen;
+import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
@@ -44,6 +45,7 @@ public class Eam implements ModInitializer {
 		EamEntities.register();
 		EamWorldgen.init();
 		CampFireModule.register();
+		SieveModule.register();
 		BlockBreakingModule.register();
 		EarlyToolsModule.register();
 
