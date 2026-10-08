@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,wear=0": {
+      "model": "eam:block/copper_anvil",
+      "y": 270
+    },
+    "facing=east,wear=1": {
+      "model": "eam:block/copper_anvil_wear1",
+      "y": 270
+    },
+    "facing=east,wear=2": {
+      "model": "eam:block/copper_anvil_wear2",
+      "y": 270
+    },
+    "facing=north,wear=0": {
+      "model": "eam:block/copper_anvil",
+      "y": 180
+    },
+    "facing=north,wear=1": {
+      "model": "eam:block/copper_anvil_wear1",
+      "y": 180
+    },
+    "facing=north,wear=2": {
+      "model": "eam:block/copper_anvil_wear2",
+      "y": 180
+    },
+    "facing=south,wear=0": {
+      "model": "eam:block/copper_anvil"
+    },
+    "facing=south,wear=1": {
+      "model": "eam:block/copper_anvil_wear1"
+    },
+    "facing=south,wear=2": {
+      "model": "eam:block/copper_anvil_wear2"
+    },
+    "facing=west,wear=0": {
+      "model": "eam:block/copper_anvil",
+      "y": 90
+    },
+    "facing=west,wear=1": {
+      "model": "eam:block/copper_anvil_wear1",
+      "y": 90
+    },
+    "facing=west,wear=2": {
+      "model": "eam:block/copper_anvil_wear2",
+      "y": 90
+    }
+  }
+}

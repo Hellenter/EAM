@@ -5,7 +5,8 @@
 	"client": [
 		"survival.hunger.AbstractContainerScreenAccessor",
 		"survival.hunger.HudMixin",
-		"survival.thirst.GuiGraphicsExtractorMixin"
+		"survival.thirst.GuiGraphicsExtractorMixin",
+		"world.forging.AnvilScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

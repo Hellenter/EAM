@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_anvil",
+  "textures": {
+    "body": "eam:block/copper_anvil",
+    "particle": "eam:block/copper_anvil",
+    "top": "eam:block/copper_anvil_top_damaged"
+  }
+}

@@ -46,4 +46,20 @@ class ForgingLogicTest {
 		assertEquals(50, ForgingLogic.progress(1050, 1000, ForgingLogic.FORGE_TICKS));
 		assertEquals(100, ForgingLogic.progress(1500, 1000, ForgingLogic.FORGE_TICKS));
 	}
+
+	@Test
+	void anvilsWorkOnTheirTierAndBelow() {
+		// Copper and silver anvils: flint and copper gear, not iron.
+		assertTrue(ForgingLogic.canWorkOn(2, 0));
+		assertTrue(ForgingLogic.canWorkOn(2, 2));
+		assertFalse(ForgingLogic.canWorkOn(2, 3));
+		assertTrue(ForgingLogic.canWorkOn(3, 3));
+	}
+
+	@Test
+	void hammersForgeFaster() {
+		assertEquals(ForgingLogic.FORGE_TICKS, ForgingLogic.forgeTicks(0));
+		assertEquals(80, ForgingLogic.forgeTicks(2));
+		assertEquals(67, ForgingLogic.forgeTicks(3));
+	}
 }

@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
@@ -70,6 +71,12 @@ public final class EamBlocks {
 	/** A brewing stand for holy water and light potions; stands in structures instead of the vanilla one. */
 	public static final Block SILVER_BREWING_STAND = register("silver_brewing_stand", SilverBrewingStandBlock::new,
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BREWING_STAND).mapColor(MapColor.METAL));
+
+	/** Repair copper, silver and flint gear, not iron; wear like the vanilla (iron) anvil. */
+	public static final Block COPPER_ANVIL = register("copper_anvil", p -> new MetalAnvilBlock(2, p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.COLOR_ORANGE));
+	public static final Block SILVER_ANVIL = register("silver_anvil", p -> new MetalAnvilBlock(2, p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.METAL));
 
 	private EamBlocks() {
 	}

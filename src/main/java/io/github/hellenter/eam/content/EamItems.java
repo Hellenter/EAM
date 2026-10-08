@@ -124,6 +124,14 @@ public final class EamItems {
 	/** Turns holy water into a light strength potion. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", Item::new, new Item.Properties());
 
+	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
+	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);
+
+	/** Go in the anvil's hammer slot and make forging faster. */
+	public static final Item COPPER_HAMMER = register("copper_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item SILVER_HAMMER = register("silver_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item IRON_HAMMER = register("iron_hammer", Item::new, new Item.Properties().stacksTo(1));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -146,6 +154,10 @@ public final class EamItems {
 				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertAfter(Items.COMPOSTER, SIEVE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
+				output.insertBefore(Items.ANVIL, COPPER_ANVIL, SILVER_ANVIL));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
+				output.insertAfter(Items.SHEARS, COPPER_HAMMER, SILVER_HAMMER, IRON_HAMMER));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->

@@ -13,6 +13,9 @@ public interface AbstractContainerMenuAccessor {
 	@Invoker("addDataSlot")
 	DataSlot eam$addDataSlot(DataSlot slot);
 
+	@Invoker("moveItemStackTo")
+	boolean eam$moveItemStackTo(ItemStack stack, int startSlot, int endSlot, boolean backwards);
+
 	@Invoker("dropOrPlaceInInventory")
 	static void eam$dropOrPlaceInInventory(Player player, ItemStack stack) {
 		throw new AssertionError();

@@ -13,4 +13,7 @@ public interface ForgingAnvilMenu {
 	ResultContainer eam$resultSlots();
 
 	ContainerLevelAccess eam$access();
+
+	/** The hammer slot's container; the hammer goes back to the player when the menu closes. */
+	Container eam$hammer();
 }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": "eam:silver_block",
+    "I": "eam:silver_ingot"
+  },
+  "pattern": [
+    "BBB",
+    " I ",
+    "III"
+  ],
+  "result": {
+    "id": "eam:silver_anvil"
+  }
+}

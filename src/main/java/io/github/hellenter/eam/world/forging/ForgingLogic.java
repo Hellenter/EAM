@@ -8,8 +8,12 @@ public final class ForgingLogic {
 	public static final long NOT_STARTED = Long.MAX_VALUE;
 	/** Hot iron hammered into one iron plate. */
 	public static final int HOT_IRON_PER_PLATE = 2;
-	/** Ticks the anvil takes for one plate: five seconds. */
+	/** Ticks the anvil takes for one plate without a hammer: five seconds. */
 	public static final int FORGE_TICKS = 5 * 20;
+	/** Plates are forged only on an anvil of this tier: iron. */
+	public static final int PLATE_ANVIL_TIER = 3;
+	/** Speed a hammer adds to forging, by hammer tier (first entry is tier 1): copper and silver +25%, iron +50%. */
+	public static final float[] HAMMER_SPEED_BONUS = {0.15F, 0.25F, 0.5F};
 
 	private ForgingLogic() {
 	}
@@ -38,6 +42,17 @@ public final class ForgingLogic {
 	 */
 	public static boolean canForge(int hotIron, boolean additionEmpty, boolean cooled) {
 		return additionEmpty && !cooled && hotIron >= HOT_IRON_PER_PLATE;
+	}
+
+	/** An anvil works on items of its own tier and below: a copper anvil repairs flint and copper gear, not iron. */
+	public static boolean canWorkOn(int anvilTier, int itemTier) {
+		return itemTier <= anvilTier;
+	}
+
+	/** Ticks one plate takes with a hammer of {@code hammerTier} in the anvil; 0 is no hammer. */
+	public static int forgeTicks(int hammerTier) {
+		float bonus = hammerTier > 0 && hammerTier <= HAMMER_SPEED_BONUS.length ? HAMMER_SPEED_BONUS[hammerTier - 1] : 0.0F;
+		return Math.round(FORGE_TICKS / (1.0F + bonus));
 	}
 
 	/** A plate is done once it has been hammered for {@code total} ticks; a plate with no time is done at once. */

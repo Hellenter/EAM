@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
@@ -10,15 +11,18 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class EamBlockLootProvider extends FabricBlockLootSubProvider {
@@ -59,6 +63,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.SILVER_ORE, block -> createOreDrop(block, EamItems.RAW_SILVER));
 		add(EamBlocks.DEEPSLATE_SILVER_ORE, block -> createOreDrop(block, EamItems.RAW_SILVER));
 		dropSelf(EamBlocks.SILVER_BLOCK);
+		// Anvils keep their wear, as vanilla's chipped anvil drops a chipped anvil.
+		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL)) {
+			add(anvil, LootTable.lootTable().withPool(applyExplosionCondition(anvil, LootPool.lootPool()
+					.setRolls(ContextIntProviders.exactly(1))
+					.add(LootItem.lootTableItem(anvil).apply(CopyBlockState.copyState(anvil).copy(MetalAnvilBlock.WEAR))))));
+		}
 		add(EamBlocks.SILVER_BREWING_STAND, this::createNameableBlockEntityTable);
 
 		add(Blocks.GRAVEL, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
