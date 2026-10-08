@@ -5,6 +5,8 @@
   "block.eam.ground_stick": "Палка",
   "block.eam.pebble": "Камушек",
   "block.eam.sieve": "Сито",
+  "commands.eam.villages.locked": "В новых чанках появляются только заброшенные деревни",
+  "commands.eam.villages.unlocked": "В новых чанках появляются обычные деревни",
   "death.attack.eam.dehydration": "%1$s умер от жажды",
   "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",
   "effect.eam.food_poisoning": "Пищевое отравление",

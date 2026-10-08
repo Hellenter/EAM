@@ -20,7 +20,10 @@
 		"world.crafting.ResultSlotAccessor",
 		"world.crafting.ResultSlotMixin",
 		"world.items.ItemInstanceMixin",
-		"world.mining.BlockStateBaseMixin"
+		"world.mining.BlockStateBaseMixin",
+		"world.structures.ChunkGeneratorMixin",
+		"world.structures.JigsawPlacementMixin",
+		"world.structures.PlayerAdvancementsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

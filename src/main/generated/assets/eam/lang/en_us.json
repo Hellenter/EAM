@@ -5,6 +5,8 @@
   "block.eam.ground_stick": "Stick",
   "block.eam.pebble": "Pebble",
   "block.eam.sieve": "Sieve",
+  "commands.eam.villages.locked": "Only abandoned villages generate in new chunks",
+  "commands.eam.villages.unlocked": "Normal villages generate in new chunks",
   "death.attack.eam.dehydration": "%1$s died of thirst",
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",
   "effect.eam.food_poisoning": "Food Poisoning",

@@ -17,6 +17,8 @@ import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.ores.OreModule;
+import io.github.hellenter.eam.world.structures.StructureRemovalModule;
+import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 import io.github.hellenter.eam.world.tools.GearModule;
@@ -53,6 +55,7 @@ public class Eam implements ModInitializer {
 		EarlyToolsModule.register();
 		DiamondGearModule.register();
 		CraftingModule.register();
+		VillageModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -67,6 +70,8 @@ public class Eam implements ModInitializer {
 		if (config.crafting()) CraftingModule.init();
 		if (config.gear()) GearModule.init();
 		if (config.removeDiamondGear()) DiamondGearModule.init();
+		if (config.lockedVillages()) VillageModule.init();
+		if (config.removeStructures()) StructureRemovalModule.init();
 	}
 
 	public static EamConfig config() {

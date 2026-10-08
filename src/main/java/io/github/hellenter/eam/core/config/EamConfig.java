@@ -33,9 +33,11 @@ public record EamConfig(
 		boolean ores,
 		boolean crafting,
 		boolean gear,
-		boolean removeDiamondGear
+		boolean removeDiamondGear,
+		boolean lockedVillages,
+		boolean removeStructures
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -49,7 +51,9 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("ores", DEFAULT.ores).forGetter(EamConfig::ores),
 			Codec.BOOL.optionalFieldOf("crafting", DEFAULT.crafting).forGetter(EamConfig::crafting),
 			Codec.BOOL.optionalFieldOf("gear", DEFAULT.gear).forGetter(EamConfig::gear),
-			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear)
+			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear),
+			Codec.BOOL.optionalFieldOf("locked_villages", DEFAULT.lockedVillages).forGetter(EamConfig::lockedVillages),
+			Codec.BOOL.optionalFieldOf("remove_structures", DEFAULT.removeStructures).forGetter(EamConfig::removeStructures)
 	).apply(instance, EamConfig::new));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
