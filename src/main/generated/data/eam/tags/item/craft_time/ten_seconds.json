@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:crafting_table",
+    "minecraft:crafter",
+    "minecraft:anvil",
+    "minecraft:enchanting_table",
+    "minecraft:beacon",
+    "minecraft:conduit",
+    "minecraft:respawn_anchor",
+    "minecraft:lodestone"
+  ]
+}

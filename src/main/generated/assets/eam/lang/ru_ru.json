@@ -10,6 +10,7 @@
   "effect.eam.food_poisoning": "Пищевое отравление",
   "effect.eam.malnourished": "Истощение",
   "entity.eam.pebble": "Камушек",
+  "gui.eam.crafting_table.tool": "Положите сюда инструмент для крафта: кремнёвый нож",
   "gui.eam.nutrient.carbs": "Углеводы",
   "gui.eam.nutrient.carbs.short": "У",
   "gui.eam.nutrient.fat": "Жиры",
@@ -31,6 +32,10 @@
   "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s",
   "item.eam.slingshot": "Рогатка",
   "tag.item.eam.camp_fire_igniters": "Растопка для костра",
+  "tag.item.eam.craft_time.armor": "Крафт 5 секунд за материал",
+  "tag.item.eam.craft_time.five_seconds": "Крафт 5 секунд",
+  "tag.item.eam.craft_time.ten_seconds": "Крафт 10 секунд",
+  "tag.item.eam.crafting_table_tools": "Инструменты для верстака",
   "tag.item.eam.flask_threads": "Нитки",
   "tag.item.eam.flint_tool_materials": "Материалы для кремнёвых инструментов"
 }

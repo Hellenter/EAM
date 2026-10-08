@@ -10,6 +10,7 @@
   "effect.eam.food_poisoning": "Food Poisoning",
   "effect.eam.malnourished": "Malnourished",
   "entity.eam.pebble": "Pebble",
+  "gui.eam.crafting_table.tool": "Put a crafting tool here: a flint knife",
   "gui.eam.nutrient.carbs": "Carbs",
   "gui.eam.nutrient.carbs.short": "C",
   "gui.eam.nutrient.fat": "Fat",
@@ -31,6 +32,10 @@
   "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s",
   "item.eam.slingshot": "Slingshot",
   "tag.item.eam.camp_fire_igniters": "Camp Fire Igniters",
+  "tag.item.eam.craft_time.armor": "Crafted in 5 Seconds per Material",
+  "tag.item.eam.craft_time.five_seconds": "Crafted in 5 Seconds",
+  "tag.item.eam.craft_time.ten_seconds": "Crafted in 10 Seconds",
+  "tag.item.eam.crafting_table_tools": "Crafting Table Tools",
   "tag.item.eam.flask_threads": "Threads",
   "tag.item.eam.flint_tool_materials": "Flint Tool Materials"
 }
