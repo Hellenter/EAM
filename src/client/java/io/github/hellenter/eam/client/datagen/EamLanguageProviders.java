@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.tools.FlintTools;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -31,6 +32,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLASK_THREADS, "Threads");
 			builder.add("item.eam.slingshot", "Slingshot");
 			builder.add("item.eam.leather_flask", "Leather Flask");
+			builder.add(EamItems.FLINT_HATCHET, "Flint Hatchet");
+			builder.add(EamItems.FLINT_AXE, "Flint Axe");
+			builder.add(FlintTools.REPAIR_MATERIALS, "Flint Tool Materials");
 			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
@@ -70,6 +74,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLASK_THREADS, "Нитки");
 			builder.add("item.eam.slingshot", "Рогатка");
 			builder.add("item.eam.leather_flask", "Кожаная фляга");
+			builder.add(EamItems.FLINT_HATCHET, "Кремнёвый топорик");
+			builder.add(EamItems.FLINT_AXE, "Кремнёвый топор");
+			builder.add(FlintTools.REPAIR_MATERIALS, "Материалы для кремнёвых инструментов");
 			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");

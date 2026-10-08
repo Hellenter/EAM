@@ -22,10 +22,13 @@
   "item.eam.flask.filter": "Фильтр: %s/%s",
   "item.eam.flask.filter_spent": "Фильтр забит",
   "item.eam.flask.water": "Вода: %s/%s",
+  "item.eam.flint_axe": "Кремнёвый топор",
+  "item.eam.flint_hatchet": "Кремнёвый топорик",
   "item.eam.leather_flask": "Кожаная фляга",
   "item.eam.leather_thread": "Кожаная нить",
   "item.eam.nutrients": "Белки %s · Жиры %s · Углеводы %s",
   "item.eam.slingshot": "Рогатка",
   "tag.item.eam.camp_fire_igniters": "Растопка для костра",
-  "tag.item.eam.flask_threads": "Нитки"
+  "tag.item.eam.flask_threads": "Нитки",
+  "tag.item.eam.flint_tool_materials": "Материалы для кремнёвых инструментов"
 }

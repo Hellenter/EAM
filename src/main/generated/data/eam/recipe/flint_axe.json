@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:flint",
+    "minecraft:flint",
+    "minecraft:flint",
+    "eam:leather_thread"
+  ],
+  "result": {
+    "id": "eam:flint_axe"
+  }
+}
