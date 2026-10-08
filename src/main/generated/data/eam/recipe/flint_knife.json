@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "minecraft:flint"
+  ],
+  "result": {
+    "id": "eam:flint_knife"
+  }
+}

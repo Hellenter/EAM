@@ -69,6 +69,12 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
 						.save(output);
 
+				shapeless(RecipeCategory.COMBAT, EamItems.FLINT_KNIFE)
+						.requires(Items.STICK)
+						.requires(Items.FLINT)
+						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
+						.save(output);
+
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
 						.requires(Items.FLINT, 3)
