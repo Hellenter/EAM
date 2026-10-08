@@ -29,7 +29,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.food_poisoning", "Food Poisoning");
 			builder.add("effect.eam.malnourished", "Malnourished");
 			builder.add("item.eam.leather_thread", "Leather Thread");
-			builder.add(EamItems.FLASK_THREADS, "Flask Threads");
+			builder.add(EamItems.FLASK_THREADS, "Threads");
+			builder.add("item.eam.slingshot", "Slingshot");
 			builder.add("item.eam.leather_flask", "Leather Flask");
 			builder.add(EamItems.FLINT_HATCHET, "Flint Hatchet");
 			builder.add(EamItems.FLINT_AXE, "Flint Axe");
@@ -70,7 +71,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.food_poisoning", "Пищевое отравление");
 			builder.add("effect.eam.malnourished", "Истощение");
 			builder.add("item.eam.leather_thread", "Кожаная нить");
-			builder.add(EamItems.FLASK_THREADS, "Нити для фляги");
+			builder.add(EamItems.FLASK_THREADS, "Нитки");
+			builder.add("item.eam.slingshot", "Рогатка");
 			builder.add("item.eam.leather_flask", "Кожаная фляга");
 			builder.add(EamItems.FLINT_HATCHET, "Кремнёвый топорик");
 			builder.add(EamItems.FLINT_AXE, "Кремнёвый топор");

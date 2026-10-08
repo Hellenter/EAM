@@ -27,7 +27,8 @@
   "item.eam.leather_flask": "Leather Flask",
   "item.eam.leather_thread": "Leather Thread",
   "item.eam.nutrients": "Protein %s · Fat %s · Carbs %s",
+  "item.eam.slingshot": "Slingshot",
   "tag.item.eam.camp_fire_igniters": "Camp Fire Igniters",
-  "tag.item.eam.flask_threads": "Flask Threads",
+  "tag.item.eam.flask_threads": "Threads",
   "tag.item.eam.flint_tool_materials": "Flint Tool Materials"
 }

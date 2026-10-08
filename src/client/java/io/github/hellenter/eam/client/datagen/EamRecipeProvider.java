@@ -76,6 +76,14 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.FLINT), has(Items.FLINT))
 						.save(output);
 
+				shapeless(RecipeCategory.COMBAT, EamItems.SLINGSHOT)
+						.requires(Items.STICK)
+						.requires(Items.LEATHER)
+						.requires(EamItems.FLASK_THREADS)
+						.requires(EamItems.FLASK_THREADS)
+						.unlockedBy(getHasName(EamItems.PEBBLE), has(EamItems.PEBBLE))
+						.save(output);
+
 				shapeless(RecipeCategory.DECORATIONS, EamItems.CAMP_FIRE)
 						.requires(Items.STICK, 3)
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
