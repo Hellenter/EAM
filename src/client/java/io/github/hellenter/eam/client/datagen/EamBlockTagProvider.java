@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -78,5 +79,7 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.PEBBLE.builtInRegistryHolder().key(),
 				EamBlocks.FLINT_SHARD.builtInRegistryHolder().key(),
 				EamBlocks.GROUND_STICK.builtInRegistryHolder().key());
+
+		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 	}
 }
