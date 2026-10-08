@@ -32,10 +32,12 @@ public record EamConfig(
 		boolean removeEarlyTools,
 		boolean ores,
 		boolean crafting,
+		boolean gear,
+		boolean removeDiamondGear,
 		boolean mobRunning,
 		boolean defensiveCows
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -48,6 +50,8 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("remove_early_tools", DEFAULT.removeEarlyTools).forGetter(EamConfig::removeEarlyTools),
 			Codec.BOOL.optionalFieldOf("ores", DEFAULT.ores).forGetter(EamConfig::ores),
 			Codec.BOOL.optionalFieldOf("crafting", DEFAULT.crafting).forGetter(EamConfig::crafting),
+			Codec.BOOL.optionalFieldOf("gear", DEFAULT.gear).forGetter(EamConfig::gear),
+			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear),
 			Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(EamConfig::mobRunning),
 			Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(EamConfig::defensiveCows)
 	).apply(instance, EamConfig::new));

@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
+import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -113,6 +114,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output);
 
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
+				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
 			}
 
 			/**
@@ -130,6 +132,30 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				tool(removable, RecipeCategory.COMBAT, Items.STONE_SPEAR, ItemTags.STONE_TOOL_MATERIALS, "  X", " # ", "#  ");
 			}
 
+			/** Copies of the vanilla recipes for {@link DiamondGearModule#REMOVED_GEAR}, the same way as the early tools. */
+			private void diamondGearRecipes(RecipeOutput removable) {
+				TagKey<Item> diamond = ItemTags.DIAMOND_TOOL_MATERIALS;
+				tool(removable, RecipeCategory.COMBAT, Items.DIAMOND_SWORD, diamond, "X", "X", "#");
+				tool(removable, RecipeCategory.TOOLS, Items.DIAMOND_SHOVEL, diamond, "X", "#", "#");
+				tool(removable, RecipeCategory.TOOLS, Items.DIAMOND_PICKAXE, diamond, "XXX", " # ", " # ");
+				tool(removable, RecipeCategory.TOOLS, Items.DIAMOND_AXE, diamond, "XX", "X#", " #");
+				tool(removable, RecipeCategory.TOOLS, Items.DIAMOND_HOE, diamond, "XX", " #", " #");
+				tool(removable, RecipeCategory.COMBAT, Items.DIAMOND_SPEAR, diamond, "  X", " # ", "#  ");
+				armor(removable, Items.DIAMOND_HELMET, "XXX", "X X");
+				armor(removable, Items.DIAMOND_CHESTPLATE, "X X", "XXX", "XXX");
+				armor(removable, Items.DIAMOND_LEGGINGS, "XXX", "X X", "X X");
+				armor(removable, Items.DIAMOND_BOOTS, "X X", "X X");
+			}
+
+			private void armor(RecipeOutput removable, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('X', Items.DIAMOND);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy("has_diamond", has(Items.DIAMOND)).save(removable);
+			}
+
 			private void tool(RecipeOutput removable, RecipeCategory category, Item result, TagKey<Item> material, String... pattern) {
 				var recipe = shaped(category, result)
 						.define('#', Items.STICK)
@@ -137,8 +163,10 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				for (String row : pattern) {
 					recipe.pattern(row);
 				}
-				// Same unlock as vanilla: stone tools with their material, wooden ones with a stick.
-				if (material == ItemTags.STONE_TOOL_MATERIALS) {
+				// Same unlock as vanilla: stone and diamond tools with their material, wooden ones with a stick.
+				if (material == ItemTags.DIAMOND_TOOL_MATERIALS) {
+					recipe.unlockedBy("has_diamond", has(material));
+				} else if (material == ItemTags.STONE_TOOL_MATERIALS) {
 					recipe.unlockedBy("has_cobblestone", has(material));
 				} else {
 					recipe.unlockedBy("has_stick", has(Items.STICK));
@@ -148,7 +176,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 		};
 	}
 
-	/** Keeps the namespace each recipe was saved with: the early tool recipes must land on the vanilla ids. */
+	/** Keeps the namespace each recipe was saved with: the removed gear recipes must land on the vanilla ids. */
 	@Override
 	protected Identifier getRecipeIdentifier(Identifier identifier) {
 		return identifier;
