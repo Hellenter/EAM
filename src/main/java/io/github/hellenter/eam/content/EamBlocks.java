@@ -26,7 +26,7 @@ public final class EamBlocks {
 	public static final Block FLINT_SHARD = register("flint_shard", p -> new GroundItemBlock(GroundItemLogic.small(3, 1, 2), p), groundItem(MapColor.COLOR_BLACK));
 
 	/** A stick as long as the block, lying under trees. Has no item of its own: it drops a vanilla stick. */
-	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(GroundItemLogic.fullLength(1, 1), p),
+	public static final Block GROUND_STICK = register("ground_stick", p -> new GroundItemBlock(GroundItemLogic.stick(2, 1), p),
 			groundItem(MapColor.WOOD).sound(SoundType.WOOD));
 
 	/** A fire pit fed with sticks; see {@link CampFireBlock}. Drops come from its block entity, not a loot table. */

@@ -42,12 +42,12 @@ public class EamModelProvider extends FabricModelProvider {
 				PropertyDispatch.initial(GroundItemBlock.POSITION).generate(position -> {
 					Identifier model = ModelLocationUtils.getModelLocation(block, "_" + position);
 					GroundItemLogic.Box box = shape.at(position);
-					generators.modelOutput.accept(model, () -> boxModel(texture, box.minX(), box.height(), box.minZ(), box.maxX(), box.maxZ()));
+					generators.modelOutput.accept(model, () -> boxModel(texture, box));
 					return BlockModelGenerators.plainVariant(model);
 				})));
 	}
 
-	private static JsonObject boxModel(Identifier texture, double x1, double height, double z1, double x2, double z2) {
+	private static JsonObject boxModel(Identifier texture, GroundItemLogic.Box box) {
 		JsonObject textures = new JsonObject();
 		textures.addProperty("particle", texture.toString());
 		textures.addProperty("all", texture.toString());
@@ -63,8 +63,15 @@ public class EamModelProvider extends FabricModelProvider {
 		}
 
 		JsonObject element = new JsonObject();
-		element.add("from", vector(x1, 0, z1));
-		element.add("to", vector(x2, height, z2));
+		element.add("from", vector(box.minX(), 0, box.minZ()));
+		element.add("to", vector(box.maxX(), box.height(), box.maxZ()));
+		if (box.angle() != 0) {
+			JsonObject rotation = new JsonObject();
+			rotation.addProperty("angle", box.angle());
+			rotation.addProperty("axis", "y");
+			rotation.add("origin", vector(8, 0, 8));
+			element.add("rotation", rotation);
+		}
 		element.add("faces", faces);
 		JsonArray elements = new JsonArray();
 		elements.add(element);
