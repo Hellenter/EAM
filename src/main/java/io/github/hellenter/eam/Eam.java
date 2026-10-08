@@ -10,8 +10,10 @@ import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
+import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -53,6 +55,8 @@ public class Eam implements ModInitializer {
 		CampFireModule.register();
 		SieveModule.register();
 		BlockBreakingModule.register();
+		RunningModule.register();
+		CowDefenseModule.register();
 		EarlyToolsModule.register();
 		DiamondGearModule.register();
 		CraftingModule.register();
@@ -68,6 +72,8 @@ public class Eam implements ModInitializer {
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 		if (config.mobs()) ThroughLeavesModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
+		if (config.mobs() && config.mobRunning()) RunningModule.init();
+		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();
 		if (config.crafting()) CraftingModule.init();

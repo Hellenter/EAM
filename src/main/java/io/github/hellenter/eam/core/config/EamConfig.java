@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.hellenter.eam.Eam;
@@ -36,9 +37,27 @@ public record EamConfig(
 		boolean removeDiamondGear,
 		boolean mobDrops,
 		boolean ironPlates,
+		boolean mobRunning,
+		boolean defensiveCows,
 		boolean silver
 ) {
-	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+
+	/**
+	 * Flags added after the first 14. A codec group takes at most 16 fields, so these share one slot; their keys still
+	 * sit at the top level of the JSON next to the others.
+	 */
+	private record Later(boolean mobRunning, boolean defensiveCows, boolean silver) {
+		static final MapCodec<Later> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(Later::mobRunning),
+				Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(Later::defensiveCows),
+				Codec.BOOL.optionalFieldOf("silver", DEFAULT.silver).forGetter(Later::silver)
+		).apply(instance, Later::new));
+
+		static Later of(EamConfig config) {
+			return new Later(config.mobRunning, config.defensiveCows, config.silver);
+		}
+	}
 
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
@@ -55,8 +74,11 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear),
 			Codec.BOOL.optionalFieldOf("mob_drops", DEFAULT.mobDrops).forGetter(EamConfig::mobDrops),
 			Codec.BOOL.optionalFieldOf("iron_plates", DEFAULT.ironPlates).forGetter(EamConfig::ironPlates),
-			Codec.BOOL.optionalFieldOf("silver", DEFAULT.silver).forGetter(EamConfig::silver)
-	).apply(instance, EamConfig::new));
+			Later.CODEC.forGetter(Later::of)
+	).apply(instance, (hunger, thirst, progression, mining, stackSizes, mobs, mobBlockBreaking, removeEarlyTools, ores, crafting, gear,
+			removeDiamondGear, mobDrops, ironPlates, later) -> new EamConfig(hunger, thirst, progression, mining, stackSizes, mobs,
+			mobBlockBreaking, removeEarlyTools, ores, crafting, gear, removeDiamondGear, mobDrops, ironPlates,
+			later.mobRunning, later.defensiveCows, later.silver)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
