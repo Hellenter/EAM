@@ -13,6 +13,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamDamageTypeProvider::new);
 		pack.addProvider(EamDamageTypeTagProvider::new);
 		pack.addProvider(EamBiomeTagProvider::new);
+		pack.addProvider(EamBlockTagProvider::new);
 		pack.addProvider(EamItemTagProvider::new);
 		pack.addProvider(EamRecipeProvider::new);
 		pack.addProvider(EamBlockLootProvider::new);
