@@ -35,6 +35,7 @@
   "gui.eam.nutrient.value": "%s: %s / %s",
   "gui.eam.nutrition.balanced": "Питание сбалансировано: голод медленнее, регенерация быстрее",
   "gui.eam.nutrition.unbalanced": "Держите все три шкалы на %s или выше для бонуса",
+  "gui.eam.silver_brewing.recipes": "Рецепты зельеварки",
   "item.eam.copper_hammer": "Медный молоток",
   "item.eam.copper_knife": "Медный нож",
   "item.eam.copper_saw": "Медная пила",

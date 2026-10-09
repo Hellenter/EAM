@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client;
 
+import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
@@ -18,7 +19,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.inventory.BrewingStandScreen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.inventory.BrewingStandMenu;
@@ -35,8 +35,8 @@ public class EamClient implements ClientModInitializer {
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		MenuScreens.<CraftingMenu, CraftingTableScreen>register(CraftingTypes.MENU, (menu, inventory, title) ->
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));
-		// The silver stand's menu has the vanilla layout: the vanilla brewing screen draws it.
-		MenuScreens.<BrewingStandMenu, BrewingStandScreen>register(BrewingModule.MENU, BrewingStandScreen::new);
+		// The silver stand's menu has the vanilla layout: the vanilla brewing screen draws it, plus a recipe book.
+		MenuScreens.<BrewingStandMenu, SilverBrewingStandScreen>register(BrewingModule.MENU, SilverBrewingStandScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();
 		AnvilProgress.register();

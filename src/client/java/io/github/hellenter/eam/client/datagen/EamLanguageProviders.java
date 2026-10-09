@@ -66,6 +66,7 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(1), "Anvil Hammers: Tier 2");
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Anvil Hammers: Tier 3");
 			builder.add("gui.eam.anvil.too_weak", "This anvil is too weak for it");
+			builder.add("gui.eam.silver_brewing.recipes", "Silver Stand Recipes");
 			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Crafting Table Knives: Tier 1");
 			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Crafting Table Knives: Tier 2");
 			builder.add(CraftingTags.KNIFE_TIERS.get(2), "Crafting Table Knives: Tier 3");
@@ -192,6 +193,7 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(1), "Молотки для наковальни: тир 2");
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Молотки для наковальни: тир 3");
 			builder.add("gui.eam.anvil.too_weak", "Эта наковальня слишком слабая");
+			builder.add("gui.eam.silver_brewing.recipes", "Рецепты зельеварки");
 			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Ножи для верстака: тир 1");
 			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Ножи для верстака: тир 2");
 			builder.add(CraftingTags.KNIFE_TIERS.get(2), "Ножи для верстака: тир 3");

@@ -35,6 +35,7 @@
   "gui.eam.nutrient.value": "%s: %s / %s",
   "gui.eam.nutrition.balanced": "Balanced diet: hunger is slower, regeneration is faster",
   "gui.eam.nutrition.unbalanced": "Keep all three at %s or more for a bonus",
+  "gui.eam.silver_brewing.recipes": "Silver Stand Recipes",
   "item.eam.copper_hammer": "Copper Hammer",
   "item.eam.copper_knife": "Copper Knife",
   "item.eam.copper_saw": "Copper Saw",
