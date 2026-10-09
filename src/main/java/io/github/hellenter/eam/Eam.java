@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
@@ -63,6 +64,7 @@ public class Eam implements ModInitializer {
 		EamBlocks.register();
 		EamBlockEntities.register();
 		EamItems.register();
+		EamSounds.register();
 		EamEntities.register();
 		FallenLordModule.register();
 		EamWorldgen.init();

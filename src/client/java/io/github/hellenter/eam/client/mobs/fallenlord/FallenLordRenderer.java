@@ -4,7 +4,6 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.resources.Identifier;
@@ -26,7 +25,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 	private @Nullable ItemStack potion;
 
 	public FallenLordRenderer(EntityRendererProvider.Context context) {
-		super(context, new FallenLordModel(context.bakeLayer(ModelLayers.WITHER_SKELETON)), 0.6F);
+		super(context, new FallenLordModel(context.bakeLayer(FallenLordModel.LAYER)), 0.6F);
 		addLayer(new FallenLordGearLayer(this, context.getModelSet()));
 		addLayer(new FallenLordEyesLayer(this, context.getModelSet()));
 	}
@@ -51,6 +50,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 		state.action = entity.action();
 		state.actionTime = entity.actionTime(partialTicks);
 		state.shieldUp = entity.isShieldUp();
+		state.guard = entity.guard(partialTicks);
 		boolean eyesGlow = state.action == FallenLordAction.DASH_WINDUP && state.actionTime < FallenLordAction.EYE_FLASH_TICKS;
 		state.eyeFrame = eyesGlow ? (int) (state.actionTime * FallenLordEyesModel.FRAMES / FallenLordAction.EYE_FLASH_TICKS) : -1;
 		if (state.action == FallenLordAction.DRINK) {
@@ -69,14 +69,9 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 		}
 	}
 
+	/** The shield is not a vanilla block pose: {@link FallenLordModel} raises it into his own guard. */
 	@Override
 	protected HumanoidModel.ArmPose getArmPose(FallenLord mob, HumanoidArm arm) {
-		if (mob.getItemHeldByArm(arm).isEmpty()) {
-			return HumanoidModel.ArmPose.EMPTY;
-		}
-		if (arm != mob.getMainArm() && mob.getItemHeldByArm(arm).is(Items.SHIELD) && mob.isShieldUp()) {
-			return HumanoidModel.ArmPose.BLOCK;
-		}
-		return HumanoidModel.ArmPose.ITEM;
+		return mob.getItemHeldByArm(arm).isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
 	}
 }

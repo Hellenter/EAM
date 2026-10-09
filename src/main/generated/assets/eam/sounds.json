@@ -1,0 +1,11 @@
+{
+  "entity.fallen_lord.dash_warning": {
+    "sounds": [
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/fallen_lord/dash_warning"
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.fallen_lord.dash_warning"
+  }
+}

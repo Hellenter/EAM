@@ -10,6 +10,8 @@ public class FallenLordRenderState extends SkeletonRenderState {
 	public float actionTime;
 	public int phase = 1;
 	public boolean shieldUp;
+	/** How far the shield is raised into his guard, 0 to 1. */
+	public float guard;
 	/** Frame of the eye flash, or -1 when the eyes do not glow. */
 	public int eyeFrame = -1;
 }

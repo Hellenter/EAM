@@ -43,5 +43,36 @@
     "cooldown": 800,
     "counter_damage": 4.0,
     "counter_knockback": 2.5
+  },
+  "shield_break": {
+    "hits_min": 2,
+    "hits_max": 3,
+    "seconds": 5.0,
+    "window": 200
+  },
+  "players": {
+    "radius": 32.0,
+    "levels": [
+      {
+        "damage": -0.15,
+        "health": 0.0,
+        "speed": 0.0
+      },
+      {
+        "damage": 0.0,
+        "health": 0.15,
+        "speed": 0.0
+      },
+      {
+        "damage": 0.15,
+        "health": 0.35,
+        "speed": 0.0
+      },
+      {
+        "damage": 0.3,
+        "health": 0.6,
+        "speed": 0.1
+      }
+    ]
   }
 }

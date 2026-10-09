@@ -33,8 +33,8 @@ public enum FallenLordAction {
 	/** Quick half-circle bash at a player who hit him during the drink: the shield, or the sword in phase two. */
 	COUNTER(10);
 
-	/** Eyes glow during the first ticks of the windup. */
-	public static final int EYE_FLASH_TICKS = 10;
+	/** Eyes glow through the whole windup. */
+	public static final int EYE_FLASH_TICKS = 14;
 
 	private final int length;
 

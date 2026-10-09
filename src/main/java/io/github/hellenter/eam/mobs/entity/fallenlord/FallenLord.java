@@ -2,10 +2,13 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -13,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,7 +35,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -44,6 +50,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -55,7 +62,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -84,6 +93,12 @@ public class FallenLord extends Monster {
 	private static final double SCALE = 1.1;
 	/** Without the spear back by then (lost in a wall, unloaded) he gets a new one. */
 	private static final int SPEAR_LOST_TICKS = 120;
+	/** His health and speed bonuses for the players around him. */
+	private static final Identifier PLAYERS_BONUS = Eam.id("fallen_lord_players");
+	/** He counts the players around him this often. */
+	private static final int PLAYER_COUNT_INTERVAL = 20;
+	/** How fast the shield arm comes up into the guard and drops, per tick. */
+	private static final float GUARD_SPEED = 0.2F;
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
 			BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
@@ -107,9 +122,16 @@ public class FallenLord extends Monster {
 	private int drinksThisPhase;
 	private int drinkCooldown;
 	private float healedThisDrink;
+	/** Players around him at the last count, at least one. */
+	private int players = 1;
+	/** His hits each player's shield has blocked lately. */
+	private final Map<UUID, BlockStreak> blockStreaks = new HashMap<>();
 
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
+	/** Client: how far the shield is raised into his guard, 0 to 1, now and a tick ago. */
+	private float guard;
+	private float guardO;
 
 	public FallenLord(EntityType<? extends FallenLord> type, Level level) {
 		super(type, level);
@@ -197,12 +219,13 @@ public class FallenLord extends Monster {
 		return new ItemStack(EamItems.MITHRIL_SWORD);
 	}
 
+	/** Sets the phase's health and heals him to it; the bonus for the players around still applies on top. */
 	private void setMaxHealthTo(float health) {
 		AttributeInstance maxHealth = getAttribute(Attributes.MAX_HEALTH);
 		if (maxHealth != null) {
 			maxHealth.setBaseValue(health);
 		}
-		setHealth(health);
+		setHealth(getMaxHealth());
 	}
 
 	// ---- State shared with the client ----
@@ -222,6 +245,20 @@ public class FallenLord extends Monster {
 	/** Client: ticks since the current action started. */
 	public float actionTime(float partialTicks) {
 		return tickCount - clientActionStart + partialTicks;
+	}
+
+	/** Client: how far the shield is raised into his guard, 0 to 1. */
+	public float guard(float partialTicks) {
+		return Mth.lerp(partialTicks, guardO, guard);
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if (level().isClientSide()) {
+			guardO = guard;
+			guard = Mth.approach(guard, isShieldUp() && getOffhandItem().is(Items.SHIELD) ? 1.0F : 0.0F, GUARD_SPEED);
+		}
 	}
 
 	@Override
@@ -339,6 +376,9 @@ public class FallenLord extends Monster {
 			hitStreak = HitStreak.NONE;
 			swipePending = false;
 		}
+		if (tickCount % PLAYER_COUNT_INTERVAL == 0) {
+			countPlayers(level);
+		}
 		if (spearAwayTicks >= 0 && ++spearAwayTicks > SPEAR_LOST_TICKS) {
 			if (thrownSpear != null && level.getEntity(thrownSpear) instanceof ThrownLordSpear lost) {
 				lost.discard();
@@ -385,7 +425,8 @@ public class FallenLord extends Monster {
 			}
 			case DASH_WINDUP -> {
 				if (t == 0) {
-					playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.6F);
+					// The cue that the unblockable dash is coming, with the eye flash.
+					playSound(EamSounds.FALLEN_LORD_DASH_WARNING, 2.0F, 1.0F);
 				}
 				if (t == action.length() - 1) {
 					if (target == null) {
@@ -594,7 +635,7 @@ public class FallenLord extends Monster {
 	}
 
 	private void throwSpear(ServerLevel level, LivingEntity target, float damage, boolean returning) {
-		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage, returning);
+		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier(), returning);
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
 		double dy = target.getY(0.5) - spear.getY();
@@ -630,14 +671,78 @@ public class FallenLord extends Monster {
 	}
 
 	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback) {
-		if (!target.hurtServer(level, source, damage)) {
+		float scaled = damage * damageMultiplier();
+		if (!target.hurtServer(level, source, scaled)) {
 			return false;
 		}
 		if (knockback > 0.0F) {
-			target.knockback(knockback, getX() - target.getX(), getZ() - target.getZ(), source, damage);
+			target.knockback(knockback, getX() - target.getX(), getZ() - target.getZ(), source, scaled);
 		}
 		setLastHurtMob(target);
 		return true;
+	}
+
+	// ---- Players around: his strength and their shields ----
+
+	/** All his damage is scaled by the number of players around him. */
+	private float damageMultiplier() {
+		return (float) Math.max(0.0, 1.0 + FallenLordLogic.scaling(players, settings().players()).damage());
+	}
+
+	/** Counts the players around him and sets his health and speed for them; his health keeps its share. */
+	private void countPlayers(ServerLevel level) {
+		FallenLordSettings.PlayerScaling scaling = settings().players();
+		double radius = scaling.radius();
+		players = Math.max(1, level.getEntitiesOfClass(Player.class, getBoundingBox().inflate(radius),
+				player -> EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && player.isAlive() && distanceToSqr(player) <= radius * radius).size());
+		FallenLordSettings.PlayerScaling.Level bonus = FallenLordLogic.scaling(players, scaling);
+		float share = getHealth() / getMaxHealth();
+		if (setBonus(Attributes.MAX_HEALTH, bonus.health())) {
+			setHealth(share * getMaxHealth());
+		}
+		setBonus(Attributes.MOVEMENT_SPEED, bonus.speed());
+		long now = level.getGameTime();
+		blockStreaks.values().removeIf(streak -> now - streak.lastTick() > settings().shieldBreak().window());
+	}
+
+	/** Sets the players bonus on an attribute; true when it changed. */
+	private boolean setBonus(Holder<Attribute> attribute, double amount) {
+		AttributeInstance instance = getAttribute(attribute);
+		if (instance == null) {
+			return false;
+		}
+		AttributeModifier current = instance.getModifier(PLAYERS_BONUS);
+		if (current == null ? amount == 0.0 : current.amount() == amount) {
+			return false;
+		}
+		if (amount == 0.0) {
+			instance.removeModifier(PLAYERS_BONUS);
+		} else {
+			instance.addOrReplacePermanentModifier(new AttributeModifier(PLAYERS_BONUS, amount, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+		}
+		return true;
+	}
+
+	/** A player's shield blocked his hit: after a few such hits he knocks the shield out, the way an axe does. */
+	@Override
+	protected void blockedByItem(LivingEntity defender, DamageSource source, float damage, boolean fullyBlocked) {
+		super.blockedByItem(defender, source, damage, fullyBlocked);
+		if (!(defender instanceof Player) || !(level() instanceof ServerLevel level)) {
+			return;
+		}
+		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak();
+		BlockStreak streak = FallenLordLogic.addBlock(blockStreaks.getOrDefault(defender.getUUID(), BlockStreak.NONE), level.getGameTime(),
+				shieldBreak, random.nextDouble());
+		if (!FallenLordLogic.breaksShield(streak)) {
+			blockStreaks.put(defender.getUUID(), streak);
+			return;
+		}
+		blockStreaks.remove(defender.getUUID());
+		ItemStack shield = defender.getItemBlockingWith();
+		BlocksAttacks blocks = shield != null ? shield.get(DataComponents.BLOCKS_ATTACKS) : null;
+		if (blocks != null) {
+			blocks.disable(level, defender, shieldBreak.seconds(), shield);
+		}
 	}
 
 	private boolean inFront(LivingEntity other, double minDot) {

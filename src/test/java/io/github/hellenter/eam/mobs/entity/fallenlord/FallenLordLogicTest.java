@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Situation;
 
@@ -121,5 +122,44 @@ class FallenLordLogicTest {
 		assertTrue(FallenLordLogic.shouldDrink(10.0F, max, 1, 0, SETTINGS));
 		assertFalse(FallenLordLogic.shouldDrink(10.0F, max, 1, 1, SETTINGS));
 		assertFalse(FallenLordLogic.shouldDrink(10.0F, max, SETTINGS.regen().usesPerPhase(), 0, SETTINGS));
+	}
+
+	@Test
+	void knocksTheShieldOutAfterTwoOrThreeBlocks() {
+		FallenLordSettings.ShieldBreak settings = SETTINGS.shieldBreak();
+		BlockStreak low = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.0);
+		assertEquals(2, low.needed());
+		assertFalse(FallenLordLogic.breaksShield(low));
+		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(low, 120L, settings, 0.9)));
+
+		BlockStreak high = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.99);
+		assertEquals(3, high.needed());
+		high = FallenLordLogic.addBlock(high, 120L, settings, 0.0);
+		assertFalse(FallenLordLogic.breaksShield(high));
+		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(high, 140L, settings, 0.0)));
+	}
+
+	@Test
+	void blocksFarApartStartTheCountAgain() {
+		FallenLordSettings.ShieldBreak settings = SETTINGS.shieldBreak();
+		BlockStreak first = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.0);
+		BlockStreak late = FallenLordLogic.addBlock(first, 100L + settings.window() + 1, settings, 0.0);
+		assertEquals(1, late.hits());
+		assertFalse(FallenLordLogic.breaksShield(late));
+	}
+
+	@Test
+	void scalesWithPlayers() {
+		FallenLordSettings.PlayerScaling scaling = SETTINGS.players();
+		assertEquals(-0.15, FallenLordLogic.scaling(1, scaling).damage(), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.scaling(1, scaling).health(), 1.0E-9);
+		assertEquals(-0.15, FallenLordLogic.scaling(0, scaling).damage(), 1.0E-9);
+		assertEquals(0.15, FallenLordLogic.scaling(2, scaling).health(), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.scaling(2, scaling).damage(), 1.0E-9);
+		assertEquals(0.35, FallenLordLogic.scaling(3, scaling).health(), 1.0E-9);
+		assertEquals(0.15, FallenLordLogic.scaling(3, scaling).damage(), 1.0E-9);
+		assertEquals(0.60, FallenLordLogic.scaling(4, scaling).health(), 1.0E-9);
+		assertEquals(0.10, FallenLordLogic.scaling(4, scaling).speed(), 1.0E-9);
+		assertEquals(0.30, FallenLordLogic.scaling(9, scaling).damage(), 1.0E-9);
 	}
 }

@@ -20,9 +20,9 @@ import java.util.Set;
 
 /**
  * The Fallen Lord's own armor over the skeleton: a barbute with a T-shaped face opening, a smooth mithril breastplate,
- * pauldrons, chainmail bracers on the forearms, leg plates, and a torn red cape. In {@code fallen_lord_gear.png}
- * (128x64) the top left follows the vanilla armor layout, the top right the leggings layout, the bottom holds the
- * helmet, bracers and cape.
+ * pauldrons, chainmail bracers on the forearms, leg plates, greaves and a torn red cape, plus the bones of his limbs.
+ * In {@code fallen_lord_gear.png} (128x64) the top left holds the two limb bones (upper and lower segment), then the
+ * vanilla armor layout; the top right the leggings layout; the bottom the helmet, bracers and cape.
  */
 public class FallenLordGearModel extends FallenLordModel {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("fallen_lord"), "gear");
@@ -61,26 +61,37 @@ public class FallenLordGearModel extends FallenLordModel {
 		cape.addOrReplaceChild("cape_lower", CubeListBuilder.create()
 				.texOffs(60, 51).addBox(-7.0F, 0.0F, 0.0F, 14.0F, 12.0F, 1.0F, sheet), PartPose.offset(0.0F, 10.0F, 0.0F));
 
-		// Pauldrons on the vanilla armor arm box, chainmail around the forearm bone.
-		CubeDeformation bracer = new CubeDeformation(0.25F);
-		root.addOrReplaceChild("right_arm", CubeListBuilder.create()
-				.texOffs(40, 16).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, OUTER)
-				.texOffs(48, 52).addBox(-1.5F, 4.0F, -1.5F, 3.0F, 6.0F, 3.0F, bracer), PartPose.offset(-5.0F, 2.0F, 0.0F));
-		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror()
-				.texOffs(40, 16).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, OUTER)
-				.texOffs(48, 52).addBox(-1.5F, 4.0F, -1.5F, 3.0F, 6.0F, 3.0F, bracer), PartPose.offset(5.0F, 2.0F, 0.0F));
-
-		// Leg plates on the leggings box, greaves on the boots box.
+		// Bones of the limbs (two shared textures, upper and lower segment), then the armor over them: pauldrons on the
+		// vanilla armor arm box, chainmail around the forearm, leg plates on the thighs, greaves on the shins.
+		CubeDeformation bracer = new CubeDeformation(0.5F);
 		CubeDeformation legPlates = new CubeDeformation(0.4F);
 		CubeDeformation greaves = new CubeDeformation(0.9F);
-		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
-				.texOffs(64, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, legPlates)
-				.texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, greaves), PartPose.offset(-1.9F, 12.0F, 0.0F));
-		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror()
-				.texOffs(64, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, legPlates)
-				.texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, greaves), PartPose.offset(1.9F, 12.0F, 0.0F));
-		// Same size as the wither skeleton model under it.
-		return LayerDefinition.create(mesh, 128, 64).apply(MeshTransformer.scaling(1.2F));
+		addLimbs(root,
+				CubeListBuilder.create()
+						.texOffs(0, 0).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(40, 16).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, OUTER),
+				CubeListBuilder.create()
+						.texOffs(12, 0).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(48, 52).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 4.0F, 3.0F, bracer),
+				CubeListBuilder.create().mirror()
+						.texOffs(0, 0).addBox(-1.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(40, 16).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, OUTER),
+				CubeListBuilder.create().mirror()
+						.texOffs(12, 0).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(48, 52).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 4.0F, 3.0F, bracer),
+				CubeListBuilder.create()
+						.texOffs(0, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(64, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, legPlates),
+				CubeListBuilder.create()
+						.texOffs(12, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, greaves),
+				CubeListBuilder.create().mirror()
+						.texOffs(0, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(64, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, legPlates),
+				CubeListBuilder.create().mirror()
+						.texOffs(12, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
+						.texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, greaves));
+		return LayerDefinition.create(mesh, 128, 64).apply(MeshTransformer.scaling(MODEL_SCALE));
 	}
 
 	@Override

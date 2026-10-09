@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Pure decisions of the Fallen Lord: which attack to use, when the shield blocks, when the swipe answers a flurry,
- * when he drinks.
+ * when he drinks, when he knocks a player's shield out, how he scales with players.
  */
 public final class FallenLordLogic {
 	/** Spear jab reach, from the boss's centre to the target's. */
@@ -61,6 +61,15 @@ public final class FallenLordLogic {
 	/** Hits landed on the boss while his shield is down, counted for the swipe. */
 	public record HitStreak(int hits, long firstTick) {
 		public static final HitStreak NONE = new HitStreak(0, 0L);
+	}
+
+	/**
+	 * His hits one player's shield has blocked; the shield is knocked out at {@code needed}.
+	 *
+	 * @param lastTick game time of the latest blocked hit
+	 */
+	public record BlockStreak(int hits, long lastTick, int needed) {
+		public static final BlockStreak NONE = new BlockStreak(0, 0L, 0);
 	}
 
 	record Candidate(Attack attack, double weight) {
@@ -195,5 +204,31 @@ public final class FallenLordLogic {
 		FallenLordSettings.Regen regen = settings.regen();
 		return drinkCooldown <= 0 && drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F
 				&& health <= maxHealth * regen.healthBelow();
+	}
+
+	/**
+	 * Adds a hit blocked by a player's shield at {@code tick}. A new count (the first hit, or one after the window)
+	 * picks how many hits this shield takes.
+	 *
+	 * @param roll uniform random in [0, 1)
+	 */
+	public static BlockStreak addBlock(BlockStreak streak, long tick, FallenLordSettings.ShieldBreak settings, double roll) {
+		if (streak.hits() == 0 || tick - streak.lastTick() > settings.window()) {
+			int min = Math.min(settings.hitsMin(), settings.hitsMax());
+			int max = Math.max(settings.hitsMin(), settings.hitsMax());
+			int needed = Math.min(max, min + (int) (roll * (max - min + 1)));
+			return new BlockStreak(1, tick, needed);
+		}
+		return new BlockStreak(streak.hits() + 1, tick, streak.needed());
+	}
+
+	public static boolean breaksShield(BlockStreak streak) {
+		return streak.hits() > 0 && streak.hits() >= streak.needed();
+	}
+
+	/** The bonuses for this many players; less than one counts as one, past the last level the last one holds. */
+	public static FallenLordSettings.PlayerScaling.Level scaling(int players, FallenLordSettings.PlayerScaling scaling) {
+		List<FallenLordSettings.PlayerScaling.Level> levels = scaling.levels();
+		return levels.get(Math.min(Math.max(players, 1), levels.size()) - 1);
 	}
 }

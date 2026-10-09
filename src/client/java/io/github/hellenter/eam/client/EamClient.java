@@ -10,6 +10,7 @@ import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordEyesModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
+import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
@@ -40,6 +41,7 @@ public class EamClient implements ClientModInitializer {
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
+		ModelLayerRegistry.registerModelLayer(FallenLordModel.LAYER, FallenLordModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
