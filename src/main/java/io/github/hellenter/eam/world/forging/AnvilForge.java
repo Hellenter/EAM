@@ -9,8 +9,8 @@ import java.util.function.Supplier;
 
 /**
  * Forging in one anvil menu. A click on the offered plate starts hammering; when a plate is done the server takes the
- * hot iron for it from the left slot and adds the plate to {@link #output()}, which the result slot then shows and
- * the player takes. While the left slot still holds enough hot iron, the next plate starts right away.
+ * hot iron for it from both input slots and adds the plate to {@link #output()}, which the result slot then shows and
+ * the player takes. While both slots still hold hot iron, the next plate starts right away.
  * <p>
  * The client only gets the synced progress, total, flags and anvil tier, to draw the arrow, predict clicks and tell
  * which items this anvil cannot work on.

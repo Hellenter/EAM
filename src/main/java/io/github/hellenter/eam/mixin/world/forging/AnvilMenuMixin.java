@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mixin.world.forging;
 
 import io.github.hellenter.eam.world.forging.AnvilForge;
+import io.github.hellenter.eam.world.forging.AnvilHammer;
 import io.github.hellenter.eam.world.forging.ForgingAnvilMenu;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.forging.HammerSlot;
@@ -8,7 +9,6 @@ import io.github.hellenter.eam.world.forging.HammerSlot;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -30,8 +30,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Hot iron in the anvil's left slot is hammered into iron plates, taking time and no experience; a hammer slot speeds
- * that up, and copper and silver anvils refuse items above their tier. The rules are in {@link ForgingModule}.
+ * Hot iron in the anvil's left and right slots is hammered into iron plates, taking time and no experience; a hammer
+ * slot speeds that up, and copper and silver anvils refuse items above their tier. The rules are in {@link ForgingModule}.
  */
 @Mixin(AnvilMenu.class)
 abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMenu {
@@ -43,7 +43,7 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	private AnvilForge eam$forge;
 
 	@Unique
-	private final SimpleContainer eam$hammer = new SimpleContainer(1);
+	private AnvilHammer eam$hammer;
 
 	private AnvilMenuMixin(MenuType<?> type, int containerId, Inventory inventory, ContainerLevelAccess access,
 			ItemCombinerMenuSlotDefinition slots) {
@@ -53,6 +53,7 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	@Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/inventory/ContainerLevelAccess;)V",
 			at = @At("TAIL"))
 	private void eam$addForge(int containerId, Inventory inventory, ContainerLevelAccess access, CallbackInfo ci) {
+		eam$hammer = new AnvilHammer(access);
 		eam$forge = new AnvilForge(() -> this.player, () -> ForgingModule.anvilTier(this));
 		addDataSlot(eam$forge.progressSlot());
 		addDataSlot(eam$forge.flagsSlot());
@@ -106,7 +107,7 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	}
 
 	@Override
-	public Container eam$hammer() {
+	public AnvilHammer eam$hammer() {
 		return eam$hammer;
 	}
 

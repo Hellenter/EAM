@@ -12,12 +12,14 @@ import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,15 +28,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
 
 import org.jspecify.annotations.Nullable;
 
 /**
- * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil hammers two hot iron into a plate in five
- * seconds, and hot iron left alone turns back into an ingot a minute after it leaves the furnace. Iron armor takes
- * plates and ingots. Mithril works the same way, but only the obsidian blast furnace heats it and only the mithril
- * anvil forges it. The recipes are datagen files that load
- * only while the {@code iron_plates} flag is on ({@link #ENABLED}); with it off the vanilla ingot armor recipes return.
+ * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil hammers one hot iron from its left and one
+ * from its right slot into a plate in five seconds, and hot iron left alone turns back into an ingot a minute after it
+ * leaves the furnace. Iron armor takes plates and ingots. Mithril works the same way, but only the obsidian blast
+ * furnace heats it and only the mithril anvil forges it. The recipes are datagen files that load only while the {@code iron_plates} flag is on ({@link #ENABLED}); with it off the vanilla ingot armor recipes return.
  */
 public final class ForgingModule {
 	/** Game time at which a hot iron stack turns back into iron ingots; set when it leaves the furnace. */
@@ -58,6 +60,12 @@ public final class ForgingModule {
 	/** The component and condition types must exist even with the module off, or saved items and recipe files fail to load. */
 	public static void register() {
 		ResourceConditions.register(ENABLED_TYPE);
+		ForgingTypes.register();
+	}
+
+	/** Every anvil gets a block entity for its hammer. */
+	public static @Nullable AnvilBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return state.is(BlockTags.ANVIL) ? new AnvilBlockEntity(pos, state) : null;
 	}
 
 	/** Copper and silver anvils work only on items of their tier and below; the iron anvil works on everything. */
@@ -138,13 +146,15 @@ public final class ForgingModule {
 		return null;
 	}
 
-	/** Both sides: the hot metal in the left slot can be forged now. */
+	/** Both sides: the same hot metal lies in the left and the right slot and can be forged now. */
 	private static boolean canForge(ForgingAnvilMenu menu, long now) {
-		ItemStack input = menu.eam$inputSlots().getItem(0);
-		Plate plate = plate(input);
-		return plate != null && ForgingLogic.canForgeOn(menu.eam$forge().anvilTier(), plate.anvilTier())
-				&& ForgingLogic.canForge(input.getCount(),
-				menu.eam$inputSlots().getItem(1).isEmpty(), ForgingLogic.isCooled(coolsAt(input), now));
+		ItemStack left = menu.eam$inputSlots().getItem(0);
+		ItemStack right = menu.eam$inputSlots().getItem(1);
+		Plate plate = plate(left);
+		return plate != null && plate.equals(plate(right))
+				&& ForgingLogic.canForgeOn(menu.eam$forge().anvilTier(), plate.anvilTier())
+				&& ForgingLogic.canForge(left.getCount(), right.getCount(),
+				ForgingLogic.isCooled(coolsAt(left), now) || ForgingLogic.isCooled(coolsAt(right), now));
 	}
 
 	/** Server: a fresh plate for the hot metal in the left slot; only called when {@link #canForge} holds. */
@@ -248,7 +258,8 @@ public final class ForgingModule {
 			AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, plate);
 		}
 		// Updates the result slot through the vanilla slot change.
-		menu.eam$inputSlots().removeItem(0, ForgingLogic.HOT_IRON_PER_PLATE);
+		menu.eam$inputSlots().removeItem(0, ForgingLogic.HOT_IRON_PER_SLOT);
+		menu.eam$inputSlots().removeItem(1, ForgingLogic.HOT_IRON_PER_SLOT);
 		if (canForge(menu, now)) {
 			forge.start(forgeTicks(menu, player));
 		} else {
@@ -258,15 +269,16 @@ public final class ForgingModule {
 	}
 
 	/**
-	 * Server, when the menu closes: the plate being hammered is dropped, forged plates and the hammer go to the player.
-	 * Runs whatever the config says, since the hammer slot is always there.
+	 * Server, when the menu closes: the plate being hammered is dropped and forged plates go to the player. The hammer
+	 * stays in the anvil; only one with no anvil to keep it goes back. Runs whatever the config says, since the hammer
+	 * slot is always there.
 	 */
 	public static void closed(ForgingAnvilMenu menu, Player player) {
 		AnvilForge forge = menu.eam$forge();
 		if (player.level().isClientSide()) {
 			return;
 		}
-		ItemStack hammer = menu.eam$hammer().removeItemNoUpdate(0);
+		ItemStack hammer = menu.eam$hammer().takeLoose();
 		if (!hammer.isEmpty()) {
 			AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, hammer);
 		}

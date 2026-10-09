@@ -30,12 +30,12 @@ class ForgingLogicTest {
 	}
 
 	@Test
-	void anvilForgesOnePlateFromTwoHotIngots() {
-		assertTrue(ForgingLogic.canForge(2, true, false));
-		assertTrue(ForgingLogic.canForge(5, true, false));
-		assertFalse(ForgingLogic.canForge(1, true, false));
-		assertFalse(ForgingLogic.canForge(5, false, false));
-		assertFalse(ForgingLogic.canForge(5, true, true));
+	void anvilForgesOnePlateFromHotIngotsInBothSlots() {
+		assertTrue(ForgingLogic.canForge(1, 1, false));
+		assertTrue(ForgingLogic.canForge(5, 3, false));
+		assertFalse(ForgingLogic.canForge(2, 0, false));
+		assertFalse(ForgingLogic.canForge(0, 2, false));
+		assertFalse(ForgingLogic.canForge(1, 1, true));
 	}
 
 	@Test
