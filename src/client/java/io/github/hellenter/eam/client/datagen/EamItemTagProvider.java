@@ -38,6 +38,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
+		builder(EamItems.WATER_BOWLS).add(EamItems.WATER_BOWL.builtInRegistryHolder().key(),
+				EamItems.BOILED_WATER_BOWL.builtInRegistryHolder().key());
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

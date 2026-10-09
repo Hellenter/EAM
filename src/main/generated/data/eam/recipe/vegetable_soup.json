@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#eam:water_bowls",
+    "minecraft:potato",
+    "minecraft:carrot",
+    "minecraft:beetroot"
+  ],
+  "result": {
+    "id": "eam:vegetable_soup"
+  }
+}

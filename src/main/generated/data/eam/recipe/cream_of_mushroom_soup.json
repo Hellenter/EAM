@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:milk_bowl",
+    "minecraft:brown_mushroom",
+    "minecraft:brown_mushroom"
+  ],
+  "result": {
+    "id": "eam:cream_of_mushroom_soup"
+  }
+}

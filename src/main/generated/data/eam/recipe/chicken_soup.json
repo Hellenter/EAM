@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#eam:water_bowls",
+    "minecraft:cooked_chicken",
+    "minecraft:carrot",
+    "minecraft:beetroot"
+  ],
+  "result": {
+    "id": "eam:chicken_soup"
+  }
+}
