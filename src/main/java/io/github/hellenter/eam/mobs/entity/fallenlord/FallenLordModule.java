@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
 /**
@@ -18,6 +19,8 @@ import net.minecraft.world.damagesource.DamageType;
 public final class FallenLordModule {
 	/** The red-eyed dash; shields don't stop it. */
 	public static final ResourceKey<DamageType> DASH_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("fallen_lord_dash"));
+	/** Weapon hits and projectiles: his physical resistance applies to these. */
+	public static final TagKey<DamageType> PHYSICAL = TagKey.create(Registries.DAMAGE_TYPE, Eam.id("physical"));
 
 	private static volatile FallenLordSettings settings = FallenLordSettings.DEFAULT;
 

@@ -31,7 +31,13 @@ public enum FallenLordAction {
 	/** Drinks a regeneration potion, healing; ends early once healed enough or when a player hits him. */
 	DRINK(400),
 	/** Quick half-circle bash at a player who hit him during the drink: the shield, or the sword in phase two. */
-	COUNTER(10);
+	COUNTER(10),
+	/** Sword drawn back low, half as long as the red-eyed windup; then {@link #SWORD_DASH}. */
+	SWORD_DASH_WINDUP(7),
+	/** Rush that stops point-blank in front of the player with a blockable hit; then his combo. */
+	SWORD_DASH(14),
+	/** A flick of the sword that knocks an arrow aside. */
+	PARRY(6);
 
 	/** Eyes glow through the whole windup. */
 	public static final int EYE_FLASH_TICKS = 14;

@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Wound;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -29,6 +30,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -48,6 +50,9 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BlocksAttacks;
@@ -82,6 +87,9 @@ public class FallenLord extends Monster {
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
 	private static final double DASH_SPEED = 0.9;
+	private static final double SWORD_DASH_SPEED = 1.0;
+	/** A blocked sword dash still pushes the player back a block, as a hit does. */
+	private static final double SWORD_DASH_PUSH = 0.4;
 	/** The leap back before drinking: this fast for this many ticks, about six blocks. */
 	private static final double RETREAT_SPEED = 0.75;
 	private static final int RETREAT_TICKS = 8;
@@ -122,6 +130,14 @@ public class FallenLord extends Monster {
 	private int drinksThisPhase;
 	private int drinkCooldown;
 	private float healedThisDrink;
+	/** The leap back ends in a drink. */
+	private boolean drinkAfterRetreat;
+	/** Dashes he has followed the first one with. */
+	private int dashesChained;
+	/** Set while the sword dash strikes: a shield that blocks it is knocked out at once. */
+	private boolean breaksShields;
+	/** Health lost lately, for the leap back after a burst of damage. */
+	private final List<Wound> wounds = new ArrayList<>();
 	/** Players around him at the last count, at least one. */
 	private int players = 1;
 	/** His hits each player's shield has blocked lately. */
@@ -324,16 +340,41 @@ public class FallenLord extends Monster {
 	}
 
 	/** Leaps back from the target, then drinks. */
-	void startDrinking(LivingEntity target) {
+	void startDrinking(@Nullable LivingEntity target) {
 		drinksThisPhase++;
 		drinkCooldown = settings().regen().cooldown();
 		healedThisDrink = 0.0F;
+		drinkAfterRetreat = true;
 		setAction(FallenLordAction.RETREAT, target);
+	}
+
+	/** Lost a lot of health quickly: leaps back with all his cooldowns reset, sometimes to drink. */
+	private void leapBack() {
+		wounds.clear();
+		Arrays.fill(cooldowns, 0);
+		drinkCooldown = 0;
+		shieldDisabledTicks = 0;
+		hitStreak = HitStreak.NONE;
+		swipePending = false;
+		FallenLordSettings.Regen regen = settings().regen();
+		if (drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F && getHealth() < getMaxHealth()
+				&& random.nextDouble() < settings().burst().drinkChance()) {
+			startDrinking(getTarget());
+		} else {
+			drinkAfterRetreat = false;
+			setAction(FallenLordAction.RETREAT, getTarget());
+		}
+	}
+
+	private boolean canLeapBack() {
+		return action != FallenLordAction.TRANSITION && action != FallenLordAction.RETREAT && action != FallenLordAction.DRINK
+				&& action != FallenLordAction.COUNTER;
 	}
 
 	void startAttack(Attack attack, LivingEntity target) {
 		lastAttack = attack;
 		cooldowns[attack.ordinal()] = FallenLordLogic.cooldown(attack, settings());
+		dashesChained = 0;
 		FallenLordAction next = switch (attack) {
 			case POKE -> FallenLordAction.POKE;
 			case DASH -> FallenLordAction.DASH_WINDUP;
@@ -343,6 +384,7 @@ public class FallenLord extends Monster {
 			case COMBO -> FallenLordAction.COMBO;
 			case LUNGE -> FallenLordAction.LUNGE;
 			case WHIRL -> FallenLordAction.WHIRL;
+			case SWORD_DASH -> FallenLordAction.SWORD_DASH_WINDUP;
 		};
 		setAction(next, target);
 	}
@@ -386,6 +428,13 @@ public class FallenLord extends Monster {
 			rearm();
 		}
 
+		long now = level.getGameTime();
+		FallenLordSettings.Burst burst = settings().burst();
+		wounds.removeIf(wound -> now - wound.tick() > burst.window());
+		if (!wounds.isEmpty() && canLeapBack() && FallenLordLogic.lostQuickly(wounds, now, getMaxHealth(), burst)) {
+			leapBack();
+		}
+
 		LivingEntity target = getTarget();
 		ticksOutOfReach = target != null && horizontalDistanceTo(target) > FallenLordLogic.CLOSE ? ticksOutOfReach + 1 : 0;
 
@@ -411,7 +460,7 @@ public class FallenLord extends Monster {
 	private void tickAction(ServerLevel level) {
 		int t = actionTicks++;
 		LivingEntity target = actionTarget != null && actionTarget.isAlive() ? actionTarget : null;
-		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.WHIRL) {
+		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -442,8 +491,9 @@ public class FallenLord extends Monster {
 			}
 			case DASH -> {
 				Vec3 left = dashTarget.subtract(position());
-				if (t > 0 && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0 || left.horizontalDistance() < 0.6)) {
-					endAction();
+				if (t > 0 && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0 || left.horizontalDistance() < 0.6)
+						|| t >= action.length() - 1) {
+					finishDash(target);
 					return;
 				}
 				setDeltaMovement(rushDirection.x * DASH_SPEED, getDeltaMovement().y, rushDirection.z * DASH_SPEED);
@@ -498,7 +548,12 @@ public class FallenLord extends Monster {
 					setDeltaMovement(rushDirection.x * RETREAT_SPEED, getDeltaMovement().y, rushDirection.z * RETREAT_SPEED);
 				}
 				if (t == action.length() - 1) {
-					setAction(FallenLordAction.DRINK, target);
+					if (drinkAfterRetreat) {
+						drinkAfterRetreat = false;
+						setAction(FallenLordAction.DRINK, target);
+					} else {
+						endAction();
+					}
 					return;
 				}
 			}
@@ -528,12 +583,73 @@ public class FallenLord extends Monster {
 					}
 				}
 			}
-			case NONE -> {
+			case SWORD_DASH_WINDUP -> {
+				if (t == 0) {
+					// No red eyes: this one can be blocked. The cue is the sword drawn back with a rasp of metal.
+					playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 1.4F);
+				}
+				if (t == action.length() - 1) {
+					if (target == null) {
+						break;
+					}
+					// Straight at where the player stands now; stepping aside dodges it.
+					rushDirection = horizontal(target.position().subtract(position()));
+					dashTarget = target.position();
+					setAction(FallenLordAction.SWORD_DASH, target);
+					playSound(SoundEvents.LUNGE_2.value(), 1.5F, 0.8F);
+					return;
+				}
+			}
+			case SWORD_DASH -> {
+				if (tickSwordDash(level, t, target)) {
+					return;
+				}
+			}
+			case PARRY, NONE -> {
 			}
 		}
 		if (actionTicks >= action.length()) {
 			endAction();
 		}
+	}
+
+	/** A dash that hit goes straight into the next one, from where he ended up behind the player. */
+	private void finishDash(@Nullable LivingEntity target) {
+		if (actionHit && target != null && dashesChained < settings().phaseOne().dashChain()) {
+			dashesChained++;
+			setAction(FallenLordAction.DASH_WINDUP, target);
+		} else {
+			endAction();
+		}
+	}
+
+	/** One tick of the sword dash; true when it has handed over to another action. */
+	private boolean tickSwordDash(ServerLevel level, int t, @Nullable LivingEntity target) {
+		if (target != null && horizontalDistanceTo(target) <= FallenLordLogic.SWORD_DASH_STOP + 0.3 && Math.abs(target.getY() - getY()) < 2.5) {
+			// Point-blank: he stops dead and cuts. A shield takes the cut but is knocked out; the player is pushed back either way.
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 0.7F);
+			breaksShields = true;
+			boolean hurt = strike(level, target, damageSources().mobAttack(this), settings().swordDash().damage(), 0.0F);
+			breaksShields = false;
+			if (!hurt) {
+				target.knockback(SWORD_DASH_PUSH, getX() - target.getX(), getZ() - target.getZ(), damageSources().mobAttack(this), 0.0F);
+				// A blocked hit does not send the player their new motion by itself.
+				target.syncVelocity = true;
+			}
+			// Straight into the combo while the player reels.
+			lastAttack = Attack.COMBO;
+			cooldowns[Attack.COMBO.ordinal()] = FallenLordLogic.cooldown(Attack.COMBO, settings());
+			setAction(FallenLordAction.COMBO, target);
+			return true;
+		}
+		Vec3 left = dashTarget.subtract(position());
+		if (t > 0 && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0)) {
+			endAction();
+			return true;
+		}
+		setDeltaMovement(rushDirection.x * SWORD_DASH_SPEED, getDeltaMovement().y, rushDirection.z * SWORD_DASH_SPEED);
+		return false;
 	}
 
 	private void tickCombo(ServerLevel level, int t, @Nullable LivingEntity target, FallenLordSettings.PhaseTwo two) {
@@ -730,6 +846,11 @@ public class FallenLord extends Monster {
 		if (!(defender instanceof Player) || !(level() instanceof ServerLevel level)) {
 			return;
 		}
+		if (breaksShields) {
+			blockStreaks.remove(defender.getUUID());
+			knockShieldOut(level, defender, settings().swordDash().shieldSeconds());
+			return;
+		}
 		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak();
 		BlockStreak streak = FallenLordLogic.addBlock(blockStreaks.getOrDefault(defender.getUUID(), BlockStreak.NONE), level.getGameTime(),
 				shieldBreak, random.nextDouble());
@@ -738,10 +859,14 @@ public class FallenLord extends Monster {
 			return;
 		}
 		blockStreaks.remove(defender.getUUID());
+		knockShieldOut(level, defender, shieldBreak.seconds());
+	}
+
+	private static void knockShieldOut(ServerLevel level, LivingEntity defender, float seconds) {
 		ItemStack shield = defender.getItemBlockingWith();
 		BlocksAttacks blocks = shield != null ? shield.get(DataComponents.BLOCKS_ATTACKS) : null;
 		if (blocks != null) {
-			blocks.disable(level, defender, shieldBreak.seconds(), shield);
+			blocks.disable(level, defender, seconds, shield);
 		}
 	}
 
@@ -777,6 +902,9 @@ public class FallenLord extends Monster {
 			blockWithShield(level, attacker);
 			return false;
 		}
+		if (source.is(FallenLordModule.PHYSICAL)) {
+			damage *= (float) (1.0 - settings().physicalResistance());
+		}
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (hurt && action == FallenLordAction.DRINK && source.getEntity() instanceof Player player) {
 			// A player's hit stops the drink, and he hits back at once.
@@ -805,9 +933,52 @@ public class FallenLord extends Monster {
 		}
 	}
 
+	/**
+	 * Arrows from the front glance off the raised shield, or in phase two he knocks them aside with the sword when he
+	 * is not busy attacking.
+	 */
+	@Override
+	public ProjectileDeflection deflection(Projectile projectile) {
+		if (!(projectile instanceof AbstractArrow) || projectile.getOwner() == this) {
+			return super.deflection(projectile);
+		}
+		Vec3 motion = projectile.getDeltaMovement();
+		if (!FallenLordLogic.shieldCovers(yBodyRot, -motion.x, -motion.z)) {
+			return super.deflection(projectile);
+		}
+		if (isShieldUp()) {
+			return this::deflectWithShield;
+		}
+		FallenLordAction now = action();
+		if (phase() == 2 && (now == FallenLordAction.NONE || now == FallenLordAction.PARRY) && getMainHandItem().is(EamItems.MITHRIL_SWORD)) {
+			return this::parryWithSword;
+		}
+		return super.deflection(projectile);
+	}
+
+	/** Runs on the server only. */
+	private void deflectWithShield(Projectile projectile, @Nullable Entity by, RandomSource random, Vec3 power) {
+		level().playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 0.8F + random.nextFloat() * 0.4F);
+		ProjectileDeflection.REVERSE.deflect(projectile, by, random, power);
+	}
+
+	/** Runs on the server only. The arrow flies off to one side, slowed, and he flicks the sword. */
+	private void parryWithSword(Projectile projectile, @Nullable Entity by, RandomSource random, Vec3 power) {
+		Vec3 motion = projectile.getDeltaMovement();
+		Vec3 side = new Vec3(-motion.z, 0.0, motion.x).normalize().scale(random.nextBoolean() ? 1.0 : -1.0);
+		projectile.setDeltaMovement(side.scale(motion.length() * 0.3).add(motion.scale(-0.1)).add(0.0, 0.2, 0.0));
+		projectile.needsSync = true;
+		level().playSound(null, getX(), getY(0.6), getZ(), SoundEvents.ANVIL_LAND, getSoundSource(), 0.35F, 1.8F + random.nextFloat() * 0.2F);
+		setAction(FallenLordAction.PARRY, getTarget());
+	}
+
 	@Override
 	protected void actuallyHurt(ServerLevel level, DamageSource source, float damage) {
+		float before = getHealth();
 		super.actuallyHurt(level, source, damage);
+		if (before > getHealth()) {
+			wounds.add(new Wound(level.getGameTime(), before - getHealth()));
+		}
 		// /kill and the void still kill him outright.
 		if (phase() == 1 && getHealth() <= 0.0F && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			startPhaseTwo();
@@ -820,6 +991,9 @@ public class FallenLord extends Monster {
 		shieldDisabledTicks = 0;
 		swipePending = false;
 		drinksThisPhase = 0;
+		drinkAfterRetreat = false;
+		dashesChained = 0;
+		wounds.clear();
 		spearAwayTicks = -1;
 		thrownSpear = null;
 		Arrays.fill(cooldowns, 0);

@@ -1,16 +1,18 @@
 {
   "armor": 0,
+  "physical_resistance": 0.25,
   "repeat_penalty": 0.25,
   "phase_one": {
-    "health": 100.0,
+    "health": 80.0,
     "poke_damage": 6.0,
     "poke_knockback": 1.0,
     "poke_cooldown": 30,
-    "dash_damage": 9.0,
+    "dash_damage": 11.7,
     "dash_cooldown": 160,
+    "dash_chain": 1,
     "throw_damage": 7.0,
-    "throw_cooldown": 200,
-    "throw_after": 100,
+    "throw_cooldown": 160,
+    "throw_after": 80,
     "swipe_damage": 3.0,
     "swipe_knockback": 1.2,
     "swipe_hits": 3,
@@ -19,7 +21,7 @@
     "attack_pause": 16
   },
   "phase_two": {
-    "health": 140.0,
+    "health": 112.0,
     "speed": 1.25,
     "slash_damage": 9.0,
     "slash_cooldown": 20,
@@ -35,14 +37,24 @@
     "whirl_cooldown": 400,
     "attack_pause": 6
   },
+  "sword_dash": {
+    "damage": 7.0,
+    "cooldown": 240,
+    "shield_seconds": 5.0
+  },
   "regen": {
     "health_below": 0.5,
-    "heal_per_second": 3.0,
-    "max_heal": 40.0,
+    "heal_per_second": 7.5,
+    "max_heal": 45.0,
     "uses_per_phase": 2,
     "cooldown": 800,
     "counter_damage": 4.0,
     "counter_knockback": 2.5
+  },
+  "burst": {
+    "health_share": 0.3,
+    "window": 100,
+    "drink_chance": 0.5
   },
   "shield_break": {
     "hits_min": 2,
@@ -54,22 +66,22 @@
     "radius": 32.0,
     "levels": [
       {
-        "damage": -0.15,
+        "damage": 0.0,
         "health": 0.0,
         "speed": 0.0
       },
       {
-        "damage": 0.0,
+        "damage": 0.15,
         "health": 0.15,
         "speed": 0.0
       },
       {
-        "damage": 0.15,
+        "damage": 0.3,
         "health": 0.35,
         "speed": 0.0
       },
       {
-        "damage": 0.3,
+        "damage": 0.45,
         "health": 0.6,
         "speed": 0.1
       }
