@@ -102,6 +102,10 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.enchanting.costs", "Price per level: %s");
 			builder.add("gui.eam.enchanting.has", "The item has: %s");
 			builder.add("gui.eam.enchanting.incompatible", "Does not go with: %s");
+			builder.add("gui.eam.enchanting.shelves", "Bookshelves: %s / %s");
+			builder.add("gui.eam.enchanting.shelves_needed", "Place at least %s bookshelves around the table to choose enchantments (now %s)");
+			builder.add("gui.eam.enchanting.shelves_per_level", "Bookshelves per level: %s");
+			builder.add("gui.eam.enchanting.too_few_shelves", "Too few bookshelves: needs %s, has %s");
 			builder.add("gui.eam.silver_brewing.recipes", "Silver Stand Recipes");
 			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Crafting Table Knives: Tier 1");
 			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Crafting Table Knives: Tier 2");
@@ -386,6 +390,10 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.enchanting.costs", "Цена по уровням: %s");
 			builder.add("gui.eam.enchanting.has", "Уже есть: %s");
 			builder.add("gui.eam.enchanting.incompatible", "Несовместимо с: %s");
+			builder.add("gui.eam.enchanting.shelves", "Полки: %s / %s");
+			builder.add("gui.eam.enchanting.shelves_needed", "Чтобы выбирать чары, поставьте вокруг стола хотя бы %s книжные полки (сейчас %s)");
+			builder.add("gui.eam.enchanting.shelves_per_level", "Книжные полки по уровням: %s");
+			builder.add("gui.eam.enchanting.too_few_shelves", "Не хватает книжных полок: нужно %s, есть %s");
 			builder.add("gui.eam.silver_brewing.recipes", "Рецепты зельеварки");
 			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Ножи для верстака: тир 1");
 			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Ножи для верстака: тир 2");

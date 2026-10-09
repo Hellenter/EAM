@@ -28,7 +28,8 @@ import java.util.List;
 /**
  * The enchanting table also lets a player pick exact enchantments and levels, several at once, paying diamonds
  * (offensive enchantments) or emeralds (supportive ones) from the inventory plus as many experience levels. The vanilla random offers stay.
- * Prices are in {@code data/eam/enchanting/costs.json}, the lists in the enchantment tags {@code #eam:offensive} and
+ * Choosing needs bookshelves around the table: a minimum, one more per enchantment level the item ends up with, and more
+ * for higher levels of each enchantment. Prices and shelves are in {@code data/eam/enchanting/costs.json}, the lists in the enchantment tags {@code #eam:offensive} and
  * {@code #eam:supportive}.
  */
 public final class EnchantingModule {
@@ -93,6 +94,9 @@ public final class EnchantingModule {
 		}
 
 		accessor.eam$getAccess().execute((world, pos) -> {
+			if (EnchantingOptions.requiredShelves(current, stack, picks) > EnchantingShelves.count(world, pos)) {
+				return;
+			}
 			if (!infinite) {
 				take(inventory, offensive, price.offensive());
 				take(inventory, supportive, price.supportive());

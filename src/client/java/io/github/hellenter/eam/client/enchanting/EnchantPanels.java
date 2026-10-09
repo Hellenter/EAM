@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.client.enchanting;
 
 import io.github.hellenter.eam.world.enchanting.EnchantingOptions;
+import io.github.hellenter.eam.world.enchanting.EnchantingSettings;
+import io.github.hellenter.eam.world.enchanting.EnchantingShelves;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -34,6 +36,18 @@ final class EnchantPanels {
 			return List.of();
 		}
 		return EnchantingOptions.forItem(menu.getSlot(0).getItem(), minecraft.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
+	}
+
+	/** Bookshelves around the open table, as the server counted them. */
+	static int shelves(EnchantmentMenu menu) {
+		return ((EnchantingShelves.Counted) menu).eam$shelves();
+	}
+
+	/** Bookshelves the picks need, or the minimum when nothing valid is picked. */
+	static int requiredShelves(EnchantingSettings settings, EnchantmentMenu menu, List<EnchantingOptions.Option> options,
+			List<EnchantingOptions.Choice> choices) {
+		List<EnchantingOptions.Pick> picks = EnchantingOptions.check(options, choices);
+		return picks == null ? settings.minShelves() : EnchantingOptions.requiredShelves(settings, menu.getSlot(0).getItem(), picks);
 	}
 
 	/** The light grey container background with the vanilla bevelled border. */
