@@ -14,6 +14,6 @@ public interface ForgingAnvilMenu {
 
 	ContainerLevelAccess eam$access();
 
-	/** The hammer slot's container; the hammer goes back to the player when the menu closes. */
-	Container eam$hammer();
+	/** The hammer slot's container: on the server, the hammer kept in the anvil. */
+	AnvilHammer eam$hammer();
 }

@@ -6,8 +6,8 @@ public final class ForgingLogic {
 	public static final int COOL_TICKS = 60 * 20;
 	/** Marks hot iron still in the furnace output: its cooling has not started. */
 	public static final long NOT_STARTED = Long.MAX_VALUE;
-	/** Hot iron (or hot mithril) hammered into one plate. */
-	public static final int HOT_IRON_PER_PLATE = 2;
+	/** Hot iron (or hot mithril) taken from each anvil input slot for one plate: one left, one right. */
+	public static final int HOT_IRON_PER_SLOT = 1;
 	/** Ticks the anvil takes for one plate without a hammer: five seconds. */
 	public static final int FORGE_TICKS = 5 * 20;
 	/** Iron plates are forged only on an anvil of this tier or better: iron. */
@@ -39,11 +39,11 @@ public final class ForgingLogic {
 	}
 
 	/**
-	 * Whether the anvil can forge a plate from the hot iron in its left slot: enough of it, still hot, and nothing in
-	 * the right slot.
+	 * Whether the anvil can forge a plate from the same hot metal in both input slots: at least one ingot in each and
+	 * neither cooled.
 	 */
-	public static boolean canForge(int hotIron, boolean additionEmpty, boolean cooled) {
-		return additionEmpty && !cooled && hotIron >= HOT_IRON_PER_PLATE;
+	public static boolean canForge(int left, int right, boolean cooled) {
+		return !cooled && left >= HOT_IRON_PER_SLOT && right >= HOT_IRON_PER_SLOT;
 	}
 
 	/** Whether an anvil of {@code anvilTier} can forge plates that need {@code plateTier}. */
