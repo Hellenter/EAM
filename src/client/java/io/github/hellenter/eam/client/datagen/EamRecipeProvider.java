@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingRecipe;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
@@ -117,6 +118,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
+				// Arrows like the vanilla one with a metal head instead of flint; mithril has no nugget, so an ingot.
+				arrow(EamItems.COPPER_ARROW, Items.COPPER_NUGGET);
+				arrow(EamItems.SILVER_ARROW, EamItems.SILVER_NUGGET);
+				arrow(EamItems.IRON_ARROW, Items.IRON_NUGGET);
+				arrow(EamItems.MITHRIL_ARROW, EamItems.MITHRIL_INGOT);
 
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
@@ -234,6 +240,18 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern(" S ")
 						.pattern(" S ")
 						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+			}
+
+			private void arrow(Item arrow, Item head) {
+				shaped(RecipeCategory.COMBAT, arrow, ArrowHeads.RECIPE_COUNT)
+						.define('H', head)
+						.define('S', Items.STICK)
+						.define('F', Items.FEATHER)
+						.pattern("H")
+						.pattern("S")
+						.pattern("F")
+						.unlockedBy(getHasName(head), has(head))
 						.save(output);
 			}
 

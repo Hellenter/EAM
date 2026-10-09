@@ -156,6 +156,9 @@ public class EamModelProvider extends FabricModelProvider {
 				EamItems.RUSTY_IRON_HOE)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
+		for (Item item : List.of(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
 		PotionModels.generate(generators);
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
 		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);

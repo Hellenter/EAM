@@ -53,6 +53,7 @@ public final class EamCreativeTabs {
 
 	public static final CreativeModeTab COMBAT = register("combat", () -> new ItemStack(EamItems.SILVER_SWORD),
 			EamItems.SILVER_SWORD, EamItems.MITHRIL_SWORD,
+			EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW,
 			EamItems.SILVER_HELMET, EamItems.SILVER_CHESTPLATE, EamItems.SILVER_LEGGINGS, EamItems.SILVER_BOOTS,
 			EamItems.MITHRIL_HELMET, EamItems.MITHRIL_CHESTPLATE, EamItems.MITHRIL_LEGGINGS, EamItems.MITHRIL_BOOTS,
 			EamItems.RUSTY_IRON_SWORD,
