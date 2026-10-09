@@ -21,10 +21,19 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.AlwaysTrueTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.ProcessorRule;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -32,11 +41,22 @@ import java.util.function.Supplier;
  * Until a player of the world earns {@link #UNLOCK_ADVANCEMENT}, every village that generates is abandoned: its start
  * piece is drawn only from the abandoned (zombie) entries of its start pool, and the rest of the village follows that
  * piece. The unlock is saved with the world and only affects chunks generated after it.
+ * <p>
+ * Abandoned village pieces are also looted: blocks in {@link #LOOTED} (beds, chests, furnaces, hay) are left out. The
+ * hay piles that decorate abandoned streets are removed from their decor pools in data.
  */
 public final class VillageModule {
 	/** Village start pools that hold both normal and abandoned start pieces. */
 	public static final TagKey<StructureTemplatePool> GATED_VILLAGE_STARTS =
 			TagKey.create(Registries.TEMPLATE_POOL, Eam.id("gated_village_starts"));
+	/** Processor lists that mark a village piece as abandoned. */
+	public static final TagKey<StructureProcessorList> ABANDONED_PIECES =
+			TagKey.create(Registries.PROCESSOR_LIST, Eam.id("abandoned_village_pieces"));
+	/** Blocks abandoned village pieces generate without. */
+	public static final TagKey<Block> LOOTED = TagKey.create(Registries.BLOCK, Eam.id("looted_from_abandoned_villages"));
+	private static final RuleProcessor LOOT = new RuleProcessor(
+			List.of(new ProcessorRule(new TagMatchTest(LOOTED), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState())));
+
 	/** Earning this advancement lets normal villages generate. The advancement itself comes later. */
 	public static final Identifier UNLOCK_ADVANCEMENT = Eam.id("iron_age");
 
@@ -68,6 +88,11 @@ public final class VillageModule {
 		if (!enabled || unlocked || !startPool.is(GATED_VILLAGE_STARTS)) return original.get();
 		return VillageLogic.pickAbandoned(pool.getTemplates(), VillageModule::templateOf, random::nextInt)
 				.orElseGet(original);
+	}
+
+	/** Placement settings of a jigsaw piece: abandoned village pieces also drop the {@link #LOOTED} blocks. */
+	public static StructurePlaceSettings pieceSettings(Holder<StructureProcessorList> processors, StructurePlaceSettings settings) {
+		return enabled && processors.is(ABANDONED_PIECES) ? settings.addProcessor(LOOT) : settings;
 	}
 
 	public static void onAdvancementDone(ServerPlayer player, AdvancementHolder advancement) {

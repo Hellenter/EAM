@@ -1,0 +1,12 @@
+{
+  "values": [
+    "#minecraft:beds",
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    "minecraft:furnace",
+    "minecraft:smoker",
+    "minecraft:blast_furnace",
+    "minecraft:hay_block",
+    "eam:obsidian_blast_furnace"
+  ]
+}

@@ -39,7 +39,8 @@
 		"world.mithril.BlockStateBaseObsidianMixin",
 		"world.structures.ChunkGeneratorMixin",
 		"world.structures.JigsawPlacementMixin",
-		"world.structures.PlayerAdvancementsMixin"
+		"world.structures.PlayerAdvancementsMixin",
+		"world.structures.SinglePoolElementMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
