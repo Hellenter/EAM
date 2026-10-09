@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_bars_side",
+  "textures": {
+    "bars": "eam:block/silver_bars",
+    "edge": "eam:block/silver_bars"
+  }
+}

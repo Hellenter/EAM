@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
@@ -201,6 +202,13 @@ public final class EamItems {
 	public static final Item IRON_ARROW = arrow("iron_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.IRON));
 	public static final Item MITHRIL_ARROW = arrow("mithril_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.MITHRIL));
 
+	public static final Item SILVER_BARS = blockItem("silver_bars", EamBlocks.SILVER_BARS);
+	public static final Item SILVER_DOOR = doorItem("silver_door", EamBlocks.SILVER_DOOR);
+	public static final Item SILVER_TRAPDOOR = blockItem("silver_trapdoor", EamBlocks.SILVER_TRAPDOOR);
+	public static final Item MITHRIL_BARS = blockItem("mithril_bars", EamBlocks.MITHRIL_BARS);
+	public static final Item MITHRIL_DOOR = doorItem("mithril_door", EamBlocks.MITHRIL_DOOR);
+	public static final Item MITHRIL_TRAPDOOR = blockItem("mithril_trapdoor", EamBlocks.MITHRIL_TRAPDOOR);
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -213,6 +221,11 @@ public final class EamItems {
 
 	private static Item blockItem(String name, Block block) {
 		return register(name, p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
+	}
+
+	/** A door places both halves, like the vanilla ones. */
+	private static Item doorItem(String name, Block block) {
+		return register(name, p -> new DoubleHighBlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
 	}
 
 	private static Item arrow(String name, Item.Properties properties) {

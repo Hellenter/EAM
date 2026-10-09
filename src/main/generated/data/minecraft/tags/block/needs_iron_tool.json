@@ -4,6 +4,9 @@
     "eam:deepslate_mithril_ore",
     "eam:mithril_block",
     "eam:obsidian_blast_furnace",
-    "minecraft:obsidian"
+    "minecraft:obsidian",
+    "eam:mithril_bars",
+    "eam:mithril_door",
+    "eam:mithril_trapdoor"
   ]
 }
