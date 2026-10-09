@@ -2,7 +2,7 @@ package io.github.hellenter.eam.world.enchanting;
 
 import java.util.List;
 
-/** Prices of a chosen enchantment. Pure, unit tested. */
+/** Prices of chosen enchantments. Pure, unit tested. */
 public final class EnchantingLogic {
 	private EnchantingLogic() {
 	}
@@ -26,8 +26,31 @@ public final class EnchantingLogic {
 		return resourceCost * levelsPerResource;
 	}
 
-	/** Whether a player with {@code resources} of the right item and {@code playerLevel} levels can pay. */
-	public static boolean affordable(int resources, int resourceCost, int playerLevel, int levelCost, boolean infinite) {
-		return infinite || resources >= resourceCost && playerLevel >= levelCost;
+	/**
+	 * Whether a player can pay for a set of chosen enchantments.
+	 *
+	 * @param offensive  offensive resources the player has
+	 * @param supportive supportive resources the player has
+	 * @param sameItem   whether both prices are paid with the same item, so the player's stock covers their sum
+	 */
+	public static boolean affordable(Price price, int offensive, int supportive, boolean sameItem, int playerLevel, boolean infinite) {
+		if (infinite) {
+			return true;
+		}
+		boolean resources = sameItem
+				? offensive >= price.offensive() + price.supportive()
+				: offensive >= price.offensive() && supportive >= price.supportive();
+		return resources && playerLevel >= price.levels();
+	}
+
+	/** Total price of a set of chosen enchantments: offensive and supportive resources and experience levels. */
+	public record Price(int offensive, int supportive, int levels) {
+		public static final Price FREE = new Price(0, 0, 0);
+
+		public Price plus(boolean offensive, int resources, int levels) {
+			return offensive
+					? new Price(this.offensive + resources, supportive, this.levels + levels)
+					: new Price(this.offensive, supportive + resources, this.levels + levels);
+		}
 	}
 }

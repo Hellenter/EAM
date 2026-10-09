@@ -48,10 +48,25 @@ class EnchantingLogicTest {
 	}
 
 	@Test
+	void priceAddsUpPerResource() {
+		EnchantingLogic.Price price = EnchantingLogic.Price.FREE.plus(true, 3, 3).plus(false, 4, 4).plus(true, 1, 1);
+		assertEquals(new EnchantingLogic.Price(4, 4, 8), price);
+	}
+
+	@Test
 	void needsBothResourcesAndLevels() {
-		assertTrue(EnchantingLogic.affordable(4, 4, 4, 4, false));
-		assertFalse(EnchantingLogic.affordable(3, 4, 10, 4, false));
-		assertFalse(EnchantingLogic.affordable(10, 4, 3, 4, false));
-		assertTrue(EnchantingLogic.affordable(0, 4, 0, 4, true));
+		EnchantingLogic.Price price = new EnchantingLogic.Price(4, 2, 6);
+		assertTrue(EnchantingLogic.affordable(price, 4, 2, false, 6, false));
+		assertFalse(EnchantingLogic.affordable(price, 3, 2, false, 6, false));
+		assertFalse(EnchantingLogic.affordable(price, 4, 1, false, 6, false));
+		assertFalse(EnchantingLogic.affordable(price, 4, 2, false, 5, false));
+		assertTrue(EnchantingLogic.affordable(price, 0, 0, false, 0, true));
+	}
+
+	@Test
+	void sameResourceMustCoverTheSum() {
+		EnchantingLogic.Price price = new EnchantingLogic.Price(4, 2, 0);
+		assertFalse(EnchantingLogic.affordable(price, 5, 5, true, 0, false));
+		assertTrue(EnchantingLogic.affordable(price, 6, 6, true, 0, false));
 	}
 }
