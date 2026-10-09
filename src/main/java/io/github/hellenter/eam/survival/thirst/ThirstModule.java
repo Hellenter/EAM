@@ -65,6 +65,12 @@ public final class ThirstModule {
 			Eam.id("hydration"),
 			DataComponentType.<Hydration>builder().persistent(Hydration.CODEC).networkSynchronized(Hydration.STREAM_CODEC).build());
 
+	/** Unboiled water in a bowl: drinking it may poison like a sip from a source. */
+	public static final DataComponentType<RawWater> RAW_WATER = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE,
+			Eam.id("raw_water"),
+			DataComponentType.<RawWater>builder().persistent(RawWater.CODEC).networkSynchronized(RawWater.STREAM_CODEC).build());
+
 	public static final DataComponentType<FlaskWater> FLASK_WATER = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Eam.id("flask_water"),
@@ -222,6 +228,14 @@ public final class ThirstModule {
 		drink(player, drink.water());
 		if (drink.poisons() && enabled) {
 			poison(player, settings.flask().poisoningDuration());
+		}
+	}
+
+	/** Drinking unboiled water out of a bowl: the same chance of food poisoning as a sip from a source. */
+	static void drinkRawWater(ServerPlayer player) {
+		PoisoningSettings poisoning = settings.poisoning();
+		if (enabled && player.getRandom().nextFloat() < poisoning.chance()) {
+			poison(player, poisoning.duration());
 		}
 	}
 

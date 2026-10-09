@@ -8,5 +8,13 @@
 		[1, 2, 3, 4],
 		[1, 2, 3, 4, 5]
 	],
-	"levels_per_resource": 1
+	"levels_per_resource": 1,
+	"min_shelves": 3,
+	"shelves": [
+		[9],
+		[6, 9],
+		[6, 9, 12],
+		[3, 6, 9, 12],
+		[3, 6, 9, 12, 15]
+	]
 }

@@ -55,16 +55,29 @@ final class EnchantSelection {
 		return null;
 	}
 
-	boolean canRaise(EnchantingOptions.Option option) {
+	/** The level a press of + gives. */
+	int nextLevel(EnchantingOptions.Option option) {
 		int level = level(option);
-		return blockedBy(option) == null && (level == 0 ? option.currentLevel() + 1 : level + 1) <= option.maxLevel();
+		return level == 0 ? option.currentLevel() + 1 : level + 1;
+	}
+
+	boolean canRaise(EnchantingOptions.Option option) {
+		return blockedBy(option) == null && nextLevel(option) <= option.maxLevel();
 	}
 
 	void raise(EnchantingOptions.Option option) {
 		if (canRaise(option)) {
-			int level = level(option);
-			levels.put(option.enchantment(), level == 0 ? option.currentLevel() + 1 : level + 1);
+			levels.put(option.enchantment(), nextLevel(option));
 		}
+	}
+
+	/** The picks as they would be after a press of + on {@code option}. */
+	List<EnchantingOptions.Choice> choicesRaised(EnchantingOptions.Option option) {
+		Map<Holder<Enchantment>, Integer> raised = new LinkedHashMap<>(levels);
+		raised.put(option.enchantment(), nextLevel(option));
+		List<EnchantingOptions.Choice> choices = new ArrayList<>();
+		raised.forEach((enchantment, level) -> choices.add(new EnchantingOptions.Choice(enchantment, level)));
+		return choices;
 	}
 
 	/** One level down; below the lowest level the item can get, the enchantment is unpicked. */

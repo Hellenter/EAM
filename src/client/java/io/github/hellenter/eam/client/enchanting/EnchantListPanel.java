@@ -97,8 +97,9 @@ final class EnchantListPanel extends AbstractWidget {
 			return;
 		}
 
+		int shelves = EnchantPanels.shelves(menu);
 		for (int row = 0; row < ROWS && scroll + row < options.size(); row++) {
-			extractRow(graphics, font, settings, options.get(scroll + row), rowTop(row), mouseX, mouseY);
+			extractRow(graphics, font, settings, options, options.get(scroll + row), shelves, rowTop(row), mouseX, mouseY);
 		}
 		if (options.size() > ROWS) {
 			int trackX = getX() + width - PAD - SCROLLBAR;
@@ -111,17 +112,28 @@ final class EnchantListPanel extends AbstractWidget {
 		}
 	}
 
-	private void extractRow(GuiGraphicsExtractor graphics, Font font, EnchantingSettings settings, EnchantingOptions.Option option, int top,
-			int mouseX, int mouseY) {
+	/** Bookshelves the picks need after a press of + on {@code option}. */
+	private int shelvesToRaise(EnchantingSettings settings, List<EnchantingOptions.Option> options, EnchantingOptions.Option option) {
+		return EnchantPanels.requiredShelves(settings, menu, options, selection.choicesRaised(option));
+	}
+
+	private void extractRow(GuiGraphicsExtractor graphics, Font font, EnchantingSettings settings, List<EnchantingOptions.Option> options,
+			EnchantingOptions.Option option, int shelves, int top, int mouseX, int mouseY) {
 		int picked = selection.level(option);
 		Holder<Enchantment> blocker = selection.blockedBy(option);
+		boolean canRaise = selection.canRaise(option);
+		int shelvesNeeded = canRaise ? shelvesToRaise(settings, options, option) : 0;
+		boolean tooFewShelves = shelvesNeeded > shelves;
+		canRaise &= !tooFewShelves;
+		// Greyed out when it cannot be picked at all: it clashes with a pick, or the table has too few shelves for it.
+		boolean greyed = blocker != null || picked == 0 && tooFewShelves;
 		int left = nameLeft();
 		int right = nameRight();
 		boolean nameHovered = EnchantPanels.inside(mouseX, mouseY, left, top, right - left, ROW);
 
 		EnchantPanels.smallItem(graphics, new ItemStack(settings.resource(option.offensive())), getX() + PAD, top + 5);
 
-		int body = blocker != null ? NAME_BLOCKED : picked > 0 ? nameHovered ? NAME_PICKED_HOVER : NAME_PICKED : nameHovered ? NAME_HOVER : NAME;
+		int body = greyed ? NAME_BLOCKED : picked > 0 ? nameHovered ? NAME_PICKED_HOVER : NAME_PICKED : nameHovered ? NAME_HOVER : NAME;
 		EnchantPanels.inset(graphics, left, top + 1, right, top + ROW - 1, body);
 
 		// The level the item gets (yellow) or already has (grey); none for one-level enchantments.
@@ -133,11 +145,10 @@ final class EnchantListPanel extends AbstractWidget {
 			graphics.text(font, numeral, right - 2 - font.width(numeral), top + 5, picked > 0 ? 0xFFFFFF55 : 0xFFC0C0C0, true);
 		}
 		FormattedText name = EnchantPanels.fit(font, option.enchantment().value().description(), right - left - 5 - numeralWidth);
-		graphics.text(font, Language.getInstance().getVisualOrder(name), left + 3, top + 5, blocker != null ? 0xFFB8B8B8 : 0xFFFFFFFF,
-				blocker == null);
+		graphics.text(font, Language.getInstance().getVisualOrder(name), left + 3, top + 5, greyed ? 0xFFB8B8B8 : 0xFFFFFFFF,
+				!greyed);
 
 		int buttonTop = top + (ROW - BUTTON) / 2;
-		boolean canRaise = selection.canRaise(option);
 		boolean canLower = picked > 0;
 		EnchantPanels.button(graphics, font, PLUS, plusX(), buttonTop, BUTTON, BUTTON, canRaise,
 				canRaise && EnchantPanels.inside(mouseX, mouseY, plusX(), buttonTop, BUTTON, BUTTON));
@@ -145,11 +156,14 @@ final class EnchantListPanel extends AbstractWidget {
 				canLower && EnchantPanels.inside(mouseX, mouseY, minusX(), buttonTop, BUTTON, BUTTON));
 
 		if (nameHovered || EnchantPanels.inside(mouseX, mouseY, getX() + PAD, top, ICON + 2, ROW)) {
-			graphics.setComponentTooltipForNextFrame(font, tooltip(settings, option, blocker), mouseX, mouseY);
+			graphics.setComponentTooltipForNextFrame(font, tooltip(settings, option, blocker, tooFewShelves ? shelvesNeeded : 0, shelves),
+					mouseX, mouseY);
 		}
 	}
 
-	private static List<Component> tooltip(EnchantingSettings settings, EnchantingOptions.Option option, Holder<Enchantment> blocker) {
+	/** @param shelvesNeeded shelves the next level would need when the table has too few, else 0 */
+	private static List<Component> tooltip(EnchantingSettings settings, EnchantingOptions.Option option, Holder<Enchantment> blocker,
+			int shelvesNeeded, int shelves) {
 		List<Component> lines = new ArrayList<>();
 		lines.add(Enchantment.getFullname(option.enchantment(), option.maxLevel()));
 		lines.add(Component.translatable(option.offensive() ? "gui.eam.enchanting.offensive" : "gui.eam.enchanting.supportive")
@@ -159,12 +173,19 @@ final class EnchantListPanel extends AbstractWidget {
 			costs.add(String.valueOf(option.resourceCost(settings, level)));
 		}
 		lines.add(Component.translatable("gui.eam.enchanting.costs", costs.toString()).withStyle(ChatFormatting.GRAY));
+		StringJoiner shelvesPerLevel = new StringJoiner(" / ");
+		for (int level = option.currentLevel() + 1; level <= option.maxLevel(); level++) {
+			shelvesPerLevel.add(String.valueOf(option.shelves(settings, level)));
+		}
+		lines.add(Component.translatable("gui.eam.enchanting.shelves_per_level", shelvesPerLevel.toString()).withStyle(ChatFormatting.GRAY));
 		if (option.currentLevel() > 0) {
 			lines.add(Component.translatable("gui.eam.enchanting.has", Enchantment.getFullname(option.enchantment(), option.currentLevel()))
 					.withStyle(ChatFormatting.GRAY));
 		}
 		if (blocker != null) {
 			lines.add(Component.translatable("gui.eam.enchanting.incompatible", blocker.value().description()).withStyle(ChatFormatting.RED));
+		} else if (shelvesNeeded > 0) {
+			lines.add(Component.translatable("gui.eam.enchanting.too_few_shelves", shelvesNeeded, shelves).withStyle(ChatFormatting.RED));
 		}
 		return lines;
 	}
@@ -184,12 +205,16 @@ final class EnchantListPanel extends AbstractWidget {
 			return;
 		}
 		EnchantingOptions.Option option = options.get(index);
+		EnchantingSettings settings = EnchantingClient.settings();
+		boolean shelvesAllow = settings != null && shelvesToRaise(settings, options, option) <= EnchantPanels.shelves(menu);
 		int buttonTop = rowTop(row) + (ROW - BUTTON) / 2;
 		if (EnchantPanels.inside(mx, my, plusX(), buttonTop, BUTTON, BUTTON)) {
-			selection.raise(option);
+			if (shelvesAllow) {
+				selection.raise(option);
+			}
 		} else if (EnchantPanels.inside(mx, my, minusX(), buttonTop, BUTTON, BUTTON)) {
 			selection.lower(option);
-		} else if (mx >= nameLeft() && mx < nameRight()) {
+		} else if (mx >= nameLeft() && mx < nameRight() && (selection.level(option) > 0 || shelvesAllow)) {
 			selection.toggle(option);
 		}
 	}
