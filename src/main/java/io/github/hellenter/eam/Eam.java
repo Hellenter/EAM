@@ -21,6 +21,7 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
+import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
@@ -95,6 +96,7 @@ public class Eam implements ModInitializer {
 		if (config.removeStructures()) StructureRemovalModule.init();
 		if (config.ironPlates()) ForgingModule.init();
 		if (config.anvilTiers()) ForgingModule.initAnvilTiers();
+		if (config.anvilRepair()) AnvilRepair.init();
 		if (config.silver()) SilverModule.init();
 		if (config.silver()) BrewingModule.init();
 		if (config.slowCrops()) FarmingModule.initCrops();

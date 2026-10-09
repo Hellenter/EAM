@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.mixin.world.forging;
 
 import io.github.hellenter.eam.world.forging.AnvilForge;
+import io.github.hellenter.eam.world.forging.AnvilHammer;
+import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingAnvilMenu;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.forging.HammerSlot;
@@ -8,7 +10,6 @@ import io.github.hellenter.eam.world.forging.HammerSlot;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -21,6 +22,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,8 +32,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Hot iron in the anvil's left slot is hammered into iron plates, taking time and no experience; a hammer slot speeds
- * that up, and copper and silver anvils refuse items above their tier. The rules are in {@link ForgingModule}.
+ * Hot iron in the anvil's left and right slots is hammered into iron plates, taking time and no experience; a hammer
+ * slot speeds that up, and copper and silver anvils refuse items above their tier. The rules are in {@link ForgingModule}.
  */
 @Mixin(AnvilMenu.class)
 abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMenu {
@@ -39,11 +41,20 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	@Final
 	private DataSlot cost;
 
+	@Shadow
+	private int repairItemCountCost;
+
+	@Shadow
+	private @Nullable String itemName;
+
+	@Shadow
+	private boolean onlyRenaming;
+
 	@Unique
 	private AnvilForge eam$forge;
 
 	@Unique
-	private final SimpleContainer eam$hammer = new SimpleContainer(1);
+	private AnvilHammer eam$hammer;
 
 	private AnvilMenuMixin(MenuType<?> type, int containerId, Inventory inventory, ContainerLevelAccess access,
 			ItemCombinerMenuSlotDefinition slots) {
@@ -53,6 +64,7 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	@Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/inventory/ContainerLevelAccess;)V",
 			at = @At("TAIL"))
 	private void eam$addForge(int containerId, Inventory inventory, ContainerLevelAccess access, CallbackInfo ci) {
+		eam$hammer = new AnvilHammer(access);
 		eam$forge = new AnvilForge(() -> this.player, () -> ForgingModule.anvilTier(this));
 		addDataSlot(eam$forge.progressSlot());
 		addDataSlot(eam$forge.flagsSlot());
@@ -70,13 +82,21 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 			this.resultSlots.setItem(0, ItemStack.EMPTY);
 			this.cost.set(0);
 			ci.cancel();
+		} else {
+			int used = AnvilRepair.update(this, this.player, this.itemName);
+			if (used >= 0) {
+				this.repairItemCountCost = used;
+				this.onlyRenaming = false;
+				this.cost.set(0);
+				ci.cancel();
+			}
 		}
 	}
 
-	/** Vanilla only lets a result with an experience cost be taken; forged plates cost none. */
+	/** Vanilla only lets a result with an experience cost be taken; forged plates and repairs cost none. */
 	@ModifyReturnValue(method = "mayPickup", at = @At("RETURN"))
 	private boolean eam$mayTakePlates(boolean original) {
-		return original || ForgingModule.mayTakeResult(this);
+		return original || ForgingModule.mayTakeFree(this);
 	}
 
 	@Inject(method = "onTake", at = @At("HEAD"), cancellable = true)
@@ -106,7 +126,7 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	}
 
 	@Override
-	public Container eam$hammer() {
+	public AnvilHammer eam$hammer() {
 		return eam$hammer;
 	}
 
