@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "I": "eam:ancient_metal_ingot"
+  },
+  "pattern": [
+    "III",
+    " # ",
+    " # "
+  ],
+  "result": {
+    "id": "eam:ancient_metal_pickaxe"
+  }
+}

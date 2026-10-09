@@ -35,7 +35,13 @@ public final class GearLogic {
 			Map.entry("rusty_iron_axe", 90),
 			Map.entry("rusty_iron_shovel", 135),
 			Map.entry("rusty_iron_sword", 188),
-			Map.entry("rusty_iron_hoe", 135)
+			Map.entry("rusty_iron_hoe", 135),
+			// Ancient metal tools last twice as long as iron ones, as in MITE.
+			Map.entry("ancient_metal_pickaxe", 240),
+			Map.entry("ancient_metal_axe", 240),
+			Map.entry("ancient_metal_shovel", 360),
+			Map.entry("ancient_metal_sword", 500),
+			Map.entry("ancient_metal_hoe", 360)
 	);
 
 	private GearLogic() {

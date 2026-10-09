@@ -1,0 +1,13 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "eam:iron_plates_enabled"
+    }
+  ],
+  "type": "minecraft:blasting",
+  "cookingtime": 100,
+  "ingredient": "eam:ancient_metal_ingot",
+  "result": {
+    "id": "eam:hot_ancient_metal_ingot"
+  }
+}

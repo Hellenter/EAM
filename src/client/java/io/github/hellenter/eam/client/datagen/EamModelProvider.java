@@ -46,6 +46,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
+		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);
@@ -166,7 +167,19 @@ public class EamModelProvider extends FabricModelProvider {
 				EamItems.RUSTY_IRON_HOE)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
-		for (Item item : List.of(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW)) {
+		for (Item item : List.of(EamItems.ANCIENT_METAL_NUGGET, EamItems.ANCIENT_METAL_INGOT, EamItems.HOT_ANCIENT_METAL_INGOT,
+				EamItems.ANCIENT_METAL_PLATE, EamItems.ANCIENT_METAL_CHAIN, EamItems.ANCIENT_METAL_HELMET, EamItems.ANCIENT_METAL_CHESTPLATE,
+				EamItems.ANCIENT_METAL_LEGGINGS, EamItems.ANCIENT_METAL_BOOTS, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET,
+				EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.ANCIENT_METAL_SWORD, EamItems.ANCIENT_METAL_SHOVEL, EamItems.ANCIENT_METAL_PICKAXE,
+				EamItems.ANCIENT_METAL_AXE, EamItems.ANCIENT_METAL_HOE, EamItems.ANCIENT_METAL_KNIFE, EamItems.ANCIENT_METAL_SAW,
+				EamItems.ANCIENT_METAL_HAMMER)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+		for (Item item : List.of(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,
+				EamItems.MITHRIL_ARROW)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		PotionModels.generate(generators);

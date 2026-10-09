@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "ancient_metal_ingot",
+  "key": {
+    "#": "eam:ancient_metal_nugget"
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "eam:ancient_metal_ingot"
+  }
+}

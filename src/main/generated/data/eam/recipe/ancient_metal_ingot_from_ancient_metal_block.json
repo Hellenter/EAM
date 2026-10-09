@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "ancient_metal_ingot",
+  "ingredients": [
+    "eam:ancient_metal_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "eam:ancient_metal_ingot"
+  }
+}

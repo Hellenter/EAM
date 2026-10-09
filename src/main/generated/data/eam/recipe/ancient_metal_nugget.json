@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:ancient_metal_ingot"
+  ],
+  "result": {
+    "count": 9,
+    "id": "eam:ancient_metal_nugget"
+  }
+}

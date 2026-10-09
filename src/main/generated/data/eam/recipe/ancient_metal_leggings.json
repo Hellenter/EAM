@@ -1,0 +1,21 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "eam:iron_plates_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "eam:ancient_metal_ingot",
+    "P": "eam:ancient_metal_plate"
+  },
+  "pattern": [
+    "PIP",
+    "P P",
+    "I I"
+  ],
+  "result": {
+    "id": "eam:ancient_metal_leggings"
+  }
+}

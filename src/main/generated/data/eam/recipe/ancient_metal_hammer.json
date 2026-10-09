@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "eam:ancient_metal_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "ISI",
+    " S ",
+    " S "
+  ],
+  "result": {
+    "id": "eam:ancient_metal_hammer"
+  }
+}

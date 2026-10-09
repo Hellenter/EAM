@@ -12,7 +12,7 @@ import java.util.List;
 public final class ForgingTags {
 	/** Hammers that go in the anvil's hammer slot: every hammer of the tier tags below. */
 	public static final TagKey<Item> HAMMERS = tag("anvil_hammers");
-	/** Hammers by tier: copper and silver 2, iron 3, mithril 4. Tier 1 is empty for now. */
+	/** Hammers by tier: copper and silver 2, iron and ancient metal 3, mithril 4. Tier 1 is empty for now. */
 	public static final List<TagKey<Item>> HAMMER_TIERS = List.of(
 			tag("anvil_hammers/tier_1"), tag("anvil_hammers/tier_2"), tag("anvil_hammers/tier_3"), tag("anvil_hammers/tier_4"));
 
