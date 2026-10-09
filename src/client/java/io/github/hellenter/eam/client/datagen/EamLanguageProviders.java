@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -171,9 +172,41 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
 			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
 			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
-			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron a copper or silver one, mithril an iron one");
+			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron and ancient metal a copper or silver one, mithril an iron or ancient metal one");
 			mithril(builder);
 			rusty(builder);
+			ancientMetal(builder);
+		}
+
+		private static void ancientMetal(TranslationBuilder builder) {
+			builder.add(EamItems.ANCIENT_METAL_BLOCK, "Block of Ancient Metal");
+			builder.add(EamItems.ANCIENT_METAL_INGOT, "Ancient Metal Ingot");
+			builder.add(EamItems.ANCIENT_METAL_NUGGET, "Ancient Metal Nugget");
+			builder.add(EamItems.HOT_ANCIENT_METAL_INGOT, "Hot Ancient Metal");
+			builder.add(EamItems.ANCIENT_METAL_PLATE, "Ancient Metal Plate");
+			builder.add(EamItems.ANCIENT_METAL_CHAIN, "Ancient Metal Chain");
+			builder.add(EamItems.ANCIENT_METAL_SWORD, "Ancient Metal Sword");
+			builder.add(EamItems.ANCIENT_METAL_SHOVEL, "Ancient Metal Shovel");
+			builder.add(EamItems.ANCIENT_METAL_PICKAXE, "Ancient Metal Pickaxe");
+			builder.add(EamItems.ANCIENT_METAL_AXE, "Ancient Metal Axe");
+			builder.add(EamItems.ANCIENT_METAL_HOE, "Ancient Metal Hoe");
+			builder.add(EamItems.ANCIENT_METAL_HELMET, "Ancient Metal Helmet");
+			builder.add(EamItems.ANCIENT_METAL_CHESTPLATE, "Ancient Metal Chestplate");
+			builder.add(EamItems.ANCIENT_METAL_LEGGINGS, "Ancient Metal Leggings");
+			builder.add(EamItems.ANCIENT_METAL_BOOTS, "Ancient Metal Boots");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_HELMET, "Ancient Metal Chainmail Helmet");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, "Ancient Metal Chainmail Chestplate");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, "Ancient Metal Chainmail Leggings");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS, "Ancient Metal Chainmail Boots");
+			builder.add(EamItems.ANCIENT_METAL_KNIFE, "Ancient Metal Knife");
+			builder.add(EamItems.ANCIENT_METAL_SAW, "Ancient Metal Saw");
+			builder.add(EamItems.ANCIENT_METAL_HAMMER, "Ancient Metal Hammer");
+			builder.add(EamItems.ANCIENT_METAL_ARROW, "Ancient Metal Arrow");
+			builder.add(AncientMetalGear.TOOL_MATERIALS, "Ancient Metal Tool Materials");
+			builder.add(AncientMetalGear.REPAIRS_ARMOR, "Ancient Metal Armor Repair Materials");
+			builder.add("item.eam.hot_ancient_metal_ingot.cools_in", "Cools in %s s");
+			builder.add("item.eam.hot_ancient_metal_ingot.cooled", "Cooled: it is an ancient metal ingot again");
+			builder.add("item.eam.hot_ancient_metal_ingot.forge", "Forge on an iron or mithril anvil: 2 make an ancient metal plate");
 		}
 
 		private static void rusty(TranslationBuilder builder) {
@@ -392,9 +425,41 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
 			builder.add("gui.eam.crafting_table.tool", "Ножи, пилы и молотки: нужен хотя бы нож, каждый инструмент ускоряет свой крафт");
 			builder.add("gui.eam.crafting_table.tool.tiers",
-					"Для меди и серебра нужен кремнёвый нож, для железа медный или серебряный, для мифрила железный");
+					"Для меди и серебра нужен кремнёвый нож, для железа и древнего металла медный или серебряный, для мифрила железный или из древнего металла");
 			mithril(builder);
 			rusty(builder);
+			ancientMetal(builder);
+		}
+
+		private static void ancientMetal(TranslationBuilder builder) {
+			builder.add(EamItems.ANCIENT_METAL_BLOCK, "Блок древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_INGOT, "Слиток древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_NUGGET, "Кусочек древнего металла");
+			builder.add(EamItems.HOT_ANCIENT_METAL_INGOT, "Раскалённый древний металл");
+			builder.add(EamItems.ANCIENT_METAL_PLATE, "Пластина из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHAIN, "Цепь из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_SWORD, "Меч из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_SHOVEL, "Лопата из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_PICKAXE, "Кирка из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_AXE, "Топор из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_HOE, "Мотыга из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_HELMET, "Шлем из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHESTPLATE, "Нагрудник из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_LEGGINGS, "Поножи из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_BOOTS, "Ботинки из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_HELMET, "Кольчужный шлем из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, "Кольчуга из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, "Кольчужные поножи из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS, "Кольчужные ботинки из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_KNIFE, "Нож из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_SAW, "Пила из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_HAMMER, "Молоток из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_ARROW, "Стрела из древнего металла");
+			builder.add(AncientMetalGear.TOOL_MATERIALS, "Материалы инструментов из древнего металла");
+			builder.add(AncientMetalGear.REPAIRS_ARMOR, "Материалы для починки брони из древнего металла");
+			builder.add("item.eam.hot_ancient_metal_ingot.cools_in", "Остынет через %s с");
+			builder.add("item.eam.hot_ancient_metal_ingot.cooled", "Остыл: снова слиток древнего металла");
+			builder.add("item.eam.hot_ancient_metal_ingot.forge", "Выкуйте на железной или мифриловой наковальне: из 2 выйдет пластина из древнего металла");
 		}
 
 		private static void rusty(TranslationBuilder builder) {

@@ -18,10 +18,10 @@ public final class CraftingTags {
 	public static final TagKey<Item> FIVE_SECONDS = tag("craft_time/five_seconds");
 	/** Tools that go in the crafting table's tool slots: the knives and saws below and the anvil hammers. */
 	public static final TagKey<Item> CRAFTING_TABLE_TOOLS = tag("crafting_table_tools");
-	/** Knives by tier: flint 1, copper and silver 2, iron 3, mithril 4. The table needs one; they speed up every craft. */
+	/** Knives by tier: flint 1, copper and silver 2, iron and ancient metal 3, mithril 4. The table needs one; they speed up every craft. */
 	public static final List<TagKey<Item>> KNIFE_TIERS = List.of(tag("crafting_table_knives/tier_1"), tag("crafting_table_knives/tier_2"),
 			tag("crafting_table_knives/tier_3"), tag("crafting_table_knives/tier_4"));
-	/** Saws by tier: copper and silver 2, iron 3, mithril 4. They speed up crafting {@link #SAW_RESULTS}. */
+	/** Saws by tier: copper and silver 2, iron and ancient metal 3, mithril 4. They speed up crafting {@link #SAW_RESULTS}. */
 	public static final List<TagKey<Item>> SAW_TIERS = List.of(tag("crafting_table_saws/tier_1"), tag("crafting_table_saws/tier_2"),
 			tag("crafting_table_saws/tier_3"), tag("crafting_table_saws/tier_4"));
 	/** Wooden and decorative results, which a saw in the table crafts faster. */

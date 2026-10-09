@@ -104,6 +104,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.DEEPSLATE_MITHRIL_ORE.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BLOCK.builtInRegistryHolder().key(),
 				EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
 		builder(BlockTags.NEEDS_IRON_TOOL).add(BlockItemIds.OBSIDIAN);
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.ANCIENT_METAL_BLOCK.builtInRegistryHolder().key());
+		builder(BlockTags.NEEDS_IRON_TOOL).add(EamBlocks.ANCIENT_METAL_BLOCK.builtInRegistryHolder().key());
 		// Replaces the vanilla list, which also has obsidian.
 		BlockItemTagAppender<Block> diamondTool = builder(BlockTags.NEEDS_DIAMOND_TOOL);
 		diamondTool.setReplace(true);

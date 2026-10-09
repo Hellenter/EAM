@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -47,7 +48,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
 
 		// Bows, crossbows and dispensers take anything in this tag as arrows.
-		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW));
+		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,
+				EamItems.MITHRIL_ARROW));
 
 		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
@@ -84,6 +86,17 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.CHEST_ARMOR).addAll(keys(EamItems.RUSTY_IRON_CHESTPLATE, EamItems.RUSTY_CHAINMAIL_CHESTPLATE));
 		builder(ItemTags.LEG_ARMOR).addAll(keys(EamItems.RUSTY_IRON_LEGGINGS, EamItems.RUSTY_CHAINMAIL_LEGGINGS));
 		builder(ItemTags.FOOT_ARMOR).addAll(keys(EamItems.RUSTY_IRON_BOOTS, EamItems.RUSTY_CHAINMAIL_BOOTS));
+		builder(AncientMetalGear.TOOL_MATERIALS).add(EamItems.ANCIENT_METAL_INGOT.builtInRegistryHolder().key());
+		builder(AncientMetalGear.REPAIRS_ARMOR).add(EamItems.ANCIENT_METAL_INGOT.builtInRegistryHolder().key());
+		builder(ItemTags.SWORDS).add(EamItems.ANCIENT_METAL_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SHOVELS).add(EamItems.ANCIENT_METAL_SHOVEL.builtInRegistryHolder().key());
+		builder(ItemTags.PICKAXES).add(EamItems.ANCIENT_METAL_PICKAXE.builtInRegistryHolder().key());
+		builder(ItemTags.AXES).add(EamItems.ANCIENT_METAL_AXE.builtInRegistryHolder().key());
+		builder(ItemTags.HOES).add(EamItems.ANCIENT_METAL_HOE.builtInRegistryHolder().key());
+		builder(ItemTags.HEAD_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_HELMET, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET));
+		builder(ItemTags.CHEST_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE));
+		builder(ItemTags.LEG_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS));
+		builder(ItemTags.FOOT_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_BOOTS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS));
 		// Too hot for the vanilla blast furnace: these cook only in the obsidian one.
 		builder(MithrilModule.OBSIDIAN_FURNACE_ONLY).addAll(keys(EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL,
 				EamItems.MITHRIL_INGOT));
@@ -94,11 +107,11 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		builder(CraftingTags.KNIFE_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.KNIFE_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));
-		builder(CraftingTags.KNIFE_TIERS.get(2)).add(EamItems.IRON_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.KNIFE_TIERS.get(2)).addAll(keys(EamItems.IRON_KNIFE, EamItems.ANCIENT_METAL_KNIFE));
 		builder(CraftingTags.KNIFE_TIERS.get(3)).add(EamItems.MITHRIL_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.SAW_TIERS.get(0));
 		builder(CraftingTags.SAW_TIERS.get(1)).addAll(keys(EamItems.COPPER_SAW, EamItems.SILVER_SAW));
-		builder(CraftingTags.SAW_TIERS.get(2)).add(EamItems.IRON_SAW.builtInRegistryHolder().key());
+		builder(CraftingTags.SAW_TIERS.get(2)).addAll(keys(EamItems.IRON_SAW, EamItems.ANCIENT_METAL_SAW));
 		builder(CraftingTags.SAW_TIERS.get(3)).add(EamItems.MITHRIL_SAW.builtInRegistryHolder().key());
 		// Knives, saws and hammers go in the crafting table's tool slots in any mix.
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS)
@@ -111,7 +124,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.METALS)
 				.addTag(CraftingTags.MATERIAL_TIERS.get(1)).addTag(CraftingTags.MATERIAL_TIERS.get(2)).addTag(CraftingTags.MATERIAL_TIERS.get(3))
 				.addOptionalTag(ItemTags.METAL_NUGGETS)
-				.addAll(keys(EamItems.SILVER_NUGGET, EamItems.MITHRIL_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
+				.addAll(keys(EamItems.SILVER_NUGGET, EamItems.MITHRIL_NUGGET, EamItems.ANCIENT_METAL_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
 		// A saw in the table speeds up crafting these: wooden things and decorative blocks.
 		builder(CraftingTags.SAW_RESULTS)
 				.addOptionalTag(ItemTags.PLANKS)
@@ -141,18 +154,20 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.WOOL_CARPETS)
 				.addOptionalTag(ItemTags.BANNERS)
 				.addAll(keys(Items.FLOWER_POT, Items.DECORATED_POT));
-		// Crafting with these needs a tool of the tier below in the table; iron plates count as iron.
+		// Crafting with these needs a tool of the tier below in the table; iron plates count as iron, ancient metal as iron too.
 		builder(CraftingTags.MATERIAL_TIERS.get(0)).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT));
-		builder(CraftingTags.MATERIAL_TIERS.get(2)).addAll(keys(Items.IRON_INGOT, EamItems.IRON_PLATE));
+		builder(CraftingTags.MATERIAL_TIERS.get(2)).addAll(keys(Items.IRON_INGOT, EamItems.IRON_PLATE, EamItems.ANCIENT_METAL_INGOT,
+				EamItems.ANCIENT_METAL_PLATE, EamItems.ANCIENT_METAL_CHAIN));
 		builder(CraftingTags.MATERIAL_TIERS.get(3)).addAll(keys(EamItems.MITHRIL_INGOT, EamItems.MITHRIL_PLATE));
 		builder(CraftingTags.TIER_FREE).addAll(keys(Items.COPPER_INGOT, Items.COPPER_NUGGET, Items.RAW_COPPER_BLOCK,
 				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
-				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_BLOCK))
+				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_BLOCK,
+				EamItems.ANCIENT_METAL_INGOT, EamItems.ANCIENT_METAL_NUGGET, EamItems.ANCIENT_METAL_BLOCK))
 				.addAll(keys(Items.COPPER_BLOCK.asList().toArray(Item[]::new)));
 		builder(ForgingTags.HAMMER_TIERS.get(0));
 		builder(ForgingTags.HAMMER_TIERS.get(1)).addAll(keys(EamItems.COPPER_HAMMER, EamItems.SILVER_HAMMER));
-		builder(ForgingTags.HAMMER_TIERS.get(2)).add(EamItems.IRON_HAMMER.builtInRegistryHolder().key());
+		builder(ForgingTags.HAMMER_TIERS.get(2)).addAll(keys(EamItems.IRON_HAMMER, EamItems.ANCIENT_METAL_HAMMER));
 		builder(ForgingTags.HAMMER_TIERS.get(3)).add(EamItems.MITHRIL_HAMMER.builtInRegistryHolder().key());
 		builder(ForgingTags.HAMMERS).addTag(ForgingTags.HAMMER_TIERS.get(0)).addTag(ForgingTags.HAMMER_TIERS.get(1))
 				.addTag(ForgingTags.HAMMER_TIERS.get(2)).addTag(ForgingTags.HAMMER_TIERS.get(3));
@@ -177,7 +192,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.SPEARS)
 				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, EamItems.COPPER_HAMMER,
 						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, EamItems.COPPER_SAW, EamItems.SILVER_SAW, EamItems.IRON_SAW,
-						EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_SAW, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
+						EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_SAW, EamItems.ANCIENT_METAL_KNIFE,
+						EamItems.ANCIENT_METAL_HAMMER, EamItems.ANCIENT_METAL_SAW, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.

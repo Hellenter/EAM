@@ -103,6 +103,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				knife(EamItems.COPPER_KNIFE, Items.COPPER_INGOT);
 				knife(EamItems.SILVER_KNIFE, EamItems.SILVER_INGOT);
 				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
+				knife(EamItems.ANCIENT_METAL_KNIFE, EamItems.ANCIENT_METAL_INGOT);
 				knife(EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_INGOT);
 
 				// Anvils like the vanilla one, from their own metal; hammers: two ingots across a stick handle.
@@ -112,16 +113,19 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
+				hammer(EamItems.ANCIENT_METAL_HAMMER, EamItems.ANCIENT_METAL_INGOT);
 				hammer(EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_INGOT);
 				// Saws: two ingots in a diagonal blade with a stick handle.
 				saw(EamItems.COPPER_SAW, Items.COPPER_INGOT);
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
+				saw(EamItems.ANCIENT_METAL_SAW, EamItems.ANCIENT_METAL_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
 				// Arrows like the vanilla one with a metal nugget for a head instead of flint.
 				arrow(EamItems.COPPER_ARROW, Items.COPPER_NUGGET);
 				arrow(EamItems.SILVER_ARROW, EamItems.SILVER_NUGGET);
 				arrow(EamItems.IRON_ARROW, Items.IRON_NUGGET);
+				arrow(EamItems.ANCIENT_METAL_ARROW, EamItems.ANCIENT_METAL_NUGGET);
 				arrow(EamItems.MITHRIL_ARROW, EamItems.MITHRIL_NUGGET);
 
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
@@ -160,6 +164,9 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				mithrilRecipes();
 				mithrilPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				mithrilIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				ancientMetalRecipes();
+				ancientMetalPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				ancientMetalIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
 
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
@@ -441,6 +448,78 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 					recipe.pattern(row);
 				}
 				recipe.unlockedBy(getHasName(EamItems.MITHRIL_INGOT), has(EamItems.MITHRIL_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
+			}
+
+			/**
+			 * Ancient metal has no source yet, so nothing makes the ingot. It packs into nuggets and blocks, makes iron-shaped
+			 * tools, chains (nugget, ingot, nugget like the vanilla chain) and chainmail of chains in the armor shapes.
+			 */
+			private void ancientMetalRecipes() {
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ANCIENT_METAL_INGOT, RecipeCategory.BUILDING_BLOCKS,
+						EamItems.ANCIENT_METAL_BLOCK, "eam:ancient_metal_block", null, "eam:ancient_metal_ingot_from_ancient_metal_block",
+						"ancient_metal_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ANCIENT_METAL_NUGGET, RecipeCategory.MISC, EamItems.ANCIENT_METAL_INGOT,
+						"eam:ancient_metal_ingot_from_nuggets", "ancient_metal_ingot", "eam:ancient_metal_nugget", null);
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_SWORD, "", "I", "I", "#");
+				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_SHOVEL, "", "I", "#", "#");
+				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_PICKAXE, "", "III", " # ", " # ");
+				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_AXE, "", "II", "I#", " #");
+				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_HOE, "", "II", " #", " #");
+				ancientMetal(output, RecipeCategory.MISC, EamItems.ANCIENT_METAL_CHAIN, "", "N", "I", "N");
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET, "", "CCC", "C C");
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, "", "C C", "CCC", "CCC");
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, "", "CCC", "C C", "C C");
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS, "", "C C", "C C");
+			}
+
+			/** Ancient metal ingot to hot ancient metal in a blast furnace, and its armor from plates and ingots like iron's. */
+			private void ancientMetalPlateRecipes(RecipeOutput enabled) {
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(EamItems.ANCIENT_METAL_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_ANCIENT_METAL_INGOT, 0.0F, 100)
+						.unlockedBy(getHasName(EamItems.ANCIENT_METAL_INGOT), has(EamItems.ANCIENT_METAL_INGOT))
+						.save(enabled, "eam:hot_ancient_metal_ingot_from_blasting");
+				ancientMetal(enabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_HELMET, "", "PPP", "I I");
+				ancientMetal(enabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHESTPLATE, "", "I I", "PPP", "IPI");
+				ancientMetal(enabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_LEGGINGS, "", "PIP", "P P", "I I");
+				ancientMetal(enabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_BOOTS, "", "I I", "P P");
+			}
+
+			/** With the plates off, ancient metal armor takes ingots only, like vanilla armor. */
+			private void ancientMetalIngotArmorRecipes(RecipeOutput disabled) {
+				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_HELMET, "_from_ingots", "III", "I I");
+				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHESTPLATE, "_from_ingots", "I I", "III", "III");
+				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_LEGGINGS, "_from_ingots", "III", "I I", "I I");
+				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_BOOTS, "_from_ingots", "I I", "I I");
+			}
+
+			/** I ingot, N nugget, P plate, C chain, # stick; only the keys the pattern uses are defined. */
+			private void ancientMetal(RecipeOutput output, RecipeCategory category, Item result, String suffix, String... pattern) {
+				var recipe = shaped(category, result);
+				String keys = String.join("", pattern);
+				if (keys.contains("I")) {
+					recipe.define('I', EamItems.ANCIENT_METAL_INGOT);
+				}
+				if (keys.contains("N")) {
+					recipe.define('N', EamItems.ANCIENT_METAL_NUGGET);
+				}
+				if (keys.contains("P")) {
+					recipe.define('P', EamItems.ANCIENT_METAL_PLATE);
+				}
+				if (keys.contains("C")) {
+					recipe.define('C', EamItems.ANCIENT_METAL_CHAIN);
+				}
+				if (keys.contains("#")) {
+					recipe.define('#', Items.STICK);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.ANCIENT_METAL_INGOT), has(EamItems.ANCIENT_METAL_INGOT));
 				if (suffix.isEmpty()) {
 					recipe.save(output);
 				} else {

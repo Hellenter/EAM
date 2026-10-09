@@ -1,0 +1,22 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "eam:iron_plates_enabled"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "eam:ancient_metal_ingot"
+  },
+  "pattern": [
+    "I I",
+    "I I"
+  ],
+  "result": {
+    "id": "eam:ancient_metal_boots"
+  }
+}

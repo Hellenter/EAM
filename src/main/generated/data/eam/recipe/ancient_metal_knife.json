@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "eam:ancient_metal_ingot"
+  ],
+  "result": {
+    "id": "eam:ancient_metal_knife"
+  }
+}

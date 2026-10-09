@@ -93,6 +93,14 @@ public final class EamBlocks {
 			.strength(5.0F, 6.0F)
 			.sound(SoundType.METAL));
 
+	/** Ancient metal has no ore: it will come from another dimension. */
+	public static final Block ANCIENT_METAL_BLOCK = register("ancient_metal_block", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.TERRACOTTA_BROWN)
+			.instrument(NoteBlockInstrument.BELL)
+			.requiresCorrectToolForDrops()
+			.strength(5.0F, 6.0F)
+			.sound(SoundType.METAL));
+
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.ICE));

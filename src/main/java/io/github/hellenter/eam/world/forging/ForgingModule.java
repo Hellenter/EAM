@@ -140,6 +140,9 @@ public final class ForgingModule {
 		if (input.is(EamItems.HOT_IRON_INGOT)) {
 			return new Plate(EamItems.IRON_PLATE, ForgingLogic.PLATE_ANVIL_TIER);
 		}
+		if (input.is(EamItems.HOT_ANCIENT_METAL_INGOT)) {
+			return new Plate(EamItems.ANCIENT_METAL_PLATE, ForgingLogic.PLATE_ANVIL_TIER);
+		}
 		if (input.is(EamItems.HOT_MITHRIL_INGOT)) {
 			return new Plate(EamItems.MITHRIL_PLATE, ForgingLogic.MITHRIL_PLATE_ANVIL_TIER);
 		}

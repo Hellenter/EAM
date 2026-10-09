@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
@@ -200,6 +201,50 @@ public final class EamItems {
 			.component(SilverModule.UNDEAD_DAMAGE_BONUS, SilverGear.UNDEAD_DAMAGE_BONUS));
 	public static final Item IRON_ARROW = arrow("iron_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.IRON));
 	public static final Item MITHRIL_ARROW = arrow("mithril_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.MITHRIL));
+
+	/** Ancient metal sits between iron and mithril; it has no source yet and will come from another dimension. */
+	public static final Item ANCIENT_METAL_BLOCK = blockItem("ancient_metal_block", EamBlocks.ANCIENT_METAL_BLOCK);
+	public static final Item ANCIENT_METAL_INGOT = register("ancient_metal_ingot", Item::new, new Item.Properties());
+	public static final Item ANCIENT_METAL_NUGGET = register("ancient_metal_nugget", Item::new, new Item.Properties());
+	/** An ancient metal ingot heated in a blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item HOT_ANCIENT_METAL_INGOT = register("hot_ancient_metal_ingot", p -> new HotIronItem(ANCIENT_METAL_INGOT, p),
+			new Item.Properties());
+	/** Forged from hot ancient metal on an iron or mithril anvil; ancient metal armor is made of these. */
+	public static final Item ANCIENT_METAL_PLATE = register("ancient_metal_plate", Item::new, new Item.Properties().stacksTo(16));
+	/** Links of ancient metal chainmail. */
+	public static final Item ANCIENT_METAL_CHAIN = register("ancient_metal_chain", Item::new, new Item.Properties());
+
+	public static final Item ANCIENT_METAL_SWORD = register("ancient_metal_sword", Item::new,
+			new Item.Properties().sword(AncientMetalGear.TOOL, 3.0F, -2.4F));
+	public static final Item ANCIENT_METAL_SHOVEL = register("ancient_metal_shovel", Item::new,
+			new Item.Properties().shovel(AncientMetalGear.TOOL, 1.5F, -3.0F));
+	public static final Item ANCIENT_METAL_PICKAXE = register("ancient_metal_pickaxe", Item::new,
+			new Item.Properties().pickaxe(AncientMetalGear.TOOL, 1.0F, -2.8F));
+	public static final Item ANCIENT_METAL_AXE = register("ancient_metal_axe", Item::new,
+			new Item.Properties().axe(AncientMetalGear.TOOL, 5.5F, -3.05F));
+	public static final Item ANCIENT_METAL_HOE = register("ancient_metal_hoe", Item::new,
+			new Item.Properties().hoe(AncientMetalGear.TOOL, -2.5F, -0.5F));
+
+	public static final Item ANCIENT_METAL_HELMET = armor("ancient_metal_helmet", AncientMetalGear.ARMOR, ArmorType.HELMET);
+	public static final Item ANCIENT_METAL_CHESTPLATE = armor("ancient_metal_chestplate", AncientMetalGear.ARMOR, ArmorType.CHESTPLATE);
+	public static final Item ANCIENT_METAL_LEGGINGS = armor("ancient_metal_leggings", AncientMetalGear.ARMOR, ArmorType.LEGGINGS);
+	public static final Item ANCIENT_METAL_BOOTS = armor("ancient_metal_boots", AncientMetalGear.ARMOR, ArmorType.BOOTS);
+
+	public static final Item ANCIENT_METAL_CHAINMAIL_HELMET = armor("ancient_metal_chainmail_helmet", AncientMetalGear.CHAINMAIL_ARMOR,
+			ArmorType.HELMET);
+	public static final Item ANCIENT_METAL_CHAINMAIL_CHESTPLATE = armor("ancient_metal_chainmail_chestplate", AncientMetalGear.CHAINMAIL_ARMOR,
+			ArmorType.CHESTPLATE);
+	public static final Item ANCIENT_METAL_CHAINMAIL_LEGGINGS = armor("ancient_metal_chainmail_leggings", AncientMetalGear.CHAINMAIL_ARMOR,
+			ArmorType.LEGGINGS);
+	public static final Item ANCIENT_METAL_CHAINMAIL_BOOTS = armor("ancient_metal_chainmail_boots", AncientMetalGear.CHAINMAIL_ARMOR,
+			ArmorType.BOOTS);
+
+	public static final Item ANCIENT_METAL_KNIFE = register("ancient_metal_knife", KnifeItem::new, new Item.Properties()
+			.sword(AncientMetalGear.KNIFE, AncientMetalGear.KNIFE_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+	public static final Item ANCIENT_METAL_SAW = register("ancient_metal_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ANCIENT_METAL_HAMMER = register("ancient_metal_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ANCIENT_METAL_ARROW = arrow("ancient_metal_arrow",
+			new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.ANCIENT_METAL));
 
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));

@@ -8,6 +8,7 @@ public final class ArrowHeads {
 	public static final ArrowHead COPPER = new ArrowHead(0.2F);
 	public static final ArrowHead SILVER = new ArrowHead(0.2F);
 	public static final ArrowHead IRON = new ArrowHead(0.4F);
+	public static final ArrowHead ANCIENT_METAL = new ArrowHead(0.5F);
 	public static final ArrowHead MITHRIL = new ArrowHead(0.6F);
 
 	/** Arrows a recipe makes, as many as the vanilla one. */

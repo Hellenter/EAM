@@ -1,6 +1,9 @@
 {
   "values": [
     "minecraft:iron_ingot",
-    "eam:iron_plate"
+    "eam:iron_plate",
+    "eam:ancient_metal_ingot",
+    "eam:ancient_metal_plate",
+    "eam:ancient_metal_chain"
   ]
 }

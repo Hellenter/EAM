@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.tools;
 
+import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -41,7 +42,9 @@ public final class GearModule {
 			SilverGear.ARMOR,
 			MithrilGear.ARMOR,
 			RustyGear.IRON_ARMOR,
-			RustyGear.CHAINMAIL_ARMOR
+			RustyGear.CHAINMAIL_ARMOR,
+			AncientMetalGear.ARMOR,
+			AncientMetalGear.CHAINMAIL_ARMOR
 	);
 
 	/** Set order used by {@link GearLogic#scaleSet}. */
