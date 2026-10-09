@@ -71,6 +71,16 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.CHEST_ARMOR).add(EamItems.MITHRIL_CHESTPLATE.builtInRegistryHolder().key());
 		builder(ItemTags.LEG_ARMOR).add(EamItems.MITHRIL_LEGGINGS.builtInRegistryHolder().key());
 		builder(ItemTags.FOOT_ARMOR).add(EamItems.MITHRIL_BOOTS.builtInRegistryHolder().key());
+
+		builder(ItemTags.SWORDS).add(EamItems.RUSTY_IRON_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SHOVELS).add(EamItems.RUSTY_IRON_SHOVEL.builtInRegistryHolder().key());
+		builder(ItemTags.PICKAXES).add(EamItems.RUSTY_IRON_PICKAXE.builtInRegistryHolder().key());
+		builder(ItemTags.AXES).add(EamItems.RUSTY_IRON_AXE.builtInRegistryHolder().key());
+		builder(ItemTags.HOES).add(EamItems.RUSTY_IRON_HOE.builtInRegistryHolder().key());
+		builder(ItemTags.HEAD_ARMOR).addAll(keys(EamItems.RUSTY_IRON_HELMET, EamItems.RUSTY_CHAINMAIL_HELMET));
+		builder(ItemTags.CHEST_ARMOR).addAll(keys(EamItems.RUSTY_IRON_CHESTPLATE, EamItems.RUSTY_CHAINMAIL_CHESTPLATE));
+		builder(ItemTags.LEG_ARMOR).addAll(keys(EamItems.RUSTY_IRON_LEGGINGS, EamItems.RUSTY_CHAINMAIL_LEGGINGS));
+		builder(ItemTags.FOOT_ARMOR).addAll(keys(EamItems.RUSTY_IRON_BOOTS, EamItems.RUSTY_CHAINMAIL_BOOTS));
 		// Too hot for the vanilla blast furnace: these cook only in the obsidian one.
 		builder(MithrilModule.OBSIDIAN_FURNACE_ONLY).addAll(keys(EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL,
 				EamItems.MITHRIL_INGOT));

@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "eam:rusty_iron"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "eam:rusty_iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "eam:rusty_iron"
+      }
+    ]
+  }
+}

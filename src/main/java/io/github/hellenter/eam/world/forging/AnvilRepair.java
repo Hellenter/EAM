@@ -32,6 +32,7 @@ import java.util.Map;
 public final class AnvilRepair {
 	/** Items whose recipe has not been found are counted as this many ingots. */
 	private static final int DEFAULT_INGOTS = 4;
+	private static final String RUSTY_PREFIX = "rusty_";
 
 	private static boolean enabled;
 	private static @Nullable RecipeManager cachedRecipes;
@@ -134,7 +135,7 @@ public final class AnvilRepair {
 
 	/**
 	 * Ingots (and plates) in the item's crafting recipe: every ingredient but sticks. A chestplate of 4 plates and 4
-	 * ingots counts 8, a pickaxe 3.
+	 * ingots counts 8, a pickaxe 3. Rusty gear has no recipe and counts as the vanilla item it copies.
 	 */
 	private static int ingots(RecipeManager recipes, Item item) {
 		if (recipes != cachedRecipes) {
@@ -142,20 +143,40 @@ public final class AnvilRepair {
 			INGOTS.clear();
 		}
 		return INGOTS.computeIfAbsent(item, key -> {
-			for (RecipeHolder<?> holder : recipes.getRecipes()) {
-				if (holder.value() instanceof ShapedRecipe shaped && shaped.assemble(CraftingInput.EMPTY).is(key)) {
-					int count = 0;
-					for (Ingredient ingredient : shaped.placementInfo().ingredients()) {
-						if (!ingredient.acceptsItem(Items.STICK.builtInRegistryHolder())) {
-							count++;
-						}
-					}
-					if (count > 0) {
-						return count;
+			int count = recipeIngots(recipes, key);
+			if (count == 0) {
+				Item unrusted = unrusted(key);
+				count = unrusted == null ? 0 : recipeIngots(recipes, unrusted);
+			}
+			return count > 0 ? count : DEFAULT_INGOTS;
+		});
+	}
+
+	/** Non-stick ingredients of the first shaped recipe that makes {@code item}; 0 when there is none. */
+	private static int recipeIngots(RecipeManager recipes, Item item) {
+		for (RecipeHolder<?> holder : recipes.getRecipes()) {
+			if (holder.value() instanceof ShapedRecipe shaped && shaped.assemble(CraftingInput.EMPTY).is(item)) {
+				int count = 0;
+				for (Ingredient ingredient : shaped.placementInfo().ingredients()) {
+					if (!ingredient.acceptsItem(Items.STICK.builtInRegistryHolder())) {
+						count++;
 					}
 				}
+				if (count > 0) {
+					return count;
+				}
 			}
-			return DEFAULT_INGOTS;
-		});
+		}
+		return 0;
+	}
+
+	/** The vanilla item a rusty one copies: {@code eam:rusty_iron_axe} to {@code iron_axe}; null for other items. */
+	private static @Nullable Item unrusted(Item item) {
+		Identifier id = BuiltInRegistries.ITEM.getKey(item);
+		if (!id.getPath().startsWith(RUSTY_PREFIX)) {
+			return null;
+		}
+		return BuiltInRegistries.ITEM.getOptional(Identifier.withDefaultNamespace(id.getPath().substring(RUSTY_PREFIX.length())))
+				.filter(found -> found != Items.AIR).orElse(null);
 	}
 }
