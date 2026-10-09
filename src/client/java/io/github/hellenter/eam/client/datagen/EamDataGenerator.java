@@ -23,6 +23,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamRecipeProvider::new);
 		pack.addProvider(EamBlockLootProvider::new);
 		pack.addProvider(EamWorldgenProvider::new);
+		pack.addProvider(EamCryptProvider::new);
+		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamModelProvider::new);
 		pack.addProvider(EamClientItemProvider::new);
 		pack.addProvider(EamEquipmentAssetProvider::new);
@@ -41,5 +43,6 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.DAMAGE_TYPE, EamDamageTypeProvider::bootstrap);
 		registryBuilder.add(Registries.FEATURE, EamWorldgenProvider::bootstrapFeatures);
 		registryBuilder.add(Registries.PLACED_FEATURE, EamWorldgenProvider::bootstrapPlacedFeatures);
+		registryBuilder.add(Registries.STRUCTURE, EamCryptProvider::bootstrap);
 	}
 }

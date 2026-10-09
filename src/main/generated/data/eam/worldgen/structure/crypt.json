@@ -1,0 +1,18 @@
+{
+  "type": "eam:crypt",
+  "biomes": "#minecraft:is_overworld",
+  "branches": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 1
+  },
+  "entrance_ground": 17,
+  "rooms": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 10,
+    "min_inclusive": 7
+  },
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "terrain_adaptation": "encapsulate"
+}
