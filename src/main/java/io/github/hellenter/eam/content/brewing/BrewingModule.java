@@ -3,6 +3,8 @@ package io.github.hellenter.eam.content.brewing;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -44,6 +46,8 @@ public final class BrewingModule {
 
 	static {
 		Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, Eam.id("silver_brewing"), SilverBrewingRecipe.SERIALIZER);
+		// The client draws the stand's recipe book from these.
+		RecipeSynchronization.synchronizeRecipeSerializer(SilverBrewingRecipe.SERIALIZER);
 	}
 
 	/** Brews one item of this fuels in the silver stand. The vanilla stand ignores it. */
