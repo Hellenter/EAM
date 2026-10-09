@@ -14,6 +14,7 @@
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",
+		"survival.sleep.ServerPlayerSleepMixin",
 		"survival.thirst.PlayerThirstMixin",
 		"world.crafting.AbstractContainerMenuAccessor",
 		"world.crafting.AbstractContainerMenuMixin",

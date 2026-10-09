@@ -47,10 +47,11 @@ public record EamConfig(
 		boolean slowCrops,
 		boolean slowAnimals,
 		boolean mithril,
-		boolean anvilRepair
+		boolean anvilRepair,
+		boolean safeSleep
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true);
+			true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -58,7 +59,7 @@ public record EamConfig(
 	 */
 	private record LaterFlags(boolean mobRunning, boolean defensiveCows, boolean blastFurnaceIron, boolean silver,
 			boolean lockedVillages, boolean removeStructures, boolean anvilTiers, boolean slowCrops, boolean slowAnimals, boolean mithril,
-			boolean anvilRepair) {
+			boolean anvilRepair, boolean safeSleep) {
 		private static final MapCodec<LaterFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(LaterFlags::mobRunning),
 				Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(LaterFlags::defensiveCows),
@@ -70,13 +71,14 @@ public record EamConfig(
 				Codec.BOOL.optionalFieldOf("slow_crops", DEFAULT.slowCrops).forGetter(LaterFlags::slowCrops),
 				Codec.BOOL.optionalFieldOf("slow_animals", DEFAULT.slowAnimals).forGetter(LaterFlags::slowAnimals),
 				Codec.BOOL.optionalFieldOf("mithril", DEFAULT.mithril).forGetter(LaterFlags::mithril),
-				Codec.BOOL.optionalFieldOf("anvil_repair", DEFAULT.anvilRepair).forGetter(LaterFlags::anvilRepair)
+				Codec.BOOL.optionalFieldOf("anvil_repair", DEFAULT.anvilRepair).forGetter(LaterFlags::anvilRepair),
+				Codec.BOOL.optionalFieldOf("safe_sleep", DEFAULT.safeSleep).forGetter(LaterFlags::safeSleep)
 		).apply(instance, LaterFlags::new));
 
 		private static LaterFlags of(EamConfig config) {
 			return new LaterFlags(config.mobRunning, config.defensiveCows, config.blastFurnaceIron, config.silver, config.lockedVillages,
 					config.removeStructures, config.anvilTiers, config.slowCrops, config.slowAnimals, config.mithril,
-					config.anvilRepair);
+					config.anvilRepair, config.safeSleep);
 		}
 	}
 
@@ -100,7 +102,8 @@ public record EamConfig(
 			gear, removeDiamondGear, mobDrops, ironPlates, later) -> new EamConfig(hunger, thirst, progression, mining, stackSizes, mobs,
 			mobBlockBreaking, removeEarlyTools, ores, crafting, gear, removeDiamondGear, mobDrops, ironPlates, later.mobRunning,
 			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures,
-			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair)));
+			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
+			later.safeSleep)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

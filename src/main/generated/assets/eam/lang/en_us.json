@@ -1,4 +1,8 @@
 {
+  "block.eam.bed.needs_door": "A room this small needs a door",
+  "block.eam.bed.needs_light": "The room needs lighting",
+  "block.eam.bed.not_enclosed": "You can only sleep in a closed room that is not too big",
+  "block.eam.bed.weak_blocks": "Your room is made of blocks that are too weak",
   "block.eam.camp_fire": "Camp Fire",
   "block.eam.camp_fire.needs_sticks": "Put at least %s sticks on the fire to light it",
   "block.eam.copper_anvil": "Copper Anvil",
@@ -130,6 +134,7 @@
   "item.minecraft.tipped_arrow.effect.light_strength": "Arrow of Light Strength",
   "item.minecraft.tipped_arrow.effect.light_swiftness": "Arrow of Light Swiftness",
   "item.minecraft.tipped_arrow.effect.light_weakness": "Arrow of Light Weakness",
+  "tag.block.eam.safe_room_walls": "Safe Room Walls",
   "tag.item.eam.anvil_hammers": "Anvil Hammers",
   "tag.item.eam.anvil_hammers.tier_1": "Anvil Hammers: Tier 1",
   "tag.item.eam.anvil_hammers.tier_2": "Anvil Hammers: Tier 2",
