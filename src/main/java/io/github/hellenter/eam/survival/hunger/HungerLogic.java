@@ -15,10 +15,10 @@ public final class HungerLogic {
 	}
 
 	/**
-	 * What the tick needs to know about the player and the world. During the {@code grace} period after spawning,
-	 * hunger does not drain: all exhaustion is dropped.
+	 * What the tick needs to know about the player and the world. While {@code paused} (grace period after spawning,
+	 * creative or spectator) hunger does not drain: all exhaustion is dropped.
 	 */
-	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean grace,
+	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean paused,
 			boolean malnourished) {
 	}
 
@@ -46,7 +46,7 @@ public final class HungerLogic {
 	public static TickResult tick(FoodState in, TickContext context, HungerRules rules) {
 		int food = Math.min(in.food(), context.maxFood());
 		float saturation = Math.min(in.saturation(), food);
-		float exhaustion = context.grace() ? 0.0F : in.exhaustion() + rules.passiveExhaustion();
+		float exhaustion = context.paused() ? 0.0F : in.exhaustion() + rules.passiveExhaustion();
 		int timer = in.tickTimer();
 		float perPoint = rules.exhaustionPerPoint() * (context.balanced() ? rules.balancedHungerFactor() : 1.0F);
 		float regenFactor = 1.0F;
