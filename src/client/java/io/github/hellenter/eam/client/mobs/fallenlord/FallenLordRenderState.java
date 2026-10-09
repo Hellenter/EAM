@@ -8,6 +8,7 @@ public class FallenLordRenderState extends SkeletonRenderState {
 	public FallenLordAction action = FallenLordAction.NONE;
 	/** Ticks since the action started, with the partial tick. */
 	public float actionTime;
+	public int phase = 1;
 	public boolean shieldUp;
 	/** Frame of the eye flash, or -1 when the eyes do not glow. */
 	public int eyeFrame = -1;

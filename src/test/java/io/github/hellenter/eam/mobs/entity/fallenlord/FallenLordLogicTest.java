@@ -107,4 +107,19 @@ class FallenLordLogicTest {
 		assertTrue(FallenLordLogic.shouldSwipe(FallenLordLogic.addHit(streak, 150, 60), SETTINGS));
 		assertFalse(FallenLordLogic.shouldSwipe(FallenLordLogic.addHit(streak, 200, 60), SETTINGS));
 	}
+
+	@Test
+	void drinksOnlyWhenHurtEnough() {
+		float max = SETTINGS.phaseOne().health();
+		assertFalse(FallenLordLogic.shouldDrink(max * 0.6F, max, 0, 0, SETTINGS));
+		assertTrue(FallenLordLogic.shouldDrink(max * 0.5F, max, 0, 0, SETTINGS));
+	}
+
+	@Test
+	void drinksTwicePerPhaseWithACooldown() {
+		float max = SETTINGS.phaseTwo().health();
+		assertTrue(FallenLordLogic.shouldDrink(10.0F, max, 1, 0, SETTINGS));
+		assertFalse(FallenLordLogic.shouldDrink(10.0F, max, 1, 1, SETTINGS));
+		assertFalse(FallenLordLogic.shouldDrink(10.0F, max, SETTINGS.regen().usesPerPhase(), 0, SETTINGS));
+	}
 }

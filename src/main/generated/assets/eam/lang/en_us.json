@@ -46,6 +46,7 @@
   "effect.eam.malnourished": "Malnourished",
   "entity.eam.fallen_lord": "Fallen Lord",
   "entity.eam.fallen_lord.phase": "%s: Phase %s",
+  "entity.eam.lord_shield": "Fallen Lord's Shield",
   "entity.eam.lord_spear": "Fallen Lord's Spear",
   "entity.eam.pebble": "Pebble",
   "event.eam.blood_moon.end": "The blood moon has set.",

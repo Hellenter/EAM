@@ -10,8 +10,8 @@ public enum FallenLordAction {
 	POKE(12),
 	/** Eyes flash red, he stands still; then {@link #DASH}. */
 	DASH_WINDUP(14),
-	/** Unblockable run to where the player stood when it started. */
-	DASH(12),
+	/** Unblockable run through where the player stood when it started, a few blocks past it. */
+	DASH(22),
 	/** Spear thrown at a player who keeps away. */
 	THROW(16),
 	/** Half-circle spear swing after a flurry of hits on a broken shield; brings the shield back. */
@@ -25,7 +25,13 @@ public enum FallenLordAction {
 	/** Run in, stab, hop back. */
 	LUNGE(20),
 	/** Sword spin that hits everyone around. */
-	WHIRL(16);
+	WHIRL(16),
+	/** Leap back from the player before drinking. */
+	RETREAT(10),
+	/** Drinks a regeneration potion, healing; ends early once healed enough or when a player hits him. */
+	DRINK(400),
+	/** Quick half-circle bash at a player who hit him during the drink: the shield, or the sword in phase two. */
+	COUNTER(10);
 
 	/** Eyes glow during the first ticks of the windup. */
 	public static final int EYE_FLASH_TICKS = 10;

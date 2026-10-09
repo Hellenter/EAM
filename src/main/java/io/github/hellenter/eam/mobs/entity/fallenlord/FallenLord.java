@@ -7,6 +7,8 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -38,7 +40,6 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -72,6 +73,15 @@ public class FallenLord extends Monster {
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
 	private static final double DASH_SPEED = 0.9;
+	/** The leap back before drinking: this fast for this many ticks, about six blocks. */
+	private static final double RETREAT_SPEED = 0.75;
+	private static final int RETREAT_TICKS = 8;
+	/** Swirls of the regeneration potion while he drinks. */
+	private static final int REGEN_COLOR = 0xCD5CAB;
+	/** A wither skeleton's pace. */
+	private static final double MOVEMENT_SPEED = 0.25;
+	/** A tenth bigger than the wither skeleton he is modelled on. */
+	private static final double SCALE = 1.1;
 	/** Without the spear back by then (lost in a wall, unloaded) he gets a new one. */
 	private static final int SPEAR_LOST_TICKS = 120;
 
@@ -94,6 +104,9 @@ public class FallenLord extends Monster {
 	private int spearAwayTicks = -1;
 	/** The spear in flight that will come back; an older one that turns up late is ignored. */
 	private @Nullable UUID thrownSpear;
+	private int drinksThisPhase;
+	private int drinkCooldown;
+	private float healedThisDrink;
 
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
@@ -105,13 +118,15 @@ public class FallenLord extends Monster {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, 0.0F);
 		}
+		// The hitbox follows the scale attribute only when told to; its base value never changes.
+		refreshDimensions();
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, FallenLordSettings.DEFAULT.phaseOne().health())
-				// Zombie pace.
-				.add(Attributes.MOVEMENT_SPEED, 0.23)
+				.add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED)
+				.add(Attributes.SCALE, SCALE)
 				.add(Attributes.FOLLOW_RANGE, 32.0)
 				.add(Attributes.ATTACK_DAMAGE, FallenLordSettings.DEFAULT.phaseTwo().slashDamage())
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.6)
@@ -146,6 +161,8 @@ public class FallenLord extends Monster {
 	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
 			@Nullable SpawnGroupData groupData) {
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
+		// His animations swing the weapon with the right arm.
+		setLeftHanded(false);
 		setMaxHealthTo(settings().phaseOne().health());
 		equipPhaseOne();
 		bossEvent.setName(bossName());
@@ -265,6 +282,18 @@ public class FallenLord extends Monster {
 		return Math.sqrt(dx * dx + dz * dz);
 	}
 
+	boolean wantsToDrink() {
+		return FallenLordLogic.shouldDrink(getHealth(), getMaxHealth(), drinksThisPhase, drinkCooldown, settings());
+	}
+
+	/** Leaps back from the target, then drinks. */
+	void startDrinking(LivingEntity target) {
+		drinksThisPhase++;
+		drinkCooldown = settings().regen().cooldown();
+		healedThisDrink = 0.0F;
+		setAction(FallenLordAction.RETREAT, target);
+	}
+
 	void startAttack(Attack attack, LivingEntity target) {
 		lastAttack = attack;
 		cooldowns[attack.ordinal()] = FallenLordLogic.cooldown(attack, settings());
@@ -303,6 +332,9 @@ public class FallenLord extends Monster {
 				cooldowns[i]--;
 			}
 		}
+		if (drinkCooldown > 0) {
+			drinkCooldown--;
+		}
 		if (shieldDisabledTicks > 0 && --shieldDisabledTicks == 0) {
 			hitStreak = HitStreak.NONE;
 			swipePending = false;
@@ -331,7 +363,8 @@ public class FallenLord extends Monster {
 		}
 
 		entityData.set(DATA_SHIELD_UP, phase() == 1 && shieldDisabledTicks <= 0 && !getOffhandItem().isEmpty()
-				&& action != FallenLordAction.DASH && action != FallenLordAction.SWIPE);
+				&& action != FallenLordAction.DASH && action != FallenLordAction.SWIPE && action != FallenLordAction.RETREAT
+				&& action != FallenLordAction.DRINK && action != FallenLordAction.COUNTER);
 		bossEvent.setProgress(getHealth() / getMaxHealth());
 	}
 
@@ -358,9 +391,9 @@ public class FallenLord extends Monster {
 					if (target == null) {
 						break;
 					}
-					// He runs to where the player stands at this moment; stepping aside dodges it.
-					dashTarget = target.position();
-					rushDirection = horizontal(dashTarget.subtract(position()));
+					// He runs through where the player stands at this moment and on past it; stepping aside dodges it.
+					rushDirection = horizontal(target.position().subtract(position()));
+					dashTarget = target.position().add(rushDirection.scale(FallenLordLogic.DASH_OVERSHOOT));
 					setAction(FallenLordAction.DASH, target);
 					playSound(SoundEvents.TRIDENT_RIPTIDE_1.value(), 1.0F, 0.8F);
 					return;
@@ -373,7 +406,7 @@ public class FallenLord extends Monster {
 					return;
 				}
 				setDeltaMovement(rushDirection.x * DASH_SPEED, getDeltaMovement().y, rushDirection.z * DASH_SPEED);
-				for (LivingEntity victim : victimsWithin(1.4)) {
+				for (LivingEntity victim : victimsWithin(FallenLordLogic.DASH_HIT_RADIUS)) {
 					if (!actionHit) {
 						actionHit = strike(level, victim, damageSources().source(FallenLordModule.DASH_DAMAGE, this), one.dashDamage(), 1.0F);
 					}
@@ -411,6 +444,46 @@ public class FallenLord extends Monster {
 					playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.6F);
 					for (LivingEntity victim : victimsWithin(two.whirlRadius())) {
 						strike(level, victim, damageSources().mobAttack(this), two.slashDamage() * two.whirlMultiplier(), two.whirlKnockback());
+					}
+				}
+			}
+			case RETREAT -> {
+				if (t == 0) {
+					rushDirection = target != null ? horizontal(position().subtract(target.position()))
+							: Vec3.directionFromRotation(0.0F, getYRot()).reverse();
+					setDeltaMovement(rushDirection.x * RETREAT_SPEED, 0.3, rushDirection.z * RETREAT_SPEED);
+					playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.2F, 0.9F);
+				} else if (t < RETREAT_TICKS && !horizontalCollision) {
+					setDeltaMovement(rushDirection.x * RETREAT_SPEED, getDeltaMovement().y, rushDirection.z * RETREAT_SPEED);
+				}
+				if (t == action.length() - 1) {
+					setAction(FallenLordAction.DRINK, target);
+					return;
+				}
+			}
+			case DRINK -> {
+				if (tickDrink(level, t)) {
+					endAction();
+					return;
+				}
+			}
+			case COUNTER -> {
+				if (t == 0 && target != null) {
+					// Turns on the spot to whoever hit him.
+					float yaw = (float) (Mth.atan2(target.getZ() - getZ(), target.getX() - getX()) * Mth.RAD_TO_DEG) - 90.0F;
+					setYRot(yaw);
+					setYBodyRot(yaw);
+					setYHeadRot(yaw);
+				}
+				if (t == 3) {
+					FallenLordSettings.Regen regen = settings().regen();
+					playSound(phase() == 1 ? SoundEvents.SHIELD_BLOCK.value() : SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.6F);
+					for (LivingEntity victim : victimsWithin(FallenLordLogic.COUNTER_REACH + REACH_SLACK)) {
+						if (inFront(victim, 0.0)) {
+							// The answer must land even right after another hit.
+							victim.damageCooldownTime = 0;
+							strike(level, victim, damageSources().mobAttack(this), regen.counterDamage(), regen.counterKnockback());
+						}
 					}
 				}
 			}
@@ -470,8 +543,7 @@ public class FallenLord extends Monster {
 		if (t == 0) {
 			ItemStack shield = getOffhandItem();
 			if (!shield.isEmpty()) {
-				ItemEntity dropped = new ItemEntity(level, getX(), getY() + 1.0, getZ(), shield.copy());
-				dropped.setNeverPickUp();
+				LordShield dropped = new LordShield(level, getX(), getY() + 1.0, getZ(), getYRot() + 30.0F);
 				Vec3 side = Vec3.directionFromRotation(0.0F, getYRot() - 90.0F).scale(0.25);
 				dropped.setDeltaMovement(side.x, 0.25, side.z);
 				level.addFreshEntity(dropped);
@@ -490,6 +562,28 @@ public class FallenLord extends Monster {
 			setItemSlot(EquipmentSlot.MAINHAND, swordStack());
 			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.0F, 0.7F);
 		}
+	}
+
+	/** One tick of the drink; true when it is done. */
+	private boolean tickDrink(ServerLevel level, int t) {
+		FallenLordSettings.Regen regen = settings().regen();
+		if (t % 8 == 0) {
+			playSound(SoundEvents.GENERIC_DRINK.value(), 1.0F, 0.6F);
+		}
+		if (t % 4 == 0) {
+			level.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, REGEN_COLOR), getX(), getY(0.6), getZ(), 2,
+					getBbWidth() * 0.4, getBbHeight() * 0.3, getBbWidth() * 0.4, 1.0);
+		}
+		float amount = Math.min(regen.healPerSecond() / 20.0F, regen.maxHeal() - healedThisDrink);
+		if (amount > 0.0F) {
+			heal(amount);
+			healedThisDrink += amount;
+		}
+		if (healedThisDrink >= regen.maxHeal() || getHealth() >= getMaxHealth()) {
+			playSound(SoundEvents.PLAYER_BURP, 1.0F, 0.6F);
+			return true;
+		}
+		return false;
 	}
 
 	private void endAction() {
@@ -579,6 +673,11 @@ public class FallenLord extends Monster {
 			return false;
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
+		if (hurt && action == FallenLordAction.DRINK && source.getEntity() instanceof Player player) {
+			// A player's hit stops the drink, and he hits back at once.
+			setAction(FallenLordAction.COUNTER, player);
+			return true;
+		}
 		if (hurt && phase() == 1 && shieldDisabledTicks > 0 && source.getEntity() instanceof Player) {
 			hitStreak = FallenLordLogic.addHit(hitStreak, level.getGameTime(), settings().phaseOne().swipeWindow());
 			if (FallenLordLogic.shouldSwipe(hitStreak, settings())) {
@@ -615,6 +714,7 @@ public class FallenLord extends Monster {
 		setMaxHealthTo(settings().phaseTwo().health());
 		shieldDisabledTicks = 0;
 		swipePending = false;
+		drinksThisPhase = 0;
 		spearAwayTicks = -1;
 		thrownSpear = null;
 		Arrays.fill(cooldowns, 0);
@@ -679,6 +779,8 @@ public class FallenLord extends Monster {
 		super.addAdditionalSaveData(output);
 		output.putByte("Phase", (byte) phase());
 		output.putInt("ShieldDisabled", shieldDisabledTicks);
+		output.putInt("Drinks", drinksThisPhase);
+		output.putInt("DrinkCooldown", drinkCooldown);
 	}
 
 	@Override
@@ -687,6 +789,9 @@ public class FallenLord extends Monster {
 		int phase = Mth.clamp(input.getByteOr("Phase", (byte) 1), 1, 2);
 		entityData.set(DATA_PHASE, (byte) phase);
 		shieldDisabledTicks = input.getIntOr("ShieldDisabled", 0);
+		drinksThisPhase = input.getIntOr("Drinks", 0);
+		drinkCooldown = input.getIntOr("DrinkCooldown", 0);
+		applyBaseStats(phase);
 		bossEvent.setColor(phase == 2 ? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.WHITE);
 		bossEvent.setName(bossName());
 		// Older saves wore rusty iron armor; his armor is drawn by his model now.
@@ -705,6 +810,25 @@ public class FallenLord extends Monster {
 			if (getOffhandItem().isEmpty() || getOffhandItem().is(Items.SHIELD)) {
 				setItemSlot(EquipmentSlot.OFFHAND, shieldStack());
 			}
+		}
+	}
+
+	/** Saved lords keep the size, pace and health they were spawned with; bring them to the current ones. */
+	private void applyBaseStats(int phase) {
+		setLeftHanded(false);
+		AttributeInstance scale = getAttribute(Attributes.SCALE);
+		if (scale != null) {
+			scale.setBaseValue(SCALE);
+		}
+		AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+		if (speed != null) {
+			speed.setBaseValue(MOVEMENT_SPEED);
+		}
+		AttributeInstance maxHealth = getAttribute(Attributes.MAX_HEALTH);
+		if (maxHealth != null) {
+			boolean full = getHealth() >= maxHealth.getValue();
+			maxHealth.setBaseValue(phase == 2 ? settings().phaseTwo().health() : settings().phaseOne().health());
+			setHealth(full ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
 		}
 	}
 

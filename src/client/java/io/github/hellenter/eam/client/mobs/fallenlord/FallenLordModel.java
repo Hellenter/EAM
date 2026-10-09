@@ -30,6 +30,9 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case COMBO -> combo(t);
 			case LUNGE -> lunge(t);
 			case WHIRL -> whirl(t);
+			case RETREAT -> retreat(t);
+			case DRINK -> drink(t);
+			case COUNTER -> counter(t, state.phase);
 			case NONE -> {
 			}
 		}
@@ -164,5 +167,41 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		rightArm.xRot = Mth.lerp(out, rightArm.xRot, ARM_FORWARD);
 		rightArm.yRot = -1.3F * out;
 		leftArm.zRot -= 1.2F * out;
+	}
+
+	private void retreat(float t) {
+		float hop = Mth.sin((float) Math.PI * seg(t, 0.0F, 10.0F));
+		body.xRot = -0.2F * hop;
+		rightLeg.xRot = 0.5F * hop;
+		leftLeg.xRot = -0.3F * hop;
+		rightArm.xRot = Mth.lerp(hop, rightArm.xRot, -0.7F);
+		leftArm.xRot = Mth.lerp(hop, leftArm.xRot, -0.7F);
+	}
+
+	/** The potion to his mouth, head tipped back, small sips. */
+	private void drink(float t) {
+		float raise = seg(t, 0.0F, 6.0F);
+		float sip = Mth.sin(t * 0.6F) * 0.06F * raise;
+		rightArm.xRot = Mth.lerp(raise, rightArm.xRot, -2.2F) + sip;
+		rightArm.yRot = -0.45F * raise;
+		head.xRot = Mth.lerp(raise, head.xRot, -0.45F) + sip;
+	}
+
+	/** Quick half-circle bash, landing at tick 3: the shield arm in phase one, the sword arm in phase two. */
+	private void counter(float t, int phase) {
+		float wind = seg(t, 0.0F, 2.0F);
+		float sweep = seg(t, 2.0F, 4.0F);
+		float hold = 1.0F - seg(t, 5.0F, 10.0F);
+		if (phase == 1) {
+			// From his left across to his right.
+			leftArm.xRot = Mth.lerp(hold * wind, leftArm.xRot, ARM_FORWARD);
+			leftArm.yRot = Mth.lerp(sweep, -1.0F * wind, 1.0F) * hold;
+			body.yRot = Mth.lerp(sweep, -0.5F * wind, 0.6F) * hold;
+		} else {
+			// From his right across to his left.
+			rightArm.xRot = Mth.lerp(hold * wind, rightArm.xRot, ARM_FORWARD);
+			rightArm.yRot = Mth.lerp(sweep, 1.2F * wind, -1.2F) * hold;
+			body.yRot = Mth.lerp(sweep, 0.5F * wind, -0.6F) * hold;
+		}
 	}
 }

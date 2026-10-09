@@ -11,6 +11,7 @@ import io.github.hellenter.eam.client.hud.NutritionPanel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordEyesModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderer;
+import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
@@ -43,6 +44,7 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LORD_SPEAR, LordSpearRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LORD_SHIELD, LordShieldRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		MenuScreens.<CraftingMenu, CraftingTableScreen>register(CraftingTypes.MENU, (menu, inventory, title) ->
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));

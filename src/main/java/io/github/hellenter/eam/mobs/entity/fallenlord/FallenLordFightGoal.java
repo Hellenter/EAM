@@ -68,6 +68,10 @@ final class FallenLordFightGoal extends Goal {
 		FallenLordSettings settings = FallenLordModule.settings();
 		int pause = phase == 1 ? settings.phaseOne().attackPause() : settings.phaseTwo().attackPause();
 		if (lord.isIdleFor(pause)) {
+			if (lord.wantsToDrink()) {
+				lord.startDrinking(target);
+				return;
+			}
 			int crowd = phase == 2 ? lord.playersWithin(settings.phaseTwo().whirlRadius()).size() : 0;
 			Situation situation = new Situation(distance, lord.getSensing().hasLineOfSight(target), lord.hasSpear(),
 					lord.ticksOutOfReach(), crowd);

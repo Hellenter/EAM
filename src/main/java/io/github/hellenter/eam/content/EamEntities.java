@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
+import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 
 import net.minecraft.core.Registry;
@@ -36,6 +37,14 @@ public final class EamEntities {
 					.sized(0.5F, 0.5F)
 					.clientTrackingRange(4)
 					.updateInterval(10));
+
+	/** The Fallen Lord's shield lying where he dropped it. */
+	public static final EntityType<LordShield> LORD_SHIELD = register("lord_shield",
+			EntityType.Builder.<LordShield>of(LordShield::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(1.0F, 0.2F)
+					.clientTrackingRange(6)
+					.updateInterval(20));
 
 	private EamEntities() {
 	}

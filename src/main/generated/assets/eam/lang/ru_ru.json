@@ -46,6 +46,7 @@
   "effect.eam.malnourished": "Истощение",
   "entity.eam.fallen_lord": "Павший лорд",
   "entity.eam.fallen_lord.phase": "%s: фаза %s",
+  "entity.eam.lord_shield": "Щит Павшего лорда",
   "entity.eam.lord_spear": "Копьё Павшего лорда",
   "entity.eam.pebble": "Камушек",
   "event.eam.blood_moon.end": "Кровавая луна зашла.",

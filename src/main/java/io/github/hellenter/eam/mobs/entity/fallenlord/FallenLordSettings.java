@@ -12,15 +12,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param repeatPenalty  weight multiplier for picking the same attack twice in a row, so the boss mixes his attacks
  * @param phaseOne       spear and shield
  * @param phaseTwo       sword
+ * @param regen          the regeneration potion he drinks when hurt, in either phase
  */
-public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phaseOne, PhaseTwo phaseTwo) {
-	public static final FallenLordSettings DEFAULT = new FallenLordSettings(0, 0.25, PhaseOne.DEFAULT, PhaseTwo.DEFAULT);
+public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phaseOne, PhaseTwo phaseTwo, Regen regen) {
+	public static final FallenLordSettings DEFAULT = new FallenLordSettings(0, 0.25, PhaseOne.DEFAULT, PhaseTwo.DEFAULT, Regen.DEFAULT);
 
 	public static final Codec<FallenLordSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 30).fieldOf("armor").orElse(DEFAULT.armor).forGetter(FallenLordSettings::armor),
 			Codec.doubleRange(0.0, 1.0).fieldOf("repeat_penalty").orElse(DEFAULT.repeatPenalty).forGetter(FallenLordSettings::repeatPenalty),
 			PhaseOne.CODEC.fieldOf("phase_one").orElse(PhaseOne.DEFAULT).forGetter(FallenLordSettings::phaseOne),
-			PhaseTwo.CODEC.fieldOf("phase_two").orElse(PhaseTwo.DEFAULT).forGetter(FallenLordSettings::phaseTwo)
+			PhaseTwo.CODEC.fieldOf("phase_two").orElse(PhaseTwo.DEFAULT).forGetter(FallenLordSettings::phaseTwo),
+			Regen.CODEC.fieldOf("regen").orElse(Regen.DEFAULT).forGetter(FallenLordSettings::regen)
 	).apply(instance, FallenLordSettings::new));
 
 	private static Codec<Float> damage() {
@@ -51,7 +53,7 @@ public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phase
 	public record PhaseOne(float health, float pokeDamage, float pokeKnockback, int pokeCooldown, float dashDamage, int dashCooldown,
 			float throwDamage, int throwCooldown, int throwAfter, float swipeDamage, float swipeKnockback, int swipeHits,
 			int swipeWindow, float shieldDisableMultiplier, int attackPause) {
-		public static final PhaseOne DEFAULT = new PhaseOne(80.0F, 6.0F, 1.0F, 30, 9.0F, 160, 7.0F, 200, 100, 3.0F, 1.2F, 3, 60, 2.0F, 16);
+		public static final PhaseOne DEFAULT = new PhaseOne(100.0F, 6.0F, 1.0F, 30, 9.0F, 160, 7.0F, 200, 100, 3.0F, 1.2F, 3, 60, 2.0F, 16);
 
 		public static final Codec<PhaseOne> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseOne::health),
@@ -75,7 +77,7 @@ public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phase
 
 	/**
 	 * @param health          health of this phase
-	 * @param speed           movement speed multiplier while chasing; phase two is aggressive
+	 * @param speed           movement speed multiplier while chasing; phase two is aggressive (1.25 is a quarter faster)
 	 * @param slashDamage     plain sword hit, used when nothing else fits
 	 * @param slashCooldown   ticks between plain hits
 	 * @param comboHitDamage  each of the three quick slashes of the combo
@@ -93,7 +95,7 @@ public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phase
 	public record PhaseTwo(float health, double speed, float slashDamage, int slashCooldown, float comboHitDamage, float comboKickDamage,
 			float comboKnockback, int comboCooldown, float lungeDamage, int lungeCooldown, float whirlMultiplier, double whirlRadius,
 			float whirlKnockback, int whirlCooldown, int attackPause) {
-		public static final PhaseTwo DEFAULT = new PhaseTwo(80.0F, 1.3, 7.0F, 20, 4.0F, 3.0F, 1.2F, 300, 8.0F, 140, 1.5F, 4.0, 1.0F, 400, 6);
+		public static final PhaseTwo DEFAULT = new PhaseTwo(140.0F, 1.25, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6);
 
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseTwo::health),
@@ -112,5 +114,33 @@ public record FallenLordSettings(int armor, double repeatPenalty, PhaseOne phase
 				ticks().fieldOf("whirl_cooldown").orElse(DEFAULT.whirlCooldown).forGetter(PhaseTwo::whirlCooldown),
 				ticks().fieldOf("attack_pause").orElse(DEFAULT.attackPause).forGetter(PhaseTwo::attackPause)
 		).apply(instance, PhaseTwo::new));
+	}
+
+	/**
+	 * When he is hurt enough he leaps back from the player and drinks a regeneration potion, healing while he drinks.
+	 * A player's hit stops the drink, and he answers it with a quick half-circle bash: the shield in phase one, the
+	 * sword in phase two.
+	 *
+	 * @param healthBelow      drinks only at or below this share of the phase's health
+	 * @param healPerSecond    health restored per second while he drinks
+	 * @param maxHeal          health one drink restores at most
+	 * @param usesPerPhase     drinks per phase
+	 * @param cooldown         ticks from one drink to the next
+	 * @param counterDamage    the bash that answers a hit during the drink
+	 * @param counterKnockback how far the bash pushes (2.5 is about seven blocks)
+	 */
+	public record Regen(double healthBelow, float healPerSecond, float maxHeal, int usesPerPhase, int cooldown, float counterDamage,
+			float counterKnockback) {
+		public static final Regen DEFAULT = new Regen(0.5, 3.0F, 40.0F, 2, 800, 4.0F, 2.5F);
+
+		public static final Codec<Regen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 1.0).fieldOf("health_below").orElse(DEFAULT.healthBelow).forGetter(Regen::healthBelow),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("heal_per_second").orElse(DEFAULT.healPerSecond).forGetter(Regen::healPerSecond),
+				Codec.floatRange(0.0F, 10000.0F).fieldOf("max_heal").orElse(DEFAULT.maxHeal).forGetter(Regen::maxHeal),
+				Codec.intRange(0, 100).fieldOf("uses_per_phase").orElse(DEFAULT.usesPerPhase).forGetter(Regen::usesPerPhase),
+				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Regen::cooldown),
+				damage().fieldOf("counter_damage").orElse(DEFAULT.counterDamage).forGetter(Regen::counterDamage),
+				Codec.floatRange(0.0F, 5.0F).fieldOf("counter_knockback").orElse(DEFAULT.counterKnockback).forGetter(Regen::counterKnockback)
+		).apply(instance, Regen::new));
 	}
 }

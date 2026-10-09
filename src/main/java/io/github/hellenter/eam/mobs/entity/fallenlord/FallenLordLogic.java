@@ -3,12 +3,19 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Pure decisions of the Fallen Lord: which attack to use, when the shield blocks, when the swipe answers a flurry. */
+/**
+ * Pure decisions of the Fallen Lord: which attack to use, when the shield blocks, when the swipe answers a flurry,
+ * when he drinks.
+ */
 public final class FallenLordLogic {
 	/** Spear jab reach, from the boss's centre to the target's. */
 	public static final double POKE_REACH = 3.6;
 	public static final double DASH_MIN = 3.0;
 	public static final double DASH_MAX = 12.0;
+	/** The dash carries him this far past where the player stood, so stepping back does not dodge it. */
+	public static final double DASH_OVERSHOOT = 4.0;
+	/** The dash hits whoever is this close to him on the way. */
+	public static final double DASH_HIT_RADIUS = 2.2;
 	public static final double THROW_MIN = 6.0;
 	public static final double THROW_MAX = 28.0;
 	/** Swipe and sword reach. */
@@ -16,6 +23,8 @@ public final class FallenLordLogic {
 	public static final double COMBO_MAX = 7.0;
 	public static final double LUNGE_MIN = 2.5;
 	public static final double LUNGE_MAX = 9.0;
+	/** Reach of the half-circle bash that answers a hit during the drink. */
+	public static final double COUNTER_REACH = 3.5;
 	/** A player this close counts as having come within reach, which resets the spear-throw timer. */
 	public static final double CLOSE = 6.0;
 	/** Shield blocks hits from this half-angle in front of the body, in degrees. */
@@ -174,5 +183,17 @@ public final class FallenLordLogic {
 
 	public static boolean shouldSwipe(HitStreak streak, FallenLordSettings settings) {
 		return streak.hits() >= settings.phaseOne().swipeHits();
+	}
+
+	/**
+	 * Whether he breaks off to drink: hurt to {@link FallenLordSettings.Regen#healthBelow()} of the phase's health,
+	 * drinks left this phase and the last one at least {@link FallenLordSettings.Regen#cooldown()} ago.
+	 *
+	 * @param drinkCooldown ticks until he may drink again
+	 */
+	public static boolean shouldDrink(float health, float maxHealth, int drinksThisPhase, int drinkCooldown, FallenLordSettings settings) {
+		FallenLordSettings.Regen regen = settings.regen();
+		return drinkCooldown <= 0 && drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F
+				&& health <= maxHealth * regen.healthBelow();
 	}
 }
