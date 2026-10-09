@@ -109,7 +109,7 @@ public final class HungerModule {
 						level.getGameRules().get(GameRules.NATURAL_HEALTH_REGENERATION),
 						level.getDifficulty() == Difficulty.PEACEFUL,
 						HungerLogic.balanced(nutrition, current.balanceThreshold()),
-						ProgressionModule.inGracePeriod(player),
+						ProgressionModule.inGracePeriod(player) || exempt(player),
 						HungerLogic.malnourished(nutrition)
 				),
 				current
@@ -132,6 +132,11 @@ public final class HungerModule {
 		if (result.starvationDamage() > 0.0F) {
 			player.hurtServer(level, player.damageSources().starve(), result.starvationDamage());
 		}
+	}
+
+	/** Creative and spectator players do not get hungry, as in vanilla. */
+	private static boolean exempt(ServerPlayer player) {
+		return player.isSpectator() || player.getAbilities().invulnerable;
 	}
 
 	/** Called when the player finishes eating a food with {@link Nutrients}. */
