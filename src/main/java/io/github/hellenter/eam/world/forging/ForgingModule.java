@@ -211,6 +211,11 @@ public final class ForgingModule {
 		return menu.eam$forge().active() && menu.eam$forge().hasOutput();
 	}
 
+	/** Both sides: forged plates and free repairs can be taken without experience. */
+	public static boolean mayTakeFree(ForgingAnvilMenu menu) {
+		return mayTakeResult(menu) || menu.eam$forge().repairing() && !menu.eam$resultSlots().getItem(0).isEmpty();
+	}
+
 	/**
 	 * Both sides, when something is taken from the result slot. Returns true when that was forged plates, which were
 	 * paid for already: the vanilla take must not use up the slots, take experience or wear the anvil.

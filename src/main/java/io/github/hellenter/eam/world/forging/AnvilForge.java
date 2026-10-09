@@ -19,12 +19,15 @@ public final class AnvilForge {
 	private static final int RUNNING = 1;
 	private static final int HAS_OUTPUT = 2;
 	private static final int ACTIVE = 4;
+	private static final int REPAIR = 8;
 
 	private final Supplier<Player> owner;
 	private final IntSupplier anvilTier;
 	private long start;
 	private int total;
 	private boolean running;
+	/** Both sides: the result slot shows a free repair. */
+	private boolean repairing;
 	/** Plates forged and not taken yet. */
 	private ItemStack output = ItemStack.EMPTY;
 
@@ -132,7 +135,21 @@ public final class AnvilForge {
 		if (client()) {
 			return clientFlags;
 		}
-		return (running ? RUNNING : 0) | (output.isEmpty() ? 0 : HAS_OUTPUT) | (ForgingModule.enabled() ? ACTIVE : 0);
+		return (running ? RUNNING : 0) | (output.isEmpty() ? 0 : HAS_OUTPUT) | (ForgingModule.enabled() ? ACTIVE : 0)
+				| (AnvilRepair.enabled() ? REPAIR : 0);
+	}
+
+	/** Whether the server repairs for free; off, repair works like vanilla. */
+	public boolean repairActive() {
+		return (flags() & REPAIR) != 0;
+	}
+
+	public boolean repairing() {
+		return repairing;
+	}
+
+	void setRepairing(boolean repairing) {
+		this.repairing = repairing;
 	}
 
 	/** Whether the server forges plates at all; off, the anvil works like vanilla. */

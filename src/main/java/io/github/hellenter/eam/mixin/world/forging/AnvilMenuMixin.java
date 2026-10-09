@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mixin.world.forging;
 
 import io.github.hellenter.eam.world.forging.AnvilForge;
 import io.github.hellenter.eam.world.forging.AnvilHammer;
+import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingAnvilMenu;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.forging.HammerSlot;
@@ -21,6 +22,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,6 +40,15 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 	@Shadow
 	@Final
 	private DataSlot cost;
+
+	@Shadow
+	private int repairItemCountCost;
+
+	@Shadow
+	private @Nullable String itemName;
+
+	@Shadow
+	private boolean onlyRenaming;
 
 	@Unique
 	private AnvilForge eam$forge;
@@ -71,13 +82,21 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu implements ForgingAnvilMe
 			this.resultSlots.setItem(0, ItemStack.EMPTY);
 			this.cost.set(0);
 			ci.cancel();
+		} else {
+			int used = AnvilRepair.update(this, this.player, this.itemName);
+			if (used >= 0) {
+				this.repairItemCountCost = used;
+				this.onlyRenaming = false;
+				this.cost.set(0);
+				ci.cancel();
+			}
 		}
 	}
 
-	/** Vanilla only lets a result with an experience cost be taken; forged plates cost none. */
+	/** Vanilla only lets a result with an experience cost be taken; forged plates and repairs cost none. */
 	@ModifyReturnValue(method = "mayPickup", at = @At("RETURN"))
 	private boolean eam$mayTakePlates(boolean original) {
-		return original || ForgingModule.mayTakeResult(this);
+		return original || ForgingModule.mayTakeFree(this);
 	}
 
 	@Inject(method = "onTake", at = @At("HEAD"), cancellable = true)
