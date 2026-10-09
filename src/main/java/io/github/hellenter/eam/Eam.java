@@ -3,6 +3,7 @@ package io.github.hellenter.eam;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.bucket.BucketModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
@@ -87,6 +88,7 @@ public class Eam implements ModInitializer {
 		EnchantingModule.register();
 		SafeRoomModule.register();
 		BloodMoonModule.register();
+		BucketModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();

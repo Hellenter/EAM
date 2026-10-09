@@ -34,7 +34,15 @@ public final class EamCreativeTabs {
 	public static final CreativeModeTab SURVIVAL = register("survival", () -> new ItemStack(EamItems.LEATHER_FLASK),
 			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE,
 			EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_HATCHET, EamItems.FLINT_AXE, EamItems.FLINT_KNIFE,
-			EamItems.SLINGSHOT);
+			EamItems.SLINGSHOT,
+			EamItems.COPPER_BUCKET, EamItems.COPPER_WATER_BUCKET, EamItems.COPPER_LAVA_BUCKET, EamItems.COPPER_POWDER_SNOW_BUCKET,
+			EamItems.COPPER_MILK_BUCKET,
+			EamItems.SILVER_BUCKET, EamItems.SILVER_WATER_BUCKET, EamItems.SILVER_LAVA_BUCKET, EamItems.SILVER_POWDER_SNOW_BUCKET,
+			EamItems.SILVER_MILK_BUCKET,
+			EamItems.GOLDEN_BUCKET, EamItems.GOLDEN_WATER_BUCKET, EamItems.GOLDEN_LAVA_BUCKET, EamItems.GOLDEN_POWDER_SNOW_BUCKET,
+			EamItems.GOLDEN_MILK_BUCKET,
+			EamItems.MITHRIL_BUCKET, EamItems.MITHRIL_WATER_BUCKET, EamItems.MITHRIL_LAVA_BUCKET, EamItems.MITHRIL_POWDER_SNOW_BUCKET,
+			EamItems.MITHRIL_MILK_BUCKET);
 
 	public static final CreativeModeTab METALS = register("metals", () -> new ItemStack(EamItems.SILVER_INGOT),
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,
