@@ -1,0 +1,44 @@
+{
+  "parent": "eam:copper_pickaxe",
+  "criteria": {
+    "copper_knife": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:copper_knife"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "silver_knife": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:silver_knife"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.copper_knife.description"
+    },
+    "icon": {
+      "id": "eam:copper_knife"
+    },
+    "title": {
+      "translate": "advancements.eam.copper_knife.title"
+    }
+  },
+  "requirements": [
+    [
+      "copper_knife",
+      "silver_knife"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

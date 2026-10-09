@@ -1,0 +1,37 @@
+{
+  "parent": "eam:silver",
+  "criteria": {
+    "holy_water": {
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:potion_contents": {
+                "potions": "eam:holy_water"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.holy_water.description"
+    },
+    "icon": {
+      "id": "eam:silver_brewing_stand"
+    },
+    "title": {
+      "translate": "advancements.eam.holy_water.title"
+    }
+  },
+  "requirements": [
+    [
+      "holy_water"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

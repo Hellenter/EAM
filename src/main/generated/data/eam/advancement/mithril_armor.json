@@ -1,0 +1,72 @@
+{
+  "parent": "eam:mithril",
+  "criteria": {
+    "mithril_boots": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_boots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "mithril_chestplate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_chestplate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "mithril_helmet": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_helmet"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "mithril_leggings": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_leggings"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.eam.mithril_armor.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "eam:mithril_chestplate"
+    },
+    "title": {
+      "translate": "advancements.eam.mithril_armor.title"
+    }
+  },
+  "requirements": [
+    [
+      "mithril_helmet"
+    ],
+    [
+      "mithril_chestplate"
+    ],
+    [
+      "mithril_leggings"
+    ],
+    [
+      "mithril_boots"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

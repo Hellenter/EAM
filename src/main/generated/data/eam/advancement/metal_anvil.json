@@ -1,0 +1,66 @@
+{
+  "parent": "eam:copper_pickaxe",
+  "criteria": {
+    "anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "copper_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:copper_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "mithril_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "silver_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:silver_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.metal_anvil.description"
+    },
+    "icon": {
+      "id": "eam:copper_anvil"
+    },
+    "title": {
+      "translate": "advancements.eam.metal_anvil.title"
+    }
+  },
+  "requirements": [
+    [
+      "copper_anvil",
+      "silver_anvil",
+      "anvil",
+      "mithril_anvil"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

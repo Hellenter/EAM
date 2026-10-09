@@ -1,0 +1,33 @@
+{
+  "parent": "eam:obsidian_furnace",
+  "criteria": {
+    "mithril_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:mithril_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.mithril.description"
+    },
+    "icon": {
+      "id": "eam:mithril_ingot"
+    },
+    "title": {
+      "translate": "advancements.eam.mithril.title"
+    }
+  },
+  "requirements": [
+    [
+      "mithril_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

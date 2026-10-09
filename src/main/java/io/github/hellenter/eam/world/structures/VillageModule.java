@@ -57,7 +57,7 @@ public final class VillageModule {
 	private static final RuleProcessor LOOT = new RuleProcessor(
 			List.of(new ProcessorRule(new TagMatchTest(LOOTED), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState())));
 
-	/** Earning this advancement lets normal villages generate. The advancement itself comes later. */
+	/** Earning this advancement (full iron armor, see the advancement datagen) lets normal villages generate. */
 	public static final Identifier UNLOCK_ADVANCEMENT = Eam.id("iron_age");
 
 	/** World flag, stored on the overworld. */

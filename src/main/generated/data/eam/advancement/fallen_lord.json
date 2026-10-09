@@ -1,0 +1,35 @@
+{
+  "parent": "eam:iron_age",
+  "criteria": {
+    "fallen_lord": {
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "eam:fallen_lord"
+          }
+        }
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.eam.fallen_lord.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "eam:mithril_sword"
+    },
+    "title": {
+      "translate": "advancements.eam.fallen_lord.title"
+    }
+  },
+  "requirements": [
+    [
+      "fallen_lord"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

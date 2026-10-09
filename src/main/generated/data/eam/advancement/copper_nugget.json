@@ -1,0 +1,33 @@
+{
+  "parent": "eam:sieve",
+  "criteria": {
+    "copper_nugget": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:copper_nugget"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.copper_nugget.description"
+    },
+    "icon": {
+      "id": "minecraft:copper_nugget"
+    },
+    "title": {
+      "translate": "advancements.eam.copper_nugget.title"
+    }
+  },
+  "requirements": [
+    [
+      "copper_nugget"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

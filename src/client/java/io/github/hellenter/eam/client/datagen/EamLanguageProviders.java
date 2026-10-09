@@ -206,6 +206,62 @@ public final class EamLanguageProviders {
 			mithril(builder);
 			rusty(builder);
 			ancientMetal(builder);
+			advancements(builder);
+		}
+
+		private static void advancements(TranslationBuilder builder) {
+			builder.add("advancements.eam.root.title", "Minecraft Is Too Easy?");
+			builder.add("advancements.eam.root.description", "Bare hands break only soft blocks. Look on the ground for pebbles, flint shards and sticks");
+			builder.add("advancements.eam.ground_finds.title", "Scavenger");
+			builder.add("advancements.eam.ground_finds.description", "Pick up a pebble or a flint shard. Gravel hides flint and copper nuggets too");
+			builder.add("advancements.eam.flint_knife.title", "First Blade");
+			builder.add("advancements.eam.flint_knife.description", "Make a flint knife from flint and a stick. The crafting table won't work without a knife");
+			builder.add("advancements.eam.flint_hatchet.title", "Lumberjack");
+			builder.add("advancements.eam.flint_hatchet.description", "Make a flint hatchet or axe: logs won't yield to bare hands");
+			builder.add("advancements.eam.workbench.title", "Workshop");
+			builder.add("advancements.eam.workbench.description", "Get a crafting table and put a knife in its tool slots. Saws and hammers there speed up crafting");
+			builder.add("advancements.eam.camp_fire.title", "First Flame");
+			builder.add("advancements.eam.camp_fire.description", "Build a camp fire from sticks. It cooks food and leaves charcoal behind");
+			builder.add("advancements.eam.leather_thread.title", "Tough Thread");
+			builder.add("advancements.eam.leather_thread.description", "Cut leather into thread. Cows always drop leather, pigs and sheep sometimes");
+			builder.add("advancements.eam.leather_flask.title", "Water Supply");
+			builder.add("advancements.eam.leather_flask.description", "Sew a leather flask. Raw water can make you sick");
+			builder.add("advancements.eam.filtered_flask.title", "Clean Water");
+			builder.add("advancements.eam.filtered_flask.description", "Put a charcoal filter in the flask: filtered water is safe to drink");
+			builder.add("advancements.eam.slingshot.title", "Sharp Eye");
+			builder.add("advancements.eam.slingshot.description", "Make a slingshot. It shoots pebbles");
+			builder.add("advancements.eam.sieve.title", "Prospector");
+			builder.add("advancements.eam.sieve.description", "Make a sieve and sift gravel: it holds flint, flint shards and copper nuggets");
+			builder.add("advancements.eam.copper_nugget.title", "Copper Crumbs");
+			builder.add("advancements.eam.copper_nugget.description", "Find a copper nugget. Nine of them make an ingot");
+			builder.add("advancements.eam.copper_pickaxe.title", "Copper Age");
+			builder.add("advancements.eam.copper_pickaxe.description", "Make a copper pickaxe, the very first one. Copper and silver ore are yours now");
+			builder.add("advancements.eam.metal_anvil.title", "Anvil");
+			builder.add("advancements.eam.metal_anvil.description", "Make an anvil. It repairs gear of its own metal or weaker; a hammer speeds up forging");
+			builder.add("advancements.eam.silver.title", "Silver Lining");
+			builder.add("advancements.eam.silver.description", "Smelt silver. Silver weapons and armor are deadly to the undead");
+			builder.add("advancements.eam.holy_water.title", "Holy Water");
+			builder.add("advancements.eam.holy_water.description", "Brew holy water in a silver brewing stand. Every light potion starts with it");
+			builder.add("advancements.eam.copper_knife.title", "Sharper Than Flint");
+			builder.add("advancements.eam.copper_knife.description", "Make a copper or silver knife: iron can't be crafted without one");
+			builder.add("advancements.eam.blast_furnace.title", "Hot Stuff");
+			builder.add("advancements.eam.blast_furnace.description", "Build a blast furnace from copper or silver ingots. A plain furnace won't melt iron");
+			builder.add("advancements.eam.hot_iron.title", "Red Hot");
+			builder.add("advancements.eam.hot_iron.description", "Smelt iron in the blast furnace. A hot ingot cools down in a minute, so forge it quickly");
+			builder.add("advancements.eam.iron_plate.title", "Blacksmith");
+			builder.add("advancements.eam.iron_plate.description", "Forge an iron plate from hot ingots on an iron anvil. Iron armor is made of plates");
+			builder.add("advancements.eam.iron_age.title", "Iron Age");
+			builder.add("advancements.eam.iron_age.description", "Get a full set of iron armor. The world will notice: living villages appear in new lands");
+			builder.add("advancements.eam.obsidian_furnace.title", "Obsidian Heart");
+			builder.add("advancements.eam.obsidian_furnace.description", "Build an obsidian blast furnace from iron plates, a furnace and obsidian. Only it melts mithril");
+			builder.add("advancements.eam.mithril.title", "Mithril");
+			builder.add("advancements.eam.mithril.description", "Smelt mithril. Its ore lies deep, below Y -32, and needs an iron pickaxe");
+			builder.add("advancements.eam.mithril_armor.title", "Mithril Wall");
+			builder.add("advancements.eam.mithril_armor.description", "Get a full set of mithril armor");
+			builder.add("advancements.eam.fallen_lord.title", "The Lord Has Fallen");
+			builder.add("advancements.eam.fallen_lord.description", "Defeat the Fallen Lord, the guardian of crypts");
+			builder.add("advancements.eam.safe_sleep.title", "Safe and Sound");
+			builder.add("advancements.eam.safe_sleep.description", "Sleep in a bed. It only works in a closed, lit room of solid blocks");
 		}
 
 		private static void ancientMetal(TranslationBuilder builder) {
@@ -495,6 +551,62 @@ public final class EamLanguageProviders {
 			mithril(builder);
 			rusty(builder);
 			ancientMetal(builder);
+			advancements(builder);
+		}
+
+		private static void advancements(TranslationBuilder builder) {
+			builder.add("advancements.eam.root.title", "Слишком просто?");
+			builder.add("advancements.eam.root.description", "Руками ломается только мягкое. Ищите на земле камушки, осколки кремня и палки");
+			builder.add("advancements.eam.ground_finds.title", "Собиратель");
+			builder.add("advancements.eam.ground_finds.description", "Подберите камушек или осколок кремня. В гравии тоже прячутся кремень и медные самородки");
+			builder.add("advancements.eam.flint_knife.title", "Первое лезвие");
+			builder.add("advancements.eam.flint_knife.description", "Сделайте кремнёвый нож из кремня и палки. Без ножа верстак не работает");
+			builder.add("advancements.eam.flint_hatchet.title", "Дровосек");
+			builder.add("advancements.eam.flint_hatchet.description", "Сделайте кремнёвый топорик или топор: брёвна голыми руками не срубить");
+			builder.add("advancements.eam.workbench.title", "Мастерская");
+			builder.add("advancements.eam.workbench.description", "Добудьте верстак и положите нож в его слоты инструментов. Пилы и молоты там ускоряют работу");
+			builder.add("advancements.eam.camp_fire.title", "Первый огонь");
+			builder.add("advancements.eam.camp_fire.description", "Сложите походный костёр из палок. Он жарит еду и оставляет древесный уголь");
+			builder.add("advancements.eam.leather_thread.title", "Крепкая нить");
+			builder.add("advancements.eam.leather_thread.description", "Нарежьте кожу на нити. Коровы всегда дают кожу, свиньи и овцы иногда");
+			builder.add("advancements.eam.leather_flask.title", "Запас воды");
+			builder.add("advancements.eam.leather_flask.description", "Сшейте кожаную флягу. Сырая вода может отравить");
+			builder.add("advancements.eam.filtered_flask.title", "Чистая вода");
+			builder.add("advancements.eam.filtered_flask.description", "Вставьте во флягу угольный фильтр: такую воду пить безопасно");
+			builder.add("advancements.eam.slingshot.title", "Меткий глаз");
+			builder.add("advancements.eam.slingshot.description", "Сделайте рогатку. Она стреляет камушками");
+			builder.add("advancements.eam.sieve.title", "Старатель");
+			builder.add("advancements.eam.sieve.description", "Сделайте сито и просеивайте гравий: в нём кремень, осколки кремня и медные самородки");
+			builder.add("advancements.eam.copper_nugget.title", "Медная крошка");
+			builder.add("advancements.eam.copper_nugget.description", "Найдите медный самородок. Из девяти самородков выходит слиток");
+			builder.add("advancements.eam.copper_pickaxe.title", "Медный век");
+			builder.add("advancements.eam.copper_pickaxe.description", "Сделайте медную кирку, самую первую. Теперь вам доступны медная и серебряная руда");
+			builder.add("advancements.eam.metal_anvil.title", "Наковальня");
+			builder.add("advancements.eam.metal_anvil.description", "Сделайте наковальню. Она чинит вещи из своего металла и слабее, а молот ускоряет ковку");
+			builder.add("advancements.eam.silver.title", "Серебряный блеск");
+			builder.add("advancements.eam.silver.description", "Выплавьте серебро. Серебряное оружие и броня опасны для нежити");
+			builder.add("advancements.eam.holy_water.title", "Святая вода");
+			builder.add("advancements.eam.holy_water.description", "Сварите святую воду в серебряной варочной стойке. С неё начинается любое лёгкое зелье");
+			builder.add("advancements.eam.copper_knife.title", "Острее кремня");
+			builder.add("advancements.eam.copper_knife.description", "Сделайте медный или серебряный нож: без него железо не обработать");
+			builder.add("advancements.eam.blast_furnace.title", "Жаркое дело");
+			builder.add("advancements.eam.blast_furnace.description", "Постройте доменную печь из медных или серебряных слитков. Обычная печь железо не плавит");
+			builder.add("advancements.eam.hot_iron.title", "Раскалённый металл");
+			builder.add("advancements.eam.hot_iron.description", "Выплавьте железо в доменной печи. Горячий слиток остынет за минуту, куйте сразу");
+			builder.add("advancements.eam.iron_plate.title", "Кузнец");
+			builder.add("advancements.eam.iron_plate.description", "Выкуйте железную пластину из горячих слитков на железной наковальне. Железная броня делается из пластин");
+			builder.add("advancements.eam.iron_age.title", "Железный век");
+			builder.add("advancements.eam.iron_age.description", "Соберите полный железный доспех. Мир это заметит: в новых землях появятся живые деревни");
+			builder.add("advancements.eam.obsidian_furnace.title", "Обсидиановое сердце");
+			builder.add("advancements.eam.obsidian_furnace.description", "Постройте обсидиановую доменную печь из железных пластин, печи и обсидиана. Только она плавит митрил");
+			builder.add("advancements.eam.mithril.title", "Митрил");
+			builder.add("advancements.eam.mithril.description", "Выплавьте митрил. Его руда лежит глубоко, ниже Y -32, и добывается железной киркой");
+			builder.add("advancements.eam.mithril_armor.title", "Митриловая стена");
+			builder.add("advancements.eam.mithril_armor.description", "Соберите полный митриловый доспех");
+			builder.add("advancements.eam.fallen_lord.title", "Лорд повержен");
+			builder.add("advancements.eam.fallen_lord.description", "Победите Павшего лорда, хранителя склепов");
+			builder.add("advancements.eam.safe_sleep.title", "Спокойной ночи");
+			builder.add("advancements.eam.safe_sleep.description", "Поспите в кровати. Она работает только в закрытой освещённой комнате из прочных блоков");
 		}
 
 		private static void ancientMetal(TranslationBuilder builder) {
