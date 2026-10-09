@@ -20,18 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Light potions and holy water look like vanilla potions of the same color, but their bottle has a stopper of
+ * Light potions look like vanilla potions of the same color and holy water is a paler water; their bottle has a stopper of
  * patinated silver. The vanilla potion item models pick our bottle by the stack's potion contents.
  */
 final class PotionModels {
 	private static final Material OVERLAY = new Material(Identifier.withDefaultNamespace("item/potion_overlay"));
+	/** A lighter, whiter blue than vanilla water: holy water reads paler than plain water. */
+	private static final int HOLY_WATER_COLOR = 0xFF7A9AEA;
 
 	private PotionModels() {
 	}
 
 	static void generate(ItemModelGenerators generators) {
 		List<PotionContents> silver = new ArrayList<>();
-		silver.add(new PotionContents(BrewingModule.HOLY_WATER));
 		for (Holder<net.minecraft.world.item.alchemy.Potion> potion : BrewingModule.LIGHT_POTIONS) {
 			silver.add(new PotionContents(potion));
 		}
@@ -44,7 +45,8 @@ final class PotionModels {
 		Identifier light = generators.generateLayeredItem(Eam.id("item/" + name), OVERLAY, new Material(Eam.id("item/" + name)));
 		ItemModel.Unbaked vanillaModel = ItemModelUtils.tintedModel(vanilla, new Potion());
 		ItemModel.Unbaked lightModel = ItemModelUtils.tintedModel(light, new Potion());
+		ItemModel.Unbaked holyModel = ItemModelUtils.tintedModel(light, ItemModelUtils.constantTint(HOLY_WATER_COLOR));
 		generators.itemModelOutput.accept(item, ItemModelUtils.select(new ComponentContents<>(DataComponents.POTION_CONTENTS), vanillaModel,
-				ItemModelUtils.when(silver, lightModel)));
+				ItemModelUtils.when(new PotionContents(BrewingModule.HOLY_WATER), holyModel), ItemModelUtils.when(silver, lightModel)));
 	}
 }
