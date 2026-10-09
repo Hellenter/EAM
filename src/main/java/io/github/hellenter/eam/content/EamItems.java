@@ -21,6 +21,7 @@ import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
+import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -128,8 +129,8 @@ public final class EamItems {
 	/** Turns holy water into a light regeneration potion. */
 	public static final Item FLOWER_MIX = register("flower_mix", Item::new, new Item.Properties());
 
-	/** Turns holy water into a light strength potion. */
-	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", Item::new, new Item.Properties());
+	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
+	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);

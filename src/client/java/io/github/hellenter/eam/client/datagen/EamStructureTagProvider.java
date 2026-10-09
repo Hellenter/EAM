@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.world.structures.StructureRemovalModule;
+import io.github.hellenter.eam.world.structures.crypt.CryptLocator;
+import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -22,5 +24,8 @@ public class EamStructureTagProvider extends FabricTagsProvider<Structure> {
 		// The mace will come from a different monument.
 		builder(StructureRemovalModule.REMOVED)
 				.add(BuiltinStructures.TRIAL_CHAMBERS);
+
+		builder(CryptLocator.LOCATED_BY_EYE)
+				.add(CryptModule.STRUCTURE);
 	}
 }
