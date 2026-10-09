@@ -1,0 +1,178 @@
+package io.github.hellenter.eam.mobs.entity.fallenlord;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Pure decisions of the Fallen Lord: which attack to use, when the shield blocks, when the swipe answers a flurry. */
+public final class FallenLordLogic {
+	/** Spear jab reach, from the boss's centre to the target's. */
+	public static final double POKE_REACH = 3.6;
+	public static final double DASH_MIN = 3.0;
+	public static final double DASH_MAX = 12.0;
+	public static final double THROW_MIN = 6.0;
+	public static final double THROW_MAX = 28.0;
+	/** Swipe and sword reach. */
+	public static final double SWORD_REACH = 3.2;
+	public static final double COMBO_MAX = 7.0;
+	public static final double LUNGE_MIN = 2.5;
+	public static final double LUNGE_MAX = 9.0;
+	/** A player this close counts as having come within reach, which resets the spear-throw timer. */
+	public static final double CLOSE = 6.0;
+	/** Shield blocks hits from this half-angle in front of the body, in degrees. */
+	public static final double SHIELD_HALF_ANGLE = 100.0;
+	/** Whirl is this many times more likely with two or more players around. */
+	public static final double CROWD_BONUS = 4.0;
+
+	public enum Attack {
+		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2);
+
+		private final int phase;
+
+		Attack(int phase) {
+			this.phase = phase;
+		}
+
+		public int phase() {
+			return phase;
+		}
+	}
+
+	/**
+	 * What the boss sees when picking an attack.
+	 *
+	 * @param distance       horizontal distance to the target
+	 * @param canSee         line of sight to the target
+	 * @param hasSpear       the spear is in hand, not in flight
+	 * @param ticksOutOfReach how long no target came within {@link #CLOSE}
+	 * @param playersInWhirl players within whirl radius
+	 */
+	public record Situation(double distance, boolean canSee, boolean hasSpear, int ticksOutOfReach, int playersInWhirl) {
+	}
+
+	/** Hits landed on the boss while his shield is down, counted for the swipe. */
+	public record HitStreak(int hits, long firstTick) {
+		public static final HitStreak NONE = new HitStreak(0, 0L);
+	}
+
+	record Candidate(Attack attack, double weight) {
+	}
+
+	private FallenLordLogic() {
+	}
+
+	/**
+	 * Picks the next attack, or null when none fits. Attacks off cooldown and in range are weighted; the last attack
+	 * gets {@link FallenLordSettings#repeatPenalty()} so the boss mixes them. The plain sword hit is only a fallback.
+	 *
+	 * @param cooldowns remaining ticks per attack, by ordinal
+	 * @param roll      uniform random in [0, 1)
+	 */
+	public static Attack choose(int phase, Situation situation, int[] cooldowns, Attack last, FallenLordSettings settings, double roll) {
+		List<Candidate> candidates = candidates(phase, situation, cooldowns, settings);
+		if (candidates.isEmpty()) {
+			return phase == 2 && ready(Attack.SLASH, cooldowns) && situation.canSee() && situation.distance() <= SWORD_REACH
+					? Attack.SLASH : null;
+		}
+		double total = 0.0;
+		double[] weights = new double[candidates.size()];
+		for (int i = 0; i < candidates.size(); i++) {
+			Candidate candidate = candidates.get(i);
+			double weight = candidate.weight();
+			if (candidate.attack() == last && candidates.size() > 1) {
+				weight *= settings.repeatPenalty();
+			}
+			weights[i] = weight;
+			total += weight;
+		}
+		double pick = roll * total;
+		for (int i = 0; i < weights.length; i++) {
+			pick -= weights[i];
+			if (pick < 0.0) {
+				return candidates.get(i).attack();
+			}
+		}
+		return candidates.getLast().attack();
+	}
+
+	static List<Candidate> candidates(int phase, Situation s, int[] cooldowns, FallenLordSettings settings) {
+		List<Candidate> list = new ArrayList<>();
+		double d = s.distance();
+		if (phase == 1) {
+			if (!s.hasSpear()) {
+				return list;
+			}
+			if (ready(Attack.POKE, cooldowns) && s.canSee() && d <= POKE_REACH) {
+				list.add(new Candidate(Attack.POKE, 1.0));
+			}
+			if (ready(Attack.DASH, cooldowns) && s.canSee() && d >= DASH_MIN && d <= DASH_MAX) {
+				list.add(new Candidate(Attack.DASH, 1.0));
+			}
+			if (ready(Attack.THROW, cooldowns) && s.canSee() && d >= THROW_MIN && d <= THROW_MAX
+					&& s.ticksOutOfReach() >= settings.phaseOne().throwAfter()) {
+				// Throwing is his answer to a player who keeps away: it wins over the dash most of the time.
+				list.add(new Candidate(Attack.THROW, 3.0));
+			}
+		} else {
+			if (ready(Attack.COMBO, cooldowns) && s.canSee() && d <= COMBO_MAX) {
+				list.add(new Candidate(Attack.COMBO, 1.0));
+			}
+			if (ready(Attack.LUNGE, cooldowns) && s.canSee() && d >= LUNGE_MIN && d <= LUNGE_MAX) {
+				list.add(new Candidate(Attack.LUNGE, 1.0));
+			}
+			if (ready(Attack.WHIRL, cooldowns) && s.canSee() && d <= settings.phaseTwo().whirlRadius()) {
+				list.add(new Candidate(Attack.WHIRL, s.playersInWhirl() >= 2 ? CROWD_BONUS : 1.0));
+			}
+		}
+		return list;
+	}
+
+	private static boolean ready(Attack attack, int[] cooldowns) {
+		return cooldowns[attack.ordinal()] <= 0;
+	}
+
+	/** Ticks until the attack can be used again. */
+	public static int cooldown(Attack attack, FallenLordSettings settings) {
+		FallenLordSettings.PhaseOne one = settings.phaseOne();
+		FallenLordSettings.PhaseTwo two = settings.phaseTwo();
+		return switch (attack) {
+			case POKE -> one.pokeCooldown();
+			case DASH -> one.dashCooldown();
+			case THROW -> one.throwCooldown();
+			case SWIPE -> 0;
+			case SLASH -> two.slashCooldown();
+			case COMBO -> two.comboCooldown();
+			case LUNGE -> two.lungeCooldown();
+			case WHIRL -> two.whirlCooldown();
+		};
+	}
+
+	/**
+	 * Whether a shield held by a body facing {@code bodyYaw} (degrees, Minecraft convention) covers an attacker at
+	 * offset ({@code dx}, {@code dz}) from it.
+	 */
+	public static boolean shieldCovers(float bodyYaw, double dx, double dz) {
+		if (dx * dx + dz * dz < 1.0E-6) {
+			return true;
+		}
+		double yawToAttacker = Math.toDegrees(Math.atan2(dz, dx)) - 90.0;
+		double diff = ((yawToAttacker - bodyYaw) % 360.0 + 540.0) % 360.0 - 180.0;
+		return Math.abs(diff) <= SHIELD_HALF_ANGLE;
+	}
+
+	/** Ticks the shield stays down after an axe that disables a player's shield for {@code seconds}. */
+	public static int shieldDisableTicks(float seconds, float multiplier) {
+		return Math.max(0, Math.round(seconds * multiplier * 20.0F));
+	}
+
+	/** Adds a hit at {@code tick} to the streak; hits older than the window start a new streak. */
+	public static HitStreak addHit(HitStreak streak, long tick, int window) {
+		if (streak.hits() == 0 || tick - streak.firstTick() > window) {
+			return new HitStreak(1, tick);
+		}
+		return new HitStreak(streak.hits() + 1, streak.firstTick());
+	}
+
+	public static boolean shouldSwipe(HitStreak streak, FallenLordSettings settings) {
+		return streak.hits() >= settings.phaseOne().swipeHits();
+	}
+}

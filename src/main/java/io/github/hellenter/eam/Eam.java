@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
@@ -61,6 +62,7 @@ public class Eam implements ModInitializer {
 		EamBlockEntities.register();
 		EamItems.register();
 		EamEntities.register();
+		FallenLordModule.register();
 		EamWorldgen.init();
 		CampFireModule.register();
 		SieveModule.register();

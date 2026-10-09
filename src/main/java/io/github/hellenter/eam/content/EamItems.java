@@ -27,6 +27,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
@@ -179,6 +180,9 @@ public final class EamItems {
 	public static final Item RUSTY_IRON_CHESTPLATE = armor("rusty_iron_chestplate", RustyGear.IRON_ARMOR, ArmorType.CHESTPLATE);
 	public static final Item RUSTY_IRON_LEGGINGS = armor("rusty_iron_leggings", RustyGear.IRON_ARMOR, ArmorType.LEGGINGS);
 	public static final Item RUSTY_IRON_BOOTS = armor("rusty_iron_boots", RustyGear.IRON_ARMOR, ArmorType.BOOTS);
+
+	public static final Item FALLEN_LORD_SPAWN_EGG = register("fallen_lord_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.FALLEN_LORD));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);

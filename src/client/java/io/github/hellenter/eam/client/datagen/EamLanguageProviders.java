@@ -154,6 +154,12 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SIEVE, "Sieve");
 			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
 			builder.add(EamEntities.PEBBLE, "Pebble");
+			builder.add(EamEntities.FALLEN_LORD, "Fallen Lord");
+			builder.add(EamEntities.LORD_SPEAR, "Fallen Lord's Spear");
+			builder.add("entity.eam.fallen_lord.phase", "%s: Phase %s");
+			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
+			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
+			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
 			builder.add("gui.eam.nutrient.fat", "Fat");
@@ -362,6 +368,12 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SIEVE, "Сито");
 			builder.add(CampFireModule.IGNITERS, "Растопка для костра");
 			builder.add(EamEntities.PEBBLE, "Камушек");
+			builder.add(EamEntities.FALLEN_LORD, "Павший лорд");
+			builder.add(EamEntities.LORD_SPEAR, "Копьё Павшего лорда");
+			builder.add("entity.eam.fallen_lord.phase", "%s: фаза %s");
+			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
+			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
+			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");
 			builder.add("gui.eam.nutrient.fat", "Жиры");
