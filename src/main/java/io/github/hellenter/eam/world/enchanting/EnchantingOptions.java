@@ -11,6 +11,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +45,14 @@ public final class EnchantingOptions {
 		public boolean allows(int level) {
 			return level > currentLevel && level <= maxLevel();
 		}
+	}
+
+	/** An enchantment and the level the player wants it at, as the client sends it. */
+	public record Choice(Holder<Enchantment> enchantment, int level) {
+	}
+
+	/** A choice matched to its option. */
+	public record Pick(Option option, int level) {
 	}
 
 	private EnchantingOptions() {
@@ -86,8 +96,39 @@ public final class EnchantingOptions {
 		}
 	}
 
+	/**
+	 * The options for {@code choices}, or null unless every choice is on offer at its level, no enchantment is chosen
+	 * twice and the chosen enchantments are compatible with each other.
+	 */
+	public static @Nullable List<Pick> check(List<Option> options, List<Choice> choices) {
+		if (choices.isEmpty()) {
+			return null;
+		}
+		List<Pick> picks = new ArrayList<>();
+		Set<Holder<Enchantment>> chosen = new HashSet<>();
+		for (Choice choice : choices) {
+			Option option = find(options, choice.enchantment());
+			if (option == null || !option.allows(choice.level()) || !EnchantmentHelper.isEnchantmentCompatible(chosen, choice.enchantment())) {
+				return null;
+			}
+			chosen.add(choice.enchantment());
+			picks.add(new Pick(option, choice.level()));
+		}
+		return picks;
+	}
+
+	/** What the picked enchantments cost together. */
+	public static EnchantingLogic.Price price(EnchantingSettings settings, List<Pick> picks) {
+		EnchantingLogic.Price price = EnchantingLogic.Price.FREE;
+		for (Pick pick : picks) {
+			Option option = pick.option();
+			price = price.plus(option.offensive(), option.resourceCost(settings, pick.level()), option.levelCost(settings, pick.level()));
+		}
+		return price;
+	}
+
 	/** The option for {@code enchantment}, or null if it is not on offer for this item. */
-	public static Option find(List<Option> options, Holder<Enchantment> enchantment) {
+	public static @Nullable Option find(List<Option> options, Holder<Enchantment> enchantment) {
 		for (Option option : options) {
 			if (option.enchantment().equals(enchantment)) {
 				return option;
