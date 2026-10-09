@@ -216,6 +216,12 @@ public final class EamLanguageProviders {
 			builder.add(BloodMoonModule.ARMORED, "Armored Under a Blood Moon");
 			builder.add(BloodMoonModule.ARMED, "Armed Under a Blood Moon");
 			builder.add(BloodMoonModule.HUNTERS, "Hunt Animals Under a Blood Moon");
+			builder.add("itemGroup.eam.survival", "EAM: Survival");
+			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
+			builder.add("itemGroup.eam.tools", "EAM: Tools");
+			builder.add("itemGroup.eam.combat", "EAM: Weapons and Armor");
+			builder.add("itemGroup.eam.workshop", "EAM: Workshop");
+			builder.add("itemGroup.eam.brewing", "EAM: Brewing");
 		}
 	}
 
@@ -402,6 +408,12 @@ public final class EamLanguageProviders {
 			builder.add(BloodMoonModule.ARMORED, "В броне под кровавой луной");
 			builder.add(BloodMoonModule.ARMED, "С оружием под кровавой луной");
 			builder.add(BloodMoonModule.HUNTERS, "Охотятся на животных под кровавой луной");
+			builder.add("itemGroup.eam.survival", "EAM: Выживание");
+			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
+			builder.add("itemGroup.eam.tools", "EAM: Инструменты");
+			builder.add("itemGroup.eam.combat", "EAM: Оружие и броня");
+			builder.add("itemGroup.eam.workshop", "EAM: Мастерская");
+			builder.add("itemGroup.eam.brewing", "EAM: Зельеварение");
 		}
 	}
 }
