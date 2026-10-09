@@ -109,6 +109,10 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
+				// Saws: two ingots in a diagonal blade with a stick handle.
+				saw(EamItems.COPPER_SAW, Items.COPPER_INGOT);
+				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
+				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
@@ -222,6 +226,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern("ISI")
 						.pattern(" S ")
 						.pattern(" S ")
+						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+			}
+
+			private void saw(Item saw, Item ingot) {
+				shaped(RecipeCategory.TOOLS, saw)
+						.define('I', ingot)
+						.define('S', Items.STICK)
+						.pattern("I  ")
+						.pattern(" I ")
+						.pattern("  S")
 						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
 			}

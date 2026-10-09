@@ -1,7 +1,11 @@
 {
   "values": [
-    "#eam:crafting_table_tools/tier_1",
-    "#eam:crafting_table_tools/tier_2",
-    "#eam:crafting_table_tools/tier_3"
+    "#eam:crafting_table_knives/tier_1",
+    "#eam:crafting_table_knives/tier_2",
+    "#eam:crafting_table_knives/tier_3",
+    "#eam:crafting_table_saws/tier_1",
+    "#eam:crafting_table_saws/tier_2",
+    "#eam:crafting_table_saws/tier_3",
+    "#eam:anvil_hammers"
   ]
 }

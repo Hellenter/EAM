@@ -4,8 +4,9 @@ import java.util.List;
 
 /**
  * Pure rules for crafting with metals. Every material and table tool has a tier: flint 1, copper and silver 2, iron 3.
- * Crafting with a material of tier N needs a tool of tier N - 1 or better in the crafting table; tools in the table
- * also make crafting faster, each by its tier's bonus.
+ * Crafting with a material of tier N needs a knife of tier N - 1 or better in the crafting table; tools in the table
+ * also make crafting faster, each by its tier's bonus: knives every craft, saws wooden and decorative results, hammers
+ * metalwork.
  */
 public final class CraftingTierLogic {
 	/** No tier: the item is no metal and no table tool. */
@@ -24,17 +25,24 @@ public final class CraftingTierLogic {
 		return bestToolTier >= requiredToolTier(materialTier);
 	}
 
-	/**
-	 * Factor on the craft time for the tools in the table: each tool of tier N adds {@code bonuses[N - 1]} to the speed,
-	 * so the time is divided by one plus their sum. Tiers outside the list add nothing.
-	 */
-	public static float timeFactor(List<Integer> toolTiers, List<Float> bonuses) {
-		float speed = 1.0F;
+	/** Speed tools add: each tool of tier N adds {@code bonuses[N - 1]}. Tiers outside the list add nothing. */
+	public static float speedBonus(List<Integer> toolTiers, List<Float> bonuses) {
+		float bonus = 0.0F;
 		for (int tier : toolTiers) {
 			if (tier > NONE && tier <= bonuses.size()) {
-				speed += bonuses.get(tier - 1);
+				bonus += bonuses.get(tier - 1);
 			}
 		}
-		return 1.0F / speed;
+		return bonus;
+	}
+
+	/** Factor on the craft time for a speed bonus: the time is divided by one plus the bonus. */
+	public static float timeFactor(float speedBonus) {
+		return 1.0F / (1.0F + speedBonus);
+	}
+
+	/** Factor on the craft time for tools that all apply, see {@link #speedBonus}. */
+	public static float timeFactor(List<Integer> toolTiers, List<Float> bonuses) {
+		return timeFactor(speedBonus(toolTiers, bonuses));
 	}
 }

@@ -66,9 +66,17 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(1), "Anvil Hammers: Tier 2");
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Anvil Hammers: Tier 3");
 			builder.add("gui.eam.anvil.too_weak", "This anvil is too weak for it");
-			builder.add(CraftingTags.TOOL_TIERS.get(0), "Crafting Table Tools: Tier 1");
-			builder.add(CraftingTags.TOOL_TIERS.get(1), "Crafting Table Tools: Tier 2");
-			builder.add(CraftingTags.TOOL_TIERS.get(2), "Crafting Table Tools: Tier 3");
+			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Crafting Table Knives: Tier 1");
+			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Crafting Table Knives: Tier 2");
+			builder.add(CraftingTags.KNIFE_TIERS.get(2), "Crafting Table Knives: Tier 3");
+			builder.add(CraftingTags.SAW_TIERS.get(0), "Saws: Tier 1");
+			builder.add(CraftingTags.SAW_TIERS.get(1), "Saws: Tier 2");
+			builder.add(CraftingTags.SAW_TIERS.get(2), "Saws: Tier 3");
+			builder.add(CraftingTags.SAW_RESULTS, "Crafted Faster with a Saw");
+			builder.add(CraftingTags.METALS, "Metals: Crafted Faster with a Hammer");
+			builder.add(EamItems.COPPER_SAW, "Copper Saw");
+			builder.add(EamItems.SILVER_SAW, "Silver Saw");
+			builder.add(EamItems.IRON_SAW, "Iron Saw");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(0), "Crafting Materials: Tier 1");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(1), "Crafting Materials: Tier 2");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(2), "Crafting Materials: Tier 3");
@@ -143,7 +151,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
 			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
 			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
-			builder.add("gui.eam.crafting_table.tool", "Put a knife here: each one makes crafting faster");
+			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
 			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron a copper or silver one");
 		}
 	}
@@ -184,9 +192,17 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(1), "Молотки для наковальни: тир 2");
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Молотки для наковальни: тир 3");
 			builder.add("gui.eam.anvil.too_weak", "Эта наковальня слишком слабая");
-			builder.add(CraftingTags.TOOL_TIERS.get(0), "Инструменты для верстака: тир 1");
-			builder.add(CraftingTags.TOOL_TIERS.get(1), "Инструменты для верстака: тир 2");
-			builder.add(CraftingTags.TOOL_TIERS.get(2), "Инструменты для верстака: тир 3");
+			builder.add(CraftingTags.KNIFE_TIERS.get(0), "Ножи для верстака: тир 1");
+			builder.add(CraftingTags.KNIFE_TIERS.get(1), "Ножи для верстака: тир 2");
+			builder.add(CraftingTags.KNIFE_TIERS.get(2), "Ножи для верстака: тир 3");
+			builder.add(CraftingTags.SAW_TIERS.get(0), "Пилы: тир 1");
+			builder.add(CraftingTags.SAW_TIERS.get(1), "Пилы: тир 2");
+			builder.add(CraftingTags.SAW_TIERS.get(2), "Пилы: тир 3");
+			builder.add(CraftingTags.SAW_RESULTS, "Крафтится быстрее с пилой");
+			builder.add(CraftingTags.METALS, "Металлы: крафт быстрее с молотком");
+			builder.add(EamItems.COPPER_SAW, "Медная пила");
+			builder.add(EamItems.SILVER_SAW, "Серебряная пила");
+			builder.add(EamItems.IRON_SAW, "Железная пила");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(0), "Материалы для крафта: тир 1");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(1), "Материалы для крафта: тир 2");
 			builder.add(CraftingTags.MATERIAL_TIERS.get(2), "Материалы для крафта: тир 3");
@@ -261,7 +277,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
 			builder.add("gui.eam.nutrition.balanced", "Питание сбалансировано: голод медленнее, регенерация быстрее");
 			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
-			builder.add("gui.eam.crafting_table.tool", "Положите сюда нож: каждый ускоряет крафт");
+			builder.add("gui.eam.crafting_table.tool", "Ножи, пилы и молотки: нужен хотя бы нож, каждый инструмент ускоряет свой крафт");
 			builder.add("gui.eam.crafting_table.tool.tiers", "Для меди и серебра нужен кремнёвый нож, для железа медный или серебряный");
 		}
 	}

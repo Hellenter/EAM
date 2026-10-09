@@ -32,9 +32,9 @@ import org.jspecify.annotations.Nullable;
  * Crafting takes time: a click on the offered result starts the craft, and when it has run (by hand at full time, on
  * a crafting table at {@link CraftTimeRules#craftingTableMultiplier()}) the ingredients are used up and the result
  * waits in the slot; the next craft follows while the grid still makes it. The crafter block is not touched.
- * The crafting table needs a tool in one of its three tool slots, kept in the table between uses; tools are not used
- * up but make crafting faster. Crafting with metal needs a tool of the tier below it in the table, so the inventory
- * grid cannot craft with metal at all ({@link CraftingTierLogic}).
+ * The crafting table needs a knife in one of its three tool slots, which also take saws and hammers and keep them in
+ * the table between uses; tools are not used up but make crafting faster. Crafting with metal needs a knife of the tier
+ * below it in the table, so the inventory grid cannot craft with metal at all ({@link CraftingTierLogic}).
  */
 public final class CraftingModule {
 	private static final Component CRAFTING_TITLE = Component.translatable("container.crafting");
@@ -89,8 +89,8 @@ public final class CraftingModule {
 	}
 
 	/**
-	 * Server: what the result slot shows: finished crafts, else what the grid makes. A table without a tool makes nothing,
-	 * and metal needs a tool of the tier below it.
+	 * Server: what the result slot shows: finished crafts, else what the grid makes. A table without a knife makes
+	 * nothing, and metal needs a knife of the tier below it.
 	 */
 	public static ItemStack result(AbstractContainerMenu menu, ItemStack result, CraftingContainer grid) {
 		ItemStack preview = mayCraft(menu, result, grid) ? result : ItemStack.EMPTY;
@@ -100,7 +100,7 @@ public final class CraftingModule {
 	private static boolean mayCraft(AbstractContainerMenu menu, ItemStack result, CraftingContainer grid) {
 		if (menu instanceof CraftingTableMenu table) {
 			// The table menu exists only while the module is on.
-			return table.hasTool() && CraftingTierLogic.canCraft(CraftingTiers.materialTier(grid, result), table.bestToolTier());
+			return table.hasKnife() && CraftingTierLogic.canCraft(CraftingTiers.materialTier(grid, result), table.bestKnifeTier());
 		}
 		return !enabled || !(menu instanceof TimedCraftingMenu)
 				|| CraftingTierLogic.canCraft(CraftingTiers.materialTier(grid, result), CraftingTierLogic.NONE);
@@ -115,7 +115,7 @@ public final class CraftingModule {
 		ItemStack preview = timer.preview();
 		int ticks = !enabled || preview.isEmpty() || player.hasInfiniteMaterials()
 				? 0
-				: rules.ticks(preview, ingredients(grid), menu instanceof CraftingTableMenu table ? table.toolTiers() : null);
+				: rules.ticks(preview, ingredients(grid), menu instanceof CraftingTableMenu table ? table.tools(grid) : null);
 		timer.afterPreview(ticks);
 	}
 

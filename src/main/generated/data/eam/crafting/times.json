@@ -1,6 +1,11 @@
 {
   "crafting_table_multiplier": 0.5,
   "default_seconds": 1.0,
+  "hammer_speed_bonus": [
+    0.0,
+    0.25,
+    0.5
+  ],
   "rules": [
     {
       "seconds": 10.0,
@@ -15,6 +20,11 @@
       "seconds": 5.0,
       "tag": "eam:craft_time/five_seconds"
     }
+  ],
+  "saw_speed_bonus": [
+    0.0,
+    0.35,
+    0.5
   ],
   "tool_speed_bonus": [
     0.15,

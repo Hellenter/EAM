@@ -1,0 +1,114 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:planks",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_stairs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_slabs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_fences",
+      "required": false
+    },
+    {
+      "id": "#minecraft:fence_gates",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_doors",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_trapdoors",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_buttons",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_pressure_plates",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wooden_shelves",
+      "required": false
+    },
+    {
+      "id": "#minecraft:signs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:hanging_signs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:boats",
+      "required": false
+    },
+    {
+      "id": "#minecraft:chest_boats",
+      "required": false
+    },
+    "minecraft:stick",
+    "minecraft:bowl",
+    "minecraft:ladder",
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    "minecraft:barrel",
+    "minecraft:crafting_table",
+    "minecraft:bookshelf",
+    "minecraft:chiseled_bookshelf",
+    "minecraft:lectern",
+    "minecraft:composter",
+    "minecraft:note_block",
+    "minecraft:jukebox",
+    "minecraft:loom",
+    "minecraft:cartography_table",
+    "minecraft:fletching_table",
+    "minecraft:beehive",
+    "minecraft:item_frame",
+    "minecraft:painting",
+    "minecraft:armor_stand",
+    "minecraft:bow",
+    "minecraft:wooden_sword",
+    "minecraft:wooden_shovel",
+    "minecraft:wooden_pickaxe",
+    "minecraft:wooden_axe",
+    "minecraft:wooden_hoe",
+    "minecraft:wooden_spear",
+    "eam:sieve",
+    {
+      "id": "#minecraft:stairs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:slabs",
+      "required": false
+    },
+    {
+      "id": "#minecraft:walls",
+      "required": false
+    },
+    {
+      "id": "#minecraft:fences",
+      "required": false
+    },
+    {
+      "id": "#minecraft:wool_carpets",
+      "required": false
+    },
+    {
+      "id": "#minecraft:banners",
+      "required": false
+    },
+    "minecraft:flower_pot",
+    "minecraft:decorated_pot"
+  ]
+}

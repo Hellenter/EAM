@@ -37,4 +37,13 @@ class CraftingTierLogicTest {
 	void unknownTiersAddNothing() {
 		assertEquals(1.0F, CraftingTierLogic.timeFactor(List.of(0, 4), BONUSES), 1e-6);
 	}
+
+	@Test
+	void differentToolsStackTheirBonuses() {
+		// A copper knife and an iron saw on a wooden craft: 1 + 0.25 + 0.5.
+		float bonus = CraftingTierLogic.speedBonus(List.of(2), BONUSES)
+				+ CraftingTierLogic.speedBonus(List.of(3), List.of(0.0F, 0.35F, 0.5F));
+		assertEquals(0.75F, bonus, 1e-6);
+		assertEquals(1.0F / 1.75F, CraftingTierLogic.timeFactor(bonus), 1e-6);
+	}
 }

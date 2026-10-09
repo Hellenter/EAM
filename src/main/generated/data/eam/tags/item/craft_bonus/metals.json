@@ -1,0 +1,15 @@
+{
+  "values": [
+    "#eam:crafting_materials/tier_2",
+    "#eam:crafting_materials/tier_3",
+    {
+      "id": "#minecraft:metal_nuggets",
+      "required": false
+    },
+    "eam:silver_nugget",
+    "minecraft:gold_ingot",
+    "minecraft:gold_nugget",
+    "minecraft:iron_nugget",
+    "minecraft:copper_nugget"
+  ]
+}

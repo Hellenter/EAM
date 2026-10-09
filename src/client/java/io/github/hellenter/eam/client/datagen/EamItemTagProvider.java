@@ -15,9 +15,12 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Items;
 
 import java.util.Arrays;
@@ -59,11 +62,51 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
 				Items.SUGAR, Items.GLISTERING_MELON_SLICE, Items.FERMENTED_SPIDER_EYE, EamItems.FERMENTED_ENDER_EYE, Items.GUNPOWDER));
 
-		builder(CraftingTags.TOOL_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
-		builder(CraftingTags.TOOL_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));
-		builder(CraftingTags.TOOL_TIERS.get(2)).add(EamItems.IRON_KNIFE.builtInRegistryHolder().key());
-		builder(CraftingTags.CRAFTING_TABLE_TOOLS).addTag(CraftingTags.TOOL_TIERS.get(0)).addTag(CraftingTags.TOOL_TIERS.get(1))
-				.addTag(CraftingTags.TOOL_TIERS.get(2));
+		builder(CraftingTags.KNIFE_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.KNIFE_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));
+		builder(CraftingTags.KNIFE_TIERS.get(2)).add(EamItems.IRON_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.SAW_TIERS.get(0));
+		builder(CraftingTags.SAW_TIERS.get(1)).addAll(keys(EamItems.COPPER_SAW, EamItems.SILVER_SAW));
+		builder(CraftingTags.SAW_TIERS.get(2)).add(EamItems.IRON_SAW.builtInRegistryHolder().key());
+		// Knives, saws and hammers go in the crafting table's tool slots in any mix.
+		builder(CraftingTags.CRAFTING_TABLE_TOOLS)
+				.addTag(CraftingTags.KNIFE_TIERS.get(0)).addTag(CraftingTags.KNIFE_TIERS.get(1)).addTag(CraftingTags.KNIFE_TIERS.get(2))
+				.addTag(CraftingTags.SAW_TIERS.get(0)).addTag(CraftingTags.SAW_TIERS.get(1)).addTag(CraftingTags.SAW_TIERS.get(2))
+				.addTag(ForgingTags.HAMMERS);
+		// A hammer in the table speeds up crafts with any of these in the grid.
+		builder(CraftingTags.METALS)
+				.addTag(CraftingTags.MATERIAL_TIERS.get(1)).addTag(CraftingTags.MATERIAL_TIERS.get(2))
+				.addOptionalTag(ItemTags.METAL_NUGGETS)
+				.addAll(keys(EamItems.SILVER_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
+		// A saw in the table speeds up crafting these: wooden things and decorative blocks.
+		builder(CraftingTags.SAW_RESULTS)
+				.addOptionalTag(ItemTags.PLANKS)
+				.addOptionalTag(ItemTags.WOODEN_STAIRS)
+				.addOptionalTag(ItemTags.WOODEN_SLABS)
+				.addOptionalTag(ItemTags.WOODEN_FENCES)
+				.addOptionalTag(ItemTags.FENCE_GATES)
+				.addOptionalTag(ItemTags.WOODEN_DOORS)
+				.addOptionalTag(ItemTags.WOODEN_TRAPDOORS)
+				.addOptionalTag(ItemTags.WOODEN_BUTTONS)
+				.addOptionalTag(ItemTags.WOODEN_PRESSURE_PLATES)
+				.addOptionalTag(ItemTags.WOODEN_SHELVES)
+				.addOptionalTag(ItemTags.SIGNS)
+				.addOptionalTag(ItemTags.HANGING_SIGNS)
+				.addOptionalTag(ItemTags.BOATS)
+				.addOptionalTag(ItemTags.CHEST_BOATS)
+				.addAll(keys(Items.STICK, Items.BOWL, Items.LADDER, Items.CHEST, Items.TRAPPED_CHEST, Items.BARREL, Items.CRAFTING_TABLE,
+						Items.BOOKSHELF, Items.CHISELED_BOOKSHELF, Items.LECTERN, Items.COMPOSTER, Items.NOTE_BLOCK, Items.JUKEBOX,
+						Items.LOOM, Items.CARTOGRAPHY_TABLE, Items.FLETCHING_TABLE, Items.BEEHIVE, Items.ITEM_FRAME, Items.PAINTING,
+						Items.ARMOR_STAND, Items.BOW, Items.WOODEN_SWORD, Items.WOODEN_SHOVEL, Items.WOODEN_PICKAXE, Items.WOODEN_AXE,
+						Items.WOODEN_HOE, Items.WOODEN_SPEAR, EamItems.SIEVE))
+				// Decorative blocks of any material.
+				.addOptionalTag(vanilla("stairs"))
+				.addOptionalTag(vanilla("slabs"))
+				.addOptionalTag(ItemTags.WALLS)
+				.addOptionalTag(vanilla("fences"))
+				.addOptionalTag(ItemTags.WOOL_CARPETS)
+				.addOptionalTag(ItemTags.BANNERS)
+				.addAll(keys(Items.FLOWER_POT, Items.DECORATED_POT));
 		// Crafting with these needs a tool of the tier below in the table; iron plates count as iron.
 		builder(CraftingTags.MATERIAL_TIERS.get(0)).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT));
@@ -97,7 +140,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.SWORDS)
 				.addOptionalTag(ItemTags.SPEARS)
 				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, EamItems.COPPER_HAMMER,
-						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
+						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, EamItems.COPPER_SAW, EamItems.SILVER_SAW, EamItems.IRON_SAW, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.
@@ -114,6 +157,11 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.BOATS)
 				.addOptionalTag(ItemTags.CHEST_BOATS)
 				.addAll(keys(Items.MINECART, Items.CHEST_MINECART, Items.FURNACE_MINECART, Items.HOPPER_MINECART, Items.TNT_MINECART));
+	}
+
+	/** A vanilla item tag that {@link ItemTags} has no field for. */
+	private static TagKey<Item> vanilla(String path) {
+		return TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace(path));
 	}
 
 	private static List<ResourceKey<Item>> keys(Item... items) {
