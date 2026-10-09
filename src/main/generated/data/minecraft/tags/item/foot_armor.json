@@ -1,6 +1,8 @@
 {
   "values": [
     "eam:silver_boots",
-    "eam:mithril_boots"
+    "eam:mithril_boots",
+    "eam:rusty_iron_boots",
+    "eam:rusty_chainmail_boots"
   ]
 }

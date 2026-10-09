@@ -167,6 +167,23 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
 			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron a copper or silver one, mithril an iron one");
 			mithril(builder);
+			rusty(builder);
+		}
+
+		private static void rusty(TranslationBuilder builder) {
+			builder.add(EamItems.RUSTY_IRON_SWORD, "Rusty Iron Sword");
+			builder.add(EamItems.RUSTY_IRON_SHOVEL, "Rusty Iron Shovel");
+			builder.add(EamItems.RUSTY_IRON_PICKAXE, "Rusty Iron Pickaxe");
+			builder.add(EamItems.RUSTY_IRON_AXE, "Rusty Iron Axe");
+			builder.add(EamItems.RUSTY_IRON_HOE, "Rusty Iron Hoe");
+			builder.add(EamItems.RUSTY_IRON_HELMET, "Rusty Iron Helmet");
+			builder.add(EamItems.RUSTY_IRON_CHESTPLATE, "Rusty Iron Chestplate");
+			builder.add(EamItems.RUSTY_IRON_LEGGINGS, "Rusty Iron Leggings");
+			builder.add(EamItems.RUSTY_IRON_BOOTS, "Rusty Iron Boots");
+			builder.add(EamItems.RUSTY_CHAINMAIL_HELMET, "Rusty Chainmail Helmet");
+			builder.add(EamItems.RUSTY_CHAINMAIL_CHESTPLATE, "Rusty Chainmail Chestplate");
+			builder.add(EamItems.RUSTY_CHAINMAIL_LEGGINGS, "Rusty Chainmail Leggings");
+			builder.add(EamItems.RUSTY_CHAINMAIL_BOOTS, "Rusty Chainmail Boots");
 		}
 
 		private static void mithril(TranslationBuilder builder) {
@@ -359,6 +376,23 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.crafting_table.tool.tiers",
 					"Для меди и серебра нужен кремнёвый нож, для железа медный или серебряный, для мифрила железный");
 			mithril(builder);
+			rusty(builder);
+		}
+
+		private static void rusty(TranslationBuilder builder) {
+			builder.add(EamItems.RUSTY_IRON_SWORD, "Ржавый железный меч");
+			builder.add(EamItems.RUSTY_IRON_SHOVEL, "Ржавая железная лопата");
+			builder.add(EamItems.RUSTY_IRON_PICKAXE, "Ржавая железная кирка");
+			builder.add(EamItems.RUSTY_IRON_AXE, "Ржавый железный топор");
+			builder.add(EamItems.RUSTY_IRON_HOE, "Ржавая железная мотыга");
+			builder.add(EamItems.RUSTY_IRON_HELMET, "Ржавый железный шлем");
+			builder.add(EamItems.RUSTY_IRON_CHESTPLATE, "Ржавый железный нагрудник");
+			builder.add(EamItems.RUSTY_IRON_LEGGINGS, "Ржавые железные поножи");
+			builder.add(EamItems.RUSTY_IRON_BOOTS, "Ржавые железные ботинки");
+			builder.add(EamItems.RUSTY_CHAINMAIL_HELMET, "Ржавый кольчужный шлем");
+			builder.add(EamItems.RUSTY_CHAINMAIL_CHESTPLATE, "Ржавая кольчуга");
+			builder.add(EamItems.RUSTY_CHAINMAIL_LEGGINGS, "Ржавые кольчужные поножи");
+			builder.add(EamItems.RUSTY_CHAINMAIL_BOOTS, "Ржавые кольчужные ботинки");
 		}
 
 		private static void mithril(TranslationBuilder builder) {

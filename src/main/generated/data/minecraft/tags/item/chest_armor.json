@@ -1,6 +1,8 @@
 {
   "values": [
     "eam:silver_chestplate",
-    "eam:mithril_chestplate"
+    "eam:mithril_chestplate",
+    "eam:rusty_iron_chestplate",
+    "eam:rusty_chainmail_chestplate"
   ]
 }

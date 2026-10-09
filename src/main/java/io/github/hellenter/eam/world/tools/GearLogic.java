@@ -29,7 +29,13 @@ public final class GearLogic {
 			Map.entry("iron_axe", 120),
 			Map.entry("iron_shovel", 180),
 			Map.entry("iron_sword", 250),
-			Map.entry("iron_hoe", 180)
+			Map.entry("iron_hoe", 180),
+			// Rusty iron tools last three quarters as long as iron ones.
+			Map.entry("rusty_iron_pickaxe", 90),
+			Map.entry("rusty_iron_axe", 90),
+			Map.entry("rusty_iron_shovel", 135),
+			Map.entry("rusty_iron_sword", 188),
+			Map.entry("rusty_iron_hoe", 135)
 	);
 
 	private GearLogic() {

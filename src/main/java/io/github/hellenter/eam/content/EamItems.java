@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
+import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
@@ -26,6 +27,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 
@@ -166,6 +168,23 @@ public final class EamItems {
 
 	public static final Item OBSIDIAN_BLAST_FURNACE = blockItem("obsidian_blast_furnace", EamBlocks.OBSIDIAN_BLAST_FURNACE);
 
+	/** Rusty iron gear is found in dungeons, never crafted: a little worse than iron, mended with iron like it. */
+	public static final Item RUSTY_IRON_SWORD = register("rusty_iron_sword", Item::new, new Item.Properties().sword(RustyGear.TOOL, 3.0F, -2.4F));
+	public static final Item RUSTY_IRON_SHOVEL = register("rusty_iron_shovel", Item::new, new Item.Properties().shovel(RustyGear.TOOL, 1.5F, -3.0F));
+	public static final Item RUSTY_IRON_PICKAXE = register("rusty_iron_pickaxe", Item::new, new Item.Properties().pickaxe(RustyGear.TOOL, 1.0F, -2.8F));
+	public static final Item RUSTY_IRON_AXE = register("rusty_iron_axe", Item::new, new Item.Properties().axe(RustyGear.TOOL, 6.0F, -3.1F));
+	public static final Item RUSTY_IRON_HOE = register("rusty_iron_hoe", Item::new, new Item.Properties().hoe(RustyGear.TOOL, -1.0F, -1.0F));
+
+	public static final Item RUSTY_IRON_HELMET = armor("rusty_iron_helmet", RustyGear.IRON_ARMOR, ArmorType.HELMET);
+	public static final Item RUSTY_IRON_CHESTPLATE = armor("rusty_iron_chestplate", RustyGear.IRON_ARMOR, ArmorType.CHESTPLATE);
+	public static final Item RUSTY_IRON_LEGGINGS = armor("rusty_iron_leggings", RustyGear.IRON_ARMOR, ArmorType.LEGGINGS);
+	public static final Item RUSTY_IRON_BOOTS = armor("rusty_iron_boots", RustyGear.IRON_ARMOR, ArmorType.BOOTS);
+
+	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
+	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);
+	public static final Item RUSTY_CHAINMAIL_LEGGINGS = armor("rusty_chainmail_leggings", RustyGear.CHAINMAIL_ARMOR, ArmorType.LEGGINGS);
+	public static final Item RUSTY_CHAINMAIL_BOOTS = armor("rusty_chainmail_boots", RustyGear.CHAINMAIL_ARMOR, ArmorType.BOOTS);
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -190,7 +209,11 @@ public final class EamItems {
 	}
 
 	private static Item mithrilArmor(String name, ArmorType type) {
-		return register(name, Item::new, new Item.Properties().humanoidArmor(MithrilGear.ARMOR, type));
+		return armor(name, MithrilGear.ARMOR, type);
+	}
+
+	private static Item armor(String name, ArmorMaterial material, ArmorType type) {
+		return register(name, Item::new, new Item.Properties().humanoidArmor(material, type));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

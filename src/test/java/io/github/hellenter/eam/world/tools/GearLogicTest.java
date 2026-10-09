@@ -25,6 +25,13 @@ class GearLogicTest {
 	}
 
 	@Test
+	void rustySetsArePointBelowTheirOriginals() {
+		// Rusty iron ends like chainmail, rusty chainmail two points lower.
+		assertArrayEquals(new int[] {2, 4, 3, 1}, GearLogic.scaleSet(new int[] {2, 5, 4, 2}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 3, 2, 1}, GearLogic.scaleSet(new int[] {2, 4, 3, 1}, GearLogic.ARMOR_FACTOR));
+	}
+
+	@Test
 	void pieceWithArmorKeepsAPoint() {
 		assertArrayEquals(new int[] {1, 0, 0, 0}, GearLogic.scaleSet(new int[] {1, 0, 0, 0}, 0.3));
 	}
