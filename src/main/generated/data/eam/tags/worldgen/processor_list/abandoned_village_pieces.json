@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:zombie_plains",
+    "minecraft:zombie_desert",
+    "minecraft:zombie_savanna",
+    "minecraft:zombie_snowy",
+    "minecraft:zombie_taiga"
+  ]
+}

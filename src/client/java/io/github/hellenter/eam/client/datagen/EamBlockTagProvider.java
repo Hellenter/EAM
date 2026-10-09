@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
+import io.github.hellenter.eam.world.structures.VillageModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -111,5 +112,11 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
 		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);
+		// Abandoned villages have been looted: no beds, chests, furnaces or hay.
+		BlockItemTagAppender<Block> looted = builder(VillageModule.LOOTED);
+		looted.forceAddTag(BlockTags.BEDS);
+		looted.add(BlockItemIds.CHEST, BlockItemIds.TRAPPED_CHEST, BlockItemIds.FURNACE, BlockItemIds.SMOKER, BlockItemIds.BLAST_FURNACE,
+				BlockItemIds.HAY_BLOCK);
+		looted.add(EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
 	}
 }
