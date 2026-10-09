@@ -122,6 +122,23 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateItemModels(ItemModelGenerators generators) {
 		generators.generateFlatItem(EamItems.LEATHER_THREAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.WATER_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.BOILED_WATER_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.MILK_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.BEEF_STEW, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHICKEN_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.VEGETABLE_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CREAM_OF_MUSHROOM_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CREAM_OF_VEGETABLE_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PUMPKIN_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.MASHED_POTATO, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.SALAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.ICE_CREAM, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.SORBET, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PORRIDGE, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FALLEN_LORD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FILTERED_LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
@@ -177,9 +194,16 @@ public class EamModelProvider extends FabricModelProvider {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 		for (Item item : List.of(EamItems.ANCIENT_METAL_NUGGET, EamItems.ANCIENT_METAL_INGOT, EamItems.HOT_ANCIENT_METAL_INGOT,
-				EamItems.ANCIENT_METAL_PLATE, EamItems.ANCIENT_METAL_CHAIN, EamItems.ANCIENT_METAL_HELMET, EamItems.ANCIENT_METAL_CHESTPLATE,
+				EamItems.ANCIENT_METAL_PLATE, EamItems.ANCIENT_METAL_HELMET, EamItems.ANCIENT_METAL_CHESTPLATE,
 				EamItems.ANCIENT_METAL_LEGGINGS, EamItems.ANCIENT_METAL_BOOTS, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET,
 				EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.COPPER_RING, EamItems.SILVER_RING, EamItems.IRON_RING, EamItems.ANCIENT_METAL_RING,
+				EamItems.MITHRIL_RING, EamItems.COPPER_CHAINMAIL_HELMET, EamItems.COPPER_CHAINMAIL_CHESTPLATE, EamItems.COPPER_CHAINMAIL_LEGGINGS,
+				EamItems.COPPER_CHAINMAIL_BOOTS, EamItems.SILVER_CHAINMAIL_HELMET, EamItems.SILVER_CHAINMAIL_CHESTPLATE,
+				EamItems.SILVER_CHAINMAIL_LEGGINGS, EamItems.SILVER_CHAINMAIL_BOOTS, EamItems.MITHRIL_CHAINMAIL_HELMET,
+				EamItems.MITHRIL_CHAINMAIL_CHESTPLATE, EamItems.MITHRIL_CHAINMAIL_LEGGINGS, EamItems.MITHRIL_CHAINMAIL_BOOTS)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		for (Item item : List.of(EamItems.ANCIENT_METAL_SWORD, EamItems.ANCIENT_METAL_SHOVEL, EamItems.ANCIENT_METAL_PICKAXE,

@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
+import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -32,7 +33,10 @@ public class EamEquipmentAssetProvider implements DataProvider {
 				RustyGear.IRON_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_iron")).build(),
 				RustyGear.CHAINMAIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_chainmail")).build(),
 				AncientMetalGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("ancient_metal")).build(),
-				AncientMetalGear.CHAINMAIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("ancient_metal_chainmail")).build()));
+				AncientMetalGear.CHAINMAIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("ancient_metal_chainmail")).build(),
+				ChainmailGear.COPPER_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("copper_chainmail")).build(),
+				ChainmailGear.SILVER_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("silver_chainmail")).build(),
+				ChainmailGear.MITHRIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("mithril_chainmail")).build()));
 	}
 
 	@Override

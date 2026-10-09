@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "C": "eam:ancient_metal_chain"
+    "R": "eam:ancient_metal_ring"
   },
   "pattern": [
-    "CCC",
-    "C C"
+    "RRR",
+    "R R"
   ],
   "result": {
     "id": "eam:ancient_metal_chainmail_helmet"

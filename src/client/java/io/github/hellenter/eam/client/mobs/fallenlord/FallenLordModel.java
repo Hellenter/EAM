@@ -42,6 +42,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	private static final float HAND = 10.0F;
 	private static final float ARM_FORWARD = -(float) Math.PI / 2.0F;
 	private static final float QUARTER = (float) Math.PI / 2.0F;
+	/** Share of the knee sink kept while he just walks; more makes him bob up and down. */
+	private static final float WALK_SINK = 1.0F / 6.0F;
 	/** The shield in the guard, in model space: upright and facing forward, its top leaning back, turned a little outward. */
 	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
 	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
@@ -113,12 +115,15 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case RETREAT -> retreat(t);
 			case DRINK -> drink(t);
 			case COUNTER -> counter(t, state.phase);
+			case SWORD_DASH_WINDUP -> swordDashWindup(t);
+			case SWORD_DASH -> swordDash();
+			case PARRY -> parry(t);
 			case NONE -> {
 			}
 		}
-		// Bent knees would lift his feet off the ground: he sinks instead. Half as much while just walking, a gentle bob.
+		// Bent knees would lift his feet off the ground: he sinks instead. Only a sixth as much while just walking, a slight bob.
 		float sink = Math.min(footLift(rightLeg.xRot, rightShin.xRot), footLift(leftLeg.xRot, leftShin.xRot));
-		root().y += sink * (state.action == FallenLordAction.NONE ? 0.5F : 1.0F) * MODEL_SCALE;
+		root().y += sink * (state.action == FallenLordAction.NONE ? WALK_SINK : 1.0F) * MODEL_SCALE;
 	}
 
 	/** How far a leg with this hip and knee bend lifts its foot, in model pixels. */
@@ -407,6 +412,52 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		rightForearm.xRot = Mth.lerp(raise, rightForearm.xRot, -1.4F);
 		head.xRot = Mth.lerp(raise, head.xRot, -0.3F) + sip;
 		potionAtMouth = raise;
+	}
+
+	/**
+	 * Crouches with the sword low at his right hip, its blade out to the side where the player can see it, the left
+	 * hand reaching out at the player. Half the spear dash's windup.
+	 */
+	private void swordDashWindup(float t) {
+		float crouch = seg(t, 0.0F, 3.0F);
+		body.xRot = 0.2F * crouch;
+		body.yRot = -0.2F * crouch;
+		head.xRot -= 0.2F * crouch;
+		trailBlade(crouch);
+		leftArm.xRot = Mth.lerp(crouch, leftArm.xRot, -1.4F);
+		leftArm.yRot = Mth.lerp(crouch, leftArm.yRot, 0.3F);
+		leftForearm.xRot = Mth.lerp(crouch, leftForearm.xRot, -0.15F);
+		// Left foot forward, ready to spring.
+		bendLeg(leftLeg, leftShin, crouch, -0.6F, 1.0F);
+		bendLeg(rightLeg, rightShin, crouch, 0.3F, 0.8F);
+	}
+
+	/** Rushes in leaning forward, the blade still trailing; the combo's first cut comes from there. */
+	private void swordDash() {
+		body.xRot = 0.35F;
+		head.xRot -= 0.3F;
+		trailBlade(1.0F);
+		leftArm.xRot = 0.4F;
+		leftForearm.xRot = -0.5F;
+	}
+
+	/** The sword arm low and out at his right, turned so the blade sticks out to that side and a little back. */
+	private void trailBlade(float amount) {
+		rightArm.xRot = Mth.lerp(amount, rightArm.xRot, 0.2F);
+		rightArm.yRot = Mth.lerp(amount, rightArm.yRot, 2.1F);
+		rightArm.zRot = Mth.lerp(amount, rightArm.zRot, 0.7F);
+		rightForearm.xRot = Mth.lerp(amount, rightForearm.xRot, -0.15F);
+	}
+
+	/** A flick of the sword across his front, from his right to his left, knocking an arrow aside. */
+	private void parry(float t) {
+		float out = seg(t, 0.0F, 1.5F);
+		float sweep = seg(t, 0.5F, 2.5F);
+		float hold = 1.0F - seg(t, 3.0F, 6.0F);
+		rightArm.xRot = Mth.lerp(out * hold, rightArm.xRot, -1.0F);
+		rightArm.yRot = Mth.lerp(out * hold, rightArm.yRot, Mth.lerp(sweep, 0.7F, -0.6F));
+		rightForearm.xRot = Mth.lerp(out * hold, rightForearm.xRot, -0.2F);
+		body.yRot = Mth.lerp(sweep, 0.25F, -0.3F) * out * hold;
 	}
 
 	/** Quick half-circle bash, landing at tick 3: the shield arm in phase one, the sword arm in phase two. */

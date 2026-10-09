@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "ingredient": "eam:water_bowl",
+  "result": {
+    "id": "eam:boiled_water_bowl"
+  }
+}

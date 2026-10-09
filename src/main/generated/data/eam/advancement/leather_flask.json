@@ -1,0 +1,33 @@
+{
+  "parent": "eam:leather_thread",
+  "criteria": {
+    "leather_flask": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:leather_flask"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.leather_flask.description"
+    },
+    "icon": {
+      "id": "eam:leather_flask"
+    },
+    "title": {
+      "translate": "advancements.eam.leather_flask.title"
+    }
+  },
+  "requirements": [
+    [
+      "leather_flask"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

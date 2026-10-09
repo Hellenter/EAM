@@ -1,0 +1,44 @@
+{
+  "parent": "eam:root",
+  "criteria": {
+    "flint_shard": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:flint_shard"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "pebble": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:pebble"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.ground_finds.description"
+    },
+    "icon": {
+      "id": "eam:pebble"
+    },
+    "title": {
+      "translate": "advancements.eam.ground_finds.title"
+    }
+  },
+  "requirements": [
+    [
+      "pebble",
+      "flint_shard"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -4,17 +4,21 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.bucket.BucketContent;
+import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
+import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.mithril.MithrilModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +32,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
@@ -37,6 +42,15 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
+		builder(EamItems.WATER_BOWLS).add(EamItems.WATER_BOWL.builtInRegistryHolder().key(),
+				EamItems.BOILED_WATER_BOWL.builtInRegistryHolder().key());
+		// Metal buckets join the conventional bucket tags, so recipes asking for a bucket of milk or water take any metal.
+		Map<BucketContent, TagKey<Item>> bucketTags = Map.of(BucketContent.EMPTY, ConventionalItemTags.EMPTY_BUCKETS,
+				BucketContent.WATER, ConventionalItemTags.WATER_BUCKETS, BucketContent.LAVA, ConventionalItemTags.LAVA_BUCKETS,
+				BucketContent.POWDER_SNOW, ConventionalItemTags.POWDER_SNOW_BUCKETS, BucketContent.MILK, ConventionalItemTags.MILK_BUCKETS);
+		for (Map<BucketContent, Item> set : MetalBuckets.metalSets()) {
+			set.forEach((content, item) -> builder(bucketTags.get(content)).add(item.builtInRegistryHolder().key()));
+		}
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),
@@ -46,6 +60,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
+
+		// Logs break only with these; a battle axe goes here too.
+		builder(HandBreakingModule.CHOPS_LOGS).forceAddTag(ItemTags.AXES);
 
 		// Bows, crossbows and dispensers take anything in this tag as arrows.
 		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,
@@ -97,6 +114,14 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.CHEST_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE));
 		builder(ItemTags.LEG_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS));
 		builder(ItemTags.FOOT_ARMOR).addAll(keys(EamItems.ANCIENT_METAL_BOOTS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS));
+		builder(ItemTags.HEAD_ARMOR).addAll(keys(EamItems.COPPER_CHAINMAIL_HELMET, EamItems.SILVER_CHAINMAIL_HELMET,
+				EamItems.MITHRIL_CHAINMAIL_HELMET));
+		builder(ItemTags.CHEST_ARMOR).addAll(keys(EamItems.COPPER_CHAINMAIL_CHESTPLATE, EamItems.SILVER_CHAINMAIL_CHESTPLATE,
+				EamItems.MITHRIL_CHAINMAIL_CHESTPLATE));
+		builder(ItemTags.LEG_ARMOR).addAll(keys(EamItems.COPPER_CHAINMAIL_LEGGINGS, EamItems.SILVER_CHAINMAIL_LEGGINGS,
+				EamItems.MITHRIL_CHAINMAIL_LEGGINGS));
+		builder(ItemTags.FOOT_ARMOR).addAll(keys(EamItems.COPPER_CHAINMAIL_BOOTS, EamItems.SILVER_CHAINMAIL_BOOTS,
+				EamItems.MITHRIL_CHAINMAIL_BOOTS));
 		// Too hot for the vanilla blast furnace: these cook only in the obsidian one.
 		builder(MithrilModule.OBSIDIAN_FURNACE_ONLY).addAll(keys(EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL,
 				EamItems.MITHRIL_INGOT));
@@ -155,11 +180,12 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.BANNERS)
 				.addAll(keys(Items.FLOWER_POT, Items.DECORATED_POT));
 		// Crafting with these needs a tool of the tier below in the table; iron plates count as iron, ancient metal as iron too.
+		// Rings count as their metal, and so does making them from (untiered) nuggets.
 		builder(CraftingTags.MATERIAL_TIERS.get(0)).add(Items.FLINT.builtInRegistryHolder().key());
-		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT));
+		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT, EamItems.COPPER_RING, EamItems.SILVER_RING));
 		builder(CraftingTags.MATERIAL_TIERS.get(2)).addAll(keys(Items.IRON_INGOT, EamItems.IRON_PLATE, EamItems.ANCIENT_METAL_INGOT,
-				EamItems.ANCIENT_METAL_PLATE, EamItems.ANCIENT_METAL_CHAIN));
-		builder(CraftingTags.MATERIAL_TIERS.get(3)).addAll(keys(EamItems.MITHRIL_INGOT, EamItems.MITHRIL_PLATE));
+				EamItems.ANCIENT_METAL_PLATE, EamItems.IRON_RING, EamItems.ANCIENT_METAL_RING));
+		builder(CraftingTags.MATERIAL_TIERS.get(3)).addAll(keys(EamItems.MITHRIL_INGOT, EamItems.MITHRIL_PLATE, EamItems.MITHRIL_RING));
 		builder(CraftingTags.TIER_FREE).addAll(keys(Items.COPPER_INGOT, Items.COPPER_NUGGET, Items.RAW_COPPER_BLOCK,
 				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
 				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_BLOCK,

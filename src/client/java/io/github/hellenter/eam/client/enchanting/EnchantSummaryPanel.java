@@ -38,6 +38,7 @@ final class EnchantSummaryPanel extends AbstractWidget {
 	private static final int LINE = 10;
 	private static final int LINES = 7;
 	private static final int PRICE_TOP = 94;
+	private static final int SHELVES_TOP = 134;
 	private static final int BUTTON_TOP = 143;
 	private static final int BUTTON_HEIGHT = 18;
 
@@ -55,6 +56,7 @@ final class EnchantSummaryPanel extends AbstractWidget {
 		this.selection = selection;
 	}
 
+	/** @param affordable whether the player can pay and the table has enough shelves */
 	private record State(List<EnchantingOptions.Pick> picks, EnchantingLogic.Price price, boolean affordable) {
 	}
 
@@ -70,7 +72,8 @@ final class EnchantSummaryPanel extends AbstractWidget {
 		Item offensive = settings.resource(true);
 		Item supportive = settings.resource(false);
 		boolean affordable = EnchantingLogic.affordable(price, player.getInventory().countItem(offensive),
-				player.getInventory().countItem(supportive), offensive == supportive, player.experienceLevel, player.hasInfiniteMaterials());
+				player.getInventory().countItem(supportive), offensive == supportive, player.experienceLevel, player.hasInfiniteMaterials())
+				&& EnchantingOptions.requiredShelves(settings, menu.getSlot(0).getItem(), picks) <= EnchantPanels.shelves(menu);
 		return new State(picks, price, affordable);
 	}
 
@@ -87,7 +90,11 @@ final class EnchantSummaryPanel extends AbstractWidget {
 
 		EnchantPanels.frame(graphics, getX(), getY(), width, height);
 		graphics.text(font, TITLE, getX() + (width - font.width(TITLE)) / 2, getY() + 6, EnchantPanels.TEXT, false);
-		if (state == null) {
+		int shelves = EnchantPanels.shelves(menu);
+		if (state == null && shelves < settings.minShelves()) {
+			graphics.textWithWordWrap(font, Component.translatable("gui.eam.enchanting.shelves_needed", settings.minShelves(), shelves), left,
+					getY() + LIST_TOP + 2, textWidth, EnchantPanels.MISSING, false);
+		} else if (state == null) {
 			graphics.textWithWordWrap(font, HINT, left, getY() + LIST_TOP + 2, textWidth, 0xFF707070, false);
 		} else {
 			extractPicks(graphics, font, state.picks(), left, textWidth);
@@ -100,6 +107,10 @@ final class EnchantSummaryPanel extends AbstractWidget {
 		} else {
 			graphics.text(font, "—", left + font.width(PRICE) + 4, getY() + PRICE_TOP, EnchantPanels.TEXT, false);
 		}
+
+		int needed = EnchantPanels.requiredShelves(settings, menu, EnchantPanels.options(menu), selection.choices());
+		graphics.text(font, Component.translatable("gui.eam.enchanting.shelves", shelves, needed), left, getY() + SHELVES_TOP,
+				shelves >= needed ? EnchantPanels.ENOUGH : EnchantPanels.MISSING, false);
 
 		boolean active = state != null && state.affordable();
 		int buttonTop = getY() + BUTTON_TOP;

@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.bucket.MetalBucketItem;
 import io.github.hellenter.eam.content.bucket.MetalPowderSnowBucketItem;
+import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
@@ -18,9 +19,13 @@ import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
+import io.github.hellenter.eam.survival.hunger.HungerModule;
+import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
+import io.github.hellenter.eam.survival.thirst.Hydration;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
@@ -31,6 +36,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
@@ -39,6 +45,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -220,8 +227,6 @@ public final class EamItems {
 			new Item.Properties());
 	/** Forged from hot ancient metal on an iron or mithril anvil; ancient metal armor is made of these. */
 	public static final Item ANCIENT_METAL_PLATE = register("ancient_metal_plate", Item::new, new Item.Properties().stacksTo(16));
-	/** Links of ancient metal chainmail. */
-	public static final Item ANCIENT_METAL_CHAIN = register("ancient_metal_chain", Item::new, new Item.Properties());
 
 	public static final Item ANCIENT_METAL_SWORD = register("ancient_metal_sword", Item::new,
 			new Item.Properties().sword(AncientMetalGear.TOOL, 3.0F, -2.4F));
@@ -254,6 +259,28 @@ public final class EamItems {
 	public static final Item ANCIENT_METAL_HAMMER = register("ancient_metal_hammer", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item ANCIENT_METAL_ARROW = arrow("ancient_metal_arrow",
 			new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.ANCIENT_METAL));
+
+	/** Chainmail rings, four nuggets each; chainmail takes them in the shapes ingot armor takes ingots. */
+	public static final Item COPPER_RING = register("copper_ring", Item::new, new Item.Properties());
+	public static final Item SILVER_RING = register("silver_ring", Item::new, new Item.Properties());
+	public static final Item IRON_RING = register("iron_ring", Item::new, new Item.Properties());
+	public static final Item ANCIENT_METAL_RING = register("ancient_metal_ring", Item::new, new Item.Properties());
+	public static final Item MITHRIL_RING = register("mithril_ring", Item::new, new Item.Properties());
+
+	/** Chainmail of each metal protects a little better than the plate armor of the tier below; the iron set is vanilla's. */
+	public static final Item COPPER_CHAINMAIL_HELMET = armor("copper_chainmail_helmet", ChainmailGear.COPPER, ArmorType.HELMET);
+	public static final Item COPPER_CHAINMAIL_CHESTPLATE = armor("copper_chainmail_chestplate", ChainmailGear.COPPER, ArmorType.CHESTPLATE);
+	public static final Item COPPER_CHAINMAIL_LEGGINGS = armor("copper_chainmail_leggings", ChainmailGear.COPPER, ArmorType.LEGGINGS);
+	public static final Item COPPER_CHAINMAIL_BOOTS = armor("copper_chainmail_boots", ChainmailGear.COPPER, ArmorType.BOOTS);
+	/** Silver chainmail hurts undead that hit its wearer, like silver armor. */
+	public static final Item SILVER_CHAINMAIL_HELMET = silverChainmail("silver_chainmail_helmet", ArmorType.HELMET);
+	public static final Item SILVER_CHAINMAIL_CHESTPLATE = silverChainmail("silver_chainmail_chestplate", ArmorType.CHESTPLATE);
+	public static final Item SILVER_CHAINMAIL_LEGGINGS = silverChainmail("silver_chainmail_leggings", ArmorType.LEGGINGS);
+	public static final Item SILVER_CHAINMAIL_BOOTS = silverChainmail("silver_chainmail_boots", ArmorType.BOOTS);
+	public static final Item MITHRIL_CHAINMAIL_HELMET = armor("mithril_chainmail_helmet", ChainmailGear.MITHRIL, ArmorType.HELMET);
+	public static final Item MITHRIL_CHAINMAIL_CHESTPLATE = armor("mithril_chainmail_chestplate", ChainmailGear.MITHRIL, ArmorType.CHESTPLATE);
+	public static final Item MITHRIL_CHAINMAIL_LEGGINGS = armor("mithril_chainmail_leggings", ChainmailGear.MITHRIL, ArmorType.LEGGINGS);
+	public static final Item MITHRIL_CHAINMAIL_BOOTS = armor("mithril_chainmail_boots", ChainmailGear.MITHRIL, ArmorType.BOOTS);
 
 	public static final Item SILVER_BARS = blockItem("silver_bars", EamBlocks.SILVER_BARS);
 	public static final Item SILVER_DOOR = doorItem("silver_door", EamBlocks.SILVER_DOOR);
@@ -295,6 +322,47 @@ public final class EamItems {
 			new Item.Properties().stacksTo(1));
 	public static final Item MITHRIL_MILK_BUCKET = milkBucket("mithril_milk_bucket", MITHRIL_BUCKET);
 
+	/**
+	 * MITE bowl foods. A bowl of water is filled at a water source and may poison until boiled; soups, stews and
+	 * the rest are crafted from it or from a bowl of milk. All of them give back the bowl, like vanilla stews.
+	 */
+	public static final Item WATER_BOWL = register("water_bowl", Item::new, bowl()
+			.component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK)
+			.component(ThirstModule.HYDRATION, new Hydration(4))
+			.component(ThirstModule.RAW_WATER, RawWater.INSTANCE));
+	public static final Item BOILED_WATER_BOWL = register("boiled_water_bowl", Item::new, bowl()
+			.component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK)
+			.component(ThirstModule.HYDRATION, new Hydration(4)));
+	/** Clears effects like a bucket of milk. */
+	public static final Item MILK_BOWL = register("milk_bowl", Item::new, bowl()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.2F).alwaysEdible().build(),
+					Consumables.defaultDrink().onConsume(ClearAllStatusEffectsConsumeEffect.INSTANCE).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(4, 4, 3))
+			.component(ThirstModule.HYDRATION, new Hydration(3)));
+	//                                               nutrition, saturation, protein, fat, carbs, water
+	public static final Item BEEF_STEW = bowlFood("beef_stew", 8, 0.6F, 16, 8, 10, 3);
+	public static final Item CHICKEN_SOUP = bowlFood("chicken_soup", 5, 0.6F, 12, 3, 8, 4);
+	public static final Item VEGETABLE_SOUP = bowlFood("vegetable_soup", 3, 0.5F, 2, 0, 12, 4);
+	public static final Item CREAM_OF_MUSHROOM_SOUP = bowlFood("cream_of_mushroom_soup", 4, 0.5F, 5, 4, 6, 3);
+	public static final Item CREAM_OF_VEGETABLE_SOUP = bowlFood("cream_of_vegetable_soup", 4, 0.5F, 4, 4, 12, 3);
+	public static final Item PUMPKIN_SOUP = bowlFood("pumpkin_soup", 2, 0.4F, 1, 1, 7, 4);
+	public static final Item MASHED_POTATO = bowlFood("mashed_potato", 5, 0.7F, 6, 6, 14, 1);
+	public static final Item SALAD = bowlFood("salad", 1, 0.3F, 1, 0, 4, 1);
+	public static final Item ICE_CREAM = bowlFood("ice_cream", 2, 0.4F, 2, 6, 8, 1);
+	public static final Item SORBET = bowlFood("sorbet", 2, 0.3F, 0, 0, 8, 2);
+	public static final Item PORRIDGE = bowlFood("porridge", 2, 0.4F, 1, 1, 9, 2);
+	public static final Item CEREAL = bowlFood("cereal", 2, 0.4F, 3, 2, 8, 2);
+	public static final Item CHOCOLATE = register("chocolate", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(1, 5, 6)));
+	/** Made from a bucket of milk; mashed potato needs it. */
+	public static final Item CHEESE = register("cheese", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.6F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(8, 7, 1)));
+
+	/** A bowl of plain or boiled water, for soup recipes. */
+	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -303,6 +371,17 @@ public final class EamItems {
 
 	public static void register() {
 		EamCreativeTabs.register();
+	}
+
+	private static Item.Properties bowl() {
+		return new Item.Properties().stacksTo(1).usingConvertsTo(Items.BOWL);
+	}
+
+	private static Item bowlFood(String name, int nutrition, float saturation, int protein, int fat, int carbs, int water) {
+		return register(name, Item::new, bowl()
+				.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation).build())
+				.component(HungerModule.NUTRIENTS, new Nutrients(protein, fat, carbs))
+				.component(ThirstModule.HYDRATION, new Hydration(water)));
 	}
 
 	private static Item blockItem(String name, Block block) {
@@ -337,6 +416,11 @@ public final class EamItems {
 
 	private static Item silverArmor(String name, ArmorType type) {
 		return register(name, Item::new, new Item.Properties().humanoidArmor(SilverGear.ARMOR, type)
+				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
+	}
+
+	private static Item silverChainmail(String name, ArmorType type) {
+		return register(name, Item::new, new Item.Properties().humanoidArmor(ChainmailGear.SILVER, type)
 				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
 	}
 

@@ -5,35 +5,40 @@ import java.util.List;
 
 /**
  * Pure decisions of the Fallen Lord: which attack to use, when the shield blocks, when the swipe answers a flurry,
- * when he drinks, when he knocks a player's shield out, how he scales with players.
+ * when he drinks, when he leaps back from a burst of damage, when he knocks a player's shield out, how he scales
+ * with players.
  */
 public final class FallenLordLogic {
 	/** Spear jab reach, from the boss's centre to the target's. */
-	public static final double POKE_REACH = 3.6;
+	public static final double POKE_REACH = 3.27;
 	public static final double DASH_MIN = 3.0;
 	public static final double DASH_MAX = 12.0;
 	/** The dash carries him this far past where the player stood, so stepping back does not dodge it. */
 	public static final double DASH_OVERSHOOT = 4.0;
 	/** The dash hits whoever is this close to him on the way. */
 	public static final double DASH_HIT_RADIUS = 2.2;
-	public static final double THROW_MIN = 6.0;
+	public static final double THROW_MIN = 4.5;
 	public static final double THROW_MAX = 28.0;
 	/** Swipe and sword reach. */
 	public static final double SWORD_REACH = 3.2;
 	public static final double COMBO_MAX = 7.0;
 	public static final double LUNGE_MIN = 2.5;
 	public static final double LUNGE_MAX = 9.0;
+	public static final double SWORD_DASH_MIN = 3.5;
+	public static final double SWORD_DASH_MAX = 10.0;
+	/** The sword dash stops this close to the player, centre to centre: point-blank. */
+	public static final double SWORD_DASH_STOP = 1.5;
 	/** Reach of the half-circle bash that answers a hit during the drink. */
 	public static final double COUNTER_REACH = 3.5;
 	/** A player this close counts as having come within reach, which resets the spear-throw timer. */
-	public static final double CLOSE = 6.0;
+	public static final double CLOSE = THROW_MIN;
 	/** Shield blocks hits from this half-angle in front of the body, in degrees. */
 	public static final double SHIELD_HALF_ANGLE = 100.0;
 	/** Whirl is this many times more likely with two or more players around. */
 	public static final double CROWD_BONUS = 4.0;
 
 	public enum Attack {
-		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2);
+		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2), SWORD_DASH(2);
 
 		private final int phase;
 
@@ -70,6 +75,10 @@ public final class FallenLordLogic {
 	 */
 	public record BlockStreak(int hits, long lastTick, int needed) {
 		public static final BlockStreak NONE = new BlockStreak(0, 0L, 0);
+	}
+
+	/** Health a hit took from the boss, and when. */
+	public record Wound(long tick, float amount) {
 	}
 
 	record Candidate(Attack attack, double weight) {
@@ -140,6 +149,9 @@ public final class FallenLordLogic {
 			if (ready(Attack.WHIRL, cooldowns) && s.canSee() && d <= settings.phaseTwo().whirlRadius()) {
 				list.add(new Candidate(Attack.WHIRL, s.playersInWhirl() >= 2 ? CROWD_BONUS : 1.0));
 			}
+			if (ready(Attack.SWORD_DASH, cooldowns) && s.canSee() && d >= SWORD_DASH_MIN && d <= SWORD_DASH_MAX) {
+				list.add(new Candidate(Attack.SWORD_DASH, 1.0));
+			}
 		}
 		return list;
 	}
@@ -161,6 +173,7 @@ public final class FallenLordLogic {
 			case COMBO -> two.comboCooldown();
 			case LUNGE -> two.lungeCooldown();
 			case WHIRL -> two.whirlCooldown();
+			case SWORD_DASH -> settings.swordDash().cooldown();
 		};
 	}
 
@@ -204,6 +217,20 @@ public final class FallenLordLogic {
 		FallenLordSettings.Regen regen = settings.regen();
 		return drinkCooldown <= 0 && drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F
 				&& health <= maxHealth * regen.healthBelow();
+	}
+
+	/**
+	 * Whether the wounds of the last {@link FallenLordSettings.Burst#window()} ticks took at least
+	 * {@link FallenLordSettings.Burst#healthShare()} of his health. Healing in between does not count against them.
+	 */
+	public static boolean lostQuickly(List<Wound> wounds, long now, float maxHealth, FallenLordSettings.Burst burst) {
+		float lost = 0.0F;
+		for (Wound wound : wounds) {
+			if (now - wound.tick() <= burst.window()) {
+				lost += wound.amount();
+			}
+		}
+		return lost > 0.0F && lost >= maxHealth * burst.healthShare();
 	}
 
 	/**

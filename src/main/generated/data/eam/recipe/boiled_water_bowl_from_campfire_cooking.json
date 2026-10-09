@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "category": "food",
+  "cookingtime": 600,
+  "ingredient": "eam:water_bowl",
+  "result": {
+    "id": "eam:boiled_water_bowl"
+  }
+}

@@ -13,6 +13,7 @@ import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.Holder;
@@ -20,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.PotionsPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.alchemy.Potion;
@@ -130,6 +132,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.ANCIENT_METAL_SAW, EamItems.ANCIENT_METAL_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
+				// Chainmail: a ring of four nuggets, rings in the shapes ingot armor takes ingots. Iron chainmail is the vanilla one.
+				chainmail(Items.COPPER_NUGGET, EamItems.COPPER_RING, EamItems.COPPER_CHAINMAIL_HELMET, EamItems.COPPER_CHAINMAIL_CHESTPLATE,
+						EamItems.COPPER_CHAINMAIL_LEGGINGS, EamItems.COPPER_CHAINMAIL_BOOTS);
+				chainmail(EamItems.SILVER_NUGGET, EamItems.SILVER_RING, EamItems.SILVER_CHAINMAIL_HELMET, EamItems.SILVER_CHAINMAIL_CHESTPLATE,
+						EamItems.SILVER_CHAINMAIL_LEGGINGS, EamItems.SILVER_CHAINMAIL_BOOTS);
+				chainmail(Items.IRON_NUGGET, EamItems.IRON_RING, Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE,
+						Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS);
+				chainmail(EamItems.ANCIENT_METAL_NUGGET, EamItems.ANCIENT_METAL_RING, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET,
+						EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS);
+				chainmail(EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_RING, EamItems.MITHRIL_CHAINMAIL_HELMET, EamItems.MITHRIL_CHAINMAIL_CHESTPLATE,
+						EamItems.MITHRIL_CHAINMAIL_LEGGINGS, EamItems.MITHRIL_CHAINMAIL_BOOTS);
 				// Arrows like the vanilla one with a metal nugget for a head instead of flint.
 				arrow(EamItems.COPPER_ARROW, Items.COPPER_NUGGET);
 				arrow(EamItems.SILVER_ARROW, EamItems.SILVER_NUGGET);
@@ -168,6 +181,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				bowlFoodRecipes();
 				silverRecipes();
 				brewingRecipes();
 				mithrilRecipes();
@@ -300,6 +314,34 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern(" I ")
 						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
+			}
+
+			private void chainmail(Item nugget, Item ring, Item helmet, Item chestplate, Item leggings, Item boots) {
+				shaped(RecipeCategory.MISC, ring)
+						.define('N', nugget)
+						.pattern("NN")
+						.pattern("NN")
+						.unlockedBy(getHasName(nugget), has(nugget))
+						.save(output);
+				ringArmor(ring, helmet, "RRR", "R R");
+				ringArmor(ring, chestplate, "R R", "RRR", "RRR");
+				ringArmor(ring, leggings, "RRR", "R R", "R R");
+				ringArmor(ring, boots, "R R", "R R");
+			}
+
+			/** Vanilla chainmail is saved under our id: vanilla has no chainmail recipe to replace. */
+			private void ringArmor(Item ring, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('R', ring);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(ring), has(ring));
+				if (BuiltInRegistries.ITEM.getKey(result).getNamespace().equals("minecraft")) {
+					recipe.save(output, "eam:" + getItemName(result));
+				} else {
+					recipe.save(output);
+				}
 			}
 
 			private void saw(Item saw, Item ingot) {
@@ -497,7 +539,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 			/**
 			 * Ancient metal has no source yet, so nothing makes the ingot. It packs into nuggets and blocks, makes iron-shaped
-			 * tools, chains (nugget, ingot, nugget like the vanilla chain) and chainmail of chains in the armor shapes.
+			 * tools; its chainmail is made of rings like every other chainmail.
 			 */
 			private void ancientMetalRecipes() {
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ANCIENT_METAL_INGOT, RecipeCategory.BUILDING_BLOCKS,
@@ -510,11 +552,6 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_PICKAXE, "", "III", " # ", " # ");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_AXE, "", "II", "I#", " #");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_HOE, "", "II", " #", " #");
-				ancientMetal(output, RecipeCategory.MISC, EamItems.ANCIENT_METAL_CHAIN, "", "N", "I", "N");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET, "", "CCC", "C C");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, "", "C C", "CCC", "CCC");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, "", "CCC", "C C", "C C");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS, "", "C C", "C C");
 			}
 
 			/** Ancient metal ingot to hot ancient metal in a blast furnace, and its armor from plates and ingots like iron's. */
@@ -537,7 +574,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_BOOTS, "_from_ingots", "I I", "I I");
 			}
 
-			/** I ingot, N nugget, P plate, C chain, # stick; only the keys the pattern uses are defined. */
+			/** I ingot, N nugget, P plate, # stick; only the keys the pattern uses are defined. */
 			private void ancientMetal(RecipeOutput output, RecipeCategory category, Item result, String suffix, String... pattern) {
 				var recipe = shaped(category, result);
 				String keys = String.join("", pattern);
@@ -550,9 +587,6 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				if (keys.contains("P")) {
 					recipe.define('P', EamItems.ANCIENT_METAL_PLATE);
 				}
-				if (keys.contains("C")) {
-					recipe.define('C', EamItems.ANCIENT_METAL_CHAIN);
-				}
 				if (keys.contains("#")) {
 					recipe.define('#', Items.STICK);
 				}
@@ -560,6 +594,89 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 					recipe.pattern(row);
 				}
 				recipe.unlockedBy(getHasName(EamItems.ANCIENT_METAL_INGOT), has(EamItems.ANCIENT_METAL_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
+			}
+
+			/** MITE bowl foods with vanilla stand-ins: beetroot for onion, apple for orange, sweet berries for blueberries. */
+			private void bowlFoodRecipes() {
+				// A bucket of any metal fills up to four bowls and comes back empty.
+				for (int bowls = 1; bowls <= 4; bowls++) {
+					shapeless(RecipeCategory.FOOD, EamItems.WATER_BOWL, bowls)
+							.requires(ConventionalItemTags.WATER_BUCKETS)
+							.requires(Items.BOWL, bowls)
+							.unlockedBy(getHasName(Items.BOWL), has(Items.BOWL))
+							.save(output, "eam:water_bowl_from_bucket_" + bowls);
+					shapeless(RecipeCategory.FOOD, EamItems.MILK_BOWL, bowls)
+							.requires(ConventionalItemTags.MILK_BUCKETS)
+							.requires(Items.BOWL, bowls)
+							.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
+							.save(output, "eam:milk_bowl_from_bucket_" + bowls);
+				}
+
+				// Boiling makes the water safe to drink.
+				Ingredient water = Ingredient.of(EamItems.WATER_BOWL);
+				SimpleCookingRecipeBuilder.smelting(water, RecipeCategory.FOOD, CookingBookCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 200)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output);
+				SimpleCookingRecipeBuilder.smoking(water, RecipeCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 100)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output, "eam:boiled_water_bowl_from_smoking");
+				SimpleCookingRecipeBuilder.campfireCooking(water, RecipeCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 600)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
+
+				shapeless(RecipeCategory.FOOD, EamItems.CHEESE)
+						.requires(ConventionalItemTags.MILK_BUCKETS)
+						.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
+						.save(output);
+				shapeless(RecipeCategory.FOOD, EamItems.CHOCOLATE)
+						.requires(Items.COCOA_BEANS)
+						.requires(Items.SUGAR)
+						.unlockedBy(getHasName(Items.COCOA_BEANS), has(Items.COCOA_BEANS))
+						.save(output);
+
+				waterDish(EamItems.BEEF_STEW, Items.COOKED_BEEF, Items.BROWN_MUSHROOM, Items.POTATO);
+				waterDish(EamItems.CHICKEN_SOUP, Items.COOKED_CHICKEN, Items.CARROT, Items.BEETROOT);
+				waterDish(EamItems.VEGETABLE_SOUP, Items.POTATO, Items.CARROT, Items.BEETROOT);
+				waterDish(EamItems.PUMPKIN_SOUP, Items.PUMPKIN);
+				waterDish(EamItems.PORRIDGE, Items.WHEAT_SEEDS, Items.SWEET_BERRIES, Items.SUGAR);
+				milkDish(EamItems.CREAM_OF_MUSHROOM_SOUP, "", Items.BROWN_MUSHROOM, Items.BROWN_MUSHROOM);
+				milkDish(EamItems.CREAM_OF_VEGETABLE_SOUP, "", Items.POTATO, Items.CARROT, Items.BEETROOT);
+				milkDish(EamItems.MASHED_POTATO, "", Items.BAKED_POTATO, EamItems.CHEESE);
+				milkDish(EamItems.CEREAL, "", Items.WHEAT, Items.SUGAR);
+				milkDish(EamItems.ICE_CREAM, "", EamItems.CHOCOLATE, Items.SNOWBALL);
+				milkDish(EamItems.ICE_CREAM, "_from_cocoa", Items.COCOA_BEANS, Items.SUGAR, Items.SNOWBALL);
+				emptyBowlDish(EamItems.SALAD, Items.DANDELION, Items.DANDELION, Items.DANDELION);
+				emptyBowlDish(EamItems.SORBET, Items.APPLE, Items.SUGAR, Items.SNOWBALL);
+			}
+
+			/** A dish made in a bowl of water, plain or boiled. */
+			private void waterDish(Item result, Item... ingredients) {
+				var recipe = shapeless(RecipeCategory.FOOD, result).requires(EamItems.WATER_BOWLS);
+				for (Item ingredient : ingredients) {
+					recipe.requires(ingredient);
+				}
+				recipe.unlockedBy(getHasName(ingredients[0]), has(ingredients[0])).save(output);
+			}
+
+			private void milkDish(Item result, String suffix, Item... ingredients) {
+				dish(result, EamItems.MILK_BOWL, suffix, ingredients);
+			}
+
+			private void emptyBowlDish(Item result, Item... ingredients) {
+				dish(result, Items.BOWL, "", ingredients);
+			}
+
+			private void dish(Item result, Item bowl, String suffix, Item... ingredients) {
+				var recipe = shapeless(RecipeCategory.FOOD, result).requires(bowl);
+				for (Item ingredient : ingredients) {
+					recipe.requires(ingredient);
+				}
+				recipe.unlockedBy(getHasName(ingredients[0]), has(ingredients[0]));
 				if (suffix.isEmpty()) {
 					recipe.save(output);
 				} else {

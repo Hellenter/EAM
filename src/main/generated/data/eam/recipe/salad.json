@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:dandelion",
+    "minecraft:dandelion",
+    "minecraft:dandelion"
+  ],
+  "result": {
+    "id": "eam:salad"
+  }
+}

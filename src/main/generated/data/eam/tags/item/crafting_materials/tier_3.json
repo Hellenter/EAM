@@ -4,6 +4,7 @@
     "eam:iron_plate",
     "eam:ancient_metal_ingot",
     "eam:ancient_metal_plate",
-    "eam:ancient_metal_chain"
+    "eam:iron_ring",
+    "eam:ancient_metal_ring"
   ]
 }

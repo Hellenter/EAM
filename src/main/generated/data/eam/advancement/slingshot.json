@@ -1,0 +1,33 @@
+{
+  "parent": "eam:leather_thread",
+  "criteria": {
+    "slingshot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:slingshot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.slingshot.description"
+    },
+    "icon": {
+      "id": "eam:slingshot"
+    },
+    "title": {
+      "translate": "advancements.eam.slingshot.title"
+    }
+  },
+  "requirements": [
+    [
+      "slingshot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

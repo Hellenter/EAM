@@ -1,0 +1,33 @@
+{
+  "parent": "eam:copper_pickaxe",
+  "criteria": {
+    "silver_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:silver_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.silver.description"
+    },
+    "icon": {
+      "id": "eam:silver_ingot"
+    },
+    "title": {
+      "translate": "advancements.eam.silver.title"
+    }
+  },
+  "requirements": [
+    [
+      "silver_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

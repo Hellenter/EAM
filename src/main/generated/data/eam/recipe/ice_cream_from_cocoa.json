@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:milk_bowl",
+    "minecraft:cocoa_beans",
+    "minecraft:sugar",
+    "minecraft:snowball"
+  ],
+  "result": {
+    "id": "eam:ice_cream"
+  }
+}

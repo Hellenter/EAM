@@ -100,7 +100,7 @@ public class FallenLordGearModel extends FallenLordModel {
 		float walk = Math.min(state.walkAnimationSpeed, 1.0F);
 		float sway = Mth.sin(state.ageInTicks * 0.07F) * 0.03F;
 		float wind = switch (state.action) {
-			case DASH -> 0.7F;
+			case DASH, SWORD_DASH -> 0.7F;
 			case RETREAT -> 0.5F * Mth.sin((float) Math.PI * Mth.clamp(state.actionTime / FallenLordAction.RETREAT.length(), 0.0F, 1.0F));
 			case LUNGE -> 0.4F * Mth.sin((float) Math.PI * Mth.clamp(state.actionTime / FallenLordAction.LUNGE.length(), 0.0F, 1.0F));
 			case WHIRL -> 0.9F * Mth.sin((float) Math.PI * Mth.clamp(state.actionTime / FallenLordAction.WHIRL.length(), 0.0F, 1.0F));

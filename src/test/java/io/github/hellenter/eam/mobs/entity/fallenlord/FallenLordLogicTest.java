@@ -9,10 +9,12 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Situation;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Wound;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 class FallenLordLogicTest {
@@ -50,6 +52,29 @@ class FallenLordLogicTest {
 		assertFalse(histogram(1, fresh, ready(), null).containsKey(Attack.THROW));
 		Situation away = new Situation(10.0, true, true, SETTINGS.phaseOne().throwAfter(), 1);
 		assertTrue(histogram(1, away, ready(), null).get(Attack.THROW) > 500);
+	}
+
+	@Test
+	void throwsFromFourAndAHalfBlocks() {
+		int after = SETTINGS.phaseOne().throwAfter();
+		assertTrue(histogram(1, new Situation(4.6, true, true, after, 1), ready(), null).containsKey(Attack.THROW));
+		assertFalse(histogram(1, new Situation(4.4, true, true, after, 1), ready(), null).containsKey(Attack.THROW));
+	}
+
+	@Test
+	void jabReachIsAThirdOfABlockShorter() {
+		assertEquals(Attack.POKE, FallenLordLogic.choose(1, new Situation(3.2, true, true, 0, 1), ready(), Attack.DASH, SETTINGS, 0.0));
+		int[] cooldowns = ready();
+		cooldowns[Attack.DASH.ordinal()] = 10;
+		assertNull(FallenLordLogic.choose(1, new Situation(3.4, true, true, 0, 1), cooldowns, null, SETTINGS, 0.5));
+	}
+
+	@Test
+	void swordDashClosesTheGapInPhaseTwo() {
+		assertTrue(histogram(2, new Situation(6.0, true, true, 0, 1), ready(), null).containsKey(Attack.SWORD_DASH));
+		assertFalse(histogram(2, new Situation(2.0, true, true, 0, 1), ready(), null).containsKey(Attack.SWORD_DASH));
+		assertFalse(histogram(1, new Situation(6.0, true, true, 0, 1), ready(), null).containsKey(Attack.SWORD_DASH));
+		assertEquals(SETTINGS.swordDash().cooldown(), FallenLordLogic.cooldown(Attack.SWORD_DASH, SETTINGS));
 	}
 
 	@Test
@@ -125,6 +150,18 @@ class FallenLordLogicTest {
 	}
 
 	@Test
+	void leapsBackAfterLosingAThirdQuickly() {
+		FallenLordSettings.Burst burst = SETTINGS.burst();
+		float max = 100.0F;
+		List<Wound> quick = List.of(new Wound(100L, 12.0F), new Wound(130L, 10.0F), new Wound(160L, 9.0F));
+		assertTrue(FallenLordLogic.lostQuickly(quick, 160L, max, burst));
+		assertFalse(FallenLordLogic.lostQuickly(quick.subList(0, 2), 160L, max, burst));
+		// The first wound is too old by now.
+		assertFalse(FallenLordLogic.lostQuickly(quick, 100L + burst.window() + 1, max, burst));
+		assertFalse(FallenLordLogic.lostQuickly(List.of(), 0L, max, burst));
+	}
+
+	@Test
 	void knocksTheShieldOutAfterTwoOrThreeBlocks() {
 		FallenLordSettings.ShieldBreak settings = SETTINGS.shieldBreak();
 		BlockStreak low = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.0);
@@ -151,15 +188,15 @@ class FallenLordLogicTest {
 	@Test
 	void scalesWithPlayers() {
 		FallenLordSettings.PlayerScaling scaling = SETTINGS.players();
-		assertEquals(-0.15, FallenLordLogic.scaling(1, scaling).damage(), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.scaling(1, scaling).damage(), 1.0E-9);
 		assertEquals(0.0, FallenLordLogic.scaling(1, scaling).health(), 1.0E-9);
-		assertEquals(-0.15, FallenLordLogic.scaling(0, scaling).damage(), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.scaling(0, scaling).damage(), 1.0E-9);
 		assertEquals(0.15, FallenLordLogic.scaling(2, scaling).health(), 1.0E-9);
-		assertEquals(0.0, FallenLordLogic.scaling(2, scaling).damage(), 1.0E-9);
+		assertEquals(0.15, FallenLordLogic.scaling(2, scaling).damage(), 1.0E-9);
 		assertEquals(0.35, FallenLordLogic.scaling(3, scaling).health(), 1.0E-9);
-		assertEquals(0.15, FallenLordLogic.scaling(3, scaling).damage(), 1.0E-9);
+		assertEquals(0.30, FallenLordLogic.scaling(3, scaling).damage(), 1.0E-9);
 		assertEquals(0.60, FallenLordLogic.scaling(4, scaling).health(), 1.0E-9);
 		assertEquals(0.10, FallenLordLogic.scaling(4, scaling).speed(), 1.0E-9);
-		assertEquals(0.30, FallenLordLogic.scaling(9, scaling).damage(), 1.0E-9);
+		assertEquals(0.45, FallenLordLogic.scaling(9, scaling).damage(), 1.0E-9);
 	}
 }

@@ -1,0 +1,33 @@
+{
+  "parent": "eam:blast_furnace",
+  "criteria": {
+    "hot_iron_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:hot_iron_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.hot_iron.description"
+    },
+    "icon": {
+      "id": "eam:hot_iron_ingot"
+    },
+    "title": {
+      "translate": "advancements.eam.hot_iron.title"
+    }
+  },
+  "requirements": [
+    [
+      "hot_iron_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "eam:ground_finds",
+  "criteria": {
+    "camp_fire": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:camp_fire"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.camp_fire.description"
+    },
+    "icon": {
+      "id": "eam:camp_fire"
+    },
+    "title": {
+      "translate": "advancements.eam.camp_fire.title"
+    }
+  },
+  "requirements": [
+    [
+      "camp_fire"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

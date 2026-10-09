@@ -29,6 +29,7 @@
 		"world.crafting.ResultSlotAccessor",
 		"world.crafting.ResultSlotMixin",
 		"world.enchanting.EnchantmentMenuAccessor",
+		"world.enchanting.EnchantmentMenuShelvesMixin",
 		"world.farming.AgeableMobMixin",
 		"world.farming.CropBlockMixin",
 		"world.farming.PitcherCropBlockMixin",
