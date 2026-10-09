@@ -46,6 +46,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
 
+		// Bows, crossbows and dispensers take anything in this tag as arrows.
+		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW));
+
 		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		// Vanilla tool and armor tags: enchanting, and the 5 s craft times below.
@@ -108,7 +111,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.METALS)
 				.addTag(CraftingTags.MATERIAL_TIERS.get(1)).addTag(CraftingTags.MATERIAL_TIERS.get(2)).addTag(CraftingTags.MATERIAL_TIERS.get(3))
 				.addOptionalTag(ItemTags.METAL_NUGGETS)
-				.addAll(keys(EamItems.SILVER_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
+				.addAll(keys(EamItems.SILVER_NUGGET, EamItems.MITHRIL_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
 		// A saw in the table speeds up crafting these: wooden things and decorative blocks.
 		builder(CraftingTags.SAW_RESULTS)
 				.addOptionalTag(ItemTags.PLANKS)
@@ -145,7 +148,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.MATERIAL_TIERS.get(3)).addAll(keys(EamItems.MITHRIL_INGOT, EamItems.MITHRIL_PLATE));
 		builder(CraftingTags.TIER_FREE).addAll(keys(Items.COPPER_INGOT, Items.COPPER_NUGGET, Items.RAW_COPPER_BLOCK,
 				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
-				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_BLOCK))
+				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_BLOCK))
 				.addAll(keys(Items.COPPER_BLOCK.asList().toArray(Item[]::new)));
 		builder(ForgingTags.HAMMER_TIERS.get(0));
 		builder(ForgingTags.HAMMER_TIERS.get(1)).addAll(keys(EamItems.COPPER_HAMMER, EamItems.SILVER_HAMMER));

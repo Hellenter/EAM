@@ -127,7 +127,7 @@ public final class AnvilRepair {
 		return false;
 	}
 
-	/** The nugget of an ingot by name: {@code iron_ingot} to {@code iron_nugget}; null when there is none (mithril). */
+	/** The nugget of an ingot by name: {@code iron_ingot} to {@code iron_nugget}; null when there is none. */
 	private static @Nullable Item nugget(Identifier ingot) {
 		Identifier id = Identifier.fromNamespaceAndPath(ingot.getNamespace(), ingot.getPath().replace("_ingot", "_nugget"));
 		return BuiltInRegistries.ITEM.getOptional(id).filter(item -> item != Items.AIR).orElse(null);

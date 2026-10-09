@@ -200,6 +200,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_BLOCK, "Block of Mithril");
 			builder.add(EamItems.RAW_MITHRIL, "Raw Mithril");
 			builder.add(EamItems.MITHRIL_INGOT, "Mithril Ingot");
+			builder.add(EamItems.MITHRIL_NUGGET, "Mithril Nugget");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Hot Mithril");
 			builder.add(EamItems.MITHRIL_PLATE, "Mithril Plate");
 			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
@@ -212,6 +213,11 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_LEGGINGS, "Mithril Leggings");
 			builder.add(EamItems.MITHRIL_BOOTS, "Mithril Boots");
 			builder.add(EamItems.MITHRIL_KNIFE, "Mithril Knife");
+			builder.add(EamItems.COPPER_ARROW, "Copper Arrow");
+			builder.add(EamItems.SILVER_ARROW, "Silver Arrow");
+			builder.add(EamItems.IRON_ARROW, "Iron Arrow");
+			builder.add(EamItems.MITHRIL_ARROW, "Mithril Arrow");
+			builder.add("item.eam.arrow_head", "+%s%% arrow damage");
 			builder.add(EamItems.MITHRIL_SAW, "Mithril Saw");
 			builder.add(EamItems.MITHRIL_HAMMER, "Mithril Hammer");
 			builder.add(EamBlocks.MITHRIL_ANVIL, "Mithril Anvil");
@@ -415,6 +421,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_BLOCK, "Мифриловый блок");
 			builder.add(EamItems.RAW_MITHRIL, "Необработанный мифрил");
 			builder.add(EamItems.MITHRIL_INGOT, "Мифриловый слиток");
+			builder.add(EamItems.MITHRIL_NUGGET, "Кусочек мифрила");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Раскалённый мифрил");
 			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
 			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");
@@ -427,6 +434,11 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_LEGGINGS, "Мифриловые поножи");
 			builder.add(EamItems.MITHRIL_BOOTS, "Мифриловые ботинки");
 			builder.add(EamItems.MITHRIL_KNIFE, "Мифриловый нож");
+			builder.add(EamItems.COPPER_ARROW, "Медная стрела");
+			builder.add(EamItems.SILVER_ARROW, "Серебряная стрела");
+			builder.add(EamItems.IRON_ARROW, "Железная стрела");
+			builder.add(EamItems.MITHRIL_ARROW, "Мифриловая стрела");
+			builder.add("item.eam.arrow_head", "+%s%% к урону стрелы");
 			builder.add(EamItems.MITHRIL_SAW, "Мифриловая пила");
 			builder.add(EamItems.MITHRIL_HAMMER, "Мифриловый молоток");
 			builder.add(EamBlocks.MITHRIL_ANVIL, "Мифриловая наковальня");

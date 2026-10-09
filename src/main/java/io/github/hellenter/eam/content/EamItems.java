@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
+import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.ground.PebbleItem;
@@ -24,6 +26,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -31,6 +34,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DispenserBlock;
 
 import java.util.function.Function;
 
@@ -144,6 +148,7 @@ public final class EamItems {
 	public static final Item RAW_MITHRIL = register("raw_mithril", Item::new, new Item.Properties());
 	public static final Item MITHRIL_INGOT = register("mithril_ingot", Item::new, new Item.Properties());
 	/** A mithril ingot heated in the obsidian blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item MITHRIL_NUGGET = register("mithril_nugget", Item::new, new Item.Properties());
 	public static final Item HOT_MITHRIL_INGOT = register("hot_mithril_ingot", p -> new HotIronItem(MITHRIL_INGOT, p), new Item.Properties());
 	/** Forged from hot mithril on the mithril anvil; mithril armor is made of these. */
 	public static final Item MITHRIL_PLATE = register("mithril_plate", Item::new, new Item.Properties().stacksTo(16));
@@ -189,6 +194,13 @@ public final class EamItems {
 	public static final Item RUSTY_CHAINMAIL_LEGGINGS = armor("rusty_chainmail_leggings", RustyGear.CHAINMAIL_ARMOR, ArmorType.LEGGINGS);
 	public static final Item RUSTY_CHAINMAIL_BOOTS = armor("rusty_chainmail_boots", RustyGear.CHAINMAIL_ARMOR, ArmorType.BOOTS);
 
+	/** Arrows with metal heads hit harder than the flint one; silver also hits undead harder. Fired from bows and crossbows. */
+	public static final Item COPPER_ARROW = arrow("copper_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.COPPER));
+	public static final Item SILVER_ARROW = arrow("silver_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.SILVER)
+			.component(SilverModule.UNDEAD_DAMAGE_BONUS, SilverGear.UNDEAD_DAMAGE_BONUS));
+	public static final Item IRON_ARROW = arrow("iron_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.IRON));
+	public static final Item MITHRIL_ARROW = arrow("mithril_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.MITHRIL));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -201,6 +213,12 @@ public final class EamItems {
 
 	private static Item blockItem(String name, Block block) {
 		return register(name, p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
+	}
+
+	private static Item arrow(String name, Item.Properties properties) {
+		Item item = register(name, ArrowItem::new, properties);
+		DispenserBlock.registerProjectileBehavior(item);
+		return item;
 	}
 
 	private static Item silverTool(String name, Item.Properties properties) {

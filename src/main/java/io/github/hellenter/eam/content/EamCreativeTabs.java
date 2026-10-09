@@ -40,7 +40,7 @@ public final class EamCreativeTabs {
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,
 			EamItems.SILVER_BLOCK,
 			EamItems.HOT_IRON_INGOT, EamItems.IRON_PLATE,
-			EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL, EamItems.MITHRIL_INGOT,
+			EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_INGOT,
 			EamItems.HOT_MITHRIL_INGOT, EamItems.MITHRIL_PLATE, EamItems.MITHRIL_BLOCK);
 
 	public static final CreativeModeTab TOOLS = register("tools", () -> new ItemStack(EamItems.MITHRIL_PICKAXE),
@@ -53,6 +53,7 @@ public final class EamCreativeTabs {
 
 	public static final CreativeModeTab COMBAT = register("combat", () -> new ItemStack(EamItems.SILVER_SWORD),
 			EamItems.SILVER_SWORD, EamItems.MITHRIL_SWORD,
+			EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW,
 			EamItems.SILVER_HELMET, EamItems.SILVER_CHESTPLATE, EamItems.SILVER_LEGGINGS, EamItems.SILVER_BOOTS,
 			EamItems.MITHRIL_HELMET, EamItems.MITHRIL_CHESTPLATE, EamItems.MITHRIL_LEGGINGS, EamItems.MITHRIL_BOOTS,
 			EamItems.RUSTY_IRON_SWORD,

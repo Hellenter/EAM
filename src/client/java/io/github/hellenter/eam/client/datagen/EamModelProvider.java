@@ -139,7 +139,7 @@ public class EamModelProvider extends FabricModelProvider {
 		for (Item item : List.of(EamItems.SILVER_SWORD, EamItems.SILVER_SHOVEL, EamItems.SILVER_PICKAXE, EamItems.SILVER_AXE, EamItems.SILVER_HOE)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
-		for (Item item : List.of(EamItems.RAW_MITHRIL, EamItems.MITHRIL_INGOT, EamItems.HOT_MITHRIL_INGOT, EamItems.MITHRIL_PLATE,
+		for (Item item : List.of(EamItems.RAW_MITHRIL, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_INGOT, EamItems.HOT_MITHRIL_INGOT, EamItems.MITHRIL_PLATE,
 				EamItems.MITHRIL_HELMET, EamItems.MITHRIL_CHESTPLATE, EamItems.MITHRIL_LEGGINGS, EamItems.MITHRIL_BOOTS)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
@@ -155,6 +155,9 @@ public class EamModelProvider extends FabricModelProvider {
 		for (Item item : List.of(EamItems.RUSTY_IRON_SWORD, EamItems.RUSTY_IRON_SHOVEL, EamItems.RUSTY_IRON_PICKAXE, EamItems.RUSTY_IRON_AXE,
 				EamItems.RUSTY_IRON_HOE)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+		for (Item item : List.of(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.MITHRIL_ARROW)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		PotionModels.generate(generators);
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.

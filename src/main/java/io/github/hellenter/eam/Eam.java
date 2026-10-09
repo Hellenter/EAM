@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.content.sieve.SieveModule;
+import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
@@ -75,6 +76,7 @@ public class Eam implements ModInitializer {
 		VillageModule.register();
 		ForgingModule.register();
 		SilverModule.register();
+		ArrowHeadModule.register();
 		BlastFurnaceModule.register();
 		BrewingModule.register();
 		FarmingModule.register();
@@ -104,6 +106,7 @@ public class Eam implements ModInitializer {
 		if (config.anvilTiers()) ForgingModule.initAnvilTiers();
 		if (config.anvilRepair()) AnvilRepair.init();
 		if (config.silver()) SilverModule.init();
+		if (config.arrowHeads()) ArrowHeadModule.init();
 		if (config.silver()) BrewingModule.init();
 		if (config.slowCrops()) FarmingModule.initCrops();
 		if (config.slowAnimals()) FarmingModule.initAnimals();
