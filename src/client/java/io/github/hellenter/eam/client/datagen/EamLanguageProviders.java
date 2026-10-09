@@ -8,6 +8,8 @@ import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
+import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mithril.MithrilModule;
@@ -200,6 +202,20 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.hot_mithril_ingot.cools_in", "Cools in %s s");
 			builder.add("item.eam.hot_mithril_ingot.cooled", "Cooled: it is a mithril ingot again");
 			builder.add("item.eam.hot_mithril_ingot.forge", "Forge on a mithril anvil: 2 make a mithril plate");
+			builder.add(SafeRoomModule.SAFE_WALLS, "Safe Room Walls");
+			builder.add("block.eam.bed.not_enclosed", "You can only sleep in a closed room that is not too big");
+			builder.add("block.eam.bed.weak_blocks", "Your room is made of blocks that are too weak");
+			builder.add("block.eam.bed.needs_door", "A room this small needs a door");
+			builder.add("block.eam.bed.needs_light", "The room needs lighting");
+			builder.add("block.eam.bed.blood_moon", "You can't sleep under a blood moon");
+			builder.add("event.eam.blood_moon.title", "Blood Moon");
+			builder.add("event.eam.blood_moon.start", "The blood moon is rising. Monsters are coming out in armor and won't let you sleep.");
+			builder.add("event.eam.blood_moon.end", "The blood moon has set.");
+			builder.add("commands.eam.blood_moon.active", "Day %s: the blood moon is up");
+			builder.add("commands.eam.blood_moon.next", "Day %s: the next blood moon is on day %s");
+			builder.add(BloodMoonModule.ARMORED, "Armored Under a Blood Moon");
+			builder.add(BloodMoonModule.ARMED, "Armed Under a Blood Moon");
+			builder.add(BloodMoonModule.HUNTERS, "Hunt Animals Under a Blood Moon");
 		}
 	}
 
@@ -372,6 +388,20 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.hot_mithril_ingot.cools_in", "Остынет через %s с");
 			builder.add("item.eam.hot_mithril_ingot.cooled", "Остыл: снова мифриловый слиток");
 			builder.add("item.eam.hot_mithril_ingot.forge", "Выкуйте на мифриловой наковальне: из 2 выйдет мифриловая пластина");
+			builder.add(SafeRoomModule.SAFE_WALLS, "Стены безопасного помещения");
+			builder.add("block.eam.bed.not_enclosed", "Спать можно только в замкнутом и не слишком большом помещении");
+			builder.add("block.eam.bed.weak_blocks", "Ваше помещение состоит из слишком непрочных блоков");
+			builder.add("block.eam.bed.needs_door", "Требуется дверь");
+			builder.add("block.eam.bed.needs_light", "Требуется освещение");
+			builder.add("block.eam.bed.blood_moon", "Под кровавой луной не уснуть");
+			builder.add("event.eam.blood_moon.title", "Кровавая луна");
+			builder.add("event.eam.blood_moon.start", "Восходит кровавая луна. Монстры выходят в броне и не дадут уснуть.");
+			builder.add("event.eam.blood_moon.end", "Кровавая луна зашла.");
+			builder.add("commands.eam.blood_moon.active", "День %s: сейчас кровавая луна");
+			builder.add("commands.eam.blood_moon.next", "День %s: следующая кровавая луна в день %s");
+			builder.add(BloodMoonModule.ARMORED, "В броне под кровавой луной");
+			builder.add(BloodMoonModule.ARMED, "С оружием под кровавой луной");
+			builder.add(BloodMoonModule.HUNTERS, "Охотятся на животных под кровавой луной");
 		}
 	}
 }

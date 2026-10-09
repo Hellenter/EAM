@@ -6,6 +6,8 @@
 		"survival.hunger.AbstractContainerScreenAccessor",
 		"survival.hunger.HudMixin",
 		"survival.thirst.GuiGraphicsExtractorMixin",
+		"world.bloodmoon.FogRendererMixin",
+		"world.bloodmoon.SkyRendererMixin",
 		"world.forging.AnvilScreenMixin"
 	],
 	"injectors": {

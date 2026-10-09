@@ -17,7 +17,9 @@ import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
+import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
@@ -75,6 +77,8 @@ public class Eam implements ModInitializer {
 		BrewingModule.register();
 		FarmingModule.register();
 		EnchantingModule.register();
+		SafeRoomModule.register();
+		BloodMoonModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -103,6 +107,8 @@ public class Eam implements ModInitializer {
 		if (config.slowAnimals()) FarmingModule.initAnimals();
 		if (config.mithril()) MithrilModule.init();
 		if (config.enchanting()) EnchantingModule.init();
+		if (config.safeSleep()) SafeRoomModule.init();
+		if (config.bloodMoon()) BloodMoonModule.init();
 	}
 
 	public static EamConfig config() {
