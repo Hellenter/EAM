@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -24,5 +25,7 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.BYPASSES_EFFECTS).add(ThirstModule.DEHYDRATION);
 		builder(DamageTypeTags.NO_KNOCKBACK).add(ThirstModule.DEHYDRATION);
 		builder(DamageTypeTags.BYPASSES_WOLF_ARMOR).add(ThirstModule.DEHYDRATION);
+		// The Fallen Lord's dash can only be dodged.
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(FallenLordModule.DASH_DAMAGE);
 	}
 }

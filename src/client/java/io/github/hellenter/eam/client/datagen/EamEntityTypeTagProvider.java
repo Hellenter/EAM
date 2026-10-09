@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
@@ -13,6 +14,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypeIds;
 
@@ -54,5 +56,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER, EntityTypeIds.VINDICATOR)
 				.add(SKELETONS);
 		builder(CowDefenseModule.DEFENDERS).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM);
+		// The Fallen Lord is undead: smite and silver hurt him more.
+		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key());
 	}
 }
