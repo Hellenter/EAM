@@ -23,6 +23,9 @@ class CraftingTierLogicTest {
 		// Iron needs copper or silver or better.
 		assertFalse(CraftingTierLogic.canCraft(3, 1));
 		assertTrue(CraftingTierLogic.canCraft(3, 2));
+		// Mithril needs iron or better.
+		assertFalse(CraftingTierLogic.canCraft(4, 2));
+		assertTrue(CraftingTierLogic.canCraft(4, 3));
 	}
 
 	@Test

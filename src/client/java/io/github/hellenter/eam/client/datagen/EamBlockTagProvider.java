@@ -94,6 +94,20 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(BlockTags.NEEDS_STONE_TOOL).add(EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key());
 
+		// Mithril: an iron pickaxe or better. Obsidian moves from diamond to iron, so the obsidian blast furnace can be built.
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.MITHRIL_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_MITHRIL_ORE.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BLOCK.builtInRegistryHolder().key(),
+				EamBlocks.MITHRIL_ANVIL.builtInRegistryHolder().key(), EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
+		builder(BlockTags.NEEDS_IRON_TOOL).add(EamBlocks.MITHRIL_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_MITHRIL_ORE.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BLOCK.builtInRegistryHolder().key(),
+				EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
+		builder(BlockTags.NEEDS_IRON_TOOL).add(BlockItemIds.OBSIDIAN);
+		// Replaces the vanilla list, which also has obsidian.
+		BlockItemTagAppender<Block> diamondTool = builder(BlockTags.NEEDS_DIAMOND_TOOL);
+		diamondTool.setReplace(true);
+		diamondTool.add(BlockItemIds.CRYING_OBSIDIAN, BlockItemIds.NETHERITE_BLOCK, BlockItemIds.RESPAWN_ANCHOR, BlockItemIds.ANCIENT_DEBRIS);
+		builder(BlockTags.ANVIL).add(EamBlocks.MITHRIL_ANVIL.builtInRegistryHolder().key());
+
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
 		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);

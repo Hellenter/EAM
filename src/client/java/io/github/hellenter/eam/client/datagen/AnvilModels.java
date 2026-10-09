@@ -17,7 +17,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 
-/** Copper and silver anvils: the vanilla anvil template with recolored textures, one model per wear stage. */
+/** Copper, silver and mithril anvils: the vanilla anvil template with recolored textures, one model per wear stage. */
 final class AnvilModels {
 	private static final String[] TOP_SUFFIX = {"_top", "_top_chipped", "_top_damaged"};
 
@@ -27,6 +27,7 @@ final class AnvilModels {
 	static void generate(BlockModelGenerators generators) {
 		anvil(generators, EamBlocks.COPPER_ANVIL);
 		anvil(generators, EamBlocks.SILVER_ANVIL);
+		anvil(generators, EamBlocks.MITHRIL_ANVIL);
 	}
 
 	private static void anvil(BlockModelGenerators generators, Block block) {

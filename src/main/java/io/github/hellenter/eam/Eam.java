@@ -23,6 +23,7 @@ import io.github.hellenter.eam.world.farming.FarmingModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
+import io.github.hellenter.eam.world.mithril.MithrilModule;
 import io.github.hellenter.eam.world.ores.OreModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 import io.github.hellenter.eam.world.structures.StructureRemovalModule;
@@ -96,6 +97,7 @@ public class Eam implements ModInitializer {
 		if (config.silver()) BrewingModule.init();
 		if (config.slowCrops()) FarmingModule.initCrops();
 		if (config.slowAnimals()) FarmingModule.initAnimals();
+		if (config.mithril()) MithrilModule.init();
 	}
 
 	public static EamConfig config() {

@@ -64,7 +64,11 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.DEEPSLATE_SILVER_ORE, block -> createOreDrop(block, EamItems.RAW_SILVER));
 		dropSelf(EamBlocks.SILVER_BLOCK);
 		// Anvils keep their wear, as vanilla's chipped anvil drops a chipped anvil.
-		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL)) {
+		add(EamBlocks.MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
+		add(EamBlocks.DEEPSLATE_MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
+		dropSelf(EamBlocks.MITHRIL_BLOCK);
+		add(EamBlocks.OBSIDIAN_BLAST_FURNACE, this::createNameableBlockEntityTable);
+		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL)) {
 			add(anvil, LootTable.lootTable().withPool(applyExplosionCondition(anvil, LootPool.lootPool()
 					.setRolls(ContextIntProviders.exactly(1))
 					.add(LootItem.lootTableItem(anvil).apply(CopyBlockState.copyState(anvil).copy(MetalAnvilBlock.WEAR))))));

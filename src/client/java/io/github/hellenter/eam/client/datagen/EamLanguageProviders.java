@@ -5,10 +5,12 @@ import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
+import io.github.hellenter.eam.world.mithril.MithrilModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -152,7 +154,43 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
 			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
 			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
-			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron a copper or silver one");
+			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron a copper or silver one, mithril an iron one");
+			mithril(builder);
+		}
+
+		private static void mithril(TranslationBuilder builder) {
+			builder.add(EamBlocks.OBSIDIAN_BLAST_FURNACE, "Obsidian Blast Furnace");
+			builder.add("container.eam.obsidian_blast_furnace", "Obsidian Blast Furnace");
+			builder.add(EamItems.MITHRIL_ORE, "Mithril Ore");
+			builder.add(EamItems.DEEPSLATE_MITHRIL_ORE, "Deepslate Mithril Ore");
+			builder.add(EamItems.MITHRIL_BLOCK, "Block of Mithril");
+			builder.add(EamItems.RAW_MITHRIL, "Raw Mithril");
+			builder.add(EamItems.MITHRIL_INGOT, "Mithril Ingot");
+			builder.add(EamItems.HOT_MITHRIL_INGOT, "Hot Mithril");
+			builder.add(EamItems.MITHRIL_PLATE, "Mithril Plate");
+			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
+			builder.add(EamItems.MITHRIL_SHOVEL, "Mithril Shovel");
+			builder.add(EamItems.MITHRIL_PICKAXE, "Mithril Pickaxe");
+			builder.add(EamItems.MITHRIL_AXE, "Mithril Axe");
+			builder.add(EamItems.MITHRIL_HOE, "Mithril Hoe");
+			builder.add(EamItems.MITHRIL_HELMET, "Mithril Helmet");
+			builder.add(EamItems.MITHRIL_CHESTPLATE, "Mithril Chestplate");
+			builder.add(EamItems.MITHRIL_LEGGINGS, "Mithril Leggings");
+			builder.add(EamItems.MITHRIL_BOOTS, "Mithril Boots");
+			builder.add(EamItems.MITHRIL_KNIFE, "Mithril Knife");
+			builder.add(EamItems.MITHRIL_SAW, "Mithril Saw");
+			builder.add(EamItems.MITHRIL_HAMMER, "Mithril Hammer");
+			builder.add(EamBlocks.MITHRIL_ANVIL, "Mithril Anvil");
+			builder.add(MithrilGear.TOOL_MATERIALS, "Mithril Tool Materials");
+			builder.add(MithrilGear.REPAIRS_ARMOR, "Mithril Armor Repair Materials");
+			builder.add(MithrilModule.OBSIDIAN_FURNACE_ONLY, "Smelted Only in the Obsidian Blast Furnace");
+			builder.add(ForgingTags.HAMMER_TIERS.get(3), "Anvil Hammers: Tier 4");
+			builder.add(CraftingTags.KNIFE_TIERS.get(3), "Crafting Table Knives: Tier 4");
+			builder.add(CraftingTags.SAW_TIERS.get(3), "Saws: Tier 4");
+			builder.add(CraftingTags.MATERIAL_TIERS.get(3), "Crafting Materials: Tier 4");
+			builder.add("item.eam.hot_mithril_ingot.cools_in", "Cools in %s s");
+			builder.add("item.eam.hot_mithril_ingot.cooled", "Cooled: it is a mithril ingot again");
+			builder.add("item.eam.hot_mithril_ingot.forge", "Forge on a mithril anvil: 2 make a mithril plate");
 		}
 	}
 
@@ -278,7 +316,44 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.balanced", "Питание сбалансировано: голод медленнее, регенерация быстрее");
 			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
 			builder.add("gui.eam.crafting_table.tool", "Ножи, пилы и молотки: нужен хотя бы нож, каждый инструмент ускоряет свой крафт");
-			builder.add("gui.eam.crafting_table.tool.tiers", "Для меди и серебра нужен кремнёвый нож, для железа медный или серебряный");
+			builder.add("gui.eam.crafting_table.tool.tiers",
+					"Для меди и серебра нужен кремнёвый нож, для железа медный или серебряный, для мифрила железный");
+			mithril(builder);
+		}
+
+		private static void mithril(TranslationBuilder builder) {
+			builder.add(EamBlocks.OBSIDIAN_BLAST_FURNACE, "Обсидиановая доменная печь");
+			builder.add("container.eam.obsidian_blast_furnace", "Обсидиановая доменная печь");
+			builder.add(EamItems.MITHRIL_ORE, "Мифриловая руда");
+			builder.add(EamItems.DEEPSLATE_MITHRIL_ORE, "Глубинносланцевая мифриловая руда");
+			builder.add(EamItems.MITHRIL_BLOCK, "Мифриловый блок");
+			builder.add(EamItems.RAW_MITHRIL, "Необработанный мифрил");
+			builder.add(EamItems.MITHRIL_INGOT, "Мифриловый слиток");
+			builder.add(EamItems.HOT_MITHRIL_INGOT, "Раскалённый мифрил");
+			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
+			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");
+			builder.add(EamItems.MITHRIL_SHOVEL, "Мифриловая лопата");
+			builder.add(EamItems.MITHRIL_PICKAXE, "Мифриловая кирка");
+			builder.add(EamItems.MITHRIL_AXE, "Мифриловый топор");
+			builder.add(EamItems.MITHRIL_HOE, "Мифриловая мотыга");
+			builder.add(EamItems.MITHRIL_HELMET, "Мифриловый шлем");
+			builder.add(EamItems.MITHRIL_CHESTPLATE, "Мифриловый нагрудник");
+			builder.add(EamItems.MITHRIL_LEGGINGS, "Мифриловые поножи");
+			builder.add(EamItems.MITHRIL_BOOTS, "Мифриловые ботинки");
+			builder.add(EamItems.MITHRIL_KNIFE, "Мифриловый нож");
+			builder.add(EamItems.MITHRIL_SAW, "Мифриловая пила");
+			builder.add(EamItems.MITHRIL_HAMMER, "Мифриловый молоток");
+			builder.add(EamBlocks.MITHRIL_ANVIL, "Мифриловая наковальня");
+			builder.add(MithrilGear.TOOL_MATERIALS, "Материалы мифриловых инструментов");
+			builder.add(MithrilGear.REPAIRS_ARMOR, "Материалы для починки мифриловой брони");
+			builder.add(MithrilModule.OBSIDIAN_FURNACE_ONLY, "Плавится только в обсидиановой доменной печи");
+			builder.add(ForgingTags.HAMMER_TIERS.get(3), "Молотки для наковальни: тир 4");
+			builder.add(CraftingTags.KNIFE_TIERS.get(3), "Ножи для верстака: тир 4");
+			builder.add(CraftingTags.SAW_TIERS.get(3), "Пилы: тир 4");
+			builder.add(CraftingTags.MATERIAL_TIERS.get(3), "Материалы для крафта: тир 4");
+			builder.add("item.eam.hot_mithril_ingot.cools_in", "Остынет через %s с");
+			builder.add("item.eam.hot_mithril_ingot.cooled", "Остыл: снова мифриловый слиток");
+			builder.add("item.eam.hot_mithril_ingot.forge", "Выкуйте на мифриловой наковальне: из 2 выйдет мифриловая пластина");
 		}
 	}
 }

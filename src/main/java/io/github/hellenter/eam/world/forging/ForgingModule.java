@@ -23,6 +23,7 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
 
@@ -31,7 +32,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * Iron plates for iron armor. An iron ingot smelts into hot iron, the anvil hammers two hot iron into a plate in five
  * seconds, and hot iron left alone turns back into an ingot a minute after it leaves the furnace. Iron armor takes
- * plates and ingots. The recipes are datagen files that load
+ * plates and ingots. Mithril works the same way, but only the obsidian blast furnace heats it and only the mithril
+ * anvil forges it. The recipes are datagen files that load
  * only while the {@code iron_plates} flag is on ({@link #ENABLED}); with it off the vanilla ingot armor recipes return.
  */
 public final class ForgingModule {
@@ -125,12 +127,30 @@ public final class ForgingModule {
 		return stack.getOrDefault(COOLS_AT, ForgingLogic.NOT_STARTED);
 	}
 
-	/** Both sides: hot iron in the left slot can be forged now. */
+	/** The plate {@code input} is forged into and the anvil tier that takes, or null for anything else. */
+	private static @Nullable Plate plate(ItemStack input) {
+		if (input.is(EamItems.HOT_IRON_INGOT)) {
+			return new Plate(EamItems.IRON_PLATE, ForgingLogic.PLATE_ANVIL_TIER);
+		}
+		if (input.is(EamItems.HOT_MITHRIL_INGOT)) {
+			return new Plate(EamItems.MITHRIL_PLATE, ForgingLogic.MITHRIL_PLATE_ANVIL_TIER);
+		}
+		return null;
+	}
+
+	/** Both sides: the hot metal in the left slot can be forged now. */
 	private static boolean canForge(ForgingAnvilMenu menu, long now) {
 		ItemStack input = menu.eam$inputSlots().getItem(0);
-		return input.is(EamItems.HOT_IRON_INGOT) && menu.eam$forge().anvilTier() >= ForgingLogic.PLATE_ANVIL_TIER
+		Plate plate = plate(input);
+		return plate != null && ForgingLogic.canForgeOn(menu.eam$forge().anvilTier(), plate.anvilTier())
 				&& ForgingLogic.canForge(input.getCount(),
 				menu.eam$inputSlots().getItem(1).isEmpty(), ForgingLogic.isCooled(coolsAt(input), now));
+	}
+
+	/** Server: a fresh plate for the hot metal in the left slot; only called when {@link #canForge} holds. */
+	private static ItemStack newPlate(ForgingAnvilMenu menu) {
+		Plate plate = plate(menu.eam$inputSlots().getItem(0));
+		return plate == null ? ItemStack.EMPTY : new ItemStack(plate.item());
 	}
 
 	/**
@@ -153,7 +173,7 @@ public final class ForgingModule {
 		if (output.isEmpty() && !canForge) {
 			return false;
 		}
-		menu.eam$resultSlots().setItem(0, output.isEmpty() ? new ItemStack(EamItems.IRON_PLATE) : output.copy());
+		menu.eam$resultSlots().setItem(0, output.isEmpty() ? newPlate(menu) : output.copy());
 		return true;
 	}
 
@@ -218,7 +238,7 @@ public final class ForgingModule {
 			forge.stop();
 			return;
 		}
-		ItemStack plate = new ItemStack(EamItems.IRON_PLATE);
+		ItemStack plate = newPlate(menu);
 		ItemStack output = forge.output();
 		if (output.isEmpty()) {
 			forge.setOutput(plate);
@@ -262,6 +282,9 @@ public final class ForgingModule {
 	/** Whether this server forges plates. The client learns it from the menu's synced flags, not from here. */
 	static boolean enabled() {
 		return enabled;
+	}
+
+	private record Plate(Item item, int anvilTier) {
 	}
 
 	private record EnabledCondition() implements ResourceCondition {

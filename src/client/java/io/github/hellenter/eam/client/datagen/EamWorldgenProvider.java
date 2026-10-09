@@ -55,6 +55,9 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * Silver ore: copper's veins, heights and targets, 2.5 times fewer (4.8 veins per chunk: 24 tries, each kept 1 time in 5).
  * Mountains get a second, equal set of veins, so twice the silver.
+ * <p>
+ * Mithril ore: only below y -32, in deepslate (stone ore where stone is left), 7 veins of size 6 per chunk, half of the
+ * ore exposed to air discarded like diamond. Diamond's veins add up to a bit more ore, spread over a taller range.
  */
 public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	/** How far above the ground a tree crown counts for a stick under it. */
@@ -63,6 +66,10 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int COPPER_VEINS_PER_CHUNK = 12;
 	private static final int SILVER_VEIN_TRIES = 24;
 	private static final int SILVER_VEIN_RARITY = 5;
+	private static final int MITHRIL_VEIN_SIZE = 6;
+	private static final int MITHRIL_VEINS_PER_CHUNK = 7;
+	private static final int MITHRIL_TOP = -32;
+	private static final float MITHRIL_DISCARD_ON_AIR = 0.5F;
 
 	public EamWorldgenProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -86,6 +93,14 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(stone, EamBlocks.SILVER_ORE.defaultBlockState()),
 				BlockReplacement.replace(deepslate, EamBlocks.DEEPSLATE_SILVER_ORE.defaultBlockState())
 		), COPPER_VEIN_SIZE));
+		mithrilFeature(context);
+	}
+
+	private static void mithrilFeature(BootstrapContext<Feature> context) {
+		context.register(EamWorldgen.ORE_MITHRIL, new OreFeature(List.of(
+				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.MITHRIL_ORE.defaultBlockState()),
+				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_MITHRIL_ORE.defaultBlockState())
+		), MITHRIL_VEIN_SIZE, MITHRIL_DISCARD_ON_AIR));
 	}
 
 	public static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -117,6 +132,11 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BiomeFilter.biome()));
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_PLACED, silver, silverOre());
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_MOUNTAIN, silver, silverOre());
+		PlacementUtils.register(context, EamWorldgen.ORE_MITHRIL_PLACED, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
+				CountPlacement.of(MITHRIL_VEINS_PER_CHUNK),
+				InSquarePlacement.spread(),
+				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(MITHRIL_TOP)),
+				BiomeFilter.biome()));
 	}
 
 	/** Copper's placement with 2.5 times fewer veins. */
@@ -187,6 +207,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(features, EamWorldgen.GROUND_STICK);
 		entries.add(features, EamWorldgen.ORE_COPPER);
 		entries.add(features, EamWorldgen.ORE_SILVER);
+		entries.add(features, EamWorldgen.ORE_MITHRIL);
 		var placedFeatures = registries.lookupOrThrow(Registries.PLACED_FEATURE);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_FOREST);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_FOREST);
@@ -198,6 +219,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.ORE_COPPER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_MOUNTAIN);
+		entries.add(placedFeatures, EamWorldgen.ORE_MITHRIL_PLACED);
 	}
 
 	@Override

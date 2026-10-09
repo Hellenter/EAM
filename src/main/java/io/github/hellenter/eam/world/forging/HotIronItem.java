@@ -7,20 +7,23 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 /**
- * Hot iron from the furnace. Its minute starts on its first tick in an inventory, which is when it has been taken out
- * of the furnace; once the minute is up it turns back into iron ingots. Stacks taken out at different times keep
- * different timers and do not merge.
+ * Hot metal from the furnace: hot iron, or hot mithril from the obsidian blast furnace. Its minute starts on its first
+ * tick in an inventory, which is when it has been taken out of the furnace; once the minute is up it turns back into
+ * the ingot it was heated from. Stacks taken out at different times keep different timers and do not merge.
  */
 public class HotIronItem extends Item {
-	public HotIronItem(Properties properties) {
+	private final Item cooled;
+
+	/** @param cooled the ingot it turns back into */
+	public HotIronItem(Item cooled, Properties properties) {
 		super(properties);
+		this.cooled = cooled;
 	}
 
 	@Override
@@ -29,7 +32,7 @@ public class HotIronItem extends Item {
 		if (!stack.has(ForgingModule.COOLS_AT)) {
 			stack.set(ForgingModule.COOLS_AT, ForgingLogic.coolsAt(now));
 		} else if (ForgingLogic.isCooled(ForgingModule.coolsAt(stack), now)) {
-			replace(stack, new ItemStack(Items.IRON_INGOT, stack.getCount()), owner, slot);
+			replace(stack, new ItemStack(cooled, stack.getCount()), owner, slot);
 		}
 	}
 

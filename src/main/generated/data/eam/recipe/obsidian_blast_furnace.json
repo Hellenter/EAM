@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "F": "minecraft:furnace",
+    "O": "minecraft:obsidian",
+    "P": "eam:iron_plate"
+  },
+  "pattern": [
+    "PPP",
+    "PFP",
+    "OOO"
+  ],
+  "result": {
+    "id": "eam:obsidian_blast_furnace"
+  }
+}

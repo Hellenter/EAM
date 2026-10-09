@@ -102,17 +102,21 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				knife(EamItems.COPPER_KNIFE, Items.COPPER_INGOT);
 				knife(EamItems.SILVER_KNIFE, EamItems.SILVER_INGOT);
 				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
+				knife(EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_INGOT);
 
 				// Anvils like the vanilla one, from their own metal; hammers: two ingots across a stick handle.
 				anvil(EamItems.COPPER_ANVIL, Items.COPPER_BLOCK.weathering().unaffected(), Items.COPPER_INGOT);
 				anvil(EamItems.SILVER_ANVIL, EamItems.SILVER_BLOCK, EamItems.SILVER_INGOT);
+				anvil(EamItems.MITHRIL_ANVIL, EamItems.MITHRIL_BLOCK, EamItems.MITHRIL_INGOT);
 				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
+				hammer(EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_INGOT);
 				// Saws: two ingots in a diagonal blade with a stick handle.
 				saw(EamItems.COPPER_SAW, Items.COPPER_INGOT);
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
+				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
 
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
@@ -147,6 +151,9 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 				silverRecipes();
 				brewingRecipes();
+				mithrilRecipes();
+				mithrilPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				mithrilIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
 
 				earlyToolRecipes(withConditions(output, ResourceConditions.not(EarlyToolsModule.REMOVED)));
 				diamondGearRecipes(withConditions(output, ResourceConditions.not(DiamondGearModule.REMOVED)));
@@ -341,6 +348,84 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				}
 				recipe.unlockedBy(getHasName(EamItems.SILVER_INGOT), has(EamItems.SILVER_INGOT))
 						.save(output);
+			}
+
+			/**
+			 * The obsidian blast furnace (a furnace in iron plates on obsidian) and mithril: it smelts only in that furnace,
+			 * packs into blocks and makes diamond-shaped tools. Its armor is in {@link #mithrilPlateRecipes}.
+			 */
+			private void mithrilRecipes() {
+				shaped(RecipeCategory.DECORATIONS, EamItems.OBSIDIAN_BLAST_FURNACE)
+						.define('P', EamItems.IRON_PLATE)
+						.define('F', Items.FURNACE)
+						.define('O', Items.OBSIDIAN)
+						.pattern("PPP")
+						.pattern("PFP")
+						.pattern("OOO")
+						.unlockedBy(getHasName(Items.OBSIDIAN), has(Items.OBSIDIAN))
+						.save(output);
+				for (Item smeltable : List.of(EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL)) {
+					SimpleCookingRecipeBuilder.blasting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.MITHRIL_INGOT, 1.0F, 100)
+							.group("mithril_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:mithril_ingot_from_blasting_" + getItemName(smeltable));
+				}
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.MITHRIL_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.MITHRIL_BLOCK,
+						"eam:mithril_block", null, "eam:mithril_ingot_from_mithril_block", "mithril_ingot");
+				mithril(RecipeCategory.COMBAT, EamItems.MITHRIL_SWORD, "X", "X", "#");
+				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_SHOVEL, "X", "#", "#");
+				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_PICKAXE, "XXX", " # ", " # ");
+				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_AXE, "XX", "X#", " #");
+				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_HOE, "XX", " #", " #");
+			}
+
+			private void mithril(RecipeCategory category, Item result, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('X', EamItems.MITHRIL_INGOT)
+						.define('#', Items.STICK);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.MITHRIL_INGOT), has(EamItems.MITHRIL_INGOT))
+						.save(output);
+			}
+
+			/** Mithril ingot to hot mithril in the obsidian blast furnace, and mithril armor from plates and ingots like iron's. */
+			private void mithrilPlateRecipes(RecipeOutput enabled) {
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(EamItems.MITHRIL_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_MITHRIL_INGOT, 0.0F, 100)
+						.unlockedBy(getHasName(EamItems.MITHRIL_INGOT), has(EamItems.MITHRIL_INGOT))
+						.save(enabled, "eam:hot_mithril_ingot_from_blasting");
+				mithrilArmor(enabled, EamItems.MITHRIL_HELMET, "", "PPP", "I I");
+				mithrilArmor(enabled, EamItems.MITHRIL_CHESTPLATE, "", "I I", "PPP", "IPI");
+				mithrilArmor(enabled, EamItems.MITHRIL_LEGGINGS, "", "PIP", "P P", "I I");
+				mithrilArmor(enabled, EamItems.MITHRIL_BOOTS, "", "I I", "P P");
+			}
+
+			/** With the plates off, mithril armor takes ingots only, like vanilla armor. */
+			private void mithrilIngotArmorRecipes(RecipeOutput disabled) {
+				mithrilArmor(disabled, EamItems.MITHRIL_HELMET, "_from_ingots", "III", "I I");
+				mithrilArmor(disabled, EamItems.MITHRIL_CHESTPLATE, "_from_ingots", "I I", "III", "III");
+				mithrilArmor(disabled, EamItems.MITHRIL_LEGGINGS, "_from_ingots", "III", "I I", "I I");
+				mithrilArmor(disabled, EamItems.MITHRIL_BOOTS, "_from_ingots", "I I", "I I");
+			}
+
+			private void mithrilArmor(RecipeOutput output, Item result, String suffix, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('I', EamItems.MITHRIL_INGOT);
+				if (String.join("", pattern).contains("P")) {
+					recipe.define('P', EamItems.MITHRIL_PLATE);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.MITHRIL_INGOT), has(EamItems.MITHRIL_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
 			}
 
 			/** Iron ingot to hot iron in a furnace or blast furnace, and iron armor from plates and ingots. Plates come only from the anvil. */

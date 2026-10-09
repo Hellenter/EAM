@@ -4,10 +4,12 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
+import io.github.hellenter.eam.world.mithril.MithrilModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -56,7 +58,22 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.LEG_ARMOR).add(EamItems.SILVER_LEGGINGS.builtInRegistryHolder().key());
 		builder(ItemTags.FOOT_ARMOR).add(EamItems.SILVER_BOOTS.builtInRegistryHolder().key());
 
-		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT, EamItems.SILVER_INGOT));
+		builder(BlastFurnaceModule.INGOTS).addAll(keys(Items.IRON_INGOT, Items.COPPER_INGOT, EamItems.SILVER_INGOT, EamItems.MITHRIL_INGOT));
+
+		builder(MithrilGear.TOOL_MATERIALS).add(EamItems.MITHRIL_INGOT.builtInRegistryHolder().key());
+		builder(MithrilGear.REPAIRS_ARMOR).add(EamItems.MITHRIL_INGOT.builtInRegistryHolder().key());
+		builder(ItemTags.SWORDS).add(EamItems.MITHRIL_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SHOVELS).add(EamItems.MITHRIL_SHOVEL.builtInRegistryHolder().key());
+		builder(ItemTags.PICKAXES).add(EamItems.MITHRIL_PICKAXE.builtInRegistryHolder().key());
+		builder(ItemTags.AXES).add(EamItems.MITHRIL_AXE.builtInRegistryHolder().key());
+		builder(ItemTags.HOES).add(EamItems.MITHRIL_HOE.builtInRegistryHolder().key());
+		builder(ItemTags.HEAD_ARMOR).add(EamItems.MITHRIL_HELMET.builtInRegistryHolder().key());
+		builder(ItemTags.CHEST_ARMOR).add(EamItems.MITHRIL_CHESTPLATE.builtInRegistryHolder().key());
+		builder(ItemTags.LEG_ARMOR).add(EamItems.MITHRIL_LEGGINGS.builtInRegistryHolder().key());
+		builder(ItemTags.FOOT_ARMOR).add(EamItems.MITHRIL_BOOTS.builtInRegistryHolder().key());
+		// Too hot for the vanilla blast furnace: these cook only in the obsidian one.
+		builder(MithrilModule.OBSIDIAN_FURNACE_ONLY).addAll(keys(EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL,
+				EamItems.MITHRIL_INGOT));
 
 		// What the silver brewing stand takes in its reagent slot; its recipes are data/eam/recipe/silver_brewing/.
 		builder(BrewingModule.REAGENTS).addAll(keys(EamItems.SILVER_REDSTONE_DUST, Items.GLOW_BERRIES, EamItems.FLOWER_MIX,
@@ -65,17 +82,21 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.KNIFE_TIERS.get(0)).add(EamItems.FLINT_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.KNIFE_TIERS.get(1)).addAll(keys(EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE));
 		builder(CraftingTags.KNIFE_TIERS.get(2)).add(EamItems.IRON_KNIFE.builtInRegistryHolder().key());
+		builder(CraftingTags.KNIFE_TIERS.get(3)).add(EamItems.MITHRIL_KNIFE.builtInRegistryHolder().key());
 		builder(CraftingTags.SAW_TIERS.get(0));
 		builder(CraftingTags.SAW_TIERS.get(1)).addAll(keys(EamItems.COPPER_SAW, EamItems.SILVER_SAW));
 		builder(CraftingTags.SAW_TIERS.get(2)).add(EamItems.IRON_SAW.builtInRegistryHolder().key());
+		builder(CraftingTags.SAW_TIERS.get(3)).add(EamItems.MITHRIL_SAW.builtInRegistryHolder().key());
 		// Knives, saws and hammers go in the crafting table's tool slots in any mix.
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS)
 				.addTag(CraftingTags.KNIFE_TIERS.get(0)).addTag(CraftingTags.KNIFE_TIERS.get(1)).addTag(CraftingTags.KNIFE_TIERS.get(2))
+				.addTag(CraftingTags.KNIFE_TIERS.get(3))
 				.addTag(CraftingTags.SAW_TIERS.get(0)).addTag(CraftingTags.SAW_TIERS.get(1)).addTag(CraftingTags.SAW_TIERS.get(2))
+				.addTag(CraftingTags.SAW_TIERS.get(3))
 				.addTag(ForgingTags.HAMMERS);
 		// A hammer in the table speeds up crafts with any of these in the grid.
 		builder(CraftingTags.METALS)
-				.addTag(CraftingTags.MATERIAL_TIERS.get(1)).addTag(CraftingTags.MATERIAL_TIERS.get(2))
+				.addTag(CraftingTags.MATERIAL_TIERS.get(1)).addTag(CraftingTags.MATERIAL_TIERS.get(2)).addTag(CraftingTags.MATERIAL_TIERS.get(3))
 				.addOptionalTag(ItemTags.METAL_NUGGETS)
 				.addAll(keys(EamItems.SILVER_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
 		// A saw in the table speeds up crafting these: wooden things and decorative blocks.
@@ -111,19 +132,21 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.MATERIAL_TIERS.get(0)).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(CraftingTags.MATERIAL_TIERS.get(1)).addAll(keys(Items.COPPER_INGOT, EamItems.SILVER_INGOT));
 		builder(CraftingTags.MATERIAL_TIERS.get(2)).addAll(keys(Items.IRON_INGOT, EamItems.IRON_PLATE));
+		builder(CraftingTags.MATERIAL_TIERS.get(3)).addAll(keys(EamItems.MITHRIL_INGOT, EamItems.MITHRIL_PLATE));
 		builder(CraftingTags.TIER_FREE).addAll(keys(Items.COPPER_INGOT, Items.COPPER_NUGGET, Items.RAW_COPPER_BLOCK,
 				EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET, EamItems.SILVER_BLOCK, Items.IRON_INGOT, Items.IRON_NUGGET, Items.IRON_BLOCK,
-				Items.RAW_IRON_BLOCK))
+				Items.RAW_IRON_BLOCK, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_BLOCK))
 				.addAll(keys(Items.COPPER_BLOCK.asList().toArray(Item[]::new)));
 		builder(ForgingTags.HAMMER_TIERS.get(0));
 		builder(ForgingTags.HAMMER_TIERS.get(1)).addAll(keys(EamItems.COPPER_HAMMER, EamItems.SILVER_HAMMER));
 		builder(ForgingTags.HAMMER_TIERS.get(2)).add(EamItems.IRON_HAMMER.builtInRegistryHolder().key());
+		builder(ForgingTags.HAMMER_TIERS.get(3)).add(EamItems.MITHRIL_HAMMER.builtInRegistryHolder().key());
 		builder(ForgingTags.HAMMERS).addTag(ForgingTags.HAMMER_TIERS.get(0)).addTag(ForgingTags.HAMMER_TIERS.get(1))
-				.addTag(ForgingTags.HAMMER_TIERS.get(2));
-		builder(ItemTags.ANVIL).addAll(keys(EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL));
+				.addTag(ForgingTags.HAMMER_TIERS.get(2)).addTag(ForgingTags.HAMMER_TIERS.get(3));
+		builder(ItemTags.ANVIL).addAll(keys(EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL));
 
 		builder(CraftingTags.TEN_SECONDS).addAll(keys(Items.CRAFTING_TABLE, Items.CRAFTER, Items.ANVIL, EamItems.COPPER_ANVIL,
-				EamItems.SILVER_ANVIL, Items.ENCHANTING_TABLE,
+				EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL, EamItems.OBSIDIAN_BLAST_FURNACE, Items.ENCHANTING_TABLE,
 				Items.BEACON, Items.CONDUIT, Items.RESPAWN_ANCHOR, Items.LODESTONE));
 		// Vanilla tags are not generated here, so the datagen cannot check them: refer to them as optional.
 		builder(CraftingTags.ARMOR)
@@ -140,7 +163,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addOptionalTag(ItemTags.SWORDS)
 				.addOptionalTag(ItemTags.SPEARS)
 				.addAll(keys(EamItems.FLINT_KNIFE, EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, EamItems.COPPER_HAMMER,
-						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, EamItems.COPPER_SAW, EamItems.SILVER_SAW, EamItems.IRON_SAW, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
+						EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, EamItems.COPPER_SAW, EamItems.SILVER_SAW, EamItems.IRON_SAW,
+						EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_SAW, Items.SHEARS, Items.FLINT_AND_STEEL, Items.FISHING_ROD, Items.CARROT_ON_A_STICK,
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.

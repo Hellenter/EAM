@@ -1,0 +1,20 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "eam:iron_plates_enabled"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "eam:mithril_ingot",
+    "P": "eam:mithril_plate"
+  },
+  "pattern": [
+    "I I",
+    "P P"
+  ],
+  "result": {
+    "id": "eam:mithril_boots"
+  }
+}

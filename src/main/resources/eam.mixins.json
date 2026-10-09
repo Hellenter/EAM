@@ -31,6 +31,8 @@
 		"world.forging.AnvilMenuMixin",
 		"world.items.ItemInstanceMixin",
 		"world.mining.BlockStateBaseMixin",
+		"world.mithril.AbstractFurnaceBlockEntityMixin",
+		"world.mithril.BlockStateBaseObsidianMixin",
 		"world.structures.ChunkGeneratorMixin",
 		"world.structures.JigsawPlacementMixin",
 		"world.structures.PlayerAdvancementsMixin"
