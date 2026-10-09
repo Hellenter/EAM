@@ -12,6 +12,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.client.hud.ThirstHud;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
+import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
 import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
 
@@ -40,5 +41,6 @@ public class EamClient implements ClientModInitializer {
 		CraftProgress.register();
 		HotIronTooltip.register();
 		AnvilProgress.register();
+		BloodMoonSky.register();
 	}
 }
