@@ -35,8 +35,8 @@ public final class EamWorldgen {
 	/** Pebbles on stone and gravel along stony shores, more than anywhere else. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_SHORE = placed("pebble_shore");
 	public static final ResourceKey<PlacedFeature> FLINT_SHARD_SHORE = placed("flint_shard_shore");
-	/** Sticks on the ground under tree crowns. */
-	public static final ResourceKey<PlacedFeature> GROUND_STICK_UNDER_TREES = placed("ground_stick_under_trees");
+	/** Sticks on the ground next to trees, in any biome that has them. */
+	public static final ResourceKey<PlacedFeature> GROUND_STICK_NEAR_TREES = placed("ground_stick_near_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
 	/** Silver veins in every overworld biome, 2.5 times fewer than copper. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_PLACED = placed("ore_silver");
@@ -65,7 +65,7 @@ public final class EamWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_PEBBLES), step, FLINT_SHARD_MOUNTAIN);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, PEBBLE_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, FLINT_SHARD_SHORE);
-		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_UNDER_TREES);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_NEAR_TREES);
 		GenerationStep.Decoration ores = GenerationStep.Decoration.UNDERGROUND_ORES;
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SILVER_ORE), ores, ORE_SILVER_PLACED);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_SILVER_ORE), ores, ORE_SILVER_MOUNTAIN);

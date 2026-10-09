@@ -21,6 +21,7 @@ import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
+import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
 import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingModule;
@@ -75,6 +76,7 @@ public class Eam implements ModInitializer {
 		BlastFurnaceModule.register();
 		BrewingModule.register();
 		FarmingModule.register();
+		EnchantingModule.register();
 		SafeRoomModule.register();
 		BloodMoonModule.register();
 
@@ -104,6 +106,7 @@ public class Eam implements ModInitializer {
 		if (config.slowCrops()) FarmingModule.initCrops();
 		if (config.slowAnimals()) FarmingModule.initAnimals();
 		if (config.mithril()) MithrilModule.init();
+		if (config.enchanting()) EnchantingModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
 	}

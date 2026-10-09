@@ -1,0 +1,23 @@
+{
+  "values": [
+    "minecraft:sharpness",
+    "minecraft:smite",
+    "minecraft:bane_of_arthropods",
+    "minecraft:knockback",
+    "minecraft:fire_aspect",
+    "minecraft:looting",
+    "minecraft:sweeping_edge",
+    "minecraft:thorns",
+    "minecraft:power",
+    "minecraft:punch",
+    "minecraft:flame",
+    "minecraft:multishot",
+    "minecraft:piercing",
+    "minecraft:quick_charge",
+    "minecraft:impaling",
+    "minecraft:channeling",
+    "minecraft:density",
+    "minecraft:breach",
+    "minecraft:lunge"
+  ]
+}
