@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:water_bucket",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "eam:water_bowl"
+  }
+}

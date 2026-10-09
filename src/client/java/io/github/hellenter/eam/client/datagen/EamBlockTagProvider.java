@@ -124,6 +124,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(BlockTags.NEEDS_IRON_TOOL).add(EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key(),
 				EamBlocks.MITHRIL_DOOR.builtInRegistryHolder().key(), EamBlocks.MITHRIL_TRAPDOOR.builtInRegistryHolder().key());
 
+		// Logs, wood, stems and hyphae (stripped too) break only with an axe.
+		builder(HandBreakingModule.AXE_ONLY).forceAddTag(BlockTags.LOGS);
+
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
 		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);

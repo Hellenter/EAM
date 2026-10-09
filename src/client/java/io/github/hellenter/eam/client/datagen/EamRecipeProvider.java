@@ -175,6 +175,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				bowlFoodRecipes();
 				silverRecipes();
 				brewingRecipes();
 				mithrilRecipes();
@@ -578,6 +579,89 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 					recipe.pattern(row);
 				}
 				recipe.unlockedBy(getHasName(EamItems.ANCIENT_METAL_INGOT), has(EamItems.ANCIENT_METAL_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
+			}
+
+			/** MITE bowl foods with vanilla stand-ins: beetroot for onion, apple for orange, sweet berries for blueberries. */
+			private void bowlFoodRecipes() {
+				// A bucket fills up to four bowls and comes back empty.
+				for (int bowls = 1; bowls <= 4; bowls++) {
+					shapeless(RecipeCategory.FOOD, EamItems.WATER_BOWL, bowls)
+							.requires(Items.WATER_BUCKET)
+							.requires(Items.BOWL, bowls)
+							.unlockedBy(getHasName(Items.BOWL), has(Items.BOWL))
+							.save(output, "eam:water_bowl_from_bucket_" + bowls);
+					shapeless(RecipeCategory.FOOD, EamItems.MILK_BOWL, bowls)
+							.requires(Items.MILK_BUCKET)
+							.requires(Items.BOWL, bowls)
+							.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
+							.save(output, "eam:milk_bowl_from_bucket_" + bowls);
+				}
+
+				// Boiling makes the water safe to drink.
+				Ingredient water = Ingredient.of(EamItems.WATER_BOWL);
+				SimpleCookingRecipeBuilder.smelting(water, RecipeCategory.FOOD, CookingBookCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 200)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output);
+				SimpleCookingRecipeBuilder.smoking(water, RecipeCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 100)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output, "eam:boiled_water_bowl_from_smoking");
+				SimpleCookingRecipeBuilder.campfireCooking(water, RecipeCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 600)
+						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
+						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
+
+				shapeless(RecipeCategory.FOOD, EamItems.CHEESE)
+						.requires(Items.MILK_BUCKET)
+						.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
+						.save(output);
+				shapeless(RecipeCategory.FOOD, EamItems.CHOCOLATE)
+						.requires(Items.COCOA_BEANS)
+						.requires(Items.SUGAR)
+						.unlockedBy(getHasName(Items.COCOA_BEANS), has(Items.COCOA_BEANS))
+						.save(output);
+
+				waterDish(EamItems.BEEF_STEW, Items.COOKED_BEEF, Items.BROWN_MUSHROOM, Items.POTATO);
+				waterDish(EamItems.CHICKEN_SOUP, Items.COOKED_CHICKEN, Items.CARROT, Items.BEETROOT);
+				waterDish(EamItems.VEGETABLE_SOUP, Items.POTATO, Items.CARROT, Items.BEETROOT);
+				waterDish(EamItems.PUMPKIN_SOUP, Items.PUMPKIN);
+				waterDish(EamItems.PORRIDGE, Items.WHEAT_SEEDS, Items.SWEET_BERRIES, Items.SUGAR);
+				milkDish(EamItems.CREAM_OF_MUSHROOM_SOUP, "", Items.BROWN_MUSHROOM, Items.BROWN_MUSHROOM);
+				milkDish(EamItems.CREAM_OF_VEGETABLE_SOUP, "", Items.POTATO, Items.CARROT, Items.BEETROOT);
+				milkDish(EamItems.MASHED_POTATO, "", Items.BAKED_POTATO, EamItems.CHEESE);
+				milkDish(EamItems.CEREAL, "", Items.WHEAT, Items.SUGAR);
+				milkDish(EamItems.ICE_CREAM, "", EamItems.CHOCOLATE, Items.SNOWBALL);
+				milkDish(EamItems.ICE_CREAM, "_from_cocoa", Items.COCOA_BEANS, Items.SUGAR, Items.SNOWBALL);
+				emptyBowlDish(EamItems.SALAD, Items.DANDELION, Items.DANDELION, Items.DANDELION);
+				emptyBowlDish(EamItems.SORBET, Items.APPLE, Items.SUGAR, Items.SNOWBALL);
+			}
+
+			/** A dish made in a bowl of water, plain or boiled. */
+			private void waterDish(Item result, Item... ingredients) {
+				var recipe = shapeless(RecipeCategory.FOOD, result).requires(EamItems.WATER_BOWLS);
+				for (Item ingredient : ingredients) {
+					recipe.requires(ingredient);
+				}
+				recipe.unlockedBy(getHasName(ingredients[0]), has(ingredients[0])).save(output);
+			}
+
+			private void milkDish(Item result, String suffix, Item... ingredients) {
+				dish(result, EamItems.MILK_BOWL, suffix, ingredients);
+			}
+
+			private void emptyBowlDish(Item result, Item... ingredients) {
+				dish(result, Items.BOWL, "", ingredients);
+			}
+
+			private void dish(Item result, Item bowl, String suffix, Item... ingredients) {
+				var recipe = shapeless(RecipeCategory.FOOD, result).requires(bowl);
+				for (Item ingredient : ingredients) {
+					recipe.requires(ingredient);
+				}
+				recipe.unlockedBy(getHasName(ingredients[0]), has(ingredients[0]));
 				if (suffix.isEmpty()) {
 					recipe.save(output);
 				} else {

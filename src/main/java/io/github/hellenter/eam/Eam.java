@@ -1,5 +1,6 @@
 package io.github.hellenter.eam;
 
+import io.github.hellenter.eam.content.BowlModule;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamBlocks;
@@ -64,6 +65,7 @@ public class Eam implements ModInitializer {
 		EamBlocks.register();
 		EamBlockEntities.register();
 		EamItems.register();
+		BowlModule.register();
 		EamSounds.register();
 		EamEntities.register();
 		FallenLordModule.register();

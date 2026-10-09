@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:milk_bucket",
+    "minecraft:bowl",
+    "minecraft:bowl",
+    "minecraft:bowl",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "count": 4,
+    "id": "eam:milk_bowl"
+  }
+}

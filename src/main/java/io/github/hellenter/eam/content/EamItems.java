@@ -17,25 +17,33 @@ import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
+import io.github.hellenter.eam.survival.hunger.HungerModule;
+import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
 import io.github.hellenter.eam.survival.thirst.FlaskLogic;
 import io.github.hellenter.eam.survival.thirst.FlaskWater;
+import io.github.hellenter.eam.survival.thirst.Hydration;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -276,6 +284,47 @@ public final class EamItems {
 	public static final Item MITHRIL_DOOR = doorItem("mithril_door", EamBlocks.MITHRIL_DOOR);
 	public static final Item MITHRIL_TRAPDOOR = blockItem("mithril_trapdoor", EamBlocks.MITHRIL_TRAPDOOR);
 
+	/**
+	 * MITE bowl foods. A bowl of water is filled at a water source and may poison until boiled; soups, stews and
+	 * the rest are crafted from it or from a bowl of milk. All of them give back the bowl, like vanilla stews.
+	 */
+	public static final Item WATER_BOWL = register("water_bowl", Item::new, bowl()
+			.component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK)
+			.component(ThirstModule.HYDRATION, new Hydration(4))
+			.component(ThirstModule.RAW_WATER, RawWater.INSTANCE));
+	public static final Item BOILED_WATER_BOWL = register("boiled_water_bowl", Item::new, bowl()
+			.component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK)
+			.component(ThirstModule.HYDRATION, new Hydration(4)));
+	/** Clears effects like a bucket of milk. */
+	public static final Item MILK_BOWL = register("milk_bowl", Item::new, bowl()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.2F).alwaysEdible().build(),
+					Consumables.defaultDrink().onConsume(ClearAllStatusEffectsConsumeEffect.INSTANCE).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(4, 4, 3))
+			.component(ThirstModule.HYDRATION, new Hydration(3)));
+	//                                               nutrition, saturation, protein, fat, carbs, water
+	public static final Item BEEF_STEW = bowlFood("beef_stew", 8, 0.6F, 16, 8, 10, 3);
+	public static final Item CHICKEN_SOUP = bowlFood("chicken_soup", 5, 0.6F, 12, 3, 8, 4);
+	public static final Item VEGETABLE_SOUP = bowlFood("vegetable_soup", 3, 0.5F, 2, 0, 12, 4);
+	public static final Item CREAM_OF_MUSHROOM_SOUP = bowlFood("cream_of_mushroom_soup", 4, 0.5F, 5, 4, 6, 3);
+	public static final Item CREAM_OF_VEGETABLE_SOUP = bowlFood("cream_of_vegetable_soup", 4, 0.5F, 4, 4, 12, 3);
+	public static final Item PUMPKIN_SOUP = bowlFood("pumpkin_soup", 2, 0.4F, 1, 1, 7, 4);
+	public static final Item MASHED_POTATO = bowlFood("mashed_potato", 5, 0.7F, 6, 6, 14, 1);
+	public static final Item SALAD = bowlFood("salad", 1, 0.3F, 1, 0, 4, 1);
+	public static final Item ICE_CREAM = bowlFood("ice_cream", 2, 0.4F, 2, 6, 8, 1);
+	public static final Item SORBET = bowlFood("sorbet", 2, 0.3F, 0, 0, 8, 2);
+	public static final Item PORRIDGE = bowlFood("porridge", 2, 0.4F, 1, 1, 9, 2);
+	public static final Item CEREAL = bowlFood("cereal", 2, 0.4F, 3, 2, 8, 2);
+	public static final Item CHOCOLATE = register("chocolate", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(1, 5, 6)));
+	/** Made from a bucket of milk; mashed potato needs it. */
+	public static final Item CHEESE = register("cheese", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.6F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(8, 7, 1)));
+
+	/** A bowl of plain or boiled water, for soup recipes. */
+	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -284,6 +333,17 @@ public final class EamItems {
 
 	public static void register() {
 		EamCreativeTabs.register();
+	}
+
+	private static Item.Properties bowl() {
+		return new Item.Properties().stacksTo(1).usingConvertsTo(Items.BOWL);
+	}
+
+	private static Item bowlFood(String name, int nutrition, float saturation, int protein, int fat, int carbs, int water) {
+		return register(name, Item::new, bowl()
+				.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation).build())
+				.component(HungerModule.NUTRIENTS, new Nutrients(protein, fat, carbs))
+				.component(ThirstModule.HYDRATION, new Hydration(water)));
 	}
 
 	private static Item blockItem(String name, Block block) {

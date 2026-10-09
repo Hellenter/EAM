@@ -42,6 +42,10 @@ public final class EnchantingOptions {
 			return EnchantingLogic.levelCost(resourceCost(settings, level), settings.levelsPerResource());
 		}
 
+		public int shelves(EnchantingSettings settings, int level) {
+			return settings.shelvesFor(maxLevel(), level);
+		}
+
 		public boolean allows(int level) {
 			return level > currentLevel && level <= maxLevel();
 		}
@@ -125,6 +129,30 @@ public final class EnchantingOptions {
 			price = price.plus(option.offensive(), option.resourceCost(settings, pick.level()), option.levelCost(settings, pick.level()));
 		}
 		return price;
+	}
+
+	/**
+	 * Bookshelves around the table needed to give {@code stack} the picked enchantments: at least the minimum, one more per
+	 * level the item ends up with in all past the first (levels it already has count too), and what the highest picked
+	 * level of each enchantment needs.
+	 */
+	public static int requiredShelves(EnchantingSettings settings, ItemStack stack, List<Pick> picks) {
+		int total = totalLevels(stack);
+		int required = settings.minShelves();
+		for (Pick pick : picks) {
+			total += pick.level() - pick.option().currentLevel();
+			required = Math.max(required, pick.option().shelves(settings, pick.level()));
+		}
+		return Math.max(required, EnchantingLogic.shelvesForTotal(settings.minShelves(), total));
+	}
+
+	/** Enchantment levels the item has in all. */
+	public static int totalLevels(ItemStack stack) {
+		int total = 0;
+		for (var entry : EnchantmentHelper.getEnchantmentsForCrafting(stack).entrySet()) {
+			total += entry.getIntValue();
+		}
+		return total;
 	}
 
 	/** The option for {@code enchantment}, or null if it is not on offer for this item. */

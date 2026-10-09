@@ -119,6 +119,23 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateItemModels(ItemModelGenerators generators) {
 		generators.generateFlatItem(EamItems.LEATHER_THREAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.WATER_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.BOILED_WATER_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.MILK_BOWL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.BEEF_STEW, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHICKEN_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.VEGETABLE_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CREAM_OF_MUSHROOM_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CREAM_OF_VEGETABLE_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PUMPKIN_SOUP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.MASHED_POTATO, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.SALAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.ICE_CREAM, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.SORBET, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PORRIDGE, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FALLEN_LORD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FILTERED_LEATHER_FLASK, ModelTemplates.FLAT_ITEM);

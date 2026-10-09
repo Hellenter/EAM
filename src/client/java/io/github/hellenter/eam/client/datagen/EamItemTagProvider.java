@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
+import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.mithril.MithrilModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
@@ -37,6 +38,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
+		builder(EamItems.WATER_BOWLS).add(EamItems.WATER_BOWL.builtInRegistryHolder().key(),
+				EamItems.BOILED_WATER_BOWL.builtInRegistryHolder().key());
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),
@@ -46,6 +49,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
+
+		// Logs break only with these; a battle axe goes here too.
+		builder(HandBreakingModule.CHOPS_LOGS).forceAddTag(ItemTags.AXES);
 
 		// Bows, crossbows and dispensers take anything in this tag as arrows.
 		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,
