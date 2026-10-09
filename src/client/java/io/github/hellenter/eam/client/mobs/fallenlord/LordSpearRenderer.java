@@ -18,12 +18,15 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
+import org.jspecify.annotations.Nullable;
+
 /** Draws the thrown spear as the spear item, point first along its flight. */
 public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpearRenderer.State> {
-	private static final ItemStack SPEAR = FallenLord.spearStack();
 	private static final float SCALE = 1.6F;
 
 	private final ItemModelResolver itemModelResolver;
+	// Built on first use: item components are not bound yet when renderers are created.
+	private @Nullable ItemStack spear;
 
 	public LordSpearRenderer(EntityRendererProvider.Context context) {
 		super(context);
@@ -58,7 +61,10 @@ public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpear
 		super.extractRenderState(entity, state, partialTicks);
 		state.yRot = entity.getYRot(partialTicks);
 		state.xRot = entity.getXRot(partialTicks);
-		itemModelResolver.updateForNonLiving(state.item, SPEAR, ItemDisplayContext.NONE, entity);
+		if (spear == null) {
+			spear = FallenLord.spearStack();
+		}
+		itemModelResolver.updateForNonLiving(state.item, spear, ItemDisplayContext.NONE, entity);
 	}
 
 	public static class State extends EntityRenderState {
