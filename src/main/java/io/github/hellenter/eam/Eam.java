@@ -19,6 +19,7 @@ import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
+import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
@@ -72,6 +73,7 @@ public class Eam implements ModInitializer {
 		BlastFurnaceModule.register();
 		BrewingModule.register();
 		FarmingModule.register();
+		EnchantingModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -98,6 +100,7 @@ public class Eam implements ModInitializer {
 		if (config.slowCrops()) FarmingModule.initCrops();
 		if (config.slowAnimals()) FarmingModule.initAnimals();
 		if (config.mithril()) MithrilModule.init();
+		if (config.enchanting()) EnchantingModule.init();
 	}
 
 	public static EamConfig config() {
