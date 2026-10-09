@@ -100,7 +100,7 @@ public final class AnvilForge {
 		return client() ? clientTotal : total;
 	}
 
-	/** Tier of the anvil: 2 for copper and silver, 3 for iron. */
+	/** Tier of the anvil: 2 for copper and silver, 3 for iron, 4 for mithril. */
 	public int anvilTier() {
 		return client() ? clientAnvilTier : anvilTier.getAsInt();
 	}

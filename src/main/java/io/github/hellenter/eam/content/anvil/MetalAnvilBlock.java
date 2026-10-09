@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jspecify.annotations.Nullable;
 
 /**
- * An anvil of a metal below iron: works like the vanilla anvil, but repairs only items of its tier and below. It wears
+ * An anvil of a metal other than iron: works like the vanilla anvil, but repairs only items of its tier and below. It wears
  * through the same three stages as the vanilla anvil, kept in {@link #WEAR} instead of separate blocks.
  */
 public class MetalAnvilBlock extends AnvilBlock {

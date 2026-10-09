@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 import io.github.hellenter.eam.content.sieve.SieveBlock;
@@ -77,6 +78,28 @@ public final class EamBlocks {
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.COLOR_ORANGE));
 	public static final Block SILVER_ANVIL = register("silver_anvil", p -> new MetalAnvilBlock(2, p),
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.METAL));
+
+	/** Mithril ore: deep underground, a bit rarer than diamond; mined with an iron pickaxe or better. */
+	public static final Block MITHRIL_ORE = register("mithril_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_ORE));
+
+	public static final Block DEEPSLATE_MITHRIL_ORE = register("deepslate_mithril_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.DEEPSLATE_IRON_ORE));
+
+	public static final Block MITHRIL_BLOCK = register("mithril_block", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.ICE)
+			.instrument(NoteBlockInstrument.BELL)
+			.requiresCorrectToolForDrops()
+			.strength(5.0F, 6.0F)
+			.sound(SoundType.METAL));
+
+	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
+	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.ICE));
+
+	/** A blast furnace that also smelts mithril; see {@link ObsidianBlastFurnaceBlock}. */
+	public static final Block OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace", ObsidianBlastFurnaceBlock::new,
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BLAST_FURNACE).mapColor(MapColor.COLOR_BLACK).strength(10.0F, 1200.0F));
 
 	private EamBlocks() {
 	}

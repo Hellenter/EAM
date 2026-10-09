@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.tools;
 
+import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
@@ -36,7 +37,8 @@ public final class GearModule {
 			ArmorMaterials.DIAMOND,
 			ArmorMaterials.TURTLE_SCUTE,
 			ArmorMaterials.NETHERITE,
-			SilverGear.ARMOR
+			SilverGear.ARMOR,
+			MithrilGear.ARMOR
 	);
 
 	/** Set order used by {@link GearLogic#scaleSet}. */

@@ -5,6 +5,11 @@
     "eam:silver_block",
     "eam:silver_brewing_stand",
     "eam:copper_anvil",
-    "eam:silver_anvil"
+    "eam:silver_anvil",
+    "eam:mithril_ore",
+    "eam:deepslate_mithril_ore",
+    "eam:mithril_block",
+    "eam:mithril_anvil",
+    "eam:obsidian_blast_furnace"
   ]
 }

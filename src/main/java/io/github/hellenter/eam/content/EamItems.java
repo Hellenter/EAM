@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.ground.PebbleItem;
+import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
@@ -84,7 +85,7 @@ public final class EamItems {
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
 
 	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
-	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", HotIronItem::new, new Item.Properties());
+	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", p -> new HotIronItem(Items.IRON_INGOT, p), new Item.Properties());
 
 	/** Forged from hot iron on an anvil; iron armor is made of these. */
 	public static final Item IRON_PLATE = register("iron_plate", Item::new, new Item.Properties().stacksTo(16));
@@ -137,6 +138,37 @@ public final class EamItems {
 	public static final Item SILVER_SAW = register("silver_saw", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item IRON_SAW = register("iron_saw", Item::new, new Item.Properties().stacksTo(1));
 
+	public static final Item MITHRIL_ORE = blockItem("mithril_ore", EamBlocks.MITHRIL_ORE);
+	public static final Item DEEPSLATE_MITHRIL_ORE = blockItem("deepslate_mithril_ore", EamBlocks.DEEPSLATE_MITHRIL_ORE);
+	public static final Item MITHRIL_BLOCK = blockItem("mithril_block", EamBlocks.MITHRIL_BLOCK);
+	public static final Item RAW_MITHRIL = register("raw_mithril", Item::new, new Item.Properties());
+	public static final Item MITHRIL_INGOT = register("mithril_ingot", Item::new, new Item.Properties());
+	/** A mithril ingot heated in the obsidian blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item HOT_MITHRIL_INGOT = register("hot_mithril_ingot", p -> new HotIronItem(MITHRIL_INGOT, p), new Item.Properties());
+	/** Forged from hot mithril on the mithril anvil; mithril armor is made of these. */
+	public static final Item MITHRIL_PLATE = register("mithril_plate", Item::new, new Item.Properties().stacksTo(16));
+
+	/** Mithril tools hit and last like diamond ones. */
+	public static final Item MITHRIL_SWORD = register("mithril_sword", Item::new, new Item.Properties().sword(MithrilGear.TOOL, 3.0F, -2.4F));
+	public static final Item MITHRIL_SHOVEL = register("mithril_shovel", Item::new, new Item.Properties().shovel(MithrilGear.TOOL, 1.5F, -3.0F));
+	public static final Item MITHRIL_PICKAXE = register("mithril_pickaxe", Item::new, new Item.Properties().pickaxe(MithrilGear.TOOL, 1.0F, -2.8F));
+	public static final Item MITHRIL_AXE = register("mithril_axe", Item::new, new Item.Properties().axe(MithrilGear.TOOL, 5.0F, -3.0F));
+	public static final Item MITHRIL_HOE = register("mithril_hoe", Item::new, new Item.Properties().hoe(MithrilGear.TOOL, -3.0F, 0.0F));
+
+	/** Mithril armor protects and lasts like diamond, before the gear module's cut. */
+	public static final Item MITHRIL_HELMET = mithrilArmor("mithril_helmet", ArmorType.HELMET);
+	public static final Item MITHRIL_CHESTPLATE = mithrilArmor("mithril_chestplate", ArmorType.CHESTPLATE);
+	public static final Item MITHRIL_LEGGINGS = mithrilArmor("mithril_leggings", ArmorType.LEGGINGS);
+	public static final Item MITHRIL_BOOTS = mithrilArmor("mithril_boots", ArmorType.BOOTS);
+
+	public static final Item MITHRIL_KNIFE = register("mithril_knife", KnifeItem::new, new Item.Properties()
+			.sword(MithrilGear.KNIFE, MithrilGear.KNIFE_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+	public static final Item MITHRIL_SAW = register("mithril_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item MITHRIL_HAMMER = register("mithril_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item MITHRIL_ANVIL = blockItem("mithril_anvil", EamBlocks.MITHRIL_ANVIL);
+
+	public static final Item OBSIDIAN_BLAST_FURNACE = blockItem("obsidian_blast_furnace", EamBlocks.OBSIDIAN_BLAST_FURNACE);
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -145,6 +177,7 @@ public final class EamItems {
 
 	public static void register() {
 		registerBrewingTabs();
+		registerMithrilTabs();
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
 				output.insertAfter(Items.LEATHER, LEATHER_THREAD));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(output ->
@@ -187,6 +220,31 @@ public final class EamItems {
 		});
 	}
 
+	private static void registerMithrilTabs() {
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output ->
+				output.insertAfter(Items.DEEPSLATE_DIAMOND_ORE, MITHRIL_ORE, DEEPSLATE_MITHRIL_ORE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output ->
+				output.insertAfter(Items.DIAMOND_BLOCK, MITHRIL_BLOCK));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
+			output.insertAfter(Items.RAW_GOLD, RAW_MITHRIL);
+			output.insertAfter(Items.DIAMOND, MITHRIL_INGOT, HOT_MITHRIL_INGOT, MITHRIL_PLATE);
+		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output -> {
+			output.insertAfter(Items.BLAST_FURNACE, OBSIDIAN_BLAST_FURNACE);
+			output.insertAfter(Items.DAMAGED_ANVIL, MITHRIL_ANVIL);
+		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
+			// Before netherite: the diamond gear around it is hidden.
+			output.insertBefore(Items.NETHERITE_SHOVEL, MITHRIL_SHOVEL, MITHRIL_PICKAXE, MITHRIL_AXE, MITHRIL_HOE);
+			output.insertAfter(IRON_SAW, MITHRIL_HAMMER, MITHRIL_SAW);
+		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
+			output.insertBefore(Items.NETHERITE_SWORD, MITHRIL_SWORD);
+			output.insertBefore(Items.NETHERITE_HELMET, MITHRIL_HELMET, MITHRIL_CHESTPLATE, MITHRIL_LEGGINGS, MITHRIL_BOOTS);
+			output.insertAfter(IRON_KNIFE, MITHRIL_KNIFE);
+		});
+	}
+
 	private static void registerBrewingTabs() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertAfter(Items.BREWING_STAND, SILVER_BREWING_STAND));
@@ -205,6 +263,10 @@ public final class EamItems {
 	private static Item silverArmor(String name, ArmorType type) {
 		return register(name, Item::new, new Item.Properties().humanoidArmor(SilverGear.ARMOR, type)
 				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
+	}
+
+	private static Item mithrilArmor(String name, ArmorType type) {
+		return register(name, Item::new, new Item.Properties().humanoidArmor(MithrilGear.ARMOR, type));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

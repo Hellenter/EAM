@@ -2,6 +2,7 @@
   "values": [
     "#eam:crafting_materials/tier_2",
     "#eam:crafting_materials/tier_3",
+    "#eam:crafting_materials/tier_4",
     {
       "id": "#minecraft:metal_nuggets",
       "required": false

@@ -42,7 +42,7 @@ public record CraftTimeRules(float defaultSeconds, float craftingTableMultiplier
 			new Rule(CraftingTags.TEN_SECONDS, 10.0F, false),
 			new Rule(CraftingTags.ARMOR, 5.0F, true),
 			new Rule(CraftingTags.FIVE_SECONDS, 5.0F, false)
-	), List.of(0.15F, 0.25F, 0.35F), List.of(0.0F, 0.35F, 0.5F), List.of(0.0F, 0.25F, 0.5F));
+	), List.of(0.15F, 0.25F, 0.35F, 0.45F), List.of(0.0F, 0.35F, 0.5F, 0.65F), List.of(0.0F, 0.25F, 0.5F, 0.75F));
 
 	public static final Codec<CraftTimeRules> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(0.0F, 1000.0F).fieldOf("default_seconds").orElse(DEFAULT.defaultSeconds).forGetter(CraftTimeRules::defaultSeconds),

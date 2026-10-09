@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlockEntity;
 import io.github.hellenter.eam.content.campfire.CampFireBlockEntity;
+import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlockEntity;
 import io.github.hellenter.eam.content.sieve.SieveBlockEntity;
 
 import net.minecraft.core.Registry;
@@ -22,6 +23,9 @@ public final class EamBlockEntities {
 
 	public static final BlockEntityType<SilverBrewingStandBlockEntity> SILVER_BREWING_STAND = register("silver_brewing_stand",
 			new BlockEntityType<>(SilverBrewingStandBlockEntity::new, Set.of(EamBlocks.SILVER_BREWING_STAND)));
+
+	public static final BlockEntityType<ObsidianBlastFurnaceBlockEntity> OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace",
+			new BlockEntityType<>(ObsidianBlastFurnaceBlockEntity::new, Set.of(EamBlocks.OBSIDIAN_BLAST_FURNACE)));
 
 	private EamBlockEntities() {
 	}

@@ -61,5 +61,17 @@ class ForgingLogicTest {
 		assertEquals(ForgingLogic.FORGE_TICKS, ForgingLogic.forgeTicks(0));
 		assertEquals(80, ForgingLogic.forgeTicks(2));
 		assertEquals(67, ForgingLogic.forgeTicks(3));
+		assertEquals(57, ForgingLogic.forgeTicks(4));
+	}
+
+	@Test
+	void mithrilPlatesNeedTheMithrilAnvil() {
+		assertTrue(ForgingLogic.canForgeOn(3, ForgingLogic.PLATE_ANVIL_TIER));
+		assertTrue(ForgingLogic.canForgeOn(4, ForgingLogic.PLATE_ANVIL_TIER));
+		assertFalse(ForgingLogic.canForgeOn(2, ForgingLogic.PLATE_ANVIL_TIER));
+		assertFalse(ForgingLogic.canForgeOn(3, ForgingLogic.MITHRIL_PLATE_ANVIL_TIER));
+		assertTrue(ForgingLogic.canForgeOn(4, ForgingLogic.MITHRIL_PLATE_ANVIL_TIER));
+		assertTrue(ForgingLogic.canWorkOn(4, 4));
+		assertFalse(ForgingLogic.canWorkOn(3, 4));
 	}
 }

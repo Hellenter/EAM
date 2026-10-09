@@ -24,6 +24,7 @@ public final class EamWorldgen {
 	/** Copper ore veins the size of diamond veins; they replace vanilla copper when the ores module is on. */
 	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
 	public static final ResourceKey<Feature> ORE_SILVER = feature("ore_silver");
+	public static final ResourceKey<Feature> ORE_MITHRIL = feature("ore_mithril");
 
 	/** Pebbles on the forest floor. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_FOREST = placed("pebble_forest");
@@ -42,11 +43,15 @@ public final class EamWorldgen {
 	/** As many silver veins again in the mountains, so they have twice the silver. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_MOUNTAIN = placed("ore_silver_mountain");
 
+	/** Mithril veins below y -32, a bit fewer than diamond. */
+	public static final ResourceKey<PlacedFeature> ORE_MITHRIL_PLACED = placed("ore_mithril");
+
 	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));
 	public static final TagKey<Biome> HAS_SHORE_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_shore_pebbles"));
 	public static final TagKey<Biome> HAS_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_silver_ore"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mountain_silver_ore"));
+	public static final TagKey<Biome> HAS_MITHRIL_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mithril_ore"));
 	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
 
 	private EamWorldgen() {
@@ -64,6 +69,7 @@ public final class EamWorldgen {
 		GenerationStep.Decoration ores = GenerationStep.Decoration.UNDERGROUND_ORES;
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SILVER_ORE), ores, ORE_SILVER_PLACED);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_SILVER_ORE), ores, ORE_SILVER_MOUNTAIN);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MITHRIL_ORE), ores, ORE_MITHRIL_PLACED);
 	}
 
 	private static ResourceKey<Feature> feature(String name) {

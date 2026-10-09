@@ -1,19 +1,21 @@
 package io.github.hellenter.eam.world.forging;
 
-/** Pure rules for hot iron: when it cools and what the anvil makes of it. */
+/** Pure rules for hot iron and hot mithril: when they cool and what the anvil makes of them. */
 public final class ForgingLogic {
 	/** Hot iron turns back into an ingot this long after it leaves the furnace: one minute. */
 	public static final int COOL_TICKS = 60 * 20;
 	/** Marks hot iron still in the furnace output: its cooling has not started. */
 	public static final long NOT_STARTED = Long.MAX_VALUE;
-	/** Hot iron hammered into one iron plate. */
+	/** Hot iron (or hot mithril) hammered into one plate. */
 	public static final int HOT_IRON_PER_PLATE = 2;
 	/** Ticks the anvil takes for one plate without a hammer: five seconds. */
 	public static final int FORGE_TICKS = 5 * 20;
-	/** Plates are forged only on an anvil of this tier: iron. */
+	/** Iron plates are forged only on an anvil of this tier or better: iron. */
 	public static final int PLATE_ANVIL_TIER = 3;
-	/** Speed a hammer adds to forging, by hammer tier (first entry is tier 1): copper and silver +25%, iron +50%. */
-	public static final float[] HAMMER_SPEED_BONUS = {0.15F, 0.25F, 0.5F};
+	/** Mithril plates are forged only on the mithril anvil. */
+	public static final int MITHRIL_PLATE_ANVIL_TIER = 4;
+	/** Speed a hammer adds to forging, by hammer tier (first entry is tier 1): copper and silver +25%, iron +50%, mithril +75%. */
+	public static final float[] HAMMER_SPEED_BONUS = {0.15F, 0.25F, 0.5F, 0.75F};
 
 	private ForgingLogic() {
 	}
@@ -42,6 +44,11 @@ public final class ForgingLogic {
 	 */
 	public static boolean canForge(int hotIron, boolean additionEmpty, boolean cooled) {
 		return additionEmpty && !cooled && hotIron >= HOT_IRON_PER_PLATE;
+	}
+
+	/** Whether an anvil of {@code anvilTier} can forge plates that need {@code plateTier}. */
+	public static boolean canForgeOn(int anvilTier, int plateTier) {
+		return anvilTier >= plateTier;
 	}
 
 	/** An anvil works on items of its own tier and below: a copper anvil repairs flint and copper gear, not iron. */

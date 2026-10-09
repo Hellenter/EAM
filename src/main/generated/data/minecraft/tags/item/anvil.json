@@ -1,6 +1,7 @@
 {
   "values": [
     "eam:copper_anvil",
-    "eam:silver_anvil"
+    "eam:silver_anvil",
+    "eam:mithril_anvil"
   ]
 }
