@@ -70,7 +70,9 @@ public final class EamCreativeTabs {
 
 	public static final CreativeModeTab WORKSHOP = register("workshop", () -> new ItemStack(EamItems.COPPER_ANVIL),
 			EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL, EamItems.OBSIDIAN_BLAST_FURNACE,
-			EamItems.SILVER_BREWING_STAND);
+			EamItems.SILVER_BREWING_STAND,
+			EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR,
+			EamItems.MITHRIL_BARS, EamItems.MITHRIL_DOOR, EamItems.MITHRIL_TRAPDOOR);
 
 	public static final CreativeModeTab BREWING = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key("brewing"),
 			FabricCreativeModeTab.builder()

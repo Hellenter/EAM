@@ -48,6 +48,16 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
+		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
+			generators.createBarsAndItem(bars);
+		}
+		for (Block door : List.of(EamBlocks.SILVER_DOOR, EamBlocks.MITHRIL_DOOR)) {
+			generators.createDoor(door);
+		}
+		// Like the iron trapdoor: the same model whichever way it was placed.
+		for (Block trapdoor : List.of(EamBlocks.SILVER_TRAPDOOR, EamBlocks.MITHRIL_TRAPDOOR)) {
+			generators.createTrapdoor(trapdoor);
+		}
 	}
 
 	/** One box per position on the top face, from the block's own shape; the block state picks the model by position. */

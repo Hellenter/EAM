@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_bars_side",
+  "textures": {
+    "bars": "eam:block/mithril_bars",
+    "edge": "eam:block/mithril_bars"
+  }
+}

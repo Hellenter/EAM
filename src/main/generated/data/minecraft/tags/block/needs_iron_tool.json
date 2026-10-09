@@ -5,6 +5,9 @@
     "eam:mithril_block",
     "eam:obsidian_blast_furnace",
     "minecraft:obsidian",
-    "eam:ancient_metal_block"
+    "eam:ancient_metal_block",
+    "eam:mithril_bars",
+    "eam:mithril_door",
+    "eam:mithril_trapdoor"
   ]
 }
