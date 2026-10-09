@@ -184,7 +184,19 @@ public final class ForgingModule {
 			return false;
 		}
 		menu.eam$resultSlots().setItem(0, output.isEmpty() ? newPlate(menu) : output.copy());
+		resendResult(menu);
 		return true;
+	}
+
+	/**
+	 * Server: send the result slot to the client even if the server thinks the client already has it. The client fills
+	 * its result slot itself when the inputs change, and without the synced flags it can take the vanilla path and
+	 * clear it. A forged plate looks the same as the offered one, so the server would not send it again and the
+	 * plates stay invisible (and the anvil shows its cross) while they can still be taken.
+	 */
+	private static void resendResult(ForgingAnvilMenu menu) {
+		ItemCombinerMenu combiner = (ItemCombinerMenu) menu;
+		combiner.setRemoteSlot(combiner.getResultSlot(), ItemStack.EMPTY);
 	}
 
 	/**
