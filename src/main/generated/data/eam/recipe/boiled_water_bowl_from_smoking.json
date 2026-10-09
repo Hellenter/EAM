@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 100,
+  "ingredient": "eam:water_bowl",
+  "result": {
+    "id": "eam:boiled_water_bowl"
+  }
+}

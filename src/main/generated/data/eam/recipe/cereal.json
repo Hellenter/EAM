@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:milk_bowl",
+    "minecraft:wheat",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "id": "eam:cereal"
+  }
+}

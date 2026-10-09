@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:milk_bucket"
+  ],
+  "result": {
+    "id": "eam:cheese"
+  }
+}

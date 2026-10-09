@@ -34,7 +34,11 @@ public final class EamCreativeTabs {
 	public static final CreativeModeTab SURVIVAL = register("survival", () -> new ItemStack(EamItems.LEATHER_FLASK),
 			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE,
 			EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_HATCHET, EamItems.FLINT_AXE, EamItems.FLINT_KNIFE,
-			EamItems.SLINGSHOT);
+			EamItems.SLINGSHOT,
+			EamItems.WATER_BOWL, EamItems.BOILED_WATER_BOWL, EamItems.MILK_BOWL, EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP,
+			EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP, EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP,
+			EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM, EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL,
+			EamItems.CHOCOLATE, EamItems.CHEESE);
 
 	public static final CreativeModeTab METALS = register("metals", () -> new ItemStack(EamItems.SILVER_INGOT),
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,

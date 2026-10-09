@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:milk_bowl",
+    "minecraft:baked_potato",
+    "eam:cheese"
+  ],
+  "result": {
+    "id": "eam:mashed_potato"
+  }
+}

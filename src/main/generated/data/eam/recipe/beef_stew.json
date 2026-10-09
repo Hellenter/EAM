@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#eam:water_bowls",
+    "minecraft:cooked_beef",
+    "minecraft:brown_mushroom",
+    "minecraft:potato"
+  ],
+  "result": {
+    "id": "eam:beef_stew"
+  }
+}
