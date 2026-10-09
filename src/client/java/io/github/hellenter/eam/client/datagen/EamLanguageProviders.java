@@ -203,6 +203,12 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_NUGGET, "Mithril Nugget");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Hot Mithril");
 			builder.add(EamItems.MITHRIL_PLATE, "Mithril Plate");
+			builder.add(EamItems.SILVER_BARS, "Silver Bars");
+			builder.add(EamItems.SILVER_DOOR, "Silver Door");
+			builder.add(EamItems.SILVER_TRAPDOOR, "Silver Trapdoor");
+			builder.add(EamItems.MITHRIL_BARS, "Mithril Bars");
+			builder.add(EamItems.MITHRIL_DOOR, "Mithril Door");
+			builder.add(EamItems.MITHRIL_TRAPDOOR, "Mithril Trapdoor");
 			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Mithril Shovel");
 			builder.add(EamItems.MITHRIL_PICKAXE, "Mithril Pickaxe");
@@ -423,6 +429,12 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_INGOT, "Мифриловый слиток");
 			builder.add(EamItems.MITHRIL_NUGGET, "Кусочек мифрила");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Раскалённый мифрил");
+			builder.add(EamItems.SILVER_BARS, "Серебряная решётка");
+			builder.add(EamItems.SILVER_DOOR, "Серебряная дверь");
+			builder.add(EamItems.SILVER_TRAPDOOR, "Серебряный люк");
+			builder.add(EamItems.MITHRIL_BARS, "Мифриловая решётка");
+			builder.add(EamItems.MITHRIL_DOOR, "Мифриловая дверь");
+			builder.add(EamItems.MITHRIL_TRAPDOOR, "Мифриловый люк");
 			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
 			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Мифриловая лопата");

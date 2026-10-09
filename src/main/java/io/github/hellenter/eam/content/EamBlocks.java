@@ -7,6 +7,9 @@ import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
+import io.github.hellenter.eam.content.metal.MetalBarsBlock;
+import io.github.hellenter.eam.content.metal.MetalDoorBlock;
+import io.github.hellenter.eam.content.metal.MetalTrapDoorBlock;
 import io.github.hellenter.eam.content.sieve.SieveBlock;
 
 import net.minecraft.core.Registry;
@@ -101,11 +104,26 @@ public final class EamBlocks {
 	public static final Block OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace", ObsidianBlastFurnaceBlock::new,
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BLAST_FURNACE).mapColor(MapColor.COLOR_BLACK).strength(10.0F, 1200.0F));
 
+	/** Silver bars, door and trapdoor: like the iron ones, opened by redstone only. Copper has its own in vanilla. */
+	public static final Block SILVER_BARS = register("silver_bars", MetalBarsBlock::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_BARS));
+	public static final Block SILVER_DOOR = register("silver_door", MetalDoorBlock::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_DOOR));
+	public static final Block SILVER_TRAPDOOR = register("silver_trapdoor", MetalTrapDoorBlock::new,
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_TRAPDOOR));
+
+	/** Mithril bars, door and trapdoor: twice as hard to break as iron and they stand up to explosions like obsidian. */
+	public static final Block MITHRIL_BARS = register("mithril_bars", MetalBarsBlock::new, mithril(Blocks.IRON_BARS));
+	public static final Block MITHRIL_DOOR = register("mithril_door", MetalDoorBlock::new, mithril(Blocks.IRON_DOOR));
+	public static final Block MITHRIL_TRAPDOOR = register("mithril_trapdoor", MetalTrapDoorBlock::new, mithril(Blocks.IRON_TRAPDOOR));
+
 	private EamBlocks() {
 	}
 
 	public static void register() {
 		// Loads the class, which registers the blocks above.
+	}
+
+	private static BlockBehaviour.Properties mithril(Block iron) {
+		return BlockBehaviour.Properties.ofLegacyCopy(iron).mapColor(MapColor.ICE).strength(10.0F, 1200.0F);
 	}
 
 	private static BlockBehaviour.Properties groundItem(MapColor color) {

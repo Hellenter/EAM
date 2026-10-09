@@ -110,6 +110,18 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		diamondTool.add(BlockItemIds.CRYING_OBSIDIAN, BlockItemIds.NETHERITE_BLOCK, BlockItemIds.RESPAWN_ANCHOR, BlockItemIds.ANCIENT_DEBRIS);
 		builder(BlockTags.ANVIL).add(EamBlocks.MITHRIL_ANVIL.builtInRegistryHolder().key());
 
+		// Silver and mithril bars, doors and trapdoors: tagged like the iron ones, so safe rooms count the doors as doors.
+		builder(BlockTags.BARS).add(EamBlocks.SILVER_BARS.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key());
+		builder(BlockTags.DOORS).add(EamBlocks.SILVER_DOOR.builtInRegistryHolder().key(), EamBlocks.MITHRIL_DOOR.builtInRegistryHolder().key());
+		builder(BlockTags.TRAPDOORS).add(EamBlocks.SILVER_TRAPDOOR.builtInRegistryHolder().key(),
+				EamBlocks.MITHRIL_TRAPDOOR.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.SILVER_BARS.builtInRegistryHolder().key(),
+				EamBlocks.SILVER_DOOR.builtInRegistryHolder().key(), EamBlocks.SILVER_TRAPDOOR.builtInRegistryHolder().key(),
+				EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key(), EamBlocks.MITHRIL_DOOR.builtInRegistryHolder().key(),
+				EamBlocks.MITHRIL_TRAPDOOR.builtInRegistryHolder().key());
+		builder(BlockTags.NEEDS_IRON_TOOL).add(EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key(),
+				EamBlocks.MITHRIL_DOOR.builtInRegistryHolder().key(), EamBlocks.MITHRIL_TRAPDOOR.builtInRegistryHolder().key());
+
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
 		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);

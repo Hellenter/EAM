@@ -113,6 +113,10 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
 				hammer(EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_INGOT);
+
+				// Bars, doors and trapdoors like the iron ones; copper has its own in vanilla.
+				metalBuilding(EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR, EamItems.SILVER_INGOT);
+				metalBuilding(EamItems.MITHRIL_BARS, EamItems.MITHRIL_DOOR, EamItems.MITHRIL_TRAPDOOR, EamItems.MITHRIL_INGOT);
 				// Saws: two ingots in a diagonal blade with a stick handle.
 				saw(EamItems.COPPER_SAW, Items.COPPER_INGOT);
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
@@ -229,6 +233,28 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern(" I ")
 						.pattern("III")
 						.unlockedBy(getHasName(block), has(block))
+						.save(output);
+			}
+
+			private void metalBuilding(Item bars, Item door, Item trapdoor, Item ingot) {
+				shaped(RecipeCategory.DECORATIONS, bars, 16)
+						.define('#', ingot)
+						.pattern("###")
+						.pattern("###")
+						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+				shaped(RecipeCategory.REDSTONE, door, 3)
+						.define('#', ingot)
+						.pattern("##")
+						.pattern("##")
+						.pattern("##")
+						.unlockedBy(getHasName(ingot), has(ingot))
+						.save(output);
+				shaped(RecipeCategory.REDSTONE, trapdoor)
+						.define('#', ingot)
+						.pattern("##")
+						.pattern("##")
+						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
 			}
 

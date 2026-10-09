@@ -74,6 +74,11 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 					.add(LootItem.lootTableItem(anvil).apply(CopyBlockState.copyState(anvil).copy(MetalAnvilBlock.WEAR))))));
 		}
 		add(EamBlocks.SILVER_BREWING_STAND, this::createNameableBlockEntityTable);
+		for (Block block : List.of(EamBlocks.SILVER_BARS, EamBlocks.SILVER_TRAPDOOR, EamBlocks.MITHRIL_BARS, EamBlocks.MITHRIL_TRAPDOOR)) {
+			dropSelf(block);
+		}
+		add(EamBlocks.SILVER_DOOR, this::createDoorTable);
+		add(EamBlocks.MITHRIL_DOOR, this::createDoorTable);
 
 		add(Blocks.GRAVEL, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
 				LootItem.lootTableItem(Items.FLINT)
