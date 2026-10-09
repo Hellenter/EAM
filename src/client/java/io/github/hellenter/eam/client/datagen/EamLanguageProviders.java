@@ -200,6 +200,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_BLOCK, "Block of Mithril");
 			builder.add(EamItems.RAW_MITHRIL, "Raw Mithril");
 			builder.add(EamItems.MITHRIL_INGOT, "Mithril Ingot");
+			builder.add(EamItems.MITHRIL_NUGGET, "Mithril Nugget");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Hot Mithril");
 			builder.add(EamItems.MITHRIL_PLATE, "Mithril Plate");
 			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
@@ -420,6 +421,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.MITHRIL_BLOCK, "Мифриловый блок");
 			builder.add(EamItems.RAW_MITHRIL, "Необработанный мифрил");
 			builder.add(EamItems.MITHRIL_INGOT, "Мифриловый слиток");
+			builder.add(EamItems.MITHRIL_NUGGET, "Кусочек мифрила");
 			builder.add(EamItems.HOT_MITHRIL_INGOT, "Раскалённый мифрил");
 			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
 			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");

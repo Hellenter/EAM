@@ -8,6 +8,7 @@
       "required": false
     },
     "eam:silver_nugget",
+    "eam:mithril_nugget",
     "minecraft:gold_ingot",
     "minecraft:gold_nugget",
     "minecraft:iron_nugget",

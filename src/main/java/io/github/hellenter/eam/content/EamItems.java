@@ -148,6 +148,7 @@ public final class EamItems {
 	public static final Item RAW_MITHRIL = register("raw_mithril", Item::new, new Item.Properties());
 	public static final Item MITHRIL_INGOT = register("mithril_ingot", Item::new, new Item.Properties());
 	/** A mithril ingot heated in the obsidian blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item MITHRIL_NUGGET = register("mithril_nugget", Item::new, new Item.Properties());
 	public static final Item HOT_MITHRIL_INGOT = register("hot_mithril_ingot", p -> new HotIronItem(MITHRIL_INGOT, p), new Item.Properties());
 	/** Forged from hot mithril on the mithril anvil; mithril armor is made of these. */
 	public static final Item MITHRIL_PLATE = register("mithril_plate", Item::new, new Item.Properties().stacksTo(16));

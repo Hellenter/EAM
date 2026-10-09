@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_mithril_ingot": {
+    "has_mithril_nugget": {
       "conditions": {
         "items": [
           {
-            "items": "eam:mithril_ingot"
+            "items": "eam:mithril_nugget"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_mithril_ingot"
+      "has_mithril_nugget"
     ]
   ],
   "rewards": {

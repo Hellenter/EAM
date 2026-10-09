@@ -40,7 +40,7 @@ public final class EamCreativeTabs {
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,
 			EamItems.SILVER_BLOCK,
 			EamItems.HOT_IRON_INGOT, EamItems.IRON_PLATE,
-			EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL, EamItems.MITHRIL_INGOT,
+			EamItems.MITHRIL_ORE, EamItems.DEEPSLATE_MITHRIL_ORE, EamItems.RAW_MITHRIL, EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_INGOT,
 			EamItems.HOT_MITHRIL_INGOT, EamItems.MITHRIL_PLATE, EamItems.MITHRIL_BLOCK);
 
 	public static final CreativeModeTab TOOLS = register("tools", () -> new ItemStack(EamItems.MITHRIL_PICKAXE),

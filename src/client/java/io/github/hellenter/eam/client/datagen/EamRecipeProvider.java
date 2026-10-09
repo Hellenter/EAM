@@ -118,11 +118,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
-				// Arrows like the vanilla one with a metal head instead of flint; mithril has no nugget, so an ingot.
+				// Arrows like the vanilla one with a metal nugget for a head instead of flint.
 				arrow(EamItems.COPPER_ARROW, Items.COPPER_NUGGET);
 				arrow(EamItems.SILVER_ARROW, EamItems.SILVER_NUGGET);
 				arrow(EamItems.IRON_ARROW, Items.IRON_NUGGET);
-				arrow(EamItems.MITHRIL_ARROW, EamItems.MITHRIL_INGOT);
+				arrow(EamItems.MITHRIL_ARROW, EamItems.MITHRIL_NUGGET);
 
 				shapeless(RecipeCategory.TOOLS, EamItems.FLINT_AXE)
 						.requires(Items.STICK, 2)
@@ -391,6 +391,8 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				}
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.MITHRIL_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.MITHRIL_BLOCK,
 						"eam:mithril_block", null, "eam:mithril_ingot_from_mithril_block", "mithril_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.MITHRIL_NUGGET, RecipeCategory.MISC, EamItems.MITHRIL_INGOT,
+						"eam:mithril_ingot_from_nuggets", "mithril_ingot", "eam:mithril_nugget", null);
 				mithril(RecipeCategory.COMBAT, EamItems.MITHRIL_SWORD, "X", "X", "#");
 				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_SHOVEL, "X", "#", "#");
 				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_PICKAXE, "XXX", " # ", " # ");
