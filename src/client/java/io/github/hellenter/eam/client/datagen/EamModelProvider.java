@@ -183,6 +183,7 @@ public class EamModelProvider extends FabricModelProvider {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		PotionModels.generate(generators);
+		FallenLordItemModels.generate(generators);
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
 		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
 		generators.generateBow(EamItems.SLINGSHOT);

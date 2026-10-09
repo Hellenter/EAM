@@ -1,10 +1,12 @@
 package io.github.hellenter.eam.mobs.entity.fallenlord;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -156,12 +158,26 @@ public class FallenLord extends Monster {
 	}
 
 	private void equipPhaseOne() {
-		setItemSlot(EquipmentSlot.HEAD, new ItemStack(EamItems.RUSTY_IRON_HELMET));
-		setItemSlot(EquipmentSlot.CHEST, new ItemStack(EamItems.RUSTY_IRON_CHESTPLATE));
-		setItemSlot(EquipmentSlot.LEGS, new ItemStack(EamItems.RUSTY_IRON_LEGGINGS));
-		setItemSlot(EquipmentSlot.FEET, new ItemStack(EamItems.RUSTY_IRON_BOOTS));
-		setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SPEAR));
-		setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+		setItemSlot(EquipmentSlot.MAINHAND, spearStack());
+		setItemSlot(EquipmentSlot.OFFHAND, shieldStack());
+	}
+
+	/** His spear: an iron spear that looks mithril. His armor is part of his model, not equipment. */
+	public static ItemStack spearStack() {
+		ItemStack spear = Items.IRON_SPEAR.getDefaultInstance();
+		spear.set(DataComponents.ITEM_MODEL, Eam.id("fallen_lord_spear"));
+		return spear;
+	}
+
+	/** His shield: a shield that looks mithril. */
+	public static ItemStack shieldStack() {
+		ItemStack shield = Items.SHIELD.getDefaultInstance();
+		shield.set(DataComponents.ITEM_MODEL, Eam.id("fallen_lord_shield"));
+		return shield;
+	}
+
+	private static ItemStack swordStack() {
+		return new ItemStack(EamItems.MITHRIL_SWORD);
 	}
 
 	private void setMaxHealthTo(float health) {
@@ -471,14 +487,14 @@ public class FallenLord extends Monster {
 				}
 			}
 		} else if (t == 30) {
-			setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+			setItemSlot(EquipmentSlot.MAINHAND, swordStack());
 			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.0F, 0.7F);
 		}
 	}
 
 	private void endAction() {
-		if (action == FallenLordAction.TRANSITION && !getMainHandItem().is(Items.IRON_SWORD)) {
-			setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+		if (action == FallenLordAction.TRANSITION && !getMainHandItem().is(EamItems.MITHRIL_SWORD)) {
+			setItemSlot(EquipmentSlot.MAINHAND, swordStack());
 		}
 		setAction(FallenLordAction.NONE, null);
 	}
@@ -508,7 +524,7 @@ public class FallenLord extends Monster {
 		spearAwayTicks = -1;
 		thrownSpear = null;
 		if (phase() == 1 && getMainHandItem().isEmpty()) {
-			setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SPEAR));
+			setItemSlot(EquipmentSlot.MAINHAND, spearStack());
 		}
 	}
 
@@ -673,12 +689,22 @@ public class FallenLord extends Monster {
 		shieldDisabledTicks = input.getIntOr("ShieldDisabled", 0);
 		bossEvent.setColor(phase == 2 ? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.WHITE);
 		bossEvent.setName(bossName());
+		// Older saves wore rusty iron armor; his armor is drawn by his model now.
+		for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+			setItemSlot(slot, ItemStack.EMPTY);
+		}
 		// Saved mid-throw or mid-change (the action itself is not saved): give back what he should hold.
 		if (phase == 2) {
-			setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+			setItemSlot(EquipmentSlot.MAINHAND, swordStack());
 			setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-		} else if (getMainHandItem().isEmpty()) {
-			setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SPEAR));
+		} else {
+			if (getMainHandItem().isEmpty() || getMainHandItem().is(Items.IRON_SPEAR)) {
+				setItemSlot(EquipmentSlot.MAINHAND, spearStack());
+			}
+			// He only puts the shield down when phase two starts; this also arms a lord summoned with NBT.
+			if (getOffhandItem().isEmpty() || getOffhandItem().is(Items.SHIELD)) {
+				setItemSlot(EquipmentSlot.OFFHAND, shieldStack());
+			}
 		}
 	}
 
