@@ -30,13 +30,14 @@ public final class CraftingTiers {
 
 	/**
 	 * Highest material tier in the grid. A result tagged {@link CraftingTags#TIER_FREE} (ingots, nuggets, metal blocks)
-	 * needs no tool, so metal can be packed and unpacked anywhere.
+	 * needs no tool, so metal can be packed and unpacked anywhere. A result that is itself a tiered material (chainmail
+	 * rings, made of untiered nuggets) needs its own tier's tool.
 	 */
 	public static int materialTier(Container grid, ItemStack result) {
 		if (result.isEmpty() || result.is(CraftingTags.TIER_FREE)) {
 			return CraftingTierLogic.NONE;
 		}
-		int tier = CraftingTierLogic.NONE;
+		int tier = materialTier(result);
 		for (ItemStack stack : grid) {
 			tier = Math.max(tier, materialTier(stack));
 		}

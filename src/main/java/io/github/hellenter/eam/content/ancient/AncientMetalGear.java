@@ -47,8 +47,8 @@ public final class AncientMetalGear {
 	public static final ArmorMaterial ARMOR = new ArmorMaterial(ARMOR_DURABILITY, defense(3, 7, 5, 2, 8), 12,
 			ArmorMaterials.IRON.equipSound(), 1.0F, 0.0F, REPAIRS_ARMOR, ASSET);
 
-	/** Before the gear module's cut, which leaves 2/5/3/1 = 11 (chainmail 10, ancient plate 14). */
-	public static final ArmorMaterial CHAINMAIL_ARMOR = new ArmorMaterial(ARMOR_DURABILITY, defense(2, 6, 4, 2, 6), 14,
+	/** Before the gear module's cut, which leaves 2/5/4/2 = 13: a little above iron plate (12), below ancient plate (14). */
+	public static final ArmorMaterial CHAINMAIL_ARMOR = new ArmorMaterial(ARMOR_DURABILITY, defense(3, 6, 5, 2, 6), 14,
 			ArmorMaterials.CHAINMAIL.equipSound(), 0.0F, 0.0F, REPAIRS_ARMOR, CHAINMAIL_ASSET);
 
 	private AncientMetalGear() {

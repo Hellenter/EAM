@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "R": "eam:iron_ring"
+  },
+  "pattern": [
+    "R R",
+    "R R"
+  ],
+  "result": {
+    "id": "minecraft:chainmail_boots"
+  }
+}

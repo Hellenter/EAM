@@ -20,6 +20,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.PotionsPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.alchemy.Potion;
@@ -125,6 +126,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.ANCIENT_METAL_SAW, EamItems.ANCIENT_METAL_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
+				// Chainmail: a ring of four nuggets, rings in the shapes ingot armor takes ingots. Iron chainmail is the vanilla one.
+				chainmail(Items.COPPER_NUGGET, EamItems.COPPER_RING, EamItems.COPPER_CHAINMAIL_HELMET, EamItems.COPPER_CHAINMAIL_CHESTPLATE,
+						EamItems.COPPER_CHAINMAIL_LEGGINGS, EamItems.COPPER_CHAINMAIL_BOOTS);
+				chainmail(EamItems.SILVER_NUGGET, EamItems.SILVER_RING, EamItems.SILVER_CHAINMAIL_HELMET, EamItems.SILVER_CHAINMAIL_CHESTPLATE,
+						EamItems.SILVER_CHAINMAIL_LEGGINGS, EamItems.SILVER_CHAINMAIL_BOOTS);
+				chainmail(Items.IRON_NUGGET, EamItems.IRON_RING, Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE,
+						Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS);
+				chainmail(EamItems.ANCIENT_METAL_NUGGET, EamItems.ANCIENT_METAL_RING, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET,
+						EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS);
+				chainmail(EamItems.MITHRIL_NUGGET, EamItems.MITHRIL_RING, EamItems.MITHRIL_CHAINMAIL_HELMET, EamItems.MITHRIL_CHAINMAIL_CHESTPLATE,
+						EamItems.MITHRIL_CHAINMAIL_LEGGINGS, EamItems.MITHRIL_CHAINMAIL_BOOTS);
 				// Arrows like the vanilla one with a metal nugget for a head instead of flint.
 				arrow(EamItems.COPPER_ARROW, Items.COPPER_NUGGET);
 				arrow(EamItems.SILVER_ARROW, EamItems.SILVER_NUGGET);
@@ -286,6 +298,34 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern("F")
 						.unlockedBy(getHasName(head), has(head))
 						.save(output);
+			}
+
+			private void chainmail(Item nugget, Item ring, Item helmet, Item chestplate, Item leggings, Item boots) {
+				shaped(RecipeCategory.MISC, ring)
+						.define('N', nugget)
+						.pattern("NN")
+						.pattern("NN")
+						.unlockedBy(getHasName(nugget), has(nugget))
+						.save(output);
+				ringArmor(ring, helmet, "RRR", "R R");
+				ringArmor(ring, chestplate, "R R", "RRR", "RRR");
+				ringArmor(ring, leggings, "RRR", "R R", "R R");
+				ringArmor(ring, boots, "R R", "R R");
+			}
+
+			/** Vanilla chainmail is saved under our id: vanilla has no chainmail recipe to replace. */
+			private void ringArmor(Item ring, Item result, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('R', ring);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(ring), has(ring));
+				if (BuiltInRegistries.ITEM.getKey(result).getNamespace().equals("minecraft")) {
+					recipe.save(output, "eam:" + getItemName(result));
+				} else {
+					recipe.save(output);
+				}
 			}
 
 			private void saw(Item saw, Item ingot) {
@@ -483,7 +523,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 			/**
 			 * Ancient metal has no source yet, so nothing makes the ingot. It packs into nuggets and blocks, makes iron-shaped
-			 * tools, chains (nugget, ingot, nugget like the vanilla chain) and chainmail of chains in the armor shapes.
+			 * tools; its chainmail is made of rings like every other chainmail.
 			 */
 			private void ancientMetalRecipes() {
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ANCIENT_METAL_INGOT, RecipeCategory.BUILDING_BLOCKS,
@@ -496,11 +536,6 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_PICKAXE, "", "III", " # ", " # ");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_AXE, "", "II", "I#", " #");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_HOE, "", "II", " #", " #");
-				ancientMetal(output, RecipeCategory.MISC, EamItems.ANCIENT_METAL_CHAIN, "", "N", "I", "N");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_HELMET, "", "CCC", "C C");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_CHESTPLATE, "", "C C", "CCC", "CCC");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_LEGGINGS, "", "CCC", "C C", "C C");
-				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_CHAINMAIL_BOOTS, "", "C C", "C C");
 			}
 
 			/** Ancient metal ingot to hot ancient metal in a blast furnace, and its armor from plates and ingots like iron's. */
@@ -523,7 +558,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				ancientMetal(disabled, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_BOOTS, "_from_ingots", "I I", "I I");
 			}
 
-			/** I ingot, N nugget, P plate, C chain, # stick; only the keys the pattern uses are defined. */
+			/** I ingot, N nugget, P plate, # stick; only the keys the pattern uses are defined. */
 			private void ancientMetal(RecipeOutput output, RecipeCategory category, Item result, String suffix, String... pattern) {
 				var recipe = shaped(category, result);
 				String keys = String.join("", pattern);
@@ -535,9 +570,6 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				}
 				if (keys.contains("P")) {
 					recipe.define('P', EamItems.ANCIENT_METAL_PLATE);
-				}
-				if (keys.contains("C")) {
-					recipe.define('C', EamItems.ANCIENT_METAL_CHAIN);
 				}
 				if (keys.contains("#")) {
 					recipe.define('#', Items.STICK);

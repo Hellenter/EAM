@@ -41,7 +41,7 @@ public final class RustyGear {
 	public static final ArmorMaterial IRON_ARMOR = new ArmorMaterial(ARMOR_DURABILITY, defense(2, 5, 4, 2, 4), 7,
 			ArmorMaterials.IRON.equipSound(), 0.0F, 0.0F, REPAIRS_ARMOR, IRON_ASSET);
 
-	/** Before the gear module's cut, which leaves 2/3/2/1 = 8 (chainmail: 2/4/3/1 = 10). */
+	/** Before the gear module's cut, which leaves 2/3/2/1 = 8 (iron chainmail: 2/4/2/1 = 9). */
 	public static final ArmorMaterial CHAINMAIL_ARMOR = new ArmorMaterial(ARMOR_DURABILITY, defense(2, 4, 3, 1, 3), 9,
 			ArmorMaterials.CHAINMAIL.equipSound(), 0.0F, 0.0F, REPAIRS_ARMOR, CHAINMAIL_ASSET);
 

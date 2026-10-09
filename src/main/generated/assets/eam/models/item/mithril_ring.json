@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "eam:item/ancient_metal_chain"
+    "layer0": "eam:item/mithril_ring"
   }
 }

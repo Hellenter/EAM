@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
+import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
@@ -213,8 +214,6 @@ public final class EamItems {
 			new Item.Properties());
 	/** Forged from hot ancient metal on an iron or mithril anvil; ancient metal armor is made of these. */
 	public static final Item ANCIENT_METAL_PLATE = register("ancient_metal_plate", Item::new, new Item.Properties().stacksTo(16));
-	/** Links of ancient metal chainmail. */
-	public static final Item ANCIENT_METAL_CHAIN = register("ancient_metal_chain", Item::new, new Item.Properties());
 
 	public static final Item ANCIENT_METAL_SWORD = register("ancient_metal_sword", Item::new,
 			new Item.Properties().sword(AncientMetalGear.TOOL, 3.0F, -2.4F));
@@ -247,6 +246,28 @@ public final class EamItems {
 	public static final Item ANCIENT_METAL_HAMMER = register("ancient_metal_hammer", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item ANCIENT_METAL_ARROW = arrow("ancient_metal_arrow",
 			new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.ANCIENT_METAL));
+
+	/** Chainmail rings, four nuggets each; chainmail takes them in the shapes ingot armor takes ingots. */
+	public static final Item COPPER_RING = register("copper_ring", Item::new, new Item.Properties());
+	public static final Item SILVER_RING = register("silver_ring", Item::new, new Item.Properties());
+	public static final Item IRON_RING = register("iron_ring", Item::new, new Item.Properties());
+	public static final Item ANCIENT_METAL_RING = register("ancient_metal_ring", Item::new, new Item.Properties());
+	public static final Item MITHRIL_RING = register("mithril_ring", Item::new, new Item.Properties());
+
+	/** Chainmail of each metal protects a little better than the plate armor of the tier below; the iron set is vanilla's. */
+	public static final Item COPPER_CHAINMAIL_HELMET = armor("copper_chainmail_helmet", ChainmailGear.COPPER, ArmorType.HELMET);
+	public static final Item COPPER_CHAINMAIL_CHESTPLATE = armor("copper_chainmail_chestplate", ChainmailGear.COPPER, ArmorType.CHESTPLATE);
+	public static final Item COPPER_CHAINMAIL_LEGGINGS = armor("copper_chainmail_leggings", ChainmailGear.COPPER, ArmorType.LEGGINGS);
+	public static final Item COPPER_CHAINMAIL_BOOTS = armor("copper_chainmail_boots", ChainmailGear.COPPER, ArmorType.BOOTS);
+	/** Silver chainmail hurts undead that hit its wearer, like silver armor. */
+	public static final Item SILVER_CHAINMAIL_HELMET = silverChainmail("silver_chainmail_helmet", ArmorType.HELMET);
+	public static final Item SILVER_CHAINMAIL_CHESTPLATE = silverChainmail("silver_chainmail_chestplate", ArmorType.CHESTPLATE);
+	public static final Item SILVER_CHAINMAIL_LEGGINGS = silverChainmail("silver_chainmail_leggings", ArmorType.LEGGINGS);
+	public static final Item SILVER_CHAINMAIL_BOOTS = silverChainmail("silver_chainmail_boots", ArmorType.BOOTS);
+	public static final Item MITHRIL_CHAINMAIL_HELMET = armor("mithril_chainmail_helmet", ChainmailGear.MITHRIL, ArmorType.HELMET);
+	public static final Item MITHRIL_CHAINMAIL_CHESTPLATE = armor("mithril_chainmail_chestplate", ChainmailGear.MITHRIL, ArmorType.CHESTPLATE);
+	public static final Item MITHRIL_CHAINMAIL_LEGGINGS = armor("mithril_chainmail_leggings", ChainmailGear.MITHRIL, ArmorType.LEGGINGS);
+	public static final Item MITHRIL_CHAINMAIL_BOOTS = armor("mithril_chainmail_boots", ChainmailGear.MITHRIL, ArmorType.BOOTS);
 
 	public static final Item SILVER_BARS = blockItem("silver_bars", EamBlocks.SILVER_BARS);
 	public static final Item SILVER_DOOR = doorItem("silver_door", EamBlocks.SILVER_DOOR);
@@ -286,6 +307,11 @@ public final class EamItems {
 
 	private static Item silverArmor(String name, ArmorType type) {
 		return register(name, Item::new, new Item.Properties().humanoidArmor(SilverGear.ARMOR, type)
+				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
+	}
+
+	private static Item silverChainmail(String name, ArmorType type) {
+		return register(name, Item::new, new Item.Properties().humanoidArmor(ChainmailGear.SILVER, type)
 				.component(SilverModule.UNDEAD_THORNS, SilverGear.UNDEAD_THORNS_PER_PIECE));
 	}
 

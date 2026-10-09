@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ancient_metal_ingot": {
+    "has_ancient_metal_ring": {
       "conditions": {
         "items": [
           {
-            "items": "eam:ancient_metal_ingot"
+            "items": "eam:ancient_metal_ring"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_ancient_metal_ingot"
+      "has_ancient_metal_ring"
     ]
   ],
   "rewards": {

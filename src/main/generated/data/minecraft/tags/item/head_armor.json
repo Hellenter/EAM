@@ -5,6 +5,9 @@
     "eam:rusty_iron_helmet",
     "eam:rusty_chainmail_helmet",
     "eam:ancient_metal_helmet",
-    "eam:ancient_metal_chainmail_helmet"
+    "eam:ancient_metal_chainmail_helmet",
+    "eam:copper_chainmail_helmet",
+    "eam:silver_chainmail_helmet",
+    "eam:mithril_chainmail_helmet"
   ]
 }
