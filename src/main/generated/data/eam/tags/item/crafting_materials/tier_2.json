@@ -1,6 +1,8 @@
 {
   "values": [
     "minecraft:copper_ingot",
-    "eam:silver_ingot"
+    "eam:silver_ingot",
+    "eam:copper_ring",
+    "eam:silver_ring"
   ]
 }

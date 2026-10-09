@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.world.tools;
 
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
+import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -23,17 +24,19 @@ import net.minecraft.world.item.equipment.Equippable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Weaker gear: copper and iron tools wear out sooner, player armor gives less protection and copper armor wears out
- * twice as fast (silver copies copper). Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
+ * twice as fast (silver copies copper, and so do their chainmail). Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
  * {@link GearLogic}.
  */
 public final class GearModule {
 	private static final List<ArmorMaterial> MATERIALS = List.of(
 			ArmorMaterials.LEATHER,
 			ArmorMaterials.COPPER,
-			ArmorMaterials.CHAINMAIL,
+			// Vanilla chainmail protects less than vanilla: it is the iron set of the ring chainmail.
+			ChainmailGear.IRON,
 			ArmorMaterials.IRON,
 			ArmorMaterials.GOLD,
 			ArmorMaterials.DIAMOND,
@@ -44,8 +47,15 @@ public final class GearModule {
 			RustyGear.IRON_ARMOR,
 			RustyGear.CHAINMAIL_ARMOR,
 			AncientMetalGear.ARMOR,
-			AncientMetalGear.CHAINMAIL_ARMOR
+			AncientMetalGear.CHAINMAIL_ARMOR,
+			ChainmailGear.COPPER,
+			ChainmailGear.SILVER,
+			ChainmailGear.MITHRIL
 	);
+
+	/** Sets that wear out twice as fast: copper and silver armor and chainmail. */
+	private static final Set<ResourceKey<EquipmentAsset>> HALF_DURABILITY = Set.of(EquipmentAssets.COPPER, SilverGear.ASSET,
+			ChainmailGear.COPPER_ASSET, ChainmailGear.SILVER_ASSET);
 
 	/** Set order used by {@link GearLogic#scaleSet}. */
 	private static final ArmorType[] SET = {ArmorType.HELMET, ArmorType.CHESTPLATE, ArmorType.LEGGINGS, ArmorType.BOOTS};
@@ -77,7 +87,7 @@ public final class GearModule {
 			}
 
 			Integer maxDamage = builder.get(DataComponents.MAX_DAMAGE);
-			if ((asset.equals(EquipmentAssets.COPPER) || asset.equals(SilverGear.ASSET)) && maxDamage != null) {
+			if (HALF_DURABILITY.contains(asset) && maxDamage != null) {
 				builder.set(DataComponents.MAX_DAMAGE, GearLogic.copperArmorDurability(maxDamage));
 			}
 		}));

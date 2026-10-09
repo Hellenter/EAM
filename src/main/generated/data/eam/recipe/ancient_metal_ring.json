@@ -1,15 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "I": "eam:ancient_metal_ingot",
     "N": "eam:ancient_metal_nugget"
   },
   "pattern": [
-    "N",
-    "I",
-    "N"
+    "NN",
+    "NN"
   ],
   "result": {
-    "id": "eam:ancient_metal_chain"
+    "id": "eam:ancient_metal_ring"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "eam:silver_chainmail"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "eam:silver_chainmail"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "eam:silver_chainmail"
+      }
+    ]
+  }
+}

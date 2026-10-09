@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "C": "eam:ancient_metal_chain"
+    "R": "eam:ancient_metal_ring"
   },
   "pattern": [
-    "C C",
-    "CCC",
-    "CCC"
+    "R R",
+    "RRR",
+    "RRR"
   ],
   "result": {
     "id": "eam:ancient_metal_chainmail_chestplate"

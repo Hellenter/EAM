@@ -32,6 +32,15 @@ class GearLogicTest {
 	}
 
 	@Test
+	void chainmailSetsArePointAboveThePlateOfTheTierBelow() {
+		// Copper and silver 7 (leather 6), iron 9 (copper 8), ancient metal 13 (iron 12), mithril 15 (ancient metal 14).
+		assertArrayEquals(new int[] {1, 3, 2, 1}, GearLogic.scaleSet(new int[] {1, 4, 3, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 4, 2, 1}, GearLogic.scaleSet(new int[] {2, 5, 3, 1}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 5, 4, 2}, GearLogic.scaleSet(new int[] {3, 6, 5, 2}, GearLogic.ARMOR_FACTOR));
+		assertArrayEquals(new int[] {2, 6, 5, 2}, GearLogic.scaleSet(new int[] {3, 7, 6, 3}, GearLogic.ARMOR_FACTOR));
+	}
+
+	@Test
 	void pieceWithArmorKeepsAPoint() {
 		assertArrayEquals(new int[] {1, 0, 0, 0}, GearLogic.scaleSet(new int[] {1, 0, 0, 0}, 0.3));
 	}
