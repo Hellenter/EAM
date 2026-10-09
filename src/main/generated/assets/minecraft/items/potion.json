@@ -8,15 +8,27 @@
           "model": "eam:item/light_potion",
           "tints": [
             {
+              "type": "minecraft:constant",
+              "value": -8742166
+            }
+          ]
+        },
+        "when": {
+          "potion": "eam:holy_water"
+        }
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/light_potion",
+          "tints": [
+            {
               "type": "minecraft:potion",
               "default": -13083194
             }
           ]
         },
         "when": [
-          {
-            "potion": "eam:holy_water"
-          },
           {
             "potion": "eam:light_night_vision"
           },
