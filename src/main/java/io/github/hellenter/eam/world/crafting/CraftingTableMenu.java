@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.world.crafting;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.world.forging.ForgingTags;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -16,9 +17,10 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 /**
- * The vanilla crafting menu plus three tool slots. Without a tool from {@link CraftingTags#CRAFTING_TABLE_TOOLS} the
- * table crafts nothing; tools are not used up, but each one makes crafting faster, and metal recipes need a tool of the
- * tier below the metal ({@link CraftingTierLogic}). The tools live in the table's block entity.
+ * The vanilla crafting menu plus three tool slots for knives, saws and hammers ({@link CraftingTags#CRAFTING_TABLE_TOOLS})
+ * in any mix. Without a knife the table crafts nothing; tools are not used up, but each one makes its crafts faster, and
+ * metal recipes need a knife of the tier below the metal ({@link CraftingTierLogic}). The tools live in the table's
+ * block entity.
  */
 public class CraftingTableMenu extends CraftingMenu {
 	public static final int TOOL_COUNT = 3;
@@ -55,18 +57,25 @@ public class CraftingTableMenu extends CraftingMenu {
 		return slotIndex >= FIRST_TOOL_SLOT && slotIndex < FIRST_TOOL_SLOT + TOOL_COUNT;
 	}
 
-	public boolean hasTool() {
-		return !toolTiers().isEmpty();
+	/** The table crafts only with a knife in it. */
+	public boolean hasKnife() {
+		return !knifeTiers().isEmpty();
 	}
 
-	/** Tiers of the tools in the table, one per tool. */
-	public List<Integer> toolTiers() {
-		return CraftingTiers.toolTiers(tools);
+	/** Tiers of the knives in the table, one per knife. */
+	public List<Integer> knifeTiers() {
+		return CraftingTiers.toolTiers(tools, CraftingTags.KNIFE_TIERS);
 	}
 
-	/** Best tool tier in the table, {@link CraftingTierLogic#NONE} without tools. */
-	public int bestToolTier() {
-		return toolTiers().stream().mapToInt(Integer::intValue).max().orElse(CraftingTierLogic.NONE);
+	/** Best knife tier in the table, {@link CraftingTierLogic#NONE} without knives. */
+	public int bestKnifeTier() {
+		return knifeTiers().stream().mapToInt(Integer::intValue).max().orElse(CraftingTierLogic.NONE);
+	}
+
+	/** What the tools in the table do for a craft from {@code grid}. */
+	public TableTools tools(Container grid) {
+		return new TableTools(knifeTiers(), CraftingTiers.toolTiers(tools, CraftingTags.SAW_TIERS),
+				CraftingTiers.toolTiers(tools, ForgingTags.HAMMER_TIERS), CraftingTiers.hasMetal(grid));
 	}
 
 	@Override
