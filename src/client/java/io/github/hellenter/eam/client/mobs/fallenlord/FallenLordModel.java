@@ -4,7 +4,6 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -20,6 +19,9 @@ import net.minecraft.client.model.monster.skeleton.SkeletonModel;
 import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 /**
  * Skeleton model with the Fallen Lord's attack animations. His arms and legs have two segments each, bending at the
@@ -39,14 +41,19 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	/** The item layer puts the item this far down the arm from where {@link #translateToHand} leaves off. */
 	private static final float HAND = 10.0F;
 	private static final float ARM_FORWARD = -(float) Math.PI / 2.0F;
+	private static final float QUARTER = (float) Math.PI / 2.0F;
+	/** The shield in the guard, in model space: upright and facing forward, its top leaning back, turned a little outward. */
+	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
+	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
+	private static final Quaternionfc POTION_AT_MOUTH = new Quaternionf().rotateY(-3.0F * QUARTER / 2.0F).rotateX(0.29F).rotateZ(-QUARTER);
 
 	protected final ModelPart rightForearm;
 	protected final ModelPart leftForearm;
 	protected final ModelPart rightShin;
 	protected final ModelPart leftShin;
-	/** In the guard the shield is turned back nearly upright and facing forward, whatever the arm does. */
-	private float shieldTilt;
-	private float shieldTurn;
+	/** How far the shield and the potion are turned from where the hand holds them into {@link #SHIELD_GUARD} and {@link #POTION_AT_MOUTH}. */
+	private float shieldGuard;
+	private float potionAtMouth;
 
 	public FallenLordModel(ModelPart root) {
 		super(root);
@@ -87,8 +94,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	@Override
 	public void setupAnim(FallenLordRenderState state) {
 		super.setupAnim(state);
-		shieldTilt = 0.0F;
-		shieldTurn = 0.0F;
+		shieldGuard = 0.0F;
+		potionAtMouth = 0.0F;
 		walk(state);
 		guard(state.guard);
 		float t = state.actionTime;
@@ -119,18 +126,39 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		return KNEE * (1.0F - Mth.cos(hip)) + SHIN * (1.0F - Mth.cos(hip + knee));
 	}
 
-	/** Puts the item at the end of the forearm. For the shield in the guard, also turns it back upright. */
+	/**
+	 * Puts the item at the end of the forearm. The shield's handle sits in the hand; in the guard the shield turns
+	 * upright and faces forward, whatever the arm does. While he drinks, the hand holds the potion by its middle.
+	 */
 	@Override
 	public void translateToHand(SkeletonRenderState state, HumanoidArm arm, PoseStack poseStack) {
+		ModelPart upper = getArm(arm);
+		ModelPart forearm = arm == HumanoidArm.LEFT ? leftForearm : rightForearm;
 		root().translateAndRotate(poseStack);
-		getArm(arm).translateAndRotate(poseStack);
-		(arm == HumanoidArm.LEFT ? leftForearm : rightForearm).translateAndRotate(poseStack);
-		poseStack.translate(0.0F, (HAND - ELBOW) / 16.0F, 0.0F);
+		upper.translateAndRotate(poseStack);
+		forearm.translateAndRotate(poseStack);
 		if (arm == HumanoidArm.LEFT) {
-			poseStack.rotate(Axis.XP, -shieldTilt);
-			poseStack.rotate(Axis.YP, shieldTurn);
+			// The shield turns about its handle, held one above the end of the forearm; the item layer puts the
+			// handle 6 below where this leaves off.
+			poseStack.translate(0.0F, (HAND - ELBOW - 1.0F) / 16.0F, 0.0F);
+			turnHeldItem(poseStack, upper, forearm, SHIELD_GUARD, shieldGuard);
+			poseStack.translate(0.0F, -6.0F / 16.0F, 0.0F);
+		} else {
+			poseStack.translate(0.0F, (HAND - ELBOW) / 16.0F, 0.0F);
+			turnHeldItem(poseStack, upper, forearm, POTION_AT_MOUTH, potionAtMouth);
+			// A held potion stands out ahead of the hand; this moves its middle (1 out, 1 up the arm and 5 ahead) into the grip.
+			poseStack.translate(potionAtMouth / 16.0F, (potionAtMouth - HAND) / 16.0F, 5.0F * potionAtMouth / 16.0F);
 		}
-		poseStack.translate(0.0F, -HAND / 16.0F, 0.0F);
+	}
+
+	/** Turns the held item by {@code amount} of the way into {@code target} in model space, undoing the arm's own turn. */
+	private static void turnHeldItem(PoseStack poseStack, ModelPart upper, ModelPart forearm, Quaternionfc target, float amount) {
+		if (amount <= 0.0F) {
+			return;
+		}
+		Quaternionf hand = new Quaternionf().rotationZYX(upper.zRot, upper.yRot, upper.xRot)
+				.mul(new Quaternionf().rotationZYX(forearm.zRot, forearm.yRot, forearm.xRot));
+		poseStack.rotate(new Quaternionf().slerp(hand.conjugate().mul(target), amount));
 	}
 
 	/** 0 before {@code start}, 1 after {@code end}, smooth in between. */
@@ -156,19 +184,24 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	}
 
 	/**
-	 * The shield held low across the front of his body: forearm forward, face forward, its top a little back. Held at
-	 * the side, a shield faces outward; in the guard it turns a quarter round, less what the arm already turned in.
+	 * The shield held upright in front of his left side, from his mouth to his thighs, with the forearm reaching
+	 * forward and in to its handle. The spear stands nearly upright at his right side, its point a little forward,
+	 * clear of the shield's edge; it still sways a little as he walks. His knees stay behind the shield.
 	 */
 	private void guard(float amount) {
 		if (amount <= 0.0F) {
 			return;
 		}
 		leftArm.xRot = Mth.lerp(amount, leftArm.xRot, 0.0F);
-		leftArm.yRot = Mth.lerp(amount, leftArm.yRot, 0.35F);
+		leftArm.yRot = Mth.lerp(amount, leftArm.yRot, 0.6F);
 		leftArm.zRot = Mth.lerp(amount, leftArm.zRot, 0.0F);
-		leftForearm.xRot = Mth.lerp(amount, leftForearm.xRot, -1.0F);
-		shieldTilt = amount * 0.9F * (leftArm.xRot + leftForearm.xRot);
-		shieldTurn = amount * ((float) Math.PI / 2.0F - leftArm.yRot);
+		leftForearm.xRot = Mth.lerp(amount, leftForearm.xRot, -1.15F);
+		shieldGuard = amount;
+		// The held-item arm pose leans the arm forward by a tenth of a turn: what is left is the walking swing.
+		float swing = rightArm.xRot + (float) Math.PI / 10.0F;
+		rightArm.xRot = Mth.lerp(amount, rightArm.xRot, 0.2F + 0.4F * swing);
+		rightArm.yRot = Mth.lerp(amount, rightArm.yRot, 0.0F);
+		rightForearm.xRot = Mth.lerp(amount, rightForearm.xRot, -1.5F);
 	}
 
 	private void poke(float t) {
@@ -358,14 +391,22 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		bendLeg(leftLeg, leftShin, hop, -0.1F, 0.8F);
 	}
 
-	/** The potion to his mouth, elbow bent, head tipped back, small sips. */
+	/**
+	 * The potion to his mouth: the elbow up and out in front, the shoulder raised, the head tipped back, small sips.
+	 * The bottle sits in front of his helmet with its neck at his lips.
+	 */
 	private void drink(float t) {
 		float raise = seg(t, 0.0F, 6.0F);
-		float sip = Mth.sin(t * 0.6F) * 0.06F * raise;
-		rightArm.xRot = Mth.lerp(raise, rightArm.xRot, -1.0F);
-		rightArm.yRot = -0.55F * raise;
-		rightForearm.xRot = Mth.lerp(raise, rightForearm.xRot, -1.5F) + sip;
-		head.xRot = Mth.lerp(raise, head.xRot, -0.45F) + sip;
+		float sip = Mth.sin(t * 0.6F) * 0.05F * raise;
+		rightArm.xRot = Mth.lerp(raise, rightArm.xRot, -1.5F) + sip;
+		rightArm.yRot = Mth.lerp(raise, rightArm.yRot, 0.3F);
+		rightArm.zRot = Mth.lerp(raise, rightArm.zRot, 0.6F);
+		rightArm.x += raise;
+		rightArm.y -= raise;
+		rightArm.z -= raise;
+		rightForearm.xRot = Mth.lerp(raise, rightForearm.xRot, -1.4F);
+		head.xRot = Mth.lerp(raise, head.xRot, -0.3F) + sip;
+		potionAtMouth = raise;
 	}
 
 	/** Quick half-circle bash, landing at tick 3: the shield arm in phase one, the sword arm in phase two. */
