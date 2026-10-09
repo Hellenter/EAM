@@ -38,6 +38,7 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import net.minecraft.world.level.levelgen.structure.templatesystem.HeightMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +48,8 @@ import java.util.concurrent.CompletableFuture;
  * Pebbles, flint shards and sticks on the surface. In forests a pebble gets 0.53 tries per chunk on average
  * (8 tries, each kept 1 time in 15) and a flint shard 1 try in 20 chunks; in the mountains they lie only on
  * stone and gravel, with a flint shard 1 try in 10 chunks. Stony shores get 2.5 times the forest's pebbles
- * (1.33 tries per chunk) and one flint shard try for every 6 pebble tries. Sticks lie under tree crowns, 1 try per chunk in
- * any overworld biome.
+ * (1.33 tries per chunk) and one flint shard try for every 6 pebble tries. Sticks get 1 try per chunk
+ * in any overworld biome and stay only where a tree trunk stands close by, on solid ground, never on water or ice.
  * <p>
  * Copper ore: 12 veins per chunk instead of vanilla's 16, at vanilla heights, each the size of an average diamond vein
  * (vanilla diamond veins are size 4, 8 and 12, about 6 on average) instead of 10, or 20 in dripstone caves.
@@ -60,8 +61,10 @@ import java.util.concurrent.CompletableFuture;
  * ore exposed to air discarded like diamond. Diamond's veins add up to a bit more ore, spread over a taller range.
  */
 public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
-	/** How far above the ground a tree crown counts for a stick under it. */
-	private static final int CROWN_HEIGHT = 12;
+	/** A stick needs a log at most this many blocks away sideways... */
+	private static final int TREE_RADIUS = 3;
+	/** ...and at most this many blocks above the ground it lies on, so a tree's own trunk counts but its crown alone does not. */
+	private static final int TREE_TRUNK_HEIGHT = 4;
 	private static final int COPPER_VEIN_SIZE = 6;
 	private static final int COPPER_VEINS_PER_CHUNK = 12;
 	private static final int SILVER_VEIN_TRIES = 24;
@@ -123,8 +126,12 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				onSurface(stoneOrGravel(), CountPlacement.of(4), RarityFilter.onAverageOnceEvery(3)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_SHORE, flintShard,
 				onSurface(stoneOrGravel(), CountPlacement.of(2), RarityFilter.onAverageOnceEvery(9)));
-		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_UNDER_TREES, stick,
-				onSurface(BlockPredicate.allOf(forestFloor(), underLeaves()), CountPlacement.of(1)));
+		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_NEAR_TREES, stick, List.of(
+				CountPlacement.of(1),
+				InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_NO_LEAVES,
+				BiomeFilter.biome(),
+				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(stickSpot(), solidDryGround(), nearTree()))));
 		PlacementUtils.register(context, EamWorldgen.ORE_COPPER_PLACED, copper, List.of(
 				CountPlacement.of(COPPER_VEINS_PER_CHUNK),
 				InSquarePlacement.spread(),
@@ -190,13 +197,26 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		);
 	}
 
-	/** Leaves somewhere in the column above, up to {@link #CROWN_HEIGHT} blocks. */
-	private static BlockPredicate underLeaves() {
-		BlockPredicate noLeaves = BlockPredicate.volumeMatch(
-				new Vec3i(0, 1, 0),
-				new Vec3i(0, CROWN_HEIGHT, 0),
-				BlockPredicate.not(BlockPredicate.matchesTag(BlockTags.LEAVES)));
-		return BlockPredicate.not(noLeaves);
+	/** Like {@link #freeSpot()}, plus snow layers so snowy forests get sticks too; the stick takes the cover's place. */
+	private static BlockPredicate stickSpot() {
+		return BlockPredicate.anyOf(freeSpot(), BlockPredicate.matchesBlocks(Blocks.SNOW));
+	}
+
+	/** Any block with a solid top underneath except ice; water has none, so sticks never float. */
+	private static BlockPredicate solidDryGround() {
+		return BlockPredicate.allOf(
+				BlockPredicate.hasSturdyFace(Direction.DOWN, Direction.UP),
+				BlockPredicate.not(BlockPredicate.matchesTag(Direction.DOWN, BlockTags.ICE)),
+				BlockPredicate.not(BlockPredicate.matchesFluids(Fluids.WATER)));
+	}
+
+	/** A log within {@link #TREE_RADIUS} blocks sideways, from the stick's level up to {@link #TREE_TRUNK_HEIGHT} blocks. */
+	private static BlockPredicate nearTree() {
+		BlockPredicate noLogs = BlockPredicate.volumeMatch(
+				new Vec3i(-TREE_RADIUS, 0, -TREE_RADIUS),
+				new Vec3i(TREE_RADIUS, TREE_TRUNK_HEIGHT, TREE_RADIUS),
+				BlockPredicate.not(BlockPredicate.matchesTag(BlockTags.LOGS)));
+		return BlockPredicate.not(noLogs);
 	}
 
 	@Override
@@ -215,7 +235,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_MOUNTAIN);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_SHORE);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_SHORE);
-		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_UNDER_TREES);
+		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_NEAR_TREES);
 		entries.add(placedFeatures, EamWorldgen.ORE_COPPER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_MOUNTAIN);

@@ -4,6 +4,7 @@ import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
+import io.github.hellenter.eam.client.enchanting.EnchantingClient;
 import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
@@ -12,6 +13,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.client.hud.ThirstHud;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
+import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
 import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
 
@@ -40,5 +42,7 @@ public class EamClient implements ClientModInitializer {
 		CraftProgress.register();
 		HotIronTooltip.register();
 		AnvilProgress.register();
+		EnchantingClient.register();
+		BloodMoonSky.register();
 	}
 }

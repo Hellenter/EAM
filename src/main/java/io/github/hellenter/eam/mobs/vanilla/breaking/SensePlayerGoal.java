@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.vanilla.breaking;
 
+import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -27,7 +29,8 @@ final class SensePlayerGoal extends TargetGoal {
 		if (mob.getTarget() != null || mob.getRandom().nextInt(reducedTickDelay(CHECK_INTERVAL)) != 0) {
 			return false;
 		}
-		int radius = BlockBreakingModule.settings().senseRadius();
+		// A blood moon sharpens their senses.
+		int radius = Math.max(BlockBreakingModule.settings().senseRadius(), BloodMoonModule.senseRadius(mob.level()));
 		if (radius <= 0) {
 			return false;
 		}

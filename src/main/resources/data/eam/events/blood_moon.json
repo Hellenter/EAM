@@ -1,0 +1,27 @@
+{
+  "first_min_day": 15,
+  "first_max_day": 20,
+  "interval_min_days": 10,
+  "interval_max_days": 20,
+  "start_time": 12000,
+  "damage_multiplier": 1.2,
+  "sense_radius": 10,
+  "drop_multiplier": 2,
+  "experience_multiplier": 2.0,
+  "armor_piece_weights": [1, 1, 1, 1],
+  "armor_materials": {
+    "minecraft:chainmail": 1,
+    "minecraft:copper": 1,
+    "minecraft:iron": 1
+  },
+  "weapon_chance": 0.7,
+  "weapon_materials": {
+    "minecraft:copper": 1,
+    "minecraft:iron": 1
+  },
+  "weapons": {
+    "spear": 1,
+    "sword": 1,
+    "axe": 1
+  }
+}

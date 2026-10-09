@@ -1,0 +1,6 @@
+{
+  "max_volume": 1024,
+  "max_radius": 16,
+  "door_below_size": 3,
+  "min_light": 10
+}

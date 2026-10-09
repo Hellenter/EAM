@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 
@@ -118,5 +119,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		looted.add(BlockItemIds.CHEST, BlockItemIds.TRAPPED_CHEST, BlockItemIds.FURNACE, BlockItemIds.SMOKER, BlockItemIds.BLAST_FURNACE,
 				BlockItemIds.HAY_BLOCK);
 		looted.add(EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
+		// Mobs break these, but a wooden room is still safe to sleep in. Doors always count as walls.
+		builder(SafeRoomModule.SAFE_WALLS).forceAddTag(BlockTags.PLANKS).forceAddTag(BlockTags.WOODEN_SLABS)
+				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 	}
 }

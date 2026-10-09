@@ -9,8 +9,8 @@ import java.util.function.Supplier;
 
 /**
  * Forging in one anvil menu. A click on the offered plate starts hammering; when a plate is done the server takes the
- * hot iron for it from the left slot and adds the plate to {@link #output()}, which the result slot then shows and
- * the player takes. While the left slot still holds enough hot iron, the next plate starts right away.
+ * hot iron for it from both input slots and adds the plate to {@link #output()}, which the result slot then shows and
+ * the player takes. While both slots still hold hot iron, the next plate starts right away.
  * <p>
  * The client only gets the synced progress, total, flags and anvil tier, to draw the arrow, predict clicks and tell
  * which items this anvil cannot work on.
@@ -19,12 +19,15 @@ public final class AnvilForge {
 	private static final int RUNNING = 1;
 	private static final int HAS_OUTPUT = 2;
 	private static final int ACTIVE = 4;
+	private static final int REPAIR = 8;
 
 	private final Supplier<Player> owner;
 	private final IntSupplier anvilTier;
 	private long start;
 	private int total;
 	private boolean running;
+	/** Both sides: the result slot shows a free repair. */
+	private boolean repairing;
 	/** Plates forged and not taken yet. */
 	private ItemStack output = ItemStack.EMPTY;
 
@@ -132,7 +135,21 @@ public final class AnvilForge {
 		if (client()) {
 			return clientFlags;
 		}
-		return (running ? RUNNING : 0) | (output.isEmpty() ? 0 : HAS_OUTPUT) | (ForgingModule.enabled() ? ACTIVE : 0);
+		return (running ? RUNNING : 0) | (output.isEmpty() ? 0 : HAS_OUTPUT) | (ForgingModule.enabled() ? ACTIVE : 0)
+				| (AnvilRepair.enabled() ? REPAIR : 0);
+	}
+
+	/** Whether the server repairs for free; off, repair works like vanilla. */
+	public boolean repairActive() {
+		return (flags() & REPAIR) != 0;
+	}
+
+	public boolean repairing() {
+		return repairing;
+	}
+
+	void setRepairing(boolean repairing) {
+		this.repairing = repairing;
 	}
 
 	/** Whether the server forges plates at all; off, the anvil works like vanilla. */

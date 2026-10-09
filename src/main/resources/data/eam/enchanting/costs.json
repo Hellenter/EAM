@@ -1,0 +1,12 @@
+{
+	"offensive_resource": "minecraft:diamond",
+	"supportive_resource": "minecraft:emerald",
+	"costs": [
+		[4],
+		[3, 4],
+		[2, 3, 4],
+		[1, 2, 3, 4],
+		[1, 2, 3, 4, 5]
+	],
+	"levels_per_resource": 1
+}
