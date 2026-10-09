@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "minecraft:milk_bucket",
+    "#c:buckets/milk",
     "minecraft:bowl",
     "minecraft:bowl",
     "minecraft:bowl",

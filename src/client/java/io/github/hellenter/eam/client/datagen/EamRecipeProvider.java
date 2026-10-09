@@ -13,6 +13,7 @@ import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.Holder;
@@ -120,6 +121,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				// Bars, doors and trapdoors like the iron ones; copper has its own in vanilla.
 				metalBuilding(EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR, EamItems.SILVER_INGOT);
 				metalBuilding(EamItems.MITHRIL_BARS, EamItems.MITHRIL_DOOR, EamItems.MITHRIL_TRAPDOOR, EamItems.MITHRIL_INGOT);
+				// Buckets: the vanilla shape with another metal.
+				bucket(EamItems.COPPER_BUCKET, Items.COPPER_INGOT);
+				bucket(EamItems.SILVER_BUCKET, EamItems.SILVER_INGOT);
+				bucket(EamItems.GOLDEN_BUCKET, Items.GOLD_INGOT);
+				bucket(EamItems.MITHRIL_BUCKET, EamItems.MITHRIL_INGOT);
 				// Saws: two ingots in a diagonal blade with a stick handle.
 				saw(EamItems.COPPER_SAW, Items.COPPER_INGOT);
 				saw(EamItems.SILVER_SAW, EamItems.SILVER_INGOT);
@@ -298,6 +304,15 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern("S")
 						.pattern("F")
 						.unlockedBy(getHasName(head), has(head))
+						.save(output);
+			}
+
+			private void bucket(Item bucket, Item ingot) {
+				shaped(RecipeCategory.TOOLS, bucket)
+						.define('I', ingot)
+						.pattern("I I")
+						.pattern(" I ")
+						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
 			}
 
@@ -588,15 +603,15 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 			/** MITE bowl foods with vanilla stand-ins: beetroot for onion, apple for orange, sweet berries for blueberries. */
 			private void bowlFoodRecipes() {
-				// A bucket fills up to four bowls and comes back empty.
+				// A bucket of any metal fills up to four bowls and comes back empty.
 				for (int bowls = 1; bowls <= 4; bowls++) {
 					shapeless(RecipeCategory.FOOD, EamItems.WATER_BOWL, bowls)
-							.requires(Items.WATER_BUCKET)
+							.requires(ConventionalItemTags.WATER_BUCKETS)
 							.requires(Items.BOWL, bowls)
 							.unlockedBy(getHasName(Items.BOWL), has(Items.BOWL))
 							.save(output, "eam:water_bowl_from_bucket_" + bowls);
 					shapeless(RecipeCategory.FOOD, EamItems.MILK_BOWL, bowls)
-							.requires(Items.MILK_BUCKET)
+							.requires(ConventionalItemTags.MILK_BUCKETS)
 							.requires(Items.BOWL, bowls)
 							.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
 							.save(output, "eam:milk_bowl_from_bucket_" + bowls);
@@ -615,7 +630,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
 
 				shapeless(RecipeCategory.FOOD, EamItems.CHEESE)
-						.requires(Items.MILK_BUCKET)
+						.requires(ConventionalItemTags.MILK_BUCKETS)
 						.unlockedBy(getHasName(Items.MILK_BUCKET), has(Items.MILK_BUCKET))
 						.save(output);
 				shapeless(RecipeCategory.FOOD, EamItems.CHOCOLATE)

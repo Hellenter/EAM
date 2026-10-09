@@ -4,6 +4,8 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.bucket.BucketContent;
+import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -16,6 +18,7 @@ import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,6 +32,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
@@ -40,6 +44,13 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 	protected void addTags(HolderLookup.Provider registries) {
 		builder(EamItems.WATER_BOWLS).add(EamItems.WATER_BOWL.builtInRegistryHolder().key(),
 				EamItems.BOILED_WATER_BOWL.builtInRegistryHolder().key());
+		// Metal buckets join the conventional bucket tags, so recipes asking for a bucket of milk or water take any metal.
+		Map<BucketContent, TagKey<Item>> bucketTags = Map.of(BucketContent.EMPTY, ConventionalItemTags.EMPTY_BUCKETS,
+				BucketContent.WATER, ConventionalItemTags.WATER_BUCKETS, BucketContent.LAVA, ConventionalItemTags.LAVA_BUCKETS,
+				BucketContent.POWDER_SNOW, ConventionalItemTags.POWDER_SNOW_BUCKETS, BucketContent.MILK, ConventionalItemTags.MILK_BUCKETS);
+		for (Map<BucketContent, Item> set : MetalBuckets.metalSets()) {
+			set.forEach((content, item) -> builder(bucketTags.get(content)).add(item.builtInRegistryHolder().key()));
+		}
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

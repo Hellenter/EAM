@@ -6,6 +6,8 @@ import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
+import io.github.hellenter.eam.content.bucket.MetalBucketItem;
+import io.github.hellenter.eam.content.bucket.MetalPowderSnowBucketItem;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -47,6 +49,9 @@ import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffe
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 import java.util.function.Function;
 
@@ -284,6 +289,39 @@ public final class EamItems {
 	public static final Item MITHRIL_DOOR = doorItem("mithril_door", EamBlocks.MITHRIL_DOOR);
 	public static final Item MITHRIL_TRAPDOOR = blockItem("mithril_trapdoor", EamBlocks.MITHRIL_TRAPDOOR);
 
+	/** Metal buckets work like the vanilla one, which counts as iron; the weaker ones may melt when they scoop lava. */
+	public static final Item COPPER_BUCKET = register("copper_bucket", p -> new MetalBucketItem(Fluids.EMPTY, p), new Item.Properties().stacksTo(16));
+	public static final Item COPPER_WATER_BUCKET = fluidBucket("copper_water_bucket", Fluids.WATER, COPPER_BUCKET, new Item.Properties());
+	public static final Item COPPER_LAVA_BUCKET = fluidBucket("copper_lava_bucket", Fluids.LAVA, COPPER_BUCKET,
+			new Item.Properties().cookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET));
+	public static final Item COPPER_POWDER_SNOW_BUCKET = register("copper_powder_snow_bucket", MetalPowderSnowBucketItem::new,
+			new Item.Properties().stacksTo(1));
+	public static final Item COPPER_MILK_BUCKET = milkBucket("copper_milk_bucket", COPPER_BUCKET);
+
+	public static final Item SILVER_BUCKET = register("silver_bucket", p -> new MetalBucketItem(Fluids.EMPTY, p), new Item.Properties().stacksTo(16));
+	public static final Item SILVER_WATER_BUCKET = fluidBucket("silver_water_bucket", Fluids.WATER, SILVER_BUCKET, new Item.Properties());
+	public static final Item SILVER_LAVA_BUCKET = fluidBucket("silver_lava_bucket", Fluids.LAVA, SILVER_BUCKET,
+			new Item.Properties().cookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET));
+	public static final Item SILVER_POWDER_SNOW_BUCKET = register("silver_powder_snow_bucket", MetalPowderSnowBucketItem::new,
+			new Item.Properties().stacksTo(1));
+	public static final Item SILVER_MILK_BUCKET = milkBucket("silver_milk_bucket", SILVER_BUCKET);
+
+	public static final Item GOLDEN_BUCKET = register("golden_bucket", p -> new MetalBucketItem(Fluids.EMPTY, p), new Item.Properties().stacksTo(16));
+	public static final Item GOLDEN_WATER_BUCKET = fluidBucket("golden_water_bucket", Fluids.WATER, GOLDEN_BUCKET, new Item.Properties());
+	public static final Item GOLDEN_LAVA_BUCKET = fluidBucket("golden_lava_bucket", Fluids.LAVA, GOLDEN_BUCKET,
+			new Item.Properties().cookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET));
+	public static final Item GOLDEN_POWDER_SNOW_BUCKET = register("golden_powder_snow_bucket", MetalPowderSnowBucketItem::new,
+			new Item.Properties().stacksTo(1));
+	public static final Item GOLDEN_MILK_BUCKET = milkBucket("golden_milk_bucket", GOLDEN_BUCKET);
+
+	public static final Item MITHRIL_BUCKET = register("mithril_bucket", p -> new MetalBucketItem(Fluids.EMPTY, p), new Item.Properties().stacksTo(16));
+	public static final Item MITHRIL_WATER_BUCKET = fluidBucket("mithril_water_bucket", Fluids.WATER, MITHRIL_BUCKET, new Item.Properties());
+	public static final Item MITHRIL_LAVA_BUCKET = fluidBucket("mithril_lava_bucket", Fluids.LAVA, MITHRIL_BUCKET,
+			new Item.Properties().cookingFuel(ContextIntProviders.COOKING_TIME_LAVA_BUCKET));
+	public static final Item MITHRIL_POWDER_SNOW_BUCKET = register("mithril_powder_snow_bucket", MetalPowderSnowBucketItem::new,
+			new Item.Properties().stacksTo(1));
+	public static final Item MITHRIL_MILK_BUCKET = milkBucket("mithril_milk_bucket", MITHRIL_BUCKET);
+
 	/**
 	 * MITE bowl foods. A bowl of water is filled at a water source and may poison until boiled; soups, stews and
 	 * the rest are crafted from it or from a bowl of milk. All of them give back the bowl, like vanilla stews.
@@ -359,6 +397,17 @@ public final class EamItems {
 		Item item = register(name, ArrowItem::new, properties);
 		DispenserBlock.registerProjectileBehavior(item);
 		return item;
+	}
+
+	/** A metal bucket of water or lava; it leaves its empty bucket behind in crafting and furnaces. */
+	private static Item fluidBucket(String name, Fluid fluid, Item empty, Item.Properties properties) {
+		return register(name, p -> new MetalBucketItem(fluid, p), properties.craftRemainder(empty).stacksTo(1));
+	}
+
+	/** A metal bucket of milk: drunk like the vanilla one, leaving its empty bucket. */
+	private static Item milkBucket(String name, Item empty) {
+		return register(name, Item::new, new Item.Properties().craftRemainder(empty).component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET)
+				.usingConvertsTo(empty).stacksTo(1));
 	}
 
 	private static Item silverTool(String name, Item.Properties properties) {

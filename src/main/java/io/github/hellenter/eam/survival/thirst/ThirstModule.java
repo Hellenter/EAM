@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.survival.thirst;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.bucket.BucketContent;
+import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -123,8 +125,12 @@ public final class ThirstModule {
 	 */
 	public static void register() {
 		PayloadTypeRegistry.serverboundPlay().register(DrinkFromSourcePayload.TYPE, DrinkFromSourcePayload.STREAM_CODEC);
-		DefaultItemComponentEvents.MODIFY.register(context -> DRINKS.forEach((item, water) ->
-				context.modify(item, components -> components.set(HYDRATION, new Hydration(water)))));
+		DefaultItemComponentEvents.MODIFY.register(context -> {
+			DRINKS.forEach((item, water) -> context.modify(item, components -> components.set(HYDRATION, new Hydration(water))));
+			// Milk in a metal bucket quenches thirst like milk in the vanilla one.
+			Hydration milk = new Hydration(DRINKS.get(Items.MILK_BUCKET));
+			MetalBuckets.metalSets().forEach(set -> context.modify(set.get(BucketContent.MILK), components -> components.set(HYDRATION, milk)));
+		});
 		// A world played with thirst on keeps the saved bar; drop it so a disabled module leaves no HUD behind.
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			if (!enabled) {

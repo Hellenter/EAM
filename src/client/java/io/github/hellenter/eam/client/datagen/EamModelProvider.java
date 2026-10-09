@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.bucket.BucketContent;
+import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 
@@ -25,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.Map;
 
 public class EamModelProvider extends FabricModelProvider {
 	public EamModelProvider(FabricPackOutput output) {
@@ -174,6 +177,12 @@ public class EamModelProvider extends FabricModelProvider {
 		for (Item item : List.of(EamItems.MITHRIL_SWORD, EamItems.MITHRIL_SHOVEL, EamItems.MITHRIL_PICKAXE, EamItems.MITHRIL_AXE,
 				EamItems.MITHRIL_HOE, EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_SAW, EamItems.MITHRIL_HAMMER)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+		// Metal buckets, each with every content.
+		for (Map<BucketContent, Item> set : MetalBuckets.metalSets()) {
+			for (Item item : set.values()) {
+				generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+			}
 		}
 		for (Item item : List.of(EamItems.RUSTY_IRON_HELMET, EamItems.RUSTY_IRON_CHESTPLATE, EamItems.RUSTY_IRON_LEGGINGS,
 				EamItems.RUSTY_IRON_BOOTS, EamItems.RUSTY_CHAINMAIL_HELMET, EamItems.RUSTY_CHAINMAIL_CHESTPLATE,

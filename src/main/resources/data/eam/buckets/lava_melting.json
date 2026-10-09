@@ -1,0 +1,9 @@
+{
+  "lava_melt_chance": {
+    "eam:copper_bucket": 0.16,
+    "eam:silver_bucket": 0.16,
+    "eam:golden_bucket": 0.2,
+    "minecraft:bucket": 0.08,
+    "eam:mithril_bucket": 0.01
+  }
+}

@@ -4,6 +4,7 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"content.arrows.AbstractArrowDamageMixin",
+		"content.bucket.CauldronDispatcherInvoker",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
 		"mobs.vanilla.AbstractArrowMixin",
