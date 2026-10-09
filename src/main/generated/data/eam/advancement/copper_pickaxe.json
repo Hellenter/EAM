@@ -1,0 +1,33 @@
+{
+  "parent": "eam:copper_nugget",
+  "criteria": {
+    "copper_pickaxe": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:copper_pickaxe"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.copper_pickaxe.description"
+    },
+    "icon": {
+      "id": "minecraft:copper_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.eam.copper_pickaxe.title"
+    }
+  },
+  "requirements": [
+    [
+      "copper_pickaxe"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

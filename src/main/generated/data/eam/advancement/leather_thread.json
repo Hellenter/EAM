@@ -1,0 +1,33 @@
+{
+  "parent": "eam:root",
+  "criteria": {
+    "leather_thread": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:leather_thread"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.leather_thread.description"
+    },
+    "icon": {
+      "id": "eam:leather_thread"
+    },
+    "title": {
+      "translate": "advancements.eam.leather_thread.title"
+    }
+  },
+  "requirements": [
+    [
+      "leather_thread"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

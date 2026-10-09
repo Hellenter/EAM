@@ -1,0 +1,44 @@
+{
+  "parent": "eam:flint_knife",
+  "criteria": {
+    "flint_axe": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:flint_axe"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "flint_hatchet": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:flint_hatchet"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.flint_hatchet.description"
+    },
+    "icon": {
+      "id": "eam:flint_hatchet"
+    },
+    "title": {
+      "translate": "advancements.eam.flint_hatchet.title"
+    }
+  },
+  "requirements": [
+    [
+      "flint_hatchet",
+      "flint_axe"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "eam:leather_thread",
+  "criteria": {
+    "sieve": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:sieve"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.sieve.description"
+    },
+    "icon": {
+      "id": "eam:sieve"
+    },
+    "title": {
+      "translate": "advancements.eam.sieve.title"
+    }
+  },
+  "requirements": [
+    [
+      "sieve"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

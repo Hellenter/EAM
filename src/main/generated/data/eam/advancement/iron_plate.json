@@ -1,0 +1,33 @@
+{
+  "parent": "eam:hot_iron",
+  "criteria": {
+    "iron_plate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:iron_plate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.iron_plate.description"
+    },
+    "icon": {
+      "id": "eam:iron_plate"
+    },
+    "title": {
+      "translate": "advancements.eam.iron_plate.title"
+    }
+  },
+  "requirements": [
+    [
+      "iron_plate"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

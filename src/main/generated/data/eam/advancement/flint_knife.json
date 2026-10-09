@@ -1,0 +1,33 @@
+{
+  "parent": "eam:ground_finds",
+  "criteria": {
+    "flint_knife": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:flint_knife"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.flint_knife.description"
+    },
+    "icon": {
+      "id": "eam:flint_knife"
+    },
+    "title": {
+      "translate": "advancements.eam.flint_knife.title"
+    }
+  },
+  "requirements": [
+    [
+      "flint_knife"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

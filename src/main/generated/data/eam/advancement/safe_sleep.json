@@ -1,0 +1,26 @@
+{
+  "parent": "eam:root",
+  "criteria": {
+    "slept": {
+      "trigger": "minecraft:slept_in_bed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.safe_sleep.description"
+    },
+    "icon": {
+      "id": "minecraft:red_bed"
+    },
+    "title": {
+      "translate": "advancements.eam.safe_sleep.title"
+    }
+  },
+  "requirements": [
+    [
+      "slept"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

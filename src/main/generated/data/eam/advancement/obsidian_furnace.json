@@ -1,0 +1,33 @@
+{
+  "parent": "eam:iron_age",
+  "criteria": {
+    "obsidian_blast_furnace": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:obsidian_blast_furnace"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.obsidian_furnace.description"
+    },
+    "icon": {
+      "id": "eam:obsidian_blast_furnace"
+    },
+    "title": {
+      "translate": "advancements.eam.obsidian_furnace.title"
+    }
+  },
+  "requirements": [
+    [
+      "obsidian_blast_furnace"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
