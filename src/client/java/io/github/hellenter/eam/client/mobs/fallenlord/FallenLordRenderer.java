@@ -5,24 +5,21 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
-import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.Items;
 
-/** A skeleton the size of a wither skeleton (the vanilla 1.2 scaled model), in armor. */
+/** A skeleton the size of a wither skeleton (the vanilla 1.2 scaled model) in his own mithril armor and a red cape. */
 public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLordRenderState, FallenLordModel> {
 	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
 
 	public FallenLordRenderer(EntityRendererProvider.Context context) {
 		super(context, new FallenLordModel(context.bakeLayer(ModelLayers.WITHER_SKELETON)), 0.6F);
-		addLayer(new HumanoidArmorLayer<>(this, ArmorModelSet.bake(ModelLayers.WITHER_SKELETON_ARMOR, context.getModelSet(), FallenLordModel::new),
-				context.getEquipmentRenderer()));
-		addLayer(new FallenLordEyesLayer(this));
+		addLayer(new FallenLordGearLayer(this, context.getModelSet()));
+		addLayer(new FallenLordEyesLayer(this, context.getModelSet()));
 	}
 
 	@Override
@@ -44,7 +41,8 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 		state.action = entity.action();
 		state.actionTime = entity.actionTime(partialTicks);
 		state.shieldUp = entity.isShieldUp();
-		state.eyesGlow = state.action == FallenLordAction.DASH_WINDUP && state.actionTime < FallenLordAction.EYE_FLASH_TICKS;
+		boolean eyesGlow = state.action == FallenLordAction.DASH_WINDUP && state.actionTime < FallenLordAction.EYE_FLASH_TICKS;
+		state.eyeFrame = eyesGlow ? (int) (state.actionTime * FallenLordEyesModel.FRAMES / FallenLordAction.EYE_FLASH_TICKS) : -1;
 		if (state.action == FallenLordAction.WHIRL) {
 			// One full turn of the whole body.
 			float p = Mth.clamp((state.actionTime - 2.0F) / 10.0F, 0.0F, 1.0F);

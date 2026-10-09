@@ -28,7 +28,7 @@ public enum FallenLordAction {
 	WHIRL(16);
 
 	/** Eyes glow during the first ticks of the windup. */
-	public static final int EYE_FLASH_TICKS = 8;
+	public static final int EYE_FLASH_TICKS = 10;
 
 	private final int length;
 

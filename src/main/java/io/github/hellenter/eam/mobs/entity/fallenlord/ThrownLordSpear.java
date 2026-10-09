@@ -15,7 +15,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -52,7 +51,7 @@ public class ThrownLordSpear extends AbstractArrow {
 	}
 
 	public ThrownLordSpear(Level level, LivingEntity owner, float damage, boolean returning) {
-		super(EamEntities.LORD_SPEAR, owner, level, new ItemStack(Items.IRON_SPEAR), null);
+		super(EamEntities.LORD_SPEAR, owner, level, FallenLord.spearStack(), null);
 		this.damage = damage;
 		this.returning = returning;
 		pickup = Pickup.DISALLOWED;
@@ -151,7 +150,7 @@ public class ThrownLordSpear extends AbstractArrow {
 
 	@Override
 	protected ItemStack getDefaultPickupItem() {
-		return new ItemStack(Items.IRON_SPEAR);
+		return FallenLord.spearStack();
 	}
 
 	@Override

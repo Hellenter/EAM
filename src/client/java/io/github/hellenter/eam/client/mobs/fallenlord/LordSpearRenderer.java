@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.fallenlord;
 
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,12 +16,11 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 
 /** Draws the thrown spear as the spear item, point first along its flight. */
 public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpearRenderer.State> {
-	private static final ItemStack SPEAR = new ItemStack(Items.IRON_SPEAR);
+	private static final ItemStack SPEAR = FallenLord.spearStack();
 	private static final float SCALE = 1.6F;
 
 	private final ItemModelResolver itemModelResolver;

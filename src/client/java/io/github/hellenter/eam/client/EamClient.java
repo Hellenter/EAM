@@ -8,6 +8,8 @@ import io.github.hellenter.eam.client.enchanting.EnchantingClient;
 import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
+import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordEyesModel;
+import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
@@ -21,6 +23,7 @@ import io.github.hellenter.eam.world.crafting.CraftingTypes;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -36,6 +39,8 @@ public class EamClient implements ClientModInitializer {
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
+		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);
+		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LORD_SPEAR, LordSpearRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
