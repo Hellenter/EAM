@@ -18,15 +18,12 @@ import io.github.hellenter.eam.survival.thirst.FlaskWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -176,80 +173,7 @@ public final class EamItems {
 	}
 
 	public static void register() {
-		registerBrewingTabs();
-		registerMithrilTabs();
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.LEATHER, LEATHER_THREAD));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(output ->
-				output.insertAfter(Items.MILK_BUCKET, LEATHER_FLASK, FILTERED_LEATHER_FLASK));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.FLINT, PEBBLE, FLINT_SHARD));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
-				output.insertAfter(Items.SNOWBALL, PEBBLE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
-				output.insertAfter(Items.BOW, SLINGSHOT));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
-				output.insertBefore(Items.CAMPFIRE, CAMP_FIRE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
-				output.insertAfter(Items.COMPOSTER, SIEVE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
-				output.insertBefore(Items.ANVIL, COPPER_ANVIL, SILVER_ANVIL));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
-				output.insertAfter(Items.SHEARS, COPPER_HAMMER, SILVER_HAMMER, IRON_HAMMER, COPPER_SAW, SILVER_SAW, IRON_SAW));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
-				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
-				output.insertBefore(Items.WOODEN_SWORD, FLINT_KNIFE, COPPER_KNIFE, SILVER_KNIFE, IRON_KNIFE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.IRON_INGOT, HOT_IRON_INGOT, IRON_PLATE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output ->
-				output.insertAfter(Items.DEEPSLATE_COPPER_ORE, SILVER_ORE, DEEPSLATE_SILVER_ORE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output ->
-				output.insertAfter(Items.GOLD_BLOCK, SILVER_BLOCK));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.RAW_GOLD, RAW_SILVER));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.GOLD_NUGGET, SILVER_NUGGET));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.GOLD_INGOT, SILVER_INGOT));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
-				output.insertAfter(Items.COPPER_HOE, SILVER_SHOVEL, SILVER_PICKAXE, SILVER_AXE, SILVER_HOE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
-			output.insertAfter(Items.COPPER_SWORD, SILVER_SWORD);
-			output.insertAfter(Items.COPPER_BOOTS, SILVER_HELMET, SILVER_CHESTPLATE, SILVER_LEGGINGS, SILVER_BOOTS);
-		});
-	}
-
-	private static void registerMithrilTabs() {
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output ->
-				output.insertAfter(Items.DEEPSLATE_DIAMOND_ORE, MITHRIL_ORE, DEEPSLATE_MITHRIL_ORE));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output ->
-				output.insertAfter(Items.DIAMOND_BLOCK, MITHRIL_BLOCK));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
-			output.insertAfter(Items.RAW_GOLD, RAW_MITHRIL);
-			output.insertAfter(Items.DIAMOND, MITHRIL_INGOT, HOT_MITHRIL_INGOT, MITHRIL_PLATE);
-		});
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output -> {
-			output.insertAfter(Items.BLAST_FURNACE, OBSIDIAN_BLAST_FURNACE);
-			output.insertAfter(Items.DAMAGED_ANVIL, MITHRIL_ANVIL);
-		});
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
-			// Before netherite: the diamond gear around it is hidden.
-			output.insertBefore(Items.NETHERITE_SHOVEL, MITHRIL_SHOVEL, MITHRIL_PICKAXE, MITHRIL_AXE, MITHRIL_HOE);
-			output.insertAfter(IRON_SAW, MITHRIL_HAMMER, MITHRIL_SAW);
-		});
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
-			output.insertBefore(Items.NETHERITE_SWORD, MITHRIL_SWORD);
-			output.insertBefore(Items.NETHERITE_HELMET, MITHRIL_HELMET, MITHRIL_CHESTPLATE, MITHRIL_LEGGINGS, MITHRIL_BOOTS);
-			output.insertAfter(IRON_KNIFE, MITHRIL_KNIFE);
-		});
-	}
-
-	private static void registerBrewingTabs() {
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
-				output.insertAfter(Items.BREWING_STAND, SILVER_BREWING_STAND));
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output ->
-				output.insertAfter(Items.BLAZE_POWDER, LAPIS_GUNPOWDER_MIX, SILVER_REDSTONE_DUST, FLOWER_MIX, FERMENTED_ENDER_EYE));
+		EamCreativeTabs.register();
 	}
 
 	private static Item blockItem(String name, Block block) {
