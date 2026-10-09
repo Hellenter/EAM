@@ -69,4 +69,33 @@ class EnchantingLogicTest {
 		assertFalse(EnchantingLogic.affordable(price, 5, 5, true, 0, false));
 		assertTrue(EnchantingLogic.affordable(price, 6, 6, true, 0, false));
 	}
+
+	private static final List<List<Integer>> SHELVES = List.of(
+			List.of(9),
+			List.of(6, 9),
+			List.of(6, 9, 12),
+			List.of(3, 6, 9, 12),
+			List.of(3, 6, 9, 12, 15)
+	);
+
+	@Test
+	void maximsShelfExamples() {
+		assertEquals(15, EnchantingLogic.shelvesForLevel(SHELVES, 5, 5)); // Sharpness V
+		assertEquals(12, EnchantingLogic.shelvesForLevel(SHELVES, 3, 3)); // Looting III
+		assertEquals(9, EnchantingLogic.shelvesForLevel(SHELVES, 1, 1)); // Silk Touch
+		assertEquals(9, EnchantingLogic.shelvesForLevel(SHELVES, 2, 2)); // Fire Aspect II
+		assertEquals(10, EnchantingLogic.shelvesForTotal(3, 5 + 3)); // Sharpness V + Looting III
+	}
+
+	@Test
+	void minimumShelvesGiveOneLevel() {
+		assertEquals(3, EnchantingLogic.shelvesForTotal(3, 1));
+		assertEquals(3, EnchantingLogic.shelvesForTotal(3, 0));
+		assertEquals(4, EnchantingLogic.shelvesForTotal(3, 2));
+	}
+
+	@Test
+	void missingShelfRowNeedsThreePerLevel() {
+		assertEquals(21, EnchantingLogic.shelvesForLevel(SHELVES, 10, 7));
+	}
 }

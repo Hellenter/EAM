@@ -2,7 +2,7 @@ package io.github.hellenter.eam.world.enchanting;
 
 import java.util.List;
 
-/** Prices of chosen enchantments. Pure, unit tested. */
+/** Prices and bookshelf requirements of chosen enchantments. Pure, unit tested. */
 public final class EnchantingLogic {
 	private EnchantingLogic() {
 	}
@@ -19,6 +19,28 @@ public final class EnchantingLogic {
 			}
 		}
 		return level;
+	}
+
+	/**
+	 * Bookshelves level {@code level} of an enchantment with {@code maxLevel} levels needs. Same table layout as the prices;
+	 * a missing row or entry needs three shelves per level.
+	 */
+	public static int shelvesForLevel(List<List<Integer>> shelves, int maxLevel, int level) {
+		if (maxLevel >= 1 && maxLevel <= shelves.size()) {
+			List<Integer> row = shelves.get(maxLevel - 1);
+			if (level >= 1 && level <= row.size()) {
+				return row.get(level - 1);
+			}
+		}
+		return 3 * level;
+	}
+
+	/**
+	 * Bookshelves an item with {@code totalLevels} enchantment levels in all needs: {@code minShelves} give the first level,
+	 * every further shelf one more.
+	 */
+	public static int shelvesForTotal(int minShelves, int totalLevels) {
+		return minShelves + Math.max(0, totalLevels - 1);
 	}
 
 	/** Experience levels the same choice costs. */
