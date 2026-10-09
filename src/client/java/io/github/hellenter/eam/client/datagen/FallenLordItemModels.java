@@ -47,7 +47,7 @@ final class FallenLordItemModels {
 
 	/**
 	 * The vanilla shield's plate and handle as model elements, placed where its special renderer draws them (the
-	 * shield model flipped in y and z, centred on the item), so the vanilla shield's hand poses fit unchanged.
+	 * shield model flipped in y and z, in the same pixel units), so the vanilla shield's hand poses fit unchanged.
 	 */
 	private static JsonObject shieldModel() {
 		JsonObject model = new JsonObject();
@@ -58,12 +58,12 @@ final class FallenLordItemModels {
 		model.add("textures", textures);
 		JsonArray elements = new JsonArray();
 		// Plate: front face shows the texture at (1, 1), back at (14, 1), 12x22 each.
-		elements.add(element(new double[] {2, -3, 9}, new double[] {14, 19, 10}, Map.of(
+		elements.add(element(new double[] {-6, -11, 1}, new double[] {6, 11, 2}, Map.of(
 				"south", new double[] {1, 1, 13, 23}, "north", new double[] {14, 1, 26, 23},
 				"east", new double[] {13, 1, 14, 23}, "west", new double[] {0, 1, 1, 23},
 				"up", new double[] {1, 0, 13, 1}, "down", new double[] {13, 0, 25, 1})));
 		// Handle behind the plate.
-		elements.add(element(new double[] {7, 5, 3}, new double[] {9, 11, 9}, Map.of(
+		elements.add(element(new double[] {-1, -3, -5}, new double[] {1, 3, 1}, Map.of(
 				"south", new double[] {32, 6, 34, 12}, "north", new double[] {40, 6, 42, 12},
 				"east", new double[] {34, 6, 40, 12}, "west", new double[] {26, 6, 32, 12},
 				"up", new double[] {32, 0, 34, 6}, "down", new double[] {34, 0, 36, 6})));

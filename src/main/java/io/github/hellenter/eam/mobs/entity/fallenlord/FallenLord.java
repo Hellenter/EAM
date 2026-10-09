@@ -701,7 +701,8 @@ public class FallenLord extends Monster {
 			if (getMainHandItem().isEmpty() || getMainHandItem().is(Items.IRON_SPEAR)) {
 				setItemSlot(EquipmentSlot.MAINHAND, spearStack());
 			}
-			if (getOffhandItem().is(Items.SHIELD)) {
+			// He only puts the shield down when phase two starts; this also arms a lord summoned with NBT.
+			if (getOffhandItem().isEmpty() || getOffhandItem().is(Items.SHIELD)) {
 				setItemSlot(EquipmentSlot.OFFHAND, shieldStack());
 			}
 		}
