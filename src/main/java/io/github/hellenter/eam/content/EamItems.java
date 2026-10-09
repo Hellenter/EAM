@@ -132,6 +132,11 @@ public final class EamItems {
 	public static final Item SILVER_HAMMER = register("silver_hammer", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item IRON_HAMMER = register("iron_hammer", Item::new, new Item.Properties().stacksTo(1));
 
+	/** Go in the crafting table's tool slots and make wooden and decorative crafts faster. */
+	public static final Item COPPER_SAW = register("copper_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item SILVER_SAW = register("silver_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item IRON_SAW = register("iron_saw", Item::new, new Item.Properties().stacksTo(1));
+
 	/** Thread for flasks and slingshots: leather thread or plain string. */
 	public static final TagKey<Item> FLASK_THREADS = TagKey.create(Registries.ITEM, Eam.id("flask_threads"));
 
@@ -157,7 +162,7 @@ public final class EamItems {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(output ->
 				output.insertBefore(Items.ANVIL, COPPER_ANVIL, SILVER_ANVIL));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
-				output.insertAfter(Items.SHEARS, COPPER_HAMMER, SILVER_HAMMER, IRON_HAMMER));
+				output.insertAfter(Items.SHEARS, COPPER_HAMMER, SILVER_HAMMER, IRON_HAMMER, COPPER_SAW, SILVER_SAW, IRON_SAW));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 				output.insertBefore(Items.WOODEN_SHOVEL, FLINT_HATCHET, FLINT_AXE));
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output ->
