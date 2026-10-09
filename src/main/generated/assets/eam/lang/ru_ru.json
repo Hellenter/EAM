@@ -1,4 +1,8 @@
 {
+  "block.eam.bed.needs_door": "Требуется дверь",
+  "block.eam.bed.needs_light": "Требуется освещение",
+  "block.eam.bed.not_enclosed": "Спать можно только в замкнутом и не слишком большом помещении",
+  "block.eam.bed.weak_blocks": "Ваше помещение состоит из слишком непрочных блоков",
   "block.eam.camp_fire": "Походный костёр",
   "block.eam.camp_fire.needs_sticks": "Чтобы разжечь костёр, положите в него не меньше %s палок",
   "block.eam.copper_anvil": "Медная наковальня",
@@ -130,6 +134,7 @@
   "item.minecraft.tipped_arrow.effect.light_strength": "Стрела лёгкой силы",
   "item.minecraft.tipped_arrow.effect.light_swiftness": "Стрела лёгкой стремительности",
   "item.minecraft.tipped_arrow.effect.light_weakness": "Стрела лёгкой слабости",
+  "tag.block.eam.safe_room_walls": "Стены безопасного помещения",
   "tag.item.eam.anvil_hammers": "Молотки для наковальни",
   "tag.item.eam.anvil_hammers.tier_1": "Молотки для наковальни: тир 1",
   "tag.item.eam.anvil_hammers.tier_2": "Молотки для наковальни: тир 2",
