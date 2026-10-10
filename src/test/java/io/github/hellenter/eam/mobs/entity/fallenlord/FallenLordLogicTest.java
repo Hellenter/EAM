@@ -309,8 +309,8 @@ class FallenLordLogicTest {
 	@Test
 	void spearDashGrowsAlongItsRun() {
 		FallenLordSettings.SpearDash dash = SETTINGS.later().spearDash();
-		assertEquals(0.85, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 0.0), 1.0E-9);
-		assertEquals(1.2, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 1.0), 1.0E-9);
+		assertEquals(0.697, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 0.0), 1.0E-9);
+		assertEquals(1.08, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 1.0), 1.0E-9);
 		assertEquals(1.3, FallenLordLogic.alongDash(dash.startDamage(), dash.endDamage(), 2.0), 1.0E-6);
 		assertEquals(1.075, FallenLordLogic.alongDash(dash.startDamage(), dash.endDamage(), 0.5), 1.0E-6);
 	}

@@ -498,7 +498,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param endDamage   damage at the end of the run
 	 */
 	public record SpearDash(double startReach, double endReach, float startDamage, float endDamage) {
-		public static final SpearDash DEFAULT = new SpearDash(0.85, 1.2, 0.85F, 1.3F);
+		public static final SpearDash DEFAULT = new SpearDash(0.697, 1.08, 0.85F, 1.3F);
 
 		public static final Codec<SpearDash> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.0, 5.0).fieldOf("start_reach").orElse(DEFAULT.startReach).forGetter(SpearDash::startReach),

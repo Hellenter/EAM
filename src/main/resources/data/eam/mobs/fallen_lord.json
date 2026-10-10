@@ -126,8 +126,8 @@
     "orb_xp": 8
   },
   "spear_dash": {
-    "start_reach": 0.85,
-    "end_reach": 1.2,
+    "start_reach": 0.697,
+    "end_reach": 1.08,
     "start_damage": 0.85,
     "end_damage": 1.3
   },
