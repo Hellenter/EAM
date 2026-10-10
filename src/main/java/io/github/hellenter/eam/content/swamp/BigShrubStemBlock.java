@@ -10,7 +10,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** The woody base of a big swamp shrub: a post about as thick as a fence post, holding up the leaves. */
 public class BigShrubStemBlock extends Block {
-	private static final VoxelShape SHAPE = Block.column(6.0, 0.0, 16.0);
+	private static final VoxelShape SHAPE = Block.column(4.0, 0.0, 16.0);
 
 	public BigShrubStemBlock(BlockBehaviour.Properties properties) {
 		super(properties);
