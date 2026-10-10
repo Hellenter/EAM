@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -48,6 +50,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -95,8 +98,13 @@ public class FallenLord extends Monster {
 	private static final int RETREAT_TICKS = 8;
 	/** Swirls of the regeneration potion while he drinks. */
 	private static final int REGEN_COLOR = 0xCD5CAB;
-	/** A wither skeleton's pace. */
-	private static final double MOVEMENT_SPEED = 0.25;
+	/** The hop's push lasts this many ticks; the rest of {@link FallenLordAction#HOP} is the landing. */
+	private static final int HOP_PUSH_TICKS = 5;
+	private static final double HOP_LIFT = 0.3;
+	/** Fastest he darts round the player in the backstab, blocks per tick. */
+	private static final double BACKSTAB_MAX_SPEED = 1.4;
+	/** He looks for a player to turn on, when fighting something else, this often. */
+	private static final int PLAYER_PRIORITY_INTERVAL = 10;
 	/** A tenth bigger than the wither skeleton he is modelled on. */
 	private static final double SCALE = 1.1;
 	/** Without the spear back by then (lost in a wall, unloaded) he gets a new one. */
@@ -136,6 +144,16 @@ public class FallenLord extends Monster {
 	private int dashesChained;
 	/** Set while the sword dash strikes: a shield that blocks it is knocked out at once. */
 	private boolean breaksShields;
+	/** The hop goes at the target, not away. */
+	private boolean hopTowards;
+	private double hopSpeed;
+	/** His shield was just knocked out: he hops back from the player once to make room. */
+	private boolean hopBackPending;
+	/** Ticks since one of his hits last landed. */
+	private int ticksSinceHit;
+	/** Backstab: where he passes the player's side and where he ends up behind them, relative to the player. */
+	private Vec3 backstabSide = Vec3.ZERO;
+	private Vec3 backstabBack = Vec3.ZERO;
 	/** Health lost lately, for the leap back after a burst of damage. */
 	private final List<Wound> wounds = new ArrayList<>();
 	/** Players around him at the last count, at least one. */
@@ -163,9 +181,9 @@ public class FallenLord extends Monster {
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, FallenLordSettings.DEFAULT.phaseOne().health())
-				.add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED)
+				.add(Attributes.MOVEMENT_SPEED, FallenLordSettings.DEFAULT.movement().speed())
 				.add(Attributes.SCALE, SCALE)
-				.add(Attributes.FOLLOW_RANGE, 32.0)
+				.add(Attributes.FOLLOW_RANGE, FallenLordSettings.DEFAULT.movement().followRange())
 				.add(Attributes.ATTACK_DAMAGE, FallenLordSettings.DEFAULT.phaseTwo().slashDamage())
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.6)
 				.add(Attributes.STEP_HEIGHT, 1.0);
@@ -189,10 +207,17 @@ public class FallenLord extends Monster {
 		goalSelector.addGoal(0, new FloatGoal(this));
 		goalSelector.addGoal(2, new FallenLordFightGoal(this));
 		goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.8));
-		goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
+		goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 24.0F));
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this));
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, 10, true, false,
+				(mob, level) -> isUndeadFoe(mob) && distanceTo(mob) <= settings().undead().radius()));
+	}
+
+	/** Undead he cuts down when they come close; never another lord. */
+	static boolean isUndeadFoe(LivingEntity entity) {
+		return !(entity instanceof Player) && !(entity instanceof FallenLord) && entity.is(EntityTypeTags.UNDEAD);
 	}
 
 	@Override
@@ -201,6 +226,7 @@ public class FallenLord extends Monster {
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
 		// His animations swing the weapon with the right arm.
 		setLeftHanded(false);
+		applyMovement();
 		setMaxHealthTo(settings().phaseOne().health());
 		equipPhaseOne();
 		bossEvent.setName(bossName());
@@ -307,6 +333,14 @@ public class FallenLord extends Monster {
 		return ticksOutOfReach;
 	}
 
+	int ticksSinceHit() {
+		return ticksSinceHit;
+	}
+
+	boolean hopBackPending() {
+		return hopBackPending;
+	}
+
 	boolean isIdleFor(int ticks) {
 		return idleTicks >= ticks;
 	}
@@ -373,8 +407,14 @@ public class FallenLord extends Monster {
 
 	void startAttack(Attack attack, LivingEntity target) {
 		lastAttack = attack;
-		cooldowns[attack.ordinal()] = FallenLordLogic.cooldown(attack, settings());
+		// Against undead his attacks are free.
+		boolean free = isUndeadFoe(target) && settings().undead().freeAbilities();
+		cooldowns[attack.ordinal()] = free ? 0 : FallenLordLogic.cooldown(attack, settings());
 		dashesChained = 0;
+		if (attack == Attack.HOP || attack == Attack.HOP_BACK) {
+			startHop(attack == Attack.HOP, target);
+			return;
+		}
 		FallenLordAction next = switch (attack) {
 			case POKE -> FallenLordAction.POKE;
 			case DASH -> FallenLordAction.DASH_WINDUP;
@@ -385,8 +425,23 @@ public class FallenLord extends Monster {
 			case LUNGE -> FallenLordAction.LUNGE;
 			case WHIRL -> FallenLordAction.WHIRL;
 			case SWORD_DASH -> FallenLordAction.SWORD_DASH_WINDUP;
+			case BACKSTAB -> FallenLordAction.BACKSTAB;
+			case HEAVY -> FallenLordAction.HEAVY_WINDUP;
+			case HOP, HOP_BACK -> throw new IllegalStateException();
 		};
 		setAction(next, target);
+	}
+
+	private void startHop(boolean towards, LivingEntity target) {
+		hopTowards = towards;
+		if (!towards) {
+			hopBackPending = false;
+		}
+		double length = FallenLordLogic.hopLength(towards, horizontalDistanceTo(target), settings().movement(), random.nextDouble());
+		hopSpeed = length / HOP_PUSH_TICKS;
+		Vec3 to = horizontal(target.position().subtract(position()));
+		rushDirection = towards ? to : to.reverse();
+		setAction(FallenLordAction.HOP, target);
 	}
 
 	private void setAction(FallenLordAction next, @Nullable LivingEntity target) {
@@ -417,6 +472,7 @@ public class FallenLord extends Monster {
 		if (shieldDisabledTicks > 0 && --shieldDisabledTicks == 0) {
 			hitStreak = HitStreak.NONE;
 			swipePending = false;
+			hopBackPending = false;
 		}
 		if (tickCount % PLAYER_COUNT_INTERVAL == 0) {
 			countPlayers(level);
@@ -436,6 +492,15 @@ public class FallenLord extends Monster {
 		}
 
 		LivingEntity target = getTarget();
+		ticksSinceHit++;
+		if (tickCount % PLAYER_PRIORITY_INTERVAL == 0 && target != null && !(target instanceof Player)) {
+			// A player always comes first.
+			Player player = level.getNearestPlayer(TargetingConditions.forCombat().range(getAttributeValue(Attributes.FOLLOW_RANGE)), this);
+			if (player != null) {
+				setTarget(player);
+				target = player;
+			}
+		}
 		ticksOutOfReach = target != null && horizontalDistanceTo(target) > FallenLordLogic.CLOSE ? ticksOutOfReach + 1 : 0;
 
 		if (isBusy()) {
@@ -460,7 +525,8 @@ public class FallenLord extends Monster {
 	private void tickAction(ServerLevel level) {
 		int t = actionTicks++;
 		LivingEntity target = actionTarget != null && actionTarget.isAlive() ? actionTarget : null;
-		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL) {
+		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL
+				&& action != FallenLordAction.HEAVY_STRIKE) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -566,10 +632,7 @@ public class FallenLord extends Monster {
 			case COUNTER -> {
 				if (t == 0 && target != null) {
 					// Turns on the spot to whoever hit him.
-					float yaw = (float) (Mth.atan2(target.getZ() - getZ(), target.getX() - getX()) * Mth.RAD_TO_DEG) - 90.0F;
-					setYRot(yaw);
-					setYBodyRot(yaw);
-					setYHeadRot(yaw);
+					turnTo(target);
 				}
 				if (t == 3) {
 					FallenLordSettings.Regen regen = settings().regen();
@@ -605,12 +668,117 @@ public class FallenLord extends Monster {
 					return;
 				}
 			}
+			case HOP -> {
+				if (tickHop(t, target)) {
+					return;
+				}
+			}
+			case BACKSTAB -> tickBackstab(level, t, target);
+			case HEAVY_WINDUP -> {
+				if (t == 0) {
+					playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.5F);
+				} else if (t == FallenLordAction.HEAVY_GLOW) {
+					// The blade catches fire along its edge.
+					playSound(SoundEvents.FIRECHARGE_USE, 1.2F, 0.6F);
+				}
+				if (t == action.length() - 1) {
+					setAction(FallenLordAction.HEAVY_STRIKE, target);
+					return;
+				}
+			}
+			case HEAVY_STRIKE -> {
+				if (t == FallenLordAction.HEAVY_HIT && target != null && heavyStrike(level, target)) {
+					return;
+				}
+			}
 			case PARRY, NONE -> {
 			}
 		}
 		if (actionTicks >= action.length()) {
 			endAction();
 		}
+	}
+
+	/** One tick of a hop; true when it has handed over to another action. */
+	private boolean tickHop(int t, @Nullable LivingEntity target) {
+		if (t == 0) {
+			setDeltaMovement(rushDirection.x * hopSpeed, HOP_LIFT, rushDirection.z * hopSpeed);
+			playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.0F, 0.6F);
+		} else if (t < HOP_PUSH_TICKS && !horizontalCollision) {
+			setDeltaMovement(rushDirection.x * hopSpeed, getDeltaMovement().y, rushDirection.z * hopSpeed);
+		}
+		if (t == action.length() - 1 && !hopTowards && target != null) {
+			// Room made: the spear or a dash follows at once.
+			Attack next = FallenLordLogic.afterHopBack(phase(), hasSpear(), cooldowns);
+			if (next != null) {
+				startAttack(next, target);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Phase two: darts round the player's side to their back, where a raised shield does not cover, and cuts. */
+	private void tickBackstab(ServerLevel level, int t, @Nullable LivingEntity target) {
+		if (target == null) {
+			return;
+		}
+		if (t == 0) {
+			double[] path = FallenLordLogic.backstabPath(target.getYRot(), getX() - target.getX(), getZ() - target.getZ());
+			backstabSide = new Vec3(path[0], 0.0, path[1]);
+			backstabBack = new Vec3(path[2], 0.0, path[3]);
+			playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.2F, 0.8F);
+		} else if (t >= FallenLordAction.BACKSTAB_DART && t < FallenLordAction.BACKSTAB_CUT) {
+			// Follows the player as they move, round the side they faced when he started.
+			boolean toSide = t < FallenLordAction.BACKSTAB_BACK;
+			Vec3 point = target.position().add(toSide ? backstabSide : backstabBack);
+			int left = (toSide ? FallenLordAction.BACKSTAB_BACK : FallenLordAction.BACKSTAB_CUT) - t;
+			Vec3 step = new Vec3(point.x - getX(), 0.0, point.z - getZ()).scale(1.0 / left);
+			if (step.length() > BACKSTAB_MAX_SPEED) {
+				step = step.normalize().scale(BACKSTAB_MAX_SPEED);
+			}
+			setDeltaMovement(step.x, getDeltaMovement().y, step.z);
+			if (t == FallenLordAction.BACKSTAB_DART) {
+				playSound(SoundEvents.LUNGE_1.value(), 1.2F, 1.1F);
+			}
+		} else if (t == FallenLordAction.BACKSTAB_CUT) {
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+			turnTo(target);
+			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 0.9F);
+			hitIfInReach(level, target, FallenLordLogic.SWORD_REACH, settings().backstab().damage(), 0.4F);
+		}
+	}
+
+	/**
+	 * The overhead cut after the red-bladed windup. A shield takes only part of it and is knocked out. True when it
+	 * landed and he went on into the combo.
+	 */
+	private boolean heavyStrike(ServerLevel level, LivingEntity target) {
+		FallenLordSettings.HeavyStrike heavy = settings().heavyStrike();
+		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
+		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach() + REACH_SLACK;
+		if (horizontalDistanceTo(target) > reach || Math.abs(target.getY() - getY()) >= 2.5 || !inFront(target, 0.3) || !hasLineOfSight(target)) {
+			return false;
+		}
+		float damage = settings().phaseTwo().slashDamage() * heavy.damageMultiplier();
+		ItemStack shield = target.getItemBlockingWith();
+		boolean blocked = shield != null && target.isBlocking()
+				&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ());
+		if (blocked) {
+			// Through the shield: part of the blow lands, and the shield is knocked out of the guard.
+			damage *= heavy.blockedShare();
+			knockShieldOut(level, target, heavy.shieldSeconds());
+			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
+		}
+		if (!strike(level, target, damageSources().source(FallenLordModule.HEAVY_DAMAGE, this), damage, 0.6F)) {
+			return false;
+		}
+		lastAttack = Attack.COMBO;
+		if (!(isUndeadFoe(target) && settings().undead().freeAbilities())) {
+			cooldowns[Attack.COMBO.ordinal()] = FallenLordLogic.cooldown(Attack.COMBO, settings());
+		}
+		setAction(FallenLordAction.COMBO, target);
+		return true;
 	}
 
 	/** A dash that hit goes straight into the next one, from where he ended up behind the player. */
@@ -751,7 +919,8 @@ public class FallenLord extends Monster {
 	}
 
 	private void throwSpear(ServerLevel level, LivingEntity target, float damage, boolean returning) {
-		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier(), returning);
+		float undead = isUndeadFoe(target) ? settings().undead().damageMultiplier() : 1.0F;
+		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier() * undead, returning);
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
 		double dy = target.getY(0.5) - spear.getY();
@@ -788,9 +957,13 @@ public class FallenLord extends Monster {
 
 	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback) {
 		float scaled = damage * damageMultiplier();
+		if (isUndeadFoe(target)) {
+			scaled *= settings().undead().damageMultiplier();
+		}
 		if (!target.hurtServer(level, source, scaled)) {
 			return false;
 		}
+		ticksSinceHit = 0;
 		if (knockback > 0.0F) {
 			target.knockback(knockback, getX() - target.getX(), getZ() - target.getZ(), source, scaled);
 		}
@@ -876,6 +1049,14 @@ public class FallenLord extends Monster {
 		return to.lengthSqr() < 1.0E-6 || to.dot(facing) >= minDot;
 	}
 
+	/** Turns on the spot to face {@code target} at once. */
+	private void turnTo(LivingEntity target) {
+		float yaw = (float) (Mth.atan2(target.getZ() - getZ(), target.getX() - getX()) * Mth.RAD_TO_DEG) - 90.0F;
+		setYRot(yaw);
+		setYBodyRot(yaw);
+		setYHeadRot(yaw);
+	}
+
 	private void faceTowards(LivingEntity target) {
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
@@ -926,6 +1107,7 @@ public class FallenLord extends Monster {
 		if (seconds > 0.0F) {
 			shieldDisabledTicks = FallenLordLogic.shieldDisableTicks(seconds, settings().phaseOne().shieldDisableMultiplier());
 			hitStreak = HitStreak.NONE;
+			hopBackPending = true;
 			entityData.set(DATA_SHIELD_UP, false);
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
 		} else {
@@ -989,6 +1171,7 @@ public class FallenLord extends Monster {
 		entityData.set(DATA_PHASE, (byte) 2);
 		setMaxHealthTo(settings().phaseTwo().health());
 		shieldDisabledTicks = 0;
+		hopBackPending = false;
 		swipePending = false;
 		drinksThisPhase = 0;
 		drinkAfterRetreat = false;
@@ -1000,6 +1183,7 @@ public class FallenLord extends Monster {
 		// No combo or whirl right after the change: he opens with plain hits and lunges.
 		cooldowns[Attack.COMBO.ordinal()] = 60;
 		cooldowns[Attack.WHIRL.ordinal()] = 100;
+		cooldowns[Attack.HEAVY.ordinal()] = 80;
 		lastAttack = null;
 		bossEvent.setColor(BossEvent.BossBarColor.RED);
 		bossEvent.setName(bossName());
@@ -1099,15 +1283,25 @@ public class FallenLord extends Monster {
 		if (scale != null) {
 			scale.setBaseValue(SCALE);
 		}
-		AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
-		if (speed != null) {
-			speed.setBaseValue(MOVEMENT_SPEED);
-		}
+		applyMovement();
 		AttributeInstance maxHealth = getAttribute(Attributes.MAX_HEALTH);
 		if (maxHealth != null) {
 			boolean full = getHealth() >= maxHealth.getValue();
 			maxHealth.setBaseValue(phase == 2 ? settings().phaseTwo().health() : settings().phaseOne().health());
 			setHealth(full ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
+		}
+	}
+
+	/** His pace and sight from the data file. */
+	private void applyMovement() {
+		FallenLordSettings.Movement movement = settings().movement();
+		AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+		if (speed != null) {
+			speed.setBaseValue(movement.speed());
+		}
+		AttributeInstance followRange = getAttribute(Attributes.FOLLOW_RANGE);
+		if (followRange != null) {
+			followRange.setBaseValue(movement.followRange());
 		}
 	}
 

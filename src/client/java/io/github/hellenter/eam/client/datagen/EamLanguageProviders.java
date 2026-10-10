@@ -190,6 +190,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
 			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
+			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
+			builder.add("death.attack.eam.fallen_lord_heavy.player", "%1$s was cleaved by %2$s");
 			builder.add("subtitles.eam.entity.fallen_lord.dash_warning", "Fallen Lord's eyes flash");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
@@ -581,6 +583,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
 			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
+			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");
+			builder.add("death.attack.eam.fallen_lord_heavy.player", "%2$s разрубил %1$s");
 			builder.add("subtitles.eam.entity.fallen_lord.dash_warning", "Глаза Павшего лорда вспыхивают");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");

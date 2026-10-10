@@ -88,6 +88,7 @@ class FallenLordLogicTest {
 	void cooldownsRuleAttacksOut() {
 		int[] cooldowns = ready();
 		cooldowns[Attack.DASH.ordinal()] = 10;
+		cooldowns[Attack.HOP_BACK.ordinal()] = 10;
 		Situation mid = new Situation(3.0, true, true, 0, 1);
 		assertEquals(Map.of(Attack.POKE, 1000), histogram(1, mid, cooldowns, Attack.POKE));
 	}
@@ -99,6 +100,9 @@ class FallenLordLogicTest {
 		int[] cooldowns = ready();
 		cooldowns[Attack.COMBO.ordinal()] = 5;
 		cooldowns[Attack.WHIRL.ordinal()] = 5;
+		cooldowns[Attack.HEAVY.ordinal()] = 5;
+		cooldowns[Attack.BACKSTAB.ordinal()] = 5;
+		// A hop back alone (the sword dash is ready) does not stand in for an attack.
 		assertEquals(Attack.SLASH, FallenLordLogic.choose(2, close, cooldowns, Attack.SLASH, SETTINGS, 0.3));
 	}
 
@@ -198,5 +202,84 @@ class FallenLordLogicTest {
 		assertEquals(0.60, FallenLordLogic.scaling(4, scaling).health(), 1.0E-9);
 		assertEquals(0.10, FallenLordLogic.scaling(4, scaling).speed(), 1.0E-9);
 		assertEquals(0.45, FallenLordLogic.scaling(9, scaling).damage(), 1.0E-9);
+	}
+
+	@Test
+	void hopsInAtAPlayerWhoStaysAway() {
+		assertTrue(histogram(1, new Situation(10.0, true, true, 0, 1), ready(), null).containsKey(Attack.HOP));
+		assertTrue(histogram(2, new Situation(10.0, true, true, 0, 1), ready(), null).containsKey(Attack.HOP));
+		assertFalse(histogram(1, new Situation(20.0, true, true, 0, 1), ready(), null).containsKey(Attack.HOP));
+		assertFalse(histogram(1, new Situation(10.0, false, true, 0, 1), ready(), null).containsKey(Attack.HOP));
+	}
+
+	@Test
+	void hopsInAtAPlayerHeHasNotHitForAWhile() {
+		int after = SETTINGS.movement().hopInAfter();
+		assertFalse(histogram(1, new Situation(5.0, true, true, 0, 1, after - 1, false, false), ready(), null).containsKey(Attack.HOP));
+		assertTrue(histogram(1, new Situation(5.0, true, true, 0, 1, after, false, false), ready(), null).containsKey(Attack.HOP));
+		// Not when the player is already close.
+		assertFalse(histogram(1, new Situation(3.0, true, true, 0, 1, after, false, false), ready(), null).containsKey(Attack.HOP));
+	}
+
+	@Test
+	void hopsBackOnceHisShieldIsKnockedOut() {
+		int[] cooldowns = ready();
+		cooldowns[Attack.THROW.ordinal()] = 50;
+		cooldowns[Attack.DASH.ordinal()] = 50;
+		Situation crowded = new Situation(2.0, true, true, 0, 1, 0, true, false);
+		Map<Attack, Integer> picks = histogram(1, crowded, cooldowns, null);
+		assertTrue(picks.get(Attack.HOP_BACK) > 700);
+		// Shield up and nothing to follow the hop with: he stands his ground.
+		assertFalse(histogram(1, new Situation(2.0, true, true, 0, 1), cooldowns, null).containsKey(Attack.HOP_BACK));
+	}
+
+	@Test
+	void hopBackLeadsIntoAThrowOrADash() {
+		int[] cooldowns = ready();
+		assertEquals(Attack.THROW, FallenLordLogic.afterHopBack(1, true, cooldowns));
+		cooldowns[Attack.THROW.ordinal()] = 10;
+		assertEquals(Attack.DASH, FallenLordLogic.afterHopBack(1, true, cooldowns));
+		assertNull(FallenLordLogic.afterHopBack(1, false, ready()));
+		assertEquals(Attack.SWORD_DASH, FallenLordLogic.afterHopBack(2, false, ready()));
+		cooldowns[Attack.SWORD_DASH.ordinal()] = 10;
+		assertNull(FallenLordLogic.afterHopBack(2, false, cooldowns));
+	}
+
+	@Test
+	void hopsAreTwoToThreeAndAHalfBlocks() {
+		FallenLordSettings.Movement movement = SETTINGS.movement();
+		assertEquals(2.0, FallenLordLogic.hopLength(false, 3.0, movement, 0.0), 1.0E-9);
+		assertEquals(3.5, FallenLordLogic.hopLength(false, 3.0, movement, 1.0), 1.0E-9);
+		assertEquals(3.5, FallenLordLogic.hopLength(true, 10.0, movement, 1.0), 1.0E-9);
+		// Never onto the player.
+		assertEquals(3.0, FallenLordLogic.hopLength(true, 5.0, movement, 1.0), 1.0E-9);
+	}
+
+	@Test
+	void backstabIsLikelierAgainstARaisedShield() {
+		Situation open = new Situation(4.0, true, true, 0, 1, 0, false, false);
+		Situation blocking = new Situation(4.0, true, true, 0, 1, 0, false, true);
+		assertTrue(histogram(2, blocking, ready(), null).get(Attack.BACKSTAB) > histogram(2, open, ready(), null).get(Attack.BACKSTAB) + 200);
+		assertFalse(histogram(1, blocking, ready(), null).containsKey(Attack.BACKSTAB));
+	}
+
+	@Test
+	void heavyStrikeOnlyWithinItsReach() {
+		double reach = FallenLordLogic.SWORD_REACH + SETTINGS.heavyStrike().extraReach();
+		assertTrue(histogram(2, new Situation(reach, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
+		assertFalse(histogram(2, new Situation(reach + 0.1, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
+		assertFalse(histogram(1, new Situation(2.0, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
+	}
+
+	@Test
+	void backstabGoesRoundTheSideHeIsOn() {
+		// The player faces south (+Z); their right is west (-X). He stands east of them, on their left.
+		double[] path = FallenLordLogic.backstabPath(0.0F, 3.0, 1.0);
+		assertTrue(path[0] > 1.9);
+		assertEquals(0.0, path[1], 1.0E-9);
+		assertEquals(0.0, path[2], 1.0E-9);
+		assertEquals(-FallenLordLogic.BACKSTAB_BEHIND, path[3], 1.0E-9);
+		// On their right he passes the west side.
+		assertTrue(FallenLordLogic.backstabPath(0.0F, -3.0, 1.0)[0] < -1.9);
 	}
 }

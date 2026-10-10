@@ -9,6 +9,7 @@
     "minecraft:mob_projectile",
     "minecraft:thrown",
     "minecraft:sting",
-    "minecraft:mace_smash"
+    "minecraft:mace_smash",
+    "eam:fallen_lord_heavy"
   ]
 }

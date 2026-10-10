@@ -86,5 +86,32 @@
         "speed": 0.1
       }
     ]
+  },
+  "movement": {
+    "speed": 0.2875,
+    "follow_range": 48.0,
+    "hop_min": 2.0,
+    "hop_max": 3.5,
+    "hop_cooldown": 50,
+    "hop_in_from": 7.0,
+    "hop_in_after": 100,
+    "hop_back_chance": 0.35
+  },
+  "backstab": {
+    "damage": 9.0,
+    "cooldown": 200,
+    "blocking_bonus": 3.0
+  },
+  "heavy_strike": {
+    "damage_multiplier": 2.0,
+    "extra_reach": 0.5,
+    "blocked_share": 0.5,
+    "shield_seconds": 5.0,
+    "cooldown": 220
+  },
+  "undead": {
+    "radius": 10.0,
+    "damage_multiplier": 5.0,
+    "free_abilities": true
   }
 }
