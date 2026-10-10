@@ -6,6 +6,12 @@
     "max_inclusive": 3,
     "min_inclusive": 1
   },
+  "deep_rooms": [
+    "eam:crypt/treasury/4",
+    "eam:crypt/treasury/5",
+    "eam:crypt/fight/5",
+    "eam:crypt/fight/6"
+  ],
   "entrance_ground": 17,
   "rooms": {
     "type": "minecraft:uniform",

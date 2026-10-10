@@ -17,13 +17,18 @@ import net.minecraft.world.level.storage.loot.LootTable;
  * villages later.
  * <p>
  * Rooms sit on a grid of 15x15 cells, one level is 12 blocks high, and doors are 3x3 openings in the middle of a cell
- * side (blocks 6..8 counted from 0), one block above the floor.
+ * side (blocks 6..8 counted from 0), one block above the floor. Stairs lead down to a second level, which ends in the
+ * boss room of 3x3 cells with its doors in the middle of its sides.
  */
 public final class CryptModule {
 	public static final int CELL = 15;
-	public static final int DOOR_FROM = 6;
 	public static final int DOOR_WIDTH = 3;
 	public static final int DOOR_HEIGHT = 3;
+	public static final int LEVEL_HEIGHT = 12;
+	/** The boss room takes 3x3 cells. */
+	public static final int BOSS_SIZE = 3 * CELL;
+	/** Boss room templates are named {@code eam:crypt/boss/<n>}. */
+	public static final String BOSS_TEMPLATES = Eam.MOD_ID + ":crypt/boss/";
 
 	public static final ResourceKey<Structure> STRUCTURE = ResourceKey.create(Registries.STRUCTURE, Eam.id("crypt"));
 	public static final Identifier TIER_1_CHEST = Eam.id("chests/crypt/tier_1");
@@ -39,7 +44,13 @@ public final class CryptModule {
 	private CryptModule() {
 	}
 
-	/** Loads the class, which registers the structure and piece types. */
+	/** Where the door place starts along a side {@code size} blocks long: doors sit in the middle of it. */
+	public static int doorFrom(int size) {
+		return size / 2 - DOOR_WIDTH / 2;
+	}
+
+	/** Registers the structure and piece types, and wakes the boss when a player walks into his room. */
 	public static void register() {
+		CryptBoss.register();
 	}
 }
