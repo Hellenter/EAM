@@ -57,6 +57,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 		state.actionTime = entity.actionTime(partialTicks);
 		state.shieldUp = entity.isShieldUp();
 		state.guard = entity.guard(partialTicks);
+		state.shieldKnocked = entity.shieldKnocked(partialTicks);
 		boolean eyesGlow = state.action == FallenLordAction.DASH_WINDUP && state.actionTime < FallenLordAction.EYE_FLASH_TICKS;
 		state.eyeFrame = eyesGlow ? (int) (state.actionTime * FallenLordEyesModel.FRAMES / FallenLordAction.EYE_FLASH_TICKS) : -1;
 		if (state.action == FallenLordAction.DRINK) {
@@ -84,6 +85,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 			state.action = FallenLordAction.NONE;
 			state.eyeFrame = -1;
 			state.guard = 0.0F;
+			state.shieldKnocked = 0.0F;
 			state.walkAnimationSpeed = 0.0F;
 		} else {
 			state.dying = -1.0F;

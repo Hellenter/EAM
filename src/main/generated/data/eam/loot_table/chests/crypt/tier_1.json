@@ -78,8 +78,8 @@
               "min": 1
             }
           },
-          "name": "minecraft:iron_nugget",
-          "weight": 8
+          "name": "eam:silver_nugget",
+          "weight": 6
         },
         {
           "type": "minecraft:item",
@@ -91,8 +91,8 @@
               "min": 1
             }
           },
-          "name": "minecraft:gold_nugget",
-          "weight": 5
+          "name": "minecraft:iron_nugget",
+          "weight": 6
         }
       ],
       "rolls": {
@@ -100,6 +100,207 @@
         "max": 5,
         "min": 3
       }
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 5,
+              "min": 2
+            }
+          },
+          "name": "minecraft:amethyst_shard",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 8,
+              "min": 3
+            }
+          },
+          "name": "minecraft:gold_nugget",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 6,
+              "min": 2
+            }
+          },
+          "name": "minecraft:lapis_lazuli",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 1,
+              "min": 1
+            }
+          },
+          "name": "minecraft:emerald",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 1,
+              "min": 1
+            }
+          },
+          "name": "minecraft:diamond"
+        }
+      ],
+      "rolls": {
+        "type": "minecraft:uniform",
+        "max": 2,
+        "min": 1
+      }
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:enchant_with_levels",
+            "levels": {
+              "type": "minecraft:uniform",
+              "max": 15,
+              "min": 5
+            },
+            "options": "#minecraft:in_enchanting_table"
+          },
+          "name": "minecraft:book",
+          "weight": 35
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 65
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.2,
+                "min": 0.05
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 12,
+                "min": 5
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:rusty_iron_sword",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.2,
+                "min": 0.05
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 12,
+                "min": 5
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:rusty_iron_axe",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.2,
+                "min": 0.05
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 12,
+                "min": 5
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "minecraft:copper_sword",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.2,
+                "min": 0.05
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 12,
+                "min": 5
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "minecraft:bow",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 22
+        }
+      ],
+      "rolls": 1
     }
   ]
 }

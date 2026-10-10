@@ -13,8 +13,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Which enchantments a player can choose at the table, and whether they cost diamonds or emeralds. Treasure enchantments
- * (mending, frost walker, soul speed, swift sneak, wind burst) and curses are left out: they stay loot only.
+ * Which enchantments a player can choose at the table, and whether they cost diamonds or emeralds. Every enchantment but
+ * the curses is here, treasure ones included: the table offers all an item supports, like books on an anvil.
  */
 public class EamEnchantmentTagProvider extends FabricTagsProvider<Enchantment> {
 	public EamEnchantmentTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -28,12 +28,13 @@ public class EamEnchantmentTagProvider extends FabricTagsProvider<Enchantment> {
 				Enchantments.FIRE_ASPECT, Enchantments.LOOTING, Enchantments.SWEEPING_EDGE, Enchantments.THORNS,
 				Enchantments.POWER, Enchantments.PUNCH, Enchantments.FLAME, Enchantments.MULTISHOT, Enchantments.PIERCING,
 				Enchantments.QUICK_CHARGE, Enchantments.IMPALING, Enchantments.CHANNELING, Enchantments.DENSITY,
-				Enchantments.BREACH, Enchantments.LUNGE);
+				Enchantments.BREACH, Enchantments.LUNGE, Enchantments.WIND_BURST);
 		builder(EnchantingTags.SUPPORTIVE).add(
 				Enchantments.PROTECTION, Enchantments.FIRE_PROTECTION, Enchantments.BLAST_PROTECTION,
 				Enchantments.PROJECTILE_PROTECTION, Enchantments.FEATHER_FALLING, Enchantments.RESPIRATION,
 				Enchantments.AQUA_AFFINITY, Enchantments.DEPTH_STRIDER, Enchantments.EFFICIENCY, Enchantments.SILK_TOUCH,
 				Enchantments.UNBREAKING, Enchantments.FORTUNE, Enchantments.LUCK_OF_THE_SEA, Enchantments.LURE,
-				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE);
+				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE, Enchantments.MENDING,
+				Enchantments.FROST_WALKER, Enchantments.SOUL_SPEED, Enchantments.SWIFT_SNEAK);
 	}
 }

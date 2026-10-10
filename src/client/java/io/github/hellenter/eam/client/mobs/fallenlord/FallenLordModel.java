@@ -47,6 +47,10 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	private static final float WALK_SINK = 1.0F / 6.0F;
 	/** The shield in the guard, in model space: upright and facing forward, its top leaning back, turned a little outward. */
 	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
+	/** The shield lowered: its top tipped well forward and turned a little out, the face towards the ground ahead. */
+	private static final Quaternionfc SHIELD_LOWERED = new Quaternionf().rotateY(-0.4F).rotateX(0.9F).mul(SHIELD_GUARD);
+	/** The shield knocked out of the guard: hanging from the limp hand at his side, its face turned out and down. */
+	private static final Quaternionfc SHIELD_KNOCKED = new Quaternionf().rotateZ(1.1F).rotateY(-1.4F).mul(SHIELD_GUARD);
 	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
 	private static final Quaternionfc POTION_AT_MOUTH = new Quaternionf().rotateY(-3.0F * QUARTER / 2.0F).rotateX(0.29F).rotateZ(-QUARTER);
 	/** The sword in his fencing stance: pointed ahead at the player, the tip a little up. */
@@ -60,6 +64,9 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	protected final ModelPart leftShin;
 	/** How far the shield and the potion are turned from where the hand holds them into {@link #SHIELD_GUARD} and {@link #POTION_AT_MOUTH}. */
 	private float shieldGuard;
+	/** How far the shield is turned into {@link #SHIELD_LOWERED} and {@link #SHIELD_KNOCKED}. */
+	private float shieldLowered;
+	private float shieldKnocked;
 	private float potionAtMouth;
 	/** How far the sword is turned into {@link #SWORD_POINT}. */
 	private float swordPoint;
@@ -104,10 +111,14 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	public void setupAnim(FallenLordRenderState state) {
 		super.setupAnim(state);
 		shieldGuard = 0.0F;
+		shieldLowered = 0.0F;
+		shieldKnocked = 0.0F;
 		potionAtMouth = 0.0F;
 		swordPoint = 0.0F;
 		walk(state);
+		lowered(state.shieldLowered);
 		guard(state.guard);
+		knocked(state.shieldKnocked);
 		if (state.dying >= 0.0F) {
 			death(state.dying);
 			return;
@@ -166,7 +177,13 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			// The shield turns about its handle, held one above the end of the forearm; the item layer puts the
 			// handle 6 below where this leaves off.
 			poseStack.translate(0.0F, (HAND - ELBOW - 1.0F) / 16.0F, 0.0F);
-			turnHeldItem(poseStack, upper, forearm, SHIELD_GUARD, shieldGuard);
+			if (shieldKnocked > Math.max(shieldGuard, shieldLowered)) {
+				turnHeldItem(poseStack, upper, forearm, SHIELD_KNOCKED, shieldKnocked);
+			} else if (shieldLowered > shieldGuard) {
+				turnHeldItem(poseStack, upper, forearm, SHIELD_LOWERED, shieldLowered);
+			} else {
+				turnHeldItem(poseStack, upper, forearm, SHIELD_GUARD, shieldGuard);
+			}
 			poseStack.translate(0.0F, -6.0F / 16.0F, 0.0F);
 		} else {
 			poseStack.translate(0.0F, (HAND - ELBOW) / 16.0F, 0.0F);
@@ -230,6 +247,30 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		rightArm.xRot = Mth.lerp(amount, rightArm.xRot, 0.2F + 0.4F * swing);
 		rightArm.yRot = Mth.lerp(amount, rightArm.yRot, 0.0F);
 		rightForearm.xRot = Mth.lerp(amount, rightForearm.xRot, -1.5F);
+	}
+
+	/** The shield lowered at his left knee, ready to go up: the upper arm hangs, the forearm reaches a little forward. */
+	private void lowered(float amount) {
+		if (amount <= 0.0F) {
+			return;
+		}
+		leftArm.xRot = Mth.lerp(amount, leftArm.xRot, 0.0F);
+		leftArm.yRot = Mth.lerp(amount, leftArm.yRot, 0.25F);
+		leftArm.zRot = Mth.lerp(amount, leftArm.zRot, 0.0F);
+		leftForearm.xRot = Mth.lerp(amount, leftForearm.xRot, -0.7F);
+		shieldLowered = amount;
+	}
+
+	/** The shield knocked out of the guard: the arm swung out and back, limp, the shield hanging from the hand. */
+	private void knocked(float amount) {
+		if (amount <= 0.0F) {
+			return;
+		}
+		leftArm.xRot = Mth.lerp(amount, leftArm.xRot, 0.45F);
+		leftArm.yRot = Mth.lerp(amount, leftArm.yRot, 0.0F);
+		leftArm.zRot = Mth.lerp(amount, leftArm.zRot, -0.9F);
+		leftForearm.xRot = Mth.lerp(amount, leftForearm.xRot, -0.1F);
+		shieldKnocked = amount;
 	}
 
 	private void poke(float t) {

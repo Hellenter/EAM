@@ -63,8 +63,9 @@ public final class EnchantingOptions {
 	}
 
 	/**
-	 * Offensive enchantments first, then supportive ones. Like the vanilla table, a book takes any of them and other items
-	 * only their primary ones; already enchanted items can get more, as long as the enchantments are compatible.
+	 * Offensive enchantments first, then supportive ones. A book takes any of them and other items every one they support,
+	 * the same set an anvil applies from books; already enchanted items can get more, as long as the enchantments are
+	 * compatible.
 	 */
 	public static List<Option> forItem(ItemStack stack, HolderLookup.RegistryLookup<Enchantment> enchantments) {
 		List<Option> options = new ArrayList<>();
@@ -85,7 +86,7 @@ public final class EnchantingOptions {
 	private static void add(List<Option> options, Set<Holder<Enchantment>> seen, ItemStack stack, boolean book,
 			ItemEnchantments existing, HolderLookup.RegistryLookup<Enchantment> enchantments, TagKey<Enchantment> tag, boolean offensive) {
 		for (Holder<Enchantment> holder : enchantments.get(tag).map(HolderSet.Named::stream).orElseGet(Stream::empty).toList()) {
-			if (!seen.add(holder) || !book && !holder.value().isPrimaryItem(stack)) {
+			if (!seen.add(holder) || !book && !holder.value().isSupportedItem(stack)) {
 				continue;
 			}
 			int current = existing.getLevel(holder);

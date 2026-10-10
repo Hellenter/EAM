@@ -51,6 +51,9 @@ import org.jspecify.annotations.Nullable;
  */
 public class SkeletonKnight extends AbstractSkeleton {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(SkeletonKnight.class, EntityDataSerializers.BYTE);
+	/** Whether an axe has knocked his shield out of the guard; the client shows it hanging. */
+	private static final EntityDataAccessor<Boolean> DATA_SHIELD_KNOCKED = SynchedEntityData.defineId(SkeletonKnight.class,
+			EntityDataSerializers.BOOLEAN);
 	/** Hits further than this flat distance past {@link SkeletonKnightSettings#reach()} still land, for a moving target. */
 	private static final double REACH_SLACK = 0.3;
 
@@ -66,6 +69,9 @@ public class SkeletonKnight extends AbstractSkeleton {
 	/** Client: how far the shield is raised into the guard, 0 to 1, now and a tick ago. */
 	private float guard;
 	private float guardO;
+	/** Client: how far the shield hangs knocked out of the guard, 0 to 1, now and a tick ago. */
+	private float knocked;
+	private float knockedO;
 
 	public SkeletonKnight(EntityType<? extends SkeletonKnight> type, Level level) {
 		super(type, level);
@@ -92,6 +98,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_ACTION, (byte) 0);
+		builder.define(DATA_SHIELD_KNOCKED, false);
 	}
 
 	@Override
@@ -151,6 +158,11 @@ public class SkeletonKnight extends AbstractSkeleton {
 		return Mth.lerp(partialTicks, guardO, guard);
 	}
 
+	/** Client: how far the shield hangs knocked out of the guard by an axe, 0 to 1. */
+	public float shieldKnocked(float partialTicks) {
+		return Mth.lerp(partialTicks, knockedO, knocked);
+	}
+
 	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
 		super.onSyncedDataUpdated(accessor);
@@ -165,6 +177,9 @@ public class SkeletonKnight extends AbstractSkeleton {
 		if (level().isClientSide()) {
 			guardO = guard;
 			guard = Mth.approach(guard, isUsingItem() && getUseItem().has(DataComponents.BLOCKS_ATTACKS) ? 1.0F : 0.0F, 0.25F);
+			knockedO = knocked;
+			// Knocked out at once, raised back slowly.
+			knocked = entityData.get(DATA_SHIELD_KNOCKED) ? Math.min(1.0F, knocked + 0.5F) : Mth.approach(knocked, 0.0F, 0.15F);
 		}
 	}
 
@@ -192,6 +207,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 		if (comboCooldown > 0) comboCooldown--;
 		if (heavyCooldown > 0) heavyCooldown--;
 		if (shieldDisabledTicks > 0) shieldDisabledTicks--;
+		entityData.set(DATA_SHIELD_KNOCKED, shieldDisabledTicks > 0);
 		if (action == KnightAction.NONE) {
 			idleTicks++;
 		} else {
@@ -356,6 +372,15 @@ public class SkeletonKnight extends AbstractSkeleton {
 	}
 
 	// ---- Shield ----
+
+	/**
+	 * His shield blocks as soon as it is up, without the vanilla quarter-second delay: he raises it only for the short
+	 * pauses between his attacks, and a hit on the raised shield must be blocked (and an axe knock it out).
+	 */
+	@Override
+	public @Nullable ItemStack getItemBlockingWith() {
+		return isUsingItem() && getUseItem().has(DataComponents.BLOCKS_ATTACKS) ? getUseItem() : null;
+	}
 
 	/** An axe knocks his shield down for a while; any other blocked hit he answers at once. */
 	@Override

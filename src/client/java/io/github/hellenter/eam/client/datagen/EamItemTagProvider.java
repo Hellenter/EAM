@@ -61,6 +61,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
 
+		// Axes take the melee weapon enchantments too: looting, knockback, fire aspect.
+		builder(ItemTags.MELEE_WEAPON_ENCHANTABLE).addOptionalTag(ItemTags.AXES);
+
 		// Logs break only with these; a battle axe goes here too.
 		builder(HandBreakingModule.CHOPS_LOGS).forceAddTag(ItemTags.AXES);
 

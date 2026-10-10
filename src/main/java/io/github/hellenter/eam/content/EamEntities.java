@@ -47,11 +47,11 @@ public final class EamEntities {
 					.clientTrackingRange(6)
 					.updateInterval(20));
 
-	/** Crypt skeleton with a shield and a sword, as tall as a wither skeleton; spawned by green-wool trial spawners. */
+	/** Crypt skeleton with a shield and a sword, a tenth smaller than the Fallen Lord; spawned by green-wool trial spawners. */
 	public static final EntityType<SkeletonKnight> SKELETON_KNIGHT = register("skeleton_knight",
 			EntityType.Builder.of(SkeletonKnight::new, MobCategory.MONSTER)
-					.sized(0.7F, 2.4F)
-					.eyeHeight(2.1F)
+					.sized(0.63F, 2.16F)
+					.eyeHeight(1.89F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
 
