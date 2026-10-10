@@ -36,9 +36,28 @@ public final class FallenLordLogic {
 	public static final double SHIELD_HALF_ANGLE = 100.0;
 	/** Whirl is this many times more likely with two or more players around. */
 	public static final double CROWD_BONUS = 4.0;
+	/** He hops in at players up to this far away; further, he walks. */
+	public static final double HOP_IN_MAX = 16.0;
+	/** A hop in leaves him at least this far from the player, so he never lands on them. */
+	public static final double HOP_LAND_GAP = 2.0;
+	/** He hops back from players this close. */
+	public static final double HOP_BACK_MAX = 4.0;
+	/** A hop back is this many times likelier while his shield is knocked out. */
+	public static final double SHIELD_DOWN_HOP_BONUS = 10.0;
+	public static final double BACKSTAB_MIN = 2.0;
+	public static final double BACKSTAB_MAX = 8.0;
+	/** The backstab ends this far behind the player. */
+	public static final double BACKSTAB_BEHIND = 1.6;
+	/** On the way he passes the player's side this far out. */
+	public static final double BACKSTAB_SIDE = 2.0;
 
 	public enum Attack {
-		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2), SWORD_DASH(2);
+		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2), SWORD_DASH(2),
+		/** Short hop at the player; both phases. */
+		HOP(0),
+		/** Short hop away from the player, then a throw or a dash; both phases. */
+		HOP_BACK(0),
+		BACKSTAB(2), HEAVY(2);
 
 		private final int phase;
 
@@ -46,6 +65,7 @@ public final class FallenLordLogic {
 			this.phase = phase;
 		}
 
+		/** The phase that uses it, 0 for both. */
 		public int phase() {
 			return phase;
 		}
@@ -59,8 +79,15 @@ public final class FallenLordLogic {
 	 * @param hasSpear       the spear is in hand, not in flight
 	 * @param ticksOutOfReach how long no target came within {@link #CLOSE}
 	 * @param playersInWhirl players within whirl radius
+	 * @param ticksSinceHit  how long since one of his hits last landed
+	 * @param shieldDown     his own shield is knocked out
+	 * @param targetBlocking the target holds a shield up
 	 */
-	public record Situation(double distance, boolean canSee, boolean hasSpear, int ticksOutOfReach, int playersInWhirl) {
+	public record Situation(double distance, boolean canSee, boolean hasSpear, int ticksOutOfReach, int playersInWhirl, int ticksSinceHit,
+			boolean shieldDown, boolean targetBlocking) {
+		public Situation(double distance, boolean canSee, boolean hasSpear, int ticksOutOfReach, int playersInWhirl) {
+			this(distance, canSee, hasSpear, ticksOutOfReach, playersInWhirl, 0, false, false);
+		}
 	}
 
 	/** Hits landed on the boss while his shield is down, counted for the swipe. */
@@ -124,10 +151,10 @@ public final class FallenLordLogic {
 	static List<Candidate> candidates(int phase, Situation s, int[] cooldowns, FallenLordSettings settings) {
 		List<Candidate> list = new ArrayList<>();
 		double d = s.distance();
+		if (phase == 1 && !s.hasSpear()) {
+			return list;
+		}
 		if (phase == 1) {
-			if (!s.hasSpear()) {
-				return list;
-			}
 			if (ready(Attack.POKE, cooldowns) && s.canSee() && d <= POKE_REACH) {
 				list.add(new Candidate(Attack.POKE, 1.0));
 			}
@@ -152,8 +179,70 @@ public final class FallenLordLogic {
 			if (ready(Attack.SWORD_DASH, cooldowns) && s.canSee() && d >= SWORD_DASH_MIN && d <= SWORD_DASH_MAX) {
 				list.add(new Candidate(Attack.SWORD_DASH, 1.0));
 			}
+			if (ready(Attack.BACKSTAB, cooldowns) && s.canSee() && d >= BACKSTAB_MIN && d <= BACKSTAB_MAX) {
+				list.add(new Candidate(Attack.BACKSTAB, s.targetBlocking() ? settings.backstab().blockingBonus() : 1.0));
+			}
+			if (ready(Attack.HEAVY, cooldowns) && s.canSee() && d <= SWORD_REACH + settings.heavyStrike().extraReach()) {
+				list.add(new Candidate(Attack.HEAVY, 1.0));
+			}
+		}
+		hops(phase, s, cooldowns, settings, list);
+		// A hop back is an option beside an attack, not instead of one; with his shield knocked out it is the plan.
+		if (list.size() == 1 && list.getFirst().attack() == Attack.HOP_BACK && !(phase == 1 && s.shieldDown())) {
+			list.clear();
 		}
 		return list;
+	}
+
+	/**
+	 * Hops in at a player who stays away or has not been hit for a while; hops back from one who crowds him when a
+	 * throw or a dash is ready to follow, and nearly always while his shield is knocked out.
+	 */
+	private static void hops(int phase, Situation s, int[] cooldowns, FallenLordSettings settings, List<Candidate> list) {
+		FallenLordSettings.Movement movement = settings.movement();
+		double d = s.distance();
+		if (!s.canSee() || movement.hopMax() <= 0.0) {
+			return;
+		}
+		if (ready(Attack.HOP, cooldowns) && d - movement.hopMin() >= HOP_LAND_GAP && d <= HOP_IN_MAX
+				&& (d >= movement.hopInFrom() || s.ticksSinceHit() >= movement.hopInAfter())) {
+			list.add(new Candidate(Attack.HOP, 1.0));
+		}
+		if (ready(Attack.HOP_BACK, cooldowns) && d <= HOP_BACK_MAX) {
+			boolean shieldDown = phase == 1 && s.shieldDown();
+			if (shieldDown || afterHopBack(phase, s.hasSpear(), cooldowns) != null) {
+				list.add(new Candidate(Attack.HOP_BACK, movement.hopBackChance() * (shieldDown ? SHIELD_DOWN_HOP_BONUS : 1.0)));
+			}
+		}
+	}
+
+	/**
+	 * What he does on landing from a hop back: throws the spear or dashes in phase one, sword dashes in phase two; null
+	 * when none of them is ready. The throw does not wait for the player to keep away.
+	 */
+	public static Attack afterHopBack(int phase, boolean hasSpear, int[] cooldowns) {
+		if (phase == 1) {
+			if (!hasSpear) {
+				return null;
+			}
+			if (ready(Attack.THROW, cooldowns)) {
+				return Attack.THROW;
+			}
+			return ready(Attack.DASH, cooldowns) ? Attack.DASH : null;
+		}
+		return ready(Attack.SWORD_DASH, cooldowns) ? Attack.SWORD_DASH : null;
+	}
+
+	/**
+	 * How far a hop goes: {@code roll} picks between the shortest and the longest; a hop in also stops
+	 * {@link #HOP_LAND_GAP} short of the player.
+	 *
+	 * @param roll uniform random in [0, 1)
+	 */
+	public static double hopLength(boolean towards, double distance, FallenLordSettings.Movement movement, double roll) {
+		double min = Math.min(movement.hopMin(), movement.hopMax());
+		double length = min + roll * (Math.max(movement.hopMin(), movement.hopMax()) - min);
+		return towards ? Math.max(0.0, Math.min(length, distance - HOP_LAND_GAP)) : length;
 	}
 
 	private static boolean ready(Attack attack, int[] cooldowns) {
@@ -174,6 +263,9 @@ public final class FallenLordLogic {
 			case LUNGE -> two.lungeCooldown();
 			case WHIRL -> two.whirlCooldown();
 			case SWORD_DASH -> settings.swordDash().cooldown();
+			case HOP, HOP_BACK -> settings.movement().hopCooldown();
+			case BACKSTAB -> settings.backstab().cooldown();
+			case HEAVY -> settings.heavyStrike().cooldown();
 		};
 	}
 
@@ -251,6 +343,26 @@ public final class FallenLordLogic {
 
 	public static boolean breaksShield(BlockStreak streak) {
 		return streak.hits() > 0 && streak.hits() >= streak.needed();
+	}
+
+	/**
+	 * Where the backstab goes: first out to the player's side, then to their back, as seen from where the player
+	 * faces now. Positions are horizontal, x and z.
+	 *
+	 * @param playerYaw the way the player faces, degrees in the Minecraft convention
+	 * @param bossX     the boss's offset from the player; picks the side he passes on
+	 * @return side x, side z, back x, back z, all relative to the player
+	 */
+	public static double[] backstabPath(float playerYaw, double bossX, double bossZ) {
+		double yaw = Math.toRadians(playerYaw);
+		// Minecraft's facing for a yaw: (-sin, cos).
+		double fx = -Math.sin(yaw);
+		double fz = Math.cos(yaw);
+		// The player's right is (-fz, fx); pass on the side he is already on.
+		double side = -fz * bossX + fx * bossZ >= 0.0 ? 1.0 : -1.0;
+		double sx = -fz * side * BACKSTAB_SIDE;
+		double sz = fx * side * BACKSTAB_SIDE;
+		return new double[] {sx, sz, -fx * BACKSTAB_BEHIND, -fz * BACKSTAB_BEHIND};
 	}
 
 	/** The bonuses for this many players; less than one counts as one, past the last level the last one holds. */

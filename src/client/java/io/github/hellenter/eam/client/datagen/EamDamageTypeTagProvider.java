@@ -27,10 +27,11 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.NO_KNOCKBACK).add(ThirstModule.DEHYDRATION);
 		builder(DamageTypeTags.BYPASSES_WOLF_ARMOR).add(ThirstModule.DEHYDRATION);
 		// The Fallen Lord's dash can only be dodged.
-		builder(DamageTypeTags.BYPASSES_SHIELD).add(FallenLordModule.DASH_DAMAGE);
+		// His heavy strike goes through shields too: he works out the share a shield takes himself.
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(FallenLordModule.DASH_DAMAGE, FallenLordModule.HEAVY_DAMAGE);
 		// Weapon hits and projectiles, which the Fallen Lord partly resists.
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,
-				DamageTypes.MACE_SMASH);
+				DamageTypes.MACE_SMASH).add(FallenLordModule.HEAVY_DAMAGE);
 	}
 }

@@ -17,11 +17,16 @@ import java.util.Map;
 
 /**
  * Models for the Fallen Lord's spear and shield, which keep their vanilla items and switch looks through the
- * item_model component: a mithril spear head and a mithril shield instead of a wooden one.
+ * item_model component: a mithril spear head and a mithril shield instead of a wooden one. Also his mithril sword with
+ * its edge glowing red, which the renderer shows while he winds up the heavy strike.
  */
 final class FallenLordItemModels {
 	static final Identifier SPEAR = Eam.id("fallen_lord_spear");
 	static final Identifier SHIELD = Eam.id("fallen_lord_shield");
+	static final Identifier HEAVY_SWORD = Eam.id("fallen_lord_heavy_sword");
+	private static final Identifier SWORD_MODEL = Eam.id("item/mithril_sword");
+	/** Just the red edge of the sword, drawn over it at full brightness. */
+	private static final Identifier BLADE_GLOW = Eam.id("item/fallen_lord_blade_glow");
 	private static final Identifier SPEAR_MODEL = Eam.id("item/fallen_lord_spear");
 	private static final Identifier SPEAR_IN_HAND_MODEL = Eam.id("item/fallen_lord_spear_in_hand");
 	private static final Identifier SHIELD_MODEL = Eam.id("item/fallen_lord_shield");
@@ -35,6 +40,7 @@ final class FallenLordItemModels {
 		ModelTemplates.FLAT_ITEM.create(SPEAR_MODEL, TextureMapping.layer0(new Material(SPEAR_MODEL)), generators.modelOutput);
 		ModelTemplates.SPEAR_IN_HAND.create(SPEAR_IN_HAND_MODEL, TextureMapping.layer0(new Material(SPEAR_IN_HAND_MODEL)), generators.modelOutput);
 		generators.modelOutput.accept(SHIELD_MODEL, FallenLordItemModels::shieldModel);
+		generators.modelOutput.accept(BLADE_GLOW, FallenLordItemModels::bladeGlowModel);
 	}
 
 	/** Item definitions, keyed by the ids the item_model component names. */
@@ -42,7 +48,50 @@ final class FallenLordItemModels {
 		return Map.of(
 				SPEAR, new ClientItem(ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(SPEAR_MODEL),
 						ItemModelUtils.plainModel(SPEAR_IN_HAND_MODEL)), new ClientItem.Properties(true, false, 1.95F)),
-				SHIELD, new ClientItem(ItemModelUtils.plainModel(SHIELD_MODEL), ClientItem.Properties.DEFAULT));
+				SHIELD, new ClientItem(ItemModelUtils.plainModel(SHIELD_MODEL), ClientItem.Properties.DEFAULT),
+				HEAVY_SWORD, new ClientItem(ItemModelUtils.composite(ItemModelUtils.plainModel(SWORD_MODEL), ItemModelUtils.plainModel(BLADE_GLOW)),
+						ClientItem.Properties.DEFAULT));
+	}
+
+	/**
+	 * The glowing edge as one emissive sheet a hair in front of and behind the flat sword ({@code item/generated} puts
+	 * it between z 7.5 and 8.5), with the sword's handheld poses. Its texture is clear except along the edge.
+	 */
+	private static JsonObject bladeGlowModel() {
+		JsonObject model = new JsonObject();
+		model.addProperty("gui_light", "front");
+		JsonObject textures = new JsonObject();
+		textures.addProperty("glow", BLADE_GLOW.toString());
+		textures.addProperty("particle", BLADE_GLOW.toString());
+		model.add("textures", textures);
+		JsonObject element = new JsonObject();
+		element.add("from", vector(new double[] {0, 0, 7.4}));
+		element.add("to", vector(new double[] {16, 16, 8.6}));
+		element.addProperty("shade", false);
+		element.addProperty("light_emission", 15);
+		JsonObject faces = new JsonObject();
+		// Front as drawn, back mirrored, as item/generated does.
+		faces.add("south", glowFace(new double[] {0, 0, 16, 16}));
+		faces.add("north", glowFace(new double[] {16, 0, 0, 16}));
+		element.add("faces", faces);
+		JsonArray elements = new JsonArray();
+		elements.add(element);
+		model.add("elements", elements);
+		JsonObject display = new JsonObject();
+		// Copied from the vanilla handheld item model.
+		display.add("thirdperson_righthand", transform(new double[] {0, -90, 55}, new double[] {0, 4.0, 0.5}, 0.85));
+		display.add("thirdperson_lefthand", transform(new double[] {0, 90, -55}, new double[] {0, 4.0, 0.5}, 0.85));
+		display.add("firstperson_righthand", transform(new double[] {0, -90, 25}, new double[] {1.13, 3.2, 1.13}, 0.68));
+		display.add("firstperson_lefthand", transform(new double[] {0, 90, -25}, new double[] {1.13, 3.2, 1.13}, 0.68));
+		model.add("display", display);
+		return model;
+	}
+
+	private static JsonObject glowFace(double[] uv) {
+		JsonObject face = new JsonObject();
+		face.add("uv", vector(uv));
+		face.addProperty("texture", "#glow");
+		return face;
 	}
 
 	/**

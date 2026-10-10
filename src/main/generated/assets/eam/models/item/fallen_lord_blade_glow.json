@@ -1,0 +1,113 @@
+{
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [
+        0.0,
+        90.0,
+        -25.0
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0.0,
+        -90.0,
+        25.0
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0.0,
+        90.0,
+        -55.0
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ],
+      "translation": [
+        0.0,
+        4.0,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0.0,
+        -90.0,
+        55.0
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ],
+      "translation": [
+        0.0,
+        4.0,
+        0.5
+      ]
+    }
+  },
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#glow",
+          "uv": [
+            16.0,
+            0.0,
+            0.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#glow",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        7.4
+      ],
+      "light_emission": 15,
+      "shade": false,
+      "to": [
+        16.0,
+        16.0,
+        8.6
+      ]
+    }
+  ],
+  "gui_light": "front",
+  "textures": {
+    "glow": "eam:item/fallen_lord_blade_glow",
+    "particle": "eam:item/fallen_lord_blade_glow"
+  }
+}

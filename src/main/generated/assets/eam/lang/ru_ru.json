@@ -93,6 +93,8 @@
   "death.attack.eam.dehydration.player": "%1$s умер от жажды, сражаясь с %2$s",
   "death.attack.eam.fallen_lord_dash": "%2$s пронзил %1$s в рывке",
   "death.attack.eam.fallen_lord_dash.player": "%2$s пронзил %1$s в рывке",
+  "death.attack.eam.fallen_lord_heavy": "%2$s разрубил %1$s",
+  "death.attack.eam.fallen_lord_heavy.player": "%2$s разрубил %1$s",
   "eam.mining.needs_axe": "Чтобы срубить это, нужен топор",
   "effect.eam.food_poisoning": "Пищевое отравление",
   "effect.eam.light_healing": "Лёгкое исцеление",

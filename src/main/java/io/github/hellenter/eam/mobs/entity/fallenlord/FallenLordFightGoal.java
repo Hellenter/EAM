@@ -74,7 +74,7 @@ final class FallenLordFightGoal extends Goal {
 			}
 			int crowd = phase == 2 ? lord.playersWithin(settings.phaseTwo().whirlRadius()).size() : 0;
 			Situation situation = new Situation(distance, lord.getSensing().hasLineOfSight(target), lord.hasSpear(),
-					lord.ticksOutOfReach(), crowd);
+					lord.ticksOutOfReach(), crowd, lord.ticksSinceHit(), lord.hopBackPending(), target.isBlocking());
 			Attack attack = FallenLordLogic.choose(phase, situation, lord.cooldowns(), lord.lastAttack(), settings,
 					lord.getRandom().nextDouble());
 			if (attack != null) {

@@ -37,7 +37,24 @@ public enum FallenLordAction {
 	/** Rush that stops point-blank in front of the player with a blockable hit; then his combo. */
 	SWORD_DASH(14),
 	/** A flick of the sword that knocks an arrow aside. */
-	PARRY(6);
+	PARRY(6),
+	/** Short hop at the player or away from him. */
+	HOP(9),
+	/** Darts round the player's side to their back and cuts there, past a raised shield. */
+	BACKSTAB(18),
+	/** Sword raised overhead, its edge glowing red; then {@link #HEAVY_STRIKE}. Long enough to step out of reach. */
+	HEAVY_WINDUP(16),
+	/** The overhead cut: double damage, more reach, goes through a shield and knocks it out. */
+	HEAVY_STRIKE(12);
+
+	/** Backstab: crouch until this tick, dart to the player's side, then to their back, cut on {@link #BACKSTAB_CUT}. */
+	public static final int BACKSTAB_DART = 2;
+	public static final int BACKSTAB_BACK = 6;
+	public static final int BACKSTAB_CUT = 10;
+	/** Heavy strike: the blade starts glowing on this tick of the windup. */
+	public static final int HEAVY_GLOW = 3;
+	/** Heavy strike: the cut lands on this tick. */
+	public static final int HEAVY_HIT = 3;
 
 	/** Eyes glow through the whole windup. */
 	public static final int EYE_FLASH_TICKS = 14;

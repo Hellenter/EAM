@@ -22,11 +22,17 @@ import java.util.List;
  * @param burst              his answer to losing a lot of health quickly
  * @param shieldBreak        how he knocks a player's shield out
  * @param players            how much stronger he gets with more players around
+ * @param movement           his pace, sight and short hops
+ * @param backstab           the phase two dash behind the player
+ * @param heavyStrike        the phase two overhead strike with the red blade
+ * @param undead             how he deals with undead that come close
  */
 public record FallenLordSettings(int armor, double physicalResistance, double repeatPenalty, PhaseOne phaseOne, PhaseTwo phaseTwo,
-		SwordDash swordDash, Regen regen, Burst burst, ShieldBreak shieldBreak, PlayerScaling players) {
+		SwordDash swordDash, Regen regen, Burst burst, ShieldBreak shieldBreak, PlayerScaling players, Movement movement,
+		Backstab backstab, HeavyStrike heavyStrike, Undead undead) {
 	public static final FallenLordSettings DEFAULT = new FallenLordSettings(0, 0.25, 0.25, PhaseOne.DEFAULT, PhaseTwo.DEFAULT,
-			SwordDash.DEFAULT, Regen.DEFAULT, Burst.DEFAULT, ShieldBreak.DEFAULT, PlayerScaling.DEFAULT);
+			SwordDash.DEFAULT, Regen.DEFAULT, Burst.DEFAULT, ShieldBreak.DEFAULT, PlayerScaling.DEFAULT, Movement.DEFAULT,
+			Backstab.DEFAULT, HeavyStrike.DEFAULT, Undead.DEFAULT);
 
 	public static final Codec<FallenLordSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 30).fieldOf("armor").orElse(DEFAULT.armor).forGetter(FallenLordSettings::armor),
@@ -39,7 +45,11 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 			Regen.CODEC.fieldOf("regen").orElse(Regen.DEFAULT).forGetter(FallenLordSettings::regen),
 			Burst.CODEC.fieldOf("burst").orElse(Burst.DEFAULT).forGetter(FallenLordSettings::burst),
 			ShieldBreak.CODEC.fieldOf("shield_break").orElse(ShieldBreak.DEFAULT).forGetter(FallenLordSettings::shieldBreak),
-			PlayerScaling.CODEC.fieldOf("players").orElse(PlayerScaling.DEFAULT).forGetter(FallenLordSettings::players)
+			PlayerScaling.CODEC.fieldOf("players").orElse(PlayerScaling.DEFAULT).forGetter(FallenLordSettings::players),
+			Movement.CODEC.fieldOf("movement").orElse(Movement.DEFAULT).forGetter(FallenLordSettings::movement),
+			Backstab.CODEC.fieldOf("backstab").orElse(Backstab.DEFAULT).forGetter(FallenLordSettings::backstab),
+			HeavyStrike.CODEC.fieldOf("heavy_strike").orElse(HeavyStrike.DEFAULT).forGetter(FallenLordSettings::heavyStrike),
+			Undead.CODEC.fieldOf("undead").orElse(Undead.DEFAULT).forGetter(FallenLordSettings::undead)
 	).apply(instance, FallenLordSettings::new));
 
 	private static Codec<Float> damage() {
@@ -95,7 +105,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 
 	/**
 	 * @param health          health of this phase
-	 * @param speed           movement speed multiplier while chasing; phase two is aggressive (1.25 is a quarter faster)
+	 * @param speed           movement speed multiplier while chasing, on top of {@link Movement#speed()}; phase two is
+	 *                        aggressive (1.25 is a quarter faster)
 	 * @param slashDamage     plain sword hit, used when nothing else fits
 	 * @param slashCooldown   ticks between plain hits
 	 * @param comboHitDamage  each of the three quick slashes of the combo
@@ -252,5 +263,93 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 					Codec.doubleRange(-0.99, 100.0).fieldOf("speed").orElse(0.0).forGetter(Level::speed)
 			).apply(instance, Level::new));
 		}
+	}
+
+	/**
+	 * His pace and sight, and the short hops he makes in either phase: in at a player who stays away or has not been
+	 * hit for a while, or back out to make room for a throw or a dash (always when his shield has just been knocked out).
+	 *
+	 * @param speed          base movement speed in both phases (a wither skeleton walks at 0.25)
+	 * @param followRange    how far he sees and follows players, in blocks
+	 * @param hopMin         shortest hop
+	 * @param hopMax         longest hop
+	 * @param hopCooldown    ticks between hops
+	 * @param hopInFrom      he hops in at a player at least this far away
+	 * @param hopInAfter     or at one he has not hit for this many ticks, if not already close
+	 * @param hopBackChance  weight of a hop back when a player crowds him and a throw or dash is ready (an attack is 1)
+	 */
+	public record Movement(double speed, double followRange, double hopMin, double hopMax, int hopCooldown, double hopInFrom,
+			int hopInAfter, double hopBackChance) {
+		public static final Movement DEFAULT = new Movement(0.2875, 48.0, 2.0, 3.5, 50, 7.0, 100, 0.35);
+
+		public static final Codec<Movement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.01, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Movement::speed),
+				Codec.doubleRange(1.0, 128.0).fieldOf("follow_range").orElse(DEFAULT.followRange).forGetter(Movement::followRange),
+				Codec.doubleRange(0.0, 10.0).fieldOf("hop_min").orElse(DEFAULT.hopMin).forGetter(Movement::hopMin),
+				Codec.doubleRange(0.0, 10.0).fieldOf("hop_max").orElse(DEFAULT.hopMax).forGetter(Movement::hopMax),
+				ticks().fieldOf("hop_cooldown").orElse(DEFAULT.hopCooldown).forGetter(Movement::hopCooldown),
+				Codec.doubleRange(0.0, 64.0).fieldOf("hop_in_from").orElse(DEFAULT.hopInFrom).forGetter(Movement::hopInFrom),
+				ticks().fieldOf("hop_in_after").orElse(DEFAULT.hopInAfter).forGetter(Movement::hopInAfter),
+				Codec.doubleRange(0.0, 100.0).fieldOf("hop_back_chance").orElse(DEFAULT.hopBackChance).forGetter(Movement::hopBackChance)
+		).apply(instance, Movement::new));
+	}
+
+	/**
+	 * Phase two: he darts round the player's side to their back, where a raised shield does not cover, and cuts.
+	 * He goes for it more often while the player holds a shield up.
+	 *
+	 * @param damage        the cut in the back
+	 * @param cooldown      ticks between backstabs
+	 * @param blockingBonus weight multiplier while the player blocks
+	 */
+	public record Backstab(float damage, int cooldown, double blockingBonus) {
+		public static final Backstab DEFAULT = new Backstab(9.0F, 200, 3.0);
+
+		public static final Codec<Backstab> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				FallenLordSettings.damage().fieldOf("damage").orElse(DEFAULT.damage).forGetter(Backstab::damage),
+				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Backstab::cooldown),
+				Codec.doubleRange(0.0, 100.0).fieldOf("blocking_bonus").orElse(DEFAULT.blockingBonus).forGetter(Backstab::blockingBonus)
+		).apply(instance, Backstab::new));
+	}
+
+	/**
+	 * Phase two: he raises the sword overhead, its edge glows red, and he brings it down with more reach than a plain
+	 * hit. Stepping back dodges it. A shield does not stop it: the player takes a share of the damage and the shield
+	 * is knocked out. When it lands he goes straight into his combo.
+	 *
+	 * @param damageMultiplier damage as a multiple of the plain hit
+	 * @param extraReach       reach beyond the plain hit
+	 * @param blockedShare     share of the damage that goes through a shield
+	 * @param shieldSeconds    how long that shield cannot be raised again
+	 * @param cooldown         ticks between heavy strikes
+	 */
+	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown) {
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.0F, 0.5, 0.5F, 5.0F, 220);
+
+		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
+				Codec.doubleRange(0.0, 5.0).fieldOf("extra_reach").orElse(DEFAULT.extraReach).forGetter(HeavyStrike::extraReach),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("blocked_share").orElse(DEFAULT.blockedShare).forGetter(HeavyStrike::blockedShare),
+				Codec.floatRange(0.0F, 600.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(HeavyStrike::shieldSeconds),
+				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(HeavyStrike::cooldown)
+		).apply(instance, HeavyStrike::new));
+	}
+
+	/**
+	 * Undead (entity type tag {@code minecraft:undead}) that come close are cut down, but a player always comes
+	 * first: he turns on any player he sees.
+	 *
+	 * @param radius           he goes for undead this close
+	 * @param damageMultiplier his damage to undead
+	 * @param freeAbilities    attacks used on undead don't go on cooldown
+	 */
+	public record Undead(double radius, float damageMultiplier, boolean freeAbilities) {
+		public static final Undead DEFAULT = new Undead(10.0, 5.0F, true);
+
+		public static final Codec<Undead> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 64.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Undead::radius),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(Undead::damageMultiplier),
+				Codec.BOOL.fieldOf("free_abilities").orElse(DEFAULT.freeAbilities).forGetter(Undead::freeAbilities)
+		).apply(instance, Undead::new));
 	}
 }

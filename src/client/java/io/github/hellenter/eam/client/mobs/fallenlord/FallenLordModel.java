@@ -118,6 +118,10 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case SWORD_DASH_WINDUP -> swordDashWindup(t);
 			case SWORD_DASH -> swordDash();
 			case PARRY -> parry(t);
+			case HOP -> hop(t);
+			case BACKSTAB -> backstab(t);
+			case HEAVY_WINDUP -> heavyWindup(t);
+			case HEAVY_STRIKE -> heavyStrike(t);
 			case NONE -> {
 			}
 		}
@@ -481,5 +485,68 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		}
 		bendLeg(rightLeg, rightShin, wind * hold, -0.3F, 0.5F);
 		bendLeg(leftLeg, leftShin, wind * hold, 0.2F, 0.4F);
+	}
+
+	/** A short crouched hop: knees tucked in the air, arms out for balance, the guard kept. */
+	private void hop(float t) {
+		float hop = Mth.sin((float) Math.PI * seg(t, 0.0F, 9.0F));
+		body.xRot = 0.15F * hop;
+		rightForearm.xRot = Mth.lerp(hop, rightForearm.xRot, -0.9F);
+		bendLeg(rightLeg, rightShin, hop, -0.45F, 1.0F);
+		bendLeg(leftLeg, leftShin, hop, 0.0F, 0.8F);
+	}
+
+	/**
+	 * Darts low round the player with the blade trailing, raises it on the way to their back and cuts across, landing
+	 * on the backstab's cut tick.
+	 */
+	private void backstab(float t) {
+		float crouch = seg(t, 0.0F, 2.0F) * (1.0F - seg(t, 5.0F, 7.0F));
+		body.xRot = 0.35F * crouch;
+		head.xRot -= 0.3F * crouch;
+		trailBlade(crouch);
+		bendLeg(leftLeg, leftShin, crouch, -0.6F, 1.0F);
+		bendLeg(rightLeg, rightShin, crouch, 0.3F, 0.8F);
+		if (t >= 5.0F) {
+			slash(t, FallenLordAction.BACKSTAB_CUT - 5.0F, -1.0F);
+		}
+	}
+
+	/**
+	 * Both hands on the hilt, the sword raised high over his head, its blade up and leaning back, leaning back on the rear leg: a slow, plain
+	 * windup that tells the player to get out of reach.
+	 */
+	private void heavyWindup(float t) {
+		float raise = seg(t, 0.0F, 6.0F);
+		float tremble = Mth.sin(t * 2.5F) * 0.03F * seg(t, 6.0F, 8.0F);
+		rightArm.xRot = Mth.lerp(raise, rightArm.xRot, -2.4F) + tremble;
+		rightArm.yRot = Mth.lerp(raise, rightArm.yRot, 1.2F);
+		rightArm.zRot = Mth.lerp(raise, rightArm.zRot, 0.0F);
+		rightForearm.xRot = Mth.lerp(raise, rightForearm.xRot, 0.3F);
+		leftArm.xRot = Mth.lerp(raise, leftArm.xRot, -2.3F) + tremble;
+		leftArm.yRot = Mth.lerp(raise, leftArm.yRot, 0.6F);
+		leftArm.zRot = Mth.lerp(raise, leftArm.zRot, 0.0F);
+		leftForearm.xRot = Mth.lerp(raise, leftForearm.xRot, 0.2F);
+		body.xRot = -0.15F * raise;
+		head.xRot -= 0.15F * raise;
+		bendLeg(rightLeg, rightShin, raise, 0.45F, 0.5F);
+		bendLeg(leftLeg, leftShin, raise, -0.4F, 0.35F);
+	}
+
+	/** Brings the sword down two-handed in front of him, bending forward into it, then straightens. */
+	private void heavyStrike(float t) {
+		float cut = seg(t, 0.0F, FallenLordAction.HEAVY_HIT);
+		float back = seg(t, 6.0F, 12.0F);
+		float hold = 1.0F - back;
+		rightArm.xRot = Mth.lerp(hold, rightArm.xRot, Mth.lerp(cut, -2.4F, -0.35F));
+		rightArm.yRot = Mth.lerp(hold, rightArm.yRot, Mth.lerp(cut, 1.2F, -0.2F));
+		rightForearm.xRot = Mth.lerp(hold, rightForearm.xRot, Mth.lerp(cut, 0.3F, -0.1F));
+		leftArm.xRot = Mth.lerp(hold, leftArm.xRot, Mth.lerp(cut, -2.3F, -0.45F));
+		leftArm.yRot = Mth.lerp(hold, leftArm.yRot, Mth.lerp(cut, 0.6F, 0.5F));
+		leftForearm.xRot = Mth.lerp(hold, leftForearm.xRot, Mth.lerp(cut, 0.2F, -0.3F));
+		body.xRot = Mth.lerp(cut, -0.15F, 0.45F) * hold;
+		head.xRot += 0.1F * cut * hold;
+		bendLeg(leftLeg, leftShin, hold, Mth.lerp(cut, -0.4F, -0.7F), Mth.lerp(cut, 0.35F, 0.9F));
+		bendLeg(rightLeg, rightShin, hold, Mth.lerp(cut, 0.45F, 0.5F), Mth.lerp(cut, 0.5F, 0.3F));
 	}
 }

@@ -1,9 +1,12 @@
 package io.github.hellenter.eam.client.mobs.fallenlord;
 
+import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.resources.Identifier;
@@ -20,9 +23,12 @@ import org.jspecify.annotations.Nullable;
 /** A skeleton the size of a wither skeleton (the vanilla 1.2 scaled model) in his own mithril armor and a red cape. */
 public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLordRenderState, FallenLordModel> {
 	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
+	/** The blade stops glowing this many ticks into the heavy strike, once the cut is through. */
+	private static final float GLOW_AFTER_HIT = 5.0F;
 
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack potion;
+	private @Nullable ItemStack glowingSword;
 
 	public FallenLordRenderer(EntityRendererProvider.Context context) {
 		super(context, new FallenLordModel(context.bakeLayer(FallenLordModel.LAYER)), 0.6F);
@@ -61,12 +67,26 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 			itemModelResolver.updateForLiving(state.rightHandItemState, potion, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
 			state.rightHandItemStack = potion;
 		}
+		if (bladeGlows(state)) {
+			// The edge of the sword glows red through the heavy strike's windup and the cut.
+			if (glowingSword == null) {
+				glowingSword = new ItemStack(EamItems.MITHRIL_SWORD);
+				glowingSword.set(DataComponents.ITEM_MODEL, Eam.id("fallen_lord_heavy_sword"));
+			}
+			itemModelResolver.updateForLiving(state.rightHandItemState, glowingSword, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
+			state.rightHandItemStack = glowingSword;
+		}
 		if (state.action == FallenLordAction.WHIRL) {
 			// One full turn of the whole body.
 			float p = Mth.clamp((state.actionTime - 2.0F) / 10.0F, 0.0F, 1.0F);
 			state.bodyRot += 360.0F * p * p * (3.0F - 2.0F * p);
 			state.yRot = 0.0F;
 		}
+	}
+
+	private static boolean bladeGlows(FallenLordRenderState state) {
+		return state.action == FallenLordAction.HEAVY_WINDUP && state.actionTime >= FallenLordAction.HEAVY_GLOW
+				|| state.action == FallenLordAction.HEAVY_STRIKE && state.actionTime < FallenLordAction.HEAVY_HIT + GLOW_AFTER_HIT;
 	}
 
 	/** The shield is not a vanilla block pose: {@link FallenLordModel} raises it into his own guard. */

@@ -93,6 +93,8 @@
   "death.attack.eam.dehydration.player": "%1$s died of thirst while fighting %2$s",
   "death.attack.eam.fallen_lord_dash": "%1$s was run through by %2$s",
   "death.attack.eam.fallen_lord_dash.player": "%1$s was run through by %2$s",
+  "death.attack.eam.fallen_lord_heavy": "%1$s was cleaved by %2$s",
+  "death.attack.eam.fallen_lord_heavy.player": "%1$s was cleaved by %2$s",
   "eam.mining.needs_axe": "You need an axe to chop this",
   "effect.eam.food_poisoning": "Food Poisoning",
   "effect.eam.light_healing": "Light Healing",
