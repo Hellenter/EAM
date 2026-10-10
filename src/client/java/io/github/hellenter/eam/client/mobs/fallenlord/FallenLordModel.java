@@ -49,6 +49,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
 	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
 	private static final Quaternionfc POTION_AT_MOUTH = new Quaternionf().rotateY(-3.0F * QUARTER / 2.0F).rotateX(0.29F).rotateZ(-QUARTER);
+	/** The sword in his fencing stance: pointed straight ahead at the player, the tip a little low. */
+	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(0.18F);
 
 	protected final ModelPart rightForearm;
 	protected final ModelPart leftForearm;
@@ -57,6 +59,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	/** How far the shield and the potion are turned from where the hand holds them into {@link #SHIELD_GUARD} and {@link #POTION_AT_MOUTH}. */
 	private float shieldGuard;
 	private float potionAtMouth;
+	/** How far the sword is turned into {@link #SWORD_POINT}. */
+	private float swordPoint;
 
 	public FallenLordModel(ModelPart root) {
 		super(root);
@@ -99,6 +103,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		super.setupAnim(state);
 		shieldGuard = 0.0F;
 		potionAtMouth = 0.0F;
+		swordPoint = 0.0F;
 		walk(state);
 		guard(state.guard);
 		if (state.dying >= 0.0F) {
@@ -129,6 +134,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case BACKSTAB -> backstab(t);
 			case HEAVY_WINDUP -> heavyWindup(t);
 			case HEAVY_STRIKE -> heavyStrike(t);
+			case STANCE -> stance(t);
 			case NONE -> {
 			}
 		}
@@ -161,6 +167,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			poseStack.translate(0.0F, -6.0F / 16.0F, 0.0F);
 		} else {
 			poseStack.translate(0.0F, (HAND - ELBOW) / 16.0F, 0.0F);
+			turnHeldItem(poseStack, upper, forearm, SWORD_POINT, swordPoint);
 			turnHeldItem(poseStack, upper, forearm, POTION_AT_MOUTH, potionAtMouth);
 			// A held potion stands out ahead of the hand; this moves its middle (1 out, 1 up the arm and 5 ahead) into the grip.
 			poseStack.translate(potionAtMouth / 16.0F, (potionAtMouth - HAND) / 16.0F, 5.0F * potionAtMouth / 16.0F);
@@ -555,6 +562,35 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		head.xRot += 0.1F * cut * hold;
 		bendLeg(leftLeg, leftShin, hold, Mth.lerp(cut, -0.4F, -0.7F), Mth.lerp(cut, 0.35F, 0.9F));
 		bendLeg(rightLeg, rightShin, hold, Mth.lerp(cut, 0.45F, 0.5F), Mth.lerp(cut, 0.5F, 0.3F));
+	}
+
+	/**
+	 * The fencing stance after a leap back: side on, the right foot forward and both knees bent, the sword arm out with
+	 * the blade pointed at the player, the left arm raised behind with the hand above his head. The point circles a
+	 * little and the raised hand beckons: come on.
+	 */
+	private void stance(float t) {
+		float in = seg(t, 0.0F, 5.0F);
+		float circle = t * 0.3F;
+		float beckon = Mth.sin(t * 0.25F) * 0.15F * in;
+		body.yRot = -0.5F * in;
+		head.xRot -= 0.05F * in;
+		rightArm.xRot = Mth.lerp(in, rightArm.xRot, -1.25F + Mth.cos(circle) * 0.04F);
+		rightArm.yRot = Mth.lerp(in, rightArm.yRot, 0.15F + Mth.sin(circle) * 0.05F);
+		rightArm.zRot = Mth.lerp(in, rightArm.zRot, 0.0F);
+		rightArm.z -= 2.5F * in;
+		rightForearm.xRot = Mth.lerp(in, rightForearm.xRot, -0.15F);
+		swordPoint = in;
+		leftArm.xRot = Mth.lerp(in, leftArm.xRot, 0.35F);
+		leftArm.yRot = Mth.lerp(in, leftArm.yRot, 0.0F);
+		leftArm.zRot = Mth.lerp(in, leftArm.zRot, -1.35F);
+		leftArm.z += 2.0F * in;
+		leftForearm.xRot = Mth.lerp(in, leftForearm.xRot, 0.0F);
+		leftForearm.zRot = Mth.lerp(in, leftForearm.zRot, -1.5F + beckon);
+		bendLeg(rightLeg, rightShin, in, -0.55F, 0.75F);
+		bendLeg(leftLeg, leftShin, in, 0.45F, 0.55F);
+		rightLeg.zRot = 0.12F * in;
+		leftLeg.zRot = -0.12F * in;
 	}
 
 	/**

@@ -49,7 +49,9 @@
     "uses_per_phase": 2,
     "cooldown": 800,
     "counter_damage": 4.0,
-    "counter_knockback": 2.5
+    "counter_knockback": 2.5,
+    "retreat": 8.5,
+    "keep_away": 9.0
   },
   "burst": {
     "health_share": 0.3,
@@ -115,11 +117,37 @@
     "free_abilities": true
   },
   "death": {
-    "xp": 400,
-    "xp_per_player": 150,
+    "xp": 750,
+    "xp_per_player": 200,
     "max_players": 4,
     "inner_share": 0.3,
-    "inner_radius": 1.0,
-    "outer_radius": 3.0
+    "inner_radius": 1.3,
+    "outer_radius": 3.9,
+    "orb_xp": 8
+  },
+  "spear_dash": {
+    "start_reach": 0.85,
+    "end_reach": 1.2,
+    "start_damage": 0.85,
+    "end_damage": 1.3
+  },
+  "breather": {
+    "hits_min": 4,
+    "hits_max": 5,
+    "health": 12.0,
+    "window": 80,
+    "distance": 5.0,
+    "cooldown": 800
+  },
+  "leap_back": {
+    "after": 2,
+    "chance_step": 0.25,
+    "distance": 3.5,
+    "max_range": 6.0
+  },
+  "stance": {
+    "duration": 80,
+    "run_away": 2.5,
+    "healed": 1.0
   }
 }

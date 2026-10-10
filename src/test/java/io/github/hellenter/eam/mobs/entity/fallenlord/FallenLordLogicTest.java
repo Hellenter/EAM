@@ -286,20 +286,66 @@ class FallenLordLogicTest {
 	@Test
 	void deathXpGrowsWithPlayersUpToFour() {
 		FallenLordSettings.Death death = SETTINGS.death();
-		assertEquals(400, FallenLordLogic.deathXp(1, death));
-		assertEquals(400, FallenLordLogic.deathXp(0, death));
-		assertEquals(550, FallenLordLogic.deathXp(2, death));
-		assertEquals(850, FallenLordLogic.deathXp(4, death));
-		assertEquals(850, FallenLordLogic.deathXp(7, death));
+		assertEquals(750, FallenLordLogic.deathXp(1, death));
+		assertEquals(750, FallenLordLogic.deathXp(0, death));
+		assertEquals(950, FallenLordLogic.deathXp(2, death));
+		assertEquals(1350, FallenLordLogic.deathXp(4, death));
+		assertEquals(1350, FallenLordLogic.deathXp(7, death));
 	}
 
 	@Test
-	void deathOrbsShareTheXpThirtySeventy() {
-		int[] values = FallenLordLogic.orbValues(550, 40);
-		assertEquals(40, values.length);
-		assertEquals(550, java.util.Arrays.stream(values).sum());
-		assertTrue(java.util.Arrays.stream(values).max().getAsInt() - java.util.Arrays.stream(values).min().getAsInt() <= 1);
-		assertEquals(12, FallenLordLogic.innerOrbs(40, SETTINGS.death()));
-		assertEquals(3, FallenLordLogic.orbValues(3, 40).length);
+	void deathOrbsAreSmallAndShareTheXpThirtySeventy() {
+		FallenLordSettings.Death death = SETTINGS.death();
+		int orbs = FallenLordLogic.orbCount(750, death);
+		assertEquals(94, orbs);
+		int[] values = FallenLordLogic.orbValues(750, orbs);
+		assertEquals(750, java.util.Arrays.stream(values).sum());
+		assertTrue(java.util.Arrays.stream(values).max().getAsInt() <= death.orbXp());
+		assertEquals(28, FallenLordLogic.innerOrbs(orbs, death));
+		assertEquals(1, FallenLordLogic.orbValues(3, FallenLordLogic.orbCount(3, death)).length);
+		assertEquals(FallenLordLogic.MAX_ORBS, FallenLordLogic.orbCount(100000, death));
+	}
+
+	@Test
+	void spearDashGrowsAlongItsRun() {
+		FallenLordSettings.SpearDash dash = SETTINGS.later().spearDash();
+		assertEquals(0.85, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 0.0), 1.0E-9);
+		assertEquals(1.2, FallenLordLogic.alongDash(dash.startReach(), dash.endReach(), 1.0), 1.0E-9);
+		assertEquals(1.3, FallenLordLogic.alongDash(dash.startDamage(), dash.endDamage(), 2.0), 1.0E-6);
+		assertEquals(1.075, FallenLordLogic.alongDash(dash.startDamage(), dash.endDamage(), 0.5), 1.0E-6);
+	}
+
+	@Test
+	void breatherAfterManyHitsOrSixHearts() {
+		FallenLordSettings.Breather breather = SETTINGS.later().breather();
+		List<Wound> three = List.of(new Wound(100, 2.0F), new Wound(110, 2.0F), new Wound(120, 2.0F));
+		assertFalse(FallenLordLogic.needsBreather(three, 150, 4, breather));
+		List<Wound> four = List.of(new Wound(100, 1.0F), new Wound(110, 1.0F), new Wound(120, 1.0F), new Wound(170, 1.0F));
+		assertTrue(FallenLordLogic.needsBreather(four, 170, 4, breather));
+		assertFalse(FallenLordLogic.needsBreather(four, 170, 5, breather));
+		// Older than four seconds no longer counts.
+		assertFalse(FallenLordLogic.needsBreather(four, 190, 4, breather));
+		List<Wound> heavy = List.of(new Wound(100, 7.0F), new Wound(130, 5.0F));
+		assertTrue(FallenLordLogic.needsBreather(heavy, 140, 5, breather));
+		assertEquals(4, FallenLordLogic.breatherHits(breather, 0.0));
+		assertEquals(5, FallenLordLogic.breatherHits(breather, 0.99));
+	}
+
+	@Test
+	void leapBackGetsLikelierWithEveryAttack() {
+		FallenLordSettings.LeapBack leapBack = SETTINGS.later().leapBack();
+		assertEquals(0.0, FallenLordLogic.leapBackChance(1, leapBack), 1.0E-9);
+		assertEquals(0.25, FallenLordLogic.leapBackChance(2, leapBack), 1.0E-9);
+		assertEquals(0.5, FallenLordLogic.leapBackChance(3, leapBack), 1.0E-9);
+		assertEquals(1.0, FallenLordLogic.leapBackChance(9, leapBack), 1.0E-9);
+	}
+
+	@Test
+	void stanceBreaksWhenThePlayerRunsOrHeals() {
+		FallenLordSettings.Stance stance = SETTINGS.later().stance();
+		assertFalse(FallenLordLogic.stanceBroken(5.0, 4.0, 10.0F, 10.0F, false, stance));
+		assertTrue(FallenLordLogic.stanceBroken(7.0, 4.0, 10.0F, 10.0F, false, stance));
+		assertTrue(FallenLordLogic.stanceBroken(4.0, 4.0, 11.0F, 10.0F, false, stance));
+		assertTrue(FallenLordLogic.stanceBroken(4.0, 4.0, 10.0F, 10.0F, true, stance));
 	}
 }
