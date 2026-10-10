@@ -395,16 +395,35 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param breather  phase two: he backs off after hurting a player badly in a short time
 	 * @param leapBack  phase two: after a few attacks in a row he leaps back
 	 * @param stance    phase two: the fencing stance after either leap, luring the player in
+	 * @param vampirism  how he heals from kills and while no player is in sight
 	 */
-	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance) {
-		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT);
+	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism) {
+		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
+				Vampirism.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
 				Breather.CODEC.fieldOf("breather").orElse(Breather.DEFAULT).forGetter(Later::breather),
 				LeapBack.CODEC.fieldOf("leap_back").orElse(LeapBack.DEFAULT).forGetter(Later::leapBack),
-				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance)
+				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance),
+				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * He feeds on the fight: killing a player heals him by a share of the current phase's health, and while he sees no
+	 * player he slowly regenerates.
+	 *
+	 * @param killHeal      share of the phase's health a player's death gives back
+	 * @param unseenRegen   health per second while no player is in his sight
+	 */
+	public record Vampirism(double killHeal, float unseenRegen) {
+		public static final Vampirism DEFAULT = new Vampirism(0.5, 1.0F);
+
+		public static final Codec<Vampirism> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 1.0).fieldOf("kill_heal").orElse(DEFAULT.killHeal).forGetter(Vampirism::killHeal),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("unseen_regen").orElse(DEFAULT.unseenRegen).forGetter(Vampirism::unseenRegen)
+		).apply(instance, Vampirism::new));
 	}
 
 	/**

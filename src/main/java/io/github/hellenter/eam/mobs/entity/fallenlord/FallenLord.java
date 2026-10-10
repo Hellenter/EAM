@@ -560,6 +560,7 @@ public class FallenLord extends Monster {
 		}
 		if (tickCount % PLAYER_COUNT_INTERVAL == 0) {
 			countPlayers(level);
+			regenUnseen(level);
 		}
 		if (spearAwayTicks >= 0 && ++spearAwayTicks > SPEAR_LOST_TICKS) {
 			if (thrownSpear != null && level.getEntity(thrownSpear) instanceof ThrownLordSpear lost) {
@@ -1144,6 +1145,35 @@ public class FallenLord extends Monster {
 		}
 		setLastHurtMob(target);
 		return true;
+	}
+
+	/** With no player in sight he regenerates a little every second. */
+	private void regenUnseen(ServerLevel level) {
+		float regen = settings().later().vampirism().unseenRegen();
+		if (regen <= 0.0F || getHealth() >= getMaxHealth() || action == FallenLordAction.TRANSITION) {
+			return;
+		}
+		double range = getAttributeValue(Attributes.FOLLOW_RANGE);
+		boolean seen = !level.getEntitiesOfClass(Player.class, getBoundingBox().inflate(range),
+				player -> EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && player.isAlive() && distanceToSqr(player) <= range * range
+						&& hasLineOfSight(player)).isEmpty();
+		if (!seen) {
+			heal(regen * PLAYER_COUNT_INTERVAL / 20.0F);
+		}
+	}
+
+	/** A player he killed gives him back a share of the phase's health. */
+	@Override
+	public boolean killedEntity(ServerLevel level, LivingEntity victim, DamageSource source) {
+		boolean result = super.killedEntity(level, victim, source);
+		double share = settings().later().vampirism().killHeal();
+		if (victim instanceof Player && share > 0.0 && isAlive()) {
+			heal((float) (getMaxHealth() * share));
+			level.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0x8B0000), getX(), getY(0.6), getZ(), 30,
+					getBbWidth() * 0.5, getBbHeight() * 0.4, getBbWidth() * 0.5, 1.0);
+			playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.4F);
+		}
+		return result;
 	}
 
 	/** Counts a hit on a player for the breather. */

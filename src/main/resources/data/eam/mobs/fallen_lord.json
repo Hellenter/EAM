@@ -149,5 +149,9 @@
     "duration": 80,
     "run_away": 2.5,
     "healed": 1.0
+  },
+  "vampirism": {
+    "kill_heal": 0.5,
+    "unseen_regen": 1.0
   }
 }
