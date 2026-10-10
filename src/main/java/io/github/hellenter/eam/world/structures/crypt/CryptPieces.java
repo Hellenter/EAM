@@ -7,6 +7,7 @@ import io.github.hellenter.eam.world.structures.crypt.CryptLayout.Role;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -56,9 +57,14 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 		return new CryptPieces(rooms, entrances);
 	}
 
+	/** Where the template is open: air, plus markers that usually turn into air. */
 	private static Set<BlockPos> air(StructureTemplate template) {
 		Set<BlockPos> air = new HashSet<>();
 		for (var info : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.AIR)) air.add(info.pos());
+		// Skull markers are air most of the time, so a doorway with one still counts as open.
+		for (Block marker : new Block[] {Blocks.STAINED_GLASS.red(), Blocks.STAINED_GLASS.yellow()}) {
+			for (var info : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), marker)) air.add(info.pos());
+		}
 		return air;
 	}
 
