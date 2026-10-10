@@ -8,6 +8,7 @@ import io.github.hellenter.eam.world.structures.VillageModule;
 
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -15,13 +16,14 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** Villages start abandoned until they are unlocked. */
+/** Villages start abandoned until they are unlocked, and some still do after. */
 @Mixin(JigsawPlacement.class)
 public abstract class JigsawPlacementMixin {
 	@WrapOperation(method = "addPieces", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool;getRandomTemplate(Lnet/minecraft/util/RandomSource;)Lnet/minecraft/world/level/levelgen/structure/pools/StructurePoolElement;"))
 	private static StructurePoolElement eam$abandonedVillages(StructureTemplatePool pool, RandomSource random,
-			Operation<StructurePoolElement> original, @Local(argsOnly = true) Holder<StructureTemplatePool> startPool) {
-		return VillageModule.startElement(startPool, pool, random, () -> original.call(pool, random));
+			Operation<StructurePoolElement> original, @Local(argsOnly = true) Holder<StructureTemplatePool> startPool,
+			@Local(argsOnly = true) Structure.GenerationContext context) {
+		return VillageModule.startElement(startPool, pool, random, context.registryAccess(), () -> original.call(pool, random));
 	}
 }

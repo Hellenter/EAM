@@ -1,5 +1,10 @@
 {
   "type": "eam:crypt",
+  "big_rooms": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
   "biomes": "#minecraft:is_overworld",
   "branches": {
     "type": "minecraft:uniform",
@@ -13,6 +18,11 @@
     "eam:crypt/fight/6"
   ],
   "entrance_ground": 17,
+  "levels": 3,
+  "max_tier_2_treasuries": [
+    0,
+    2
+  ],
   "rooms": {
     "type": "minecraft:uniform",
     "max_inclusive": 10,
@@ -20,5 +30,10 @@
   },
   "spawn_overrides": {},
   "step": "underground_structures",
-  "terrain_adaptation": "encapsulate"
+  "terrain_adaptation": "encapsulate",
+  "village": {
+    "abandoned_villages_after_iron_age": 0.25,
+    "chance_after_iron_age": 1.0,
+    "chance_before_iron_age": 0.33
+  }
 }

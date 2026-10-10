@@ -14,15 +14,21 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 /**
- * The crypt structure: a main path of 7 to 10 rooms with 1 to 3 side passages. The entrance template's 18th layer
- * (17 counted from 0) is its ground floor.
+ * The crypt structure: three levels, each with a main path of 7 to 10 rooms and 1 to 3 side passages, and 2 or 3 big
+ * rooms in all. The entrance template's 18th layer (17 counted from 0) is its ground floor. {@code eam:crypt} generates
+ * by abandoned villages, on the villages' own grid; {@code eam:crypt_test} is the same crypt for {@code /place}.
  */
 public class EamCryptProvider extends FabricDynamicRegistryProvider {
 	public EamCryptProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -30,18 +36,38 @@ public class EamCryptProvider extends FabricDynamicRegistryProvider {
 	}
 
 	public static void bootstrap(BootstrapContext<Structure> context) {
+		// 33% of villages before the iron age, when all of them are abandoned; after it every abandoned village, which
+		// is one in four.
+		CryptStructure.VillageRule villages = new CryptStructure.VillageRule(0.33F, 1F, 0.25F);
+		context.register(CryptModule.STRUCTURE, crypt(context, Optional.of(villages)));
+		context.register(CryptModule.TEST_STRUCTURE, crypt(context, Optional.empty()));
+	}
+
+	private static CryptStructure crypt(BootstrapContext<Structure> context, Optional<CryptStructure.VillageRule> villages) {
 		var biomes = context.lookup(Registries.BIOME);
-		context.register(CryptModule.STRUCTURE, new CryptStructure(
+		return new CryptStructure(
 				new Structure.StructureSettings(biomes.getOrThrow(BiomeTags.IS_OVERWORLD), Map.of(),
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
 				UniformInt.of(7, 10), UniformInt.of(1, 3), 17,
 				// Maxim's harder rooms wait for the second level.
-				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6").map(room -> Eam.id("crypt/" + room)).toList()));
+				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6").map(room -> Eam.id("crypt/" + room)).toList(),
+				3, UniformInt.of(2, 3),
+				// Tier-2 treasuries: none on the first level (they are deep rooms anyway), at most two on the second.
+				List.of(0, 2), villages);
+	}
+
+	/** Crypts try the same chunks as villages: same spacing, separation and salt as {@code minecraft:villages}. */
+	public static void bootstrapSets(BootstrapContext<StructureSet> context) {
+		context.register(CryptModule.STRUCTURE_SET, new StructureSet(
+				context.lookup(Registries.STRUCTURE).getOrThrow(CryptModule.STRUCTURE),
+				new RandomSpreadStructurePlacement(34, 8, RandomSpreadType.LINEAR, 10387312)));
 	}
 
 	@Override
 	protected void configure(HolderLookup.Provider registries, Entries entries) {
 		entries.add(registries.lookupOrThrow(Registries.STRUCTURE), CryptModule.STRUCTURE);
+		entries.add(registries.lookupOrThrow(Registries.STRUCTURE), CryptModule.TEST_STRUCTURE);
+		entries.add(registries.lookupOrThrow(Registries.STRUCTURE_SET), CryptModule.STRUCTURE_SET);
 	}
 
 	@Override

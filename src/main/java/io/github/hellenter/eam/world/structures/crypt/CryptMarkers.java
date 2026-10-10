@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.SkullBlock;
@@ -35,6 +36,8 @@ public final class CryptMarkers implements StructureProcessor {
 	public static final CryptMarkers INSTANCE = new CryptMarkers();
 	private static final MapCodec<CryptMarkers> CODEC = MapCodec.unit(INSTANCE);
 
+	/** Maxim's marker for a tier-2 chest. */
+	public static final Block TIER_2_CHEST = Blocks.CHERRY_STAIRS;
 	private static final String SWORDSMAN = "eam:crypt/swordsman/";
 	private static final String ARCHER = "eam:crypt/archer/";
 	private static final String KNIGHT = "eam:crypt/knight/";
@@ -50,7 +53,7 @@ public final class CryptMarkers implements StructureProcessor {
 		if (state.is(Blocks.WOOL.yellow())) return spawner(info, ARCHER);
 		if (state.is(Blocks.WOOL.green())) return spawner(info, KNIGHT);
 		if (state.is(Blocks.BAMBOO_STAIRS)) return chest(info, CryptModule.TIER_1_CHEST);
-		if (state.is(Blocks.CHERRY_STAIRS)) return chest(info, CryptModule.TIER_2_CHEST);
+		if (state.is(TIER_2_CHEST)) return chest(info, CryptModule.TIER_2_CHEST);
 		if (state.is(Blocks.WOOL.lightBlue())) return vault(info, false, settings.getRandom(info.pos()));
 		if (state.is(Blocks.WOOL.blue())) return vault(info, true, settings.getRandom(info.pos()));
 		if (state.is(Blocks.STAINED_GLASS.red())) return skull(info, 5, settings.getRandom(info.pos()));
