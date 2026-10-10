@@ -28,7 +28,7 @@ public record SkeletonKnightSettings(int attackPause, double reach, double shiel
 		double comboChance, int comboCooldown, float comboHitMultiplier, double heavyChance, double heavyChanceVsShield,
 		int heavyCooldown, float heavyDamageMultiplier, double heavyExtraReach, float heavyBlockedShare, float heavyShieldSeconds,
 		double backstep) {
-	public static final SkeletonKnightSettings DEFAULT = new SkeletonKnightSettings(14, 3.0, 10.0, 1.0F,
+	public static final SkeletonKnightSettings DEFAULT = new SkeletonKnightSettings(14, 2.7, 10.0, 1.0F,
 			0.4, 90, 0.6F, 0.25, 0.7,
 			140, 1.8F, 0.5, 0.5F, 5.0F,
 			0.55);

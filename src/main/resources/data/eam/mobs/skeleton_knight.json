@@ -1,6 +1,6 @@
 {
   "attack_pause": 14,
-  "reach": 3.0,
+  "reach": 2.7,
   "shield_range": 10.0,
   "shield_disable_multiplier": 1.0,
   "combo_chance": 0.4,

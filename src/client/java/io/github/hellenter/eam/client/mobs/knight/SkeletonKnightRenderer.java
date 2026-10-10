@@ -2,13 +2,18 @@ package io.github.hellenter.eam.client.mobs.knight;
 
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderState;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
+
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
 
 /**
  * The skeleton knight has the Fallen Lord's build and moves: his model and animations (the knight's actions play the
@@ -16,10 +21,11 @@ import net.minecraft.world.entity.HumanoidArm;
  * items he wears give his stats and are not drawn.
  */
 public class SkeletonKnightRenderer extends HumanoidMobRenderer<SkeletonKnight, FallenLordRenderState, FallenLordModel> {
+	private static final float SCALE = 0.9F;
 	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
 
 	public SkeletonKnightRenderer(EntityRendererProvider.Context context) {
-		super(context, new FallenLordModel(context.bakeLayer(FallenLordModel.LAYER)), 0.6F);
+		super(context, new FallenLordModel(context.bakeLayer(FallenLordModel.LAYER)), 0.6F * SCALE);
 		addLayer(new SkeletonKnightGearLayer(this, context.getModelSet()));
 	}
 
@@ -45,6 +51,22 @@ public class SkeletonKnightRenderer extends HumanoidMobRenderer<SkeletonKnight, 
 		state.actionTime = knight.actionTime(partialTicks);
 		state.guard = knight.guard(partialTicks);
 		state.shieldUp = state.guard > 0.0F;
+		state.shieldKnocked = knight.shieldKnocked(partialTicks);
+		// Out of the guard and not knocked out, he holds the shield low in front, except while he attacks.
+		boolean holdsShield = state.leftHandItemStack.has(DataComponents.BLOCKS_ATTACKS);
+		state.shieldLowered = holdsShield && state.action == FallenLordAction.NONE
+				? (1.0F - state.guard) * (1.0F - state.shieldKnocked) : 0.0F;
+		// The vanilla shield switches to its blocking model while in use, which is turned for the player's own block
+		// pose; FallenLordModel turns the shield into the guard itself, from the plain model. The copy in the state is
+		// not the stack in use, so it resolves to the plain model.
+		itemModelResolver.updateForLiving(state.leftHandItemState, state.leftHandItemStack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, knight);
+	}
+
+	/** A tenth smaller than the Fallen Lord, whose model he shares. */
+	@Override
+	protected void scale(FallenLordRenderState state, PoseStack poseStack) {
+		super.scale(state, poseStack);
+		poseStack.scale(SCALE, SCALE, SCALE);
 	}
 
 	/** The shield is not a vanilla block pose: {@link FallenLordModel} raises it into the guard. */

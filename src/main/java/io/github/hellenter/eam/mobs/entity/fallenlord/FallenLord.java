@@ -105,6 +105,9 @@ public class FallenLord extends Monster {
 	/** Bumped on every new action, so clients restart the animation even when the same action repeats. */
 	private static final EntityDataAccessor<Integer> DATA_ACTION_SEQ = SynchedEntityData.defineId(FallenLord.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Boolean> DATA_SHIELD_UP = SynchedEntityData.defineId(FallenLord.class, EntityDataSerializers.BOOLEAN);
+	/** Whether an axe has knocked his shield out of the guard; the client shows it hanging. */
+	private static final EntityDataAccessor<Boolean> DATA_SHIELD_KNOCKED = SynchedEntityData.defineId(FallenLord.class,
+			EntityDataSerializers.BOOLEAN);
 
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
@@ -243,6 +246,9 @@ public class FallenLord extends Monster {
 	/** Client: how far the shield is raised into his guard, 0 to 1, now and a tick ago. */
 	private float guard;
 	private float guardO;
+	/** Client: how far the shield hangs knocked out of the guard, 0 to 1, now and a tick ago. */
+	private float knocked;
+	private float knockedO;
 
 	public FallenLord(EntityType<? extends FallenLord> type, Level level) {
 		super(type, level);
@@ -278,6 +284,7 @@ public class FallenLord extends Monster {
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_ACTION_SEQ, 0);
 		builder.define(DATA_SHIELD_UP, true);
+		builder.define(DATA_SHIELD_KNOCKED, false);
 	}
 
 	@Override
@@ -372,12 +379,20 @@ public class FallenLord extends Monster {
 		return Mth.lerp(partialTicks, guardO, guard);
 	}
 
+	/** Client: how far the shield hangs knocked out of the guard by an axe, 0 to 1. */
+	public float shieldKnocked(float partialTicks) {
+		return Mth.lerp(partialTicks, knockedO, knocked);
+	}
+
 	@Override
 	public void tick() {
 		super.tick();
 		if (level().isClientSide()) {
 			guardO = guard;
 			guard = Mth.approach(guard, isShieldUp() && getOffhandItem().is(Items.SHIELD) ? 1.0F : 0.0F, GUARD_SPEED);
+			knockedO = knocked;
+			// Knocked out at once, raised back slowly.
+			knocked = entityData.get(DATA_SHIELD_KNOCKED) ? Math.min(1.0F, knocked + 0.5F) : Mth.approach(knocked, 0.0F, 0.15F);
 		}
 	}
 
@@ -832,6 +847,7 @@ public class FallenLord extends Monster {
 		entityData.set(DATA_SHIELD_UP, phase() == 1 && shieldDisabledTicks <= 0 && !getOffhandItem().isEmpty()
 				&& action != FallenLordAction.DASH && action != FallenLordAction.SWIPE && action != FallenLordAction.RETREAT
 				&& action != FallenLordAction.DRINK && action != FallenLordAction.COUNTER);
+		entityData.set(DATA_SHIELD_KNOCKED, phase() == 1 && shieldDisabledTicks > 0 && !getOffhandItem().isEmpty());
 		bossEvent.setProgress(getHealth() / getMaxHealth());
 	}
 
@@ -1711,6 +1727,7 @@ public class FallenLord extends Monster {
 			hitStreak = HitStreak.NONE;
 			hopBackPending = true;
 			entityData.set(DATA_SHIELD_UP, false);
+			entityData.set(DATA_SHIELD_KNOCKED, true);
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
 		} else {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 0.8F + random.nextFloat() * 0.4F);

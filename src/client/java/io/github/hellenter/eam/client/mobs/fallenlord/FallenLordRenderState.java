@@ -12,6 +12,10 @@ public class FallenLordRenderState extends SkeletonRenderState {
 	public boolean shieldUp;
 	/** How far the shield is raised into his guard, 0 to 1. */
 	public float guard;
+	/** How far the shield is held lowered in front of the hips, 0 to 1. Only the skeleton knight lowers his. */
+	public float shieldLowered;
+	/** How far the shield hangs knocked out of the guard, 0 to 1. */
+	public float shieldKnocked;
 	/** Frame of the eye flash, or -1 when the eyes do not glow. */
 	public int eyeFrame = -1;
 	/** Ticks since he died, with the partial tick, or -1 while he lives. */
