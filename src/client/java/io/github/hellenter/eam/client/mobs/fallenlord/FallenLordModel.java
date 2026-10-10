@@ -50,7 +50,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
 	private static final Quaternionfc POTION_AT_MOUTH = new Quaternionf().rotateY(-3.0F * QUARTER / 2.0F).rotateX(0.29F).rotateZ(-QUARTER);
 	/** The sword in his fencing stance: pointed straight ahead at the player, the tip a little low. */
-	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(0.18F);
+	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(0.1F);
 
 	protected final ModelPart rightForearm;
 	protected final ModelPart leftForearm;
@@ -583,14 +583,14 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		swordPoint = in;
 		leftArm.xRot = Mth.lerp(in, leftArm.xRot, 0.35F);
 		leftArm.yRot = Mth.lerp(in, leftArm.yRot, 0.0F);
-		leftArm.zRot = Mth.lerp(in, leftArm.zRot, -1.35F);
+		leftArm.zRot = Mth.lerp(in, leftArm.zRot, -1.75F);
 		leftArm.z += 2.0F * in;
 		leftForearm.xRot = Mth.lerp(in, leftForearm.xRot, 0.0F);
-		leftForearm.zRot = Mth.lerp(in, leftForearm.zRot, -1.5F + beckon);
-		bendLeg(rightLeg, rightShin, in, -0.55F, 0.75F);
-		bendLeg(leftLeg, leftShin, in, 0.45F, 0.55F);
-		rightLeg.zRot = 0.12F * in;
-		leftLeg.zRot = -0.12F * in;
+		leftForearm.zRot = Mth.lerp(in, leftForearm.zRot, -1.2F + beckon);
+		bendLeg(rightLeg, rightShin, in, -0.4F, 0.45F);
+		bendLeg(leftLeg, leftShin, in, 0.35F, 0.3F);
+		rightLeg.zRot = 0.15F * in;
+		leftLeg.zRot = -0.15F * in;
 	}
 
 	/**

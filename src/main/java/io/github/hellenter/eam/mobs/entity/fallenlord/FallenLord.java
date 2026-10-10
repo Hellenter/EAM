@@ -709,6 +709,9 @@ public class FallenLord extends Monster {
 					playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.2F, 0.9F);
 				} else if (t < RETREAT_TICKS && !horizontalCollision) {
 					setDeltaMovement(rushDirection.x * retreatSpeed, getDeltaMovement().y, rushDirection.z * retreatSpeed);
+				} else if (t == RETREAT_TICKS) {
+					// He lands where the leap was meant to take him instead of sliding on.
+					setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
 				}
 				if (t == action.length() - 1) {
 					if (drinkAfterRetreat) {
