@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.fallenlord;
 
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 
@@ -20,13 +21,14 @@ import net.minecraft.world.phys.AABB;
 
 import org.jspecify.annotations.Nullable;
 
-/** Draws the thrown spear as the spear item, point first along its flight. */
+/** Draws the thrown spear (or sword) as its item, point first along its flight. */
 public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpearRenderer.State> {
 	private static final float SCALE = 1.6F;
 
 	private final ItemModelResolver itemModelResolver;
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack spear;
+	private @Nullable ItemStack sword;
 
 	public LordSpearRenderer(EntityRendererProvider.Context context) {
 		super(context);
@@ -63,8 +65,9 @@ public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpear
 		state.xRot = entity.getXRot(partialTicks);
 		if (spear == null) {
 			spear = FallenLord.spearStack();
+			sword = new ItemStack(EamItems.MITHRIL_SWORD);
 		}
-		itemModelResolver.updateForNonLiving(state.item, spear, ItemDisplayContext.NONE, entity);
+		itemModelResolver.updateForNonLiving(state.item, entity.isSword() ? sword : spear, ItemDisplayContext.NONE, entity);
 	}
 
 	public static class State extends EntityRenderState {

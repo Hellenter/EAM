@@ -29,6 +29,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack potion;
 	private @Nullable ItemStack glowingSword;
+	private @Nullable ItemStack parrySword;
 
 	public FallenLordRenderer(EntityRendererProvider.Context context) {
 		super(context, new FallenLordModel(context.bakeLayer(FallenLordModel.LAYER)), 0.6F);
@@ -68,7 +69,15 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 			itemModelResolver.updateForLiving(state.rightHandItemState, potion, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
 			state.rightHandItemStack = potion;
 		}
-		if (bladeGlows(state)) {
+		if (entity.isParryOpen() && entity.tickCount % 4 != 3) {
+			// The edge flickers yellow while a player may parry him.
+			if (parrySword == null) {
+				parrySword = new ItemStack(EamItems.MITHRIL_SWORD);
+				parrySword.set(DataComponents.ITEM_MODEL, Eam.id("fallen_lord_parry_sword"));
+			}
+			itemModelResolver.updateForLiving(state.rightHandItemState, parrySword, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
+			state.rightHandItemStack = parrySword;
+		} else if (bladeGlows(state)) {
 			// The edge of the sword glows red through the heavy strike's windup and the cut.
 			if (glowingSword == null) {
 				glowingSword = new ItemStack(EamItems.MITHRIL_SWORD);

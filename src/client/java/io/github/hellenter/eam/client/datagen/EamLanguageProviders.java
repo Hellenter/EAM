@@ -239,6 +239,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
 			builder.add("death.attack.eam.fallen_lord_heavy.player", "%1$s was cleaved by %2$s");
 			builder.add("subtitles.eam.entity.fallen_lord.dash_warning", "Fallen Lord's eyes flash");
+			builder.add("subtitles.eam.entity.fallen_lord.parry", "Fallen Lord parried");
 			builder.add("item.eam.nutrients", "Protein %s · Fat %s · Carbs %s");
 			builder.add("gui.eam.nutrient.protein", "Protein");
 			builder.add("gui.eam.nutrient.fat", "Fat");
@@ -682,6 +683,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");
 			builder.add("death.attack.eam.fallen_lord_heavy.player", "%2$s разрубил %1$s");
 			builder.add("subtitles.eam.entity.fallen_lord.dash_warning", "Глаза Павшего лорда вспыхивают");
+			builder.add("subtitles.eam.entity.fallen_lord.parry", "Павший лорд парирован");
 			builder.add("item.eam.nutrients", "Белки %s · Жиры %s · Углеводы %s");
 			builder.add("gui.eam.nutrient.protein", "Белки");
 			builder.add("gui.eam.nutrient.fat", "Жиры");

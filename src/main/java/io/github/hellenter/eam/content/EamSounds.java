@@ -11,6 +11,8 @@ import net.minecraft.sounds.SoundEvent;
 public final class EamSounds {
 	/** A bright metallic ring as the Fallen Lord's eyes flash: his unblockable dash is coming, step aside. */
 	public static final SoundEvent FALLEN_LORD_DASH_WARNING = register("entity.fallen_lord.dash_warning");
+	/** A sharp clang over a heavy thump: a player parried the Fallen Lord. */
+	public static final SoundEvent FALLEN_LORD_PARRY = register("entity.fallen_lord.parry");
 
 	/** The wight's rare rasping breath while it stalks unseen. */
 	public static final SoundEvent WIGHT_AMBIENT = register("entity.wight.ambient");

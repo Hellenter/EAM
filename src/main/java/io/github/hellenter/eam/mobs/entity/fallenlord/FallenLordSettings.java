@@ -414,11 +414,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 *                      and shields still count
 	 * @param dashDelay  phase one: the spear dash comes later at a player close by, and not right after his shield is knocked out
 	 * @param parry      phase two: a player who blocks an attack from his stance can parry it with a quick hit
+	 * @param height     a player out of his reach high above, and dashes up or down a slope
 	 */
 	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
-			Sprint sprint, DashBreak dashBreak, double armorPiercing, DashDelay dashDelay, Parry parry) {
+			Sprint sprint, DashBreak dashBreak, double armorPiercing, DashDelay dashDelay, Parry parry, Height height) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12, DashDelay.DEFAULT, Parry.DEFAULT);
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12, DashDelay.DEFAULT, Parry.DEFAULT,
+				Height.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
@@ -431,8 +433,27 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				DashBreak.CODEC.fieldOf("dash_break").orElse(DashBreak.DEFAULT).forGetter(Later::dashBreak),
 				Codec.doubleRange(0.0, 1.0).fieldOf("armor_piercing").orElse(DEFAULT.armorPiercing).forGetter(Later::armorPiercing),
 				DashDelay.CODEC.fieldOf("dash_delay").orElse(DashDelay.DEFAULT).forGetter(Later::dashDelay),
-				Parry.CODEC.fieldOf("parry").orElse(Parry.DEFAULT).forGetter(Later::parry)
+				Parry.CODEC.fieldOf("parry").orElse(Parry.DEFAULT).forGetter(Later::parry),
+				Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(Later::height)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * A player who climbs out of his reach gets his weapon thrown at them: the spear in phase one, the sword in phase
+	 * two (where he leaps up first when he can). His dashes run up or down a slope to a player a little higher or lower.
+	 *
+	 * @param above    the player's feet this much higher than his count as out of reach
+	 * @param after    ticks the player stays out of reach before he throws
+	 * @param dashRise the most a dash climbs or drops on its way to the player; past this it runs flat
+	 */
+	public record Height(double above, int after, double dashRise) {
+		public static final Height DEFAULT = new Height(3.0, 20, 2.0);
+
+		public static final Codec<Height> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(1.0, 64.0).fieldOf("above").orElse(DEFAULT.above).forGetter(Height::above),
+				Codec.intRange(0, 2400).fieldOf("after").orElse(DEFAULT.after).forGetter(Height::after),
+				Codec.doubleRange(0.0, 8.0).fieldOf("dash_rise").orElse(DEFAULT.dashRise).forGetter(Height::dashRise)
+		).apply(instance, Height::new));
 	}
 
 	/**
@@ -453,18 +474,22 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	}
 
 	/**
-	 * Phase two: when a player's shield blocks an attack he made from his stance, the player has a moment to hit him
-	 * back. A hit in time breaks off that attack and the combo after it, and he shoves the player away without harm.
+	 * Phase two: when a player's shield blocks an attack he made from his stance, or he knocks a player's shield out,
+	 * the player has a moment to hit him back. A hit in time breaks off that attack and the combo after it, and he shoves the player away without harm.
 	 *
 	 * @param window ticks after the block in which the player's hit counts as a parry
 	 * @param push   blocks the parried lord shoves the player back
+	 * @param damageMultiplier the parrying hit's damage to him
+	 * @param heal   health the parrying player gets back
 	 */
-	public record Parry(int window, double push) {
-		public static final Parry DEFAULT = new Parry(10, 3.0);
+	public record Parry(int window, double push, float damageMultiplier, float heal) {
+		public static final Parry DEFAULT = new Parry(14, 3.0, 1.5F, 2.0F);
 
 		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 200).fieldOf("window").orElse(DEFAULT.window).forGetter(Parry::window),
-				Codec.doubleRange(0.0, 16.0).fieldOf("push").orElse(DEFAULT.push).forGetter(Parry::push)
+				Codec.doubleRange(0.0, 16.0).fieldOf("push").orElse(DEFAULT.push).forGetter(Parry::push),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(Parry::damageMultiplier),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("heal").orElse(DEFAULT.heal).forGetter(Parry::heal)
 		).apply(instance, Parry::new));
 	}
 

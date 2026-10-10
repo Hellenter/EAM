@@ -27,12 +27,15 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * The Fallen Lord's thrown spear. Nobody can pick it up. In phase one it flies back to his hand like a loyal trident;
+ * The Fallen Lord's thrown spear, or his sword thrown in phase two. Nobody can pick it up. In phase one it flies back to his hand like a loyal trident;
  * the spear thrown when phase two starts stays where it lands and vanishes after a while.
  */
 public class ThrownLordSpear extends AbstractArrow {
 	/** Flying back to the owner; synced so clients steer it the same way between position updates. */
 	private static final EntityDataAccessor<Boolean> DATA_FLYING_BACK = SynchedEntityData.defineId(ThrownLordSpear.class,
+			EntityDataSerializers.BOOLEAN);
+	/** His sword, thrown in phase two at a player out of reach, instead of the spear; clients draw it. */
+	private static final EntityDataAccessor<Boolean> DATA_SWORD = SynchedEntityData.defineId(ThrownLordSpear.class,
 			EntityDataSerializers.BOOLEAN);
 	/** A spear that hit nothing starts back after this many ticks, before it gets far. */
 	private static final int RETURN_AFTER = 8;
@@ -54,17 +57,24 @@ public class ThrownLordSpear extends AbstractArrow {
 		pickup = Pickup.DISALLOWED;
 	}
 
-	public ThrownLordSpear(Level level, LivingEntity owner, float damage, boolean returning) {
+	public ThrownLordSpear(Level level, LivingEntity owner, float damage, boolean returning, boolean sword) {
 		super(EamEntities.LORD_SPEAR, owner, level, FallenLord.spearStack(), null);
 		this.damage = damage;
 		this.returning = returning;
 		pickup = Pickup.DISALLOWED;
+		entityData.set(DATA_SWORD, sword);
+	}
+
+	/** Whether this is his sword rather than his spear. */
+	public boolean isSword() {
+		return entityData.get(DATA_SWORD);
 	}
 
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_FLYING_BACK, false);
+		builder.define(DATA_SWORD, false);
 	}
 
 	@Override
@@ -176,6 +186,7 @@ public class ThrownLordSpear extends AbstractArrow {
 		output.putBoolean("Returning", returning);
 		output.putBoolean("DealtDamage", dealtDamage);
 		output.putBoolean("FlyingBack", entityData.get(DATA_FLYING_BACK));
+		output.putBoolean("Sword", isSword());
 	}
 
 	@Override
@@ -185,6 +196,7 @@ public class ThrownLordSpear extends AbstractArrow {
 		returning = input.getBooleanOr("Returning", true);
 		entityData.set(DATA_FLYING_BACK, input.getBooleanOr("FlyingBack", false));
 		dealtDamage = input.getBooleanOr("DealtDamage", false);
+		entityData.set(DATA_SWORD, input.getBooleanOr("Sword", false));
 		pickup = Pickup.DISALLOWED;
 	}
 }

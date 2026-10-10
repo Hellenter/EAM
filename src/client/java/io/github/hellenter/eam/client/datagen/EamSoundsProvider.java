@@ -24,6 +24,9 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.FALLEN_LORD_DASH_WARNING, SoundTypeBuilder.of(EamSounds.FALLEN_LORD_DASH_WARNING)
 				.subtitle("subtitles.eam.entity.fallen_lord.dash_warning")
 				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/fallen_lord/dash_warning")).attenuationDistance(24)));
+		exporter.add(EamSounds.FALLEN_LORD_PARRY, SoundTypeBuilder.of(EamSounds.FALLEN_LORD_PARRY)
+				.subtitle("subtitles.eam.entity.fallen_lord.parry")
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/fallen_lord/parry")).attenuationDistance(24)));
 		// The wight: vanilla husk and cat files pitched down into a dry, rasping voice.
 		exporter.add(EamSounds.WIGHT_AMBIENT, wight(EamSounds.WIGHT_AMBIENT, "ambient", "mob/husk/idle", 3, 0.5F, 0.5F));
 		exporter.add(EamSounds.WIGHT_ATTACK, wight(EamSounds.WIGHT_ATTACK, "attack", "mob/cat/hiss", 3, 0.55F, 1.0F));

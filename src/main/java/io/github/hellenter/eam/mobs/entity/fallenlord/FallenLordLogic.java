@@ -653,4 +653,25 @@ public final class FallenLordLogic {
 		}
 		return (low + high) / 2.0;
 	}
+
+	/** Whether a player this much higher than him stands out of his reach. */
+	public static boolean outOfReachAbove(double heightAbove, FallenLordSettings.Height height) {
+		return heightAbove >= height.above();
+	}
+
+	/** How much a dash climbs (or drops, below zero) to a player this much higher: all of it within reach, else none. */
+	public static double dashRise(double heightAbove, FallenLordSettings.Height height) {
+		return Math.abs(heightAbove) <= height.dashRise() ? heightAbove : 0.0;
+	}
+
+	/**
+	 * Height a dash should be at, above its start, after running {@code along} blocks flat towards a player
+	 * {@code toPlayer} blocks away who stands {@code rise} higher: a straight slope up to them.
+	 */
+	public static double dashHeight(double along, double toPlayer, double rise) {
+		if (toPlayer <= 1.0E-6) {
+			return rise;
+		}
+		return rise * Math.clamp(along / toPlayer, 0.0, 1.0);
+	}
 }

@@ -18,15 +18,19 @@ import java.util.Map;
 /**
  * Models for the Fallen Lord's spear and shield, which keep their vanilla items and switch looks through the
  * item_model component: a mithril spear head and a mithril shield instead of a wooden one. Also his mithril sword with
- * its edge glowing red, which the renderer shows while he winds up the heavy strike.
+ * its edge glowing red, which the renderer shows while he winds up the heavy strike, and the same in yellow for the
+ * moment a player may parry him.
  */
 final class FallenLordItemModels {
 	static final Identifier SPEAR = Eam.id("fallen_lord_spear");
 	static final Identifier SHIELD = Eam.id("fallen_lord_shield");
 	static final Identifier HEAVY_SWORD = Eam.id("fallen_lord_heavy_sword");
+	/** His sword with its edge flickering yellow while a player may parry him. */
+	static final Identifier PARRY_SWORD = Eam.id("fallen_lord_parry_sword");
 	private static final Identifier SWORD_MODEL = Eam.id("item/mithril_sword");
 	/** Just the red edge of the sword, drawn over it at full brightness. */
 	private static final Identifier BLADE_GLOW = Eam.id("item/fallen_lord_blade_glow");
+	private static final Identifier PARRY_GLOW = Eam.id("item/fallen_lord_parry_glow");
 	private static final Identifier SPEAR_MODEL = Eam.id("item/fallen_lord_spear");
 	private static final Identifier SPEAR_IN_HAND_MODEL = Eam.id("item/fallen_lord_spear_in_hand");
 	private static final Identifier SHIELD_MODEL = Eam.id("item/fallen_lord_shield");
@@ -40,7 +44,8 @@ final class FallenLordItemModels {
 		ModelTemplates.FLAT_ITEM.create(SPEAR_MODEL, TextureMapping.layer0(new Material(SPEAR_MODEL)), generators.modelOutput);
 		ModelTemplates.SPEAR_IN_HAND.create(SPEAR_IN_HAND_MODEL, TextureMapping.layer0(new Material(SPEAR_IN_HAND_MODEL)), generators.modelOutput);
 		generators.modelOutput.accept(SHIELD_MODEL, FallenLordItemModels::shieldModel);
-		generators.modelOutput.accept(BLADE_GLOW, FallenLordItemModels::bladeGlowModel);
+		generators.modelOutput.accept(BLADE_GLOW, () -> bladeGlowModel(BLADE_GLOW));
+		generators.modelOutput.accept(PARRY_GLOW, () -> bladeGlowModel(PARRY_GLOW));
 	}
 
 	/** Item definitions, keyed by the ids the item_model component names. */
@@ -50,6 +55,8 @@ final class FallenLordItemModels {
 						ItemModelUtils.plainModel(SPEAR_IN_HAND_MODEL)), new ClientItem.Properties(true, false, 1.95F)),
 				SHIELD, new ClientItem(ItemModelUtils.plainModel(SHIELD_MODEL), ClientItem.Properties.DEFAULT),
 				HEAVY_SWORD, new ClientItem(ItemModelUtils.composite(ItemModelUtils.plainModel(SWORD_MODEL), ItemModelUtils.plainModel(BLADE_GLOW)),
+						ClientItem.Properties.DEFAULT),
+				PARRY_SWORD, new ClientItem(ItemModelUtils.composite(ItemModelUtils.plainModel(SWORD_MODEL), ItemModelUtils.plainModel(PARRY_GLOW)),
 						ClientItem.Properties.DEFAULT));
 	}
 
@@ -57,12 +64,12 @@ final class FallenLordItemModels {
 	 * The glowing edge as one emissive sheet a hair in front of and behind the flat sword ({@code item/generated} puts
 	 * it between z 7.5 and 8.5), with the sword's handheld poses. Its texture is clear except along the edge.
 	 */
-	private static JsonObject bladeGlowModel() {
+	private static JsonObject bladeGlowModel(Identifier texture) {
 		JsonObject model = new JsonObject();
 		model.addProperty("gui_light", "front");
 		JsonObject textures = new JsonObject();
-		textures.addProperty("glow", BLADE_GLOW.toString());
-		textures.addProperty("particle", BLADE_GLOW.toString());
+		textures.addProperty("glow", texture.toString());
+		textures.addProperty("particle", texture.toString());
 		model.add("textures", textures);
 		JsonObject element = new JsonObject();
 		element.add("from", vector(new double[] {0, 0, 7.4}));

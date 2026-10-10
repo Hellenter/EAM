@@ -493,4 +493,22 @@ class FallenLordLogicTest {
 		assertEquals(3.0, FallenLordLogic.pushDistance(speed), 0.01);
 		assertEquals(0.0, FallenLordLogic.pushSpeed(0.0), 1.0E-9);
 	}
+
+	@Test
+	void dashesClimbOnlyTwoBlocks() {
+		FallenLordSettings.Height height = SETTINGS.later().height();
+		assertEquals(1.5, FallenLordLogic.dashRise(1.5, height), 1.0E-9);
+		assertEquals(-2.0, FallenLordLogic.dashRise(-2.0, height), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.dashRise(3.0, height), 1.0E-9);
+		assertEquals(1.0, FallenLordLogic.dashHeight(3.0, 6.0, 2.0), 1.0E-9);
+		assertEquals(2.0, FallenLordLogic.dashHeight(9.0, 6.0, 2.0), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.dashHeight(0.0, 6.0, -2.0), 1.0E-9);
+	}
+
+	@Test
+	void aPlayerThreeBlocksUpIsOutOfReach() {
+		FallenLordSettings.Height height = SETTINGS.later().height();
+		assertFalse(FallenLordLogic.outOfReachAbove(2.0, height));
+		assertTrue(FallenLordLogic.outOfReachAbove(3.0, height));
+	}
 }

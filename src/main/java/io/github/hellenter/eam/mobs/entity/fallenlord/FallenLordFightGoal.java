@@ -73,14 +73,20 @@ final class FallenLordFightGoal extends Goal {
 			lord.startLeapUp(target);
 			return;
 		}
+		// Higher still, or no leap ready: his weapon is thrown at them, and no swings at the air below them.
+		boolean above = lord.targetAboveReach(target);
+		if (lord.isBusy()) {
+			lord.getMoveControl().strafe(0.0F, 0.0F);
+			return;
+		}
 
 		FallenLordSettings settings = FallenLordModule.settings();
 		int pause = phase == 1 ? settings.phaseOne().attackPause() : settings.phaseTwo().attackPause();
-		if (lord.isIdleFor(pause)) {
-			if (lord.wantsToDrink()) {
-				lord.startDrinking(target);
-				return;
-			}
+		if (lord.isIdleFor(pause) && lord.wantsToDrink()) {
+			lord.startDrinking(target);
+			return;
+		}
+		if (!above && lord.hasWeapon() && lord.isIdleFor(pause)) {
 			int crowd = phase == 2 ? lord.playersWithin(settings.phaseTwo().whirlRadius()).size() : 0;
 			Situation situation = new Situation(distance, lord.getSensing().hasLineOfSight(target), lord.hasSpear(),
 					lord.ticksOutOfReach(), crowd, lord.ticksSinceHit(), lord.hopBackPending(), target.isBlocking());

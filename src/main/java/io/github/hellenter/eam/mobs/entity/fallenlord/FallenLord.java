@@ -109,6 +109,9 @@ public class FallenLord extends Monster {
 	/** Whether an axe has knocked his shield out of the guard; the client shows it hanging. */
 	private static final EntityDataAccessor<Boolean> DATA_SHIELD_KNOCKED = SynchedEntityData.defineId(FallenLord.class,
 			EntityDataSerializers.BOOLEAN);
+	/** Whether a player may parry him now; the client flickers his sword's edge yellow. */
+	private static final EntityDataAccessor<Boolean> DATA_PARRY_OPEN = SynchedEntityData.defineId(FallenLord.class,
+			EntityDataSerializers.BOOLEAN);
 
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
@@ -148,7 +151,7 @@ public class FallenLord extends Monster {
 			FallenLordAction.SLASH);
 	/** What a parry breaks off: the parried attack and the combo after it. */
 	private static final Set<FallenLordAction> BROKEN_BY_PARRY = EnumSet.of(FallenLordAction.LUNGE, FallenLordAction.SWORD_DASH,
-			FallenLordAction.SLASH, FallenLordAction.COMBO);
+			FallenLordAction.SLASH, FallenLordAction.COMBO, FallenLordAction.HEAVY_STRIKE, FallenLordAction.BACKSTAB);
 	/** Phase two actions that start an attack, and those that end one: counted for his leap back. */
 	private static final Set<FallenLordAction> ATTACK_STARTS = EnumSet.of(FallenLordAction.SLASH, FallenLordAction.COMBO,
 			FallenLordAction.LUNGE, FallenLordAction.WHIRL, FallenLordAction.SWORD_DASH_WINDUP, FallenLordAction.BACKSTAB,
@@ -227,6 +230,11 @@ public class FallenLord extends Monster {
 	/** Spear dash: where the run started and how long it is. */
 	private Vec3 dashStart = Vec3.ZERO;
 	private double dashLength;
+	/** A dash's climb (or drop) to a player a little higher or lower, and how far away flat the player stood. */
+	private double dashRise;
+	private double dashToPlayer;
+	/** Ticks his target has stood out of reach above him. */
+	private int highTicks;
 	/** Dashes he has followed the first one with. */
 	private int dashesChained;
 	/** Set while the sword dash strikes: a shield that blocks it is knocked out at once. */
@@ -299,6 +307,7 @@ public class FallenLord extends Monster {
 		builder.define(DATA_ACTION_SEQ, 0);
 		builder.define(DATA_SHIELD_UP, true);
 		builder.define(DATA_SHIELD_KNOCKED, false);
+		builder.define(DATA_PARRY_OPEN, false);
 	}
 
 	@Override
@@ -393,6 +402,11 @@ public class FallenLord extends Monster {
 		return Mth.lerp(partialTicks, guardO, guard);
 	}
 
+	/** Whether a player may parry him right now. */
+	public boolean isParryOpen() {
+		return entityData.get(DATA_PARRY_OPEN);
+	}
+
 	/** Client: how far the shield hangs knocked out of the guard by an axe, 0 to 1. */
 	public float shieldKnocked(float partialTicks) {
 		return Mth.lerp(partialTicks, knockedO, knocked);
@@ -426,6 +440,29 @@ public class FallenLord extends Monster {
 
 	boolean hasSpear() {
 		return getMainHandItem().is(Items.IRON_SPEAR);
+	}
+
+	/** Holding a weapon: not while his spear or sword is in flight. */
+	boolean hasWeapon() {
+		return !getMainHandItem().isEmpty();
+	}
+
+	/**
+	 * Whether the target stands out of his reach high above him. After a moment there he throws his weapon at them:
+	 * the spear in phase one, the sword in phase two. The goal leaves his other attacks alone meanwhile.
+	 */
+	boolean targetAboveReach(LivingEntity target) {
+		FallenLordSettings.Height height = settings().later().height();
+		if (!FallenLordLogic.outOfReachAbove(target.getY() - getY(), height)) {
+			highTicks = 0;
+			return false;
+		}
+		highTicks++;
+		if (highTicks >= height.after() && !isBusy() && hasWeapon() && cooldowns[Attack.THROW.ordinal()] <= 0 && hasLineOfSight(target)) {
+			highTicks = 0;
+			startAttack(Attack.THROW, target);
+		}
+		return true;
 	}
 
 	int[] cooldowns() {
@@ -570,6 +607,7 @@ public class FallenLord extends Monster {
 	 */
 	void breakThrough(LivingEntity target) {
 		if (!horizontalCollision || isBusy() || climbTicks > 0 || horizontalDistanceTo(target) <= FallenLordLogic.SWORD_REACH
+				|| FallenLordLogic.outOfReachAbove(target.getY() - getY(), settings().later().height())
 				|| !(level() instanceof ServerLevel level) || !level.getGameRules().get(GameRules.MOB_GRIEFING)) {
 			stuckTicks = 0;
 			return;
@@ -864,6 +902,7 @@ public class FallenLord extends Monster {
 				&& action != FallenLordAction.DASH && action != FallenLordAction.SWIPE && action != FallenLordAction.RETREAT
 				&& action != FallenLordAction.DRINK && action != FallenLordAction.COUNTER);
 		entityData.set(DATA_SHIELD_KNOCKED, phase() == 1 && shieldDisabledTicks > 0 && !getOffhandItem().isEmpty());
+		entityData.set(DATA_PARRY_OPEN, parryPlayer != null && level.getGameTime() <= parryUntil);
 		bossEvent.setProgress(getHealth() / getMaxHealth());
 	}
 
@@ -908,6 +947,7 @@ public class FallenLord extends Monster {
 					dashTarget = target.position().add(rushDirection.scale(FallenLordLogic.DASH_OVERSHOOT));
 					dashStart = position();
 					dashLength = Math.max(1.0, horizontal2(dashTarget.subtract(dashStart)));
+					aimDashHeight(target);
 					setAction(FallenLordAction.DASH, target);
 					playSound(SoundEvents.TRIDENT_RIPTIDE_1.value(), 1.0F, 0.8F);
 					return;
@@ -922,6 +962,7 @@ public class FallenLord extends Monster {
 					return;
 				}
 				setDeltaMovement(rushDirection.x * DASH_SPEED, getDeltaMovement().y, rushDirection.z * DASH_SPEED);
+				steerDashHeight(DASH_SPEED);
 				// Weaker point-blank, stronger and wider towards the end of the run.
 				FallenLordSettings.SpearDash spearDash = settings().later().spearDash();
 				double progress = horizontal2(position().subtract(dashStart)) / dashLength;
@@ -937,7 +978,7 @@ public class FallenLord extends Monster {
 				}
 			}
 			case THROW -> {
-				if (t == 8 && target != null && hasSpear()) {
+				if (t == 8 && target != null && hasWeapon()) {
 					throwSpear(level, target, one.throwDamage(), true);
 				}
 			}
@@ -1036,6 +1077,8 @@ public class FallenLord extends Monster {
 					// Straight at where the player stands now; stepping aside dodges it.
 					rushDirection = horizontal(target.position().subtract(position()));
 					dashTarget = target.position();
+					dashStart = position();
+					aimDashHeight(target);
 					setAction(FallenLordAction.SWORD_DASH, target);
 					playSound(SoundEvents.LUNGE_2.value(), 1.5F, 0.8F);
 					return;
@@ -1280,6 +1323,7 @@ public class FallenLord extends Monster {
 			damage *= heavy.blockedShare();
 			knockShieldOut(level, target, heavy.shieldSeconds());
 			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
+			openParry(level, target);
 		}
 		if (!strike(level, target, damageSources().source(FallenLordModule.HEAVY_DAMAGE, this), damage, 0.6F)) {
 			return false;
@@ -1376,7 +1420,29 @@ public class FallenLord extends Monster {
 			return true;
 		}
 		setDeltaMovement(rushDirection.x * SWORD_DASH_SPEED, getDeltaMovement().y, rushDirection.z * SWORD_DASH_SPEED);
+		steerDashHeight(SWORD_DASH_SPEED);
 		return false;
+	}
+
+	/** A dash at a player a little higher or lower runs up or down a slope to them; further off it runs flat. */
+	private void aimDashHeight(LivingEntity target) {
+		dashRise = FallenLordLogic.dashRise(target.getY() - getY(), settings().later().height());
+		dashToPlayer = horizontalDistanceTo(target);
+	}
+
+	/** Lifts or lowers him along the dash's slope until he reaches where the player stood; then gravity takes over. */
+	private void steerDashHeight(double speed) {
+		if (dashRise == 0.0) {
+			return;
+		}
+		double along = horizontal2(position().subtract(dashStart));
+		if (along >= dashToPlayer) {
+			return;
+		}
+		double want = dashStart.y + FallenLordLogic.dashHeight(along + speed, dashToPlayer, dashRise);
+		Vec3 motion = getDeltaMovement();
+		setDeltaMovement(motion.x, Mth.clamp(want - getY(), -0.8, 0.8), motion.z);
+		resetFallDistance();
 	}
 
 	private void tickCombo(ServerLevel level, int t, @Nullable LivingEntity target, FallenLordSettings.PhaseTwo two) {
@@ -1484,7 +1550,8 @@ public class FallenLord extends Monster {
 
 	private void throwSpear(ServerLevel level, LivingEntity target, float damage, boolean returning) {
 		float undead = isUndeadFoe(target) ? settings().undead().damageMultiplier() : 1.0F;
-		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier() * undead, returning);
+		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier() * undead, returning,
+				getMainHandItem().is(EamItems.MITHRIL_SWORD));
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
 		double dy = target.getY(0.5) - spear.getY();
@@ -1507,8 +1574,8 @@ public class FallenLord extends Monster {
 	private void rearm() {
 		spearAwayTicks = -1;
 		thrownSpear = null;
-		if (phase() == 1 && getMainHandItem().isEmpty()) {
-			setItemSlot(EquipmentSlot.MAINHAND, spearStack());
+		if (getMainHandItem().isEmpty()) {
+			setItemSlot(EquipmentSlot.MAINHAND, phase() == 1 ? spearStack() : swordStack());
 		}
 	}
 
@@ -1671,14 +1738,14 @@ public class FallenLord extends Monster {
 		if (!(defender instanceof Player) || !(level() instanceof ServerLevel level)) {
 			return;
 		}
-		if (phase() == 2 && stanceAttack && PARRIABLE.contains(action)) {
+		if (stanceAttack && PARRIABLE.contains(action)) {
 			// Blocked an attack from his stance: a quick hit back now parries it.
-			parryPlayer = defender.getUUID();
-			parryUntil = level.getGameTime() + settings().later().parry().window();
+			openParry(level, defender);
 		}
 		if (breaksShields) {
 			blockStreaks.remove(defender.getUUID());
 			knockShieldOut(level, defender, settings().swordDash().shieldSeconds());
+			openParry(level, defender);
 			return;
 		}
 		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak();
@@ -1690,6 +1757,25 @@ public class FallenLord extends Monster {
 		}
 		blockStreaks.remove(defender.getUUID());
 		knockShieldOut(level, defender, shieldBreak.seconds());
+		openParry(level, defender);
+	}
+
+	/**
+	 * Phase two: the player blocked an attack from his stance, or he just knocked their shield out. A hit from them
+	 * within the parry window parries him; a bell rings when it opens.
+	 */
+	private void openParry(ServerLevel level, LivingEntity defender) {
+		if (phase() != 2 || !(defender instanceof Player)) {
+			return;
+		}
+		boolean alreadyOpen = defender.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil;
+		parryPlayer = defender.getUUID();
+		parryUntil = level.getGameTime() + settings().later().parry().window();
+		entityData.set(DATA_PARRY_OPEN, true);
+		if (!alreadyOpen) {
+			level.playSound(null, defender.getX(), defender.getY(), defender.getZ(), SoundEvents.NOTE_BLOCK_BELL.value(), getSoundSource(),
+					1.5F, 1.6F);
+		}
 	}
 
 	private static void knockShieldOut(ServerLevel level, LivingEntity defender, float seconds) {
@@ -1747,10 +1833,15 @@ public class FallenLord extends Monster {
 		if (source.is(FallenLordModule.PHYSICAL)) {
 			damage *= (float) (1.0 - settings().physicalResistance());
 		}
+		Player parrying = source.getEntity() instanceof Player player && source.getDirectEntity() == player
+				&& player.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil ? player : null;
+		if (parrying != null) {
+			// A parry lands harder.
+			damage *= settings().later().parry().damageMultiplier();
+		}
 		boolean hurt = super.hurtServer(level, source, damage);
-		if (source.getEntity() instanceof Player player && source.getDirectEntity() == player && player.getUUID().equals(parryPlayer)
-				&& level.getGameTime() <= parryUntil) {
-			parried(level, player);
+		if (parrying != null) {
+			parried(level, parrying);
 			return hurt;
 		}
 		if (hurt && action == FallenLordAction.DRINK && source.getEntity() instanceof Player player) {
@@ -1777,9 +1868,11 @@ public class FallenLord extends Monster {
 		return hurt;
 	}
 
-	/** A player parried an attack from his stance: he breaks it off, combo and all, and shoves them back unharmed. */
+	/** A player parried him: he breaks his attack off, combo and all, and shoves them back unharmed; they heal a little. */
 	private void parried(ServerLevel level, Player player) {
 		parryPlayer = null;
+		entityData.set(DATA_PARRY_OPEN, false);
+		player.heal(settings().later().parry().heal());
 		if (BROKEN_BY_PARRY.contains(action)) {
 			setAction(FallenLordAction.NONE, null);
 		}
@@ -1792,8 +1885,7 @@ public class FallenLord extends Monster {
 		double speed = FallenLordLogic.pushSpeed(settings().later().parry().push());
 		player.setDeltaMovement(away.x * speed, FallenLordLogic.PARRY_LIFT, away.z * speed);
 		player.syncVelocity = true;
-		level.playSound(null, getX(), getY(0.6), getZ(), SoundEvents.ANVIL_LAND, getSoundSource(), 0.6F, 1.6F);
-		level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, getSoundSource(), 1.0F, 0.7F);
+		level.playSound(null, getX(), getY(0.6), getZ(), EamSounds.FALLEN_LORD_PARRY, getSoundSource(), 2.0F, 1.0F);
 		level.sendParticles(ParticleTypes.CRIT, getX(), getY(0.6), getZ(), 12, getBbWidth() * 0.4, getBbHeight() * 0.2, getBbWidth() * 0.4, 0.2);
 	}
 
