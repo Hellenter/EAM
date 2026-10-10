@@ -10,7 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param sticksToLight     sticks the fire needs before it can be lit
  * @param ticksPerStick     ticks a lit fire takes to burn one stick (600 = one stick every 30 seconds)
  * @param cookTicks         ticks food lies on a lit fire before it is cooked
- * @param burnTicks         ticks cooked food may stay on a lit fire before it burns away
+ * @param burnTicks         ticks cooked food may stay on a lit fire before it gets burnt
+ * @param ashTicks          ticks burnt food may stay on a lit fire before it turns to ash
  * @param sticksPerCharcoal burnt sticks that make one charcoal
  * @param maxCharcoal       most charcoal one fire drops
  * @param scorchTicks       ticks a fire has burnt before its sticks look scorched
@@ -21,18 +22,20 @@ public record CampFireSettings(
 		int ticksPerStick,
 		int cookTicks,
 		int burnTicks,
+		int ashTicks,
 		int sticksPerCharcoal,
 		int maxCharcoal,
 		int scorchTicks,
 		int charTicks
 ) {
-	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 600, 900, 900, 3, 16, 600, 1800);
+	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 600, 900, 1200, 1200, 3, 16, 600, 1800);
 
 	public static final Codec<CampFireSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, CampFireBlock.MAX_STICKS).fieldOf("sticks_to_light").orElse(DEFAULT.sticksToLight).forGetter(CampFireSettings::sticksToLight),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("ticks_per_stick").orElse(DEFAULT.ticksPerStick).forGetter(CampFireSettings::ticksPerStick),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("cook_ticks").orElse(DEFAULT.cookTicks).forGetter(CampFireSettings::cookTicks),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("burn_ticks").orElse(DEFAULT.burnTicks).forGetter(CampFireSettings::burnTicks),
+			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("ash_ticks").orElse(DEFAULT.ashTicks).forGetter(CampFireSettings::ashTicks),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sticks_per_charcoal").orElse(DEFAULT.sticksPerCharcoal).forGetter(CampFireSettings::sticksPerCharcoal),
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("max_charcoal").orElse(DEFAULT.maxCharcoal).forGetter(CampFireSettings::maxCharcoal),
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("scorch_ticks").orElse(DEFAULT.scorchTicks).forGetter(CampFireSettings::scorchTicks),

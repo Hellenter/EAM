@@ -5,6 +5,7 @@
 	"mixins": [
 		"content.arrows.AbstractArrowDamageMixin",
 		"content.bucket.CauldronDispatcherInvoker",
+		"content.campfire.PotionItemMixin",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
 		"mobs.entity.PlayerArmorPiercingMixin",

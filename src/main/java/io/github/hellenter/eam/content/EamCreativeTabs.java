@@ -46,7 +46,9 @@ public final class EamCreativeTabs {
 			EamItems.WATER_BOWL, EamItems.BOILED_WATER_BOWL, EamItems.MILK_BOWL, EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP,
 			EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP, EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP,
 			EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM, EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL,
-			EamItems.CHOCOLATE, EamItems.CHEESE);
+			EamItems.CHOCOLATE, EamItems.CHEESE,
+			EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN, EamItems.BURNT_RABBIT,
+			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.ASH);
 
 	public static final CreativeModeTab METALS = register("metals", () -> new ItemStack(EamItems.SILVER_INGOT),
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,

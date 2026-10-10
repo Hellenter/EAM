@@ -33,11 +33,30 @@ class CampFireLogicTest {
 	}
 
 	@Test
-	void foodCooksInFortyFiveSecondsThenBurns() {
-		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(false, 899, SETTINGS));
-		assertEquals(FoodStep.COOK, CampFireLogic.foodStep(false, 900, SETTINGS));
-		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(true, 899, SETTINGS));
-		assertEquals(FoodStep.BURN, CampFireLogic.foodStep(true, 900, SETTINGS));
+	void foodCooksInFortyFiveSecondsBurnsAfterAMinuteThenTurnsToAsh() {
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.RAW, 899, SETTINGS));
+		assertEquals(FoodStep.COOK, CampFireLogic.foodStep(CampFireLogic.RAW, 900, SETTINGS));
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.COOKED, 1199, SETTINGS));
+		assertEquals(FoodStep.BURN, CampFireLogic.foodStep(CampFireLogic.COOKED, 1200, SETTINGS));
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.BURNT, 1199, SETTINGS));
+		assertEquals(FoodStep.ASH, CampFireLogic.foodStep(CampFireLogic.BURNT, 1200, SETTINGS));
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.DONE, 100000, SETTINGS));
+	}
+
+	@Test
+	void handTakesCookedFoodFirstAndRawLast() {
+		assertTrue(CampFireLogic.takePriority(CampFireLogic.COOKED) > CampFireLogic.takePriority(CampFireLogic.BURNT));
+		assertTrue(CampFireLogic.takePriority(CampFireLogic.BURNT) > CampFireLogic.takePriority(CampFireLogic.DONE));
+		assertTrue(CampFireLogic.takePriority(CampFireLogic.DONE) > CampFireLogic.takePriority(CampFireLogic.RAW));
+	}
+
+	@Test
+	void burntFoodKeepsTwoThirds() {
+		assertEquals(3, CampFireLogic.burntValue(5));
+		assertEquals(3, CampFireLogic.burntValue(4));
+		assertEquals(2, CampFireLogic.burntValue(3));
+		assertEquals(9, CampFireLogic.burntValue(13));
+		assertEquals(0, CampFireLogic.burntValue(0));
 	}
 
 	@Test

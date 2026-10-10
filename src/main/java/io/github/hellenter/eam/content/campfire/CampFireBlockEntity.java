@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.campfire;
 import com.mojang.logging.LogUtils;
 
 import io.github.hellenter.eam.content.EamBlockEntities;
+import io.github.hellenter.eam.content.EamItems;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -49,9 +50,9 @@ public class CampFireBlockEntity extends BlockEntity {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private final NonNullList<ItemStack> items = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
-	/** Ticks since the food was put on (raw) or since it got cooked. */
+	/** Ticks since the food was put on (raw) or since its last change of stage. */
 	private final int[] progress = new int[SLOTS];
-	/** 1 when the food in the slot is already cooked and will burn next. */
+	/** Stage of the food in the slot: {@link CampFireLogic#RAW}, {@code COOKED}, {@code BURNT} or {@code DONE}. */
 	private final int[] cooked = new int[SLOTS];
 	private int fuelTicks;
 	private int burntSticks;
@@ -75,21 +76,31 @@ public class CampFireBlockEntity extends BlockEntity {
 				continue;
 			}
 			fire.progress[slot]++;
-			switch (CampFireLogic.foodStep(fire.cooked[slot] == 1, fire.progress[slot], settings)) {
+			switch (CampFireLogic.foodStep(fire.cooked[slot], fire.progress[slot], settings)) {
 				case COOK -> {
 					SingleRecipeInput input = new SingleRecipeInput(stack);
 					ItemStack result = serverLevel.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, input, serverLevel)
 							.map(recipe -> recipe.value().assemble(input))
 							.orElse(stack);
 					fire.items.set(slot, result);
-					fire.cooked[slot] = 1;
+					fire.cooked[slot] = CampFireLogic.COOKED;
 					fire.progress[slot] = 0;
 					itemsChanged = true;
 				}
 				case BURN -> {
-					// Burnt food just disappears for now; burnt variants come later.
-					fire.items.set(slot, ItemStack.EMPTY);
-					fire.cooked[slot] = 0;
+					ItemStack burnt = Overcooking.burn(stack);
+					if (burnt != null) {
+						fire.items.set(slot, burnt);
+						level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.3F, 1.5F);
+						itemsChanged = true;
+					}
+					// Food that goes straight to ash, and what does not burn at all, changes no more.
+					fire.cooked[slot] = burnt != null && !burnt.is(EamItems.ASH) ? CampFireLogic.BURNT : CampFireLogic.DONE;
+					fire.progress[slot] = 0;
+				}
+				case ASH -> {
+					fire.items.set(slot, Overcooking.ash());
+					fire.cooked[slot] = CampFireLogic.DONE;
 					fire.progress[slot] = 0;
 					level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.3F, 1.5F);
 					itemsChanged = true;
@@ -197,11 +208,11 @@ public class CampFireBlockEntity extends BlockEntity {
 		return false;
 	}
 
-	/** Takes food off the fire, cooked food first; empty when there is none. */
+	/** Takes food off the fire, cooked food first, then burnt food and ash; empty when there is none. */
 	public ItemStack takeFood() {
 		int slot = -1;
 		for (int i = 0; i < SLOTS; i++) {
-			if (!items.get(i).isEmpty() && (slot == -1 || cooked[i] > cooked[slot])) {
+			if (!items.get(i).isEmpty() && (slot == -1 || CampFireLogic.takePriority(cooked[i]) > CampFireLogic.takePriority(cooked[slot]))) {
 				slot = i;
 			}
 		}

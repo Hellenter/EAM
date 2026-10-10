@@ -4,8 +4,14 @@ package io.github.hellenter.eam.content.campfire;
 public final class CampFireLogic {
 	/** What happens to one food slot on a tick of a lit fire. */
 	public enum FoodStep {
-		WAIT, COOK, BURN
+		WAIT, COOK, BURN, ASH
 	}
+
+	/** Stages of food on the fire: put on raw, then cooked, burnt, and finally ash that changes no more. */
+	public static final int RAW = 0;
+	public static final int COOKED = 1;
+	public static final int BURNT = 2;
+	public static final int DONE = 3;
 
 	private CampFireLogic() {
 	}
@@ -23,12 +29,32 @@ public final class CampFireLogic {
 		return fuelTicks >= settings.ticksPerStick();
 	}
 
-	/** Raw food cooks after {@code cookTicks}; cooked food left for {@code burnTicks} more burns away. */
-	public static FoodStep foodStep(boolean cooked, int progress, CampFireSettings settings) {
-		if (!cooked) {
-			return progress >= settings.cookTicks() ? FoodStep.COOK : FoodStep.WAIT;
-		}
-		return progress >= settings.burnTicks() ? FoodStep.BURN : FoodStep.WAIT;
+	/**
+	 * Raw food cooks after {@code cookTicks}; cooked food left for {@code burnTicks} more gets burnt; burnt food left
+	 * for {@code ashTicks} more turns to ash. {@code progress} counts from the last change of stage.
+	 */
+	public static FoodStep foodStep(int stage, int progress, CampFireSettings settings) {
+		return switch (stage) {
+			case RAW -> progress >= settings.cookTicks() ? FoodStep.COOK : FoodStep.WAIT;
+			case COOKED -> progress >= settings.burnTicks() ? FoodStep.BURN : FoodStep.WAIT;
+			case BURNT -> progress >= settings.ashTicks() ? FoodStep.ASH : FoodStep.WAIT;
+			default -> FoodStep.WAIT;
+		};
+	}
+
+	/** Which food an empty hand takes first: cooked, then burnt, then ash, raw food last. */
+	public static int takePriority(int stage) {
+		return switch (stage) {
+			case COOKED -> 3;
+			case BURNT -> 2;
+			case DONE -> 1;
+			default -> 0;
+		};
+	}
+
+	/** Burnt food keeps two thirds of what the cooked food gives, rounded. */
+	public static int burntValue(int cooked) {
+		return Math.round(cooked * 2.0F / 3.0F);
 	}
 
 	/** Charcoal left by a fire that has burnt {@code burntSticks} sticks in total. */

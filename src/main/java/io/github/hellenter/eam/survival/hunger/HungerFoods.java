@@ -1,5 +1,8 @@
 package io.github.hellenter.eam.survival.hunger;
 
+import io.github.hellenter.eam.content.campfire.CampFireLogic;
+import io.github.hellenter.eam.content.campfire.Overcooking;
+
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
 import net.minecraft.core.component.DataComponents;
@@ -11,6 +14,7 @@ import net.minecraft.world.item.component.Consumables;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,7 +49,7 @@ final class HungerFoods {
 	}
 
 	//                                                        nutrition, saturation, protein, fat, carbs
-	private static final Map<Item, Values> VALUES = Map.ofEntries(
+	private static final Map<Item, Values> COMMON = Map.ofEntries(
 			// Meat and fish: raw is a last resort, cooking roughly doubles the value.
 			Map.entry(Items.BEEF, food(2, 0.2F, 5, 3, 0)),
 			Map.entry(Items.COOKED_BEEF, food(5, 0.6F, 13, 8, 0)),
@@ -98,7 +102,22 @@ final class HungerFoods {
 			Map.entry(Items.RABBIT_STEW, food(6, 0.5F, 12, 4, 9))
 	);
 
+	private static final Map<Item, Values> VALUES = withBurntFood(COMMON);
+
 	private HungerFoods() {
+	}
+
+	/** Food burnt on a camp fire gives two thirds of the cooked food's nutrition and nutrients. */
+	private static Map<Item, Values> withBurntFood(Map<Item, Values> values) {
+		Map<Item, Values> all = new HashMap<>(values);
+		Overcooking.BURNT.forEach((cooked, burnt) -> {
+			Values food = values.get(cooked);
+			Nutrients nutrients = food.nutrients();
+			all.put(burnt, food(CampFireLogic.burntValue(food.nutrition()), food.saturationModifier(),
+					CampFireLogic.burntValue(nutrients.protein()), CampFireLogic.burntValue(nutrients.fat()),
+					CampFireLogic.burntValue(nutrients.carbs())));
+		});
+		return Map.copyOf(all);
 	}
 
 	static void register() {

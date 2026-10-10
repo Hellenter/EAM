@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingLogic;
 import io.github.hellenter.eam.content.bucket.MetalBucketItem;
 import io.github.hellenter.eam.content.bucket.MetalPowderSnowBucketItem;
+import io.github.hellenter.eam.content.campfire.CampFireLogic;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -37,6 +38,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
@@ -362,6 +364,20 @@ public final class EamItems {
 			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.6F).build())
 			.component(HungerModule.NUTRIENTS, new Nutrients(8, 7, 1)));
 
+	/**
+	 * Food overcooked on a camp fire: two thirds of the cooked food's value (the hunger module sets the MITE values the
+	 * same way). Ash is what is left after another minute; with a water bottle it makes black dye.
+	 */
+	public static final Item BURNT_BEEF = burntFood("burnt_beef", Foods.COOKED_BEEF);
+	public static final Item BURNT_PORKCHOP = burntFood("burnt_porkchop", Foods.COOKED_PORKCHOP);
+	public static final Item BURNT_MUTTON = burntFood("burnt_mutton", Foods.COOKED_MUTTON);
+	public static final Item BURNT_CHICKEN = burntFood("burnt_chicken", Foods.COOKED_CHICKEN);
+	public static final Item BURNT_RABBIT = burntFood("burnt_rabbit", Foods.COOKED_RABBIT);
+	public static final Item BURNT_COD = burntFood("burnt_cod", Foods.COOKED_COD);
+	public static final Item BURNT_SALMON = burntFood("burnt_salmon", Foods.COOKED_SALMON);
+	public static final Item BURNT_POTATO = burntFood("burnt_potato", Foods.BAKED_POTATO);
+	public static final Item ASH = register("ash", Item::new, new Item.Properties());
+
 	/** A bowl of plain or boiled water, for soup recipes. */
 	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));
 
@@ -384,6 +400,14 @@ public final class EamItems {
 				.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation).build())
 				.component(HungerModule.NUTRIENTS, new Nutrients(protein, fat, carbs))
 				.component(ThirstModule.HYDRATION, new Hydration(water)));
+	}
+
+	/** Same saturation modifier as the cooked food, so saturation drops with nutrition. */
+	private static Item burntFood(String name, FoodProperties cooked) {
+		return register(name, Item::new, new Item.Properties().food(new FoodProperties.Builder()
+				.nutrition(CampFireLogic.burntValue(cooked.nutrition()))
+				.saturationModifier(cooked.saturation() / (cooked.nutrition() * 2.0F))
+				.build()));
 	}
 
 	private static Item blockItem(String name, Block block) {

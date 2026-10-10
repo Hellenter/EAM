@@ -1,5 +1,6 @@
 {
-  "burn_ticks": 900,
+  "ash_ticks": 1200,
+  "burn_ticks": 1200,
   "char_ticks": 1800,
   "cook_ticks": 900,
   "max_charcoal": 16,

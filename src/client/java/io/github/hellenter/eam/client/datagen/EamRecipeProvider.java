@@ -12,6 +12,7 @@ import io.github.hellenter.eam.world.tools.EarlyToolsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.fabricmc.fabric.api.recipe.v1.ingredient.DefaultCustomIngredients;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
@@ -39,6 +40,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -182,6 +184,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output);
 
 				bowlFoodRecipes();
+				ashRecipes();
 				silverRecipes();
 				brewingRecipes();
 				mithrilRecipes();
@@ -652,6 +655,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				milkDish(EamItems.ICE_CREAM, "_from_cocoa", Items.COCOA_BEANS, Items.SUGAR, Items.SNOWBALL);
 				emptyBowlDish(EamItems.SALAD, Items.DANDELION, Items.DANDELION, Items.DANDELION);
 				emptyBowlDish(EamItems.SORBET, Items.APPLE, Items.SUGAR, Items.SNOWBALL);
+			}
+
+			/** Ash from overcooked food and a water bottle make black dye; the bottle comes back empty. */
+			private void ashRecipes() {
+				Ingredient waterBottle = DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
+						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER)).build());
+				shapeless(RecipeCategory.MISC, Items.DYE.pick(DyeColor.BLACK))
+						.requires(EamItems.ASH)
+						.requires(waterBottle)
+						.unlockedBy(getHasName(EamItems.ASH), has(EamItems.ASH))
+						.save(output, "eam:black_dye_from_ash");
 			}
 
 			/** A dish made in a bowl of water, plain or boiled. */
