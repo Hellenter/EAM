@@ -13,6 +13,7 @@
 		"mobs.vanilla.MobAccessor",
 		"mobs.vanilla.MobSunBurnMixin",
 		"mobs.vanilla.TargetGoalAccessor",
+		"mobs.vanilla.TrialSpawnerMixin",
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",

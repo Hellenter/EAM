@@ -2,6 +2,8 @@ package io.github.hellenter.eam.world.structures.crypt;
 
 import com.mojang.serialization.MapCodec;
 
+import io.github.hellenter.eam.mobs.vanilla.crypt.CryptSpawners;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -61,6 +63,7 @@ public final class CryptMarkers implements StructureProcessor {
 		tag.putString("id", "minecraft:trial_spawner");
 		tag.putString("normal_config", config + "normal");
 		tag.putString("ominous_config", config + "ominous");
+		tag.putInt("required_player_range", CryptSpawners.ACTIVATION_RANGE);
 		return new StructureBlockInfo(info.pos(), Blocks.TRIAL_SPAWNER.defaultBlockState(), tag);
 	}
 

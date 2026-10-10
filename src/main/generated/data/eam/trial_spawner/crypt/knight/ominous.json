@@ -24,6 +24,7 @@
       "weight": 1
     }
   ],
+  "spawn_range": 7,
   "ticks_between_spawn": 60,
   "total_mobs": 5.0,
   "total_mobs_added_per_player": 0.0

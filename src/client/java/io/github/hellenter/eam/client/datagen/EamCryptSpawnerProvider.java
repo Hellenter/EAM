@@ -65,11 +65,12 @@ public class EamCryptSpawnerProvider extends FabricDynamicRegistryProvider {
 
 	/** Like vanilla trial chamber skeletons: 6 (+2 per extra player), 3 at once. */
 	private static TrialSpawnerConfig.Builder skeletons() {
-		return TrialSpawnerConfig.builder().simultaneousMobs(3.0F).simultaneousMobsAddedPerPlayer(0.5F).ticksBetweenSpawn(20);
+		return TrialSpawnerConfig.builder().spawnRange(CryptSpawners.SPAWN_RANGE).simultaneousMobs(3.0F).simultaneousMobsAddedPerPlayer(0.5F).ticksBetweenSpawn(20);
 	}
 
 	private static TrialSpawnerConfig.Builder knights(float total, float simultaneous) {
 		return TrialSpawnerConfig.builder()
+				.spawnRange(CryptSpawners.SPAWN_RANGE)
 				.totalMobs(total)
 				.totalMobsAddedPerPlayer(0.0F)
 				.simultaneousMobs(simultaneous)
