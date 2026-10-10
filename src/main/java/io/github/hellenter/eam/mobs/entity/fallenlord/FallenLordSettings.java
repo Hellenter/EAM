@@ -422,7 +422,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param speed extra movement speed while sprinting, a share of his base speed
 	 */
 	public record Sprint(int after, double speed) {
-		public static final Sprint DEFAULT = new Sprint(100, 0.5);
+		public static final Sprint DEFAULT = new Sprint(100, 0.33);
 
 		public static final Codec<Sprint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 2400).fieldOf("after").orElse(DEFAULT.after).forGetter(Sprint::after),
