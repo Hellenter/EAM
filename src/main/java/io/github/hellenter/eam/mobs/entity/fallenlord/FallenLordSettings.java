@@ -323,7 +323,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 
 	/**
 	 * Phase two: he raises the sword overhead, its edge glows red, and he brings it down with more reach than a plain
-	 * hit. He turns after the player until the last tick before the cut, and a red line sweeps along the ground over
+	 * hit. He turns after the player until the last tick before the cut, and red arcs roll out along the ground over
 	 * the struck area just before it lands. Stepping back out of reach dodges it. A shield does not stop it: the player
 	 * takes a share of the damage and the shield is knocked out. When it lands he goes straight into his combo.
 	 *
@@ -333,11 +333,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param shieldSeconds    how long that shield cannot be raised again
 	 * @param cooldown         ticks between heavy strikes
 	 * @param extraWidth       how much further round his sides it reaches than a plain hit, in blocks
-	 * @param sweepTicks       ticks the ground mark takes to sweep from him to the end of the reach, ending on the cut
+	 * @param sweepTicks       ticks each ground wave takes to roll from him to the end of the reach; the last ends on the cut
+	 * @param waves            ground waves before the cut
+	 * @param waveGap          ticks between one wave setting off and the next
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
-			double extraWidth, int sweepTicks) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8);
+			double extraWidth, int sweepTicks, int waves, int waveGap) {
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8, 3, 4);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
@@ -346,7 +348,9 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.floatRange(0.0F, 600.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(HeavyStrike::shieldSeconds),
 				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(HeavyStrike::cooldown),
 				Codec.doubleRange(-1.0, 2.0).fieldOf("extra_width").orElse(DEFAULT.extraWidth).forGetter(HeavyStrike::extraWidth),
-				Codec.intRange(1, 19).fieldOf("sweep_ticks").orElse(DEFAULT.sweepTicks).forGetter(HeavyStrike::sweepTicks)
+				Codec.intRange(1, 19).fieldOf("sweep_ticks").orElse(DEFAULT.sweepTicks).forGetter(HeavyStrike::sweepTicks),
+				Codec.intRange(0, 5).fieldOf("waves").orElse(DEFAULT.waves).forGetter(HeavyStrike::waves),
+				Codec.intRange(1, 10).fieldOf("wave_gap").orElse(DEFAULT.waveGap).forGetter(HeavyStrike::waveGap)
 		).apply(instance, HeavyStrike::new));
 	}
 

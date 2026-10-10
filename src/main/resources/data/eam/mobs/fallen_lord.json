@@ -111,7 +111,9 @@
     "shield_seconds": 5.0,
     "cooldown": 183,
     "extra_width": 0.33,
-    "sweep_ticks": 8
+    "sweep_ticks": 8,
+    "waves": 3,
+    "wave_gap": 4
   },
   "undead": {
     "radius": 10.0,

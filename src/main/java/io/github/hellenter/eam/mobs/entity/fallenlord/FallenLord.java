@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
@@ -12,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -112,9 +112,6 @@ public class FallenLord extends Monster {
 
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
-	/** Spacing of the heavy strike's ground mark, in blocks, along and across its sweep. */
-	private static final double HEAVY_MARK_STEP = 0.35;
-	private static final DustParticleOptions HEAVY_MARK = new DustParticleOptions(0xC01010, 1.4F);
 	private static final double DASH_SPEED = 0.9;
 	private static final double SWORD_DASH_SPEED = 1.0;
 	/** A blocked sword dash still pushes the player back a block, as a hit does. */
@@ -1225,38 +1222,19 @@ public class FallenLord extends Monster {
 	}
 
 	/**
-	 * The heavy strike's ground mark: a red line that sweeps over the struck area, from him out to the end of its
-	 * reach, landing there on the cut. It follows where he faces, as he turns after the player until the cut.
+	 * The heavy strike's ground mark: red arcs that roll flat along the ground from him out to the end of its reach,
+	 * one after another, the last landing there on the cut. Each sets off where he faces at the time.
 	 */
 	private void markHeavyGround(ServerLevel level, int ticksToHit) {
 		FallenLordSettings.HeavyStrike heavy = settings().heavyStrike();
+		if (!FallenLordLogic.heavyWaveStarts(ticksToHit, heavy)) {
+			return;
+		}
 		double reach = heavyReach();
-		double to = FallenLordLogic.heavyMarkRadius(ticksToHit, heavy.sweepTicks(), reach);
-		if (to < 0.0) {
-			return;
-		}
-		double from = Math.max(0.0, FallenLordLogic.heavyMarkRadius(ticksToHit + 1, heavy.sweepTicks(), reach));
-		double minForward = FallenLordLogic.heavyMinForward(heavy);
-		double y = getY() + 0.1;
-		for (double r = (Math.floor(from / HEAVY_MARK_STEP) + 1.0) * HEAVY_MARK_STEP; r < to; r += HEAVY_MARK_STEP) {
-			markHeavyArc(level, r, minForward, y);
-		}
-		markHeavyArc(level, to, minForward, y);
-	}
-
-	/** One arc of the ground mark, {@code radius} from him, across the whole width the cut covers there. */
-	private void markHeavyArc(ServerLevel level, double radius, double minForward, double y) {
-		if (radius <= 0.0) {
-			return;
-		}
 		double yaw = Math.toRadians(getYRot());
-		double half = FallenLordLogic.heavyHalfAngle(radius, minForward);
-		int points = Math.max(1, (int) Math.ceil(2.0 * half * radius / HEAVY_MARK_STEP));
-		for (int i = 0; i <= points; i++) {
-			// Minecraft yaw: he faces (-sin, cos); the arc turns from there to either side.
-			double a = yaw - half + 2.0 * half * i / points;
-			level.sendParticles(HEAVY_MARK, false, true, getX() - Math.sin(a) * radius, y, getZ() + Math.cos(a) * radius, 1, 0.0, 0.0, 0.0, 0.0);
-		}
+		// Count 0: the particle's "velocity" carries where he faces times the reach, and the ticks the wave takes.
+		level.sendParticles(EamParticles.HEAVY_WAVE, false, true, getX(), getY() + 0.05, getZ(), 0,
+				-Math.sin(yaw) * reach, heavy.sweepTicks(), Math.cos(yaw) * reach, 1.0);
 	}
 
 	/**

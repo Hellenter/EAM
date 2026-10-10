@@ -295,22 +295,12 @@ public final class FallenLordLogic {
 	}
 
 	/**
-	 * How far from him the heavy strike's ground mark has swept {@code ticksToHit} ticks before the cut: from 0 when
-	 * the sweep starts to {@code reach} on the cut itself. Negative before the sweep starts.
+	 * Whether a wave of the heavy strike's ground mark sets off {@code ticksToHit} ticks before the cut. Each takes
+	 * {@code sweep_ticks} to reach the end of the reach; they set off {@code wave_gap} apart, the last landing on the cut.
 	 */
-	public static double heavyMarkRadius(int ticksToHit, int sweepTicks, double reach) {
-		if (ticksToHit < 0 || ticksToHit > sweepTicks) {
-			return -1.0;
-		}
-		return reach * (sweepTicks - ticksToHit) / sweepTicks;
-	}
-
-	/** Half the angle, in radians from where he faces, that the heavy strike covers at {@code radius} from him. */
-	public static double heavyHalfAngle(double radius, double minForward) {
-		if (radius <= Math.abs(minForward)) {
-			return minForward <= 0.0 ? Math.PI : 0.0;
-		}
-		return Math.acos(minForward / radius);
+	public static boolean heavyWaveStarts(int ticksToHit, FallenLordSettings.HeavyStrike heavy) {
+		int sinceLast = ticksToHit - heavy.sweepTicks();
+		return sinceLast >= 0 && sinceLast % heavy.waveGap() == 0 && sinceLast / heavy.waveGap() < heavy.waves();
 	}
 
 	/**

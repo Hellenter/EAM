@@ -286,15 +286,22 @@ class FallenLordLogicTest {
 	}
 
 	@Test
-	void heavyMarkSweepsOutToTheReachOnTheCut() {
-		assertTrue(FallenLordLogic.heavyMarkRadius(9, 8, 5.0) < 0.0);
-		assertEquals(0.0, FallenLordLogic.heavyMarkRadius(8, 8, 5.0), 1.0E-9);
-		assertEquals(2.5, FallenLordLogic.heavyMarkRadius(4, 8, 5.0), 1.0E-9);
-		assertEquals(5.0, FallenLordLogic.heavyMarkRadius(0, 8, 5.0), 1.0E-9);
-		assertTrue(FallenLordLogic.heavyMarkRadius(-1, 8, 5.0) < 0.0);
-		// Just over a half circle with a negative front, all round close in.
-		assertTrue(FallenLordLogic.heavyHalfAngle(3.0, -0.03) > Math.PI / 2.0);
-		assertEquals(Math.PI, FallenLordLogic.heavyHalfAngle(0.02, -0.03), 1.0E-9);
+	void threeHeavyWavesSetOffTheLastLandingOnTheCut() {
+		FallenLordSettings.HeavyStrike heavy = FallenLordSettings.HeavyStrike.DEFAULT;
+		int started = 0;
+		for (int ticksToHit = 30; ticksToHit >= -2; ticksToHit--) {
+			if (FallenLordLogic.heavyWaveStarts(ticksToHit, heavy)) {
+				started++;
+			}
+		}
+		assertEquals(3, started);
+		// The last one sets off as long before the cut as it takes to roll out; the others a gap apart before it.
+		assertTrue(FallenLordLogic.heavyWaveStarts(heavy.sweepTicks(), heavy));
+		assertTrue(FallenLordLogic.heavyWaveStarts(heavy.sweepTicks() + heavy.waveGap(), heavy));
+		assertTrue(FallenLordLogic.heavyWaveStarts(heavy.sweepTicks() + 2 * heavy.waveGap(), heavy));
+		assertFalse(FallenLordLogic.heavyWaveStarts(heavy.sweepTicks() + 3 * heavy.waveGap(), heavy));
+		// All of them during the windup and the swing.
+		assertTrue(heavy.sweepTicks() + 2 * heavy.waveGap() <= FallenLordAction.HEAVY_WINDUP.length() + FallenLordAction.HEAVY_HIT);
 	}
 
 	@Test

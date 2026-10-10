@@ -13,6 +13,7 @@ import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordEyesModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderer;
+import io.github.hellenter.eam.client.mobs.fallenlord.HeavyWaveParticle;
 import io.github.hellenter.eam.client.mobs.knight.SkeletonKnightRenderer;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerModel;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerRenderer;
@@ -21,6 +22,7 @@ import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.client.hud.ThirstHud;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
 import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
@@ -28,6 +30,7 @@ import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
@@ -46,6 +49,7 @@ public class EamClient implements ClientModInitializer {
 		DrinkFromSourceHandler.register();
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordModel.LAYER, FallenLordModel::createLayer);
+		ParticleProviderRegistry.getInstance().register(EamParticles.HEAVY_WAVE, HeavyWaveParticle.Provider::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
