@@ -129,7 +129,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	public record PhaseTwo(float health, double speed, float slashDamage, int slashCooldown, float comboHitDamage, float comboKickDamage,
 			float comboKnockback, int comboCooldown, float lungeDamage, int lungeCooldown, float whirlMultiplier, double whirlRadius,
 			float whirlKnockback, int whirlCooldown, int attackPause) {
-		public static final PhaseTwo DEFAULT = new PhaseTwo(112.0F, 1.25, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6);
+		public static final PhaseTwo DEFAULT = new PhaseTwo(112.0F, 1.125, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6);
 
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseTwo::health),
@@ -338,8 +338,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param waveGap          ticks between one wave setting off and the next
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
-			double extraWidth, int sweepTicks, int waves, int waveGap) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8, 3, 4);
+			double extraWidth, int sweepTicks, int waves, int waveGap, int extraWindup) {
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
@@ -350,7 +350,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.doubleRange(-1.0, 2.0).fieldOf("extra_width").orElse(DEFAULT.extraWidth).forGetter(HeavyStrike::extraWidth),
 				Codec.intRange(1, 19).fieldOf("sweep_ticks").orElse(DEFAULT.sweepTicks).forGetter(HeavyStrike::sweepTicks),
 				Codec.intRange(0, 5).fieldOf("waves").orElse(DEFAULT.waves).forGetter(HeavyStrike::waves),
-				Codec.intRange(1, 10).fieldOf("wave_gap").orElse(DEFAULT.waveGap).forGetter(HeavyStrike::waveGap)
+				Codec.intRange(1, 10).fieldOf("wave_gap").orElse(DEFAULT.waveGap).forGetter(HeavyStrike::waveGap),
+				Codec.intRange(0, 40).fieldOf("extra_windup").orElse(DEFAULT.extraWindup).forGetter(HeavyStrike::extraWindup)
 		).apply(instance, HeavyStrike::new));
 	}
 
@@ -411,11 +412,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param dashBreak  both dashes: how deep into blocks one dash can smash its way
 	 * @param armorPiercing share of all his damage to a player that ignores armor and Protection; the Resistance effect
 	 *                      and shields still count
+	 * @param dashDelay  phase one: the spear dash comes later at a player close by, and not right after his shield is knocked out
+	 * @param parry      phase two: a player who blocks an attack from his stance can parry it with a quick hit
 	 */
 	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
-			Sprint sprint, DashBreak dashBreak, double armorPiercing) {
+			Sprint sprint, DashBreak dashBreak, double armorPiercing, DashDelay dashDelay, Parry parry) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12);
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12, DashDelay.DEFAULT, Parry.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
@@ -426,8 +429,43 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp),
 				Sprint.CODEC.fieldOf("sprint").orElse(Sprint.DEFAULT).forGetter(Later::sprint),
 				DashBreak.CODEC.fieldOf("dash_break").orElse(DashBreak.DEFAULT).forGetter(Later::dashBreak),
-				Codec.doubleRange(0.0, 1.0).fieldOf("armor_piercing").orElse(DEFAULT.armorPiercing).forGetter(Later::armorPiercing)
+				Codec.doubleRange(0.0, 1.0).fieldOf("armor_piercing").orElse(DEFAULT.armorPiercing).forGetter(Later::armorPiercing),
+				DashDelay.CODEC.fieldOf("dash_delay").orElse(DashDelay.DEFAULT).forGetter(Later::dashDelay),
+				Parry.CODEC.fieldOf("parry").orElse(Parry.DEFAULT).forGetter(Later::parry)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * Phase one spear dash timing.
+	 *
+	 * @param closeRange       a player this close, flat, when the red-eyed windup ends
+	 * @param closeTicks       gets this many more ticks of windup
+	 * @param afterShieldKnock ticks the dash stays on cooldown at least once an axe knocks his shield out
+	 */
+	public record DashDelay(double closeRange, int closeTicks, int afterShieldKnock) {
+		public static final DashDelay DEFAULT = new DashDelay(2.0, 3, 60);
+
+		public static final Codec<DashDelay> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 16.0).fieldOf("close_range").orElse(DEFAULT.closeRange).forGetter(DashDelay::closeRange),
+				Codec.intRange(0, 40).fieldOf("close_ticks").orElse(DEFAULT.closeTicks).forGetter(DashDelay::closeTicks),
+				ticks().fieldOf("after_shield_knock").orElse(DEFAULT.afterShieldKnock).forGetter(DashDelay::afterShieldKnock)
+		).apply(instance, DashDelay::new));
+	}
+
+	/**
+	 * Phase two: when a player's shield blocks an attack he made from his stance, the player has a moment to hit him
+	 * back. A hit in time breaks off that attack and the combo after it, and he shoves the player away without harm.
+	 *
+	 * @param window ticks after the block in which the player's hit counts as a parry
+	 * @param push   blocks the parried lord shoves the player back
+	 */
+	public record Parry(int window, double push) {
+		public static final Parry DEFAULT = new Parry(10, 3.0);
+
+		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 200).fieldOf("window").orElse(DEFAULT.window).forGetter(Parry::window),
+				Codec.doubleRange(0.0, 16.0).fieldOf("push").orElse(DEFAULT.push).forGetter(Parry::push)
+		).apply(instance, Parry::new));
 	}
 
 	/**
@@ -533,7 +571,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param cooldown ticks from one breather to the next
 	 */
 	public record Breather(int hitsMin, int hitsMax, float health, int window, double distance, int cooldown) {
-		public static final Breather DEFAULT = new Breather(4, 5, 12.0F, 80, 6.0, 800);
+		public static final Breather DEFAULT = new Breather(4, 5, 12.0F, 80, 6.0, 700);
 
 		public static final Codec<Breather> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("hits_min").orElse(DEFAULT.hitsMin).forGetter(Breather::hitsMin),

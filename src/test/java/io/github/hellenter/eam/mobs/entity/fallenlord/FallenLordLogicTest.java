@@ -476,4 +476,21 @@ class FallenLordLogicTest {
 		assertEquals(0.96F, FallenLordLogic.afterResistance(1.2F, 0), 1.0E-6F);
 		assertEquals(0.0F, FallenLordLogic.afterResistance(1.2F, 4), 1.0E-6F);
 	}
+
+	@Test
+	void dashWindupIsLongerForAClosePlayer() {
+		FallenLordSettings.DashDelay delay = SETTINGS.later().dashDelay();
+		assertEquals(3, FallenLordLogic.dashWindupExtra(0.5, delay));
+		assertEquals(3, FallenLordLogic.dashWindupExtra(2.0, delay));
+		assertEquals(0, FallenLordLogic.dashWindupExtra(2.1, delay));
+		assertEquals(0, FallenLordLogic.dashWindupExtra(8.0, delay));
+	}
+
+	@Test
+	void parryShovesThePlayerThreeBlocks() {
+		double speed = FallenLordLogic.pushSpeed(3.0);
+		assertTrue(speed > 0.0 && speed < 1.0);
+		assertEquals(3.0, FallenLordLogic.pushDistance(speed), 0.01);
+		assertEquals(0.0, FallenLordLogic.pushSpeed(0.0), 1.0E-9);
+	}
 }

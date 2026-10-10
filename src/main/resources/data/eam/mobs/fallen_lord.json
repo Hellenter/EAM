@@ -22,7 +22,7 @@
   },
   "phase_two": {
     "health": 112.0,
-    "speed": 1.25,
+    "speed": 1.125,
     "slash_damage": 9.0,
     "slash_cooldown": 20,
     "combo_hit_damage": 6.0,
@@ -113,7 +113,8 @@
     "extra_width": 0.33,
     "sweep_ticks": 8,
     "waves": 3,
-    "wave_gap": 4
+    "wave_gap": 4,
+    "extra_windup": 3
   },
   "undead": {
     "radius": 10.0,
@@ -141,7 +142,7 @@
     "health": 12.0,
     "window": 80,
     "distance": 6.0,
-    "cooldown": 800
+    "cooldown": 700
   },
   "leap_back": {
     "after": 2,
@@ -175,5 +176,14 @@
   "dash_break": {
     "max_depth": 2.5
   },
-  "armor_piercing": 0.12
+  "armor_piercing": 0.12,
+  "dash_delay": {
+    "close_range": 2.0,
+    "close_ticks": 3,
+    "after_shield_knock": 60
+  },
+  "parry": {
+    "window": 10,
+    "push": 3.0
+  }
 }

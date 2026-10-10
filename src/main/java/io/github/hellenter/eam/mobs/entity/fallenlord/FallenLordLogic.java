@@ -602,4 +602,55 @@ public final class FallenLordLogic {
 		}
 		return Math.max(damage * (25 - (amplifier + 1) * 5) / 25.0F, 0.0F);
 	}
+	/** Phase one: extra ticks of the spear dash windup, for a player within the close range when it would end. */
+	public static int dashWindupExtra(double distance, FallenLordSettings.DashDelay delay) {
+		return distance <= delay.closeRange() ? delay.closeTicks() : 0;
+	}
+
+	/** The lift of a parry's shove, blocks per tick. */
+	public static final double PARRY_LIFT = 0.3;
+	private static final double AIR_FRICTION = 0.91;
+	/** Plain ground: block friction 0.6 times the 0.91 every mob keeps. */
+	private static final double GROUND_FRICTION = 0.6 * 0.91;
+
+	/**
+	 * How far a player shoved at {@code speed} blocks per tick, lifted by {@link #PARRY_LIFT}, slides before stopping:
+	 * a short flight with air friction, then the slide on plain ground, as vanilla moves a player with no input.
+	 */
+	public static double pushDistance(double speed) {
+		double distance = 0.0;
+		double y = 0.0;
+		double vy = PARRY_LIFT;
+		for (int tick = 0; tick < 200 && speed > 1.0E-3; tick++) {
+			distance += speed;
+			y += vy;
+			boolean grounded = y <= 0.0;
+			if (grounded) {
+				y = 0.0;
+				vy = 0.0;
+			} else {
+				vy = (vy - GRAVITY) * AIR_DRAG;
+			}
+			speed *= grounded ? GROUND_FRICTION : AIR_FRICTION;
+		}
+		return distance;
+	}
+
+	/** Horizontal speed that shoves a player {@code distance} blocks back; see {@link #pushDistance}. */
+	public static double pushSpeed(double distance) {
+		if (distance <= 0.0) {
+			return 0.0;
+		}
+		double low = 0.0;
+		double high = 4.0;
+		for (int i = 0; i < 40; i++) {
+			double mid = (low + high) / 2.0;
+			if (pushDistance(mid) < distance) {
+				low = mid;
+			} else {
+				high = mid;
+			}
+		}
+		return (low + high) / 2.0;
+	}
 }
