@@ -21,7 +21,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 /**
  * Turns the marker blocks Maxim builds crypt rooms with into what they stand for:
  * <ul>
- * <li>red wool: a trial spawner of melee mobs, yellow wool: a trial spawner of archers;</li>
+ * <li>red wool: a trial spawner of melee mobs, yellow wool: a trial spawner of archers, green wool: a trial spawner of
+ * bogged (poison archers);</li>
  * <li>bamboo stairs: a tier 1 chest, cherry stairs: a tier 2 chest, opening toward the low side of the step;</li>
  * <li>light blue wool: a vault, blue wool: an ominous vault, facing a random side;</li>
  * <li>red glass: a skeleton skull on the floor 5% of the time, yellow glass: 2% of the time, air otherwise.</li>
@@ -35,6 +36,7 @@ public final class CryptMarkers implements StructureProcessor {
 	// Vanilla trial chamber spawners until the crypt gets its own mobs.
 	private static final String MELEE = "minecraft:trial_chamber/melee/zombie/";
 	private static final String RANGED = "minecraft:trial_chamber/ranged/skeleton/";
+	private static final String POISON = "minecraft:trial_chamber/ranged/poison_skeleton/";
 
 	private CryptMarkers() {
 	}
@@ -45,6 +47,7 @@ public final class CryptMarkers implements StructureProcessor {
 		BlockState state = info.state();
 		if (state.is(Blocks.WOOL.red())) return spawner(info, MELEE);
 		if (state.is(Blocks.WOOL.yellow())) return spawner(info, RANGED);
+		if (state.is(Blocks.WOOL.green())) return spawner(info, POISON);
 		if (state.is(Blocks.BAMBOO_STAIRS)) return chest(info, CryptModule.TIER_1_CHEST);
 		if (state.is(Blocks.CHERRY_STAIRS)) return chest(info, CryptModule.TIER_2_CHEST);
 		if (state.is(Blocks.WOOL.lightBlue())) return vault(info, false, settings.getRandom(info.pos()));
