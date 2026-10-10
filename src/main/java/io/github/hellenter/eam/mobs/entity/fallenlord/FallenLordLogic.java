@@ -190,7 +190,7 @@ public final class FallenLordLogic {
 			if (ready(Attack.BACKSTAB, cooldowns) && s.canSee() && d >= BACKSTAB_MIN && d <= BACKSTAB_MAX) {
 				list.add(new Candidate(Attack.BACKSTAB, s.targetBlocking() ? settings.backstab().blockingBonus() : 1.0));
 			}
-			if (ready(Attack.HEAVY, cooldowns) && s.canSee() && d <= SWORD_REACH + settings.heavyStrike().extraReach()) {
+			if (ready(Attack.HEAVY, cooldowns) && s.canSee() && d <= settings.heavyStrike().startRange()) {
 				list.add(new Candidate(Attack.HEAVY, 1.0));
 			}
 		}
@@ -275,6 +275,21 @@ public final class FallenLordLogic {
 			case BACKSTAB -> settings.backstab().cooldown();
 			case HEAVY -> settings.heavyStrike().cooldown();
 		};
+	}
+
+	/**
+	 * Whether a body {@code radius} wide at ({@code dx}, {@code dz}) from him is inside the heavy strike's wedge: from
+	 * {@code nearWidth} wide at his body to {@code farWidth} at {@code reach} along {@code (fx, fz)}, a unit vector.
+	 */
+	public static boolean inHeavyWedge(double fx, double fz, double dx, double dz, double radius, FallenLordSettings.HeavyStrike heavy, double reach) {
+		double along = dx * fx + dz * fz;
+		if (along < -radius || along > reach + radius) {
+			return false;
+		}
+		double side = Math.abs(dx * fz - dz * fx);
+		double share = Math.clamp(along / reach, 0.0, 1.0);
+		double halfWidth = (heavy.nearWidth() + (heavy.farWidth() - heavy.nearWidth()) * share) / 2.0;
+		return side <= halfWidth + radius;
 	}
 
 	/**

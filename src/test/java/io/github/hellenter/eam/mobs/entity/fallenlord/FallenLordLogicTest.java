@@ -265,10 +265,24 @@ class FallenLordLogicTest {
 
 	@Test
 	void heavyStrikeOnlyWithinItsReach() {
-		double reach = FallenLordLogic.SWORD_REACH + SETTINGS.heavyStrike().extraReach();
+		double reach = SETTINGS.heavyStrike().startRange();
 		assertTrue(histogram(2, new Situation(reach, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
 		assertFalse(histogram(2, new Situation(reach + 0.1, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
 		assertFalse(histogram(1, new Situation(2.0, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
+	}
+
+	@Test
+	void heavyWedgeWidensTowardsItsEnd() {
+		var heavy = SETTINGS.heavyStrike();
+		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach();
+		// Facing +Z. Straight ahead at the very end of the reach: hit; a step back past it: missed.
+		assertTrue(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, reach, 0.3, heavy, reach));
+		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, reach + 0.5, 0.3, heavy, reach));
+		// 1.2 to the side: missed close to him, hit far out where the wedge is wide.
+		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 1.2, 1.0, 0.3, heavy, reach));
+		assertTrue(FallenLordLogic.inHeavyWedge(0.0, 1.0, 1.2, reach - 0.5, 0.3, heavy, reach));
+		// Behind him: missed.
+		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, -1.0, 0.3, heavy, reach));
 	}
 
 	@Test

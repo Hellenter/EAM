@@ -111,6 +111,8 @@ public class FallenLord extends Monster {
 
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
+	/** The heavy strike's creep and step stop with the player this close. */
+	private static final double HEAVY_CREEP_MIN = 1.5;
 	private static final double DASH_SPEED = 0.9;
 	private static final double SWORD_DASH_SPEED = 1.0;
 	/** A blocked sword dash still pushes the player back a block, as a hit does. */
@@ -165,6 +167,8 @@ public class FallenLord extends Monster {
 	private @Nullable LivingEntity actionTarget;
 	private Vec3 dashTarget = Vec3.ZERO;
 	private Vec3 rushDirection = Vec3.ZERO;
+	/** The way the heavy strike falls, fixed once he stops turning after the player. */
+	private Vec3 heavyDirection = Vec3.ZERO;
 	private boolean actionHit;
 	/** Everyone the current spear dash has struck: each is hit once. */
 	private final Set<UUID> dashHits = new HashSet<>();
@@ -862,7 +866,7 @@ public class FallenLord extends Monster {
 			return;
 		}
 		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL
-				&& action != FallenLordAction.HEAVY_STRIKE) {
+				&& action != FallenLordAction.HEAVY_STRIKE && !(action == FallenLordAction.HEAVY_WINDUP && t >= heavyLockTick())) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -1033,6 +1037,7 @@ public class FallenLord extends Monster {
 			}
 			case BACKSTAB -> tickBackstab(level, t, target);
 			case HEAVY_WINDUP -> {
+				tickHeavyWindup(t, target);
 				if (t == 0) {
 					// The same cue as the spear dash: get out of reach.
 					playSound(EamSounds.FALLEN_LORD_DASH_WARNING, 2.0F, 1.0F);
@@ -1047,6 +1052,7 @@ public class FallenLord extends Monster {
 				}
 			}
 			case HEAVY_STRIKE -> {
+				tickHeavyStep(t, target);
 				if (t == FallenLordAction.HEAVY_HIT && target != null && heavyStrike(level, target)) {
 					return;
 				}
@@ -1213,6 +1219,48 @@ public class FallenLord extends Monster {
 		}
 	}
 
+	/** The windup tick from which he no longer turns after the player. */
+	private int heavyLockTick() {
+		return FallenLordAction.HEAVY_WINDUP.length() + FallenLordAction.HEAVY_HIT - settings().heavyStrike().lockTicks();
+	}
+
+	/** Creeps in while the blade rises, then stands still with the strike's direction fixed. */
+	private void tickHeavyWindup(int t, @Nullable LivingEntity target) {
+		if (t == 0) {
+			heavyDirection = Vec3.ZERO;
+		}
+		if (t < heavyLockTick()) {
+			if (target != null && horizontalDistanceTo(target) > HEAVY_CREEP_MIN) {
+				Vec3 to = horizontal(target.position().subtract(position())).scale(settings().heavyStrike().creepSpeed());
+				setDeltaMovement(to.x, getDeltaMovement().y, to.z);
+			}
+			return;
+		}
+		lockHeavyDirection();
+		setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+	}
+
+	/** Steps forward with the cut, along the fixed direction, unless the player is already at his chest. */
+	private void tickHeavyStep(int t, @Nullable LivingEntity target) {
+		lockHeavyDirection();
+		boolean close = target != null && target.position().subtract(position()).dot(heavyDirection) < HEAVY_CREEP_MIN;
+		if (t < FallenLordAction.HEAVY_HIT && !close && !horizontalCollision) {
+			Vec3 step = heavyDirection.scale(settings().heavyStrike().stepSpeed());
+			setDeltaMovement(step.x, getDeltaMovement().y, step.z);
+		} else {
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+		}
+	}
+
+	private void lockHeavyDirection() {
+		if (heavyDirection == Vec3.ZERO) {
+			heavyDirection = Vec3.directionFromRotation(0.0F, getYRot());
+		}
+		float yaw = getYRot();
+		setYBodyRot(yaw);
+		setYHeadRot(yaw);
+	}
+
 	/**
 	 * The overhead cut after the red-bladed windup. A shield takes only part of it and is knocked out. True when it
 	 * landed and he went on into the combo.
@@ -1220,8 +1268,10 @@ public class FallenLord extends Monster {
 	private boolean heavyStrike(ServerLevel level, LivingEntity target) {
 		FallenLordSettings.HeavyStrike heavy = settings().heavyStrike();
 		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
-		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach() + REACH_SLACK;
-		if (horizontalDistanceTo(target) > reach || Math.abs(target.getY() - getY()) >= 2.5 || !inFront(target, 0.3) || !hasLineOfSight(target)) {
+		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach();
+		boolean inWedge = FallenLordLogic.inHeavyWedge(heavyDirection.x, heavyDirection.z, target.getX() - getX(), target.getZ() - getZ(),
+				target.getBbWidth() / 2.0, heavy, reach);
+		if (!inWedge || Math.abs(target.getY() - getY()) >= 2.5 || !hasLineOfSight(target)) {
 			return false;
 		}
 		float damage = settings().phaseTwo().slashDamage() * heavy.damageMultiplier();

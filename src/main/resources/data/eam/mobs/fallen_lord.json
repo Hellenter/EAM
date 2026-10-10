@@ -106,10 +106,16 @@
   },
   "heavy_strike": {
     "damage_multiplier": 2.0,
-    "extra_reach": 0.5,
+    "extra_reach": 2.0,
     "blocked_share": 0.5,
     "shield_seconds": 5.0,
-    "cooldown": 220
+    "cooldown": 220,
+    "start_range": 4.0,
+    "lock_ticks": 8,
+    "near_width": 1.0,
+    "far_width": 3.0,
+    "creep_speed": 0.1,
+    "step_speed": 0.35
   },
   "undead": {
     "radius": 10.0,

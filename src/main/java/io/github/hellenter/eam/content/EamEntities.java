@@ -24,10 +24,11 @@ public final class EamEntities {
 					.clientTrackingRange(4)
 					.updateInterval(10));
 
-	/** Crypt boss: a skeleton as tall as a wither skeleton. */
+	/** Crypt boss: a skeleton as tall as a wither skeleton. Fire and lava do not hurt him. */
 	public static final EntityType<FallenLord> FALLEN_LORD = register("fallen_lord",
 			EntityType.Builder.of(FallenLord::new, MobCategory.MONSTER)
 					.noLootTable()
+					.fireImmune()
 					.sized(0.7F, 2.4F)
 					.eyeHeight(2.1F)
 					.clientTrackingRange(10));
