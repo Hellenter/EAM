@@ -17,6 +17,6 @@
   ],
   "spawn_range": 7,
   "ticks_between_spawn": 60,
-  "total_mobs": 3.0,
+  "total_mobs": 2.0,
   "total_mobs_added_per_player": 0.0
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightLogic.Attack;
+import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightLogic.Reach;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,15 @@ class SkeletonKnightLogicTest {
 	void cooldownsBlockSpecials() {
 		assertEquals(Attack.SLASH, SkeletonKnightLogic.choose(2.0, true, 10, 10, S, 0.0, 0.0));
 		assertEquals(Attack.COMBO, SkeletonKnightLogic.choose(2.0, true, 0, 10, S, 0.0, 0.0));
+	}
+
+	@Test
+	void dashOnlyWhenOutOfReachReadyAndClose() {
+		SkeletonKnightSettings.Dash dash = S.dash();
+		assertEquals(Reach.HITS, SkeletonKnightLogic.reach(2.5, 2.7, 50, dash));
+		assertEquals(Reach.DASH, SkeletonKnightLogic.reach(4.0, 2.7, 0, dash));
+		assertEquals(Reach.MISSES, SkeletonKnightLogic.reach(4.0, 2.7, 1, dash));
+		assertEquals(Reach.MISSES, SkeletonKnightLogic.reach(2.7 + dash.range() + 0.1, 2.7, 0, dash));
 	}
 
 	@Test

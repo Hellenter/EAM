@@ -57,10 +57,10 @@ public class EamCryptSpawnerProvider extends FabricDynamicRegistryProvider {
 		register(context, CryptSpawners.ARCHER,
 				skeletons().spawnPotentialsDefinition(spawn(EntityTypes.SKELETON, ancientArrows, CryptSpawners.ARCHER.gear())),
 				skeletons().spawnPotentialsDefinition(spawn(EntityTypes.SKELETON, ancientArrows, CryptSpawners.ARCHER.ominousGear())));
-		// Only a few knights: 3 per spawner, 5 when ominous, however many players come.
+		// Only a few knights: 2 per spawner, 3 when ominous, however many players come.
 		register(context, CryptSpawners.KNIGHT,
-				knights(3.0F, 1.0F).spawnPotentialsDefinition(spawn(EamEntities.SKELETON_KNIGHT, tag -> {}, CryptSpawners.KNIGHT.gear())),
-				knights(5.0F, 2.0F).spawnPotentialsDefinition(spawn(EamEntities.SKELETON_KNIGHT, tag -> {}, CryptSpawners.KNIGHT.ominousGear())));
+				knights(2.0F, 1.0F).spawnPotentialsDefinition(spawn(EamEntities.SKELETON_KNIGHT, tag -> {}, CryptSpawners.KNIGHT.gear())),
+				knights(3.0F, 2.0F).spawnPotentialsDefinition(spawn(EamEntities.SKELETON_KNIGHT, tag -> {}, CryptSpawners.KNIGHT.ominousGear())));
 	}
 
 	/** Like vanilla trial chamber skeletons: 6 (+2 per extra player), 3 at once. */

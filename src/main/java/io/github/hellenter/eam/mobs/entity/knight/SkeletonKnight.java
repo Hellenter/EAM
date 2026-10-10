@@ -56,6 +56,8 @@ public class SkeletonKnight extends AbstractSkeleton {
 			EntityDataSerializers.BOOLEAN);
 	/** Hits further than this flat distance past {@link SkeletonKnightSettings#reach()} still land, for a moving target. */
 	private static final double REACH_SLACK = 0.3;
+	/** A dash stops this much short of the hit's reach, so the cut lands even if the target keeps backing off. */
+	private static final double DASH_STOP_SHORT = 1.0;
 
 	private KnightAction action = KnightAction.NONE;
 	private int actionTicks;
@@ -64,6 +66,12 @@ public class SkeletonKnight extends AbstractSkeleton {
 	private int comboCooldown;
 	private int heavyCooldown;
 	private int shieldDisabledTicks;
+	private int dashCooldown;
+	private int dashTicks;
+	/** Whether he has already decided how to reach the coming hit. */
+	private boolean hitChecked;
+	/** The combo ends after the coming cut: it will miss and the dash is not ready. */
+	private boolean comboStops;
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
 	/** Client: how far the shield is raised into the guard, 0 to 1, now and a tick ago. */
@@ -207,6 +215,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 		if (comboCooldown > 0) comboCooldown--;
 		if (heavyCooldown > 0) heavyCooldown--;
 		if (shieldDisabledTicks > 0) shieldDisabledTicks--;
+		if (dashCooldown > 0) dashCooldown--;
 		entityData.set(DATA_SHIELD_KNOCKED, shieldDisabledTicks > 0);
 		if (action == KnightAction.NONE) {
 			idleTicks++;
@@ -230,6 +239,8 @@ public class SkeletonKnight extends AbstractSkeleton {
 
 	void startAttack(Attack attack, LivingEntity target) {
 		actionTarget = target;
+		hitChecked = false;
+		comboStops = false;
 		SkeletonKnightSettings settings = settings();
 		switch (attack) {
 			case SLASH -> setAction(KnightAction.SLASH);
@@ -257,6 +268,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 		setAction(KnightAction.NONE);
 		actionTarget = null;
 		idleTicks = 0;
+		dashTicks = 0;
 	}
 
 	private void tickAction(ServerLevel level) {
@@ -278,11 +290,13 @@ public class SkeletonKnight extends AbstractSkeleton {
 		getLookControl().setLookAt(target, 30.0F, 30.0F);
 		faceTowards(target);
 		SkeletonKnightSettings settings = settings();
+		closeGap(t, target, settings);
 		switch (action) {
 			case SLASH -> {
 				if (t == KnightAction.SLASH_HIT) {
 					playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.9F);
 					hitIfInReach(level, target, settings.reach(), 1.0F, 0.0F);
+					hitDone();
 				}
 			}
 			case COMBO -> tickCombo(level, t, target, settings);
@@ -310,6 +324,13 @@ public class SkeletonKnight extends AbstractSkeleton {
 				// The cuts come faster than the usual half-second of hurt immunity; each one must land.
 				target.damageCooldownTime = 0;
 				hitIfInReach(level, target, settings.reach() + 0.3, settings.comboHitMultiplier(), 0.0F);
+				boolean stops = comboStops;
+				hitDone();
+				if (stops) {
+					// The target got away and there is no dash left to follow: no more cuts into the air.
+					endAction();
+					return;
+				}
 			}
 		}
 		if (t == KnightAction.COMBO_KICK) {
@@ -327,6 +348,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 	private void heavyStrike(ServerLevel level, LivingEntity target, SkeletonKnightSettings settings) {
 		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.2F, 0.6F);
 		double reach = settings.reach() + settings.heavyExtraReach();
+		hitDone();
 		if (!inReach(target, reach)) {
 			return;
 		}
@@ -339,6 +361,79 @@ public class SkeletonKnight extends AbstractSkeleton {
 			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
 		}
 		hit(level, target, multiplier, 0.6F);
+	}
+
+	// ---- Dash ----
+
+	/**
+	 * A few ticks before each hit he checks where the target will be. Out of reach, he dashes at it if the dash is ready;
+	 * otherwise the hit goes into the air, and a combo ends after that cut.
+	 */
+	private void closeGap(int t, LivingEntity target, SkeletonKnightSettings settings) {
+		SkeletonKnightSettings.Dash dash = settings.dash();
+		if (dashTicks > 0) {
+			dashTicks--;
+			Vec3 to = horizontal(target.position().subtract(position()));
+			if (horizontalDistanceTo(target) > Math.max(1.2, hitReach(settings) - DASH_STOP_SHORT)) {
+				setDeltaMovement(to.x * dash.speed(), getDeltaMovement().y, to.z * dash.speed());
+			} else {
+				dashTicks = 0;
+			}
+			return;
+		}
+		int toHit = ticksToHit(t);
+		if (hitChecked || toHit < 0 || toHit > dash.ticks()) {
+			return;
+		}
+		hitChecked = true;
+		// Where the target will be on the hit tick if it keeps moving the way it moved this tick.
+		Vec3 motion = target.position().subtract(target.xo, target.yo, target.zo);
+		double step = Math.min(motion.horizontalDistance(), 0.6);
+		Vec3 flat = horizontal(motion);
+		double dx = target.getX() + flat.x * step * toHit - getX();
+		double dz = target.getZ() + flat.z * step * toHit - getZ();
+		switch (SkeletonKnightLogic.reach(Math.sqrt(dx * dx + dz * dz), hitReach(settings), dashCooldown, dash)) {
+			case DASH -> {
+				dashTicks = dash.ticks();
+				dashCooldown = dash.cooldown();
+				playSound(SoundEvents.SKELETON_STEP, 1.5F, 0.6F);
+			}
+			case MISSES -> comboStops = action == KnightAction.COMBO;
+			case HITS -> {
+			}
+		}
+	}
+
+	/** Called on each hit tick: the next hit is checked afresh. */
+	private void hitDone() {
+		hitChecked = false;
+		comboStops = false;
+		dashTicks = 0;
+	}
+
+	/** Ticks from tick {@code t} of the current action to its next hit, or -1 when no hit is left. */
+	private int ticksToHit(int t) {
+		return switch (action) {
+			case SLASH -> t <= KnightAction.SLASH_HIT ? KnightAction.SLASH_HIT - t : -1;
+			case COMBO -> {
+				for (int hit : KnightAction.COMBO_HITS) {
+					if (hit >= t) yield hit - t;
+				}
+				yield -1;
+			}
+			case HEAVY_WINDUP -> action.length() - t + KnightAction.HEAVY_HIT;
+			case HEAVY_STRIKE -> t <= KnightAction.HEAVY_HIT ? KnightAction.HEAVY_HIT - t : -1;
+			default -> -1;
+		};
+	}
+
+	/** The reach of the current action's hits. */
+	private double hitReach(SkeletonKnightSettings settings) {
+		return switch (action) {
+			case COMBO -> settings.reach() + 0.3;
+			case HEAVY_WINDUP, HEAVY_STRIKE -> settings.reach() + settings.heavyExtraReach();
+			default -> settings.reach();
+		};
 	}
 
 	private void hitIfInReach(ServerLevel level, LivingEntity target, double reach, float multiplier, float knockback) {

@@ -13,6 +13,16 @@ public final class SkeletonKnightLogic {
 		HEAVY
 	}
 
+	/** What he does about a hit that is about to come. */
+	public enum Reach {
+		/** The target will be in reach. */
+		HITS,
+		/** The target will be out of reach, but a dash closes the gap. */
+		DASH,
+		/** The target will be out of reach and the dash is cooling down or too short. */
+		MISSES
+	}
+
 	private SkeletonKnightLogic() {
 	}
 
@@ -35,6 +45,20 @@ public final class SkeletonKnightLogic {
 			return Attack.COMBO;
 		}
 		return Attack.SLASH;
+	}
+
+	/**
+	 * Whether a hit lands, needs a dash, or misses.
+	 *
+	 * @param predictedDistance flat distance to where the target will be on the hit tick
+	 * @param reach             the reach of that hit
+	 * @param dashCooldown      ticks left before he can dash again
+	 */
+	public static Reach reach(double predictedDistance, double reach, int dashCooldown, SkeletonKnightSettings.Dash dash) {
+		if (predictedDistance <= reach) {
+			return Reach.HITS;
+		}
+		return dashCooldown <= 0 && predictedDistance <= reach + dash.range() ? Reach.DASH : Reach.MISSES;
 	}
 
 	/** Ticks his shield stays down after an axe that disables a player's shield for {@code seconds}. */

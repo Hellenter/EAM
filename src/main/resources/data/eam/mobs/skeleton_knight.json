@@ -13,5 +13,10 @@
   "heavy_extra_reach": 0.5,
   "heavy_blocked_share": 0.5,
   "heavy_shield_seconds": 5.0,
-  "backstep": 0.55
+  "backstep": 0.55,
+  "dash": {
+    "cooldown": 200,
+    "ticks": 4,
+    "speed": 0.9
+  }
 }

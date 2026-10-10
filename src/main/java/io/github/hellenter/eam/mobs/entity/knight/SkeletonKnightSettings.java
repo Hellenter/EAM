@@ -23,15 +23,38 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param heavyBlockedShare      share of the heavy strike that goes through a shield
  * @param heavyShieldSeconds     a shield hit by the heavy strike is knocked out for this long
  * @param backstep               speed of his hop back after a combo
+ * @param dash                   his short dash at a target stepping out of reach just before a hit
  */
 public record SkeletonKnightSettings(int attackPause, double reach, double shieldRange, float shieldDisableMultiplier,
 		double comboChance, int comboCooldown, float comboHitMultiplier, double heavyChance, double heavyChanceVsShield,
 		int heavyCooldown, float heavyDamageMultiplier, double heavyExtraReach, float heavyBlockedShare, float heavyShieldSeconds,
-		double backstep) {
+		double backstep, Dash dash) {
 	public static final SkeletonKnightSettings DEFAULT = new SkeletonKnightSettings(14, 2.7, 10.0, 1.0F,
 			0.4, 90, 0.6F, 0.25, 0.7,
 			140, 1.8F, 0.5, 0.5F, 5.0F,
-			0.55);
+			0.55, Dash.DEFAULT);
+
+	/**
+	 * A few fast steps at the target, started {@code ticks} before a hit when the target would be out of reach by then.
+	 *
+	 * @param cooldown ticks before the next dash
+	 * @param ticks    how many ticks the dash lasts; it is started this long before the hit
+	 * @param speed    blocks per tick, so the dash covers at most {@code ticks * speed}
+	 */
+	public record Dash(int cooldown, int ticks, double speed) {
+		public static final Dash DEFAULT = new Dash(200, 4, 0.9);
+
+		public static final Codec<Dash> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Dash::cooldown),
+				Codec.intRange(1, 10).fieldOf("ticks").orElse(DEFAULT.ticks).forGetter(Dash::ticks),
+				Codec.doubleRange(0.0, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Dash::speed)
+		).apply(instance, Dash::new));
+
+		/** The furthest the dash carries him. */
+		public double range() {
+			return ticks * speed;
+		}
+	}
 
 	public static final Codec<SkeletonKnightSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 200).fieldOf("attack_pause").orElse(DEFAULT.attackPause).forGetter(SkeletonKnightSettings::attackPause),
@@ -55,6 +78,7 @@ public record SkeletonKnightSettings(int attackPause, double reach, double shiel
 					.forGetter(SkeletonKnightSettings::heavyBlockedShare),
 			Codec.floatRange(0.0F, 60.0F).fieldOf("heavy_shield_seconds").orElse(DEFAULT.heavyShieldSeconds)
 					.forGetter(SkeletonKnightSettings::heavyShieldSeconds),
-			Codec.doubleRange(0.0, 2.0).fieldOf("backstep").orElse(DEFAULT.backstep).forGetter(SkeletonKnightSettings::backstep)
+			Codec.doubleRange(0.0, 2.0).fieldOf("backstep").orElse(DEFAULT.backstep).forGetter(SkeletonKnightSettings::backstep),
+			Dash.CODEC.fieldOf("dash").orElse(DEFAULT.dash).forGetter(SkeletonKnightSettings::dash)
 	).apply(instance, SkeletonKnightSettings::new));
 }
