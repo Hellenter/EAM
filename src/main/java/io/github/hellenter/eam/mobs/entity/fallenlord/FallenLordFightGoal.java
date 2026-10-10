@@ -66,6 +66,7 @@ final class FallenLordFightGoal extends Goal {
 		int phase = lord.phase();
 
 		lord.tryClimb(target);
+		lord.breakThrough(target);
 		if (lord.canLeapUp(target)) {
 			// Out of reach on a pillar or a ledge: he leaps up at them.
 			lord.getMoveControl().strafe(0.0F, 0.0F);

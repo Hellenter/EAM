@@ -63,6 +63,7 @@ import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.ValueInput;
@@ -193,6 +194,12 @@ public class FallenLord extends Monster {
 	private int climbTicks;
 	private int climbCooldown;
 	private Vec3 climbDirection = Vec3.ZERO;
+	/** Climbing a bank out of water: he rises straight up until this height, then is pushed over it. */
+	private double waterClimbTop = Double.NaN;
+	/** Ticks he has been pushing against a wall he cannot jump; past {@link #STUCK_TICKS} he breaks through it. */
+	private int stuckTicks;
+	/** His boss room: inside it he breaks every block weaker than obsidian. Null for a lord spawned elsewhere. */
+	private @Nullable BoundingBox arena;
 	/** Ticks before he can leap up at a player again. */
 	private int leapUpCooldown;
 	/** Where the current leap up sprang from. */
@@ -423,6 +430,11 @@ public class FallenLord extends Monster {
 	private static final int CLIMB_COOLDOWN = 20;
 	/** Push forward over the wall, blocks per tick. */
 	private static final double CLIMB_PUSH = 0.25;
+	/** Out of water he climbs a bank up to this high above his feet, rising this fast. */
+	private static final int WATER_CLIMB_MAX = 4;
+	private static final double WATER_CLIMB_RISE = 0.4;
+	private static final int WATER_CLIMB_TICKS = 25;
+	private static final int STUCK_TICKS = 20;
 
 	/**
 	 * A wall two or three blocks high right in front of him on his way, with room on top of it and over his head: jumps
@@ -430,7 +442,8 @@ public class FallenLord extends Monster {
 	 * the wall cuts them off.
 	 */
 	void tryClimb(LivingEntity target) {
-		if (climbCooldown > 0 || !onGround() || isBusy() || horizontalDistanceTo(target) < CLIMB_FROM) {
+		boolean swimming = isInWater();
+		if (climbCooldown > 0 || climbTicks > 0 || !onGround() && !swimming || isBusy() || horizontalDistanceTo(target) < CLIMB_FROM) {
 			return;
 		}
 		Path path = getNavigation().getPath();
@@ -439,10 +452,23 @@ public class FallenLord extends Monster {
 		if (direction == Vec3.ZERO) {
 			return;
 		}
-		int height = obstacleHeight(direction);
+		if (swimming) {
+			// In water: up the bank, however low, and out.
+			int height = obstacleHeight(direction, WATER_CLIMB_MAX);
+			if (height >= 1) {
+				climbDirection = direction;
+				climbTicks = WATER_CLIMB_TICKS;
+				climbCooldown = CLIMB_COOLDOWN;
+				waterClimbTop = Math.floor(getY() + 0.5) + height + 0.1;
+				playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.0F, 0.6F);
+			}
+			return;
+		}
+		int height = obstacleHeight(direction, CLIMB_MAX);
 		if (height < 2) {
 			return;
 		}
+		waterClimbTop = Double.NaN;
 		climbDirection = direction;
 		climbTicks = CLIMB_TICKS;
 		climbCooldown = CLIMB_COOLDOWN;
@@ -451,14 +477,14 @@ public class FallenLord extends Monster {
 	}
 
 	/** Blocks of wall right in front of him, 0 when there is none or it is too high or there is no room to jump it. */
-	private int obstacleHeight(Vec3 direction) {
+	private int obstacleHeight(Vec3 direction, int max) {
 		double ahead = getBbWidth() * 0.5 + 0.5;
 		BlockPos front = BlockPos.containing(getX() + direction.x * ahead, getY() + 0.5, getZ() + direction.z * ahead);
 		int height = 0;
-		while (height <= CLIMB_MAX && blocks(front.above(height))) {
+		while (height <= max && blocks(front.above(height))) {
 			height++;
 		}
-		if (height == 0 || height > CLIMB_MAX) {
+		if (height == 0 || height > max) {
 			return 0;
 		}
 		int tall = Mth.ceil(getBbHeight());
@@ -484,11 +510,82 @@ public class FallenLord extends Monster {
 			return;
 		}
 		climbTicks--;
-		if (onGround() && climbTicks < CLIMB_TICKS - 2 || isBusy()) {
+		if (isBusy()) {
+			climbTicks = 0;
+			waterClimbTop = Double.NaN;
+			return;
+		}
+		if (!Double.isNaN(waterClimbTop)) {
+			// Out of water: straight up along the bank, then over its edge.
+			if (getY() < waterClimbTop) {
+				setDeltaMovement(climbDirection.x * 0.05, WATER_CLIMB_RISE, climbDirection.z * 0.05);
+				resetFallDistance();
+				return;
+			}
+			waterClimbTop = Double.NaN;
+			climbTicks = Math.min(climbTicks, CLIMB_TICKS / 2);
+		} else if (onGround() && climbTicks < CLIMB_TICKS - 2) {
 			climbTicks = 0;
 			return;
 		}
 		setDeltaMovement(climbDirection.x * CLIMB_PUSH, getDeltaMovement().y, climbDirection.z * CLIMB_PUSH);
+	}
+
+	/**
+	 * Pushing against a wall he can neither jump nor climb: after a moment he breaks the blocks in his way that he may
+	 * break. The floor he stands on stays.
+	 */
+	void breakThrough(LivingEntity target) {
+		if (!horizontalCollision || isBusy() || climbTicks > 0 || horizontalDistanceTo(target) <= FallenLordLogic.SWORD_REACH
+				|| !(level() instanceof ServerLevel level) || !level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+			stuckTicks = 0;
+			return;
+		}
+		if (++stuckTicks < STUCK_TICKS) {
+			return;
+		}
+		stuckTicks = 0;
+		Path path = getNavigation().getPath();
+		Vec3 goal = path != null && !path.isDone() ? Vec3.atBottomCenterOf(path.getNextNodePos()) : target.position();
+		Vec3 direction = horizontal(goal.subtract(position()));
+		if (direction == Vec3.ZERO) {
+			return;
+		}
+		// Shrunk a little so a wall he only brushes along his side is not taken.
+		AABB box = getBoundingBox().deflate(0.05, 0.0, 0.05);
+		AABB ahead = new AABB(box.minX, box.minY + 0.1, box.minZ, box.maxX, box.maxY, box.maxZ)
+				.expandTowards(direction.x * 0.8, 0.0, direction.z * 0.8);
+		smashWithin(level, ahead);
+	}
+
+	/** His boss room, where he breaks every block weaker than obsidian; null outside a crypt. */
+	public @Nullable BoundingBox getArena() {
+		return arena;
+	}
+
+	/** Sets his boss room; the crypt sets it when he rises from his sarcophagus. */
+	public void setArena(@Nullable BoundingBox arena) {
+		this.arena = arena;
+	}
+
+	/** Whether his dashes and break-throughs take this block: the smash tag anywhere, anything weaker than obsidian in his room. */
+	private boolean canSmash(ServerLevel level, BlockPos pos, BlockState state) {
+		if (state.getCollisionShape(level, pos).isEmpty()) {
+			return false;
+		}
+		if (state.is(FallenLordModule.DASH_SMASHES)) {
+			return true;
+		}
+		return arena != null && arena.isInside(pos) && FallenLordLogic.breakableInArena(state.getDestroySpeed(level, pos));
+	}
+
+	private void smashWithin(ServerLevel level, AABB area) {
+		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ),
+				BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
+			if (canSmash(level, pos, level.getBlockState(pos))) {
+				level.destroyBlock(pos, true, this);
+			}
+		}
 	}
 
 	void startLeapUp(LivingEntity target) {
@@ -1137,7 +1234,7 @@ public class FallenLord extends Monster {
 	}
 
 	/**
-	 * A dash smashes weak blocks (tag {@link FallenLordModule#DASH_SMASHES}) in his way before he reaches them, so it is
+	 * A dash smashes weak blocks (tag {@link FallenLordModule#DASH_SMASHES}, or anything weaker than obsidian in his room) in his way before he reaches them, so it is
 	 * not stopped by them. The floor he runs on stays.
 	 */
 	private void smashAhead(ServerLevel level, double speed) {
@@ -1147,12 +1244,7 @@ public class FallenLord extends Monster {
 		AABB box = getBoundingBox();
 		AABB ahead = new AABB(box.minX, box.minY + 0.1, box.minZ, box.maxX, box.maxY, box.maxZ)
 				.expandTowards(rushDirection.x * (speed + 0.5), 0.0, rushDirection.z * (speed + 0.5));
-		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(ahead.minX, ahead.minY, ahead.minZ),
-				BlockPos.containing(ahead.maxX, ahead.maxY, ahead.maxZ))) {
-			if (level.getBlockState(pos).is(FallenLordModule.DASH_SMASHES)) {
-				level.destroyBlock(pos, true, this);
-			}
-		}
+		smashWithin(level, ahead);
 	}
 
 	/** One tick of the sword dash; true when it has handed over to another action. */
@@ -1790,6 +1882,7 @@ public class FallenLord extends Monster {
 		output.putInt("ShieldDisabled", shieldDisabledTicks);
 		output.putInt("Drinks", drinksThisPhase);
 		output.putInt("DrinkCooldown", drinkCooldown);
+		output.storeNullable("Arena", BoundingBox.CODEC, arena);
 	}
 
 	@Override
@@ -1798,6 +1891,7 @@ public class FallenLord extends Monster {
 		int phase = Mth.clamp(input.getByteOr("Phase", (byte) 1), 1, 2);
 		entityData.set(DATA_PHASE, (byte) phase);
 		shieldDisabledTicks = input.getIntOr("ShieldDisabled", 0);
+		arena = input.read("Arena", BoundingBox.CODEC).orElse(null);
 		drinksThisPhase = input.getIntOr("Drinks", 0);
 		drinkCooldown = input.getIntOr("DrinkCooldown", 0);
 		applyBaseStats(phase);
