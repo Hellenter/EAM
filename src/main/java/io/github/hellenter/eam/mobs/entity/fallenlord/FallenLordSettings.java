@@ -26,13 +26,14 @@ import java.util.List;
  * @param backstab           the phase two dash behind the player
  * @param heavyStrike        the phase two overhead strike with the red blade
  * @param undead             how he deals with undead that come close
+ * @param death              the experience burst when he dies
  */
 public record FallenLordSettings(int armor, double physicalResistance, double repeatPenalty, PhaseOne phaseOne, PhaseTwo phaseTwo,
 		SwordDash swordDash, Regen regen, Burst burst, ShieldBreak shieldBreak, PlayerScaling players, Movement movement,
-		Backstab backstab, HeavyStrike heavyStrike, Undead undead) {
+		Backstab backstab, HeavyStrike heavyStrike, Undead undead, Death death) {
 	public static final FallenLordSettings DEFAULT = new FallenLordSettings(0, 0.25, 0.25, PhaseOne.DEFAULT, PhaseTwo.DEFAULT,
 			SwordDash.DEFAULT, Regen.DEFAULT, Burst.DEFAULT, ShieldBreak.DEFAULT, PlayerScaling.DEFAULT, Movement.DEFAULT,
-			Backstab.DEFAULT, HeavyStrike.DEFAULT, Undead.DEFAULT);
+			Backstab.DEFAULT, HeavyStrike.DEFAULT, Undead.DEFAULT, Death.DEFAULT);
 
 	public static final Codec<FallenLordSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 30).fieldOf("armor").orElse(DEFAULT.armor).forGetter(FallenLordSettings::armor),
@@ -49,7 +50,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 			Movement.CODEC.fieldOf("movement").orElse(Movement.DEFAULT).forGetter(FallenLordSettings::movement),
 			Backstab.CODEC.fieldOf("backstab").orElse(Backstab.DEFAULT).forGetter(FallenLordSettings::backstab),
 			HeavyStrike.CODEC.fieldOf("heavy_strike").orElse(HeavyStrike.DEFAULT).forGetter(FallenLordSettings::heavyStrike),
-			Undead.CODEC.fieldOf("undead").orElse(Undead.DEFAULT).forGetter(FallenLordSettings::undead)
+			Undead.CODEC.fieldOf("undead").orElse(Undead.DEFAULT).forGetter(FallenLordSettings::undead),
+			Death.CODEC.fieldOf("death").orElse(Death.DEFAULT).forGetter(FallenLordSettings::death)
 	).apply(instance, FallenLordSettings::new));
 
 	private static Codec<Float> damage() {
@@ -351,5 +353,29 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.floatRange(0.0F, 100.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(Undead::damageMultiplier),
 				Codec.BOOL.fieldOf("free_abilities").orElse(DEFAULT.freeAbilities).forGetter(Undead::freeAbilities)
 		).apply(instance, Undead::new));
+	}
+
+	/**
+	 * When he dies, experience bursts from his chest in two spheres: a share of the orbs lands close, the rest further
+	 * out. The amount grows with the players around him (counted as for {@link PlayerScaling}).
+	 *
+	 * @param xp          experience for one player
+	 * @param xpPerPlayer extra experience for each more player
+	 * @param maxPlayers  players beyond this many add nothing
+	 * @param innerShare  share of the orbs in the inner sphere
+	 * @param innerRadius radius of the inner sphere, blocks
+	 * @param outerRadius radius of the outer sphere, blocks
+	 */
+	public record Death(int xp, int xpPerPlayer, int maxPlayers, double innerShare, double innerRadius, double outerRadius) {
+		public static final Death DEFAULT = new Death(400, 150, 4, 0.3, 1.0, 3.0);
+
+		public static final Codec<Death> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 100000).fieldOf("xp").orElse(DEFAULT.xp).forGetter(Death::xp),
+				Codec.intRange(0, 100000).fieldOf("xp_per_player").orElse(DEFAULT.xpPerPlayer).forGetter(Death::xpPerPlayer),
+				Codec.intRange(1, 100).fieldOf("max_players").orElse(DEFAULT.maxPlayers).forGetter(Death::maxPlayers),
+				Codec.doubleRange(0.0, 1.0).fieldOf("inner_share").orElse(DEFAULT.innerShare).forGetter(Death::innerShare),
+				Codec.doubleRange(0.0, 16.0).fieldOf("inner_radius").orElse(DEFAULT.innerRadius).forGetter(Death::innerRadius),
+				Codec.doubleRange(0.0, 16.0).fieldOf("outer_radius").orElse(DEFAULT.outerRadius).forGetter(Death::outerRadius)
+		).apply(instance, Death::new));
 	}
 }

@@ -76,12 +76,35 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 			itemModelResolver.updateForLiving(state.rightHandItemState, glowingSword, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
 			state.rightHandItemStack = glowingSword;
 		}
+		if (state.deathTime > 0.0F) {
+			// His own death, not the vanilla roll onto the side in red.
+			state.dying = state.deathTime;
+			state.deathTime = 0.0F;
+			state.hasRedOverlay = false;
+			state.action = FallenLordAction.NONE;
+			state.eyeFrame = -1;
+			state.guard = 0.0F;
+			state.walkAnimationSpeed = 0.0F;
+		} else {
+			state.dying = -1.0F;
+		}
 		if (state.action == FallenLordAction.WHIRL) {
 			// One full turn of the whole body.
 			float p = Mth.clamp((state.actionTime - 2.0F) / 10.0F, 0.0F, 1.0F);
 			state.bodyRot += 360.0F * p * p * (3.0F - 2.0F * p);
 			state.yRot = 0.0F;
 		}
+	}
+
+	/** The skull and ribs go grey as they burn to ash. */
+	@Override
+	protected int getModelTint(FallenLordRenderState state) {
+		if (state.dying < 0.0F) {
+			return super.getModelTint(state);
+		}
+		float ash = Mth.clamp((state.dying - FallenLord.ASH_START) / (FallenLord.ASH_END - FallenLord.ASH_START), 0.0F, 1.0F);
+		int grey = (int) Mth.lerp(ash, 255.0F, 120.0F);
+		return 0xFF000000 | grey << 16 | grey << 8 | grey;
 	}
 
 	private static boolean bladeGlows(FallenLordRenderState state) {

@@ -282,4 +282,24 @@ class FallenLordLogicTest {
 		// On their right he passes the west side.
 		assertTrue(FallenLordLogic.backstabPath(0.0F, -3.0, 1.0)[0] < -1.9);
 	}
+
+	@Test
+	void deathXpGrowsWithPlayersUpToFour() {
+		FallenLordSettings.Death death = SETTINGS.death();
+		assertEquals(400, FallenLordLogic.deathXp(1, death));
+		assertEquals(400, FallenLordLogic.deathXp(0, death));
+		assertEquals(550, FallenLordLogic.deathXp(2, death));
+		assertEquals(850, FallenLordLogic.deathXp(4, death));
+		assertEquals(850, FallenLordLogic.deathXp(7, death));
+	}
+
+	@Test
+	void deathOrbsShareTheXpThirtySeventy() {
+		int[] values = FallenLordLogic.orbValues(550, 40);
+		assertEquals(40, values.length);
+		assertEquals(550, java.util.Arrays.stream(values).sum());
+		assertTrue(java.util.Arrays.stream(values).max().getAsInt() - java.util.Arrays.stream(values).min().getAsInt() <= 1);
+		assertEquals(12, FallenLordLogic.innerOrbs(40, SETTINGS.death()));
+		assertEquals(3, FallenLordLogic.orbValues(3, 40).length);
+	}
 }

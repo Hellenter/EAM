@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.mobs.fallenlord;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -100,6 +101,12 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		potionAtMouth = 0.0F;
 		walk(state);
 		guard(state.guard);
+		if (state.dying >= 0.0F) {
+			death(state.dying);
+			return;
+		}
+		head.visible = true;
+		body.visible = true;
 		float t = state.actionTime;
 		switch (state.action) {
 			case POKE -> poke(t);
@@ -548,5 +555,71 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		head.xRot += 0.1F * cut * hold;
 		bendLeg(leftLeg, leftShin, hold, Mth.lerp(cut, -0.4F, -0.7F), Mth.lerp(cut, 0.35F, 0.9F));
 		bendLeg(rightLeg, rightShin, hold, Mth.lerp(cut, 0.45F, 0.5F), Mth.lerp(cut, 0.5F, 0.3F));
+	}
+
+	/**
+	 * He sinks to his knees, slumped; the skull and ribs (this base layer) burn away; then the empty armor falls in a
+	 * heap on its back, the helmet rolling off to his right. Times are those of {@link FallenLord}.
+	 */
+	private void death(float t) {
+		float kneel = seg(t, 0.0F, 10.0F);
+		body.xRot = 0.3F * kneel;
+		head.xRot = 0.5F * kneel;
+		for (ModelPart arm : new ModelPart[] {rightArm, leftArm}) {
+			arm.xRot = Mth.lerp(kneel, arm.xRot, 0.15F);
+			arm.yRot = Mth.lerp(kneel, arm.yRot, 0.0F);
+			arm.zRot = Mth.lerp(kneel, arm.zRot, 0.0F);
+		}
+		rightForearm.xRot = Mth.lerp(kneel, rightForearm.xRot, -0.15F);
+		leftForearm.xRot = Mth.lerp(kneel, leftForearm.xRot, -0.15F);
+		bendLeg(rightLeg, rightShin, kneel, -0.25F, 1.7F);
+		bendLeg(leftLeg, leftShin, kneel, -0.15F, 1.7F);
+		float sink = Math.min(footLift(rightLeg.xRot, rightShin.xRot), footLift(leftLeg.xRot, leftShin.xRot));
+		// Nothing inside the armor any more.
+		boolean burnt = t >= FallenLord.ASH_END;
+		if (getClass() == FallenLordModel.class) {
+			head.visible = !burnt;
+			body.visible = !burnt;
+		}
+
+		// The armor drops piece by piece, faster as it falls.
+		float ground = 24.0F * MODEL_SCALE;
+		float s = FallenLord.COLLAPSE_START;
+		float span = (FallenLord.COLLAPSE_END - FallenLord.COLLAPSE_START) - 6.0F;
+		float helmet = drop(t, s, span);
+		float chest = drop(t, s + 2.0F, span);
+		float arms = drop(t, s + 4.0F, span);
+		float legs = drop(t, s + 6.0F, span);
+		root().y += sink * MODEL_SCALE * (1.0F - chest);
+		// Helmet: off the neck, onto its side beside the breastplate.
+		fall(head, helmet, -10.0F, ground - 6.6F, -5.0F, 0.3F, 0.6F, -QUARTER);
+		// Breastplate flat on its back, the neck end where he knelt.
+		float lying = ground - 3.6F;
+		fall(body, chest, 0.0F, lying, 0.0F, QUARTER, 0.0F, 0.0F);
+		fall(rightArm, arms, -7.5F, lying, 2.4F, QUARTER, 0.25F, 0.0F);
+		fall(leftArm, arms, 7.5F, lying, 2.4F, QUARTER, -0.25F, 0.0F);
+		rightForearm.xRot = Mth.lerp(arms, rightForearm.xRot, -0.2F);
+		leftForearm.xRot = Mth.lerp(arms, leftForearm.xRot, 0.0F);
+		float hips = 12.0F * MODEL_SCALE;
+		fall(rightLeg, legs, -2.8F, ground - 3.0F, hips, QUARTER, 0.12F, 0.0F);
+		fall(leftLeg, legs, 2.8F, ground - 3.0F, hips, QUARTER, -0.12F, 0.0F);
+		rightShin.xRot = Mth.lerp(legs, rightShin.xRot, 0.0F);
+		leftShin.xRot = Mth.lerp(legs, leftShin.xRot, 0.0F);
+	}
+
+	/** How far a falling piece has come, 0 to 1, accelerating like a dropped object. */
+	private static float drop(float t, float start, float span) {
+		float p = Mth.clamp((t - start) / span, 0.0F, 1.0F);
+		return p * p;
+	}
+
+	/** Moves a part {@code amount} of the way to where it lies on the ground. */
+	private static void fall(ModelPart part, float amount, float x, float y, float z, float xRot, float yRot, float zRot) {
+		part.x = Mth.lerp(amount, part.x, x);
+		part.y = Mth.lerp(amount, part.y, y);
+		part.z = Mth.lerp(amount, part.z, z);
+		part.xRot = Mth.lerp(amount, part.xRot, xRot);
+		part.yRot = Mth.lerp(amount, part.yRot, yRot);
+		part.zRot = Mth.lerp(amount, part.zRot, zRot);
 	}
 }
