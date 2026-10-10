@@ -265,6 +265,8 @@ public class FallenLord extends Monster {
 
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
+	/** Client: the tick count when the parry window last opened. */
+	private int clientParryStart;
 	/** Client: how far the shield is raised into his guard, 0 to 1, now and a tick ago. */
 	private float guard;
 	private float guardO;
@@ -407,6 +409,11 @@ public class FallenLord extends Monster {
 		return entityData.get(DATA_PARRY_OPEN);
 	}
 
+	/** Client: ticks since the parry window opened, with the partial tick. */
+	public float parryTime(float partialTicks) {
+		return tickCount - clientParryStart + partialTicks;
+	}
+
 	/** Client: how far the shield hangs knocked out of the guard by an axe, 0 to 1. */
 	public float shieldKnocked(float partialTicks) {
 		return Mth.lerp(partialTicks, knockedO, knocked);
@@ -429,6 +436,9 @@ public class FallenLord extends Monster {
 		super.onSyncedDataUpdated(accessor);
 		if (DATA_ACTION_SEQ.equals(accessor)) {
 			clientActionStart = tickCount;
+		}
+		if (DATA_PARRY_OPEN.equals(accessor) && isParryOpen()) {
+			clientParryStart = tickCount;
 		}
 	}
 
@@ -999,7 +1009,7 @@ public class FallenLord extends Monster {
 			case TRANSITION -> tickTransition(level, t, target);
 			case SLASH -> {
 				if (t == 5 && target != null) {
-					hitIfInReach(level, target, FallenLordLogic.SWORD_REACH, two.slashDamage(), 0.4F);
+					hitIfInReach(level, target, FallenLordLogic.SLASH_REACH, two.slashDamage(), 0.4F);
 				}
 			}
 			case COMBO -> tickCombo(level, t, target, two);
@@ -1449,26 +1459,30 @@ public class FallenLord extends Monster {
 		if (target == null) {
 			return;
 		}
+		int gap = FallenLordLogic.COMBO_GAP;
+		int kick = FallenLordLogic.comboKick(gap);
 		if (t == 0) {
+			// Slower cuts than the animation's own action length allows: the combo runs on past it.
+			windupExtra = kick - FallenLordLogic.comboKick(6);
 			// Leap at the player.
 			Vec3 to = horizontal(target.position().subtract(position()));
 			double leap = Math.min(1.0, horizontalDistanceTo(target) * 0.16);
 			setDeltaMovement(to.x * leap, 0.35, to.z * leap);
 			playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.2F, 0.7F);
-		} else if (t > 6 && t < 30 && horizontalDistanceTo(target) > 1.8 && onGround()) {
+		} else if (t > 6 && t < kick && horizontalDistanceTo(target) > 1.8 && onGround()) {
 			// Keeps pressing in between the slashes.
 			Vec3 to = horizontal(target.position().subtract(position()));
 			setDeltaMovement(to.x * 0.2, getDeltaMovement().y, to.z * 0.2);
 		}
-		if (t == 10 || t == 16 || t == 22) {
+		if (t == FallenLordLogic.comboCut(0, gap) || t == FallenLordLogic.comboCut(1, gap) || t == FallenLordLogic.comboCut(2, gap)) {
 			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 0.8F + t * 0.01F);
 			// The hits come faster than the usual half-second of hurt immunity; each one must land.
 			target.damageCooldownTime = 0;
-			hitIfInReach(level, target, FallenLordLogic.SWORD_REACH + 0.4, two.comboHitDamage(), 0.1F);
-		} else if (t == 30) {
+			hitIfInReach(level, target, FallenLordLogic.COMBO_CUT_REACH, two.comboHitDamage(), 0.1F);
+		} else if (t == kick) {
 			playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.0F, 0.8F);
 			target.damageCooldownTime = 0;
-			hitIfInReach(level, target, FallenLordLogic.SWORD_REACH, two.comboKickDamage(), two.comboKnockback());
+			hitIfInReach(level, target, FallenLordLogic.COMBO_KICK_REACH, two.comboKickDamage(), two.comboKnockback());
 		}
 	}
 
@@ -1550,7 +1564,7 @@ public class FallenLord extends Monster {
 
 	private void throwSpear(ServerLevel level, LivingEntity target, float damage, boolean returning) {
 		float undead = isUndeadFoe(target) ? settings().undead().damageMultiplier() : 1.0F;
-		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier() * undead, returning,
+		ThrownLordSpear spear = new ThrownLordSpear(level, this, damage * damageMultiplier() * phaseDamage() * undead, returning,
 				getMainHandItem().is(EamItems.MITHRIL_SWORD));
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
@@ -1587,7 +1601,7 @@ public class FallenLord extends Monster {
 	}
 
 	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback) {
-		float scaled = damage * damageMultiplier();
+		float scaled = damage * damageMultiplier() * phaseDamage();
 		if (isUndeadFoe(target)) {
 			scaled *= settings().undead().damageMultiplier();
 		}
@@ -1671,6 +1685,11 @@ public class FallenLord extends Monster {
 	}
 
 	// ---- Players around: his strength and their shields ----
+
+	/** Phase two's share of all his damage. */
+	private float phaseDamage() {
+		return phase() == 2 ? settings().phaseTwo().damageMultiplier() : 1.0F;
+	}
 
 	/** All his damage is scaled by the number of players around him. */
 	private float damageMultiplier() {
@@ -1773,8 +1792,8 @@ public class FallenLord extends Monster {
 		parryUntil = level.getGameTime() + settings().later().parry().window();
 		entityData.set(DATA_PARRY_OPEN, true);
 		if (!alreadyOpen) {
-			level.playSound(null, defender.getX(), defender.getY(), defender.getZ(), SoundEvents.NOTE_BLOCK_BELL.value(), getSoundSource(),
-					1.5F, 1.6F);
+			level.playSound(null, defender.getX(), defender.getY(), defender.getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(),
+					1.5F, 1.0F);
 		}
 	}
 

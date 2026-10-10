@@ -35,7 +35,8 @@
     "whirl_radius": 4.0,
     "whirl_knockback": 1.0,
     "whirl_cooldown": 400,
-    "attack_pause": 6
+    "attack_pause": 6,
+    "damage_multiplier": 0.875
   },
   "sword_dash": {
     "damage": 7.0,
@@ -106,7 +107,7 @@
   },
   "heavy_strike": {
     "damage_multiplier": 2.6,
-    "extra_reach": 1.5,
+    "extra_reach": 1.17,
     "blocked_share": 0.5,
     "shield_seconds": 5.0,
     "cooldown": 183,

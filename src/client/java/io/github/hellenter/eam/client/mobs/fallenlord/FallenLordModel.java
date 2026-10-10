@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.mobs.fallenlord;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -134,7 +135,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case SWIPE -> swipe(t);
 			case TRANSITION -> transition(t);
 			case SLASH -> slash(t, 0.0F, 1.0F);
-			case COMBO -> combo(t);
+			case COMBO -> combo(t, state.comboGap);
 			case LUNGE -> lunge(t);
 			case WHIRL -> whirl(t);
 			case RETREAT -> retreat(t);
@@ -387,7 +388,9 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		bendLeg(leftLeg, leftShin, step, 0.25F, 0.3F);
 	}
 
-	private void combo(float t) {
+	/** Leap, three cuts {@code gap} ticks apart from tick 10, a kick two ticks after the next gap. */
+	private void combo(float t, int gap) {
+		float kickAt = FallenLordLogic.comboKick(gap);
 		if (t < 8.0F) {
 			// Leap with the sword raised and the knees tucked.
 			float up = seg(t, 0.0F, 3.0F);
@@ -398,22 +401,22 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			leftForearm.xRot = Mth.lerp(up, leftForearm.xRot, -0.5F);
 			bendLeg(rightLeg, rightShin, up, Mth.lerp(land, -0.8F, -0.4F), Mth.lerp(land, 1.4F, 0.7F));
 			bendLeg(leftLeg, leftShin, up, Mth.lerp(land, -0.3F, 0.2F), Mth.lerp(land, 1.2F, 0.6F));
-		} else if (t < 26.0F) {
-			// Slashes land at 10, 16 and 22, alternating sides, from a low stance.
-			int i = Mth.clamp((int) ((t - 6.0F) / 6.0F), 0, 2);
-			float hit = 10.0F + 6.0F * i;
+		} else if (t < kickAt - 4.0F) {
+			// Slashes alternating sides, from a low stance.
+			int i = Mth.clamp((int) ((t - FallenLordLogic.COMBO_FIRST + 4.0F) / gap), 0, 2);
+			float hit = FallenLordLogic.comboCut(i, gap);
 			slash(t, hit - 4.5F, i % 2 == 0 ? 1.0F : -1.0F);
 			bendLeg(rightLeg, rightShin, 0.6F, -0.4F, 0.6F);
 			bendLeg(leftLeg, leftShin, 0.6F, 0.2F, 0.5F);
 		} else {
-			// Kick at 30: knee up, the foot snaps out, back down.
-			float chamber = seg(t, 26.0F, 29.0F);
-			float extend = seg(t, 29.0F, 31.0F);
-			float retract = seg(t, 31.0F, 36.0F);
+			// The kick: knee up, the foot snaps out, back down.
+			float chamber = seg(t, kickAt - 4.0F, kickAt - 1.0F);
+			float extend = seg(t, kickAt - 1.0F, kickAt + 1.0F);
+			float retract = seg(t, kickAt + 1.0F, kickAt + 6.0F);
 			rightLeg.xRot = -1.4F * chamber * (1.0F - retract);
 			rightShin.xRot = 1.5F * chamber * (1.0F - extend) + 0.6F * Mth.sin((float) Math.PI * retract);
 			bendLeg(leftLeg, leftShin, chamber * (1.0F - retract), 0.15F, 0.35F);
-			float kick = Mth.sin((float) Math.PI * seg(t, 26.0F, 34.0F));
+			float kick = Mth.sin((float) Math.PI * seg(t, kickAt - 4.0F, kickAt + 4.0F));
 			body.xRot = -0.2F * kick;
 			rightArm.xRot = Mth.lerp(kick, rightArm.xRot, 0.4F);
 			leftArm.xRot = Mth.lerp(kick, leftArm.xRot, 0.4F);

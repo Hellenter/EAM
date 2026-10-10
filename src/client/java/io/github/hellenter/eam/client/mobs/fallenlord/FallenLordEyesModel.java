@@ -15,7 +15,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 /**
  * The red flash of his eyes before the dash: a small glint on each eye, in front of the helmet, one of {@link #FRAMES}
  * frames at a time. {@code fallen_lord_eyes.png} holds the frames 4x8 texels each, 8 texels apart; the glint's centre
- * is texel (1, 4) of its frame.
+ * is texel (1, 4) of its frame. {@code fallen_lord_parry_eyes.png} holds the yellow parry star the same way, four frames.
  */
 public class FallenLordEyesModel extends FallenLordModel {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("fallen_lord"), "eyes");
@@ -52,7 +52,7 @@ public class FallenLordEyesModel extends FallenLordModel {
 	public void setupAnim(FallenLordRenderState state) {
 		super.setupAnim(state);
 		for (int i = 0; i < FRAMES; i++) {
-			frames[i].visible = i == state.eyeFrame;
+			frames[i].visible = i == (state.parryEyeFrame >= 0 ? state.parryEyeFrame : state.eyeFrame);
 		}
 	}
 }

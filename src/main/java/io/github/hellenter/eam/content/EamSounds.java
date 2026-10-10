@@ -13,6 +13,8 @@ public final class EamSounds {
 	public static final SoundEvent FALLEN_LORD_DASH_WARNING = register("entity.fallen_lord.dash_warning");
 	/** A sharp clang over a heavy thump: a player parried the Fallen Lord. */
 	public static final SoundEvent FALLEN_LORD_PARRY = register("entity.fallen_lord.parry");
+	/** A bright double ping, like a flicked coin: the Fallen Lord can be parried now. */
+	public static final SoundEvent FALLEN_LORD_PARRY_WINDOW = register("entity.fallen_lord.parry_window");
 
 	/** The wight's rare rasping breath while it stalks unseen. */
 	public static final SoundEvent WIGHT_AMBIENT = register("entity.wight.ambient");

@@ -511,4 +511,15 @@ class FallenLordLogicTest {
 		assertFalse(FallenLordLogic.outOfReachAbove(2.0, height));
 		assertTrue(FallenLordLogic.outOfReachAbove(3.0, height));
 	}
+
+	@Test
+	void comboCutsAreSevenTicksApart() {
+		int gap = FallenLordLogic.COMBO_GAP;
+		assertEquals(10, FallenLordLogic.comboCut(0, gap));
+		assertEquals(17, FallenLordLogic.comboCut(1, gap));
+		assertEquals(24, FallenLordLogic.comboCut(2, gap));
+		assertEquals(33, FallenLordLogic.comboKick(gap));
+		// The skeleton knight keeps the old timing.
+		assertEquals(30, FallenLordLogic.comboKick(6));
+	}
 }

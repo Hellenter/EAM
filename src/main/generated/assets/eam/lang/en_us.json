@@ -387,6 +387,7 @@
   "message.eam.bucket_melted": "The bucket melted in the lava!",
   "subtitles.eam.entity.fallen_lord.dash_warning": "Fallen Lord's eyes flash",
   "subtitles.eam.entity.fallen_lord.parry": "Fallen Lord parried",
+  "subtitles.eam.entity.fallen_lord.parry_window": "Fallen Lord opens up",
   "subtitles.eam.entity.wight.ambient": "Wight rasps",
   "subtitles.eam.entity.wight.attack": "Wight hisses",
   "subtitles.eam.entity.wight.death": "Wight dies",

@@ -125,11 +125,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param whirlKnockback  how far the whirl pushes everyone
 	 * @param whirlCooldown   ticks between whirls
 	 * @param attackPause     ticks he waits after one attack before the next
+	 * @param damageMultiplier all his damage in this phase, on top of the numbers above
 	 */
 	public record PhaseTwo(float health, double speed, float slashDamage, int slashCooldown, float comboHitDamage, float comboKickDamage,
 			float comboKnockback, int comboCooldown, float lungeDamage, int lungeCooldown, float whirlMultiplier, double whirlRadius,
-			float whirlKnockback, int whirlCooldown, int attackPause) {
-		public static final PhaseTwo DEFAULT = new PhaseTwo(112.0F, 1.125, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6);
+			float whirlKnockback, int whirlCooldown, int attackPause, float damageMultiplier) {
+		public static final PhaseTwo DEFAULT = new PhaseTwo(112.0F, 1.125, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6,
+				0.875F);
 
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseTwo::health),
@@ -146,7 +148,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.doubleRange(1.0, 10.0).fieldOf("whirl_radius").orElse(DEFAULT.whirlRadius).forGetter(PhaseTwo::whirlRadius),
 				Codec.floatRange(0.0F, 5.0F).fieldOf("whirl_knockback").orElse(DEFAULT.whirlKnockback).forGetter(PhaseTwo::whirlKnockback),
 				ticks().fieldOf("whirl_cooldown").orElse(DEFAULT.whirlCooldown).forGetter(PhaseTwo::whirlCooldown),
-				ticks().fieldOf("attack_pause").orElse(DEFAULT.attackPause).forGetter(PhaseTwo::attackPause)
+				ticks().fieldOf("attack_pause").orElse(DEFAULT.attackPause).forGetter(PhaseTwo::attackPause),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(PhaseTwo::damageMultiplier)
 		).apply(instance, PhaseTwo::new));
 	}
 
@@ -339,7 +342,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
 			double extraWidth, int sweepTicks, int waves, int waveGap, int extraWindup) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.17, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),

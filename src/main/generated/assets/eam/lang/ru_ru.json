@@ -387,6 +387,7 @@
   "message.eam.bucket_melted": "Ведро расплавилось в лаве!",
   "subtitles.eam.entity.fallen_lord.dash_warning": "Глаза Павшего лорда вспыхивают",
   "subtitles.eam.entity.fallen_lord.parry": "Павший лорд парирован",
+  "subtitles.eam.entity.fallen_lord.parry_window": "Павший лорд открылся",
   "subtitles.eam.entity.wight.ambient": "Вихт хрипит",
   "subtitles.eam.entity.wight.attack": "Вихт шипит",
   "subtitles.eam.entity.wight.death": "Вихт умирает",

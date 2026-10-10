@@ -22,6 +22,13 @@ public final class FallenLordLogic {
 	public static final double THROW_MAX = 28.0;
 	/** Swipe and sword reach. */
 	public static final double SWORD_REACH = 3.2;
+	/** His plain slash and the combo's cuts and kick reach this much less than {@link #SWORD_REACH} implies. */
+	public static final double SLASH_REACH = SWORD_REACH - 0.2;
+	public static final double COMBO_CUT_REACH = SWORD_REACH + 0.2;
+	public static final double COMBO_KICK_REACH = SWORD_REACH - 0.2;
+	/** The Fallen Lord's combo: ticks between its three cuts, and the first cut's tick. The kick follows two ticks longer. */
+	public static final int COMBO_GAP = 7;
+	public static final int COMBO_FIRST = 10;
 	/** A plain cut lands only on a target at least this far ahead of him. */
 	public static final double HEAVY_FRONT = 0.3;
 	public static final double COMBO_MAX = 7.0;
@@ -673,5 +680,15 @@ public final class FallenLordLogic {
 			return rise;
 		}
 		return rise * Math.clamp(along / toPlayer, 0.0, 1.0);
+	}
+
+	/** Tick of the combo's cut {@code i} (0 to 2) with this gap between cuts. */
+	public static int comboCut(int i, int gap) {
+		return COMBO_FIRST + gap * i;
+	}
+
+	/** Tick of the combo's kick, after the last cut. */
+	public static int comboKick(int gap) {
+		return COMBO_FIRST + 3 * gap + 2;
 	}
 }

@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.component.DataComponents;
@@ -25,6 +26,9 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 	private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
 	/** The blade stops glowing this many ticks into the heavy strike, once the cut is through. */
 	private static final float GLOW_AFTER_HIT = 5.0F;
+	/** The parry star's frames in order, and how long each shows. */
+	private static final int[] PARRY_TWINKLE = {0, 1, 2, 3, 3, 2, 1};
+	private static final float PARRY_FRAME_TICKS = 1.5F;
 
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack potion;
@@ -61,6 +65,10 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 		state.shieldKnocked = entity.shieldKnocked(partialTicks);
 		boolean eyesGlow = state.action == FallenLordAction.DASH_WINDUP && state.actionTime < FallenLordAction.EYE_FLASH_TICKS;
 		state.eyeFrame = eyesGlow ? (int) (state.actionTime * FallenLordEyesModel.FRAMES / FallenLordAction.EYE_FLASH_TICKS) : -1;
+		// A yellow star twinkles in his eyes while he can be parried: it grows over the four frames and shrinks back.
+		state.parryEyeFrame = entity.isParryOpen()
+				? PARRY_TWINKLE[(int) (entity.parryTime(partialTicks) / PARRY_FRAME_TICKS) % PARRY_TWINKLE.length] : -1;
+		state.comboGap = FallenLordLogic.COMBO_GAP;
 		if (state.action == FallenLordAction.DRINK) {
 			// The weapon hand holds the regeneration potion while he drinks.
 			if (potion == null) {
@@ -93,6 +101,7 @@ public class FallenLordRenderer extends HumanoidMobRenderer<FallenLord, FallenLo
 			state.hasRedOverlay = false;
 			state.action = FallenLordAction.NONE;
 			state.eyeFrame = -1;
+			state.parryEyeFrame = -1;
 			state.guard = 0.0F;
 			state.shieldKnocked = 0.0F;
 			state.walkAnimationSpeed = 0.0F;

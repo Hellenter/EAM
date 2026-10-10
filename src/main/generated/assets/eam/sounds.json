@@ -17,6 +17,15 @@
     ],
     "subtitle": "subtitles.eam.entity.fallen_lord.parry"
   },
+  "entity.fallen_lord.parry_window": {
+    "sounds": [
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/fallen_lord/parry_window"
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.fallen_lord.parry_window"
+  },
   "entity.wight.ambient": {
     "sounds": [
       {
