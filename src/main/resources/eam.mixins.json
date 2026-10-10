@@ -7,6 +7,7 @@
 		"content.bucket.CauldronDispatcherInvoker",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
+		"mobs.entity.PlayerArmorPiercingMixin",
 		"mobs.vanilla.AbstractArrowMixin",
 		"mobs.vanilla.ClipContextMixin",
 		"mobs.vanilla.LivingEntityDeathDropsMixin",

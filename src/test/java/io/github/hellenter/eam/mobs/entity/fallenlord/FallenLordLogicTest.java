@@ -427,4 +427,20 @@ class FallenLordLogicTest {
 		assertFalse(FallenLordLogic.breakableInArena(50.0F));
 		assertFalse(FallenLordLogic.breakableInArena(-1.0F));
 	}
+
+	@Test
+	void aShareOfHisHitIgnoresArmor() {
+		// Maxim's example: 10 HP poke, 80% armor reduction -> 1.2 + 8.8 * 0.2.
+		float part = FallenLordLogic.piercingPart(10.0F, 0.12);
+		assertEquals(1.2F, part, 1.0E-5F);
+		assertEquals(2.96F, part + (10.0F - part) * 0.2F, 1.0E-5F);
+		assertEquals(0.0F, FallenLordLogic.piercingPart(10.0F, 0.0), 1.0E-6F);
+	}
+
+	@Test
+	void resistanceStillLowersThePiercingPart() {
+		assertEquals(1.2F, FallenLordLogic.afterResistance(1.2F, -1), 1.0E-6F);
+		assertEquals(0.96F, FallenLordLogic.afterResistance(1.2F, 0), 1.0E-6F);
+		assertEquals(0.0F, FallenLordLogic.afterResistance(1.2F, 4), 1.0E-6F);
+	}
 }

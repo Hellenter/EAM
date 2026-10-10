@@ -563,4 +563,17 @@ public final class FallenLordLogic {
 		List<FallenLordSettings.PlayerScaling.Level> levels = scaling.levels();
 		return levels.get(Math.min(Math.max(players, 1), levels.size()) - 1);
 	}
+
+	/** The part of a hit that ignores armor and Protection. */
+	public static float piercingPart(float damage, double share) {
+		return (float) (damage * Math.clamp(share, 0.0, 1.0));
+	}
+
+	/** What is left of the armor-piercing part under the Resistance effect, as vanilla counts it; -1 means no effect. */
+	public static float afterResistance(float damage, int amplifier) {
+		if (amplifier < 0) {
+			return damage;
+		}
+		return Math.max(damage * (25 - (amplifier + 1) * 5) / 25.0F, 0.0F);
+	}
 }

@@ -9,8 +9,13 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -35,6 +40,21 @@ public final class FallenLordModule {
 	public static void register() {
 		FabricDefaultAttributeRegistry.register(EamEntities.FALLEN_LORD, FallenLord.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FallenLordSettingsLoader.ID, new FallenLordSettingsLoader());
+	}
+
+	/** Share of this damage that goes through armor and Protection: only the Fallen Lord's own hits have one. */
+	public static double armorPiercing(DamageSource source) {
+		return source.getEntity() instanceof FallenLord ? settings.later().armorPiercing() : 0.0;
+	}
+
+	/** The armor-piercing part of a hit as the player takes it: only the Resistance effect still lowers it. */
+	public static float piercedAfterResistance(LivingEntity victim, DamageSource source, float part) {
+		if (part <= 0.0F) {
+			return 0.0F;
+		}
+		MobEffectInstance resistance = victim.getEffect(MobEffects.RESISTANCE);
+		boolean bypassed = source.is(DamageTypeTags.BYPASSES_EFFECTS) || source.is(DamageTypeTags.BYPASSES_RESISTANCE);
+		return FallenLordLogic.afterResistance(part, resistance == null || bypassed ? -1 : resistance.getAmplifier());
 	}
 
 	static FallenLordSettings settings() {

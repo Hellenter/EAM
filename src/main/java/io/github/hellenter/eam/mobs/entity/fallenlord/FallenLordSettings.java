@@ -399,11 +399,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param leapUp     phase two: he leaps up at a player standing too high to reach
 	 * @param sprint     both phases: he sprints after a player he cannot catch
 	 * @param dashBreak  both dashes: how deep into blocks one dash can smash its way
+	 * @param armorPiercing share of all his damage to a player that ignores armor and Protection; the Resistance effect
+	 *                      and shields still count
 	 */
 	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
-			Sprint sprint, DashBreak dashBreak) {
+			Sprint sprint, DashBreak dashBreak, double armorPiercing) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT);
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
@@ -413,7 +415,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism),
 				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp),
 				Sprint.CODEC.fieldOf("sprint").orElse(Sprint.DEFAULT).forGetter(Later::sprint),
-				DashBreak.CODEC.fieldOf("dash_break").orElse(DashBreak.DEFAULT).forGetter(Later::dashBreak)
+				DashBreak.CODEC.fieldOf("dash_break").orElse(DashBreak.DEFAULT).forGetter(Later::dashBreak),
+				Codec.doubleRange(0.0, 1.0).fieldOf("armor_piercing").orElse(DEFAULT.armorPiercing).forGetter(Later::armorPiercing)
 		).apply(instance, Later::new));
 	}
 
