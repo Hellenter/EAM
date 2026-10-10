@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
+import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
@@ -127,6 +128,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 
 		// Logs, wood, stems and hyphae (stripped too) break only with an axe.
 		builder(HandBreakingModule.AXE_ONLY).forceAddTag(BlockTags.LOGS);
+
+		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
+		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
+				BlockItemIds.CLAY);
 
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.

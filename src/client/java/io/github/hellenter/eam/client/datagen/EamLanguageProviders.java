@@ -199,6 +199,8 @@ public final class EamLanguageProviders {
 			builder.add("entity.eam.fallen_lord.phase", "%s: Phase %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
+			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
+			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
 			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
@@ -604,6 +606,8 @@ public final class EamLanguageProviders {
 			builder.add("entity.eam.fallen_lord.phase", "%s: фаза %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
+			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
+			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");
 			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");

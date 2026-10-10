@@ -54,5 +54,18 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 				.add(LootItem.lootTableItem(Items.BONE)
 						.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3)))
 						.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
+		// The swamp lurker: rotten flesh, and threads from its robe.
+		output.accept(EamEntities.SWAMP_LURKER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.ROTTEN_FLESH)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.STRING)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 1)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 	}
 }

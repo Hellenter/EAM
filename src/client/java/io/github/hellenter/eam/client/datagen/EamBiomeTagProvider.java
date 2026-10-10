@@ -6,6 +6,8 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
+import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BiomeTags;
@@ -23,6 +25,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 	protected void addTags(HolderLookup.Provider registries) {
 		builder(ThirstModule.DIRTY_WATER)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+		builder(SwampLurkerModule.SPAWNS_IN)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
 		builder(EamWorldgen.HAS_FOREST_PEBBLES)
 				.forceAddTag(BiomeTags.IS_FOREST)

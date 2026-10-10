@@ -16,6 +16,7 @@ import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightModule;
+import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
@@ -72,6 +73,7 @@ public class Eam implements ModInitializer {
 		EamEntities.register();
 		FallenLordModule.register();
 		SkeletonKnightModule.register();
+		SwampLurkerModule.register();
 		EamWorldgen.init();
 		CampFireModule.register();
 		SieveModule.register();
@@ -102,6 +104,7 @@ public class Eam implements ModInitializer {
 		if (config.mining()) HandBreakingModule.init();
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 		if (config.mobs()) ThroughLeavesModule.init();
+		if (config.mobs()) SwampLurkerModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();

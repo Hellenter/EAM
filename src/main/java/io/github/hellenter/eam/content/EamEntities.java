@@ -6,6 +6,7 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
+import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -53,6 +54,14 @@ public final class EamEntities {
 			EntityType.Builder.of(SkeletonKnight::new, MobCategory.MONSTER)
 					.sized(0.63F, 2.16F)
 					.eyeHeight(1.89F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A withered body in a monk's robe that hides in swamp mud; hunched on all fours. */
+	public static final EntityType<SwampLurker> SWAMP_LURKER = register("swamp_lurker",
+			EntityType.Builder.of(SwampLurker::new, MobCategory.MONSTER)
+					.sized(0.8F, 1.3F)
+					.eyeHeight(1.1F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
 
