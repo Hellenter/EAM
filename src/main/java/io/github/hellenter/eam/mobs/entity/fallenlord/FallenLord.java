@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -111,8 +112,9 @@ public class FallenLord extends Monster {
 
 	/** Hits land this far beyond the nominal reach, so a target backing off in the swing still gets hit. */
 	private static final double REACH_SLACK = 0.6;
-	/** The heavy strike's creep and step stop with the player this close. */
-	private static final double HEAVY_CREEP_MIN = 1.5;
+	/** Spacing of the heavy strike's ground mark, in blocks, along and across its sweep. */
+	private static final double HEAVY_MARK_STEP = 0.35;
+	private static final DustParticleOptions HEAVY_MARK = new DustParticleOptions(0xC01010, 1.4F);
 	private static final double DASH_SPEED = 0.9;
 	private static final double SWORD_DASH_SPEED = 1.0;
 	/** A blocked sword dash still pushes the player back a block, as a hit does. */
@@ -167,8 +169,6 @@ public class FallenLord extends Monster {
 	private @Nullable LivingEntity actionTarget;
 	private Vec3 dashTarget = Vec3.ZERO;
 	private Vec3 rushDirection = Vec3.ZERO;
-	/** The way the heavy strike falls, fixed once he stops turning after the player. */
-	private Vec3 heavyDirection = Vec3.ZERO;
 	private boolean actionHit;
 	/** Everyone the current spear dash has struck: each is hit once. */
 	private final Set<UUID> dashHits = new HashSet<>();
@@ -866,7 +866,7 @@ public class FallenLord extends Monster {
 			return;
 		}
 		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL
-				&& action != FallenLordAction.HEAVY_STRIKE && !(action == FallenLordAction.HEAVY_WINDUP && t >= heavyLockTick())) {
+				&& !(action == FallenLordAction.HEAVY_STRIKE && t >= FallenLordAction.HEAVY_HIT)) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -1037,7 +1037,7 @@ public class FallenLord extends Monster {
 			}
 			case BACKSTAB -> tickBackstab(level, t, target);
 			case HEAVY_WINDUP -> {
-				tickHeavyWindup(t, target);
+				markHeavyGround(level, action.length() + FallenLordAction.HEAVY_HIT - t);
 				if (t == 0) {
 					// The same cue as the spear dash: get out of reach.
 					playSound(EamSounds.FALLEN_LORD_DASH_WARNING, 2.0F, 1.0F);
@@ -1052,7 +1052,7 @@ public class FallenLord extends Monster {
 				}
 			}
 			case HEAVY_STRIKE -> {
-				tickHeavyStep(t, target);
+				markHeavyGround(level, FallenLordAction.HEAVY_HIT - t);
 				if (t == FallenLordAction.HEAVY_HIT && target != null && heavyStrike(level, target)) {
 					return;
 				}
@@ -1219,46 +1219,44 @@ public class FallenLord extends Monster {
 		}
 	}
 
-	/** The windup tick from which he no longer turns after the player. */
-	private int heavyLockTick() {
-		return FallenLordAction.HEAVY_WINDUP.length() + FallenLordAction.HEAVY_HIT - settings().heavyStrike().lockTicks();
+	/** How far the heavy strike lands from him, slack included: the end of its ground mark. */
+	private double heavyReach() {
+		return FallenLordLogic.SWORD_REACH + settings().heavyStrike().extraReach() + REACH_SLACK;
 	}
 
-	/** Creeps in while the blade rises, then stands still with the strike's direction fixed. */
-	private void tickHeavyWindup(int t, @Nullable LivingEntity target) {
-		if (t == 0) {
-			heavyDirection = Vec3.ZERO;
-		}
-		if (t < heavyLockTick()) {
-			if (target != null && horizontalDistanceTo(target) > HEAVY_CREEP_MIN) {
-				Vec3 to = horizontal(target.position().subtract(position())).scale(settings().heavyStrike().creepSpeed());
-				setDeltaMovement(to.x, getDeltaMovement().y, to.z);
-			}
+	/**
+	 * The heavy strike's ground mark: a red line that sweeps over the struck area, from him out to the end of its
+	 * reach, landing there on the cut. It follows where he faces, as he turns after the player until the cut.
+	 */
+	private void markHeavyGround(ServerLevel level, int ticksToHit) {
+		FallenLordSettings.HeavyStrike heavy = settings().heavyStrike();
+		double reach = heavyReach();
+		double to = FallenLordLogic.heavyMarkRadius(ticksToHit, heavy.sweepTicks(), reach);
+		if (to < 0.0) {
 			return;
 		}
-		lockHeavyDirection();
-		setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+		double from = Math.max(0.0, FallenLordLogic.heavyMarkRadius(ticksToHit + 1, heavy.sweepTicks(), reach));
+		double minForward = FallenLordLogic.heavyMinForward(heavy);
+		double y = getY() + 0.1;
+		for (double r = (Math.floor(from / HEAVY_MARK_STEP) + 1.0) * HEAVY_MARK_STEP; r < to; r += HEAVY_MARK_STEP) {
+			markHeavyArc(level, r, minForward, y);
+		}
+		markHeavyArc(level, to, minForward, y);
 	}
 
-	/** Steps forward with the cut, along the fixed direction, unless the player is already at his chest. */
-	private void tickHeavyStep(int t, @Nullable LivingEntity target) {
-		lockHeavyDirection();
-		boolean close = target != null && target.position().subtract(position()).dot(heavyDirection) < HEAVY_CREEP_MIN;
-		if (t < FallenLordAction.HEAVY_HIT && !close && !horizontalCollision) {
-			Vec3 step = heavyDirection.scale(settings().heavyStrike().stepSpeed());
-			setDeltaMovement(step.x, getDeltaMovement().y, step.z);
-		} else {
-			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+	/** One arc of the ground mark, {@code radius} from him, across the whole width the cut covers there. */
+	private void markHeavyArc(ServerLevel level, double radius, double minForward, double y) {
+		if (radius <= 0.0) {
+			return;
 		}
-	}
-
-	private void lockHeavyDirection() {
-		if (heavyDirection == Vec3.ZERO) {
-			heavyDirection = Vec3.directionFromRotation(0.0F, getYRot());
+		double yaw = Math.toRadians(getYRot());
+		double half = FallenLordLogic.heavyHalfAngle(radius, minForward);
+		int points = Math.max(1, (int) Math.ceil(2.0 * half * radius / HEAVY_MARK_STEP));
+		for (int i = 0; i <= points; i++) {
+			// Minecraft yaw: he faces (-sin, cos); the arc turns from there to either side.
+			double a = yaw - half + 2.0 * half * i / points;
+			level.sendParticles(HEAVY_MARK, false, true, getX() - Math.sin(a) * radius, y, getZ() + Math.cos(a) * radius, 1, 0.0, 0.0, 0.0, 0.0);
 		}
-		float yaw = getYRot();
-		setYBodyRot(yaw);
-		setYHeadRot(yaw);
 	}
 
 	/**
@@ -1268,10 +1266,9 @@ public class FallenLord extends Monster {
 	private boolean heavyStrike(ServerLevel level, LivingEntity target) {
 		FallenLordSettings.HeavyStrike heavy = settings().heavyStrike();
 		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
-		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach();
-		boolean inWedge = FallenLordLogic.inHeavyWedge(heavyDirection.x, heavyDirection.z, target.getX() - getX(), target.getZ() - getZ(),
-				target.getBbWidth() / 2.0, heavy, reach);
-		if (!inWedge || Math.abs(target.getY() - getY()) >= 2.5 || !hasLineOfSight(target)) {
+		Vec3 facing = Vec3.directionFromRotation(0.0F, getYRot());
+		if (!FallenLordLogic.inHeavyArea(facing.x, facing.z, target.getX() - getX(), target.getZ() - getZ(), heavyReach(),
+				FallenLordLogic.heavyMinForward(heavy)) || Math.abs(target.getY() - getY()) >= 2.5 || !hasLineOfSight(target)) {
 			return false;
 		}
 		float damage = settings().phaseTwo().slashDamage() * heavy.damageMultiplier();

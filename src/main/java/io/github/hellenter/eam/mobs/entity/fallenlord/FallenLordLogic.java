@@ -22,6 +22,8 @@ public final class FallenLordLogic {
 	public static final double THROW_MAX = 28.0;
 	/** Swipe and sword reach. */
 	public static final double SWORD_REACH = 3.2;
+	/** A plain cut lands only on a target at least this far ahead of him. */
+	public static final double HEAVY_FRONT = 0.3;
 	public static final double COMBO_MAX = 7.0;
 	public static final double LUNGE_MIN = 2.5;
 	public static final double LUNGE_MAX = 9.0;
@@ -190,7 +192,7 @@ public final class FallenLordLogic {
 			if (ready(Attack.BACKSTAB, cooldowns) && s.canSee() && d >= BACKSTAB_MIN && d <= BACKSTAB_MAX) {
 				list.add(new Candidate(Attack.BACKSTAB, s.targetBlocking() ? settings.backstab().blockingBonus() : 1.0));
 			}
-			if (ready(Attack.HEAVY, cooldowns) && s.canSee() && d <= settings.heavyStrike().startRange()) {
+			if (ready(Attack.HEAVY, cooldowns) && s.canSee() && d <= SWORD_REACH + settings.heavyStrike().extraReach()) {
 				list.add(new Candidate(Attack.HEAVY, 1.0));
 			}
 		}
@@ -278,18 +280,37 @@ public final class FallenLordLogic {
 	}
 
 	/**
-	 * Whether a body {@code radius} wide at ({@code dx}, {@code dz}) from him is inside the heavy strike's wedge: from
-	 * {@code nearWidth} wide at his body to {@code farWidth} at {@code reach} along {@code (fx, fz)}, a unit vector.
+	 * Whether the heavy strike reaches a target at offset ({@code dx}, {@code dz}) from him while he faces
+	 * ({@code fx}, {@code fz}), a unit vector: within {@code reach}, and at least {@code minForward} blocks ahead of
+	 * him (a negative value reaches a little round his sides).
 	 */
-	public static boolean inHeavyWedge(double fx, double fz, double dx, double dz, double radius, FallenLordSettings.HeavyStrike heavy, double reach) {
-		double along = dx * fx + dz * fz;
-		if (along < -radius || along > reach + radius) {
-			return false;
+	public static boolean inHeavyArea(double fx, double fz, double dx, double dz, double reach, double minForward) {
+		double distSqr = dx * dx + dz * dz;
+		return distSqr <= reach * reach && (distSqr < 1.0E-6 || dx * fx + dz * fz >= minForward);
+	}
+
+	/** How far ahead of him the heavy strike reaches round his sides: a plain hit's front, widened by the data. */
+	public static double heavyMinForward(FallenLordSettings.HeavyStrike heavy) {
+		return HEAVY_FRONT - heavy.extraWidth();
+	}
+
+	/**
+	 * How far from him the heavy strike's ground mark has swept {@code ticksToHit} ticks before the cut: from 0 when
+	 * the sweep starts to {@code reach} on the cut itself. Negative before the sweep starts.
+	 */
+	public static double heavyMarkRadius(int ticksToHit, int sweepTicks, double reach) {
+		if (ticksToHit < 0 || ticksToHit > sweepTicks) {
+			return -1.0;
 		}
-		double side = Math.abs(dx * fz - dz * fx);
-		double share = Math.clamp(along / reach, 0.0, 1.0);
-		double halfWidth = (heavy.nearWidth() + (heavy.farWidth() - heavy.nearWidth()) * share) / 2.0;
-		return side <= halfWidth + radius;
+		return reach * (sweepTicks - ticksToHit) / sweepTicks;
+	}
+
+	/** Half the angle, in radians from where he faces, that the heavy strike covers at {@code radius} from him. */
+	public static double heavyHalfAngle(double radius, double minForward) {
+		if (radius <= Math.abs(minForward)) {
+			return minForward <= 0.0 ? Math.PI : 0.0;
+		}
+		return Math.acos(minForward / radius);
 	}
 
 	/**

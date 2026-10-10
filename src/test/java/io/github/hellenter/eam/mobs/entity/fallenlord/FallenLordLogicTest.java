@@ -265,24 +265,36 @@ class FallenLordLogicTest {
 
 	@Test
 	void heavyStrikeOnlyWithinItsReach() {
-		double reach = SETTINGS.heavyStrike().startRange();
+		double reach = FallenLordLogic.SWORD_REACH + SETTINGS.heavyStrike().extraReach();
 		assertTrue(histogram(2, new Situation(reach, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
 		assertFalse(histogram(2, new Situation(reach + 0.1, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
 		assertFalse(histogram(1, new Situation(2.0, true, true, 0, 1), ready(), null).containsKey(Attack.HEAVY));
 	}
 
 	@Test
-	void heavyWedgeWidensTowardsItsEnd() {
-		var heavy = SETTINGS.heavyStrike();
-		double reach = FallenLordLogic.SWORD_REACH + heavy.extraReach();
-		// Facing +Z. Straight ahead at the very end of the reach: hit; a step back past it: missed.
-		assertTrue(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, reach, 0.3, heavy, reach));
-		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, reach + 0.5, 0.3, heavy, reach));
-		// 1.2 to the side: missed close to him, hit far out where the wedge is wide.
-		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 1.2, 1.0, 0.3, heavy, reach));
-		assertTrue(FallenLordLogic.inHeavyWedge(0.0, 1.0, 1.2, reach - 0.5, 0.3, heavy, reach));
+	void heavyAreaIsTheHalfCircleInFrontWidenedRoundHisSides() {
+		double reach = 5.3;
+		double minForward = FallenLordLogic.heavyMinForward(SETTINGS.heavyStrike());
+		// Facing +Z. Straight ahead at the end of the reach: hit; a step past it: missed.
+		assertTrue(FallenLordLogic.inHeavyArea(0.0, 1.0, 0.0, reach, reach, minForward));
+		assertFalse(FallenLordLogic.inHeavyArea(0.0, 1.0, 0.0, reach + 0.2, reach, minForward));
+		// Level with his shoulder, off to the side: the plain cut's front misses it, the widened one does not.
+		assertFalse(FallenLordLogic.inHeavyArea(0.0, 1.0, 2.0, 0.0, reach, FallenLordLogic.HEAVY_FRONT));
+		assertTrue(FallenLordLogic.inHeavyArea(0.0, 1.0, 2.0, 0.0, reach, minForward));
 		// Behind him: missed.
-		assertFalse(FallenLordLogic.inHeavyWedge(0.0, 1.0, 0.0, -1.0, 0.3, heavy, reach));
+		assertFalse(FallenLordLogic.inHeavyArea(0.0, 1.0, 0.0, -1.0, reach, minForward));
+	}
+
+	@Test
+	void heavyMarkSweepsOutToTheReachOnTheCut() {
+		assertTrue(FallenLordLogic.heavyMarkRadius(9, 8, 5.0) < 0.0);
+		assertEquals(0.0, FallenLordLogic.heavyMarkRadius(8, 8, 5.0), 1.0E-9);
+		assertEquals(2.5, FallenLordLogic.heavyMarkRadius(4, 8, 5.0), 1.0E-9);
+		assertEquals(5.0, FallenLordLogic.heavyMarkRadius(0, 8, 5.0), 1.0E-9);
+		assertTrue(FallenLordLogic.heavyMarkRadius(-1, 8, 5.0) < 0.0);
+		// Just over a half circle with a negative front, all round close in.
+		assertTrue(FallenLordLogic.heavyHalfAngle(3.0, -0.03) > Math.PI / 2.0);
+		assertEquals(Math.PI, FallenLordLogic.heavyHalfAngle(0.02, -0.03), 1.0E-9);
 	}
 
 	@Test

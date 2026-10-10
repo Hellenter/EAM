@@ -42,7 +42,7 @@ public enum FallenLordAction {
 	HOP(9),
 	/** Darts round the player's side to their back and cuts there, past a raised shield. */
 	BACKSTAB(18),
-	/** Sword raised overhead, its edge glowing red; then {@link #HEAVY_STRIKE}. Long enough to step aside out of its wedge. */
+	/** Sword raised overhead, its edge glowing red; then {@link #HEAVY_STRIKE}. Long enough to step out of reach. */
 	HEAVY_WINDUP(16),
 	/** The overhead cut: double damage, more reach, goes through a shield and knocks it out. */
 	HEAVY_STRIKE(12),

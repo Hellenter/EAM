@@ -323,25 +323,21 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 
 	/**
 	 * Phase two: he raises the sword overhead, its edge glows red, and he brings it down with more reach than a plain
-	 * hit. He creeps in while he winds up, stops turning shortly before the cut and steps into it, so backing off
-	 * rarely clears it: stepping aside out of the wedge it covers does. A shield does not stop it: the player takes a
-	 * share of the damage and the shield is knocked out. When it lands he goes straight into his combo.
+	 * hit. He turns after the player until the last tick before the cut, and a red line sweeps along the ground over
+	 * the struck area just before it lands. Stepping back out of reach dodges it. A shield does not stop it: the player
+	 * takes a share of the damage and the shield is knocked out. When it lands he goes straight into his combo.
 	 *
 	 * @param damageMultiplier damage as a multiple of the plain hit
 	 * @param extraReach       reach beyond the plain hit
 	 * @param blockedShare     share of the damage that goes through a shield
 	 * @param shieldSeconds    how long that shield cannot be raised again
 	 * @param cooldown         ticks between heavy strikes
-	 * @param startRange       he starts it only with the player this close
-	 * @param lockTicks        ticks before the cut from which he no longer turns after the player
-	 * @param nearWidth        width of the struck wedge at his body
-	 * @param farWidth         width of the struck wedge at the end of its reach
-	 * @param creepSpeed       blocks per tick he creeps towards the player while winding up, until he stops turning
-	 * @param stepSpeed        blocks per tick he steps forward with the cut
+	 * @param extraWidth       how much further round his sides it reaches than a plain hit, in blocks
+	 * @param sweepTicks       ticks the ground mark takes to sweep from him to the end of the reach, ending on the cut
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
-			double startRange, int lockTicks, double nearWidth, double farWidth, double creepSpeed, double stepSpeed) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 2.0, 0.5F, 5.0F, 183, 4.0, 6, 1.0, 3.0, 0.1, 0.35);
+			double extraWidth, int sweepTicks) {
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.5, 0.5F, 5.0F, 183, 0.33, 8);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
@@ -349,12 +345,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.floatRange(0.0F, 1.0F).fieldOf("blocked_share").orElse(DEFAULT.blockedShare).forGetter(HeavyStrike::blockedShare),
 				Codec.floatRange(0.0F, 600.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(HeavyStrike::shieldSeconds),
 				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(HeavyStrike::cooldown),
-				Codec.doubleRange(0.0, 10.0).fieldOf("start_range").orElse(DEFAULT.startRange).forGetter(HeavyStrike::startRange),
-				Codec.intRange(0, 19).fieldOf("lock_ticks").orElse(DEFAULT.lockTicks).forGetter(HeavyStrike::lockTicks),
-				Codec.doubleRange(0.0, 10.0).fieldOf("near_width").orElse(DEFAULT.nearWidth).forGetter(HeavyStrike::nearWidth),
-				Codec.doubleRange(0.0, 10.0).fieldOf("far_width").orElse(DEFAULT.farWidth).forGetter(HeavyStrike::farWidth),
-				Codec.doubleRange(0.0, 1.0).fieldOf("creep_speed").orElse(DEFAULT.creepSpeed).forGetter(HeavyStrike::creepSpeed),
-				Codec.doubleRange(0.0, 1.0).fieldOf("step_speed").orElse(DEFAULT.stepSpeed).forGetter(HeavyStrike::stepSpeed)
+				Codec.doubleRange(-1.0, 2.0).fieldOf("extra_width").orElse(DEFAULT.extraWidth).forGetter(HeavyStrike::extraWidth),
+				Codec.intRange(1, 19).fieldOf("sweep_ticks").orElse(DEFAULT.sweepTicks).forGetter(HeavyStrike::sweepTicks)
 		).apply(instance, HeavyStrike::new));
 	}
 
