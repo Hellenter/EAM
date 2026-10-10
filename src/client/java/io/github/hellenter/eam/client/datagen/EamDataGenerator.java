@@ -47,6 +47,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.DAMAGE_TYPE, EamDamageTypeProvider::bootstrap);
 		registryBuilder.add(Registries.FEATURE, EamWorldgenProvider::bootstrapFeatures);
 		registryBuilder.add(Registries.PLACED_FEATURE, EamWorldgenProvider::bootstrapPlacedFeatures);
+		registryBuilder.add(Registries.BIOME, SwampyForestWorldgen::bootstrapBiomes);
 		registryBuilder.add(Registries.STRUCTURE, EamCryptProvider::bootstrap);
 		registryBuilder.add(Registries.STRUCTURE_SET, EamCryptProvider::bootstrapSets);
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);

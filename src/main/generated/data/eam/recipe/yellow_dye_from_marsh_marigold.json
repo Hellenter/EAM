@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:marsh_marigold"
+  ],
+  "result": {
+    "id": "minecraft:yellow_dye"
+  }
+}

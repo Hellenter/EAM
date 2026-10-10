@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_marsh_marigold": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:marsh_marigold"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:yellow_dye_from_marsh_marigold"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_marsh_marigold"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:yellow_dye_from_marsh_marigold"
+    ]
+  }
+}

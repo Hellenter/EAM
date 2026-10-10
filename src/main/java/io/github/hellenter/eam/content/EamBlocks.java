@@ -11,16 +11,24 @@ import io.github.hellenter.eam.content.metal.MetalBarsBlock;
 import io.github.hellenter.eam.content.metal.MetalDoorBlock;
 import io.github.hellenter.eam.content.metal.MetalTrapDoorBlock;
 import io.github.hellenter.eam.content.sieve.SieveBlock;
+import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.content.swamp.DuckweedBlock;
+import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
+import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.TallFlowerBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -123,6 +131,25 @@ public final class EamBlocks {
 	public static final Block MITHRIL_DOOR = register("mithril_door", MetalDoorBlock::new, mithril(Blocks.IRON_DOOR));
 	public static final Block MITHRIL_TRAPDOOR = register("mithril_trapdoor", MetalTrapDoorBlock::new, mithril(Blocks.IRON_TRAPDOOR));
 
+	/** Swampy forest plants. Duckweed floats on still water; cattails grow on the shore or out of shallow water. */
+	public static final Block DUCKWEED = register("duckweed", DuckweedBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.PLANT)
+			.noCollision()
+			.instabreak()
+			.sound(SoundType.LILY_PAD)
+			.noOcclusion()
+			.pushReaction(PushReaction.POPPED));
+	public static final Block CATTAIL = register("cattail", CattailBlock::new, plant());
+	public static final Block SWAMP_GRASS = register("swamp_grass", SwampGrassBlock::new, plant().replaceable().offsetType(BlockBehaviour.OffsetType.XYZ));
+	public static final Block TALL_SWAMP_GRASS = register("tall_swamp_grass", DoublePlantBlock::new,
+			plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
+	public static final Block SWAMP_SHRUB = register("swamp_shrub", SwampShrubBlock::new, plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
+	/** Fireweed (willowherb): a tall pink flower on the edges of bogs. */
+	public static final Block FIREWEED = register("fireweed", TallFlowerBlock::new, plant().offsetType(BlockBehaviour.OffsetType.XZ));
+	/** Marsh marigold is poisonous: in suspicious stew it gives nausea. */
+	public static final Block MARSH_MARIGOLD = register("marsh_marigold", p -> new FlowerBlock(MobEffects.NAUSEA, 7.0F, p),
+			plant().offsetType(BlockBehaviour.OffsetType.XZ));
+
 	private EamBlocks() {
 	}
 
@@ -132,6 +159,17 @@ public final class EamBlocks {
 
 	private static BlockBehaviour.Properties mithril(Block iron) {
 		return BlockBehaviour.Properties.ofLegacyCopy(iron).mapColor(MapColor.ICE).strength(10.0F, 1200.0F);
+	}
+
+	/** Like vanilla grass and flowers: no collision, broken at once, burns. */
+	private static BlockBehaviour.Properties plant() {
+		return BlockBehaviour.Properties.of()
+				.mapColor(MapColor.PLANT)
+				.noCollision()
+				.instabreak()
+				.sound(SoundType.GRASS)
+				.ignitedByLava()
+				.pushReaction(PushReaction.POPPED);
 	}
 
 	private static BlockBehaviour.Properties groundItem(MapColor color) {

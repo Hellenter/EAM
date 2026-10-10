@@ -97,6 +97,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(deepslate, EamBlocks.DEEPSLATE_SILVER_ORE.defaultBlockState())
 		), COPPER_VEIN_SIZE));
 		mithrilFeature(context);
+		SwampyForestWorldgen.bootstrapFeatures(context);
 	}
 
 	private static void mithrilFeature(BootstrapContext<Feature> context) {
@@ -144,6 +145,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(MITHRIL_TOP)),
 				BiomeFilter.biome()));
+		SwampyForestWorldgen.bootstrapPlacedFeatures(context);
 	}
 
 	/** Copper's placement with 2.5 times fewer veins. */
@@ -240,6 +242,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_MOUNTAIN);
 		entries.add(placedFeatures, EamWorldgen.ORE_MITHRIL_PLACED);
+		SwampyForestWorldgen.configure(registries, entries);
 	}
 
 	@Override

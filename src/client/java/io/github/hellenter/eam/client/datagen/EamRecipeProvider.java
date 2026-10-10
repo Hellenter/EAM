@@ -59,6 +59,15 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 		return new RecipeProvider(recipes, advancements) {
 			@Override
 			public void buildRecipes() {
+				// Swamp flowers give dye like vanilla flowers: the tall fireweed two, the small marigold one.
+				shapeless(RecipeCategory.MISC, Items.DYE.pick(DyeColor.MAGENTA), 2)
+						.requires(EamItems.FIREWEED)
+						.unlockedBy(getHasName(EamItems.FIREWEED), has(EamItems.FIREWEED))
+						.save(output, "eam:magenta_dye_from_fireweed");
+				shapeless(RecipeCategory.MISC, Items.DYE.pick(DyeColor.YELLOW))
+						.requires(EamItems.MARSH_MARIGOLD)
+						.unlockedBy(getHasName(EamItems.MARSH_MARIGOLD), has(EamItems.MARSH_MARIGOLD))
+						.save(output, "eam:yellow_dye_from_marsh_marigold");
 				shapeless(RecipeCategory.MISC, EamItems.LEATHER_THREAD, 4)
 						.requires(Items.LEATHER)
 						.unlockedBy(getHasName(Items.LEATHER), has(Items.LEATHER))

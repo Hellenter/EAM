@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "eam:block/duckweed"
+      },
+      {
+        "model": "eam:block/duckweed",
+        "y": 90
+      },
+      {
+        "model": "eam:block/duckweed",
+        "y": 180
+      },
+      {
+        "model": "eam:block/duckweed",
+        "y": 270
+      }
+    ]
+  }
+}

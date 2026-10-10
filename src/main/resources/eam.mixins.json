@@ -46,7 +46,9 @@
 		"world.structures.ChunkGeneratorMixin",
 		"world.structures.JigsawPlacementMixin",
 		"world.structures.PlayerAdvancementsMixin",
-		"world.structures.SinglePoolElementMixin"
+		"world.structures.SinglePoolElementMixin",
+		"world.swamp.MultiNoiseBiomeSourceMixin",
+		"world.swamp.OverworldBiomeBuilderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

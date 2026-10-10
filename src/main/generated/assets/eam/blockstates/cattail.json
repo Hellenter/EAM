@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "eam:block/cattail_bottom"
+    },
+    "half=upper": {
+      "model": "eam:block/cattail_top"
+    }
+  }
+}

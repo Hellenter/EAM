@@ -201,6 +201,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ForgingTags.HAMMERS).addTag(ForgingTags.HAMMER_TIERS.get(0)).addTag(ForgingTags.HAMMER_TIERS.get(1))
 				.addTag(ForgingTags.HAMMER_TIERS.get(2)).addTag(ForgingTags.HAMMER_TIERS.get(3));
 		builder(vanilla("bars")).addAll(keys(EamItems.SILVER_BARS, EamItems.MITHRIL_BARS));
+		builder(vanilla("small_flowers")).addAll(keys(EamItems.MARSH_MARIGOLD));
+		builder(vanilla("flowers")).addAll(keys(EamItems.FIREWEED));
 		builder(vanilla("doors")).addAll(keys(EamItems.SILVER_DOOR, EamItems.MITHRIL_DOOR));
 		builder(vanilla("trapdoors")).addAll(keys(EamItems.SILVER_TRAPDOOR, EamItems.MITHRIL_TRAPDOOR));
 		builder(ItemTags.ANVIL).addAll(keys(EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL));

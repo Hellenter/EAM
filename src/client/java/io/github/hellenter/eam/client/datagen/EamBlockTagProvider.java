@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
@@ -8,6 +9,7 @@ import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
+import io.github.hellenter.eam.world.swamp.SwampPondFeature;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -132,6 +134,19 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
 		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
 				BlockItemIds.CLAY);
+
+		// Swampy forest plants: cattails root in mud, clay, sand and gravel too; ponds are dug only into soft ground.
+		builder(CattailBlock.SUPPORTS_CATTAIL).add(BlockItemIds.CLAY, BlockItemIds.SAND, BlockItemIds.RED_SAND, BlockItemIds.GRAVEL)
+				.forceAddTag(BlockTags.SUPPORTS_VEGETATION);
+		builder(SwampPondFeature.DIGGABLE).add(BlockItemIds.PODZOL).forceAddTag(BlockTags.SUBSTRATE_OVERWORLD);
+		builder(BlockTags.SMALL_FLOWERS).add(EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
+		builder(BlockTags.FLOWERS).add(EamBlocks.FIREWEED.builtInRegistryHolder().key());
+		builder(BlockTags.REPLACEABLE_BY_TREES).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
+				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
+				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
+				EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
+		builder(BlockTags.REPLACEABLE_BY_MUSHROOMS).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
+				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key());
 
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.

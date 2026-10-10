@@ -1,6 +1,7 @@
 {
   "values": [
     "minecraft:swamp",
-    "minecraft:mangrove_swamp"
+    "minecraft:mangrove_swamp",
+    "#eam:is_swampy_forest"
   ]
 }

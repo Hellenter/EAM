@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:clay",
+    "minecraft:sand",
+    "minecraft:red_sand",
+    "minecraft:gravel",
+    "#minecraft:supports_vegetation"
+  ]
+}

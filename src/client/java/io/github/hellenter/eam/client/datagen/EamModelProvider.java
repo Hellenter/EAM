@@ -57,10 +57,57 @@ public class EamModelProvider extends FabricModelProvider {
 		for (Block door : List.of(EamBlocks.SILVER_DOOR, EamBlocks.MITHRIL_DOOR)) {
 			generators.createDoor(door);
 		}
+		swampPlants(generators);
 		// Like the iron trapdoor: the same model whichever way it was placed.
 		for (Block trapdoor : List.of(EamBlocks.SILVER_TRAPDOOR, EamBlocks.MITHRIL_TRAPDOOR)) {
 			generators.createTrapdoor(trapdoor);
 		}
+	}
+
+	/** Untinted crosses like vanilla flowers; duckweed is a flat sheet on the water like a lily pad, without the tint. */
+	private static void swampPlants(BlockModelGenerators generators) {
+		Identifier duckweed = ModelLocationUtils.getModelLocation(EamBlocks.DUCKWEED);
+		generators.modelOutput.accept(duckweed, () -> floatingSheet(TextureMapping.getBlockTexture(EamBlocks.DUCKWEED).sprite()));
+		generators.createRotatedVariantBlock(EamBlocks.DUCKWEED, duckweed);
+		generators.registerSimpleFlatItemModel(EamBlocks.DUCKWEED);
+		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_GRASS, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_SHRUB, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
+		for (Block tall : List.of(EamBlocks.CATTAIL, EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
+			generators.createDoublePlantWithDefaultItem(tall, BlockModelGenerators.PlantType.NOT_TINTED);
+		}
+	}
+
+	private static JsonObject floatingSheet(Identifier texture) {
+		JsonObject textures = new JsonObject();
+		textures.addProperty("particle", texture.toString());
+		textures.addProperty("texture", texture.toString());
+		JsonObject faces = new JsonObject();
+		JsonObject down = new JsonObject();
+		down.add("uv", vector4(0, 16, 16, 0));
+		down.addProperty("texture", "#texture");
+		faces.add("down", down);
+		JsonObject up = new JsonObject();
+		up.add("uv", vector4(0, 0, 16, 16));
+		up.addProperty("texture", "#texture");
+		faces.add("up", up);
+		JsonObject element = new JsonObject();
+		element.add("from", vector(0, 0.25, 0));
+		element.add("to", vector(16, 0.25, 16));
+		element.add("faces", faces);
+		JsonArray elements = new JsonArray();
+		elements.add(element);
+		JsonObject model = new JsonObject();
+		model.addProperty("ambientocclusion", false);
+		model.add("textures", textures);
+		model.add("elements", elements);
+		return model;
+	}
+
+	private static JsonArray vector4(double a, double b, double c, double d) {
+		JsonArray vector = vector(a, b, c);
+		vector.add(d);
+		return vector;
 	}
 
 	/** One box per position on the top face, from the block's own shape; the block state picks the model by position. */

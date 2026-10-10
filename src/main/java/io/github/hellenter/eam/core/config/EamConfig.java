@@ -51,10 +51,11 @@ public record EamConfig(
 		boolean safeSleep,
 		boolean bloodMoon,
 		boolean enchanting,
-		boolean arrowHeads
+		boolean arrowHeads,
+		boolean swampyForest
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -63,7 +64,7 @@ public record EamConfig(
 	private record LaterFlags(boolean mobRunning, boolean defensiveCows, boolean blastFurnaceIron, boolean silver,
 			boolean lockedVillages, boolean removeStructures, boolean anvilTiers, boolean slowCrops, boolean slowAnimals, boolean mithril,
 			boolean anvilRepair, boolean safeSleep, boolean bloodMoon,
-			boolean enchanting, boolean arrowHeads) {
+			boolean enchanting, boolean arrowHeads, boolean swampyForest) {
 		private static final MapCodec<LaterFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("mob_running", DEFAULT.mobRunning).forGetter(LaterFlags::mobRunning),
 				Codec.BOOL.optionalFieldOf("defensive_cows", DEFAULT.defensiveCows).forGetter(LaterFlags::defensiveCows),
@@ -79,13 +80,14 @@ public record EamConfig(
 				Codec.BOOL.optionalFieldOf("safe_sleep", DEFAULT.safeSleep).forGetter(LaterFlags::safeSleep),
 				Codec.BOOL.optionalFieldOf("blood_moon", DEFAULT.bloodMoon).forGetter(LaterFlags::bloodMoon),
 				Codec.BOOL.optionalFieldOf("enchanting", DEFAULT.enchanting).forGetter(LaterFlags::enchanting),
-				Codec.BOOL.optionalFieldOf("arrow_heads", DEFAULT.arrowHeads).forGetter(LaterFlags::arrowHeads)
+				Codec.BOOL.optionalFieldOf("arrow_heads", DEFAULT.arrowHeads).forGetter(LaterFlags::arrowHeads),
+				Codec.BOOL.optionalFieldOf("swampy_forest", DEFAULT.swampyForest).forGetter(LaterFlags::swampyForest)
 		).apply(instance, LaterFlags::new));
 
 		private static LaterFlags of(EamConfig config) {
 			return new LaterFlags(config.mobRunning, config.defensiveCows, config.blastFurnaceIron, config.silver, config.lockedVillages,
 					config.removeStructures, config.anvilTiers, config.slowCrops, config.slowAnimals, config.mithril,
-					config.anvilRepair, config.safeSleep, config.bloodMoon, config.enchanting, config.arrowHeads);
+					config.anvilRepair, config.safeSleep, config.bloodMoon, config.enchanting, config.arrowHeads, config.swampyForest);
 		}
 	}
 
@@ -110,7 +112,7 @@ public record EamConfig(
 			mobBlockBreaking, removeEarlyTools, ores, crafting, gear, removeDiamondGear, mobDrops, ironPlates, later.mobRunning,
 			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures,
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
-			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads)));
+			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

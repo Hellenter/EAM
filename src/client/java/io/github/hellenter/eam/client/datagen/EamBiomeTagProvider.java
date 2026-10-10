@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
+import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -24,16 +25,31 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
+		builder(SwampyForestBiomes.IS_SWAMPY_FOREST)
+				.add(SwampyForestBiomes.SWAMPY_FOREST, SwampyForestBiomes.SWAMPY_LAKES, SwampyForestBiomes.SWAMPY_HUMMOCKS);
+		// Temperate land biomes a swampy forest region takes over; rivers, beaches, oceans, mountains and caves stay.
+		builder(SwampyForestBiomes.REPLACEABLE)
+				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST,
+						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MEADOW, Biomes.TAIGA,
+						Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.SAVANNA);
+		builder(BiomeTags.IS_OVERWORLD).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		builder(BiomeTags.IS_FOREST).add(SwampyForestBiomes.SWAMPY_FOREST);
+		builder(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		builder(BiomeTags.WATER_ON_MAP_OUTLINES).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(ThirstModule.DIRTY_WATER)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
-				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(SwampLurkerModule.SPAWNS_IN)
-				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(WightModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
-				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(EamWorldgen.HAS_FOREST_PEBBLES)
 				.forceAddTag(BiomeTags.IS_FOREST)
+				.add(SwampyForestBiomes.SWAMPY_HUMMOCKS)
 				.forceAddTag(BiomeTags.IS_TAIGA);
 		builder(EamWorldgen.HAS_MOUNTAIN_PEBBLES)
 				.forceAddTag(BiomeTags.IS_MOUNTAIN)

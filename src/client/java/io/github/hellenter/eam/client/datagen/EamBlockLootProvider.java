@@ -13,6 +13,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
@@ -40,6 +42,14 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.PEBBLE);
 		dropSelf(EamBlocks.FLINT_SHARD);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);
+		// Swampy forest plants drop like their vanilla look-alikes.
+		dropSelf(EamBlocks.DUCKWEED);
+		dropSelf(EamBlocks.MARSH_MARIGOLD);
+		add(EamBlocks.CATTAIL, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
+		add(EamBlocks.FIREWEED, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
+		add(EamBlocks.SWAMP_GRASS, this::createGrassDrops);
+		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
+		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))

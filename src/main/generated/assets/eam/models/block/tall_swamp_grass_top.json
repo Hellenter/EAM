@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "eam:block/tall_swamp_grass_top"
+  }
+}

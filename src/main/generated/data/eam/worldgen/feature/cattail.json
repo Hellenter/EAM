@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:simple_block",
+  "to_place": {
+    "id": "eam:cattail",
+    "properties": {
+      "half": "lower",
+      "waterlogged": "false"
+    }
+  }
+}

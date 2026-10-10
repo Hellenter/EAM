@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "eam:fireweed",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "eam:fireweed"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

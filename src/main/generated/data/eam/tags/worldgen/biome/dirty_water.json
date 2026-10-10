@@ -2,6 +2,7 @@
   "values": [
     "#minecraft:is_jungle",
     "minecraft:swamp",
-    "minecraft:mangrove_swamp"
+    "minecraft:mangrove_swamp",
+    "#eam:is_swampy_forest"
   ]
 }

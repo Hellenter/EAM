@@ -44,6 +44,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -51,8 +52,10 @@ import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffe
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 import java.util.function.Function;
@@ -290,6 +293,15 @@ public final class EamItems {
 	public static final Item MITHRIL_CHAINMAIL_LEGGINGS = armor("mithril_chainmail_leggings", ChainmailGear.MITHRIL, ArmorType.LEGGINGS);
 	public static final Item MITHRIL_CHAINMAIL_BOOTS = armor("mithril_chainmail_boots", ChainmailGear.MITHRIL, ArmorType.BOOTS);
 
+	public static final Item DUCKWEED = register("duckweed", p -> new PlaceOnWaterBlockItem(EamBlocks.DUCKWEED, p),
+			plantProperties(ContextIntProviders.COMPOSTABLE_LOW));
+	public static final Item CATTAIL = plantItem("cattail", EamBlocks.CATTAIL, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item SWAMP_GRASS = plantItem("swamp_grass", EamBlocks.SWAMP_GRASS, ContextIntProviders.COMPOSTABLE_LOW);
+	public static final Item TALL_SWAMP_GRASS = plantItem("tall_swamp_grass", EamBlocks.TALL_SWAMP_GRASS, ContextIntProviders.COMPOSTABLE_LOW_MEDIUM);
+	public static final Item SWAMP_SHRUB = plantItem("swamp_shrub", EamBlocks.SWAMP_SHRUB, ContextIntProviders.COMPOSTABLE_LOW);
+	public static final Item FIREWEED = plantItem("fireweed", EamBlocks.FIREWEED, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item MARSH_MARIGOLD = plantItem("marsh_marigold", EamBlocks.MARSH_MARIGOLD, ContextIntProviders.COMPOSTABLE_MEDIUM);
+
 	public static final Item SILVER_BARS = blockItem("silver_bars", EamBlocks.SILVER_BARS);
 	public static final Item SILVER_DOOR = doorItem("silver_door", EamBlocks.SILVER_DOOR);
 	public static final Item SILVER_TRAPDOOR = blockItem("silver_trapdoor", EamBlocks.SILVER_TRAPDOOR);
@@ -416,6 +428,18 @@ public final class EamItems {
 
 	private static Item blockItem(String name, Block block) {
 		return register(name, p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
+	}
+
+	/** A plant's item; two-block plants place both halves, like vanilla tall grass. */
+	private static Item plantItem(String name, Block block, ResourceKey<ContextIntProvider> compostChance) {
+		if (block instanceof DoublePlantBlock) {
+			return register(name, p -> new DoubleHighBlockItem(block, p), plantProperties(compostChance));
+		}
+		return register(name, p -> new BlockItem(block, p), plantProperties(compostChance));
+	}
+
+	private static Item.Properties plantProperties(ResourceKey<ContextIntProvider> compostChance) {
+		return new Item.Properties().useBlockDescriptionPrefix().compostable(compostChance);
 	}
 
 	/** A door places both halves, like the vanilla ones. */

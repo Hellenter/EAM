@@ -1,0 +1,43 @@
+{
+  "type": "eam:swamp_pond",
+  "bank": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "minecraft:mud",
+        "weight": 3
+      },
+      {
+        "data": "minecraft:moss_block",
+        "weight": 2
+      },
+      {
+        "data": "minecraft:coarse_dirt",
+        "weight": 1
+      }
+    ]
+  },
+  "bottom": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "minecraft:mud",
+        "weight": 7
+      },
+      {
+        "data": "minecraft:clay",
+        "weight": 2
+      },
+      {
+        "data": "minecraft:gravel",
+        "weight": 1
+      }
+    ]
+  },
+  "max_depth": 2,
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 4,
+    "min_inclusive": 2
+  }
+}

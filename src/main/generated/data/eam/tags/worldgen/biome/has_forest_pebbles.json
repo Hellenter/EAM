@@ -1,6 +1,7 @@
 {
   "values": [
     "#minecraft:is_forest",
+    "eam:swampy_hummocks",
     "#minecraft:is_taiga"
   ]
 }
