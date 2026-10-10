@@ -53,7 +53,9 @@ public class EamCryptProvider extends FabricDynamicRegistryProvider {
 				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6").map(room -> Eam.id("crypt/" + room)).toList(),
 				3, UniformInt.of(2, 3),
 				// Tier-2 treasuries: none on the first level (they are deep rooms anyway), at most two on the second.
-				List.of(0, 2), villages);
+				List.of(0, 2), villages,
+				// Maxim is reworking the first entrance.
+				List.of(Eam.id("crypt/entrance/1")));
 	}
 
 	/** Crypts try the same chunks as villages: same spacing, separation and salt as {@code minecraft:villages}. */

@@ -31,6 +31,9 @@
   "spawn_overrides": {},
   "step": "underground_structures",
   "terrain_adaptation": "encapsulate",
+  "unused_pieces": [
+    "eam:crypt/entrance/1"
+  ],
   "village": {
     "abandoned_villages_after_iron_age": 0.25,
     "chance_after_iron_age": 1.0,

@@ -35,6 +35,15 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 	public record Stairs(Identifier id, int lowerDoors, int upperDoors) {
 	}
 
+	/** These pieces without the templates in {@code unused}. */
+	public CryptPieces without(List<Identifier> unused) {
+		if (unused.isEmpty()) return this;
+		return new CryptPieces(rooms.stream().filter(piece -> !unused.contains(piece.id())).toList(),
+				entrances.stream().filter(entrance -> !unused.contains(entrance.id())).toList(),
+				stairs.stream().filter(stair -> !unused.contains(stair.id())).toList(),
+				bosses.stream().filter(boss -> !unused.contains(boss)).toList(), tier2Treasuries);
+	}
+
 	public static CryptPieces load(StructureTemplateManager manager) {
 		List<Piece<Identifier>> rooms = new ArrayList<>();
 		List<Entrance> entrances = new ArrayList<>();

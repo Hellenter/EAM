@@ -112,6 +112,8 @@ public class CryptRoomPiece extends TemplateStructurePiece {
 	public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
 			BoundingBox box, ChunkPos chunk, BlockPos reference) {
 		super.postProcess(level, structures, generator, random, box, chunk, reference);
+		// Placing the template resets the box to the whole template; chunks shaped later must still see the cut one.
+		cutBox();
 		seal(level, random, box, sealedDoors, 0);
 		// The sarcophagus is in the middle of the room, which turns about it.
 		BlockPos sarcophagus = templatePosition.offset(CryptBoss.SARCOPHAGUS);

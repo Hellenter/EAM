@@ -18,7 +18,8 @@ import java.util.List;
 
 /**
  * The Fallen Lord lies in the sarcophagus in the middle of the boss room. The room leaves a marker in the sarcophagus;
- * the first time a player walks into the room the marker goes, he breaks the lid and rises.
+ * the first time a player comes within {@link #WAKE_DISTANCE} blocks of it inside the room, the marker goes, he breaks
+ * the lid and rises.
  */
 public final class CryptBoss {
 	/** Where he lies in the boss template: the hollow of the sarcophagus, in the middle of the room. */
@@ -29,6 +30,8 @@ public final class CryptBoss {
 	private static final int ROOM_HEIGHT = 18;
 	private static final String MARKER_TAG = "eam.crypt_boss";
 	private static final int CHECK_INTERVAL = 20;
+	/** How close to the sarcophagus a player wakes him, in blocks. */
+	private static final double WAKE_DISTANCE = 9.0;
 
 	private CryptBoss() {
 	}
@@ -59,10 +62,11 @@ public final class CryptBoss {
 
 	private static void check(ServerLevel level, ServerPlayer player) {
 		List<Marker> markers = level.getEntities(EntityTypes.MARKER,
-				player.getBoundingBox().inflate(CryptModule.BOSS_SIZE / 2.0, ROOM_HEIGHT, CryptModule.BOSS_SIZE / 2.0),
-				marker -> marker.entityTags().contains(MARKER_TAG));
+				player.getBoundingBox().inflate(WAKE_DISTANCE), marker -> marker.entityTags().contains(MARKER_TAG));
 		for (Marker marker : markers) {
-			if (room(marker.blockPosition()).isInside(player.blockPosition())) rise(level, marker);
+			if (marker.distanceToSqr(player) <= WAKE_DISTANCE * WAKE_DISTANCE && room(marker.blockPosition()).isInside(player.blockPosition())) {
+				rise(level, marker);
+			}
 		}
 	}
 

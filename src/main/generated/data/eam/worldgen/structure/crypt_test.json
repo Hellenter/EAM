@@ -30,5 +30,8 @@
   },
   "spawn_overrides": {},
   "step": "underground_structures",
-  "terrain_adaptation": "encapsulate"
+  "terrain_adaptation": "encapsulate",
+  "unused_pieces": [
+    "eam:crypt/entrance/1"
+  ]
 }

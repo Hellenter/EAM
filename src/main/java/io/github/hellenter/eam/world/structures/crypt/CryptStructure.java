@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntBinaryOperator;
 
 /**
  * A crypt: an entrance on the surface whose stairs lead down to the first level of rooms laid out by
@@ -48,6 +49,7 @@ import java.util.Optional;
  * @param tier2Treasuries the most treasuries with a tier-2 chest each level may have, from the top; levels past the
  *                       end of the list have no limit
  * @param village        when present, the crypt only generates by an abandoned village
+ * @param unusedPieces   templates the crypt leaves out for now, of any kind
  */
 public class CryptStructure extends Structure {
 	public static final MapCodec<CryptStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -59,10 +61,14 @@ public class CryptStructure extends Structure {
 			Codec.intRange(1, 4).optionalFieldOf("levels", 2).forGetter(crypt -> crypt.levels),
 			IntProviders.codec(0, 8).optionalFieldOf("big_rooms", ConstantInt.of(0)).forGetter(crypt -> crypt.bigRooms),
 			ExtraCodecs.NON_NEGATIVE_INT.listOf().optionalFieldOf("max_tier_2_treasuries", List.of()).forGetter(crypt -> crypt.tier2Treasuries),
-			VillageRule.CODEC.optionalFieldOf("village").forGetter(crypt -> crypt.village)
+			VillageRule.CODEC.optionalFieldOf("village").forGetter(crypt -> crypt.village),
+			Identifier.CODEC.listOf().optionalFieldOf("unused_pieces", List.of()).forGetter(crypt -> crypt.unusedPieces)
 	).apply(instance, CryptStructure::new));
 
-	/** How far above a piece's box the world still raises terrain to wall the crypt in. */
+	/**
+	 * How far above a piece's box the world still raises terrain to wall the crypt in. Rooms near the surface report a
+	 * lower box, or the ground above them would swell into mounds the shape of the crypt.
+	 */
 	private static final int SHAPE_REACH = 12;
 	/** Pieces must stay within this many chunks of the chunk the crypt starts in, or the world never places them. */
 	private static final int CHUNK_REACH = 8;
@@ -98,9 +104,11 @@ public class CryptStructure extends Structure {
 	private final IntProvider bigRooms;
 	private final List<Integer> tier2Treasuries;
 	private final Optional<VillageRule> village;
+	private final List<Identifier> unusedPieces;
 
 	public CryptStructure(StructureSettings settings, IntProvider rooms, IntProvider branches, int entranceGround,
-			List<Identifier> deepRooms, int levels, IntProvider bigRooms, List<Integer> tier2Treasuries, Optional<VillageRule> village) {
+			List<Identifier> deepRooms, int levels, IntProvider bigRooms, List<Integer> tier2Treasuries, Optional<VillageRule> village,
+			List<Identifier> unusedPieces) {
 		super(settings);
 		this.rooms = rooms;
 		this.branches = branches;
@@ -110,6 +118,7 @@ public class CryptStructure extends Structure {
 		this.bigRooms = bigRooms;
 		this.tier2Treasuries = tier2Treasuries;
 		this.village = village;
+		this.unusedPieces = unusedPieces;
 	}
 
 	public Optional<VillageRule> village() {
@@ -118,7 +127,7 @@ public class CryptStructure extends Structure {
 
 	@Override
 	protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
-		CryptPieces pieces = CryptPieces.load(context.structureTemplateManager());
+		CryptPieces pieces = CryptPieces.load(context.structureTemplateManager()).without(unusedPieces);
 		if (pieces.entrances().isEmpty() || pieces.rooms().isEmpty()) return Optional.empty();
 		ChunkPos chunk = context.chunkPos();
 		RandomSource random = context.random();
@@ -142,8 +151,9 @@ public class CryptStructure extends Structure {
 		List<CryptLayout> layouts = CryptLayout.generate(random::nextInt, bounds(chunk, firstCell), depth, big,
 				() -> rooms.sample(random), () -> branches.sample(random));
 		if (layouts == null) return Optional.empty();
+		IntBinaryOperator surface = (x, z) -> surface(context, x, z, Heightmap.Types.WORLD_SURFACE_WG);
 		return Optional.of(new GenerationStub(origin, builder -> build(builder, context.structureTemplateManager(), pieces,
-				entrance, origin, firstCell, layouts, random)));
+				entrance, origin, firstCell, layouts, surface, random)));
 	}
 
 	/**
@@ -205,7 +215,8 @@ public class CryptStructure extends Structure {
 	}
 
 	private void build(StructurePiecesBuilder builder, StructureTemplateManager manager, CryptPieces pieces,
-			CryptPieces.Entrance entrance, BlockPos origin, BlockPos firstCell, List<CryptLayout> levels, RandomSource random) {
+			CryptPieces.Entrance entrance, BlockPos origin, BlockPos firstCell, List<CryptLayout> levels, IntBinaryOperator surface,
+			RandomSource random) {
 		builder.addPiece(new CryptRoomPiece(manager, entrance.id(), origin, Rotation.NONE, 0, 0, Math.max(1, entranceGround - SHAPE_REACH)));
 		int depth = levels.size();
 		for (int level = 0; level < depth; level++) {
@@ -223,7 +234,7 @@ public class CryptStructure extends Structure {
 				if (role == Role.BIG || cell.equals(layout.up())) continue;
 				if (cell.equals(layout.down())) {
 					addStairs(builder, manager, pieces, position.below(CryptModule.LEVEL_HEIGHT),
-							levels.get(level + 1).rooms().get(cell).doors(), room.doors(), random);
+							levels.get(level + 1).rooms().get(cell).doors(), room.doors(), surface, random);
 					continue;
 				}
 				List<Piece<Identifier>> choice = templates;
@@ -233,26 +244,44 @@ public class CryptStructure extends Structure {
 				Fit<Identifier> fit = CryptLayout.fit(choice, role, room.doors(), random::nextInt);
 				if (fit == null) continue;
 				if (role == Role.TREASURY && pieces.tier2Treasuries().contains(fit.id())) tier2Left--;
-				builder.addPiece(new CryptRoomPiece(manager, fit.id(), position, Rotation.values()[fit.quarters()], fit.extraDoors(), 0, 0));
+				builder.addPiece(new CryptRoomPiece(manager, fit.id(), position, Rotation.values()[fit.quarters()], fit.extraDoors(), 0,
+						shapedHeight(manager, fit.id(), position, surface)));
 			}
 			for (CryptLayout.Big big : layout.bigs()) {
 				Fit<Identifier> fit = CryptLayout.fit(templates, Role.BIG, big.doors(layout.rooms()), random::nextInt);
 				if (fit == null) continue;
 				BlockPos position = levelCorner.offset(big.corner().x() * CryptModule.CELL, 0, big.corner().z() * CryptModule.CELL);
-				builder.addPiece(new CryptRoomPiece(manager, fit.id(), position, Rotation.values()[fit.quarters()], fit.extraDoors(), 0, 0));
+				builder.addPiece(new CryptRoomPiece(manager, fit.id(), position, Rotation.values()[fit.quarters()], fit.extraDoors(), 0,
+						shapedHeight(manager, fit.id(), position, surface)));
 			}
 			CryptLayout.Boss boss = layout.boss();
 			if (boss != null && !pieces.bosses().isEmpty()) {
 				Identifier id = pieces.bosses().get(random.nextInt(pieces.bosses().size()));
 				BlockPos position = levelCorner.offset((boss.middle().x() - 1) * CryptModule.CELL, 0, (boss.middle().z() - 1) * CryptModule.CELL);
-				builder.addPiece(new CryptRoomPiece(manager, id, position, Rotation.values()[random.nextInt(4)], ~boss.door() & 0xF, 0, 0));
+				builder.addPiece(new CryptRoomPiece(manager, id, position, Rotation.values()[random.nextInt(4)], ~boss.door() & 0xF, 0,
+						shapedHeight(manager, id, position, surface)));
 			}
 		}
 	}
 
+	/**
+	 * How many layers of a room at {@code corner} the world shapes terrain around, so it stays {@link #SHAPE_REACH}
+	 * below the lowest ground over the room: 0 for all of them.
+	 */
+	private static int shapedHeight(StructureTemplateManager manager, Identifier template, BlockPos corner, IntBinaryOperator surface) {
+		var size = manager.getOrCreate(template).getSize();
+		int last = size.getX() - 1;
+		int ground = Integer.MAX_VALUE;
+		for (int[] spot : new int[][] {{0, 0}, {last, 0}, {0, last}, {last, last}, {last / 2, last / 2}}) {
+			ground = Math.min(ground, surface.applyAsInt(corner.getX() + spot[0], corner.getZ() + spot[1]));
+		}
+		int layers = ground - SHAPE_REACH - corner.getY();
+		return layers >= size.getY() ? 0 : Math.max(1, layers);
+	}
+
 	/** Puts in stairs turned so they have the doors both levels need, with the rest walled up. */
 	private static void addStairs(StructurePiecesBuilder builder, StructureTemplateManager manager, CryptPieces pieces,
-			BlockPos position, int lowerDoors, int upperDoors, RandomSource random) {
+			BlockPos position, int lowerDoors, int upperDoors, IntBinaryOperator surface, RandomSource random) {
 		CryptPieces.Stairs stairs = pieces.stairs().get(random.nextInt(pieces.stairs().size()));
 		int first = random.nextInt(4);
 		for (int k = 0; k < 4; k++) {
@@ -261,7 +290,7 @@ public class CryptStructure extends Structure {
 			int upper = CryptLayout.rotate(stairs.upperDoors(), quarters);
 			if ((lower & lowerDoors) != lowerDoors || (upper & upperDoors) != upperDoors) continue;
 			builder.addPiece(new CryptRoomPiece(manager, stairs.id(), position, Rotation.values()[quarters],
-					lower & ~lowerDoors, upper & ~upperDoors, 0));
+					lower & ~lowerDoors, upper & ~upperDoors, shapedHeight(manager, stairs.id(), position, surface)));
 			return;
 		}
 	}
