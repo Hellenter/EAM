@@ -9,6 +9,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -17,11 +18,12 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSeriali
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
  * One crypt room: a square template turned about its middle, so it keeps its footprint, with the doors the layout does
- * not use walled up after it is placed. Stairs have doors on two levels.
+ * not use walled up after it is placed. Stairs have doors on two levels; big rooms have eight doors.
  */
 public class CryptRoomPiece extends TemplateStructurePiece {
 	private final Rotation rotation;
@@ -39,7 +41,8 @@ public class CryptRoomPiece extends TemplateStructurePiece {
 
 	public CryptRoomPiece(StructureTemplateManager manager, Identifier template, BlockPos position, Rotation rotation,
 			int sealedDoors, int sealedUpperDoors, int shapedHeight) {
-		super(CryptModule.ROOM_PIECE, 0, manager, template, template.toString(), settings(rotation, pivot(manager, template)), position);
+		super(CryptModule.ROOM_PIECE, 0, manager, template, template.toString(), settings(rotation, pivot(manager, template)),
+				zeroPosition(manager, template, position, rotation));
 		this.rotation = rotation;
 		this.sealedDoors = sealedDoors;
 		this.sealedUpperDoors = sealedUpperDoors;
@@ -57,10 +60,19 @@ public class CryptRoomPiece extends TemplateStructurePiece {
 		cutBox();
 	}
 
-	/** The middle of a square template's floor, which it turns about. */
+	/**
+	 * The middle of a square template's floor, which it turns about. An even-sized template has no middle block, so it
+	 * turns about its corner and is moved back onto its footprint by {@link #zeroPosition}.
+	 */
 	private static BlockPos pivot(StructureTemplateManager manager, Identifier template) {
 		int size = manager.getOrCreate(template).getSize().getX();
-		return new BlockPos(size / 2, 0, size / 2);
+		return size % 2 == 0 ? BlockPos.ZERO : new BlockPos(size / 2, 0, size / 2);
+	}
+
+	/** Where a template turned by {@code rotation} goes so it covers the footprint whose north-west corner is {@code position}. */
+	private static BlockPos zeroPosition(StructureTemplateManager manager, Identifier template, BlockPos position, Rotation rotation) {
+		StructureTemplate structure = manager.getOrCreate(template);
+		return structure.getSize().getX() % 2 == 0 ? structure.getZeroPositionWithTransform(position, Mirror.NONE, rotation) : position;
 	}
 
 	private boolean isBoss() {
@@ -100,6 +112,8 @@ public class CryptRoomPiece extends TemplateStructurePiece {
 	public void postProcess(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
 			BoundingBox box, ChunkPos chunk, BlockPos reference) {
 		super.postProcess(level, structures, generator, random, box, chunk, reference);
+		// Placing the template resets the box to the whole template; chunks shaped later must still see the cut one.
+		cutBox();
 		seal(level, random, box, sealedDoors, 0);
 		// The sarcophagus is in the middle of the room, which turns about it.
 		BlockPos sarcophagus = templatePosition.offset(CryptBoss.SARCOPHAGUS);
@@ -107,23 +121,28 @@ public class CryptRoomPiece extends TemplateStructurePiece {
 		seal(level, random, box, sealedUpperDoors, CryptModule.LEVEL_HEIGHT);
 	}
 
+	/** Walls up {@code doors}, in world directions; for a big room an 8-bit mask as in {@link CryptLayout.Big#doors}. */
 	private void seal(WorldGenLevel level, RandomSource random, BoundingBox box, int doors, int floor) {
 		int size = template.getSize().getX();
-		int last = size - 1;
-		int from = CryptModule.doorFrom(size);
+		if (size == 2 * CryptModule.CELL) {
+			for (int door = 0; door < 8; door++) {
+				if ((doors >> door & 1) != 0) wall(level, random, box, size, CryptLayout.bigDoorSide(door), CryptModule.bigDoorFrom(door), floor);
+			}
+			return;
+		}
 		for (int direction : new int[] {CryptLayout.NORTH, CryptLayout.EAST, CryptLayout.SOUTH, CryptLayout.WEST}) {
-			if ((doors & direction) == 0) continue;
-			for (int along = from; along < from + CryptModule.DOOR_WIDTH; along++) {
-				for (int y = floor + 1; y <= floor + CryptModule.DOOR_HEIGHT; y++) {
-					BlockPos pos = switch (direction) {
-						case CryptLayout.NORTH -> templatePosition.offset(along, y, 0);
-						case CryptLayout.SOUTH -> templatePosition.offset(along, y, last);
-						case CryptLayout.WEST -> templatePosition.offset(0, y, along);
-						default -> templatePosition.offset(last, y, along);
-					};
-					if (!box.isInside(pos)) continue;
-					level.setBlock(pos, (random.nextInt(4) == 0 ? Blocks.CRACKED_STONE_BRICKS : Blocks.STONE_BRICKS).defaultBlockState(), 2);
-				}
+			if ((doors & direction) != 0) wall(level, random, box, size, direction, CryptModule.doorFrom(size), floor);
+		}
+	}
+
+	private void wall(WorldGenLevel level, RandomSource random, BoundingBox box, int size, int side, int from, int floor) {
+		// The footprint's corner: a turned even-sized template starts at another corner of it.
+		BlockPos corner = new BlockPos(boundingBox.minX(), templatePosition.getY(), boundingBox.minZ());
+		for (int along = from; along < from + CryptModule.DOOR_WIDTH; along++) {
+			for (int y = floor + 1; y <= floor + CryptModule.DOOR_HEIGHT; y++) {
+				BlockPos pos = corner.offset(CryptModule.sidePos(side, along, y, size - 1));
+				if (!box.isInside(pos)) continue;
+				level.setBlock(pos, (random.nextInt(4) == 0 ? Blocks.CRACKED_STONE_BRICKS : Blocks.STONE_BRICKS).defaultBlockState(), 2);
 			}
 		}
 	}

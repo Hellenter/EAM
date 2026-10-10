@@ -20,9 +20,11 @@ import java.util.Set;
 
 /**
  * The crypt's room templates, found by name: {@code eam:crypt/<kind>/<n>}. Each room's doors are read from the template
- * itself, as the door places on its sides that are open (air).
+ * itself, as the door places on its sides that are open (air). Big rooms ({@code big/}) take 2x2 cells and have two
+ * door places on each side. Treasuries with a tier-2 chest marker are tier-2 treasuries.
  */
-public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrances, List<Stairs> stairs, List<Identifier> bosses) {
+public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrances, List<Stairs> stairs, List<Identifier> bosses,
+		Set<Identifier> tier2Treasuries) {
 	private static final String FOLDER = "crypt/";
 
 	/** An entrance template and where its way into the crypt is: the open middle of its north side, at the floor. */
@@ -33,11 +35,21 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 	public record Stairs(Identifier id, int lowerDoors, int upperDoors) {
 	}
 
+	/** These pieces without the templates in {@code unused}. */
+	public CryptPieces without(List<Identifier> unused) {
+		if (unused.isEmpty()) return this;
+		return new CryptPieces(rooms.stream().filter(piece -> !unused.contains(piece.id())).toList(),
+				entrances.stream().filter(entrance -> !unused.contains(entrance.id())).toList(),
+				stairs.stream().filter(stair -> !unused.contains(stair.id())).toList(),
+				bosses.stream().filter(boss -> !unused.contains(boss)).toList(), tier2Treasuries);
+	}
+
 	public static CryptPieces load(StructureTemplateManager manager) {
 		List<Piece<Identifier>> rooms = new ArrayList<>();
 		List<Entrance> entrances = new ArrayList<>();
 		List<Stairs> stairs = new ArrayList<>();
 		List<Identifier> bosses = new ArrayList<>();
+		Set<Identifier> tier2Treasuries = new HashSet<>();
 		manager.listTemplates()
 				.filter(id -> id.getNamespace().equals(Eam.MOD_ID) && id.getPath().startsWith(FOLDER))
 				.sorted()
@@ -49,13 +61,19 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 						case "corridor" -> Role.CORRIDOR;
 						case "fight" -> Role.FIGHT;
 						case "treasury" -> Role.TREASURY;
+						case "big" -> Role.BIG;
 						default -> null;
 					};
 					Vec3i size = template.getSize();
 					boolean oneCell = size.getX() == CryptModule.CELL && size.getZ() == CryptModule.CELL;
-					if (role != null && oneCell) {
+					if (role == Role.BIG) {
+						if (size.getX() != 2 * CryptModule.CELL || size.getZ() != 2 * CryptModule.CELL) return;
+						int doors = bigDoors(air);
+						if (doors != 0) rooms.add(new Piece<>(id, role, doors));
+					} else if (role != null && oneCell) {
 						int doors = doors(air, CryptModule.CELL, 0);
 						if (doors != 0) rooms.add(new Piece<>(id, role, doors));
+						if (role == Role.TREASURY && has(template, CryptMarkers.TIER_2_CHEST)) tier2Treasuries.add(id);
 					} else if (kind.equals("stairs") && oneCell && size.getY() > CryptModule.LEVEL_HEIGHT) {
 						int lower = doors(air, CryptModule.CELL, 0);
 						int upper = doors(air, CryptModule.CELL, CryptModule.LEVEL_HEIGHT);
@@ -67,7 +85,7 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 						if (exit >= 0) entrances.add(new Entrance(id, exit));
 					}
 				});
-		return new CryptPieces(rooms, entrances, stairs, bosses);
+		return new CryptPieces(rooms, entrances, stairs, bosses, tier2Treasuries);
 	}
 
 	/** Where the template is open: air, plus markers that usually turn into air. */
@@ -81,24 +99,39 @@ public record CryptPieces(List<Piece<Identifier>> rooms, List<Entrance> entrance
 		return air;
 	}
 
+	private static boolean has(StructureTemplate template, Block block) {
+		return !template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), block).isEmpty();
+	}
+
 	/** A side has a door when most of its 3x3 door place, on the level whose floor is at {@code floor}, is open. */
 	static int doors(Set<BlockPos> air, int size, int floor) {
-		int last = size - 1;
 		int from = CryptModule.doorFrom(size);
 		int doors = 0;
-		int[][] sides = {{CryptLayout.NORTH, 0}, {CryptLayout.SOUTH, last}, {CryptLayout.WEST, 0}, {CryptLayout.EAST, last}};
-		for (int[] side : sides) {
-			int open = 0;
-			for (int along = from; along < from + CryptModule.DOOR_WIDTH; along++) {
-				for (int y = floor + 1; y <= floor + CryptModule.DOOR_HEIGHT; y++) {
-					boolean northSouth = side[0] == CryptLayout.NORTH || side[0] == CryptLayout.SOUTH;
-					BlockPos pos = northSouth ? new BlockPos(along, y, side[1]) : new BlockPos(side[1], y, along);
-					if (air.contains(pos)) open++;
-				}
-			}
-			if (open * 2 > CryptModule.DOOR_WIDTH * CryptModule.DOOR_HEIGHT) doors |= side[0];
+		for (int direction : new int[] {CryptLayout.NORTH, CryptLayout.EAST, CryptLayout.SOUTH, CryptLayout.WEST}) {
+			if (open(air, size, direction, from, floor)) doors |= direction;
 		}
 		return doors;
+	}
+
+	/** A big room's doors as the 8-bit mask of {@link CryptLayout.Big#doors}. */
+	static int bigDoors(Set<BlockPos> air) {
+		int doors = 0;
+		for (int door = 0; door < 8; door++) {
+			if (open(air, 2 * CryptModule.CELL, CryptLayout.bigDoorSide(door), CryptModule.bigDoorFrom(door), 0)) doors |= 1 << door;
+		}
+		return doors;
+	}
+
+	/** Whether most of the 3x3 door place starting {@code from} blocks along the {@code side} is open. */
+	private static boolean open(Set<BlockPos> air, int size, int side, int from, int floor) {
+		int last = size - 1;
+		int open = 0;
+		for (int along = from; along < from + CryptModule.DOOR_WIDTH; along++) {
+			for (int y = floor + 1; y <= floor + CryptModule.DOOR_HEIGHT; y++) {
+				if (air.contains(CryptModule.sidePos(side, along, y, last))) open++;
+			}
+		}
+		return open * 2 > CryptModule.DOOR_WIDTH * CryptModule.DOOR_HEIGHT;
 	}
 
 	/** The middle of the open stretch on the entrance's north side at floor level, or -1 when it has none. */
