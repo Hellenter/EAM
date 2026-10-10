@@ -377,6 +377,7 @@ public final class EamLanguageProviders {
 			builder.add("item.minecraft.powder_snow_bucket", "Iron Powder Snow Bucket");
 			builder.add("item.minecraft.milk_bucket", "Iron Milk Bucket");
 			builder.add("message.eam.bucket_melted", "The bucket melted in the lava!");
+			builder.add("item.eam.bucket.lava_melt_chance", "Melts when scooping lava: %s%%");
 			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Mithril Shovel");
 			builder.add(EamItems.MITHRIL_PICKAXE, "Mithril Pickaxe");
@@ -769,6 +770,7 @@ public final class EamLanguageProviders {
 			builder.add("item.minecraft.powder_snow_bucket", "Железное ведро рыхлого снега");
 			builder.add("item.minecraft.milk_bucket", "Железное ведро молока");
 			builder.add("message.eam.bucket_melted", "Ведро расплавилось в лаве!");
+			builder.add("item.eam.bucket.lava_melt_chance", "Плавится при наборе лавы: %s%%");
 			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
 			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Мифриловая лопата");

@@ -2,8 +2,12 @@ package io.github.hellenter.eam.content.bucket;
 
 import io.github.hellenter.eam.mixin.content.bucket.CauldronDispatcherInvoker;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.BlockPos;
@@ -47,6 +51,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -62,6 +67,10 @@ public final class BucketModule {
 
 	public static void register() {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(BucketSettingsLoader.ID, new BucketSettingsLoader());
+		PayloadTypeRegistry.clientboundPlay().register(BucketMeltChancesPayload.TYPE, BucketMeltChancesPayload.STREAM_CODEC);
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sendMeltChances(handler.player));
+		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) ->
+				server.getPlayerList().getPlayers().forEach(BucketModule::sendMeltChances));
 		for (Map<BucketContent, Item> set : MetalBuckets.sets()) {
 			DispenserBlock.registerBehavior(set.get(BucketContent.EMPTY), EMPTY_BUCKET_DISPENSE);
 		}
@@ -95,6 +104,17 @@ public final class BucketModule {
 
 	static void setSettings(BucketSettings newSettings) {
 		settings = newSettings;
+	}
+
+	/** Tells the client each empty bucket's melting chance for the tooltip. */
+	private static void sendMeltChances(ServerPlayer player) {
+		if (!ServerPlayNetworking.canSend(player, BucketMeltChancesPayload.TYPE)) return;
+		Map<Item, Float> chances = new HashMap<>();
+		for (Map<BucketContent, Item> set : MetalBuckets.sets()) {
+			Item empty = set.get(BucketContent.EMPTY);
+			chances.put(empty, settings.meltChance(empty));
+		}
+		ServerPlayNetworking.send(player, new BucketMeltChancesPayload(chances));
 	}
 
 	/** Whether the empty {@code bucket} melts as it scoops lava now. */

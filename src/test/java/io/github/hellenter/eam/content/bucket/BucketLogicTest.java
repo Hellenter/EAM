@@ -20,4 +20,13 @@ class BucketLogicTest {
 		assertFalse(BucketLogic.melts(0.16F, 0.16F));
 		assertFalse(BucketLogic.melts(0.0F, 0.0F));
 	}
+
+	@Test
+	void percentHasAtMostOneDecimal() {
+		assertEquals("16", BucketLogic.percent(0.16F));
+		assertEquals("8", BucketLogic.percent(0.08F));
+		assertEquals("1", BucketLogic.percent(0.01F));
+		assertEquals("0.5", BucketLogic.percent(0.005F));
+		assertEquals("100", BucketLogic.percent(1.0F));
+	}
 }
