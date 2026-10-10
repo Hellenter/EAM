@@ -75,6 +75,7 @@ public final class CryptBoss {
 		FallenLord boss = EamEntities.FALLEN_LORD.create(level, EntitySpawnReason.TRIGGERED);
 		if (boss == null) return;
 		boss.snapTo(sarcophagus.getX() + 0.5, sarcophagus.getY(), sarcophagus.getZ() + 0.5, level.getRandom().nextFloat() * 360.0F, 0.0F);
+		boss.setArena(room(sarcophagus));
 		boss.finalizeSpawn(level, level.getCurrentDifficultyAt(sarcophagus), EntitySpawnReason.TRIGGERED, null);
 		level.addFreshEntity(boss);
 	}
