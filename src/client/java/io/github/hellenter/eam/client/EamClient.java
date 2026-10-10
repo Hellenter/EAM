@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client;
 
 import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
+import io.github.hellenter.eam.client.bucket.BucketMeltTooltip;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
@@ -54,6 +55,7 @@ public class EamClient implements ClientModInitializer {
 		MenuScreens.<BrewingStandMenu, SilverBrewingStandScreen>register(BrewingModule.MENU, SilverBrewingStandScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();
+		BucketMeltTooltip.register();
 		AnvilProgress.register();
 		EnchantingClient.register();
 		BloodMoonSky.register();
