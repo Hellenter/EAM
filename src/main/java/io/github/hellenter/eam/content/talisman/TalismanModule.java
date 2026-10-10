@@ -45,7 +45,9 @@ public final class TalismanModule {
 	/** Always: the client must know the payload whatever the server config says. */
 	public static void register() {
 		PayloadTypeRegistry.clientboundPlay().register(TalismanActivationPayload.TYPE, TalismanActivationPayload.STREAM_CODEC);
-		ServerTickEvents.END_SERVER_TICK.register(server -> tick());
+		PayloadTypeRegistry.clientboundPlay().register(TalismanLitPayload.TYPE, TalismanLitPayload.STREAM_CODEC);
+		// Before the levels tick, so the portal blocks go out to clients in the same tick as the flash and the glow.
+		ServerTickEvents.START_SERVER_TICK.register(server -> tick());
 	}
 
 	/** Turns on the overworld rule: fire alone no longer lights a portal there. */
@@ -153,15 +155,15 @@ public final class TalismanModule {
 			for (int i = 0; i < 2; i++) {
 				double angle = age * 0.9 + i * Math.PI;
 				Vec3 offset = side.scale(Math.cos(angle) * 0.25).add(up.scale(Math.sin(angle) * 0.25));
-				level.sendParticles(i == 0 ? PURPLE : BLUE, head.x + offset.x, head.y + offset.y, head.z + offset.z, 2, 0.04, 0.04, 0.04, 0.0);
+				level.sendParticles(i == 0 ? PURPLE : BLUE, head.x + offset.x, head.y + offset.y, head.z + offset.z, 3, 0.04, 0.04, 0.04, 0.0);
 			}
-			level.sendParticles(ParticleTypes.WITCH, head.x, head.y, head.z, 1, 0.1, 0.1, 0.1, 0.0);
+			level.sendParticles(ParticleTypes.WITCH, head.x, head.y, head.z, 1 + age % 2, 0.1, 0.1, 0.1, 0.0);
 		}
 
 		/** The frame and the space inside it sparkle, strongest at the moment it lights. */
 		private void frame() {
 			double glow = TalismanLogic.frameGlow(age);
-			int sparks = (int) Math.round(glow * (width + height));
+			int sparks = (int) Math.round(1.5 * glow * (width + height));
 			for (int i = 0; i < sparks; i++) {
 				// Inside the frame.
 				int x = level.getRandom().nextInt(width);
@@ -205,11 +207,14 @@ public final class TalismanModule {
 			}
 			shape.get().createPortalBlocks(level);
 			lit = true;
+			if (!player.isRemoved() && ServerPlayNetworking.canSend(player, TalismanLitPayload.TYPE)) {
+				ServerPlayNetworking.send(player, new TalismanLitPayload(bottomLeft));
+			}
 			level.gameEvent(player, GameEvent.BLOCK_PLACE, BlockPos.containing(center));
-			level.sendParticles(PURPLE, center.x, center.y, center.z, 40, width * 0.35, height * 0.35, 0.35, 0.0);
-			level.sendParticles(BLUE, center.x, center.y, center.z, 30, width * 0.35, height * 0.35, 0.35, 0.0);
-			level.sendParticles(PALE, center.x, center.y, center.z, 20, width * 0.3, height * 0.3, 0.3, 0.0);
-			level.sendParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 60, width * 0.3, height * 0.3, 0.3, 0.15);
+			level.sendParticles(PURPLE, center.x, center.y, center.z, 60, width * 0.35, height * 0.35, 0.35, 0.0);
+			level.sendParticles(BLUE, center.x, center.y, center.z, 45, width * 0.35, height * 0.35, 0.35, 0.0);
+			level.sendParticles(PALE, center.x, center.y, center.z, 30, width * 0.3, height * 0.3, 0.3, 0.0);
+			level.sendParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 90, width * 0.3, height * 0.3, 0.3, 0.15);
 			level.playSound(null, center.x, center.y, center.z, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.BLOCKS, 1.0F, 0.7F);
 			level.playSound(null, center.x, center.y, center.z, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.BLOCKS, 1.0F, 0.8F);
 		}
