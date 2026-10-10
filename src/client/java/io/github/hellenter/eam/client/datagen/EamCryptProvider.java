@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptStructure;
 
@@ -17,6 +18,7 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 /**
  * The crypt structure: a main path of 7 to 10 rooms with 1 to 3 side passages. The entrance template's 18th layer
@@ -32,7 +34,9 @@ public class EamCryptProvider extends FabricDynamicRegistryProvider {
 		context.register(CryptModule.STRUCTURE, new CryptStructure(
 				new Structure.StructureSettings(biomes.getOrThrow(BiomeTags.IS_OVERWORLD), Map.of(),
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
-				UniformInt.of(7, 10), UniformInt.of(1, 3), 17));
+				UniformInt.of(7, 10), UniformInt.of(1, 3), 17,
+				// Maxim's harder rooms wait for the second level.
+				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6").map(room -> Eam.id("crypt/" + room)).toList()));
 	}
 
 	@Override
