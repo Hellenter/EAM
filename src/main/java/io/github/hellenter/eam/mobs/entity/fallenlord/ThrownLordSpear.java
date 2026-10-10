@@ -34,16 +34,20 @@ public class ThrownLordSpear extends AbstractArrow {
 	/** Flying back to the owner; synced so clients steer it the same way between position updates. */
 	private static final EntityDataAccessor<Boolean> DATA_FLYING_BACK = SynchedEntityData.defineId(ThrownLordSpear.class,
 			EntityDataSerializers.BOOLEAN);
-	/** A spear that hit nothing starts back after this many ticks. */
-	private static final int RETURN_AFTER = 30;
+	/** A spear that hit nothing starts back after this many ticks, before it gets far. */
+	private static final int RETURN_AFTER = 8;
 	/** A spear left lying vanishes after this many ticks in the ground. */
 	private static final int LIE_TICKS = 200;
-	private static final double RETURN_ACCELERATION = 0.15;
+	/** On the way back it flies straight at his hand, this fast at first, faster every tick up to the most. */
+	private static final double RETURN_START_SPEED = 1.2;
+	private static final double RETURN_ACCELERATION = 0.25;
+	private static final double RETURN_MAX_SPEED = 3.5;
 
 	private float damage = 7.0F;
 	private boolean returning = true;
 	private boolean dealtDamage;
 	private boolean playedReturnSound;
+	private double returnSpeed = RETURN_START_SPEED;
 
 	public ThrownLordSpear(EntityType<? extends ThrownLordSpear> type, Level level) {
 		super(type, level);
@@ -65,7 +69,7 @@ public class ThrownLordSpear extends AbstractArrow {
 
 	@Override
 	public void tick() {
-		if (isInGround() && inGroundTime > 4) {
+		if (isInGround() && inGroundTime > 1) {
 			dealtDamage = true;
 		}
 		if (!level().isClientSide()) {
@@ -100,7 +104,9 @@ public class ThrownLordSpear extends AbstractArrow {
 			return false;
 		}
 		setNoPhysics(true);
-		setDeltaMovement(getDeltaMovement().scale(0.95).add(toHand.normalize().scale(RETURN_ACCELERATION)));
+		// Straight back without the trident's slow turn, so a miss does not leave him unarmed for long.
+		setDeltaMovement(toHand.normalize().scale(Math.min(returnSpeed, toHand.length())));
+		returnSpeed = Math.min(RETURN_MAX_SPEED, returnSpeed + RETURN_ACCELERATION);
 		if (server && !playedReturnSound) {
 			playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 0.8F);
 			playedReturnSound = true;

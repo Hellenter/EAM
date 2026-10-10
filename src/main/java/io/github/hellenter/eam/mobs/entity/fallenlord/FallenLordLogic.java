@@ -50,6 +50,8 @@ public final class FallenLordLogic {
 	public static final double BACKSTAB_BEHIND = 1.6;
 	/** On the way he passes the player's side this far out. */
 	public static final double BACKSTAB_SIDE = 2.0;
+	/** The death burst never has more orbs than this. */
+	public static final int MAX_ORBS = 256;
 
 	public enum Attack {
 		POKE(1), DASH(1), THROW(1), SWIPE(1), SLASH(2), COMBO(2), LUNGE(2), WHIRL(2), SWORD_DASH(2),
@@ -386,9 +388,63 @@ public final class FallenLordLogic {
 		return values;
 	}
 
+	/** Orbs for {@code xp} experience: about {@link FallenLordSettings.Death#orbXp()} each, at most {@link #MAX_ORBS}. */
+	public static int orbCount(int xp, FallenLordSettings.Death death) {
+		return Math.clamp((xp + death.orbXp() - 1) / death.orbXp(), 1, MAX_ORBS);
+	}
+
 	/** How many of {@code orbs} orbs fly into the inner sphere. */
 	public static int innerOrbs(int orbs, FallenLordSettings.Death death) {
 		return (int) Math.round(orbs * death.innerShare());
+	}
+
+	/**
+	 * A spear dash multiplier at {@code progress} of the run, 0 at its start and 1 at its end: from {@code start} to
+	 * {@code end} evenly.
+	 */
+	public static double alongDash(double start, double end, double progress) {
+		return start + (end - start) * Math.clamp(progress, 0.0, 1.0);
+	}
+
+	/** Hits a breather waits for: picked between the least and the most. */
+	public static int breatherHits(FallenLordSettings.Breather breather, double roll) {
+		int min = Math.min(breather.hitsMin(), breather.hitsMax());
+		int max = Math.max(breather.hitsMin(), breather.hitsMax());
+		return Math.min(max, min + (int) (roll * (max - min + 1)));
+	}
+
+	/**
+	 * Whether his hits on one player within the breather's window are many: at least {@code hitsNeeded} of them, or
+	 * together at least {@link FallenLordSettings.Breather#health()} of the player's health.
+	 *
+	 * @param blows the hits, each with the health it took
+	 */
+	public static boolean needsBreather(List<Wound> blows, long now, int hitsNeeded, FallenLordSettings.Breather breather) {
+		int hits = 0;
+		float lost = 0.0F;
+		for (Wound blow : blows) {
+			if (now - blow.tick() <= breather.window()) {
+				hits++;
+				lost += blow.amount();
+			}
+		}
+		return hits > 0 && (hits >= hitsNeeded || lost >= breather.health());
+	}
+
+	/** Chance he leaps back after {@code attacks} attacks in a row. */
+	public static double leapBackChance(int attacks, FallenLordSettings.LeapBack leapBack) {
+		return Math.clamp((attacks - leapBack.after() + 1) * leapBack.chanceStep(), 0.0, 1.0);
+	}
+
+	/**
+	 * Whether the player gave up on the lure of his stance: ran off by {@link FallenLordSettings.Stance#runAway()} from
+	 * where they stood when it began, or started to heal.
+	 *
+	 * @param eating the player is eating or drinking something
+	 */
+	public static boolean stanceBroken(double distance, double startDistance, float health, float startHealth, boolean eating,
+			FallenLordSettings.Stance stance) {
+		return eating || distance >= startDistance + stance.runAway() || health >= startHealth + stance.healed();
 	}
 
 	/** The bonuses for this many players; less than one counts as one, past the last level the last one holds. */

@@ -45,7 +45,12 @@ public enum FallenLordAction {
 	/** Sword raised overhead, its edge glowing red; then {@link #HEAVY_STRIKE}. Long enough to step out of reach. */
 	HEAVY_WINDUP(16),
 	/** The overhead cut: double damage, more reach, goes through a shield and knocks it out. */
-	HEAVY_STRIKE(12);
+	HEAVY_STRIKE(12),
+	/**
+	 * Phase two, after a leap back: the fencing stance, sword pointed at the player and the other hand raised behind,
+	 * luring them in. The server ends it; this is only the longest it can last.
+	 */
+	STANCE(400);
 
 	/** Backstab: crouch until this tick, dart to the player's side, then to their back, cut on {@link #BACKSTAB_CUT}. */
 	public static final int BACKSTAB_DART = 2;

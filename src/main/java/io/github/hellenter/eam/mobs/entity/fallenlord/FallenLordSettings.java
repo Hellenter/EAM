@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.util.ExtraCodecs;
@@ -27,13 +28,14 @@ import java.util.List;
  * @param heavyStrike        the phase two overhead strike with the red blade
  * @param undead             how he deals with undead that come close
  * @param death              the experience burst when he dies
+ * @param later              sections added after the codec's 16 fields ran out; they sit at the top level of the JSON too
  */
 public record FallenLordSettings(int armor, double physicalResistance, double repeatPenalty, PhaseOne phaseOne, PhaseTwo phaseTwo,
 		SwordDash swordDash, Regen regen, Burst burst, ShieldBreak shieldBreak, PlayerScaling players, Movement movement,
-		Backstab backstab, HeavyStrike heavyStrike, Undead undead, Death death) {
+		Backstab backstab, HeavyStrike heavyStrike, Undead undead, Death death, Later later) {
 	public static final FallenLordSettings DEFAULT = new FallenLordSettings(0, 0.25, 0.25, PhaseOne.DEFAULT, PhaseTwo.DEFAULT,
 			SwordDash.DEFAULT, Regen.DEFAULT, Burst.DEFAULT, ShieldBreak.DEFAULT, PlayerScaling.DEFAULT, Movement.DEFAULT,
-			Backstab.DEFAULT, HeavyStrike.DEFAULT, Undead.DEFAULT, Death.DEFAULT);
+			Backstab.DEFAULT, HeavyStrike.DEFAULT, Undead.DEFAULT, Death.DEFAULT, Later.DEFAULT);
 
 	public static final Codec<FallenLordSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 30).fieldOf("armor").orElse(DEFAULT.armor).forGetter(FallenLordSettings::armor),
@@ -51,7 +53,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 			Backstab.CODEC.fieldOf("backstab").orElse(Backstab.DEFAULT).forGetter(FallenLordSettings::backstab),
 			HeavyStrike.CODEC.fieldOf("heavy_strike").orElse(HeavyStrike.DEFAULT).forGetter(FallenLordSettings::heavyStrike),
 			Undead.CODEC.fieldOf("undead").orElse(Undead.DEFAULT).forGetter(FallenLordSettings::undead),
-			Death.CODEC.fieldOf("death").orElse(Death.DEFAULT).forGetter(FallenLordSettings::death)
+			Death.CODEC.fieldOf("death").orElse(Death.DEFAULT).forGetter(FallenLordSettings::death),
+			Later.MAP_CODEC.forGetter(FallenLordSettings::later)
 	).apply(instance, FallenLordSettings::new));
 
 	private static Codec<Float> damage() {
@@ -178,10 +181,12 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param cooldown         ticks from one drink to the next
 	 * @param counterDamage    the bash that answers a hit during the drink
 	 * @param counterKnockback how far the bash pushes (2.5 is about seven blocks)
+	 * @param retreat          how far he leaps back before he drinks
+	 * @param keepAway         while he drinks he backs away from a player closer than this
 	 */
 	public record Regen(double healthBelow, float healPerSecond, float maxHeal, int usesPerPhase, int cooldown, float counterDamage,
-			float counterKnockback) {
-		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F);
+			float counterKnockback, double retreat, double keepAway) {
+		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F, 8.5, 9.0);
 
 		public static final Codec<Regen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.0, 1.0).fieldOf("health_below").orElse(DEFAULT.healthBelow).forGetter(Regen::healthBelow),
@@ -190,7 +195,9 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.intRange(0, 100).fieldOf("uses_per_phase").orElse(DEFAULT.usesPerPhase).forGetter(Regen::usesPerPhase),
 				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Regen::cooldown),
 				damage().fieldOf("counter_damage").orElse(DEFAULT.counterDamage).forGetter(Regen::counterDamage),
-				Codec.floatRange(0.0F, 5.0F).fieldOf("counter_knockback").orElse(DEFAULT.counterKnockback).forGetter(Regen::counterKnockback)
+				Codec.floatRange(0.0F, 5.0F).fieldOf("counter_knockback").orElse(DEFAULT.counterKnockback).forGetter(Regen::counterKnockback),
+				Codec.doubleRange(0.0, 16.0).fieldOf("retreat").orElse(DEFAULT.retreat).forGetter(Regen::retreat),
+				Codec.doubleRange(0.0, 32.0).fieldOf("keep_away").orElse(DEFAULT.keepAway).forGetter(Regen::keepAway)
 		).apply(instance, Regen::new));
 	}
 
@@ -365,9 +372,10 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param innerShare  share of the orbs in the inner sphere
 	 * @param innerRadius radius of the inner sphere, blocks
 	 * @param outerRadius radius of the outer sphere, blocks
+	 * @param orbXp       experience in one orb, about; more experience means more orbs, not bigger ones
 	 */
-	public record Death(int xp, int xpPerPlayer, int maxPlayers, double innerShare, double innerRadius, double outerRadius) {
-		public static final Death DEFAULT = new Death(400, 150, 4, 0.3, 1.0, 3.0);
+	public record Death(int xp, int xpPerPlayer, int maxPlayers, double innerShare, double innerRadius, double outerRadius, int orbXp) {
+		public static final Death DEFAULT = new Death(750, 200, 4, 0.3, 1.3, 3.9, 8);
 
 		public static final Codec<Death> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 100000).fieldOf("xp").orElse(DEFAULT.xp).forGetter(Death::xp),
@@ -375,7 +383,131 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.intRange(1, 100).fieldOf("max_players").orElse(DEFAULT.maxPlayers).forGetter(Death::maxPlayers),
 				Codec.doubleRange(0.0, 1.0).fieldOf("inner_share").orElse(DEFAULT.innerShare).forGetter(Death::innerShare),
 				Codec.doubleRange(0.0, 16.0).fieldOf("inner_radius").orElse(DEFAULT.innerRadius).forGetter(Death::innerRadius),
-				Codec.doubleRange(0.0, 16.0).fieldOf("outer_radius").orElse(DEFAULT.outerRadius).forGetter(Death::outerRadius)
+				Codec.doubleRange(0.0, 16.0).fieldOf("outer_radius").orElse(DEFAULT.outerRadius).forGetter(Death::outerRadius),
+				Codec.intRange(1, 10000).fieldOf("orb_xp").orElse(DEFAULT.orbXp).forGetter(Death::orbXp)
 		).apply(instance, Death::new));
+	}
+
+	/**
+	 * Sections past the top-level codec's 16 fields. They are read from the top level of the JSON like the others.
+	 *
+	 * @param spearDash the phase one spear dash, stronger the further he has run
+	 * @param breather  phase two: he backs off after hurting a player badly in a short time
+	 * @param leapBack  phase two: after a few attacks in a row he leaps back
+	 * @param stance    phase two: the fencing stance after either leap, luring the player in
+	 * @param vampirism  how he heals from kills and while no player is in sight
+	 */
+	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism) {
+		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
+				Vampirism.DEFAULT);
+
+		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
+				Breather.CODEC.fieldOf("breather").orElse(Breather.DEFAULT).forGetter(Later::breather),
+				LeapBack.CODEC.fieldOf("leap_back").orElse(LeapBack.DEFAULT).forGetter(Later::leapBack),
+				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance),
+				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism)
+		).apply(instance, Later::new));
+	}
+
+	/**
+	 * He feeds on the fight: killing a player heals him by a share of the current phase's health, and while he sees no
+	 * player he slowly regenerates.
+	 *
+	 * @param killHeal      share of the phase's health a player's death gives back
+	 * @param unseenRegen   health per second while no player is in his sight
+	 */
+	public record Vampirism(double killHeal, float unseenRegen) {
+		public static final Vampirism DEFAULT = new Vampirism(0.5, 1.0F);
+
+		public static final Codec<Vampirism> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 1.0).fieldOf("kill_heal").orElse(DEFAULT.killHeal).forGetter(Vampirism::killHeal),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("unseen_regen").orElse(DEFAULT.unseenRegen).forGetter(Vampirism::unseenRegen)
+		).apply(instance, Vampirism::new));
+	}
+
+	/**
+	 * The spear dash grows along its path: a player caught right at the start gets a smaller reach and damage, one
+	 * caught at the end of the run a bigger one. In between it changes evenly. Multipliers of the dash's reach and of
+	 * {@link PhaseOne#dashDamage()}.
+	 *
+	 * @param startReach  reach at the start of the run
+	 * @param endReach    reach at the end of the run
+	 * @param startDamage damage at the start of the run
+	 * @param endDamage   damage at the end of the run
+	 */
+	public record SpearDash(double startReach, double endReach, float startDamage, float endDamage) {
+		public static final SpearDash DEFAULT = new SpearDash(0.85, 1.2, 0.85F, 1.3F);
+
+		public static final Codec<SpearDash> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 5.0).fieldOf("start_reach").orElse(DEFAULT.startReach).forGetter(SpearDash::startReach),
+				Codec.doubleRange(0.0, 5.0).fieldOf("end_reach").orElse(DEFAULT.endReach).forGetter(SpearDash::endReach),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("start_damage").orElse(DEFAULT.startDamage).forGetter(SpearDash::startDamage),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("end_damage").orElse(DEFAULT.endDamage).forGetter(SpearDash::endDamage)
+		).apply(instance, SpearDash::new));
+	}
+
+	/**
+	 * Phase two: when his hits on one player add up quickly (enough hits, or enough of the player's health), he leaps
+	 * back and takes his fencing stance, so the player is not cut down in one go.
+	 *
+	 * @param hitsMin  hits that count as many, at least
+	 * @param hitsMax  and at most; picked anew after every breather
+	 * @param health   or this much of the player's health lost to him (12 is six hearts)
+	 * @param window   within this many ticks
+	 * @param distance how far he leaps back
+	 * @param cooldown ticks from one breather to the next
+	 */
+	public record Breather(int hitsMin, int hitsMax, float health, int window, double distance, int cooldown) {
+		public static final Breather DEFAULT = new Breather(4, 5, 12.0F, 80, 5.0, 800);
+
+		public static final Codec<Breather> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(1, 100).fieldOf("hits_min").orElse(DEFAULT.hitsMin).forGetter(Breather::hitsMin),
+				Codec.intRange(1, 100).fieldOf("hits_max").orElse(DEFAULT.hitsMax).forGetter(Breather::hitsMax),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(Breather::health),
+				Codec.intRange(1, 12000).fieldOf("window").orElse(DEFAULT.window).forGetter(Breather::window),
+				Codec.doubleRange(0.0, 16.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(Breather::distance),
+				ticks().fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Breather::cooldown)
+		).apply(instance, Breather::new));
+	}
+
+	/**
+	 * Phase two: after each attack there is a chance he leaps back and takes his fencing stance. It starts after
+	 * {@code after} attacks in a row and grows by {@code chanceStep} with every further one.
+	 *
+	 * @param after      attacks in a row before he may leap back
+	 * @param chanceStep chance after that many attacks, and added for each one more
+	 * @param distance   how far he leaps back
+	 * @param maxRange   he only leaps back from a player this close
+	 */
+	public record LeapBack(int after, double chanceStep, double distance, double maxRange) {
+		public static final LeapBack DEFAULT = new LeapBack(2, 0.25, 3.5, 6.0);
+
+		public static final Codec<LeapBack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(1, 100).fieldOf("after").orElse(DEFAULT.after).forGetter(LeapBack::after),
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance_step").orElse(DEFAULT.chanceStep).forGetter(LeapBack::chanceStep),
+				Codec.doubleRange(0.0, 16.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(LeapBack::distance),
+				Codec.doubleRange(0.0, 64.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(LeapBack::maxRange)
+		).apply(instance, LeapBack::new));
+	}
+
+	/**
+	 * Phase two: the fencing stance after a leap back. He waits, sword pointed at the player, other hand raised behind,
+	 * luring them in; a player who steps into reach or hits him gets a riposte. He breaks off and attacks again when
+	 * the player starts to heal (eats, drinks, or their health goes up) or runs, or when the stance has lasted long
+	 * enough.
+	 *
+	 * @param duration ticks he holds it at most
+	 * @param runAway  the player counts as running once this much further away than when the stance began
+	 * @param healed   or once their health is up by this much
+	 */
+	public record Stance(int duration, double runAway, float healed) {
+		public static final Stance DEFAULT = new Stance(80, 2.5, 1.0F);
+
+		public static final Codec<Stance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(1, 400).fieldOf("duration").orElse(DEFAULT.duration).forGetter(Stance::duration),
+				Codec.doubleRange(0.0, 64.0).fieldOf("run_away").orElse(DEFAULT.runAway).forGetter(Stance::runAway),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("healed").orElse(DEFAULT.healed).forGetter(Stance::healed)
+		).apply(instance, Stance::new));
 	}
 }

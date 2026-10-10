@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
@@ -137,6 +138,14 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				BlockItemIds.HAY_BLOCK);
 		looted.add(EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
 		// Mobs break these, but a wooden room is still safe to sleep in. Doors always count as walls.
+		// The Fallen Lord's dashes go through earth, wood and cobblestone.
+		BlockItemTagAppender<Block> smashes = builder(FallenLordModule.DASH_SMASHES);
+		smashes.forceAddTag(BlockTags.DIRT).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS)
+				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.WOODEN_SLABS).forceAddTag(BlockTags.WOODEN_FENCES);
+		smashes.add(BlockItemIds.COBBLESTONE, BlockItemIds.COBBLESTONE_STAIRS, BlockItemIds.COBBLESTONE_SLAB, BlockItemIds.COBBLESTONE_WALL,
+						BlockItemIds.MOSSY_COBBLESTONE, BlockItemIds.MOSSY_COBBLESTONE_STAIRS, BlockItemIds.MOSSY_COBBLESTONE_SLAB,
+						BlockItemIds.MOSSY_COBBLESTONE_WALL, BlockItemIds.GRAVEL, BlockItemIds.SAND, BlockItemIds.RED_SAND, BlockItemIds.DIRT_PATH,
+						BlockItemIds.FARMLAND, BlockItemIds.CLAY);
 		builder(SafeRoomModule.SAFE_WALLS).forceAddTag(BlockTags.PLANKS).forceAddTag(BlockTags.WOODEN_SLABS)
 				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 	}
