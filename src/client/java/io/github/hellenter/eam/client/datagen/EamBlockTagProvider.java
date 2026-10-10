@@ -130,6 +130,12 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 
 		// Logs, wood, stems and hyphae (stripped too) break only with an axe.
 		builder(HandBreakingModule.AXE_ONLY).forceAddTag(BlockTags.LOGS);
+		// Hollow logs are bark: an axe like any log.
+		for (Block hollow : EamBlocks.HOLLOW_LOGS.values()) {
+			builder(HandBreakingModule.AXE_ONLY).add(hollow.builtInRegistryHolder().key());
+			builder(BlockTags.MINEABLE_WITH_AXE).add(hollow.builtInRegistryHolder().key());
+		}
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SHELF_MUSHROOM.builtInRegistryHolder().key());
 
 		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
 		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
@@ -145,6 +151,11 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
 				EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
+		// The dense shrub is a leafy bush: a hoe or shears take it fast, and bare hands can too.
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
+				EamBlocks.SHELF_MUSHROOM.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key());
+		builder(BlockTags.SWORD_EFFICIENT).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key());
 		builder(BlockTags.REPLACEABLE_BY_MUSHROOMS).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key());
 

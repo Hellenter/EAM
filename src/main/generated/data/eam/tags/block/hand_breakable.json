@@ -84,6 +84,8 @@
     "eam:pebble",
     "eam:flint_shard",
     "eam:ground_stick",
-    "eam:sieve"
+    "eam:sieve",
+    "eam:dense_shrub",
+    "eam:shelf_mushroom"
   ]
 }

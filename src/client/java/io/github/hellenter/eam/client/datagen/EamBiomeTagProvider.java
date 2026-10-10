@@ -31,7 +31,15 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(SwampyForestBiomes.REPLACEABLE)
 				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST,
 						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MEADOW, Biomes.TAIGA,
-						Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.SAVANNA);
+						Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.SAVANNA,
+						// The terrain under a region is flattened whatever the biome, so every land biome there becomes swamp
+						// too: rivers, hills and the odd hotter or colder patch. Oceans, beaches and caves stay.
+						Biomes.RIVER, Biomes.FROZEN_RIVER, Biomes.STONY_SHORE, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST,
+						Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.GROVE, Biomes.SNOWY_SLOPES, Biomes.JAGGED_PEAKS, Biomes.STONY_PEAKS,
+						Biomes.FROZEN_PEAKS, Biomes.CHERRY_GROVE, Biomes.PALE_GARDEN, Biomes.JUNGLE, Biomes.SPARSE_JUNGLE,
+						Biomes.BAMBOO_JUNGLE, Biomes.MANGROVE_SWAMP, Biomes.DESERT, Biomes.BADLANDS, Biomes.ERODED_BADLANDS,
+						Biomes.WOODED_BADLANDS, Biomes.SAVANNA_PLATEAU, Biomes.WINDSWEPT_SAVANNA, Biomes.SNOWY_PLAINS,
+						Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES);
 		builder(BiomeTags.IS_OVERWORLD).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(BiomeTags.IS_FOREST).add(SwampyForestBiomes.SWAMPY_FOREST);
 		builder(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);

@@ -10,6 +10,9 @@ import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
+import io.github.hellenter.eam.content.swamp.DenseShrubBlock;
+import io.github.hellenter.eam.content.swamp.DuckweedBlock;
+import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -70,16 +73,226 @@ public class EamModelProvider extends FabricModelProvider {
 
 	/** Untinted crosses like vanilla flowers; duckweed is a flat sheet on the water like a lily pad, without the tint. */
 	private static void swampPlants(BlockModelGenerators generators) {
-		Identifier duckweed = ModelLocationUtils.getModelLocation(EamBlocks.DUCKWEED);
-		generators.modelOutput.accept(duckweed, () -> floatingSheet(TextureMapping.getBlockTexture(EamBlocks.DUCKWEED).sprite()));
-		generators.createRotatedVariantBlock(EamBlocks.DUCKWEED, duckweed);
+		// Duckweed: one sheet per coverage stage, turned at random like lily pads.
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(EamBlocks.DUCKWEED).with(
+				PropertyDispatch.initial(DuckweedBlock.COVERAGE).generate(stage -> {
+					Identifier model = ModelLocationUtils.getModelLocation(EamBlocks.DUCKWEED, "_stage" + stage);
+					Identifier texture = TextureMapping.getBlockTexture(EamBlocks.DUCKWEED, "_stage" + stage).sprite();
+					generators.modelOutput.accept(model, () -> floatingSheet(texture));
+					return BlockModelGenerators.createRotatedVariants(BlockModelGenerators.plainModel(model));
+				})));
 		generators.registerSimpleFlatItemModel(EamBlocks.DUCKWEED);
+		denseShrub(generators);
+		EamBlocks.HOLLOW_LOGS.forEach((log, hollow) -> hollowLog(generators, log, hollow));
+		shelfMushroom(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_GRASS, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_SHRUB, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
 		for (Block tall : List.of(EamBlocks.CATTAIL, EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
 			generators.createDoublePlantWithDefaultItem(tall, BlockModelGenerators.PlantType.NOT_TINTED);
 		}
+	}
+
+	/**
+	 * The dense shrub, like an azalea: a box of leaves from y 5 up on a cross of twig legs. The upper block of a
+	 * two-block shrub is the leaves alone, full height, so the two read as one bush.
+	 */
+	private static void denseShrub(BlockModelGenerators generators) {
+		Block block = EamBlocks.DENSE_SHRUB;
+		String leaves = TextureMapping.getBlockTexture(block, "_leaves").sprite().toString();
+		String top = TextureMapping.getBlockTexture(block, "_top").sprite().toString();
+		String stem = TextureMapping.getBlockTexture(block, "_stem").sprite().toString();
+		Identifier lower = ModelLocationUtils.getModelLocation(block);
+		Identifier upper = ModelLocationUtils.getModelLocation(block, "_top");
+		generators.modelOutput.accept(lower, () -> {
+			JsonArray elements = new JsonArray();
+			elements.add(leafBox(5, 16));
+			elements.add(crossPlane(true));
+			elements.add(crossPlane(false));
+			return shrubModel(leaves, top, stem, elements);
+		});
+		generators.modelOutput.accept(upper, () -> {
+			JsonArray elements = new JsonArray();
+			elements.add(leafBox(0, 15));
+			return shrubModel(leaves, top, stem, elements);
+		});
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(BlockModelGenerators.createBooleanModelDispatch(
+				DenseShrubBlock.TOP, BlockModelGenerators.plainVariant(upper), BlockModelGenerators.plainVariant(lower))));
+		generators.registerSimpleItemModel(block.asItem(), lower);
+	}
+
+	/**
+	 * A hollow log: four bark walls two pixels thick around an empty core, the vanilla log's bark outside, its stripped
+	 * wood inside and its rings on the wall ends. Lies along an axis like the log, by rotating the upright model.
+	 */
+	private static void hollowLog(BlockModelGenerators generators, Block log, Block hollow) {
+		Identifier logTexture = TextureMapping.getBlockTexture(log).sprite();
+		String bark = logTexture.toString();
+		String rings = TextureMapping.getBlockTexture(log, "_top").sprite().toString();
+		String inner = logTexture.withPath(path -> path.replace("block/", "block/stripped_")).toString();
+		Identifier model = ModelLocationUtils.getModelLocation(hollow);
+		int w = HollowLogBlock.WALL;
+		generators.modelOutput.accept(model, () -> {
+			JsonObject textures = new JsonObject();
+			textures.addProperty("particle", bark);
+			textures.addProperty("bark", bark);
+			textures.addProperty("rings", rings);
+			textures.addProperty("inner", inner);
+			JsonArray elements = new JsonArray();
+			elements.add(wall(0, 0, 16, w));
+			elements.add(wall(0, 16 - w, 16, 16));
+			elements.add(wall(0, w, w, 16 - w));
+			elements.add(wall(16 - w, w, 16, 16 - w));
+			JsonObject json = new JsonObject();
+			json.addProperty("parent", "minecraft:block/block");
+			json.add("textures", textures);
+			json.add("elements", elements);
+			return json;
+		});
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(hollow, BlockModelGenerators.plainVariant(model))
+				.with(BlockModelGenerators.createRotatedPillar()));
+		generators.registerSimpleItemModel(hollow.asItem(), model);
+	}
+
+	/** One upright wall of a hollow log, from (x0, z0) to (x1, z1); a face on the block's edge is bark, else the inside. */
+	private static JsonObject wall(double x0, double z0, double x1, double z1) {
+		JsonObject faces = new JsonObject();
+		for (Direction direction : Direction.values()) {
+			JsonObject face = new JsonObject();
+			String texture;
+			JsonArray uv;
+			switch (direction) {
+				case UP, DOWN -> {
+					texture = "#rings";
+					uv = vector4(x0, z0, x1, z1);
+				}
+				case NORTH, SOUTH -> {
+					double at = direction == Direction.NORTH ? z0 : z1;
+					texture = at == 0 || at == 16 ? "#bark" : "#inner";
+					uv = vector4(x0, 0, x1, 16);
+				}
+				default -> {
+					double at = direction == Direction.WEST ? x0 : x1;
+					texture = at == 0 || at == 16 ? "#bark" : "#inner";
+					uv = vector4(z0, 0, z1, 16);
+				}
+			}
+			face.add("uv", uv);
+			face.addProperty("texture", texture);
+			if (texture.equals("#bark") || direction.getAxis() == Direction.Axis.Y) {
+				face.addProperty("cullface", direction.getSerializedName());
+			}
+			faces.add(direction.getSerializedName(), face);
+		}
+		JsonObject element = new JsonObject();
+		element.add("from", vector(x0, 0, z0));
+		element.add("to", vector(x1, 16, z1));
+		element.add("faces", faces);
+		return element;
+	}
+
+	/** Two bracket shelves against the log to the north, turned to face whichever side the log is on. */
+	private static void shelfMushroom(BlockModelGenerators generators) {
+		Block block = EamBlocks.SHELF_MUSHROOM;
+		String texture = TextureMapping.getBlockTexture(block).sprite().toString();
+		Identifier model = ModelLocationUtils.getModelLocation(block);
+		generators.modelOutput.accept(model, () -> {
+			JsonObject textures = new JsonObject();
+			textures.addProperty("particle", texture);
+			textures.addProperty("shelf", texture);
+			JsonArray elements = new JsonArray();
+			elements.add(shelf(2, 5, 14, 8, 6, 0));
+			elements.add(shelf(5, 10, 12, 12, 4, 8));
+			JsonObject json = new JsonObject();
+			json.addProperty("parent", "minecraft:block/block");
+			json.add("textures", textures);
+			json.add("elements", elements);
+			return json;
+		});
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(model))
+				.with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+		generators.registerSimpleItemModel(block.asItem(), model);
+	}
+
+	/**
+	 * One shelf from the log's face (z 0) out to {@code depth}: the top of the texture's upper half is its cap, the
+	 * lower half its rim and underside; {@code v} picks which rows of the texture this shelf uses.
+	 */
+	private static JsonObject shelf(double x0, double y0, double x1, double y1, double depth, double v) {
+		JsonObject faces = new JsonObject();
+		for (Direction direction : Direction.values()) {
+			if (direction == Direction.NORTH) {
+				continue;
+			}
+			JsonObject face = new JsonObject();
+			JsonArray uv = switch (direction) {
+				case UP -> vector4(x0, v, x1, v + depth);
+				case DOWN -> vector4(x0, 16 - depth, x1, 16);
+				case SOUTH -> vector4(x0, 16 - depth - (y1 - y0), x1, 16 - depth);
+				default -> vector4(0, v, depth, v + (y1 - y0));
+			};
+			face.add("uv", uv);
+			face.addProperty("texture", "#shelf");
+			faces.add(direction.getSerializedName(), face);
+		}
+		JsonObject element = new JsonObject();
+		element.add("from", vector(x0, y0, 0));
+		element.add("to", vector(x1, y1, depth));
+		element.add("faces", faces);
+		return element;
+	}
+
+	private static JsonObject shrubModel(String leaves, String top, String stem, JsonArray elements) {
+		JsonObject textures = new JsonObject();
+		textures.addProperty("particle", leaves);
+		textures.addProperty("leaves", leaves);
+		textures.addProperty("top", top);
+		textures.addProperty("stem", stem);
+		JsonObject model = new JsonObject();
+		model.addProperty("parent", "minecraft:block/block");
+		model.add("textures", textures);
+		model.add("elements", elements);
+		return model;
+	}
+
+	/** A box of leaves from {@code y0} to {@code y1}, all six faces drawn: the leaves have holes to look through. */
+	private static JsonObject leafBox(double y0, double y1) {
+		JsonObject faces = new JsonObject();
+		for (Direction direction : Direction.values()) {
+			JsonObject face = new JsonObject();
+			boolean horizontal = direction.getAxis().isHorizontal();
+			face.add("uv", horizontal ? vector4(0, 16 - y1, 16, 16 - y0) : vector4(0, 0, 16, 16));
+			face.addProperty("texture", direction == Direction.UP ? "#top" : "#leaves");
+			faces.add(direction.getSerializedName(), face);
+		}
+		JsonObject element = new JsonObject();
+		element.add("from", vector(0, y0, 0));
+		element.add("to", vector(16, y1, 16));
+		element.add("faces", faces);
+		return element;
+	}
+
+	/** One of the two diagonal twig planes under the leaves, as in vanilla's azalea. */
+	private static JsonObject crossPlane(boolean alongX) {
+		JsonObject faces = new JsonObject();
+		for (String side : alongX ? List.of("north", "south") : List.of("west", "east")) {
+			JsonObject face = new JsonObject();
+			face.add("uv", vector4(0, 0, 16, 16));
+			face.addProperty("texture", "#stem");
+			faces.add(side, face);
+		}
+		JsonObject rotation = new JsonObject();
+		rotation.add("origin", vector(8, 8, 8));
+		rotation.addProperty("axis", "y");
+		rotation.addProperty("angle", 45);
+		rotation.addProperty("rescale", true);
+		JsonObject element = new JsonObject();
+		element.add("from", alongX ? vector(0.1, 0, 8) : vector(8, 0, 0.1));
+		element.add("to", alongX ? vector(15.9, 15.9, 8) : vector(8, 15.9, 15.9));
+		element.add("rotation", rotation);
+		element.addProperty("shade", false);
+		element.add("faces", faces);
+		return element;
 	}
 
 	private static JsonObject floatingSheet(Identifier texture) {

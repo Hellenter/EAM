@@ -134,9 +134,9 @@
   ],
   "downfall": 0.8,
   "effects": {
-    "foliage_color": "#5f8a3d",
-    "grass_color": "#758e46",
-    "water_color": "#56704f"
+    "foliage_color": "#4f962e",
+    "grass_color": "#64a83a",
+    "water_color": "#48745a"
   },
   "features": [
     [],
@@ -194,11 +194,16 @@
     [
       "minecraft:glow_lichen",
       "eam:dead_trunks_swampy_lakes",
+      "eam:fallen_hollow_logs_swampy_lakes",
       "eam:trees_swampy_lakes",
+      "eam:shelf_mushrooms_swampy_lakes",
       "eam:cattails_swampy_lakes",
       "eam:tall_swamp_grass_swampy_lakes",
       "eam:fireweed_swampy_lakes",
       "eam:swamp_shrubs_swampy_lakes",
+      "eam:dense_shrubs_swampy_lakes",
+      "eam:brown_mushrooms_swampy_lakes",
+      "eam:red_mushrooms_swampy_lakes",
       "eam:swamp_grass_swampy_lakes",
       "eam:marsh_marigolds_swampy_lakes",
       "eam:duckweed_swampy_lakes",

@@ -1,0 +1,9 @@
+{
+  "feature": "eam:shelf_mushrooms",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 1
+    }
+  ]
+}

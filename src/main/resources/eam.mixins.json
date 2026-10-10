@@ -50,7 +50,10 @@
 		"world.structures.PlayerAdvancementsMixin",
 		"world.structures.SinglePoolElementMixin",
 		"world.swamp.MultiNoiseBiomeSourceMixin",
-		"world.swamp.OverworldBiomeBuilderMixin"
+		"world.swamp.NoiseChunkMixin",
+		"world.swamp.OverworldBiomeBuilderMixin",
+		"world.swamp.RandomStateAccessor",
+		"world.swamp.RandomStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

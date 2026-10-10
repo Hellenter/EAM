@@ -49,8 +49,8 @@ public final class EamCreativeTabs {
 			EamItems.CHOCOLATE, EamItems.CHEESE,
 			EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN, EamItems.BURNT_RABBIT,
 			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.ASH,
-			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.FIREWEED,
-			EamItems.MARSH_MARIGOLD);
+			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.DENSE_SHRUB, EamItems.FIREWEED,
+			EamItems.MARSH_MARIGOLD, EamItems.SHELF_MUSHROOM, EamItems.HOLLOW_LOGS);
 
 	public static final CreativeModeTab METALS = register("metals", () -> new ItemStack(EamItems.SILVER_INGOT),
 			EamItems.SILVER_ORE, EamItems.DEEPSLATE_SILVER_ORE, EamItems.RAW_SILVER, EamItems.SILVER_NUGGET, EamItems.SILVER_INGOT,
@@ -149,13 +149,18 @@ public final class EamCreativeTabs {
 		return stacks;
 	}
 
-	private static CreativeModeTab register(String name, Supplier<ItemStack> icon, ItemLike... items) {
+	private static CreativeModeTab register(String name, Supplier<ItemStack> icon, Object... items) {
 		return Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key(name), FabricCreativeModeTab.builder()
 				.title(Component.translatable("itemGroup.eam." + name))
 				.icon(icon)
 				.displayItems((parameters, output) -> {
-					for (ItemLike item : items) {
-						output.accept(item);
+					for (Object item : items) {
+						// An entry is an item or a list of items, such as all hollow logs.
+						if (item instanceof List<?> list) {
+							list.forEach(each -> output.accept((ItemLike) each));
+						} else {
+							output.accept((ItemLike) item);
+						}
 					}
 				})
 				.build());

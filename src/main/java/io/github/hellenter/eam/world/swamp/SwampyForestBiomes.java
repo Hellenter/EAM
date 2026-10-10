@@ -36,7 +36,7 @@ public final class SwampyForestBiomes {
 	public static final ResourceKey<Biome> SWAMPY_HUMMOCKS = key("swampy_hummocks");
 	public static final List<ResourceKey<Biome>> ALL = List.of(SWAMPY_FOREST, SWAMPY_LAKES, SWAMPY_HUMMOCKS);
 
-	/** Land biomes a swampy forest region may take over; rivers, beaches, oceans, mountains and caves stay. */
+	/** Land biomes a swampy forest region takes over (all of them, since its terrain is flattened); oceans, beaches and caves stay. */
 	public static final TagKey<Biome> REPLACEABLE = TagKey.create(Registries.BIOME, Eam.id("swampy_forest_replaceable"));
 	/** All three parts of the swamp, for spawns and features that belong to the whole swampy forest. */
 	public static final TagKey<Biome> IS_SWAMPY_FOREST = TagKey.create(Registries.BIOME, Eam.id("is_swampy_forest"));
@@ -51,6 +51,10 @@ public final class SwampyForestBiomes {
 
 	static void enable() {
 		enabled = true;
+	}
+
+	static boolean enabled() {
+		return enabled;
 	}
 
 	/** Called at the end of the vanilla overworld biome list. */

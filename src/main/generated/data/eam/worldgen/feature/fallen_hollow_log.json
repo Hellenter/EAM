@@ -1,0 +1,12 @@
+{
+  "type": "eam:fallen_log",
+  "length": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 6,
+    "min_inclusive": 3
+  },
+  "logs": [
+    "eam:hollow_oak_log",
+    "eam:hollow_birch_log"
+  ]
+}

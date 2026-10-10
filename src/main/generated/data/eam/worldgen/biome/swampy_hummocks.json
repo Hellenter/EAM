@@ -134,9 +134,9 @@
   ],
   "downfall": 0.8,
   "effects": {
-    "foliage_color": "#7c9442",
-    "grass_color": "#989e4e",
-    "water_color": "#5e7552"
+    "foliage_color": "#6caa32",
+    "grass_color": "#86ba40",
+    "water_color": "#537d57"
   },
   "features": [
     [],
@@ -194,11 +194,16 @@
     [
       "minecraft:glow_lichen",
       "eam:dead_trunks_swampy_hummocks",
+      "eam:fallen_hollow_logs_swampy_hummocks",
       "eam:trees_swampy_hummocks",
+      "eam:shelf_mushrooms_swampy_hummocks",
       "eam:cattails_swampy_hummocks",
       "eam:tall_swamp_grass_swampy_hummocks",
       "eam:fireweed_swampy_hummocks",
       "eam:swamp_shrubs_swampy_hummocks",
+      "eam:dense_shrubs_swampy_hummocks",
+      "eam:brown_mushrooms_swampy_hummocks",
+      "eam:red_mushrooms_swampy_hummocks",
       "eam:swamp_grass_swampy_hummocks",
       "eam:marsh_marigolds_swampy_hummocks",
       "eam:duckweed_swampy_hummocks",

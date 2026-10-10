@@ -1,5 +1,16 @@
 {
   "values": [
-    "#minecraft:logs"
+    "#minecraft:logs",
+    "eam:hollow_oak_log",
+    "eam:hollow_spruce_log",
+    "eam:hollow_birch_log",
+    "eam:hollow_jungle_log",
+    "eam:hollow_acacia_log",
+    "eam:hollow_dark_oak_log",
+    "eam:hollow_mangrove_log",
+    "eam:hollow_cherry_log",
+    "eam:hollow_pale_oak_log",
+    "eam:hollow_crimson_stem",
+    "eam:hollow_warped_stem"
   ]
 }

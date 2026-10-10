@@ -12,9 +12,14 @@ import io.github.hellenter.eam.content.metal.MetalDoorBlock;
 import io.github.hellenter.eam.content.metal.MetalTrapDoorBlock;
 import io.github.hellenter.eam.content.sieve.SieveBlock;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.content.swamp.DenseShrubBlock;
 import io.github.hellenter.eam.content.swamp.DuckweedBlock;
+import io.github.hellenter.eam.content.swamp.HollowLogBlock;
+import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,6 +39,9 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /** Blocks added by EAM. Their items are in {@link EamItems}. Registered whatever the config says. */
@@ -144,6 +152,32 @@ public final class EamBlocks {
 	public static final Block TALL_SWAMP_GRASS = register("tall_swamp_grass", DoublePlantBlock::new,
 			plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
 	public static final Block SWAMP_SHRUB = register("swamp_shrub", SwampShrubBlock::new, plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
+	/** A dense shrub on twig legs, up to two blocks tall: thickets you squeeze through at half speed. */
+	public static final Block DENSE_SHRUB = register("dense_shrub", DenseShrubBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.PLANT)
+			.noCollision()
+			.strength(0.2F)
+			.sound(SoundType.AZALEA)
+			.noOcclusion()
+			.isSuffocating(Blocks::never)
+			.isRedstoneConductor(Blocks::never)
+			.ignitedByLava()
+			.pushReaction(PushReaction.POPPED));
+	/** A shelf mushroom on the side of a tree trunk. */
+	public static final Block SHELF_MUSHROOM = register("shelf_mushroom", ShelfMushroomBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_ORANGE)
+			.noCollision()
+			.strength(0.2F)
+			.sound(SoundType.FUNGUS)
+			.noOcclusion()
+			.ignitedByLava()
+			.pushReaction(PushReaction.POPPED));
+	/** Hollow logs, one per vanilla log and stem: the bark of a fallen trunk whose core has rotted away. */
+	public static final Map<Block, Block> HOLLOW_LOGS = hollowLogs(Blocks.OAK_LOG, Blocks.SPRUCE_LOG, Blocks.BIRCH_LOG, Blocks.JUNGLE_LOG,
+			Blocks.ACACIA_LOG, Blocks.DARK_OAK_LOG, Blocks.MANGROVE_LOG, Blocks.CHERRY_LOG, Blocks.PALE_OAK_LOG, Blocks.CRIMSON_STEM,
+			Blocks.WARPED_STEM);
+	public static final Block HOLLOW_OAK_LOG = HOLLOW_LOGS.get(Blocks.OAK_LOG);
+	public static final Block HOLLOW_BIRCH_LOG = HOLLOW_LOGS.get(Blocks.BIRCH_LOG);
 	/** Fireweed (willowherb): a tall pink flower on the edges of bogs. */
 	public static final Block FIREWEED = register("fireweed", TallFlowerBlock::new, plant().offsetType(BlockBehaviour.OffsetType.XZ));
 	/** Marsh marigold is poisonous: in suspicious stew it gives nausea. */
@@ -154,7 +188,13 @@ public final class EamBlocks {
 	}
 
 	public static void register() {
-		// Loads the class, which registers the blocks above.
+		// Loading the class registered the blocks above. Dense shrubs burn like leaves, hollow logs like logs.
+		FlammableBlockRegistry.getDefaultInstance().add(DENSE_SHRUB, 30, 60);
+		HOLLOW_LOGS.forEach((log, hollow) -> {
+			if (log != Blocks.CRIMSON_STEM && log != Blocks.WARPED_STEM) {
+				FlammableBlockRegistry.getDefaultInstance().add(hollow, 5, 5);
+			}
+		});
 	}
 
 	private static BlockBehaviour.Properties mithril(Block iron) {
@@ -180,6 +220,15 @@ public final class EamBlocks {
 				.instabreak()
 				.sound(SoundType.STONE)
 				.pushReaction(PushReaction.POPPED);
+	}
+
+	private static Map<Block, Block> hollowLogs(Block... logs) {
+		Map<Block, Block> hollow = new LinkedHashMap<>();
+		for (Block log : logs) {
+			String name = "hollow_" + BuiltInRegistries.BLOCK.getKey(log).getPath();
+			hollow.put(log, register(name, HollowLogBlock::new, BlockBehaviour.Properties.ofLegacyCopy(log).noOcclusion()));
+		}
+		return Collections.unmodifiableMap(hollow);
 	}
 
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {

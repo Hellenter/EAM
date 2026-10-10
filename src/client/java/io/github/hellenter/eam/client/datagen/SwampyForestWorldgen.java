@@ -3,6 +3,10 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamWorldgen;
+import io.github.hellenter.eam.content.swamp.DenseShrubBlock;
+import io.github.hellenter.eam.world.swamp.DuckweedMatFeature;
+import io.github.hellenter.eam.world.swamp.FallenLogFeature;
+import io.github.hellenter.eam.world.swamp.ShelfMushroomFeature;
 import io.github.hellenter.eam.world.swamp.SwampPondFeature;
 import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 
@@ -12,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
@@ -19,6 +24,7 @@ import net.minecraft.data.worldgen.BlockStateProviders;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.features.TreeFeatures;
+import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.TreePlacements;
@@ -72,9 +78,9 @@ import java.util.List;
 
 /**
  * The swampy forest's three biomes and their features. All three share the bog flora (duckweed, cattails, swamp grass,
- * shrubs, fireweed, marsh marigold), ponds dug 1 to 3 blocks deep, and dead trunks standing on the shore and in the water.
+ * shrubs, fireweed, marsh marigold), duckweed carpets along every bank, ponds dug 1 to 3 blocks deep, and dead trunks standing on the shore and in the water.
  * <ul>
- * <li>Swampy forest: dense oak and birch forest with a pond in every other chunk.</li>
+ * <li>Swampy forest: dense oak and birch forest, thickets of dense shrubs, a pond in every other chunk.</li>
  * <li>Swampy lakes: a chain of overlapping ponds, the deepest ones, with few trees, many dead trunks and duckweed mats.</li>
  * <li>Swampy hummocks: shallow water full of grassy tussocks, low birches and oak bushes.</li>
  * </ul>
@@ -95,7 +101,12 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> TREES_FOREST = feature("trees_swampy_forest");
 	static final ResourceKey<Feature> TREES_LAKES = feature("trees_swampy_lakes");
 	static final ResourceKey<Feature> TREES_HUMMOCKS = feature("trees_swampy_hummocks");
-	static final ResourceKey<Feature> DUCKWEED = feature("duckweed");
+	static final ResourceKey<Feature> DUCKWEED_FOREST = feature("duckweed_mat_forest");
+	static final ResourceKey<Feature> DUCKWEED_LAKES = feature("duckweed_mat_lakes");
+	static final ResourceKey<Feature> DUCKWEED_HUMMOCKS = feature("duckweed_mat_hummocks");
+	static final ResourceKey<Feature> DENSE_SHRUB = feature("dense_shrub");
+	static final ResourceKey<Feature> FALLEN_HOLLOW_LOG = feature("fallen_hollow_log");
+	static final ResourceKey<Feature> SHELF_MUSHROOMS = feature("shelf_mushrooms");
 	static final ResourceKey<Feature> CATTAIL = feature("cattail");
 	static final ResourceKey<Feature> SWAMP_GRASS = feature("swamp_grass");
 	static final ResourceKey<Feature> TALL_SWAMP_GRASS = feature("tall_swamp_grass");
@@ -103,7 +114,7 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> FIREWEED = feature("fireweed");
 	static final ResourceKey<Feature> MARSH_MARIGOLD = feature("marsh_marigold");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(POND_FOREST, POND_LAKES, POND_HUMMOCKS, DEAD_TRUNK, LOW_BIRCH, OAK_BUSH,
-			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD);
+			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED_FOREST, DUCKWEED_LAKES, DUCKWEED_HUMMOCKS, DENSE_SHRUB, FALLEN_HOLLOW_LOG, SHELF_MUSHROOMS, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD);
 
 	/** One set of placed features per part of the swamp, each named after its part. */
 	private enum Part {
@@ -117,6 +128,11 @@ final class SwampyForestWorldgen {
 		final ResourceKey<PlacedFeature> grass;
 		final ResourceKey<PlacedFeature> tallGrass;
 		final ResourceKey<PlacedFeature> shrubs;
+		final ResourceKey<PlacedFeature> denseShrubs;
+		final ResourceKey<PlacedFeature> fallenLogs;
+		final ResourceKey<PlacedFeature> shelfMushrooms;
+		final ResourceKey<PlacedFeature> brownMushrooms;
+		final ResourceKey<PlacedFeature> redMushrooms;
 		final ResourceKey<PlacedFeature> fireweed;
 		final ResourceKey<PlacedFeature> marigolds;
 
@@ -129,13 +145,18 @@ final class SwampyForestWorldgen {
 			this.grass = placed("swamp_grass_" + name);
 			this.tallGrass = placed("tall_swamp_grass_" + name);
 			this.shrubs = placed("swamp_shrubs_" + name);
+			this.denseShrubs = placed("dense_shrubs_" + name);
+			this.fallenLogs = placed("fallen_hollow_logs_" + name);
+			this.shelfMushrooms = placed("shelf_mushrooms_" + name);
+			this.brownMushrooms = placed("brown_mushrooms_" + name);
+			this.redMushrooms = placed("red_mushrooms_" + name);
 			this.fireweed = placed("fireweed_" + name);
 			this.marigolds = placed("marsh_marigolds_" + name);
 		}
 
 		List<ResourceKey<PlacedFeature>> all() {
 			return List.of(this.pond, this.deadTrunks, this.trees, this.duckweed, this.cattails, this.grass, this.tallGrass, this.shrubs,
-					this.fireweed, this.marigolds);
+					this.denseShrubs, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms);
 		}
 	}
 
@@ -192,7 +213,20 @@ final class SwampyForestWorldgen {
 				new WeightedPlacedFeature(lowBirch, 0.5F),
 				new WeightedPlacedFeature(oakBush, 0.35F)), birch));
 
-		context.register(DUCKWEED, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.DUCKWEED)));
+		// Duckweed mats reach further out over the open lakes than over forest ponds.
+		context.register(DUCKWEED_FOREST, new DuckweedMatFeature(4));
+		context.register(DUCKWEED_LAKES, new DuckweedMatFeature(6));
+		context.register(DUCKWEED_HUMMOCKS, new DuckweedMatFeature(5));
+		// A dense shrub, half of them with a second, all-leaves block on top.
+		BlockState shrub = EamBlocks.DENSE_SHRUB.defaultBlockState();
+		context.register(DENSE_SHRUB, new BlockColumnFeature(List.of(
+				BlockColumnFeature.layer(ConstantInt.of(1), BlockStateProvider.of(shrub)),
+				BlockColumnFeature.layer(UniformInt.of(0, 1), BlockStateProvider.of(shrub.setValue(DenseShrubBlock.TOP, true)))),
+				Direction.UP, BlockPredicate.ONLY_IN_AIR_PREDICATE, false));
+		// Fallen hollow oak and birch logs, on the ground or floating in the ponds.
+		context.register(FALLEN_HOLLOW_LOG, new FallenLogFeature(HolderSet.direct(Block::builtInRegistryHolder, EamBlocks.HOLLOW_OAK_LOG,
+				EamBlocks.HOLLOW_BIRCH_LOG), UniformInt.of(3, 6)));
+		context.register(SHELF_MUSHROOMS, new ShelfMushroomFeature(24));
 		context.register(CATTAIL, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.CATTAIL)));
 		context.register(SWAMP_GRASS, new SimpleBlockFeature(weighted(EamBlocks.SWAMP_GRASS, 6, Blocks.SHORT_GRASS, 2, Blocks.FERN, 2)));
 		context.register(TALL_SWAMP_GRASS, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.TALL_SWAMP_GRASS)));
@@ -212,10 +246,13 @@ final class SwampyForestWorldgen {
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
-		// counts per chunk:        pond  trunks trees duckweed cattails grass tall shrubs fireweed marigolds
-		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, new int[] {-2, -2, 9, 3, 2, 4, 1, 2, -2, 1});
-		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, new int[] {3, 2, 1, 10, 6, 3, 2, 1, 1, 2});
-		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, new int[] {2, 1, 4, 5, 3, 6, 7, 3, -3, 1});
+		// counts per chunk:  pond trunks trees cattails grass tall shrubs thickets fireweed marigolds fallen-logs shelves brown red
+		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, DUCKWEED_FOREST,
+				new int[] {-2, -2, 16, 2, 4, 1, 2, 5, -2, 1, -2, 1, 2, -2});
+		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, DUCKWEED_LAKES,
+				new int[] {3, 2, 3, 6, 3, 2, 1, 1, 1, 2, 2, 1, 1, -3});
+		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, DUCKWEED_HUMMOCKS,
+				new int[] {2, 1, 7, 3, 6, 7, 3, 3, -3, 1, 1, 1, 1, -3});
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
 				CountPlacement.of(MITHRIL_DEEP_VEINS),
@@ -226,7 +263,7 @@ final class SwampyForestWorldgen {
 
 	/** A positive count is that many tries per chunk; a negative one, -n, is one try every n chunks. */
 	private static void placeAll(BootstrapContext<PlacedFeature> context, HolderGetter<Feature> features, Part part,
-			ResourceKey<Feature> pond, ResourceKey<Feature> trees, int[] counts) {
+			ResourceKey<Feature> pond, ResourceKey<Feature> trees, ResourceKey<Feature> duckweed, int[] counts) {
 		PlacementUtils.register(context, part.pond, features.getOrThrow(pond),
 				List.of(frequency(counts[0]), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome()));
 		PlacementUtils.register(context, part.deadTrunks, features.getOrThrow(DEAD_TRUNK), List.of(frequency(counts[1]),
@@ -234,20 +271,33 @@ final class SwampyForestWorldgen {
 				BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.OAK_SAPLING))));
 		PlacementUtils.register(context, part.trees, features.getOrThrow(trees), List.of(PlacementUtils.countExtra(counts[2], 0.1F, 1),
 				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(1), PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome()));
-		// Duckweed mats: many tries close together on the water surface; the block itself only survives on water.
-		PlacementUtils.register(context, part.duckweed, features.getOrThrow(DUCKWEED),
-				patch(counts[3], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 64, 6, 1, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+		// Duckweed covers the water of the whole chunk at once, by distance from the banks.
+		PlacementUtils.register(context, part.duckweed, features.getOrThrow(duckweed), List.of());
 		// Cattails in water one block deep, or on dry ground right at the water's edge.
 		PlacementUtils.register(context, part.cattails, features.getOrThrow(CATTAIL),
-				patch(counts[4], PlacementUtils.HEIGHTMAP_TOP_SOLID, 24, 5, 2, BlockPredicate.anyOf(
+				patch(counts[3], PlacementUtils.HEIGHTMAP_TOP_SOLID, 24, 5, 2, BlockPredicate.anyOf(
 						BlockPredicate.allOf(BlockPredicate.matchesFluids(Fluids.WATER), BlockPredicate.matchesBlocks(Direction.UP, Blocks.AIR)),
 						BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, nearWater()))));
 		PlacementUtils.register(context, part.grass, features.getOrThrow(SWAMP_GRASS),
-				patch(counts[5], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 32, 7, 3, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+				patch(counts[4], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 32, 7, 3, BlockPredicate.ONLY_IN_AIR_PREDICATE));
 		PlacementUtils.register(context, part.tallGrass, features.getOrThrow(TALL_SWAMP_GRASS),
-				patch(counts[6], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 16, 6, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+				patch(counts[5], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 16, 6, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
 		PlacementUtils.register(context, part.shrubs, features.getOrThrow(SWAMP_SHRUB),
-				patch(counts[7], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 8, 5, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+				patch(counts[6], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 8, 5, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+		// Thickets of dense shrubs: many tries packed close, so they grow wall to wall.
+		PlacementUtils.register(context, part.denseShrubs, features.getOrThrow(DENSE_SHRUB),
+				patch(counts[7], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 40, 4, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.wouldSurvive(EamBlocks.DENSE_SHRUB))));
+		PlacementUtils.register(context, part.fallenLogs, features.getOrThrow(FALLEN_HOLLOW_LOG),
+				List.of(frequency(counts[10]), InSquarePlacement.spread(), BiomeFilter.biome()));
+		// Shelf mushrooms search the chunk's trunks themselves; the count is how many times.
+		PlacementUtils.register(context, part.shelfMushrooms, features.getOrThrow(SHELF_MUSHROOMS), List.of(frequency(counts[11])));
+		PlacementUtils.register(context, part.brownMushrooms, features.getOrThrow(VegetationFeatures.BROWN_MUSHROOM),
+				patch(counts[12], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 12, 4, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.wouldSurvive(Blocks.BROWN_MUSHROOM))));
+		PlacementUtils.register(context, part.redMushrooms, features.getOrThrow(VegetationFeatures.RED_MUSHROOM),
+				patch(counts[13], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 8, 4, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.wouldSurvive(Blocks.RED_MUSHROOM))));
 		PlacementUtils.register(context, part.fireweed, features.getOrThrow(FIREWEED),
 				patch(counts[8], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 16, 5, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
 		PlacementUtils.register(context, part.marigolds, features.getOrThrow(MARSH_MARIGOLD),
@@ -277,9 +327,10 @@ final class SwampyForestWorldgen {
 	static void bootstrapBiomes(BootstrapContext<Biome> context) {
 		HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
 		HolderGetter<WorldCarver> carvers = context.lookup(Registries.CARVER);
-		context.register(SwampyForestBiomes.SWAMPY_FOREST, biome(placed, carvers, Part.FOREST, 0x5E7B57, 0x6E8C45, 0x5C8A3B));
-		context.register(SwampyForestBiomes.SWAMPY_LAKES, biome(placed, carvers, Part.LAKES, 0x56704F, 0x758E46, 0x5F8A3D));
-		context.register(SwampyForestBiomes.SWAMPY_HUMMOCKS, biome(placed, carvers, Part.HUMMOCKS, 0x5E7552, 0x989E4E, 0x7C9442));
+		// Lush, bright summer greens; the lakes a shade darker and bluer, the drier hummocks yellower.
+		context.register(SwampyForestBiomes.SWAMPY_FOREST, biome(placed, carvers, Part.FOREST, 0x4F7F5C, 0x6DB33A, 0x58A02C));
+		context.register(SwampyForestBiomes.SWAMPY_LAKES, biome(placed, carvers, Part.LAKES, 0x48745A, 0x64A83A, 0x4F962E));
+		context.register(SwampyForestBiomes.SWAMPY_HUMMOCKS, biome(placed, carvers, Part.HUMMOCKS, 0x537D57, 0x86BA40, 0x6CAA32));
 	}
 
 	/** Forest temperature and rain, swamp music and murky water. */
@@ -293,11 +344,16 @@ final class SwampyForestWorldgen {
 		generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, ORE_MITHRIL_DEEP);
 		GenerationStep.Decoration vegetal = GenerationStep.Decoration.VEGETAL_DECORATION;
 		generation.addFeature(vegetal, part.deadTrunks);
+		generation.addFeature(vegetal, part.fallenLogs);
 		generation.addFeature(vegetal, part.trees);
+		generation.addFeature(vegetal, part.shelfMushrooms);
 		generation.addFeature(vegetal, part.cattails);
 		generation.addFeature(vegetal, part.tallGrass);
 		generation.addFeature(vegetal, part.fireweed);
 		generation.addFeature(vegetal, part.shrubs);
+		generation.addFeature(vegetal, part.denseShrubs);
+		generation.addFeature(vegetal, part.brownMushrooms);
+		generation.addFeature(vegetal, part.redMushrooms);
 		generation.addFeature(vegetal, part.grass);
 		generation.addFeature(vegetal, part.marigolds);
 		generation.addFeature(vegetal, part.duckweed);

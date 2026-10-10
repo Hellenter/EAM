@@ -1,19 +1,70 @@
 {
   "variants": {
-    "": [
+    "coverage=1": [
       {
-        "model": "eam:block/duckweed"
+        "model": "eam:block/duckweed_stage1"
       },
       {
-        "model": "eam:block/duckweed",
+        "model": "eam:block/duckweed_stage1",
         "y": 90
       },
       {
-        "model": "eam:block/duckweed",
+        "model": "eam:block/duckweed_stage1",
         "y": 180
       },
       {
-        "model": "eam:block/duckweed",
+        "model": "eam:block/duckweed_stage1",
+        "y": 270
+      }
+    ],
+    "coverage=2": [
+      {
+        "model": "eam:block/duckweed_stage2"
+      },
+      {
+        "model": "eam:block/duckweed_stage2",
+        "y": 90
+      },
+      {
+        "model": "eam:block/duckweed_stage2",
+        "y": 180
+      },
+      {
+        "model": "eam:block/duckweed_stage2",
+        "y": 270
+      }
+    ],
+    "coverage=3": [
+      {
+        "model": "eam:block/duckweed_stage3"
+      },
+      {
+        "model": "eam:block/duckweed_stage3",
+        "y": 90
+      },
+      {
+        "model": "eam:block/duckweed_stage3",
+        "y": 180
+      },
+      {
+        "model": "eam:block/duckweed_stage3",
+        "y": 270
+      }
+    ],
+    "coverage=4": [
+      {
+        "model": "eam:block/duckweed_stage4"
+      },
+      {
+        "model": "eam:block/duckweed_stage4",
+        "y": 90
+      },
+      {
+        "model": "eam:block/duckweed_stage4",
+        "y": 180
+      },
+      {
+        "model": "eam:block/duckweed_stage4",
         "y": 270
       }
     ]

@@ -19,6 +19,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
@@ -43,13 +44,18 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.FLINT_SHARD);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);
 		// Swampy forest plants drop like their vanilla look-alikes.
-		dropSelf(EamBlocks.DUCKWEED);
+		add(EamBlocks.DUCKWEED, this::createSegmentedBlockDrops);
 		dropSelf(EamBlocks.MARSH_MARIGOLD);
 		add(EamBlocks.CATTAIL, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
 		add(EamBlocks.FIREWEED, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
 		add(EamBlocks.SWAMP_GRASS, this::createGrassDrops);
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
+		dropSelf(EamBlocks.SHELF_MUSHROOM);
+		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
+		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
+		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,
+				LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2))))));
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))

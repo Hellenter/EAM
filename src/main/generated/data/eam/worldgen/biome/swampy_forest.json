@@ -134,9 +134,9 @@
   ],
   "downfall": 0.8,
   "effects": {
-    "foliage_color": "#5c8a3b",
-    "grass_color": "#6e8c45",
-    "water_color": "#5e7b57"
+    "foliage_color": "#58a02c",
+    "grass_color": "#6db33a",
+    "water_color": "#4f7f5c"
   },
   "features": [
     [],
@@ -194,11 +194,16 @@
     [
       "minecraft:glow_lichen",
       "eam:dead_trunks_swampy_forest",
+      "eam:fallen_hollow_logs_swampy_forest",
       "eam:trees_swampy_forest",
+      "eam:shelf_mushrooms_swampy_forest",
       "eam:cattails_swampy_forest",
       "eam:tall_swamp_grass_swampy_forest",
       "eam:fireweed_swampy_forest",
       "eam:swamp_shrubs_swampy_forest",
+      "eam:dense_shrubs_swampy_forest",
+      "eam:brown_mushrooms_swampy_forest",
+      "eam:red_mushrooms_swampy_forest",
       "eam:swamp_grass_swampy_forest",
       "eam:marsh_marigolds_swampy_forest",
       "eam:duckweed_swampy_forest",

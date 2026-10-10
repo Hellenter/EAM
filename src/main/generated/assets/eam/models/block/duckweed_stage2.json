@@ -35,7 +35,7 @@
     }
   ],
   "textures": {
-    "particle": "eam:block/duckweed",
-    "texture": "eam:block/duckweed"
+    "particle": "eam:block/duckweed_stage2",
+    "texture": "eam:block/duckweed_stage2"
   }
 }

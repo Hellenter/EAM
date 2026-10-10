@@ -311,6 +311,10 @@ public final class EamItems {
 	public static final Item SWAMP_GRASS = plantItem("swamp_grass", EamBlocks.SWAMP_GRASS, ContextIntProviders.COMPOSTABLE_LOW);
 	public static final Item TALL_SWAMP_GRASS = plantItem("tall_swamp_grass", EamBlocks.TALL_SWAMP_GRASS, ContextIntProviders.COMPOSTABLE_LOW_MEDIUM);
 	public static final Item SWAMP_SHRUB = plantItem("swamp_shrub", EamBlocks.SWAMP_SHRUB, ContextIntProviders.COMPOSTABLE_LOW);
+	public static final Item DENSE_SHRUB = plantItem("dense_shrub", EamBlocks.DENSE_SHRUB, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item SHELF_MUSHROOM = plantItem("shelf_mushroom", EamBlocks.SHELF_MUSHROOM, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
+			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();
 	public static final Item FIREWEED = plantItem("fireweed", EamBlocks.FIREWEED, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final Item MARSH_MARIGOLD = plantItem("marsh_marigold", EamBlocks.MARSH_MARIGOLD, ContextIntProviders.COMPOSTABLE_MEDIUM);
 

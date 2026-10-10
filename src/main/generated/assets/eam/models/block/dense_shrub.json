@@ -1,0 +1,165 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#leaves",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "east": {
+          "texture": "#leaves",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            11.0
+          ]
+        },
+        "north": {
+          "texture": "#leaves",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            11.0
+          ]
+        },
+        "south": {
+          "texture": "#leaves",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            11.0
+          ]
+        },
+        "up": {
+          "texture": "#top",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#leaves",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            11.0
+          ]
+        }
+      },
+      "from": [
+        0.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#stem",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#stem",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0.1,
+        0.0,
+        8.0
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        15.9,
+        15.9,
+        8.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#stem",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#stem",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        8.0,
+        0.0,
+        0.1
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        8.0,
+        15.9,
+        15.9
+      ]
+    }
+  ],
+  "textures": {
+    "leaves": "eam:block/dense_shrub_leaves",
+    "particle": "eam:block/dense_shrub_leaves",
+    "stem": "eam:block/dense_shrub_stem",
+    "top": "eam:block/dense_shrub_top"
+  }
+}

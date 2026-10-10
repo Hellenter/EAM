@@ -19,8 +19,12 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Blocks;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public final class EamLanguageProviders {
 	private EamLanguageProviders() {
@@ -208,6 +212,12 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SWAMP_GRASS, "Swamp Grass");
 			builder.add(EamBlocks.TALL_SWAMP_GRASS, "Tall Swamp Grass");
 			builder.add(EamBlocks.SWAMP_SHRUB, "Swamp Shrub");
+			builder.add(EamBlocks.DENSE_SHRUB, "Dense Shrub");
+			builder.add(EamBlocks.SHELF_MUSHROOM, "Shelf Mushroom");
+			// "hollow_dark_oak_log" -> "Hollow Dark Oak Log"
+			EamBlocks.HOLLOW_LOGS.values().forEach(hollow -> builder.add(hollow, Arrays.stream(
+					BuiltInRegistries.BLOCK.getKey(hollow).getPath().split("_"))
+					.map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1)).collect(Collectors.joining(" "))));
 			builder.add(EamBlocks.FIREWEED, "Fireweed");
 			builder.add(EamBlocks.MARSH_MARIGOLD, "Marsh Marigold");
 			builder.add("biome.eam.swampy_forest", "Swampy Forest");
@@ -634,6 +644,19 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SWAMP_GRASS, "Приболотная трава");
 			builder.add(EamBlocks.TALL_SWAMP_GRASS, "Высокая приболотная трава");
 			builder.add(EamBlocks.SWAMP_SHRUB, "Приболотный кустарник");
+			builder.add(EamBlocks.DENSE_SHRUB, "Густой кустарник");
+			builder.add(EamBlocks.SHELF_MUSHROOM, "Трутовик");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.OAK_LOG), "Пустое дубовое бревно");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.SPRUCE_LOG), "Пустое еловое бревно");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.BIRCH_LOG), "Пустое берёзовое бревно");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.JUNGLE_LOG), "Пустое бревно тропического дерева");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.ACACIA_LOG), "Пустое бревно акации");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.DARK_OAK_LOG), "Пустое бревно тёмного дуба");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.MANGROVE_LOG), "Пустое мангровое бревно");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.CHERRY_LOG), "Пустое вишнёвое бревно");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.PALE_OAK_LOG), "Пустое бревно бледного дуба");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.CRIMSON_STEM), "Пустой багровый стебель");
+			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.WARPED_STEM), "Пустой искажённый стебель");
 			builder.add(EamBlocks.FIREWEED, "Иван-чай");
 			builder.add(EamBlocks.MARSH_MARIGOLD, "Калужница");
 			builder.add("biome.eam.swampy_forest", "Болотистый лес");
