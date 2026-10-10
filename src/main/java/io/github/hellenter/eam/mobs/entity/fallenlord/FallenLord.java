@@ -173,6 +173,10 @@ public class FallenLord extends Monster {
 	/** His recent hits on each player, with the health each took, for the breather. */
 	private final Map<UUID, List<Wound>> blows = new HashMap<>();
 	private int breatherCooldown;
+	/** Ticks before he can leap up at a player again. */
+	private int leapUpCooldown;
+	/** Where the current leap up sprang from. */
+	private Vec3 leapUpStart = Vec3.ZERO;
 	/** Hits on one player that make him take a breather; picked anew after each, 0 until picked. */
 	private int breatherHits;
 	private boolean breatherPending;
@@ -384,6 +388,17 @@ public class FallenLord extends Monster {
 		return hopBackPending;
 	}
 
+	/** Phase two: the target stands out of his reach above him, on a pillar or a ledge, but close enough to leap at. */
+	boolean canLeapUp(LivingEntity target) {
+		return phase() == 2 && leapUpCooldown <= 0 && onGround()
+				&& FallenLordLogic.shouldLeapUp(target.getY() - getY(), horizontalDistanceTo(target), settings().later().leapUp());
+	}
+
+	void startLeapUp(LivingEntity target) {
+		leapUpCooldown = settings().later().leapUp().cooldown();
+		setAction(FallenLordAction.LEAP_UP, target);
+	}
+
 	boolean isIdleFor(int ticks) {
 		return idleTicks >= ticks;
 	}
@@ -552,6 +567,9 @@ public class FallenLord extends Monster {
 		}
 		if (breatherCooldown > 0) {
 			breatherCooldown--;
+		}
+		if (leapUpCooldown > 0) {
+			leapUpCooldown--;
 		}
 		if (shieldDisabledTicks > 0 && --shieldDisabledTicks == 0) {
 			hitStreak = HitStreak.NONE;
@@ -809,12 +827,76 @@ public class FallenLord extends Monster {
 					return;
 				}
 			}
+			case LEAP_UP -> {
+				if (tickLeapUp(level, t, target)) {
+					return;
+				}
+			}
 			case PARRY, NONE -> {
 			}
 		}
 		if (actionTicks >= action.length()) {
 			endAction();
 		}
+	}
+
+	/** Ticks from springing off to the top of the leap up. */
+	private static final int LEAP_UP_RISE = FallenLordAction.LEAP_UP_CUT - FallenLordAction.LEAP_UP_LAUNCH;
+	/** At the top of the leap up he is this far short of the player, along the ground, so he lands in front of them. */
+	private static final double LEAP_UP_SHORT = 0.7;
+
+	/**
+	 * One tick of the leap up at a player standing too high; true once he has landed. He crouches, then is steered
+	 * along a fixed path to beside the player's feet, so the cut at the top always comes on the same tick; after it he
+	 * falls.
+	 */
+	private boolean tickLeapUp(ServerLevel level, int t, @Nullable LivingEntity target) {
+		if (t < FallenLordAction.LEAP_UP_LAUNCH) {
+			if (t == 0) {
+				playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.6F);
+			}
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+			return false;
+		}
+		if (t == FallenLordAction.LEAP_UP_LAUNCH) {
+			leapUpStart = position();
+			playSound(SoundEvents.GOAT_LONG_JUMP, 1.5F, 0.6F);
+		}
+		if (t < FallenLordAction.LEAP_UP_CUT) {
+			if (target == null) {
+				return false;
+			}
+			Vec3 to = horizontal(target.position().subtract(leapUpStart));
+			double flat = Math.max(0.0, horizontalDistanceTo(leapUpStart, target) - LEAP_UP_SHORT);
+			int done = t - FallenLordAction.LEAP_UP_LAUNCH + 1;
+			double share = (double) done / LEAP_UP_RISE;
+			Vec3 next = leapUpStart.add(to.scale(flat * share))
+					.add(0.0, (target.getY() + 0.3 - leapUpStart.y) * FallenLordLogic.leapUpHeight(done, LEAP_UP_RISE), 0.0);
+			setDeltaMovement(next.subtract(position()));
+			resetFallDistance();
+			return false;
+		}
+		if (t == FallenLordAction.LEAP_UP_CUT) {
+			setDeltaMovement(0.0, 0.0, 0.0);
+			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.2F, 0.7F);
+			FallenLordSettings.LeapUp leapUp = settings().later().leapUp();
+			if (target != null && distanceTo(target) <= FallenLordLogic.SWORD_REACH + 0.5 && hasLineOfSight(target)) {
+				strike(level, target, damageSources().mobAttack(this), leapUp.damage(), leapUp.knockback());
+			}
+			return false;
+		}
+		setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+		if (onGround()) {
+			endAction();
+			return true;
+		}
+		return false;
+	}
+
+	private static double horizontalDistanceTo(Vec3 from, Entity other) {
+		double dx = other.getX() - from.x;
+		double dz = other.getZ() - from.z;
+		return Math.sqrt(dx * dx + dz * dz);
 	}
 
 	/**

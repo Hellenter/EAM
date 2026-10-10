@@ -65,6 +65,13 @@ final class FallenLordFightGoal extends Goal {
 		double distance = lord.horizontalDistanceTo(target);
 		int phase = lord.phase();
 
+		if (lord.canLeapUp(target)) {
+			// Out of reach on a pillar or a ledge: he leaps up at them.
+			lord.getMoveControl().strafe(0.0F, 0.0F);
+			lord.startLeapUp(target);
+			return;
+		}
+
 		FallenLordSettings settings = FallenLordModule.settings();
 		int pause = phase == 1 ? settings.phaseOne().attackPause() : settings.phaseTwo().attackPause();
 		if (lord.isIdleFor(pause)) {

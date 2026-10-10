@@ -50,7 +50,12 @@ public enum FallenLordAction {
 	 * Phase two, after a leap back: the fencing stance, sword pointed at the player and the other hand raised behind,
 	 * luring them in. The server ends it; this is only the longest it can last.
 	 */
-	STANCE(400);
+	STANCE(400),
+	/**
+	 * Phase two: a leap up at a player standing too high. Crouches until {@link #LEAP_UP_LAUNCH}, rises beside them
+	 * with the sword raised and cuts on {@link #LEAP_UP_CUT}, then falls back.
+	 */
+	LEAP_UP(24);
 
 	/** Backstab: crouch until this tick, dart to the player's side, then to their back, cut on {@link #BACKSTAB_CUT}. */
 	public static final int BACKSTAB_DART = 2;
@@ -60,6 +65,10 @@ public enum FallenLordAction {
 	public static final int HEAVY_GLOW = 3;
 	/** Heavy strike: the cut lands on this tick. */
 	public static final int HEAVY_HIT = 3;
+
+	/** Leap up: springs off the ground on this tick and cuts at the top of the leap on the other. */
+	public static final int LEAP_UP_LAUNCH = 5;
+	public static final int LEAP_UP_CUT = 13;
 
 	/** Eyes glow through the whole windup. */
 	public static final int EYE_FLASH_TICKS = 14;

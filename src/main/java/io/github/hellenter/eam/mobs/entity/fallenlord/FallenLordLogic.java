@@ -437,6 +437,23 @@ public final class FallenLordLogic {
 	}
 
 	/**
+	 * Whether a player whose feet are {@code rise} blocks above his and {@code flat} blocks away along the ground is
+	 * out of his reach but close enough to leap at.
+	 */
+	public static boolean shouldLeapUp(double rise, double flat, FallenLordSettings.LeapUp leapUp) {
+		return rise >= leapUp.minHeight() && rise <= leapUp.maxHeight() && flat <= leapUp.maxRange();
+	}
+
+	/**
+	 * Share of the leap up done {@code ticks} ticks after he springs off, out of {@code rise} ticks: upwards it is fast
+	 * at first and slows to the top, so he clears the edge of a pillar before he is over it.
+	 */
+	public static double leapUpHeight(int ticks, int rise) {
+		double done = Math.clamp((double) ticks / rise, 0.0, 1.0);
+		return 1.0 - (1.0 - done) * (1.0 - done);
+	}
+
+	/**
 	 * Whether the player gave up on the lure of his stance: ran off by {@link FallenLordSettings.Stance#runAway()} from
 	 * where they stood when it began, or started to heal.
 	 *

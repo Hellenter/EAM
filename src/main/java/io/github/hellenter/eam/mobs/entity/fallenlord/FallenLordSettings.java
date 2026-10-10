@@ -396,18 +396,44 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param leapBack  phase two: after a few attacks in a row he leaps back
 	 * @param stance    phase two: the fencing stance after either leap, luring the player in
 	 * @param vampirism  how he heals from kills and while no player is in sight
+	 * @param leapUp     phase two: he leaps up at a player standing too high to reach
 	 */
-	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism) {
+	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT);
+				Vampirism.DEFAULT, LeapUp.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
 				Breather.CODEC.fieldOf("breather").orElse(Breather.DEFAULT).forGetter(Later::breather),
 				LeapBack.CODEC.fieldOf("leap_back").orElse(LeapBack.DEFAULT).forGetter(Later::leapBack),
 				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance),
-				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism)
+				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism),
+				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * Phase two: a player who climbs out of his reach, onto a pillar or a ledge, gets leapt at. He crouches, springs up
+	 * beside them and cuts at the top of the leap, knocking them off.
+	 *
+	 * @param minHeight  the player's feet must be at least this much higher than his
+	 * @param maxHeight  and at most this much; higher than that he cannot leap
+	 * @param maxRange   he only leaps at a player this close, counted flat
+	 * @param cooldown   ticks before he can leap up again
+	 * @param damage     the cut at the top of the leap
+	 * @param knockback  how hard the cut throws the player
+	 */
+	public record LeapUp(double minHeight, double maxHeight, double maxRange, int cooldown, float damage, float knockback) {
+		public static final LeapUp DEFAULT = new LeapUp(2.0, 8.0, 6.0, 60, 8.0F, 1.0F);
+
+		public static final Codec<LeapUp> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(1.0, 32.0).fieldOf("min_height").orElse(DEFAULT.minHeight).forGetter(LeapUp::minHeight),
+				Codec.doubleRange(1.0, 32.0).fieldOf("max_height").orElse(DEFAULT.maxHeight).forGetter(LeapUp::maxHeight),
+				Codec.doubleRange(0.0, 32.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(LeapUp::maxRange),
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(LeapUp::cooldown),
+				FallenLordSettings.damage().fieldOf("damage").orElse(DEFAULT.damage).forGetter(LeapUp::damage),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("knockback").orElse(DEFAULT.knockback).forGetter(LeapUp::knockback)
+		).apply(instance, LeapUp::new));
 	}
 
 	/**

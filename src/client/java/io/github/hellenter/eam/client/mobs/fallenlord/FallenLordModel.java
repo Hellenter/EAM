@@ -137,6 +137,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case HEAVY_WINDUP -> heavyWindup(t);
 			case HEAVY_STRIKE -> heavyStrike(t);
 			case STANCE -> stance(t);
+			case LEAP_UP -> leapUp(t);
 			case NONE -> {
 			}
 		}
@@ -566,6 +567,23 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		head.xRot += 0.1F * cut * hold;
 		bendLeg(leftLeg, leftShin, hold, Mth.lerp(cut, -0.4F, -0.7F), Mth.lerp(cut, 0.35F, 0.9F));
 		bendLeg(rightLeg, rightShin, hold, Mth.lerp(cut, 0.45F, 0.5F), Mth.lerp(cut, 0.5F, 0.3F));
+	}
+
+	/**
+	 * The leap up at a player standing too high: crouches deep with the sword raised two-handed, tucks his legs in
+	 * the air and brings the sword down at the top of the leap, as in the heavy strike.
+	 */
+	private void leapUp(float t) {
+		if (t >= FallenLordAction.LEAP_UP_CUT - FallenLordAction.HEAVY_HIT) {
+			heavyStrike(t - (FallenLordAction.LEAP_UP_CUT - FallenLordAction.HEAVY_HIT));
+			return;
+		}
+		heavyWindup(t * 6.0F / FallenLordAction.LEAP_UP_LAUNCH);
+		float crouch = seg(t, 0.0F, 3.0F) * (1.0F - seg(t, FallenLordAction.LEAP_UP_LAUNCH, FallenLordAction.LEAP_UP_LAUNCH + 1.0F));
+		float tuck = seg(t, FallenLordAction.LEAP_UP_LAUNCH, FallenLordAction.LEAP_UP_LAUNCH + 3.0F);
+		body.xRot += 0.35F * crouch;
+		bendLeg(rightLeg, rightShin, Math.max(crouch, tuck), -0.9F, 1.6F);
+		bendLeg(leftLeg, leftShin, Math.max(crouch, tuck), -0.5F, 1.3F);
 	}
 
 	/**

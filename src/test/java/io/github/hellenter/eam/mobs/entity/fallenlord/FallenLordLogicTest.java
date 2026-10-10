@@ -348,4 +348,21 @@ class FallenLordLogicTest {
 		assertTrue(FallenLordLogic.stanceBroken(4.0, 4.0, 11.0F, 10.0F, false, stance));
 		assertTrue(FallenLordLogic.stanceBroken(4.0, 4.0, 10.0F, 10.0F, true, stance));
 	}
+
+	@Test
+	void leapsUpAtAPlayerOnAPillar() {
+		FallenLordSettings.LeapUp leapUp = SETTINGS.later().leapUp();
+		assertFalse(FallenLordLogic.shouldLeapUp(1.0, 1.0, leapUp));
+		assertTrue(FallenLordLogic.shouldLeapUp(4.0, 1.0, leapUp));
+		assertFalse(FallenLordLogic.shouldLeapUp(4.0, 9.0, leapUp));
+		assertFalse(FallenLordLogic.shouldLeapUp(12.0, 1.0, leapUp));
+	}
+
+	@Test
+	void leapUpRisesFastAndSlowsToTheTop() {
+		assertEquals(0.0, FallenLordLogic.leapUpHeight(0, 8), 1.0E-9);
+		assertTrue(FallenLordLogic.leapUpHeight(4, 8) > 0.5);
+		assertEquals(1.0, FallenLordLogic.leapUpHeight(8, 8), 1.0E-9);
+		assertEquals(1.0, FallenLordLogic.leapUpHeight(12, 8), 1.0E-9);
+	}
 }

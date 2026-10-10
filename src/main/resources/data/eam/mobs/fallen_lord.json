@@ -153,5 +153,13 @@
   "vampirism": {
     "kill_heal": 0.5,
     "unseen_regen": 1.0
+  },
+  "leap_up": {
+    "min_height": 2.0,
+    "max_height": 8.0,
+    "max_range": 6.0,
+    "cooldown": 60,
+    "damage": 8.0,
+    "knockback": 1.0
   }
 }
