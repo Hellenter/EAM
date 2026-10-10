@@ -49,8 +49,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
 	/** The potion at his mouth: its face turned to the front and his right, the neck slanting down and in to his lips. */
 	private static final Quaternionfc POTION_AT_MOUTH = new Quaternionf().rotateY(-3.0F * QUARTER / 2.0F).rotateX(0.29F).rotateZ(-QUARTER);
-	/** The sword in his fencing stance: pointed straight ahead at the player, the tip a little low. */
-	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(0.1F);
+	/** The sword in his fencing stance: pointed ahead at the player, the tip a little up. */
+	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(-0.7F);
 	/** How far back the pointed sword is pulled into the fist, in model pixels. */
 	private static final float SWORD_GRIP_BACK = 3.0F;
 
