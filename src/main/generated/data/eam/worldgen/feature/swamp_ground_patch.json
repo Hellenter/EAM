@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:random_selector",
+  "default": {
+    "feature": "eam:swamp_coarse_dirt_patch",
+    "placement": []
+  },
+  "features": [
+    {
+      "chance": 0.45,
+      "feature": {
+        "feature": "eam:swamp_podzol_patch",
+        "placement": []
+      }
+    },
+    {
+      "chance": 0.35,
+      "feature": {
+        "feature": "eam:swamp_moss_patch",
+        "placement": []
+      }
+    }
+  ]
+}

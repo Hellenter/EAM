@@ -52,6 +52,7 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.BlockColumnFeature;
+import net.minecraft.world.level.levelgen.feature.DiskFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.RandomSelectorFeature;
 import net.minecraft.world.level.levelgen.feature.SimpleBlockFeature;
@@ -59,7 +60,6 @@ import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.BlobFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.BushFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FancyFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
@@ -70,6 +70,7 @@ import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.level.levelgen.placement.NoiseThresholdCountPlacement;
 import net.minecraft.world.level.levelgen.placement.OffsetPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
@@ -88,7 +89,7 @@ import java.util.OptionalInt;
  * <ul>
  * <li>Swampy forest: dense oak and birch forest, thickets of dense shrubs, a pond in every other chunk.</li>
  * <li>Swampy lakes: a chain of overlapping ponds, the deepest ones, with few trees, many dead trunks and duckweed mats.</li>
- * <li>Swampy hummocks: shallow water full of grassy tussocks, low birches and oak bushes.</li>
+ * <li>Swampy hummocks: shallow water full of grassy tussocks, low birches and big shrubs.</li>
  * </ul>
  * Below y -42 each part gets as many extra mithril veins again as the overworld has there, so twice the mithril.
  */
@@ -103,7 +104,6 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> POND_HUMMOCKS = feature("swamp_pond_hummocks");
 	static final ResourceKey<Feature> DEAD_TRUNK = feature("dead_trunk");
 	static final ResourceKey<Feature> LOW_BIRCH = feature("swamp_low_birch");
-	static final ResourceKey<Feature> OAK_BUSH = feature("swamp_oak_bush");
 	static final ResourceKey<Feature> TALL_BIRCH = feature("swamp_tall_birch");
 	static final ResourceKey<Feature> TALL_OAK = feature("swamp_tall_oak");
 	static final ResourceKey<Feature> TALL_SWAMP_OAK = feature("swamp_tall_swamp_oak");
@@ -127,9 +127,14 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> SWAMP_SHRUB = feature("swamp_shrub");
 	static final ResourceKey<Feature> FIREWEED = feature("fireweed");
 	static final ResourceKey<Feature> MARSH_MARIGOLD = feature("marsh_marigold");
-	static final List<ResourceKey<Feature>> FEATURES = List.of(POND_FOREST, POND_LAKES, POND_HUMMOCKS, DEAD_TRUNK, LOW_BIRCH, OAK_BUSH,
+	static final ResourceKey<Feature> PODZOL_PATCH = feature("swamp_podzol_patch");
+	static final ResourceKey<Feature> MOSS_PATCH = feature("swamp_moss_patch");
+	static final ResourceKey<Feature> COARSE_DIRT_PATCH = feature("swamp_coarse_dirt_patch");
+	static final ResourceKey<Feature> GROUND_PATCH = feature("swamp_ground_patch");
+	static final List<ResourceKey<Feature>> FEATURES = List.of(POND_FOREST, POND_LAKES, POND_HUMMOCKS, DEAD_TRUNK, LOW_BIRCH,
 			TALL_BIRCH, TALL_OAK, TALL_SWAMP_OAK, TALL_FANCY_OAK,
-			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED_FOREST, DUCKWEED_LAKES, DUCKWEED_HUMMOCKS, DENSE_SHRUB, BIG_SHRUB, LAKE_BED_FOREST, LAKE_BED_LAKES, LAKE_BED_HUMMOCKS, FALLEN_HOLLOW_LOG, SHELF_MUSHROOMS, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD);
+			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED_FOREST, DUCKWEED_LAKES, DUCKWEED_HUMMOCKS, DENSE_SHRUB, BIG_SHRUB, LAKE_BED_FOREST, LAKE_BED_LAKES, LAKE_BED_HUMMOCKS, FALLEN_HOLLOW_LOG, SHELF_MUSHROOMS, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD,
+			PODZOL_PATCH, MOSS_PATCH, COARSE_DIRT_PATCH, GROUND_PATCH);
 
 	/** One set of placed features per part of the swamp, each named after its part. */
 	private enum Part {
@@ -152,6 +157,7 @@ final class SwampyForestWorldgen {
 		final ResourceKey<PlacedFeature> redMushrooms;
 		final ResourceKey<PlacedFeature> fireweed;
 		final ResourceKey<PlacedFeature> marigolds;
+		final ResourceKey<PlacedFeature> groundPatches;
 
 		Part(String name) {
 			this.pond = placed("swamp_pond_" + name);
@@ -171,11 +177,12 @@ final class SwampyForestWorldgen {
 			this.redMushrooms = placed("red_mushrooms_" + name);
 			this.fireweed = placed("fireweed_" + name);
 			this.marigolds = placed("marsh_marigolds_" + name);
+			this.groundPatches = placed("ground_patches_" + name);
 		}
 
 		List<ResourceKey<PlacedFeature>> all() {
 			return List.of(this.pond, this.deadTrunks, this.trees, this.duckweed, this.cattails, this.grass, this.tallGrass, this.shrubs,
-					this.denseShrubs, this.bigShrubs, this.lakeBed, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms);
+					this.denseShrubs, this.bigShrubs, this.lakeBed, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms, this.groundPatches);
 		}
 	}
 
@@ -184,6 +191,7 @@ final class SwampyForestWorldgen {
 	static final int GRASS_COLOR = 0x91BD59;
 	static final int FOLIAGE_COLOR = 0x77AB2F;
 	static final int WATER_COLOR = 0x4E7A62;
+	static final int FOG_COLOR = 0xB9CDBE;
 
 	private SwampyForestWorldgen() {
 	}
@@ -210,9 +218,8 @@ final class SwampyForestWorldgen {
 		context.register(LOW_BIRCH, new TreeFeature.Builder(BlockStateProvider.of(Blocks.BIRCH_LOG), new StraightTrunkPlacer(4, 1, 0),
 				BlockStateProvider.of(Blocks.BIRCH_LEAVES), new BlobFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
 				new TwoLayersFeatureSize(1, 0, 1), soil).ignoreVines().build());
-		context.register(OAK_BUSH, new TreeFeature.Builder(BlockStateProvider.of(Blocks.OAK_LOG), new StraightTrunkPlacer(1, 0, 0),
-				BlockStateProvider.of(Blocks.OAK_LEAVES), new BushFoliagePlacer(ConstantInt.of(2), ConstantInt.of(1), 2),
-				new TwoLayersFeatureSize(0, 0, 0), soil).build());
+		// Big shrubs take the place of vanilla's one-log oak bushes among the hummocks' trees.
+		context.register(BIG_SHRUB, new BigShrubFeature(0.2F));
 
 		// Vanilla's birch, oak, swamp oak and fancy oak, each two blocks taller.
 		context.register(TALL_BIRCH, straightTree(Blocks.BIRCH_LOG, Blocks.BIRCH_LEAVES, 7, 2, 2, soil).ignoreVines().build());
@@ -226,7 +233,7 @@ final class SwampyForestWorldgen {
 		Holder<PlacedFeature> fancyOak = tree(features, TALL_FANCY_OAK, Blocks.OAK_SAPLING);
 		Holder<PlacedFeature> swampOak = tree(features, TALL_SWAMP_OAK, Blocks.OAK_SAPLING);
 		Holder<PlacedFeature> lowBirch = tree(features, LOW_BIRCH, Blocks.BIRCH_SAPLING);
-		Holder<PlacedFeature> oakBush = tree(features, OAK_BUSH, Blocks.OAK_SAPLING);
+		Holder<PlacedFeature> bigShrub = PlacementUtils.inlinePlaced(features.getOrThrow(BIG_SHRUB));
 		Holder<PlacedFeature> fallenBirch = placed.getOrThrow(TreePlacements.FALLEN_BIRCH_TREE);
 		Holder<PlacedFeature> fallenOak = placed.getOrThrow(TreePlacements.FALLEN_OAK_TREE);
 		context.register(TREES_FOREST, new RandomSelectorFeature(List.of(
@@ -241,7 +248,7 @@ final class SwampyForestWorldgen {
 				new WeightedPlacedFeature(birch, 0.3F)), oak));
 		context.register(TREES_HUMMOCKS, new RandomSelectorFeature(List.of(
 				new WeightedPlacedFeature(lowBirch, 0.5F),
-				new WeightedPlacedFeature(oakBush, 0.35F)), birch));
+				new WeightedPlacedFeature(bigShrub, 0.35F)), birch));
 
 		// Duckweed mats reach further out over the open lakes than over forest ponds.
 		context.register(DUCKWEED_FOREST, new DuckweedMatFeature(4));
@@ -251,7 +258,6 @@ final class SwampyForestWorldgen {
 		BlockState shrub = EamBlocks.DENSE_SHRUB.defaultBlockState();
 		context.register(DENSE_SHRUB, new SimpleBlockFeature(new WeightedStateProvider(WeightedList.<BlockState>builder()
 				.add(shrub, 4).add(shrub.setValue(BerryShrub.BERRIES, BerryShrub.RIPE), 1))));
-		context.register(BIG_SHRUB, new BigShrubFeature(0.2F));
 		// Lake beds turn to mud; tussocks rise in the shallows; a lurker hides in the mud of one lake chunk in 25.
 		context.register(LAKE_BED_FOREST, new LakeBedFeature(UniformInt.of(0, 1), 0.04F));
 		context.register(LAKE_BED_LAKES, new LakeBedFeature(UniformInt.of(1, 3), 0.04F));
@@ -269,6 +275,16 @@ final class SwampyForestWorldgen {
 		context.register(SWAMP_SHRUB, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.SWAMP_SHRUB)));
 		context.register(FIREWEED, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.FIREWEED)));
 		context.register(MARSH_MARIGOLD, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.MARSH_MARIGOLD)));
+
+		// Patches of podzol, moss and coarse dirt break up the grass, like the ground of vanilla's old forests.
+		BlockPredicate ground = BlockPredicate.matchesBlocks(Blocks.GRASS_BLOCK, Blocks.DIRT);
+		context.register(PODZOL_PATCH, new DiskFeature(BlockStateProvider.holderOf(Blocks.PODZOL), ground, UniformInt.of(2, 4), 1));
+		context.register(MOSS_PATCH, new DiskFeature(BlockStateProvider.holderOf(Blocks.MOSS_BLOCK), ground, UniformInt.of(2, 3), 1));
+		context.register(COARSE_DIRT_PATCH, new DiskFeature(BlockStateProvider.holderOf(Blocks.COARSE_DIRT), ground, UniformInt.of(1, 3), 1));
+		context.register(GROUND_PATCH, new RandomSelectorFeature(List.of(
+				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(features.getOrThrow(PODZOL_PATCH)), 0.45F),
+				new WeightedPlacedFeature(PlacementUtils.inlinePlaced(features.getOrThrow(MOSS_PATCH)), 0.35F)),
+				PlacementUtils.inlinePlaced(features.getOrThrow(COARSE_DIRT_PATCH))));
 	}
 
 	private static BlockColumnFeature deadTrunk(Block log) {
@@ -288,13 +304,16 @@ final class SwampyForestWorldgen {
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
-		// counts per chunk:  pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs
+		// counts per chunk: pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs ground
+		// The forest's trees and big shrubs follow a broad noise, like vanilla's plains flowers: groves about 200 blocks
+		// across with 28 trees a chunk, and lighter stretches with 10 trees where the big shrubs grow thickest instead.
 		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, DUCKWEED_FOREST, LAKE_BED_FOREST,
-				new int[] {-4, -2, 22, 2, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4});
+				new int[] {-4, -2, 22, 2, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4, 3},
+				NoiseThresholdCountPlacement.of(-0.2, 10, 28), NoiseThresholdCountPlacement.of(-0.2, 7, 2));
 		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, DUCKWEED_LAKES, LAKE_BED_LAKES,
-				new int[] {-2, 2, 5, 6, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 1});
+				new int[] {-2, 2, 5, 6, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 1, 1}, null, null);
 		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, DUCKWEED_HUMMOCKS, LAKE_BED_HUMMOCKS,
-				new int[] {-2, 1, 9, 3, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 2});
+				new int[] {-2, 1, 9, 3, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 2, 2}, null, null);
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
 				CountPlacement.of(MITHRIL_DEEP_VEINS),
@@ -303,15 +322,19 @@ final class SwampyForestWorldgen {
 				BiomeFilter.biome()));
 	}
 
-	/** A positive count is that many tries per chunk; a negative one, -n, is one try every n chunks. */
+	/**
+	 * A positive count is that many tries per chunk; a negative one, -n, is one try every n chunks. {@code treeCount} and
+	 * {@code bigShrubCount}, when given, replace the fixed counts with noise-driven ones.
+	 */
 	private static void placeAll(BootstrapContext<PlacedFeature> context, HolderGetter<Feature> features, Part part,
-			ResourceKey<Feature> pond, ResourceKey<Feature> trees, ResourceKey<Feature> duckweed, ResourceKey<Feature> lakeBed, int[] counts) {
+			ResourceKey<Feature> pond, ResourceKey<Feature> trees, ResourceKey<Feature> duckweed, ResourceKey<Feature> lakeBed, int[] counts,
+			PlacementModifier treeCount, PlacementModifier bigShrubCount) {
 		PlacementUtils.register(context, part.pond, features.getOrThrow(pond),
 				List.of(frequency(counts[0]), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome()));
 		PlacementUtils.register(context, part.deadTrunks, features.getOrThrow(DEAD_TRUNK), List.of(frequency(counts[1]),
 				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(2), PlacementUtils.HEIGHTMAP_TOP_SOLID, BiomeFilter.biome(),
 				BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.OAK_SAPLING))));
-		PlacementUtils.register(context, part.trees, features.getOrThrow(trees), List.of(PlacementUtils.countExtra(counts[2], 0.1F, 1),
+		PlacementUtils.register(context, part.trees, features.getOrThrow(trees), List.of(treeCount != null ? treeCount : PlacementUtils.countExtra(counts[2], 0.1F, 1),
 				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(0), PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome()));
 		// Duckweed covers the water of the whole chunk at once, by distance from the banks.
 		PlacementUtils.register(context, part.duckweed, features.getOrThrow(duckweed), List.of());
@@ -332,7 +355,11 @@ final class SwampyForestWorldgen {
 						BlockPredicate.wouldSurvive(EamBlocks.DENSE_SHRUB), byWater())));
 		// Big shrubs in loose clumps on dry land: the thickets you push through.
 		PlacementUtils.register(context, part.bigShrubs, features.getOrThrow(BIG_SHRUB),
-				patch(counts[14], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 6, 4, 1, BlockPredicate.ONLY_IN_AIR_PREDICATE));
+				patch(bigShrubCount != null ? bigShrubCount : frequency(counts[14]), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 6, 4, 1,
+						BlockPredicate.ONLY_IN_AIR_PREDICATE));
+		PlacementUtils.register(context, part.groundPatches, features.getOrThrow(GROUND_PATCH), List.of(frequency(counts[15]),
+				InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_TOP_SOLID, OffsetPlacement.vertical(ConstantInt.of(-1)),
+				BlockPredicateFilter.forPredicate(BlockPredicate.matchesBlocks(Blocks.GRASS_BLOCK)), BiomeFilter.biome()));
 		// Lake beds and tussocks for the whole chunk at once.
 		PlacementUtils.register(context, part.lakeBed, features.getOrThrow(lakeBed), List.of());
 		PlacementUtils.register(context, part.fallenLogs, features.getOrThrow(FALLEN_HOLLOW_LOG),
@@ -358,7 +385,12 @@ final class SwampyForestWorldgen {
 
 	/** {@code count} patches per chunk, each with {@code tries} spots spread around its centre. */
 	private static List<PlacementModifier> patch(int count, PlacementModifier heightmap, int tries, int spread, int ySpread, BlockPredicate spot) {
-		return List.of(frequency(count), InSquarePlacement.spread(), heightmap, BiomeFilter.biome(), CountPlacement.of(tries),
+		return patch(frequency(count), heightmap, tries, spread, ySpread, spot);
+	}
+
+	private static List<PlacementModifier> patch(PlacementModifier count, PlacementModifier heightmap, int tries, int spread, int ySpread,
+			BlockPredicate spot) {
+		return List.of(count, InSquarePlacement.spread(), heightmap, BiomeFilter.biome(), CountPlacement.of(tries),
 				OffsetPlacement.ofTriangle(spread, ySpread), BlockPredicateFilter.forPredicate(spot));
 	}
 
@@ -404,6 +436,7 @@ final class SwampyForestWorldgen {
 		BiomeDefaultFeatures.addDefaultOres(generation);
 		BiomeDefaultFeatures.addSwampClayDisk(generation);
 		generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, ORE_MITHRIL_DEEP);
+		generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, part.groundPatches);
 		GenerationStep.Decoration vegetal = GenerationStep.Decoration.VEGETAL_DECORATION;
 		generation.addFeature(vegetal, part.deadTrunks);
 		generation.addFeature(vegetal, part.fallenLogs);
@@ -442,6 +475,8 @@ final class SwampyForestWorldgen {
 		BiomeDefaultFeatures.swampSpawns(mobs, 70);
 
 		return OverworldBiomes.baseBiome(0.7F, 0.8F)
+				// A faint green-grey haze over the bog.
+				.setAttribute(EnvironmentAttributes.FOG_COLOR, ARGB.vector3fFromRGB24(FOG_COLOR))
 				.setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, ARGB.vector3fFromRGB24(0x232317))
 				.modifyAttribute(EnvironmentAttributes.WATER_FOG_END_DISTANCE, FloatModifier.MULTIPLY, 0.85F)
 				.setAttribute(EnvironmentAttributes.BACKGROUND_MUSIC, new BackgroundMusic(SoundEvents.MUSIC_BIOME_SWAMP))

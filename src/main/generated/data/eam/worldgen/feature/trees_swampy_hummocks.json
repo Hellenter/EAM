@@ -31,16 +31,8 @@
     {
       "chance": 0.35,
       "feature": {
-        "feature": "eam:swamp_oak_bush",
-        "placement": [
-          {
-            "type": "minecraft:block_predicate_filter",
-            "predicate": {
-              "type": "minecraft:would_survive",
-              "state": "minecraft:oak_sapling"
-            }
-          }
-        ]
+        "feature": "eam:big_shrub",
+        "placement": []
       }
     }
   ]
