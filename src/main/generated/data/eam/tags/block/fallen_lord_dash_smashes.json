@@ -1,0 +1,24 @@
+{
+  "values": [
+    "#minecraft:dirt",
+    "#minecraft:logs",
+    "#minecraft:planks",
+    "#minecraft:wooden_stairs",
+    "#minecraft:wooden_slabs",
+    "#minecraft:wooden_fences",
+    "minecraft:cobblestone",
+    "minecraft:cobblestone_stairs",
+    "minecraft:cobblestone_slab",
+    "minecraft:cobblestone_wall",
+    "minecraft:mossy_cobblestone",
+    "minecraft:mossy_cobblestone_stairs",
+    "minecraft:mossy_cobblestone_slab",
+    "minecraft:mossy_cobblestone_wall",
+    "minecraft:gravel",
+    "minecraft:sand",
+    "minecraft:red_sand",
+    "minecraft:dirt_path",
+    "minecraft:farmland",
+    "minecraft:clay"
+  ]
+}

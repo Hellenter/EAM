@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.level.block.Block;
 
 /**
  * The Fallen Lord, boss of the crypt. Not placed in the world yet: spawn him with the spawn egg or
@@ -23,6 +24,8 @@ public final class FallenLordModule {
 	public static final ResourceKey<DamageType> HEAVY_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("fallen_lord_heavy"));
 	/** Weapon hits and projectiles: his physical resistance applies to these. */
 	public static final TagKey<DamageType> PHYSICAL = TagKey.create(Registries.DAMAGE_TYPE, Eam.id("physical"));
+	/** Weak blocks his dashes smash through: earth, wood, cobblestone. */
+	public static final TagKey<Block> DASH_SMASHES = TagKey.create(Registries.BLOCK, Eam.id("fallen_lord_dash_smashes"));
 
 	private static volatile FallenLordSettings settings = FallenLordSettings.DEFAULT;
 

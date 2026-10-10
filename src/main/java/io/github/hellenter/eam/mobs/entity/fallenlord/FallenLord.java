@@ -66,6 +66,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
@@ -648,6 +649,7 @@ public class FallenLord extends Monster {
 				}
 			}
 			case DASH -> {
+				smashAhead(level, DASH_SPEED);
 				Vec3 left = dashTarget.subtract(position());
 				if (t > 0 && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0 || left.horizontalDistance() < 0.6)
 						|| t >= action.length() - 1) {
@@ -936,6 +938,25 @@ public class FallenLord extends Monster {
 		}
 	}
 
+	/**
+	 * A dash smashes weak blocks (tag {@link FallenLordModule#DASH_SMASHES}) in his way before he reaches them, so it is
+	 * not stopped by them. The floor he runs on stays.
+	 */
+	private void smashAhead(ServerLevel level, double speed) {
+		if (!level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+			return;
+		}
+		AABB box = getBoundingBox();
+		AABB ahead = new AABB(box.minX, box.minY + 0.1, box.minZ, box.maxX, box.maxY, box.maxZ)
+				.expandTowards(rushDirection.x * (speed + 0.5), 0.0, rushDirection.z * (speed + 0.5));
+		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(ahead.minX, ahead.minY, ahead.minZ),
+				BlockPos.containing(ahead.maxX, ahead.maxY, ahead.maxZ))) {
+			if (level.getBlockState(pos).is(FallenLordModule.DASH_SMASHES)) {
+				level.destroyBlock(pos, true, this);
+			}
+		}
+	}
+
 	/** One tick of the sword dash; true when it has handed over to another action. */
 	private boolean tickSwordDash(ServerLevel level, int t, @Nullable LivingEntity target) {
 		if (target != null && horizontalDistanceTo(target) <= FallenLordLogic.SWORD_DASH_STOP + 0.3 && Math.abs(target.getY() - getY()) < 2.5) {
@@ -956,6 +977,7 @@ public class FallenLord extends Monster {
 			setAction(FallenLordAction.COMBO, target);
 			return true;
 		}
+		smashAhead(level, SWORD_DASH_SPEED);
 		Vec3 left = dashTarget.subtract(position());
 		if (t > 0 && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0)) {
 			endAction();
