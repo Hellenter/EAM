@@ -16,6 +16,10 @@
     "minecraft:lure",
     "minecraft:infinity",
     "minecraft:loyalty",
-    "minecraft:riptide"
+    "minecraft:riptide",
+    "minecraft:mending",
+    "minecraft:frost_walker",
+    "minecraft:soul_speed",
+    "minecraft:swift_sneak"
   ]
 }
