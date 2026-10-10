@@ -36,6 +36,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -62,6 +63,7 @@ import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -81,6 +83,16 @@ import java.util.UUID;
  * {@link FallenLordFightGoal} moves him and picks them with {@link FallenLordLogic}.
  */
 public class FallenLord extends Monster {
+	/**
+	 * His death, in ticks since it began (shared with the renderer): he sinks to his knees, the bones inside the armor
+	 * burn to ash ({@link #ASH_START} to {@link #ASH_END}), the empty armor falls to the ground
+	 * ({@link #COLLAPSE_START} to {@link #COLLAPSE_END}) and lies there until {@link #DEATH_TICKS}.
+	 */
+	public static final int ASH_START = 6;
+	public static final int ASH_END = 30;
+	public static final int COLLAPSE_START = 24;
+	public static final int COLLAPSE_END = 44;
+	public static final int DEATH_TICKS = 100;
 	private static final EntityDataAccessor<Byte> DATA_PHASE = SynchedEntityData.defineId(FallenLord.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(FallenLord.class, EntityDataSerializers.BYTE);
 	/** Bumped on every new action, so clients restart the animation even when the same action repeats. */
@@ -169,7 +181,8 @@ public class FallenLord extends Monster {
 
 	public FallenLord(EntityType<? extends FallenLord> type, Level level) {
 		super(type, level);
-		xpReward = 100;
+		// His experience bursts from his chest when he dies: see dropExperience.
+		xpReward = 0;
 		setPersistenceRequired();
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, 0.0F);
@@ -1204,6 +1217,78 @@ public class FallenLord extends Monster {
 	@Override
 	public boolean removeWhenFarAway(double distSqr) {
 		return false;
+	}
+
+	/** Orbs in the death burst. */
+	private static final int DEATH_ORBS = 40;
+	/** Orbs fly about this many times their starting speed before they settle. */
+	private static final double ORB_TRAVEL = 13.0;
+
+	/**
+	 * Experience bursts from his chest in two spheres, scaled by the players around him. Dropped under the same
+	 * conditions as any mob's experience.
+	 */
+	@Override
+	protected void dropExperience(ServerLevel level, @Nullable Entity killer) {
+		if (wasExperienceConsumed() || lastHurtByPlayerMemoryTime <= 0 || !shouldDropExperience() || !level.getGameRules().get(GameRules.MOB_DROPS)) {
+			return;
+		}
+		FallenLordSettings.Death death = settings().death();
+		int[] values = FallenLordLogic.orbValues(FallenLordLogic.deathXp(players, death), DEATH_ORBS);
+		int inner = FallenLordLogic.innerOrbs(values.length, death);
+		Vec3 chest = new Vec3(getX(), getY(0.65), getZ());
+		for (int i = 0; i < values.length; i++) {
+			double radius = i < inner ? death.innerRadius() : death.outerRadius();
+			// Out and a little up in any direction, most orbs near the edge of their sphere.
+			double yaw = random.nextDouble() * Math.PI * 2.0;
+			double pitch = 0.25 + random.nextDouble() * 0.75;
+			double speed = radius / ORB_TRAVEL * (0.55 + 0.45 * Math.sqrt(random.nextDouble()));
+			Vec3 motion = new Vec3(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch)).scale(speed);
+			ExperienceOrb orb = new ExperienceOrb(level, chest.x, chest.y, chest.z, values[i]);
+			// The constructor gives it a random nudge; the burst decides instead.
+			orb.setDeltaMovement(motion);
+			level.addFreshEntity(orb);
+		}
+		level.playSound(null, chest.x, chest.y, chest.z, SoundEvents.PLAYER_LEVELUP, getSoundSource(), 1.0F, 0.6F);
+	}
+
+	/** The long death: ash, falling armor; then the armor crumbles away too. */
+	@Override
+	protected void tickDeath() {
+		deathTime++;
+		if (level() instanceof ServerLevel level) {
+			deathEffects(level, deathTime);
+			if (deathTime >= DEATH_TICKS && !isRemoved()) {
+				level.broadcastEntityEvent(this, (byte) 60);
+				remove(RemovalReason.KILLED);
+			}
+		}
+	}
+
+	private void deathEffects(ServerLevel level, int t) {
+		double w = getBbWidth() * 0.3;
+		if (t >= ASH_START && t < ASH_END) {
+			// Ash pours out of the gaps of the armor as the bones burn away.
+			level.sendParticles(ParticleTypes.WHITE_ASH, getX(), getY(0.6), getZ(), 12, w, getBbHeight() * 0.3, w, 0.02);
+			level.sendParticles(ParticleTypes.ASH, getX(), getY(0.5), getZ(), 6, w, getBbHeight() * 0.3, w, 0.0);
+			if (t % 3 == 0) {
+				level.sendParticles(ParticleTypes.SMOKE, getX(), getY(0.85), getZ(), 3, w * 0.5, 0.1, w * 0.5, 0.01);
+			}
+			if (t % 6 == 0) {
+				playSound(SoundEvents.SAND_BREAK, 0.8F, 0.6F);
+			}
+		}
+		if (t == ASH_END) {
+			level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(0.5), getZ(), 12, w, getBbHeight() * 0.25, w, 0.02);
+		}
+		if (t == COLLAPSE_START + 8 || t == COLLAPSE_END - 4) {
+			// The empty armor clatters to the ground.
+			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 0.6F);
+			playSound(SoundEvents.CHAIN_FALL, 1.0F, 0.7F);
+		}
+		if (t == DEATH_TICKS - 1) {
+			level.sendParticles(ParticleTypes.WHITE_ASH, getX(), getY(0.1), getZ(), 40, getBbWidth() * 0.6, 0.1, getBbWidth() * 0.6, 0.02);
+		}
 	}
 
 	@Override

@@ -14,4 +14,6 @@ public class FallenLordRenderState extends SkeletonRenderState {
 	public float guard;
 	/** Frame of the eye flash, or -1 when the eyes do not glow. */
 	public int eyeFrame = -1;
+	/** Ticks since he died, with the partial tick, or -1 while he lives. */
+	public float dying = -1.0F;
 }

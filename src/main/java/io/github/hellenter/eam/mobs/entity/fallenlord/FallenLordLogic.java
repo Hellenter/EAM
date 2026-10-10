@@ -365,6 +365,32 @@ public final class FallenLordLogic {
 		return new double[] {sx, sz, -fx * BACKSTAB_BEHIND, -fz * BACKSTAB_BEHIND};
 	}
 
+	/** Experience he drops for this many players around him: one more player adds the same, up to the cap. */
+	public static int deathXp(int players, FallenLordSettings.Death death) {
+		int counted = Math.min(Math.max(players, 1), death.maxPlayers());
+		return death.xp() + death.xpPerPlayer() * (counted - 1);
+	}
+
+	/**
+	 * Splits the death experience into {@code orbs} orb values, as even as possible, and says how many go to the
+	 * inner sphere (the first ones). Every orb is worth at least one point.
+	 *
+	 * @return the orb values; the first {@link #innerOrbs} of them form the inner sphere
+	 */
+	public static int[] orbValues(int xp, int orbs) {
+		int count = Math.max(1, Math.min(orbs, xp));
+		int[] values = new int[count];
+		for (int i = 0; i < count; i++) {
+			values[i] = xp / count + (i < xp % count ? 1 : 0);
+		}
+		return values;
+	}
+
+	/** How many of {@code orbs} orbs fly into the inner sphere. */
+	public static int innerOrbs(int orbs, FallenLordSettings.Death death) {
+		return (int) Math.round(orbs * death.innerShare());
+	}
+
 	/** The bonuses for this many players; less than one counts as one, past the last level the last one holds. */
 	public static FallenLordSettings.PlayerScaling.Level scaling(int players, FallenLordSettings.PlayerScaling scaling) {
 		List<FallenLordSettings.PlayerScaling.Level> levels = scaling.levels();
