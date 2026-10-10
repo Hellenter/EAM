@@ -519,21 +519,24 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 
 	/**
 	 * Phase two: the fencing stance after a leap back. He waits, sword pointed at the player, other hand raised behind,
-	 * luring them in; a player who steps into reach or hits him gets a riposte. He breaks off and attacks again when
-	 * the player starts to heal (eats, drinks, or their health goes up) or runs, or when the stance has lasted long
-	 * enough.
+	 * luring them in; a player who comes at him gets a lunging stab, one who hits him a riposte. A passive player, one
+	 * who heals (eats, drinks, or their health goes up), runs or just waits the stance out, gets a sword dash at once.
 	 *
-	 * @param duration ticks he holds it at most
-	 * @param runAway  the player counts as running once this much further away than when the stance began
-	 * @param healed   or once their health is up by this much
+	 * @param duration  ticks he holds it at most
+	 * @param runAway   the player counts as running once this much further away than when the stance began
+	 * @param healed    or once their health is up by this much
+	 * @param lungeFrom a player this close who has come nearer gets the lunge
+	 * @param approach  coming nearer means this much closer than when the stance began
 	 */
-	public record Stance(int duration, double runAway, float healed) {
-		public static final Stance DEFAULT = new Stance(80, 2.5, 1.0F);
+	public record Stance(int duration, double runAway, float healed, double lungeFrom, double approach) {
+		public static final Stance DEFAULT = new Stance(50, 1.5, 1.0F, 5.5, 0.5);
 
 		public static final Codec<Stance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 400).fieldOf("duration").orElse(DEFAULT.duration).forGetter(Stance::duration),
 				Codec.doubleRange(0.0, 64.0).fieldOf("run_away").orElse(DEFAULT.runAway).forGetter(Stance::runAway),
-				Codec.floatRange(0.0F, 100.0F).fieldOf("healed").orElse(DEFAULT.healed).forGetter(Stance::healed)
+				Codec.floatRange(0.0F, 100.0F).fieldOf("healed").orElse(DEFAULT.healed).forGetter(Stance::healed),
+				Codec.doubleRange(0.0, 16.0).fieldOf("lunge_from").orElse(DEFAULT.lungeFrom).forGetter(Stance::lungeFrom),
+				Codec.doubleRange(0.0, 16.0).fieldOf("approach").orElse(DEFAULT.approach).forGetter(Stance::approach)
 		).apply(instance, Stance::new));
 	}
 }

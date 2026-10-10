@@ -50,6 +50,11 @@ public final class FallenLordLogic {
 	public static final double BACKSTAB_BEHIND = 1.6;
 	/** On the way he passes the player's side this far out. */
 	public static final double BACKSTAB_SIDE = 2.0;
+	/** Jumps: a mob's plain jump speed, gravity and vertical air drag per tick, and the fastest jump he makes. */
+	private static final double PLAIN_JUMP = 0.42;
+	private static final double GRAVITY = 0.08;
+	private static final double AIR_DRAG = 0.98;
+	private static final double MAX_JUMP = 1.5;
 	/** The death burst never has more orbs than this. */
 	public static final int MAX_ORBS = 256;
 
@@ -454,6 +459,24 @@ public final class FallenLordLogic {
 	}
 
 	/**
+	 * Upward speed a jump needs to rise {@code height} blocks, under mob gravity and air drag: at least the plain
+	 * jump's.
+	 */
+	public static double jumpSpeed(double height) {
+		for (double speed = PLAIN_JUMP; ; speed += 0.01) {
+			double y = 0.0;
+			double v = speed;
+			while (v > 0.0) {
+				y += v;
+				v = (v - GRAVITY) * AIR_DRAG;
+			}
+			if (y >= height || speed >= MAX_JUMP) {
+				return speed;
+			}
+		}
+	}
+
+	/**
 	 * Whether the player gave up on the lure of his stance: ran off by {@link FallenLordSettings.Stance#runAway()} from
 	 * where they stood when it began, or started to heal.
 	 *
@@ -462,6 +485,19 @@ public final class FallenLordLogic {
 	public static boolean stanceBroken(double distance, double startDistance, float health, float startHealth, boolean eating,
 			FallenLordSettings.Stance stance) {
 		return eating || distance >= startDistance + stance.runAway() || health >= startHealth + stance.healed();
+	}
+
+	/**
+	 * Whether the player came at him in his stance: into sword reach, or nearer than when it began by
+	 * {@link FallenLordSettings.Stance#approach()} and within {@link FallenLordSettings.Stance#lungeFrom()}.
+	 */
+	public static boolean stanceApproached(double distance, double startDistance, FallenLordSettings.Stance stance) {
+		return distance <= SWORD_REACH + 0.2 || distance <= stance.lungeFrom() && distance <= startDistance - stance.approach();
+	}
+
+	/** After a passive player broke his stance he sword dashes at once if they are in its range. */
+	public static boolean dashFromStance(double distance) {
+		return distance >= SWORD_REACH && distance <= SWORD_DASH_MAX;
 	}
 
 	/** The bonuses for this many players; less than one counts as one, past the last level the last one holds. */

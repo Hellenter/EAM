@@ -64,6 +64,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -73,6 +74,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -136,6 +138,11 @@ public class FallenLord extends Monster {
 	private static final Set<FallenLordAction> ATTACK_STARTS = EnumSet.of(FallenLordAction.SLASH, FallenLordAction.COMBO,
 			FallenLordAction.LUNGE, FallenLordAction.WHIRL, FallenLordAction.SWORD_DASH_WINDUP, FallenLordAction.BACKSTAB,
 			FallenLordAction.HEAVY_WINDUP);
+	/** Attacks he breaks off at once when their target dies, instead of finishing them at nothing. */
+	private static final Set<FallenLordAction> BROKEN_BY_KILL = EnumSet.of(FallenLordAction.POKE, FallenLordAction.DASH_WINDUP,
+			FallenLordAction.SWIPE, FallenLordAction.SLASH, FallenLordAction.COMBO, FallenLordAction.LUNGE,
+			FallenLordAction.SWORD_DASH_WINDUP, FallenLordAction.BACKSTAB, FallenLordAction.HEAVY_WINDUP, FallenLordAction.HEAVY_STRIKE,
+			FallenLordAction.COUNTER, FallenLordAction.HOP);
 	private static final Set<FallenLordAction> ATTACK_ENDS = EnumSet.of(FallenLordAction.SLASH, FallenLordAction.COMBO,
 			FallenLordAction.LUNGE, FallenLordAction.WHIRL, FallenLordAction.SWORD_DASH, FallenLordAction.BACKSTAB,
 			FallenLordAction.HEAVY_STRIKE);
@@ -173,6 +180,10 @@ public class FallenLord extends Monster {
 	/** His recent hits on each player, with the health each took, for the breather. */
 	private final Map<UUID, List<Wound>> blows = new HashMap<>();
 	private int breatherCooldown;
+	/** Ticks left of a jump over an obstacle, while he is pushed on over it, and before he can jump the next. */
+	private int climbTicks;
+	private int climbCooldown;
+	private Vec3 climbDirection = Vec3.ZERO;
 	/** Ticks before he can leap up at a player again. */
 	private int leapUpCooldown;
 	/** Where the current leap up sprang from. */
@@ -394,6 +405,83 @@ public class FallenLord extends Monster {
 				&& FallenLordLogic.shouldLeapUp(target.getY() - getY(), horizontalDistanceTo(target), settings().later().leapUp());
 	}
 
+	/** The highest wall he jumps over on the move; a single block he steps up with the plain jump. */
+	private static final int CLIMB_MAX = 3;
+	/** He does not bother jumping a wall to reach a target closer than this. */
+	private static final double CLIMB_FROM = 1.5;
+	/** Ticks he is pushed on over the wall, and between two such jumps. */
+	private static final int CLIMB_TICKS = 15;
+	private static final int CLIMB_COOLDOWN = 20;
+	/** Push forward over the wall, blocks per tick. */
+	private static final double CLIMB_PUSH = 0.25;
+
+	/**
+	 * A wall two or three blocks high right in front of him on his way, with room on top of it and over his head: jumps
+	 * up onto or over it. His way is the next point of his path, or straight at the target when he has none, as when
+	 * the wall cuts them off.
+	 */
+	void tryClimb(LivingEntity target) {
+		if (climbCooldown > 0 || !onGround() || isBusy() || horizontalDistanceTo(target) < CLIMB_FROM) {
+			return;
+		}
+		Path path = getNavigation().getPath();
+		Vec3 goal = path != null && !path.isDone() ? Vec3.atBottomCenterOf(path.getNextNodePos()) : target.position();
+		Vec3 direction = horizontal(goal.subtract(position()));
+		if (direction == Vec3.ZERO) {
+			return;
+		}
+		int height = obstacleHeight(direction);
+		if (height < 2) {
+			return;
+		}
+		climbDirection = direction;
+		climbTicks = CLIMB_TICKS;
+		climbCooldown = CLIMB_COOLDOWN;
+		setDeltaMovement(0.0, FallenLordLogic.jumpSpeed(height + 0.2), 0.0);
+		playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.0F, 0.6F);
+	}
+
+	/** Blocks of wall right in front of him, 0 when there is none or it is too high or there is no room to jump it. */
+	private int obstacleHeight(Vec3 direction) {
+		double ahead = getBbWidth() * 0.5 + 0.5;
+		BlockPos front = BlockPos.containing(getX() + direction.x * ahead, getY() + 0.5, getZ() + direction.z * ahead);
+		int height = 0;
+		while (height <= CLIMB_MAX && blocks(front.above(height))) {
+			height++;
+		}
+		if (height == 0 || height > CLIMB_MAX) {
+			return 0;
+		}
+		int tall = Mth.ceil(getBbHeight());
+		BlockPos feet = BlockPos.containing(getX(), getY() + 0.5, getZ());
+		for (int i = 0; i < tall; i++) {
+			if (blocks(front.above(height + i)) || blocks(feet.above(tall + i))) {
+				return 0;
+			}
+		}
+		return height;
+	}
+
+	private boolean blocks(BlockPos pos) {
+		return !level().getBlockState(pos).getCollisionShape(level(), pos).isEmpty();
+	}
+
+	/** Pushes him on over the wall he jumped while he is in the air. */
+	private void tickClimb() {
+		if (climbCooldown > 0) {
+			climbCooldown--;
+		}
+		if (climbTicks <= 0) {
+			return;
+		}
+		climbTicks--;
+		if (onGround() && climbTicks < CLIMB_TICKS - 2 || isBusy()) {
+			climbTicks = 0;
+			return;
+		}
+		setDeltaMovement(climbDirection.x * CLIMB_PUSH, getDeltaMovement().y, climbDirection.z * CLIMB_PUSH);
+	}
+
 	void startLeapUp(LivingEntity target) {
 		leapUpCooldown = settings().later().leapUp().cooldown();
 		setAction(FallenLordAction.LEAP_UP, target);
@@ -571,6 +659,7 @@ public class FallenLord extends Monster {
 		if (leapUpCooldown > 0) {
 			leapUpCooldown--;
 		}
+		tickClimb();
 		if (shieldDisabledTicks > 0 && --shieldDisabledTicks == 0) {
 			hitStreak = HitStreak.NONE;
 			swipePending = false;
@@ -635,6 +724,13 @@ public class FallenLord extends Monster {
 	private void tickAction(ServerLevel level) {
 		int t = actionTicks++;
 		LivingEntity target = actionTarget != null && actionTarget.isAlive() ? actionTarget : null;
+		if (actionTarget != null && target == null && BROKEN_BY_KILL.contains(action)) {
+			// The target is dead: no swinging at nothing, straight on to the next one.
+			endAction();
+			findNewTarget(level);
+			idleTicks = Integer.MAX_VALUE / 2;
+			return;
+		}
 		if (target != null && action != FallenLordAction.DASH && action != FallenLordAction.SWORD_DASH && action != FallenLordAction.WHIRL
 				&& action != FallenLordAction.HEAVY_STRIKE) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
@@ -915,14 +1011,19 @@ public class FallenLord extends Monster {
 			stanceHealth = target.getHealth();
 			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.2F, 1.2F);
 		}
-		if (distance <= FallenLordLogic.SWORD_REACH + 0.2 && hasLineOfSight(target)) {
-			startAttack(Attack.SLASH, target);
+		if (FallenLordLogic.stanceApproached(distance, stanceDistance, stance) && hasLineOfSight(target)) {
+			// Coming at him: a lunging stab.
+			startAttack(Attack.LUNGE, target);
 			return true;
 		}
 		boolean eating = target.isUsingItem() && target.getUseItem().has(DataComponents.CONSUMABLE);
 		if (t >= stance.duration() || FallenLordLogic.stanceBroken(distance, stanceDistance, target.getHealth(), stanceHealth, eating, stance)) {
+			// Passive: healing, running or waiting it out. A dash at once, or straight back into the fight.
+			if (FallenLordLogic.dashFromStance(distance) && hasLineOfSight(target)) {
+				startAttack(Attack.SWORD_DASH, target);
+				return true;
+			}
 			endAction();
-			// Straight back into the fight, no pause.
 			idleTicks = Integer.MAX_VALUE / 2;
 			return true;
 		}
@@ -1108,8 +1209,8 @@ public class FallenLord extends Monster {
 				strike(level, target, damageSources().mobAttack(this), two.lungeDamage(), 0.5F);
 				actionTicks = 10;
 			}
-		} else if (t == 10) {
-			// Hop back out of reach.
+		} else if (t == 10 && actionHit) {
+			// Hop back out of reach after a hit; after a miss he stays on the player.
 			setDeltaMovement(-rushDirection.x * 0.7, 0.3, -rushDirection.z * 0.7);
 		}
 	}
@@ -1248,6 +1349,9 @@ public class FallenLord extends Monster {
 	@Override
 	public boolean killedEntity(ServerLevel level, LivingEntity victim, DamageSource source) {
 		boolean result = super.killedEntity(level, victim, source);
+		if (victim == getTarget()) {
+			findNewTarget(level);
+		}
 		double share = settings().later().vampirism().killHeal();
 		if (victim instanceof Player && share > 0.0 && isAlive()) {
 			heal((float) (getMaxHealth() * share));
@@ -1256,6 +1360,21 @@ public class FallenLord extends Monster {
 			playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.4F);
 		}
 		return result;
+	}
+
+	/**
+	 * Right after a kill he turns on the next foe he can see, without the target goals' usual delay: the nearest
+	 * player, otherwise the nearest undead within his reach for them.
+	 */
+	private void findNewTarget(ServerLevel level) {
+		LivingEntity next = level.getNearestPlayer(TargetingConditions.forCombat().range(getAttributeValue(Attributes.FOLLOW_RANGE)), this);
+		if (next == null || !hasLineOfSight(next)) {
+			double radius = settings().undead().radius();
+			next = level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(radius),
+							mob -> mob.isAlive() && isUndeadFoe(mob) && distanceTo(mob) <= radius && hasLineOfSight(mob)).stream()
+					.min(Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+		}
+		setTarget(next);
 	}
 
 	/** Counts a hit on a player for the breather. */

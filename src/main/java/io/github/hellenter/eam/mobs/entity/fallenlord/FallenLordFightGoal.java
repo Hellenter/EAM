@@ -65,6 +65,7 @@ final class FallenLordFightGoal extends Goal {
 		double distance = lord.horizontalDistanceTo(target);
 		int phase = lord.phase();
 
+		lord.tryClimb(target);
 		if (lord.canLeapUp(target)) {
 			// Out of reach on a pillar or a ledge: he leaps up at them.
 			lord.getMoveControl().strafe(0.0F, 0.0F);
@@ -100,9 +101,7 @@ final class FallenLordFightGoal extends Goal {
 
 	private void duel(double distance) {
 		if (distance > DUEL_MAX + 2.0 || !lord.getSensing().hasLineOfSight(target)) {
-			if (lord.tickCount % REPATH_INTERVAL == 0 || lord.getNavigation().isDone()) {
-				lord.getNavigation().moveTo(target, 1.0);
-			}
+			walkTo(1.0);
 			return;
 		}
 		lord.getNavigation().stop();
@@ -126,11 +125,21 @@ final class FallenLordFightGoal extends Goal {
 
 	private void chase(double distance) {
 		if (distance > 1.8) {
-			if (lord.tickCount % REPATH_INTERVAL == 0 || lord.getNavigation().isDone()) {
-				lord.getNavigation().moveTo(target, FallenLordModule.settings().phaseTwo().speed());
-			}
+			walkTo(FallenLordModule.settings().phaseTwo().speed());
 		} else {
 			lord.getNavigation().stop();
+		}
+	}
+
+	/**
+	 * Walks the path to the target; with no path, as when a wall cuts them off, straight at them, so he comes up to the
+	 * wall and can jump it.
+	 */
+	private void walkTo(double speed) {
+		if (lord.tickCount % REPATH_INTERVAL == 0 || lord.getNavigation().isDone()) {
+			if (!lord.getNavigation().moveTo(target, speed)) {
+				lord.getMoveControl().setWantedPosition(target.getX(), target.getY(), target.getZ(), speed);
+			}
 		}
 	}
 }

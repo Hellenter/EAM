@@ -365,4 +365,28 @@ class FallenLordLogicTest {
 		assertEquals(1.0, FallenLordLogic.leapUpHeight(8, 8), 1.0E-9);
 		assertEquals(1.0, FallenLordLogic.leapUpHeight(12, 8), 1.0E-9);
 	}
+
+	@Test
+	void aPlayerComingAtTheStanceGetsTheLunge() {
+		FallenLordSettings.Stance stance = SETTINGS.later().stance();
+		assertTrue(FallenLordLogic.stanceApproached(3.0, 3.5, stance));
+		assertTrue(FallenLordLogic.stanceApproached(5.0, 6.0, stance));
+		assertFalse(FallenLordLogic.stanceApproached(5.0, 5.2, stance));
+		assertFalse(FallenLordLogic.stanceApproached(7.0, 9.0, stance));
+	}
+
+	@Test
+	void aPassivePlayerGetsTheDashInItsRange() {
+		assertFalse(FallenLordLogic.dashFromStance(2.0));
+		assertTrue(FallenLordLogic.dashFromStance(5.0));
+		assertFalse(FallenLordLogic.dashFromStance(12.0));
+	}
+
+	@Test
+	void higherJumpsNeedMoreSpeed() {
+		assertEquals(0.42, FallenLordLogic.jumpSpeed(1.0), 1.0E-9);
+		double two = FallenLordLogic.jumpSpeed(2.2);
+		double three = FallenLordLogic.jumpSpeed(3.2);
+		assertTrue(two > 0.42 && three > two && three < 1.5);
+	}
 }

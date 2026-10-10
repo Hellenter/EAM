@@ -146,9 +146,11 @@
     "max_range": 6.0
   },
   "stance": {
-    "duration": 80,
-    "run_away": 2.5,
-    "healed": 1.0
+    "duration": 50,
+    "run_away": 1.5,
+    "healed": 1.0,
+    "lunge_from": 5.5,
+    "approach": 0.5
   },
   "vampirism": {
     "kill_heal": 0.5,
