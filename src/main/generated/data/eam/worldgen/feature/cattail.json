@@ -1,10 +1,45 @@
 {
   "type": "minecraft:simple_block",
   "to_place": {
-    "id": "eam:cattail",
-    "properties": {
-      "half": "lower",
-      "waterlogged": "false"
-    }
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "eam:cattail",
+        "weight": 3
+      },
+      {
+        "data": {
+          "id": "eam:cattail",
+          "properties": {
+            "half": "lower",
+            "segment_amount": "2",
+            "waterlogged": "false"
+          }
+        },
+        "weight": 3
+      },
+      {
+        "data": {
+          "id": "eam:cattail",
+          "properties": {
+            "half": "lower",
+            "segment_amount": "3",
+            "waterlogged": "false"
+          }
+        },
+        "weight": 2
+      },
+      {
+        "data": {
+          "id": "eam:cattail",
+          "properties": {
+            "half": "lower",
+            "segment_amount": "4",
+            "waterlogged": "false"
+          }
+        },
+        "weight": 1
+      }
+    ]
   }
 }

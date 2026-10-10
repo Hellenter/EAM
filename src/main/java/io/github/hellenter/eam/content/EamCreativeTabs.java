@@ -49,7 +49,7 @@ public final class EamCreativeTabs {
 			EamItems.CHOCOLATE, EamItems.CHEESE,
 			EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN, EamItems.BURNT_RABBIT,
 			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.ASH,
-			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.DENSE_SHRUB, EamItems.FIREWEED,
+			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.DENSE_SHRUB, EamItems.BIG_SHRUB_STEM, EamItems.BIG_SHRUB_LEAVES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.FIREWEED,
 			EamItems.MARSH_MARIGOLD, EamItems.SHELF_MUSHROOM, EamItems.HOLLOW_LOGS);
 
 	public static final CreativeModeTab METALS = register("metals", () -> new ItemStack(EamItems.SILVER_INGOT),

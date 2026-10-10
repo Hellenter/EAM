@@ -47,8 +47,8 @@ public final class SwampyForestLogic {
 	static final int SEA_LEVEL = 63;
 	/** The lowest dry ground is the first block above the water; the highest is this many blocks higher. */
 	static final float LAND_RISE = 5.0F;
-	/** Lakes are this many blocks deep at most (2 to 3 over most of their area, shallower at the rim). */
-	static final float LAKE_DEPTH = 3.0F;
+	/** Lakes are this many blocks deep at most (2 over most of their area, 1 at the rim). */
+	static final float LAKE_DEPTH = 2.0F;
 	/** Ground noise sizes: broad lakes and low rises, and smaller bumps on top. */
 	static final float BROAD_SCALE = 44.0F;
 	static final float SMALL_SCALE = 13.0F;
@@ -118,7 +118,7 @@ public final class SwampyForestLogic {
 			float t = (noise - waterLine) / (1.0F - waterLine);
 			return SEA_LEVEL + 0.5F + (float) Math.pow(t, 1.4) * LAND_RISE;
 		}
-		float s = Math.clamp((waterLine - noise) / 0.12F, 0.0F, 1.0F);
+		float s = Math.clamp((waterLine - noise) / 0.08F, 0.0F, 1.0F);
 		return SEA_LEVEL - 0.5F - (float) Math.sqrt(s) * LAKE_DEPTH;
 	}
 
@@ -143,7 +143,7 @@ public final class SwampyForestLogic {
 
 	/** Noise level below which the ground is a lake: higher (more lakes) where it is wetter. */
 	static float lakeLevel(float humidity) {
-		return Math.clamp(-0.28F + 0.6F * humidity, -0.5F, 0.1F);
+		return Math.clamp(-0.42F + 0.5F * humidity, -0.6F, -0.08F);
 	}
 
 	/** Smooth value noise, -1 to 1, on a unit lattice. */
@@ -195,6 +195,19 @@ public final class SwampyForestLogic {
 		int stage = Math.round(4.0F - 3.0F * fromShore + noise * 1.2F + jitter);
 		return Math.clamp(stage, shoreDistance == 2 ? 3 : 0, 4);
 	}
+
+	/**
+	 * Whether a lake gets duckweed at all: every small pond does (little open water around the spot), a big lake only
+	 * where the broad {@code noise} (-1 to 1) is high, so most open lakes stay clear.
+	 *
+	 * @param openWater share of the water around the spot, out to about a dozen blocks, 0 to 1
+	 */
+	public static boolean duckweedLake(float openWater, float noise) {
+		return openWater < SMALL_POND_WATER || noise > 0.45F;
+	}
+
+	/** A spot with less of its surroundings under water than this is in a small pond. */
+	static final float SMALL_POND_WATER = 0.3F;
 
 	/** 0 below 0, 1 from {@code width} up, smooth in between. */
 	static float ramp(float distance, float width) {

@@ -1,0 +1,79 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            11.0
+          ]
+        },
+        "east": {
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        },
+        "north": {
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            11.0
+          ]
+        },
+        "west": {
+          "texture": "#bark",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        5.0,
+        0.0,
+        5.0
+      ],
+      "to": [
+        11.0,
+        16.0,
+        11.0
+      ]
+    }
+  ],
+  "textures": {
+    "bark": "eam:block/big_shrub_stem",
+    "particle": "eam:block/big_shrub_stem"
+  }
+}

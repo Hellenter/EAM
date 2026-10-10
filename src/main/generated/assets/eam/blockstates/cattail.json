@@ -1,10 +1,28 @@
 {
   "variants": {
-    "half=lower": {
+    "half=lower,segment_amount=1": {
       "model": "eam:block/cattail_bottom"
     },
-    "half=upper": {
+    "half=lower,segment_amount=2": {
+      "model": "eam:block/cattail_bottom_2"
+    },
+    "half=lower,segment_amount=3": {
+      "model": "eam:block/cattail_bottom_3"
+    },
+    "half=lower,segment_amount=4": {
+      "model": "eam:block/cattail_bottom_4"
+    },
+    "half=upper,segment_amount=1": {
       "model": "eam:block/cattail_top"
+    },
+    "half=upper,segment_amount=2": {
+      "model": "eam:block/cattail_top_2"
+    },
+    "half=upper,segment_amount=3": {
+      "model": "eam:block/cattail_top_3"
+    },
+    "half=upper,segment_amount=4": {
+      "model": "eam:block/cattail_top_4"
     }
   }
 }

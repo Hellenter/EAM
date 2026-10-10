@@ -1,6 +1,21 @@
 {
   "type": "minecraft:simple_block",
   "to_place": {
-    "id": "eam:dense_shrub"
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "eam:dense_shrub",
+        "weight": 4
+      },
+      {
+        "data": {
+          "id": "eam:dense_shrub",
+          "properties": {
+            "berries": "2"
+          }
+        },
+        "weight": 1
+      }
+    ]
   }
 }

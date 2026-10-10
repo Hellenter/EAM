@@ -153,9 +153,13 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
 		// The dense shrub is a leafy bush: a hoe or shears take it fast, and bare hands can too.
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
+				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key(), EamBlocks.BIG_SHRUB_STEM.builtInRegistryHolder().key(),
 				EamBlocks.SHELF_MUSHROOM.builtInRegistryHolder().key());
-		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key());
-		builder(BlockTags.SWORD_EFFICIENT).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
+				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());
+		builder(BlockTags.SWORD_EFFICIENT).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
+				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.BIG_SHRUB_STEM.builtInRegistryHolder().key());
 		builder(BlockTags.REPLACEABLE_BY_MUSHROOMS).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key());
 

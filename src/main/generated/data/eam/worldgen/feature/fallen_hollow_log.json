@@ -8,5 +8,6 @@
   "logs": [
     "eam:hollow_oak_log",
     "eam:hollow_birch_log"
-  ]
+  ],
+  "water_chance": 0.33
 }

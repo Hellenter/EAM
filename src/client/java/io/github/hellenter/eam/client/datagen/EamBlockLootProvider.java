@@ -3,12 +3,16 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
+import io.github.hellenter.eam.content.swamp.BerryShrub;
+import io.github.hellenter.eam.content.swamp.CattailBlock;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.advancements.predicates.StatePropertiesPredicate;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +28,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +44,17 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		super(output, registries);
 	}
 
+	private LootItemCondition.Builder matches(Block block, StatePropertiesPredicate.Builder properties) {
+		return MatchBlock.blockMatches(this.blocks, block, properties);
+	}
+
+	/** One to {@code max} berries from a shrub broken while ripe. */
+	private LootPool.Builder berries(Block block, Item berry, int max) {
+		return LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
+				.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(BerryShrub.BERRIES, BerryShrub.RIPE)))
+				.add(applyExplosionDecay(block, LootItem.lootTableItem(berry).apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, max)))));
+	}
+
 	@Override
 	public void generate() {
 		dropSelf(EamBlocks.PEBBLE);
@@ -46,7 +63,13 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		// Swampy forest plants drop like their vanilla look-alikes.
 		add(EamBlocks.DUCKWEED, this::createSegmentedBlockDrops);
 		dropSelf(EamBlocks.MARSH_MARIGOLD);
-		add(EamBlocks.CATTAIL, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
+		// A clump of cattails gives one per stalk, from its lower half.
+		add(EamBlocks.CATTAIL, block -> LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ContextIntProviders.exactly(1))
+				.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER)))
+				.add(applyExplosionDecay(block, LootItem.lootTableItem(block).apply(List.of(2, 3, 4),
+						count -> SetItemCountFunction.setCount(ContextIntProviders.exactly(count))
+								.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(CattailBlock.AMOUNT, count))))))));
 		add(EamBlocks.FIREWEED, block -> createSinglePropConditionTable(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
 		add(EamBlocks.SWAMP_GRASS, this::createGrassDrops);
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
@@ -55,7 +78,11 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
 		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,
-				LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2))))));
+				LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))))
+				.withPool(berries(block, EamItems.CRANBERRY, 3)));
+		// Big shrubs: leaves only to shears or silk touch, the post drops itself; ripe ones drop their berries too.
+		add(EamBlocks.BIG_SHRUB_LEAVES, block -> createShearsOrSilkTouchOnlyDrop(block).withPool(berries(block, EamItems.WOLFBERRY, 2)));
+		dropSelf(EamBlocks.BIG_SHRUB_STEM);
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))

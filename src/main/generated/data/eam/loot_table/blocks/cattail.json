@@ -3,18 +3,53 @@
   "pools": [
     {
       "condition": {
-        "type": "minecraft:survives_explosion"
+        "type": "minecraft:match_block",
+        "blocks": "eam:cattail",
+        "state": {
+          "half": "lower"
+        }
       },
       "entries": [
         {
           "type": "minecraft:item",
-          "condition": {
-            "type": "minecraft:match_block",
-            "blocks": "eam:cattail",
-            "state": {
-              "half": "lower"
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "eam:cattail",
+                "state": {
+                  "segment_amount": "2"
+                }
+              },
+              "count": 2
+            },
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "eam:cattail",
+                "state": {
+                  "segment_amount": "3"
+                }
+              },
+              "count": 3
+            },
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "eam:cattail",
+                "state": {
+                  "segment_amount": "4"
+                }
+              },
+              "count": 4
+            },
+            {
+              "type": "minecraft:explosion_decay"
             }
-          },
+          ],
           "name": "eam:cattail"
         }
       ],

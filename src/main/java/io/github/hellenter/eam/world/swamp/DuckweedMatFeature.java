@@ -21,7 +21,8 @@ import net.minecraft.world.level.material.Fluids;
 
 /**
  * Covers the still water of one chunk with duckweed: a solid mat along every bank that thins out stage by stage
- * toward open water ({@link SwampyForestLogic#duckweedCoverage}). Placed once per chunk at the chunk's corner.
+ * toward open water ({@link SwampyForestLogic#duckweedCoverage}). Only some lakes get it: every small pond, and big
+ * lakes only here and there ({@link SwampyForestLogic#duckweedLake}). Placed once per chunk at the chunk's corner.
  *
  * @param reach how many blocks out from the bank the mat reaches, 2 to 8
  */
@@ -31,6 +32,11 @@ public record DuckweedMatFeature(int reach) implements Feature {
 	).apply(i, DuckweedMatFeature::new));
 	/** Mats come in patches a dozen blocks across. */
 	private static final double NOISE_SCALE = 0.09;
+	/** Which big lakes get duckweed changes over about fifty blocks. */
+	private static final double LAKE_NOISE_SCALE = 0.02;
+	/** How far around a spot, and how sparsely, the open water is measured. */
+	private static final int OPEN_RADIUS = 12;
+	private static final int OPEN_STEP = 3;
 
 	@Override
 	public MapCodec<DuckweedMatFeature> codec() {
@@ -49,6 +55,10 @@ public record DuckweedMatFeature(int reach) implements Feature {
 				pos.set(x, y, z);
 				if (!level.getBlockState(pos).isAir() || !isStillWater(level.getFluidState(pos.setY(y - 1)))
 						|| !level.getBiome(pos).is(SwampyForestBiomes.IS_SWAMPY_FOREST)) {
+					continue;
+				}
+				float lakeNoise = Biome.BIOME_INFO_NOISE.get(x * LAKE_NOISE_SCALE + 500.0, z * LAKE_NOISE_SCALE);
+				if (!SwampyForestLogic.duckweedLake(openWater(level, x, y - 1, z), lakeNoise)) {
 					continue;
 				}
 				float noise = Biome.BIOME_INFO_NOISE.get(x * NOISE_SCALE, z * NOISE_SCALE);
@@ -79,6 +89,22 @@ public record DuckweedMatFeature(int reach) implements Feature {
 			}
 		}
 		return this.reach + 1;
+	}
+
+	/** Share of the spots around a water surface block, out to {@link #OPEN_RADIUS}, that are water too. */
+	private static float openWater(WorldGenLevel level, int x, int y, int z) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		int water = 0;
+		int total = 0;
+		for (int dx = -OPEN_RADIUS; dx <= OPEN_RADIUS; dx += OPEN_STEP) {
+			for (int dz = -OPEN_RADIUS; dz <= OPEN_RADIUS; dz += OPEN_STEP) {
+				total++;
+				if (level.getFluidState(pos.set(x + dx, y, z + dz)).is(Fluids.WATER)) {
+					water++;
+				}
+			}
+		}
+		return water / (float) total;
 	}
 
 	private static boolean isStillWater(FluidState fluid) {

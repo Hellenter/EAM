@@ -53,7 +53,7 @@ public class EamClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		NutritionPanel.register();
 		// The dense shrub's leaves take the biome's foliage colour, like the trees around it.
-		BlockColorRegistry.register(List.of(BlockTintSources.foliage()), EamBlocks.DENSE_SHRUB);
+		BlockColorRegistry.register(List.of(BlockTintSources.foliage()), EamBlocks.DENSE_SHRUB, EamBlocks.BIG_SHRUB_LEAVES);
 		// Both stay idle unless the server has thirst on: they need the synced bar or the server's drink channel.
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();

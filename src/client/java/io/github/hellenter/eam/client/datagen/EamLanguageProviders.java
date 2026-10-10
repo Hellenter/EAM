@@ -213,6 +213,10 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.TALL_SWAMP_GRASS, "Tall Swamp Grass");
 			builder.add(EamBlocks.SWAMP_SHRUB, "Swamp Shrub");
 			builder.add(EamBlocks.DENSE_SHRUB, "Dense Shrub");
+			builder.add(EamBlocks.BIG_SHRUB_STEM, "Shrub Stem");
+			builder.add(EamBlocks.BIG_SHRUB_LEAVES, "Shrub Leaves");
+			builder.add(EamItems.CRANBERRY, "Cranberry");
+			builder.add(EamItems.WOLFBERRY, "Wolfberry");
 			builder.add(EamBlocks.SHELF_MUSHROOM, "Shelf Mushroom");
 			// "hollow_dark_oak_log" -> "Hollow Dark Oak Log"
 			EamBlocks.HOLLOW_LOGS.values().forEach(hollow -> builder.add(hollow, Arrays.stream(
@@ -645,6 +649,10 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.TALL_SWAMP_GRASS, "Высокая приболотная трава");
 			builder.add(EamBlocks.SWAMP_SHRUB, "Приболотный кустарник");
 			builder.add(EamBlocks.DENSE_SHRUB, "Густой кустарник");
+			builder.add(EamBlocks.BIG_SHRUB_STEM, "Ствол кустарника");
+			builder.add(EamBlocks.BIG_SHRUB_LEAVES, "Листва кустарника");
+			builder.add(EamItems.CRANBERRY, "Клюква");
+			builder.add(EamItems.WOLFBERRY, "Волчья ягода");
 			builder.add(EamBlocks.SHELF_MUSHROOM, "Трутовик");
 			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.OAK_LOG), "Пустое дубовое бревно");
 			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.SPRUCE_LOG), "Пустое еловое бревно");

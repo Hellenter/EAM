@@ -86,6 +86,8 @@
     "eam:ground_stick",
     "eam:sieve",
     "eam:dense_shrub",
+    "eam:big_shrub_leaves",
+    "eam:big_shrub_stem",
     "eam:shelf_mushroom"
   ]
 }

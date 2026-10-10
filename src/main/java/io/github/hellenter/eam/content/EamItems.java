@@ -40,6 +40,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ArrowItem;
@@ -53,6 +55,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
@@ -312,6 +315,19 @@ public final class EamItems {
 	public static final Item TALL_SWAMP_GRASS = plantItem("tall_swamp_grass", EamBlocks.TALL_SWAMP_GRASS, ContextIntProviders.COMPOSTABLE_LOW_MEDIUM);
 	public static final Item SWAMP_SHRUB = plantItem("swamp_shrub", EamBlocks.SWAMP_SHRUB, ContextIntProviders.COMPOSTABLE_LOW);
 	public static final Item DENSE_SHRUB = plantItem("dense_shrub", EamBlocks.DENSE_SHRUB, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item BIG_SHRUB_STEM = blockItem("big_shrub_stem", EamBlocks.BIG_SHRUB_STEM);
+	public static final Item BIG_SHRUB_LEAVES = plantItem("big_shrub_leaves", EamBlocks.BIG_SHRUB_LEAVES, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	/** Picked from small swamp shrubs: a sour snack, mostly water and a little sugar. */
+	public static final Item CRANBERRY = register("cranberry", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 2))
+			.component(ThirstModule.HYDRATION, new Hydration(1)));
+	/** Picked from big swamp shrubs, and poisonous: eating one poisons and sickens. */
+	public static final Item WOLFBERRY = register("wolfberry", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.0F).alwaysEdible().build(),
+					Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
+							new MobEffectInstance(MobEffects.POISON, 200), new MobEffectInstance(MobEffects.NAUSEA, 200)))).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1)));
 	public static final Item SHELF_MUSHROOM = plantItem("shelf_mushroom", EamBlocks.SHELF_MUSHROOM, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
 			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();

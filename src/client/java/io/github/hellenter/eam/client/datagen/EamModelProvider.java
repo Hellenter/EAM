@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.content.swamp.BerryShrub;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
@@ -20,6 +22,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -27,6 +30,8 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -88,39 +93,180 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_GRASS, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_SHRUB, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
-		for (Block tall : List.of(EamBlocks.CATTAIL, EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
+		cattail(generators);
+		bigShrub(generators);
+		for (Block tall : List.of(EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
 			generators.createDoublePlantWithDefaultItem(tall, BlockModelGenerators.PlantType.NOT_TINTED);
 		}
 	}
 
 	/**
-	 * The dense shrub: a box of vanilla oak leaves, tinted with the biome's foliage colour like the trees, with leafy
-	 * planes through it whose edges stick out as tufts, on a cross of twig legs.
+	 * The small dense shrub: a box of vanilla oak leaves wider than the block, tinted with the biome's foliage colour like
+	 * the trees, with leafy planes through it whose edges stick out as tufts, on a cross of twig legs. A ripe cranberry
+	 * shrub has the berries drawn just outside its leaves.
 	 */
 	private static void denseShrub(BlockModelGenerators generators) {
 		Block block = EamBlocks.DENSE_SHRUB;
-		Identifier model = ModelLocationUtils.getModelLocation(block);
-		generators.modelOutput.accept(model, () -> {
+		String stem = TextureMapping.getBlockTexture(block, "_stem").sprite().toString();
+		String berries = TextureMapping.getBlockTexture(block, "_cranberries").sprite().toString();
+		Identifier plain = ModelLocationUtils.getModelLocation(block);
+		Identifier ripe = ModelLocationUtils.getModelLocation(block, "_berries");
+		for (boolean withBerries : List.of(false, true)) {
+			generators.modelOutput.accept(withBerries ? ripe : plain, () -> {
+				JsonArray elements = new JsonArray();
+				elements.add(leafBox(-1, 3, 17, 17, "#leaves", true));
+				elements.add(plane(true, 45, "#stem", 0, 7, false, 0, 16));
+				elements.add(plane(false, 45, "#stem", 0, 7, false, 0, 16));
+				elements.add(plane(true, 45, "#leaves", 4, 18, true, 0, 16));
+				elements.add(plane(false, 45, "#leaves", 4, 18, true, 0, 16));
+				elements.add(plane(true, 0, "#leaves", 4, 17, true, -3, 19));
+				elements.add(plane(false, 0, "#leaves", 4, 17, true, -3, 19));
+				if (withBerries) {
+					elements.add(leafBox(-1.1, 2.9, 17.1, 17.1, "#berries", false));
+				}
+				return shrubModel(stem, berries, elements);
+			});
+		}
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(PropertyDispatch.initial(BerryShrub.BERRIES)
+				.select(BerryShrub.NONE, BlockModelGenerators.plainVariant(plain))
+				.select(BerryShrub.PICKED, BlockModelGenerators.plainVariant(plain))
+				.select(BerryShrub.RIPE, BlockModelGenerators.plainVariant(ripe))));
+		generators.registerSimpleTintedItemModel(block, plain, ItemModelUtils.constantTint(-12012264));
+	}
+
+	/**
+	 * The big shrub: a bark post about as thick as a fence post, and a full block of tinted leaves with tufts sticking
+	 * out on every side, the ripe ones with wolfberries outside the leaves.
+	 */
+	private static void bigShrub(BlockModelGenerators generators) {
+		Block stem = EamBlocks.BIG_SHRUB_STEM;
+		String bark = TextureMapping.getBlockTexture(stem).sprite().toString();
+		Identifier stemModel = ModelLocationUtils.getModelLocation(stem);
+		generators.modelOutput.accept(stemModel, () -> {
+			JsonObject faces = new JsonObject();
+			for (Direction direction : Direction.values()) {
+				JsonObject face = new JsonObject();
+				face.add("uv", direction.getAxis().isHorizontal() ? vector4(5, 0, 11, 16) : vector4(5, 5, 11, 11));
+				face.addProperty("texture", "#bark");
+				if (direction.getAxis().isVertical()) {
+					face.addProperty("cullface", direction.getSerializedName());
+				}
+				faces.add(direction.getSerializedName(), face);
+			}
+			JsonObject post = new JsonObject();
+			post.add("from", vector(5, 0, 5));
+			post.add("to", vector(11, 16, 11));
+			post.add("faces", faces);
 			JsonArray elements = new JsonArray();
-			elements.add(leafBox(2, 4, 14, 14));
-			elements.add(plane(true, 45, "#stem", 0, 7, false));
-			elements.add(plane(false, 45, "#stem", 0, 7, false));
-			elements.add(plane(true, 45, "#leaves", 3, 16, true));
-			elements.add(plane(false, 45, "#leaves", 3, 16, true));
-			elements.add(plane(true, 0, "#leaves", 3, 15, true));
-			elements.add(plane(false, 0, "#leaves", 3, 15, true));
+			elements.add(post);
 			JsonObject textures = new JsonObject();
-			textures.addProperty("particle", "minecraft:block/oak_leaves");
-			textures.addProperty("leaves", "minecraft:block/oak_leaves");
-			textures.addProperty("stem", TextureMapping.getBlockTexture(block, "_stem").sprite().toString());
+			textures.addProperty("particle", bark);
+			textures.addProperty("bark", bark);
 			JsonObject json = new JsonObject();
 			json.addProperty("parent", "minecraft:block/block");
 			json.add("textures", textures);
 			json.add("elements", elements);
 			return json;
 		});
-		generators.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(block, BlockModelGenerators.plainVariant(model)));
-		generators.registerSimpleTintedItemModel(block, model, ItemModelUtils.constantTint(-12012264));
+		generators.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(stem, BlockModelGenerators.plainVariant(stemModel)));
+		generators.registerSimpleItemModel(stem.asItem(), stemModel);
+
+		Block leaves = EamBlocks.BIG_SHRUB_LEAVES;
+		String berries = TextureMapping.getBlockTexture(leaves, "_wolfberries").sprite().toString();
+		Identifier plain = ModelLocationUtils.getModelLocation(leaves);
+		Identifier ripe = ModelLocationUtils.getModelLocation(leaves, "_berries");
+		for (boolean withBerries : List.of(false, true)) {
+			generators.modelOutput.accept(withBerries ? ripe : plain, () -> {
+				JsonArray elements = new JsonArray();
+				elements.add(leafBox(0, 0, 16, 16, "#leaves", true));
+				elements.add(plane(true, 45, "#leaves", -1, 17, true, 0, 16));
+				elements.add(plane(false, 45, "#leaves", -1, 17, true, 0, 16));
+				elements.add(plane(true, 0, "#leaves", 0, 16, true, -3, 19));
+				elements.add(plane(false, 0, "#leaves", 0, 16, true, -3, 19));
+				if (withBerries) {
+					elements.add(leafBox(-0.1, -0.1, 16.1, 16.1, "#berries", false));
+				}
+				return shrubModel(bark, berries, elements);
+			});
+		}
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(leaves).with(PropertyDispatch.initial(BerryShrub.BERRIES)
+				.select(BerryShrub.NONE, BlockModelGenerators.plainVariant(plain))
+				.select(BerryShrub.PICKED, BlockModelGenerators.plainVariant(plain))
+				.select(BerryShrub.RIPE, BlockModelGenerators.plainVariant(ripe))));
+		generators.registerSimpleTintedItemModel(leaves, plain, ItemModelUtils.constantTint(-12012264));
+	}
+
+	/** Cattail clumps: one cross of stalks for each of the 1 to 4 stalks, spread over the block. */
+	private static void cattail(BlockModelGenerators generators) {
+		Block block = EamBlocks.CATTAIL;
+		double[][][] stalks = {
+				{{8, 8}},
+				{{5, 6}, {11, 10}},
+				{{5, 5}, {11, 6}, {8, 12}},
+				{{4, 5}, {11, 4}, {5, 11}, {12, 11}}};
+		PropertyDispatch.C2<MultiVariant, DoubleBlockHalf, Integer> dispatch = PropertyDispatch.initial(DoublePlantBlock.HALF, CattailBlock.AMOUNT);
+		for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+			String suffix = half == DoubleBlockHalf.UPPER ? "_top" : "_bottom";
+			String texture = TextureMapping.getBlockTexture(block, suffix).sprite().toString();
+			for (int amount = 1; amount <= 4; amount++) {
+				Identifier model = ModelLocationUtils.getModelLocation(block, suffix + (amount == 1 ? "" : "_" + amount));
+				double[][] spots = stalks[amount - 1];
+				double width = amount == 1 ? 7.2 : 6.0;
+				generators.modelOutput.accept(model, () -> {
+					JsonArray elements = new JsonArray();
+					for (double[] spot : spots) {
+						elements.add(stalk(spot[0], spot[1], width, true));
+						elements.add(stalk(spot[0], spot[1], width, false));
+					}
+					JsonObject textures = new JsonObject();
+					textures.addProperty("particle", texture);
+					textures.addProperty("cross", texture);
+					JsonObject json = new JsonObject();
+					json.addProperty("ambientocclusion", false);
+					json.add("textures", textures);
+					json.add("elements", elements);
+					return json;
+				});
+				dispatch.select(half, amount, BlockModelGenerators.plainVariant(model));
+			}
+		}
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(dispatch));
+		generators.registerSimpleFlatItemModel(block, "_top");
+	}
+
+	/** One plane of a cattail stalk's cross, centred on ({@code x}, {@code z}), turned 45 degrees. */
+	private static JsonObject stalk(double x, double z, double halfWidth, boolean alongX) {
+		JsonObject faces = new JsonObject();
+		for (String side : alongX ? List.of("north", "south") : List.of("west", "east")) {
+			JsonObject face = new JsonObject();
+			face.add("uv", vector4(0, 0, 16, 16));
+			face.addProperty("texture", "#cross");
+			faces.add(side, face);
+		}
+		JsonObject element = new JsonObject();
+		element.add("from", alongX ? vector(x - halfWidth, 0, z) : vector(x, 0, z - halfWidth));
+		element.add("to", alongX ? vector(x + halfWidth, 16, z) : vector(x, 16, z + halfWidth));
+		JsonObject rotation = new JsonObject();
+		rotation.add("origin", vector(x, 8, z));
+		rotation.addProperty("axis", "y");
+		rotation.addProperty("angle", 45);
+		element.add("rotation", rotation);
+		element.addProperty("shade", false);
+		element.add("faces", faces);
+		return element;
+	}
+
+	private static JsonObject shrubModel(String stem, String berries, JsonArray elements) {
+		JsonObject textures = new JsonObject();
+		textures.addProperty("particle", "minecraft:block/oak_leaves");
+		textures.addProperty("leaves", "minecraft:block/oak_leaves");
+		textures.addProperty("stem", stem);
+		textures.addProperty("berries", berries);
+		JsonObject json = new JsonObject();
+		json.addProperty("parent", "minecraft:block/block");
+		json.add("textures", textures);
+		json.add("elements", elements);
+		return json;
 	}
 
 	/**
@@ -244,15 +390,16 @@ public class EamModelProvider extends FabricModelProvider {
 		return element;
 	}
 
-	/** A box of tinted leaves, all six faces drawn: the leaves have holes to look through. */
-	private static JsonObject leafBox(double from, double y0, double to, double y1) {
+	/** A box of leaves (or berries), all six faces drawn: the leaves have holes to look through. */
+	private static JsonObject leafBox(double from, double y0, double to, double y1, String texture, boolean tinted) {
 		JsonObject faces = new JsonObject();
 		for (Direction direction : Direction.values()) {
 			JsonObject face = new JsonObject();
-			boolean horizontal = direction.getAxis().isHorizontal();
-			face.add("uv", horizontal ? vector4(from, 16 - y1, to, 16 - y0) : vector4(from, from, to, to));
-			face.addProperty("texture", "#leaves");
-			face.addProperty("tintindex", 0);
+			face.add("uv", vector4(0, 0, 16, 16));
+			face.addProperty("texture", texture);
+			if (tinted) {
+				face.addProperty("tintindex", 0);
+			}
 			faces.add(direction.getSerializedName(), face);
 		}
 		JsonObject element = new JsonObject();
@@ -263,14 +410,15 @@ public class EamModelProvider extends FabricModelProvider {
 	}
 
 	/**
-	 * A vertical plane through the block's centre, from {@code y0} to {@code y1}, turned by {@code angle} (0 or 45) and
-	 * stretched to the block's full width or diagonal: twig legs below the leaves, or leaves whose edges stick out.
+	 * A vertical plane through the block's centre, from {@code y0} to {@code y1} and {@code from} to {@code to} across,
+	 * turned by {@code angle} (0 or 45, then stretched to the diagonal): twig legs below the leaves, or leaves whose
+	 * edges stick out as tufts.
 	 */
-	private static JsonObject plane(boolean alongX, float angle, String texture, double y0, double y1, boolean tinted) {
+	private static JsonObject plane(boolean alongX, float angle, String texture, double y0, double y1, boolean tinted, double from, double to) {
 		JsonObject faces = new JsonObject();
 		for (String side : alongX ? List.of("north", "south") : List.of("west", "east")) {
 			JsonObject face = new JsonObject();
-			face.add("uv", vector4(0, 16 - y1, 16, 16 - y0));
+			face.add("uv", vector4(0, 0, 16, 16));
 			face.addProperty("texture", texture);
 			if (tinted) {
 				face.addProperty("tintindex", 0);
@@ -278,8 +426,8 @@ public class EamModelProvider extends FabricModelProvider {
 			faces.add(side, face);
 		}
 		JsonObject element = new JsonObject();
-		element.add("from", alongX ? vector(0, y0, 8) : vector(8, y0, 0));
-		element.add("to", alongX ? vector(16, y1, 8) : vector(8, y1, 16));
+		element.add("from", alongX ? vector(from, y0, 8) : vector(8, y0, from));
+		element.add("to", alongX ? vector(to, y1, 8) : vector(8, y1, to));
 		if (angle != 0) {
 			JsonObject rotation = new JsonObject();
 			rotation.add("origin", vector(8, 8, 8));
@@ -401,6 +549,8 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.ASH)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);

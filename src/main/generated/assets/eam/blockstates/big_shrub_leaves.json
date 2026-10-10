@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "berries=0": {
+      "model": "eam:block/big_shrub_leaves"
+    },
+    "berries=1": {
+      "model": "eam:block/big_shrub_leaves"
+    },
+    "berries=2": {
+      "model": "eam:block/big_shrub_leaves_berries"
+    }
+  }
+}

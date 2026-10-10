@@ -12,6 +12,8 @@ import io.github.hellenter.eam.content.metal.MetalDoorBlock;
 import io.github.hellenter.eam.content.metal.MetalTrapDoorBlock;
 import io.github.hellenter.eam.content.sieve.SieveBlock;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.content.swamp.BigShrubLeavesBlock;
+import io.github.hellenter.eam.content.swamp.BigShrubStemBlock;
 import io.github.hellenter.eam.content.swamp.DenseShrubBlock;
 import io.github.hellenter.eam.content.swamp.DuckweedBlock;
 import io.github.hellenter.eam.content.swamp.HollowLogBlock;
@@ -152,7 +154,7 @@ public final class EamBlocks {
 	public static final Block TALL_SWAMP_GRASS = register("tall_swamp_grass", DoublePlantBlock::new,
 			plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
 	public static final Block SWAMP_SHRUB = register("swamp_shrub", SwampShrubBlock::new, plant().replaceable().offsetType(BlockBehaviour.OffsetType.XZ));
-	/** A dense shrub on twig legs, up to two blocks tall: thickets you squeeze through at half speed. */
+	/** A small dense shrub on twig legs: you squeeze through it at half speed. Some bear cranberries. */
 	public static final Block DENSE_SHRUB = register("dense_shrub", DenseShrubBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.PLANT)
 			.noCollision()
@@ -164,6 +166,24 @@ public final class EamBlocks {
 			.ignitedByLava()
 			.pushReaction(PushReaction.POPPED));
 	/** A shelf mushroom on the side of a tree trunk. */
+	/** The woody post a big swamp shrub stands on. */
+	public static final Block BIG_SHRUB_STEM = register("big_shrub_stem", BigShrubStemBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.strength(0.8F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava());
+	/** The crown of a big swamp shrub: leaves you push through at half speed. Some bear wolfberries. */
+	public static final Block BIG_SHRUB_LEAVES = register("big_shrub_leaves", BigShrubLeavesBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.PLANT)
+			.noCollision()
+			.strength(0.2F)
+			.sound(SoundType.AZALEA_LEAVES)
+			.noOcclusion()
+			.isSuffocating(Blocks::never)
+			.isRedstoneConductor(Blocks::never)
+			.ignitedByLava()
+			.pushReaction(PushReaction.POPPED));
 	public static final Block SHELF_MUSHROOM = register("shelf_mushroom", ShelfMushroomBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_ORANGE)
 			.noCollision()
@@ -190,6 +210,8 @@ public final class EamBlocks {
 	public static void register() {
 		// Loading the class registered the blocks above. Dense shrubs burn like leaves, hollow logs like logs.
 		FlammableBlockRegistry.getDefaultInstance().add(DENSE_SHRUB, 30, 60);
+		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_LEAVES, 30, 60);
+		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_STEM, 5, 5);
 		HOLLOW_LOGS.forEach((log, hollow) -> {
 			if (log != Blocks.CRIMSON_STEM && log != Blocks.WARPED_STEM) {
 				FlammableBlockRegistry.getDefaultInstance().add(hollow, 5, 5);

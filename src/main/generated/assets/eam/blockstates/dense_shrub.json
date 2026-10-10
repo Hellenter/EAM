@@ -1,7 +1,13 @@
 {
   "variants": {
-    "": {
+    "berries=0": {
       "model": "eam:block/dense_shrub"
+    },
+    "berries=1": {
+      "model": "eam:block/dense_shrub"
+    },
+    "berries=2": {
+      "model": "eam:block/dense_shrub_berries"
     }
   }
 }

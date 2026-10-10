@@ -2,6 +2,7 @@ package io.github.hellenter.eam.world.swamp;
 
 import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -32,13 +33,15 @@ import java.util.List;
  * the top water layer and holding the water. Every block must rest on ground or water; otherwise the log is shorter
  * or not placed.
  *
- * @param logs   the hollow logs to pick one from
- * @param length how many blocks long
+ * @param logs        the hollow logs to pick one from
+ * @param length      how many blocks long
+ * @param waterChance chance that a log whose spot is on water is placed at all, so logs float more rarely than they lie
  */
-public record FallenLogFeature(HolderSet<Block> logs, IntProvider length) implements Feature {
+public record FallenLogFeature(HolderSet<Block> logs, IntProvider length, float waterChance) implements Feature {
 	public static final MapCodec<FallenLogFeature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			RegistryCodecs.holderSet(Registries.BLOCK).fieldOf("logs").forGetter(FallenLogFeature::logs),
-			IntProviders.codec(2, 8).fieldOf("length").forGetter(FallenLogFeature::length)
+			IntProviders.codec(2, 8).fieldOf("length").forGetter(FallenLogFeature::length),
+			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("water_chance", 1.0F).forGetter(FallenLogFeature::waterChance)
 	).apply(i, FallenLogFeature::new));
 
 	@Override
@@ -57,6 +60,9 @@ public record FallenLogFeature(HolderSet<Block> logs, IntProvider length) implem
 		int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, origin.getX(), origin.getZ());
 		BlockPos start = new BlockPos(origin.getX(), surface, origin.getZ());
 		boolean inWater = level.getFluidState(start.below()).isSourceOfType(Fluids.WATER);
+		if (inWater && random.nextFloat() >= this.waterChance) {
+			return false;
+		}
 		// In water the log takes the top water block's place; on land it lies on the ground.
 		int y = inWater ? surface - 1 : surface;
 		List<BlockPos> spots = new ArrayList<>();

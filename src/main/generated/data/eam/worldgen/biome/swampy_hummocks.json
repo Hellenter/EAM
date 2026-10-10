@@ -134,16 +134,17 @@
   ],
   "downfall": 0.8,
   "effects": {
-    "foliage_color": "#6caa32",
-    "grass_color": "#86ba40",
-    "water_color": "#537d57"
+    "foliage_color": "#77ab2f",
+    "grass_color": "#91bd59",
+    "water_color": "#4e7a62"
   },
   "features": [
     [],
     [
       "minecraft:lake_lava_underground",
       "minecraft:lake_lava_surface",
-      "eam:swamp_pond_swampy_hummocks"
+      "eam:swamp_pond_swampy_hummocks",
+      "eam:lake_bed_swampy_hummocks"
     ],
     [
       "minecraft:amethyst_geode"
@@ -202,6 +203,7 @@
       "eam:fireweed_swampy_hummocks",
       "eam:swamp_shrubs_swampy_hummocks",
       "eam:dense_shrubs_swampy_hummocks",
+      "eam:big_shrubs_swampy_hummocks",
       "eam:brown_mushrooms_swampy_hummocks",
       "eam:red_mushrooms_swampy_hummocks",
       "eam:swamp_grass_swampy_hummocks",

@@ -1,0 +1,9 @@
+{
+  "type": "eam:lake_bed",
+  "hummocks": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 1
+  },
+  "lurker_chance": 0.04
+}

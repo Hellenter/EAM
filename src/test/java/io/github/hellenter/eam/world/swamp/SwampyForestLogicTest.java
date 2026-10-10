@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.world.swamp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class SwampyForestLogicTest {
 				assertTrue(top >= sea - 4 && top <= sea + 5, "top block " + top);
 				if (top < sea - 1) {
 					lake++;
-					assertTrue(sea - 1 - top <= 3, "lakes at most 3 deep");
+					assertTrue(sea - 1 - top <= 2, "lakes at most 2 deep");
 				} else {
 					land++;
 				}
@@ -98,6 +99,13 @@ class SwampyForestLogicTest {
 			}
 		}
 		assertTrue(wetLake > lake * 2, "the wet part has more water: " + wetLake + " / " + lake);
+	}
+
+	@Test
+	void duckweedGrowsInSmallPondsAndOnlySomeBigLakes() {
+		assertTrue(SwampyForestLogic.duckweedLake(0.1F, -0.5F));
+		assertFalse(SwampyForestLogic.duckweedLake(0.8F, 0.0F));
+		assertTrue(SwampyForestLogic.duckweedLake(0.8F, 0.7F));
 	}
 
 	@Test

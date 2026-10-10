@@ -1,12 +1,7 @@
 {
   "type": "minecraft:tree",
   "below_trunk_provider": "minecraft:soil_beneath_tree",
-  "decorators": [
-    {
-      "type": "minecraft:leave_vine",
-      "probability": 0.25
-    }
-  ],
+  "decorators": [],
   "foliage_placer": {
     "type": "minecraft:blob_foliage_placer",
     "height": 3,
@@ -21,7 +16,7 @@
       "waterlogged": "false"
     }
   },
-  "ignore_vines": false,
+  "ignore_vines": true,
   "minimum_size": {
     "type": "minecraft:two_layers_feature_size"
   },
