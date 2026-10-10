@@ -167,5 +167,8 @@
   "sprint": {
     "after": 100,
     "speed": 0.33
+  },
+  "dash_break": {
+    "max_depth": 2.5
   }
 }

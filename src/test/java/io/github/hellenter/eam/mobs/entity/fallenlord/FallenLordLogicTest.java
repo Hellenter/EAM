@@ -316,6 +316,26 @@ class FallenLordLogicTest {
 	}
 
 	@Test
+	void dashBreaksTwoBlockWallButNotThree() {
+		double max = SETTINGS.later().dashBreak().maxDepth();
+		// Straight along +X: a wall two blocks thick, two blocks tall (same spans stacked) is 2 deep.
+		List<FallenLordLogic.Span> two = List.of(FallenLordLogic.blockSpan(10.5, 1.0, 0.0), FallenLordLogic.blockSpan(10.5, 1.0, 0.0),
+				FallenLordLogic.blockSpan(11.5, 1.0, 0.0), FallenLordLogic.blockSpan(11.5, 1.0, 0.0));
+		assertEquals(2.0, FallenLordLogic.dashDepth(two), 1.0E-9);
+		assertTrue(FallenLordLogic.dashDepth(two) <= max);
+		List<FallenLordLogic.Span> three = new java.util.ArrayList<>(two);
+		three.add(FallenLordLogic.blockSpan(12.5, 1.0, 0.0));
+		assertTrue(FallenLordLogic.dashDepth(three) > max);
+		// Two thin walls with a gap add up.
+		assertEquals(2.0, FallenLordLogic.dashDepth(List.of(FallenLordLogic.blockSpan(3.5, 1.0, 0.0), FallenLordLogic.blockSpan(8.5, 1.0, 0.0))), 1.0E-9);
+		// Corner to corner a block is longer.
+		double d = Math.sqrt(0.5);
+		assertEquals(2.0 * d, FallenLordLogic.dashDepth(List.of(FallenLordLogic.blockSpan(0.0, d, d))), 1.0E-9);
+		assertTrue(FallenLordLogic.inDashPath(0.8, 0.35));
+		assertFalse(FallenLordLogic.inDashPath(1.2, 0.35));
+	}
+
+	@Test
 	void breatherAfterManyHitsOrSixHearts() {
 		FallenLordSettings.Breather breather = SETTINGS.later().breather();
 		List<Wound> three = List.of(new Wound(100, 2.0F), new Wound(110, 2.0F), new Wound(120, 2.0F));

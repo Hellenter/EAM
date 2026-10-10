@@ -165,6 +165,10 @@ public class FallenLord extends Monster {
 	private boolean actionHit;
 	/** Everyone the current spear dash has struck: each is hit once. */
 	private final Set<UUID> dashHits = new HashSet<>();
+	/** Stretches of the current dash's run filled by blocks it smashed, to tell how deep it has gone. */
+	private final List<FallenLordLogic.Span> dashSpans = new ArrayList<>();
+	/** Set once the current dash has smashed as deep as it can: it smashes nothing more and stops at the next block. */
+	private boolean dashSpent;
 	private int idleTicks;
 	private int shieldDisabledTicks;
 	private HitStreak hitStreak = HitStreak.NONE;
@@ -737,6 +741,8 @@ public class FallenLord extends Monster {
 		actionTarget = target;
 		actionHit = false;
 		dashHits.clear();
+		dashSpans.clear();
+		dashSpent = false;
 		getNavigation().stop();
 		// The duel strafe would otherwise keep sliding him sideways.
 		getMoveControl().strafe(0.0F, 0.0F);
@@ -1235,16 +1241,49 @@ public class FallenLord extends Monster {
 
 	/**
 	 * A dash smashes weak blocks (tag {@link FallenLordModule#DASH_SMASHES}, or anything weaker than obsidian in his room) in his way before he reaches them, so it is
-	 * not stopped by them. The floor he runs on stays.
+	 * not stopped by them. The floor he runs on stays. Only so deep, though: once the blocks in his path would take the
+	 * dash past {@link FallenLordSettings.DashBreak#maxDepth()}, he smashes nothing more and the next block stops him.
 	 */
 	private void smashAhead(ServerLevel level, double speed) {
-		if (!level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+		if (dashSpent || !level.getGameRules().get(GameRules.MOB_GRIEFING)) {
 			return;
 		}
 		AABB box = getBoundingBox();
 		AABB ahead = new AABB(box.minX, box.minY + 0.1, box.minZ, box.maxX, box.maxY, box.maxZ)
 				.expandTowards(rushDirection.x * (speed + 0.5), 0.0, rushDirection.z * (speed + 0.5));
-		smashWithin(level, ahead);
+		List<BlockPos> smashable = new ArrayList<>();
+		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(ahead.minX, ahead.minY, ahead.minZ),
+				BlockPos.containing(ahead.maxX, ahead.maxY, ahead.maxZ))) {
+			if (canSmash(level, pos, level.getBlockState(pos))) {
+				smashable.add(pos.immutable());
+			}
+		}
+		// Nearest first, so the depth limit keeps the far blocks standing.
+		smashable.sort(Comparator.comparingDouble(this::alongRush));
+		double maxDepth = settings().later().dashBreak().maxDepth();
+		double halfWidth = getBbWidth() / 2.0;
+		for (BlockPos pos : smashable) {
+			Vec3 offset = Vec3.atCenterOf(pos).subtract(position());
+			double sideways = offset.x * rushDirection.z - offset.z * rushDirection.x;
+			if (FallenLordLogic.inDashPath(sideways, halfWidth)) {
+				// Measured from the world origin, which stays put while he runs: the direction does not change mid-dash.
+				Vec3 centre = Vec3.atCenterOf(pos);
+				double along = centre.x * rushDirection.x + centre.z * rushDirection.z;
+				dashSpans.add(FallenLordLogic.blockSpan(along, rushDirection.x, rushDirection.z));
+				if (FallenLordLogic.dashDepth(dashSpans) > maxDepth + 1.0E-6) {
+					dashSpans.removeLast();
+					dashSpent = true;
+					return;
+				}
+			}
+			level.destroyBlock(pos, true, this);
+		}
+	}
+
+	/** How far ahead along the dash a block's centre lies, from where he stands. */
+	private double alongRush(BlockPos pos) {
+		Vec3 offset = Vec3.atCenterOf(pos).subtract(position());
+		return offset.x * rushDirection.x + offset.z * rushDirection.z;
 	}
 
 	/** One tick of the sword dash; true when it has handed over to another action. */

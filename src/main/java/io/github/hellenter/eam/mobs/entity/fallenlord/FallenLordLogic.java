@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -513,6 +514,43 @@ public final class FallenLordLogic {
 	/** In his boss room he breaks any block that can be broken at all and is softer than obsidian. */
 	public static boolean breakableInArena(float hardness) {
 		return hardness >= 0.0F && hardness < OBSIDIAN_HARDNESS;
+	}
+
+	/** A stretch of a dash's run, in blocks along its direction. */
+	public record Span(double from, double to) {
+	}
+
+	/**
+	 * The stretch of the run a smashed block fills: a cube whose centre lies at {@code along}, measured along the
+	 * horizontal dash direction ({@code dirX}, {@code dirZ}, a unit vector). Crossed corner to corner it is longer.
+	 */
+	public static Span blockSpan(double along, double dirX, double dirZ) {
+		double half = 0.5 * (Math.abs(dirX) + Math.abs(dirZ));
+		return new Span(along - half, along + half);
+	}
+
+	/**
+	 * Whether a smashed block lies in his own path and so adds to how deep the dash has gone, rather than being a side
+	 * block his wide body clips: its centre is at most half a block outside his body, sideways from the run.
+	 */
+	public static boolean inDashPath(double sideways, double halfWidth) {
+		return Math.abs(sideways) <= halfWidth + 0.5;
+	}
+
+	/** How deep into blocks one dash has gone: the length the spans cover together, overlaps counted once. */
+	public static double dashDepth(List<Span> spans) {
+		List<Span> sorted = new ArrayList<>(spans);
+		sorted.sort(Comparator.comparingDouble(Span::from));
+		double depth = 0.0;
+		double end = Double.NEGATIVE_INFINITY;
+		for (Span span : sorted) {
+			if (span.to() <= end) {
+				continue;
+			}
+			depth += span.to() - Math.max(span.from(), end);
+			end = span.to();
+		}
+		return depth;
 	}
 
 	/** After a passive player broke his stance he sword dashes at once if they are in its range. */

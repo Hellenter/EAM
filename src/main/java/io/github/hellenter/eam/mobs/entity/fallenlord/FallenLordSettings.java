@@ -398,11 +398,12 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param vampirism  how he heals from kills and while no player is in sight
 	 * @param leapUp     phase two: he leaps up at a player standing too high to reach
 	 * @param sprint     both phases: he sprints after a player he cannot catch
+	 * @param dashBreak  both dashes: how deep into blocks one dash can smash its way
 	 */
 	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
-			Sprint sprint) {
+			Sprint sprint, DashBreak dashBreak) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT);
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
@@ -411,8 +412,24 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance),
 				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism),
 				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp),
-				Sprint.CODEC.fieldOf("sprint").orElse(Sprint.DEFAULT).forGetter(Later::sprint)
+				Sprint.CODEC.fieldOf("sprint").orElse(Sprint.DEFAULT).forGetter(Later::sprint),
+				DashBreak.CODEC.fieldOf("dash_break").orElse(DashBreak.DEFAULT).forGetter(Later::dashBreak)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * Both dashes smash weak blocks in his way, but only so deep: a wall up to two blocks thick is broken through, a
+	 * thicker one stops the dash.
+	 *
+	 * @param maxDepth blocks, counted along the run, one dash smashes through; the block that would take it past this
+	 *                 stays and stops him
+	 */
+	public record DashBreak(double maxDepth) {
+		public static final DashBreak DEFAULT = new DashBreak(2.5);
+
+		public static final Codec<DashBreak> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 64.0).fieldOf("max_depth").orElse(DEFAULT.maxDepth).forGetter(DashBreak::maxDepth)
+		).apply(instance, DashBreak::new));
 	}
 
 	/**
