@@ -341,7 +341,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
 			double startRange, int lockTicks, double nearWidth, double farWidth, double creepSpeed, double stepSpeed) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.0F, 2.0, 0.5F, 5.0F, 220, 4.0, 8, 1.0, 3.0, 0.1, 0.35);
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 2.0, 0.5F, 5.0F, 183, 4.0, 6, 1.0, 3.0, 0.1, 0.35);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
