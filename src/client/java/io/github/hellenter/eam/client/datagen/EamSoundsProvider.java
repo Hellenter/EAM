@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricSoundsProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,6 +24,20 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.FALLEN_LORD_DASH_WARNING, SoundTypeBuilder.of(EamSounds.FALLEN_LORD_DASH_WARNING)
 				.subtitle("subtitles.eam.entity.fallen_lord.dash_warning")
 				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/fallen_lord/dash_warning")).attenuationDistance(24)));
+		// The wight: vanilla husk and cat files pitched down into a dry, rasping voice.
+		exporter.add(EamSounds.WIGHT_AMBIENT, wight(EamSounds.WIGHT_AMBIENT, "ambient", "mob/husk/idle", 3, 0.5F, 0.5F));
+		exporter.add(EamSounds.WIGHT_ATTACK, wight(EamSounds.WIGHT_ATTACK, "attack", "mob/cat/hiss", 3, 0.55F, 1.0F));
+		exporter.add(EamSounds.WIGHT_GROAN, wight(EamSounds.WIGHT_GROAN, "groan", "mob/husk/idle", 3, 0.6F, 1.0F));
+		exporter.add(EamSounds.WIGHT_HURT, wight(EamSounds.WIGHT_HURT, "hurt", "mob/husk/hurt", 2, 0.6F, 1.0F));
+		exporter.add(EamSounds.WIGHT_DEATH, wight(EamSounds.WIGHT_DEATH, "death", "mob/husk/death", 2, 0.5F, 1.0F));
+	}
+
+	private static SoundTypeBuilder wight(SoundEvent event, String name, String file, int files, float pitch, float volume) {
+		SoundTypeBuilder builder = SoundTypeBuilder.of(event).subtitle("subtitles.eam.entity.wight." + name);
+		for (int i = 1; i <= files; i++) {
+			builder.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file + i)).pitch(pitch).volume(volume));
+		}
+		return builder;
 	}
 
 	@Override

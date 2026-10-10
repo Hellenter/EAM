@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
+import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -27,6 +28,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
 		builder(SwampLurkerModule.SPAWNS_IN)
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
+		builder(WightModule.SPAWNS_IN)
+				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP);
 		builder(EamWorldgen.HAS_FOREST_PEBBLES)
 				.forceAddTag(BiomeTags.IS_FOREST)

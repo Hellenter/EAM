@@ -17,6 +17,8 @@ import io.github.hellenter.eam.client.mobs.fallenlord.HeavyWaveParticle;
 import io.github.hellenter.eam.client.mobs.knight.SkeletonKnightRenderer;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerModel;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerRenderer;
+import io.github.hellenter.eam.client.mobs.wight.WightModel;
+import io.github.hellenter.eam.client.mobs.wight.WightRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
@@ -58,6 +60,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.SKELETON_KNIGHT, SkeletonKnightRenderer::new);
 		ModelLayerRegistry.registerModelLayer(SwampLurkerModel.LAYER, SwampLurkerModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.SWAMP_LURKER, SwampLurkerRenderer::new);
+		ModelLayerRegistry.registerModelLayer(WightModel.LAYER, WightModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.WIGHT, WightRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		MenuScreens.<CraftingMenu, CraftingTableScreen>register(CraftingTypes.MENU, (menu, inventory, title) ->
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));

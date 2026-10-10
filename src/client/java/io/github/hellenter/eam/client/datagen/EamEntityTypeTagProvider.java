@@ -58,7 +58,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(CowDefenseModule.DEFENDERS).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM);
 		// The Fallen Lord is undead: smite and silver hurt him more.
 		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),
-				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key());
+				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
+				EamEntities.WIGHT.builtInRegistryHolder().key());
 		// The swamp lurker burns in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.

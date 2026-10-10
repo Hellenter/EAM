@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
+import io.github.hellenter.eam.mobs.entity.wight.Wight;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -63,6 +64,14 @@ public final class EamEntities {
 					.sized(0.8F, 1.3F)
 					.eyeHeight(1.1F)
 					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A gaunt, hunched stalker in rags that hunts players unseen in swamps and jungles. */
+	public static final EntityType<Wight> WIGHT = register("wight",
+			EntityType.Builder.of(Wight::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.8F)
+					.eyeHeight(1.55F)
+					.clientTrackingRange(10)
 					.notInPeaceful());
 
 	private EamEntities() {

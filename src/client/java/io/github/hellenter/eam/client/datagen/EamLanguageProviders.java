@@ -201,6 +201,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
+			builder.add(EamEntities.WIGHT, "Wight");
+			builder.add(EamItems.WIGHT_SPAWN_EGG, "Wight Spawn Egg");
+			builder.add("subtitles.eam.entity.wight.ambient", "Wight rasps");
+			builder.add("subtitles.eam.entity.wight.attack", "Wight hisses");
+			builder.add("subtitles.eam.entity.wight.groan", "Burning wight groans");
+			builder.add("subtitles.eam.entity.wight.hurt", "Wight hurts");
+			builder.add("subtitles.eam.entity.wight.death", "Wight dies");
 			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
@@ -608,6 +615,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");
+			builder.add(EamEntities.WIGHT, "Вихт");
+			builder.add(EamItems.WIGHT_SPAWN_EGG, "Яйцо призыва вихта");
+			builder.add("subtitles.eam.entity.wight.ambient", "Вихт хрипит");
+			builder.add("subtitles.eam.entity.wight.attack", "Вихт шипит");
+			builder.add("subtitles.eam.entity.wight.groan", "Горящий вихт стонет");
+			builder.add("subtitles.eam.entity.wight.hurt", "Вихт ранен");
+			builder.add("subtitles.eam.entity.wight.death", "Вихт умирает");
 			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");
