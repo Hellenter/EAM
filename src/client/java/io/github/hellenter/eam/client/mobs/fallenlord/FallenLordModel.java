@@ -380,9 +380,10 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	}
 
 	private void lunge(float t) {
-		float pull = seg(t, 0.0F, 4.0F);
-		float push = seg(t, 4.0F, 7.0F);
-		float back = seg(t, 11.0F, 20.0F);
+		float start = FallenLordAction.LUNGE_PUSH;
+		float pull = seg(t, 0.0F, start);
+		float push = seg(t, start, start + 3.0F);
+		float back = seg(t, start + 7.0F, FallenLordAction.LUNGE.length());
 		float hold = 1.0F - back;
 		// A stab: the blade level as he draws back, driven forward and a little up.
 		rightArm.xRot = Mth.lerp(hold * Math.max(pull, push), rightArm.xRot, Mth.lerp(push, 0.5F, -0.4F));

@@ -6,7 +6,7 @@
     "health": 80.0,
     "poke_damage": 6.0,
     "poke_knockback": 1.0,
-    "poke_cooldown": 30,
+    "poke_cooldown": 20,
     "dash_damage": 11.7,
     "dash_cooldown": 160,
     "dash_chain": 1,
@@ -18,7 +18,7 @@
     "swipe_hits": 3,
     "swipe_window": 60,
     "shield_disable_multiplier": 2.0,
-    "attack_pause": 16
+    "attack_pause": 8
   },
   "phase_two": {
     "health": 112.0,
@@ -136,20 +136,20 @@
     "hits_max": 5,
     "health": 12.0,
     "window": 80,
-    "distance": 5.0,
+    "distance": 6.0,
     "cooldown": 800
   },
   "leap_back": {
     "after": 2,
     "chance_step": 0.25,
-    "distance": 3.5,
+    "distance": 4.5,
     "max_range": 6.0
   },
   "stance": {
     "duration": 50,
     "run_away": 1.5,
     "healed": 1.0,
-    "lunge_from": 5.5,
+    "lunge_from": 6.5,
     "approach": 0.5
   },
   "vampirism": {
@@ -163,5 +163,9 @@
     "cooldown": 60,
     "damage": 8.0,
     "knockback": 1.0
+  },
+  "sprint": {
+    "after": 100,
+    "speed": 0.5
   }
 }

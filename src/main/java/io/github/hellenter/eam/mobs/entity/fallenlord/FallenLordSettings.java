@@ -85,7 +85,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	public record PhaseOne(float health, float pokeDamage, float pokeKnockback, int pokeCooldown, float dashDamage, int dashCooldown,
 			int dashChain, float throwDamage, int throwCooldown, int throwAfter, float swipeDamage, float swipeKnockback, int swipeHits,
 			int swipeWindow, float shieldDisableMultiplier, int attackPause) {
-		public static final PhaseOne DEFAULT = new PhaseOne(80.0F, 6.0F, 1.0F, 30, 11.7F, 160, 1, 7.0F, 160, 80, 3.0F, 1.2F, 3, 60, 2.0F, 16);
+		public static final PhaseOne DEFAULT = new PhaseOne(80.0F, 6.0F, 1.0F, 20, 11.7F, 160, 1, 7.0F, 160, 80, 3.0F, 1.2F, 3, 60, 2.0F, 8);
 
 		public static final Codec<PhaseOne> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseOne::health),
@@ -397,10 +397,12 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param stance    phase two: the fencing stance after either leap, luring the player in
 	 * @param vampirism  how he heals from kills and while no player is in sight
 	 * @param leapUp     phase two: he leaps up at a player standing too high to reach
+	 * @param sprint     both phases: he sprints after a player he cannot catch
 	 */
-	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp) {
+	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
+			Sprint sprint) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT);
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				SpearDash.CODEC.fieldOf("spear_dash").orElse(SpearDash.DEFAULT).forGetter(Later::spearDash),
@@ -408,8 +410,24 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				LeapBack.CODEC.fieldOf("leap_back").orElse(LeapBack.DEFAULT).forGetter(Later::leapBack),
 				Stance.CODEC.fieldOf("stance").orElse(Stance.DEFAULT).forGetter(Later::stance),
 				Vampirism.CODEC.fieldOf("vampirism").orElse(Vampirism.DEFAULT).forGetter(Later::vampirism),
-				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp)
+				LeapUp.CODEC.fieldOf("leap_up").orElse(LeapUp.DEFAULT).forGetter(Later::leapUp),
+				Sprint.CODEC.fieldOf("sprint").orElse(Sprint.DEFAULT).forGetter(Later::sprint)
 		).apply(instance, Later::new));
+	}
+
+	/**
+	 * A player he cannot catch for a while gets chased at a sprint, until his first hit lands.
+	 *
+	 * @param after ticks out of reach of his weapon before he sprints
+	 * @param speed extra movement speed while sprinting, a share of his base speed
+	 */
+	public record Sprint(int after, double speed) {
+		public static final Sprint DEFAULT = new Sprint(100, 0.5);
+
+		public static final Codec<Sprint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(1, 2400).fieldOf("after").orElse(DEFAULT.after).forGetter(Sprint::after),
+				Codec.doubleRange(0.0, 4.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Sprint::speed)
+		).apply(instance, Sprint::new));
 	}
 
 	/**
@@ -485,7 +503,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param cooldown ticks from one breather to the next
 	 */
 	public record Breather(int hitsMin, int hitsMax, float health, int window, double distance, int cooldown) {
-		public static final Breather DEFAULT = new Breather(4, 5, 12.0F, 80, 5.0, 800);
+		public static final Breather DEFAULT = new Breather(4, 5, 12.0F, 80, 6.0, 800);
 
 		public static final Codec<Breather> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("hits_min").orElse(DEFAULT.hitsMin).forGetter(Breather::hitsMin),
@@ -507,7 +525,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param maxRange   he only leaps back from a player this close
 	 */
 	public record LeapBack(int after, double chanceStep, double distance, double maxRange) {
-		public static final LeapBack DEFAULT = new LeapBack(2, 0.25, 3.5, 6.0);
+		public static final LeapBack DEFAULT = new LeapBack(2, 0.25, 4.5, 6.0);
 
 		public static final Codec<LeapBack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("after").orElse(DEFAULT.after).forGetter(LeapBack::after),
@@ -529,7 +547,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param approach  coming nearer means this much closer than when the stance began
 	 */
 	public record Stance(int duration, double runAway, float healed, double lungeFrom, double approach) {
-		public static final Stance DEFAULT = new Stance(50, 1.5, 1.0F, 5.5, 0.5);
+		public static final Stance DEFAULT = new Stance(50, 1.5, 1.0F, 6.5, 0.5);
 
 		public static final Codec<Stance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 400).fieldOf("duration").orElse(DEFAULT.duration).forGetter(Stance::duration),

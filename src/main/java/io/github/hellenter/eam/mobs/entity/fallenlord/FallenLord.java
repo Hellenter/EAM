@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,6 +113,8 @@ public class FallenLord extends Monster {
 	private static final double SWORD_DASH_PUSH = 0.4;
 	/** A leap back pushes him for this many ticks, at the speed that covers its distance. */
 	private static final int RETREAT_TICKS = 8;
+	/** The lunge's run in lasts this many ticks. */
+	private static final int LUNGE_RUSH_TICKS = 6;
 	/** The leap back after a burst of damage. */
 	private static final double BURST_LEAP = 6.0;
 	/** Swirls of the regeneration potion while he drinks. */
@@ -129,6 +132,7 @@ public class FallenLord extends Monster {
 	private static final int SPEAR_LOST_TICKS = 60;
 	/** His health and speed bonuses for the players around him. */
 	private static final Identifier PLAYERS_BONUS = Eam.id("fallen_lord_players");
+	private static final Identifier SPRINT_BONUS = Eam.id("fallen_lord_sprint");
 	/** He counts the players around him this often. */
 	private static final int PLAYER_COUNT_INTERVAL = 20;
 	/** How fast the shield arm comes up into the guard and drops, per tick. */
@@ -158,11 +162,16 @@ public class FallenLord extends Monster {
 	private Vec3 dashTarget = Vec3.ZERO;
 	private Vec3 rushDirection = Vec3.ZERO;
 	private boolean actionHit;
+	/** Everyone the current spear dash has struck: each is hit once. */
+	private final Set<UUID> dashHits = new HashSet<>();
 	private int idleTicks;
 	private int shieldDisabledTicks;
 	private HitStreak hitStreak = HitStreak.NONE;
 	private boolean swipePending;
 	private int ticksOutOfReach;
+	/** Ticks the target has kept out of his weapon's reach; past the sprint threshold he sprints until a hit lands. */
+	private int chaseTicks;
+	private boolean sprinting;
 	private int spearAwayTicks = -1;
 	/** The spear in flight that will come back; an older one that turns up late is ignored. */
 	private @Nullable UUID thrownSpear;
@@ -630,6 +639,7 @@ public class FallenLord extends Monster {
 		actionTicks = 0;
 		actionTarget = target;
 		actionHit = false;
+		dashHits.clear();
 		getNavigation().stop();
 		// The duel strafe would otherwise keep sliding him sideways.
 		getMoveControl().strafe(0.0F, 0.0F);
@@ -701,6 +711,7 @@ public class FallenLord extends Monster {
 			}
 		}
 		ticksOutOfReach = target != null && horizontalDistanceTo(target) > FallenLordLogic.CLOSE ? ticksOutOfReach + 1 : 0;
+		tickSprint(target);
 
 		if (isBusy()) {
 			idleTicks = 0;
@@ -777,9 +788,12 @@ public class FallenLord extends Monster {
 				double progress = horizontal2(position().subtract(dashStart)) / dashLength;
 				double reach = FallenLordLogic.DASH_HIT_RADIUS * FallenLordLogic.alongDash(spearDash.startReach(), spearDash.endReach(), progress);
 				float damage = one.dashDamage() * (float) FallenLordLogic.alongDash(spearDash.startDamage(), spearDash.endDamage(), progress);
+				// Everyone in the way is hit, each once per dash.
 				for (LivingEntity victim : victimsWithin(reach)) {
-					if (!actionHit) {
-						actionHit = strike(level, victim, damageSources().source(FallenLordModule.DASH_DAMAGE, this), damage, 1.0F);
+					if (!dashHits.contains(victim.getUUID())
+							&& strike(level, victim, damageSources().source(FallenLordModule.DASH_DAMAGE, this), damage, 1.0F)) {
+						dashHits.add(victim.getUUID());
+						actionHit = true;
 					}
 				}
 			}
@@ -1199,17 +1213,18 @@ public class FallenLord extends Monster {
 	}
 
 	private void tickLunge(ServerLevel level, int t, @Nullable LivingEntity target, FallenLordSettings.PhaseTwo two) {
-		if (t == 4 && target != null) {
+		int push = FallenLordAction.LUNGE_PUSH;
+		if (t == push && target != null) {
 			rushDirection = horizontal(target.position().subtract(position()));
 		}
-		if (t >= 4 && t < 10) {
+		if (t >= push && t < push + LUNGE_RUSH_TICKS) {
 			setDeltaMovement(rushDirection.x * 0.8, getDeltaMovement().y, rushDirection.z * 0.8);
 			if (!actionHit && target != null && horizontalDistanceTo(target) <= 2.2) {
 				actionHit = true;
 				strike(level, target, damageSources().mobAttack(this), two.lungeDamage(), 0.5F);
-				actionTicks = 10;
+				actionTicks = push + LUNGE_RUSH_TICKS;
 			}
-		} else if (t == 10 && actionHit) {
+		} else if (t == push + LUNGE_RUSH_TICKS && actionHit) {
 			// Hop back out of reach after a hit; after a miss he stays on the player.
 			setDeltaMovement(-rushDirection.x * 0.7, 0.3, -rushDirection.z * 0.7);
 		}
@@ -1320,6 +1335,8 @@ public class FallenLord extends Monster {
 			return false;
 		}
 		ticksSinceHit = 0;
+		chaseTicks = 0;
+		sprinting = false;
 		if (phase() == 2 && target instanceof Player) {
 			noteBlow(level, target, before - target.getHealth() - target.getAbsorptionAmount());
 		}
@@ -1419,20 +1436,38 @@ public class FallenLord extends Monster {
 
 	/** Sets the players bonus on an attribute; true when it changed. */
 	private boolean setBonus(Holder<Attribute> attribute, double amount) {
+		return setBonus(attribute, PLAYERS_BONUS, amount);
+	}
+
+	/** Sets a bonus share of the base value on an attribute; true when it changed. */
+	private boolean setBonus(Holder<Attribute> attribute, Identifier id, double amount) {
 		AttributeInstance instance = getAttribute(attribute);
 		if (instance == null) {
 			return false;
 		}
-		AttributeModifier current = instance.getModifier(PLAYERS_BONUS);
+		AttributeModifier current = instance.getModifier(id);
 		if (current == null ? amount == 0.0 : current.amount() == amount) {
 			return false;
 		}
 		if (amount == 0.0) {
-			instance.removeModifier(PLAYERS_BONUS);
+			instance.removeModifier(id);
 		} else {
-			instance.addOrReplacePermanentModifier(new AttributeModifier(PLAYERS_BONUS, amount, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+			instance.addOrReplacePermanentModifier(new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
 		}
 		return true;
+	}
+
+	/** A target he has not caught for a while: he sprints after them until his first hit lands. */
+	private void tickSprint(@Nullable LivingEntity target) {
+		FallenLordSettings.Sprint sprint = settings().later().sprint();
+		if (target == null) {
+			chaseTicks = 0;
+			sprinting = false;
+		} else if (!sprinting) {
+			chaseTicks = FallenLordLogic.chaseTicks(chaseTicks, horizontalDistanceTo(target), phase(), isBusy());
+			sprinting = chaseTicks >= sprint.after();
+		}
+		setBonus(Attributes.MOVEMENT_SPEED, SPRINT_BONUS, sprinting ? sprint.speed() : 0.0);
 	}
 
 	/** A player's shield blocked his hit: after a few such hits he knocks the shield out, the way an axe does. */

@@ -389,4 +389,13 @@ class FallenLordLogicTest {
 		double three = FallenLordLogic.jumpSpeed(3.2);
 		assertTrue(two > 0.42 && three > two && three < 1.5);
 	}
+
+	@Test
+	void aPlayerHeCannotCatchCountsUpUntilInReach() {
+		assertEquals(5, FallenLordLogic.chaseTicks(4, 6.0, 1, false));
+		assertEquals(4, FallenLordLogic.chaseTicks(4, 6.0, 1, true));
+		assertEquals(0, FallenLordLogic.chaseTicks(40, 3.5, 1, false));
+		assertEquals(0, FallenLordLogic.chaseTicks(40, 3.5, 2, true));
+		assertEquals(41, FallenLordLogic.chaseTicks(40, 4.0, 2, false));
+	}
 }

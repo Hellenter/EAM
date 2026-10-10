@@ -495,6 +495,18 @@ public final class FallenLordLogic {
 		return distance <= SWORD_REACH + 0.2 || distance <= stance.lungeFrom() && distance <= startDistance - stance.approach();
 	}
 
+	/**
+	 * Ticks the target has kept out of his reach, counting this one: back to 0 once they are within his weapon's reach,
+	 * held while he is busy with an action.
+	 */
+	public static int chaseTicks(int ticks, double distance, int phase, boolean busy) {
+		double reach = phase == 1 ? POKE_REACH : SWORD_REACH;
+		if (distance <= reach + 0.5) {
+			return 0;
+		}
+		return busy ? ticks : ticks + 1;
+	}
+
 	/** After a passive player broke his stance he sword dashes at once if they are in its range. */
 	public static boolean dashFromStance(double distance) {
 		return distance >= SWORD_REACH && distance <= SWORD_DASH_MAX;

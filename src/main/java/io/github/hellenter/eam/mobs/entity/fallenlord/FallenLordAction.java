@@ -22,8 +22,8 @@ public enum FallenLordAction {
 	SLASH(10),
 	/** Leap, three quick slashes, a kick. */
 	COMBO(38),
-	/** Run in, stab, hop back. */
-	LUNGE(20),
+	/** Draws back until {@link #LUNGE_PUSH}, runs in and stabs, hops back. */
+	LUNGE(21),
 	/** Sword spin that hits everyone around. */
 	WHIRL(16),
 	/** Leap back from the player before drinking. */
@@ -61,6 +61,8 @@ public enum FallenLordAction {
 	public static final int BACKSTAB_DART = 2;
 	public static final int BACKSTAB_BACK = 6;
 	public static final int BACKSTAB_CUT = 10;
+	/** Lunge: the draw-back ends and the run in starts on this tick; the time a player has to raise a shield. */
+	public static final int LUNGE_PUSH = 5;
 	/** Heavy strike: the blade starts glowing on this tick of the windup. */
 	public static final int HEAVY_GLOW = 3;
 	/** Heavy strike: the cut lands on this tick. */
