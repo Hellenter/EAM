@@ -165,6 +165,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Silver-Redstone Dust");
 			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
+			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
+			builder.add("item.eam.black_talisman.desc", "Use on a portal frame to open the way");
 			builder.add(BrewingModule.REAGENTS, "Silver Brewing Reagents");
 			builder.add("effect.eam.light_healing", "Light Healing");
 			potion(builder, "holy_water", "Holy Water", "Splash Holy Water", "Lingering Holy Water", "Arrow of Holy Water");
@@ -589,6 +591,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Серебряно-редстоуновый порошок");
 			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
+			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
+			builder.add("item.eam.black_talisman.desc", "Используйте на рамке портала, чтобы открыть путь");
 			builder.add(BrewingModule.REAGENTS, "Ингредиенты для серебряной стойки");
 			builder.add("effect.eam.light_healing", "Лёгкое исцеление");
 			potion(builder, "holy_water", "Святая вода", "Взрывная святая вода", "Оседающая святая вода", "Стрела святой воды");

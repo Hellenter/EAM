@@ -70,6 +70,8 @@ public final class BloodMoonModule {
 	public static final TagKey<EntityType<?>> ARMED = TagKey.create(Registries.ENTITY_TYPE, Eam.id("blood_moon_armed"));
 	/** Mobs that hunt animals during a blood moon. */
 	public static final TagKey<EntityType<?>> HUNTERS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("blood_moon_hunters"));
+	/** Bosses whose loot is one of a kind: the blood moon does not multiply it. */
+	public static final TagKey<EntityType<?>> SINGLE_LOOT = TagKey.create(Registries.ENTITY_TYPE, Eam.id("blood_moon_single_loot"));
 
 	/**
 	 * The calendar, stored on the overworld.
@@ -263,7 +265,7 @@ public final class BloodMoonModule {
 		Entity entity = context.getOptional(LootContextParams.THIS_ENTITY);
 		// Only a hostile mob's own death table, not tables nested in it or block drops.
 		if (!(entity instanceof Enemy) || !context.hasParameter(LootContextParams.DAMAGE_SOURCE)
-				|| context.hasParameter(LootContextParams.BLOCK_STATE) || !activeIn(entity.level())
+				|| context.hasParameter(LootContextParams.BLOCK_STATE) || entity.is(SINGLE_LOOT) || !activeIn(entity.level())
 				|| entity.getType().getDefaultLootTable().filter(table::is).isEmpty()) {
 			return;
 		}

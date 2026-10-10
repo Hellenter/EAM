@@ -1,8 +1,11 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.client.content.talisman.TalismanActivation;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -20,6 +23,8 @@ public class EamClientItemProvider extends FabricCodecDataProvider<ClientItem> {
 	@Override
 	protected void configure(BiConsumer<Identifier, ClientItem> provider, HolderLookup.Provider registries) {
 		FallenLordItemModels.clientItems().forEach(provider);
+		provider.accept(TalismanActivation.GLOWING,
+				new ClientItem(ItemModelUtils.plainModel(EamModelProvider.TALISMAN_GLOWING_MODEL), ClientItem.Properties.DEFAULT));
 	}
 
 	@Override

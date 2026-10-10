@@ -8,6 +8,8 @@
 		"content.campfire.PotionItemMixin",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
+		"content.talisman.BaseFireBlockPortalMixin",
+		"content.talisman.PortalShapeAccessor",
 		"mobs.entity.PlayerArmorPiercingMixin",
 		"mobs.vanilla.AbstractArrowMixin",
 		"mobs.vanilla.ClipContextMixin",

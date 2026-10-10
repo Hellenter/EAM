@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.bucket.BucketContent;
@@ -21,6 +22,7 @@ import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -30,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 public class EamModelProvider extends FabricModelProvider {
+	static final Identifier TALISMAN_GLOWING_MODEL = Eam.id("item/black_talisman_glowing");
+
 	public EamModelProvider(FabricPackOutput output) {
 		super(output);
 	}
@@ -271,6 +275,9 @@ public class EamModelProvider extends FabricModelProvider {
 		}
 		PotionModels.generate(generators);
 		FallenLordItemModels.generate(generators);
+		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
+		// The same talisman with its crystal glowing, shown while it lights a portal.
+		ModelTemplates.FLAT_ITEM.create(TALISMAN_GLOWING_MODEL, TextureMapping.layer0(new Material(TALISMAN_GLOWING_MODEL)), generators.modelOutput);
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
 		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
 		generators.generateBow(EamItems.SLINGSHOT);

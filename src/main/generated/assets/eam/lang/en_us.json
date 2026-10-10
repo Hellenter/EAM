@@ -175,6 +175,8 @@
   "item.eam.arrow_head": "+%s%% arrow damage",
   "item.eam.ash": "Ash",
   "item.eam.beef_stew": "Beef Stew",
+  "item.eam.black_talisman": "Black Talisman",
+  "item.eam.black_talisman.desc": "Use on a portal frame to open the way",
   "item.eam.boiled_water_bowl": "Bowl of Boiled Water",
   "item.eam.bucket.lava_melt_chance": "Melting chance: %s%%",
   "item.eam.burnt_beef": "Burnt Steak",

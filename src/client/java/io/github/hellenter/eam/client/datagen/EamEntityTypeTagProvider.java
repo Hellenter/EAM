@@ -55,6 +55,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER, EntityTypeIds.VINDICATOR)
 				.add(SKELETONS);
+		// The Fallen Lord drops exactly one black talisman, blood moon or not.
+		builder(BloodMoonModule.SINGLE_LOOT).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key());
 		builder(CowDefenseModule.DEFENDERS).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM);
 		// The Fallen Lord is undead: smite and silver hurt him more.
 		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),

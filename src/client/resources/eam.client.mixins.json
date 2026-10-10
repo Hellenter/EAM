@@ -3,6 +3,7 @@
 	"package": "io.github.hellenter.eam.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"content.talisman.FirstPersonHandsAndItemsMixin",
 		"survival.hunger.AbstractContainerScreenAccessor",
 		"survival.hunger.HudMixin",
 		"survival.thirst.GuiGraphicsExtractorMixin",

@@ -1927,7 +1927,7 @@ public class FallenLord extends Monster {
 
 	@Override
 	protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
-		// No loot yet: it comes with the crypt treasury.
+		// His spear, shield and sword stay his: the loot table holds his black talisman.
 	}
 
 	// ---- Boss bar ----

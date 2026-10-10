@@ -1,12 +1,20 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableSubProvider;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemDamageFunction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
@@ -23,7 +31,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntPr
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-/** Extra death loot added to vanilla mobs by {@code MobDropsModule}, and the skeleton knight's own. */
+/** Extra death loot added to vanilla mobs by {@code MobDropsModule}, and our own mobs' loot. */
 public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 	private final CompletableFuture<HolderLookup.Provider> registries;
 
@@ -55,6 +63,22 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3)))
 						.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
+		// The Fallen Lord: his black talisman, always exactly one; Looting adds nothing. And 1-2 pieces of his mithril
+		// armor, well enchanted but battered: always a helmet or chestplate, half the time leggings or boots too.
+		output.accept(EamEntities.FALLEN_LORD.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.BLACK_TALISMAN)))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(lordArmor(enchantments, EamItems.MITHRIL_HELMET))
+						.add(lordArmor(enchantments, EamItems.MITHRIL_CHESTPLATE)))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.when(LootItemRandomChanceCondition.randomChance(0.5F))
+						.add(lordArmor(enchantments, EamItems.MITHRIL_LEGGINGS))
+						.add(lordArmor(enchantments, EamItems.MITHRIL_BOOTS))));
+
 		// The swamp lurker: rotten flesh, and threads from its robe.
 		output.accept(EamEntities.SWAMP_LURKER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()
@@ -80,5 +104,13 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(LootItem.lootTableItem(Items.STRING)
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+	}
+
+	/** A piece of the Lord's armor: enchanted like on a table with 25-35 levels, 40-70% of its durability left. */
+	private static LootPoolEntryContainer.Builder<?> lordArmor(HolderGetter<Enchantment> enchantments, ItemLike armor) {
+		return LootItem.lootTableItem(armor)
+				.apply(SetItemDamageFunction.setDamage(ContextFloatProviders.between(0.4F, 0.7F)))
+				.apply(EnchantWithLevelsFunction.enchantWithLevels(enchantments, ContextIntProviders.between(25, 35))
+						.withOptions(enchantments.getOrThrow(EnchantmentTags.IN_ENCHANTING_TABLE)));
 	}
 }

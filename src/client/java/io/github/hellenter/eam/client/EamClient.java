@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client;
 import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
 import io.github.hellenter.eam.client.bucket.BucketMeltTooltip;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
+import io.github.hellenter.eam.client.content.talisman.TalismanActivation;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
 import io.github.hellenter.eam.client.enchanting.EnchantingClient;
@@ -73,5 +74,6 @@ public class EamClient implements ClientModInitializer {
 		AnvilProgress.register();
 		EnchantingClient.register();
 		BloodMoonSky.register();
+		TalismanActivation.register();
 	}
 }

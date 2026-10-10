@@ -175,6 +175,8 @@
   "item.eam.arrow_head": "+%s%% к урону стрелы",
   "item.eam.ash": "Пепел",
   "item.eam.beef_stew": "Говяжье рагу",
+  "item.eam.black_talisman": "Чёрный талисман",
+  "item.eam.black_talisman.desc": "Используйте на рамке портала, чтобы открыть путь",
   "item.eam.boiled_water_bowl": "Миска кипячёной воды",
   "item.eam.bucket.lava_melt_chance": "Шанс плавления: %s%%",
   "item.eam.burnt_beef": "Сгоревший стейк",

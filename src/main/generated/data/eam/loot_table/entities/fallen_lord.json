@@ -1,0 +1,120 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "eam:black_talisman"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.7,
+                "min": 0.4
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 35,
+                "min": 25
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:mithril_helmet"
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.7,
+                "min": 0.4
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 35,
+                "min": 25
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:mithril_chestplate"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:random_chance",
+        "chance": 0.5
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.7,
+                "min": 0.4
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 35,
+                "min": 25
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:mithril_leggings"
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.7,
+                "min": 0.4
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 35,
+                "min": 25
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
+          "name": "eam:mithril_boots"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

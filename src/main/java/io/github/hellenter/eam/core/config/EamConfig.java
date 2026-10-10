@@ -52,10 +52,11 @@ public record EamConfig(
 		boolean bloodMoon,
 		boolean enchanting,
 		boolean arrowHeads,
-		boolean swampyForest
+		boolean swampyForest,
+		boolean talismanPortal
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -91,6 +92,17 @@ public record EamConfig(
 		}
 	}
 
+	/** The third map codec, for flags after {@code swampy_forest}: {@link LaterFlags} is full too. */
+	private record LastFlags(boolean talismanPortal) {
+		private static final MapCodec<LastFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal)
+		).apply(instance, LastFlags::new));
+
+		private static LastFlags of(EamConfig config) {
+			return new LastFlags(config.talismanPortal);
+		}
+	}
+
 	public static final Codec<EamConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.optionalFieldOf("hunger", DEFAULT.hunger).forGetter(EamConfig::hunger),
 			Codec.BOOL.optionalFieldOf("thirst", DEFAULT.thirst).forGetter(EamConfig::thirst),
@@ -106,13 +118,15 @@ public record EamConfig(
 			Codec.BOOL.optionalFieldOf("remove_diamond_gear", DEFAULT.removeDiamondGear).forGetter(EamConfig::removeDiamondGear),
 			Codec.BOOL.optionalFieldOf("mob_drops", DEFAULT.mobDrops).forGetter(EamConfig::mobDrops),
 			Codec.BOOL.optionalFieldOf("iron_plates", DEFAULT.ironPlates).forGetter(EamConfig::ironPlates),
-			LaterFlags.CODEC.forGetter(LaterFlags::of)
+			LaterFlags.CODEC.forGetter(LaterFlags::of),
+			LastFlags.CODEC.forGetter(LastFlags::of)
 	).apply(instance, (hunger, thirst, progression, mining, stackSizes, mobs, mobBlockBreaking, removeEarlyTools, ores, crafting,
-			gear, removeDiamondGear, mobDrops, ironPlates, later) -> new EamConfig(hunger, thirst, progression, mining, stackSizes, mobs,
+			gear, removeDiamondGear, mobDrops, ironPlates, later, last) -> new EamConfig(hunger, thirst, progression, mining, stackSizes, mobs,
 			mobBlockBreaking, removeEarlyTools, ores, crafting, gear, removeDiamondGear, mobDrops, ironPlates, later.mobRunning,
 			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures,
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
-			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest)));
+			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
+			last.talismanPortal)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

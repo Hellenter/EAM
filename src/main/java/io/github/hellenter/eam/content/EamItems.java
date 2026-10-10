@@ -17,6 +17,7 @@ import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
+import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
@@ -31,10 +32,12 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.food.FoodProperties;
@@ -45,8 +48,10 @@ import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -58,6 +63,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
+import java.util.List;
 import java.util.function.Function;
 
 /** Items added by EAM. Registered whatever the config says, so client and server registries match. */
@@ -150,6 +156,12 @@ public final class EamItems {
 
 	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
+
+	/** The Fallen Lord's drop: the only thing that opens a nether portal in the overworld. Loses 1 durability per portal. */
+	public static final Item BLACK_TALISMAN = register("black_talisman", BlackTalismanItem::new,
+			new Item.Properties().durability(16).rarity(Rarity.EPIC).fireResistant()
+					.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("item.eam.black_talisman.desc")
+							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))))));
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);
