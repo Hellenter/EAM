@@ -18,7 +18,6 @@
     "minecraft:channeling",
     "minecraft:density",
     "minecraft:breach",
-    "minecraft:lunge",
-    "minecraft:wind_burst"
+    "minecraft:lunge"
   ]
 }
