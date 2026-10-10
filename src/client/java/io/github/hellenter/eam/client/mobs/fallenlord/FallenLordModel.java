@@ -52,7 +52,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	/** The sword in his fencing stance: pointed ahead at the player, the tip a little up. */
 	private static final Quaternionfc SWORD_POINT = new Quaternionf().rotateX(-0.7F);
 	/** How far back the pointed sword is pulled into the fist, in model pixels. */
-	private static final float SWORD_GRIP_BACK = 3.0F;
+	private static final float SWORD_GRIP_BACK = 2.0F;
 
 	protected final ModelPart rightForearm;
 	protected final ModelPart leftForearm;
