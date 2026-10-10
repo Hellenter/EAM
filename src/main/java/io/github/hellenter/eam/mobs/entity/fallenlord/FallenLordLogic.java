@@ -507,6 +507,14 @@ public final class FallenLordLogic {
 		return busy ? ticks : ticks + 1;
 	}
 
+	/** Obsidian's hardness: in his room he breaks every block softer than this. */
+	public static final float OBSIDIAN_HARDNESS = 50.0F;
+
+	/** In his boss room he breaks any block that can be broken at all and is softer than obsidian. */
+	public static boolean breakableInArena(float hardness) {
+		return hardness >= 0.0F && hardness < OBSIDIAN_HARDNESS;
+	}
+
 	/** After a passive player broke his stance he sword dashes at once if they are in its range. */
 	public static boolean dashFromStance(double distance) {
 		return distance >= SWORD_REACH && distance <= SWORD_DASH_MAX;

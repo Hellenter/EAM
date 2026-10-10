@@ -398,4 +398,13 @@ class FallenLordLogicTest {
 		assertEquals(0, FallenLordLogic.chaseTicks(40, 3.5, 2, true));
 		assertEquals(41, FallenLordLogic.chaseTicks(40, 4.0, 2, false));
 	}
+
+	@Test
+	void inHisRoomHeBreaksAnythingSofterThanObsidian() {
+		assertTrue(FallenLordLogic.breakableInArena(1.5F));
+		assertTrue(FallenLordLogic.breakableInArena(0.0F));
+		assertTrue(FallenLordLogic.breakableInArena(49.9F));
+		assertFalse(FallenLordLogic.breakableInArena(50.0F));
+		assertFalse(FallenLordLogic.breakableInArena(-1.0F));
+	}
 }

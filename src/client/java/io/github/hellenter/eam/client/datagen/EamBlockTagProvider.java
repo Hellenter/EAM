@@ -138,7 +138,7 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				BlockItemIds.HAY_BLOCK);
 		looted.add(EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
 		// Mobs break these, but a wooden room is still safe to sleep in. Doors always count as walls.
-		// The Fallen Lord's dashes go through earth, wood and cobblestone.
+		// The Fallen Lord's dashes go through earth, wood, cobblestone and tuff.
 		BlockItemTagAppender<Block> smashes = builder(FallenLordModule.DASH_SMASHES);
 		smashes.forceAddTag(BlockTags.DIRT).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS)
 				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.WOODEN_SLABS).forceAddTag(BlockTags.WOODEN_FENCES);
@@ -146,6 +146,11 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 						BlockItemIds.MOSSY_COBBLESTONE, BlockItemIds.MOSSY_COBBLESTONE_STAIRS, BlockItemIds.MOSSY_COBBLESTONE_SLAB,
 						BlockItemIds.MOSSY_COBBLESTONE_WALL, BlockItemIds.GRAVEL, BlockItemIds.SAND, BlockItemIds.RED_SAND, BlockItemIds.DIRT_PATH,
 						BlockItemIds.FARMLAND, BlockItemIds.CLAY);
+		// And through tuff, the stone of the crypts.
+		smashes.add(BlockItemIds.TUFF, BlockItemIds.TUFF_SLAB, BlockItemIds.TUFF_STAIRS, BlockItemIds.TUFF_WALL, BlockItemIds.CHISELED_TUFF,
+				BlockItemIds.POLISHED_TUFF, BlockItemIds.POLISHED_TUFF_SLAB, BlockItemIds.POLISHED_TUFF_STAIRS, BlockItemIds.POLISHED_TUFF_WALL,
+				BlockItemIds.TUFF_BRICKS, BlockItemIds.TUFF_BRICK_SLAB, BlockItemIds.TUFF_BRICK_STAIRS, BlockItemIds.TUFF_BRICK_WALL,
+				BlockItemIds.CHISELED_TUFF_BRICKS);
 		builder(SafeRoomModule.SAFE_WALLS).forceAddTag(BlockTags.PLANKS).forceAddTag(BlockTags.WOODEN_SLABS)
 				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 	}
