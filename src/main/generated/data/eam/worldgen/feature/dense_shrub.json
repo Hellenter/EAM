@@ -1,33 +1,6 @@
 {
-  "type": "minecraft:block_column",
-  "allowed_placement": {
-    "type": "minecraft:matching_block_tag",
-    "tag": "minecraft:air"
-  },
-  "direction": "up",
-  "layers": [
-    {
-      "height": 1,
-      "provider": {
-        "id": "eam:dense_shrub",
-        "properties": {
-          "top": "false"
-        }
-      }
-    },
-    {
-      "height": {
-        "type": "minecraft:uniform",
-        "max_inclusive": 1,
-        "min_inclusive": 0
-      },
-      "provider": {
-        "id": "eam:dense_shrub",
-        "properties": {
-          "top": "true"
-        }
-      }
-    }
-  ],
-  "prioritize_tip": false
+  "type": "minecraft:simple_block",
+  "to_place": {
+    "id": "eam:dense_shrub"
+  }
 }

@@ -1,10 +1,7 @@
 {
   "variants": {
-    "top=false": {
+    "": {
       "model": "eam:block/dense_shrub"
-    },
-    "top=true": {
-      "model": "eam:block/dense_shrub_top"
     }
   }
 }

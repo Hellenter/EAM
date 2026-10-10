@@ -22,6 +22,8 @@ public final class SwampyForestModule {
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("shelf_mushrooms"), ShelfMushroomFeature.CODEC);
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("fallen_log"), FallenLogFeature.CODEC);
 		Registry.register(BuiltInRegistries.DENSITY_FUNCTION_TYPE, Eam.id("swampy_flatness"), SwampyFlatness.CODEC);
+		Registry.register(BuiltInRegistries.DENSITY_FUNCTION_TYPE, Eam.id("swampy_height"), SwampyHeight.CODEC);
+		Registry.register(BuiltInRegistries.DENSITY_FUNCTION_TYPE, Eam.id("swampy_ground"), SwampyGround.CODEC);
 	}
 
 	public static void init() {

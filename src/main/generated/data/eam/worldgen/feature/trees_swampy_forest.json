@@ -1,7 +1,7 @@
 {
   "type": "minecraft:random_selector",
   "default": {
-    "feature": "minecraft:oak",
+    "feature": "eam:swamp_tall_oak",
     "placement": [
       {
         "type": "minecraft:block_predicate_filter",
@@ -24,7 +24,7 @@
     {
       "chance": 0.45,
       "feature": {
-        "feature": "minecraft:birch",
+        "feature": "eam:swamp_tall_birch",
         "placement": [
           {
             "type": "minecraft:block_predicate_filter",
@@ -39,7 +39,7 @@
     {
       "chance": 0.25,
       "feature": {
-        "feature": "minecraft:swamp_oak",
+        "feature": "eam:swamp_tall_swamp_oak",
         "placement": [
           {
             "type": "minecraft:block_predicate_filter",
@@ -54,7 +54,7 @@
     {
       "chance": 0.08,
       "feature": {
-        "feature": "minecraft:fancy_oak",
+        "feature": "eam:swamp_tall_fancy_oak",
         "placement": [
           {
             "type": "minecraft:block_predicate_filter",

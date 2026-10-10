@@ -30,7 +30,7 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		// Temperate land biomes a swampy forest region takes over; rivers, beaches, oceans, mountains and caves stay.
 		builder(SwampyForestBiomes.REPLACEABLE)
 				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST,
-						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MEADOW, Biomes.TAIGA,
+						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DAPPLED_FOREST, Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MEADOW, Biomes.TAIGA,
 						Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.SAVANNA,
 						// The terrain under a region is flattened whatever the biome, so every land biome there becomes swamp
 						// too: rivers, hills and the odd hotter or colder patch. Oceans, beaches and caves stay.

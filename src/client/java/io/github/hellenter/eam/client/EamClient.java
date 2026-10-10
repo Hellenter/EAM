@@ -29,24 +29,31 @@ import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.client.hud.ThirstHud;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
 import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
+import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
+import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 
+import java.util.List;
+
 public class EamClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		NutritionPanel.register();
+		// The dense shrub's leaves take the biome's foliage colour, like the trees around it.
+		BlockColorRegistry.register(List.of(BlockTintSources.foliage()), EamBlocks.DENSE_SHRUB);
 		// Both stay idle unless the server has thirst on: they need the synced bar or the server's drink channel.
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();

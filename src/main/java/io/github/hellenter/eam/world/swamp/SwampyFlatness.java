@@ -12,9 +12,8 @@ import net.minecraft.world.level.levelgen.densityfunction.DfRewriteRule;
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 
 /**
- * A 2D density function: how flat the swampy forest makes the terrain at a column ({@link SwampyForestLogic#flatness}).
- * It reads the overworld's own climate functions on the stretched region map, like the biome choice does, so the flat
- * ground lines up with the swamp biomes.
+ * A 2D density function: how strongly a column belongs to a swamp ({@link SwampyForestLogic#weight}), 0 to 1. It reads
+ * the overworld's own climate functions, like the biome choice does, so the flat ground lines up with the swamp biomes.
  */
 public record SwampyFlatness(DensityFunction temperature, DensityFunction vegetation, DensityFunction continents) implements DensityFunction {
 	public static final MapCodec<SwampyFlatness> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -56,14 +55,22 @@ public record SwampyFlatness(DensityFunction temperature, DensityFunction vegeta
 	private record Sampler(DensitySampler temperature, DensitySampler vegetation, DensitySampler continents) implements DensitySampler {
 		@Override
 		public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-			int regionX = SwampyForestLogic.regionCoordinate(blockX);
-			int regionZ = SwampyForestLogic.regionCoordinate(blockZ);
-			float regionTemperature = this.temperature.sampleValue(context, regionX, 0, regionZ);
-			if (SwampyForestLogic.flatness(regionTemperature, 1.0F, 1.0F, 1.0F) == 0.0F) {
-				return 0.0F;
-			}
-			return SwampyForestLogic.flatness(regionTemperature, this.vegetation.sampleValue(context, regionX, 0, regionZ),
-					this.continents.sampleValue(context, regionX, 0, regionZ), this.continents.sampleValue(context, blockX, 0, blockZ));
+			return SwampyForestLogic.weight(new SwampyForestLogic.Climate() {
+				@Override
+				public float temperature(int x, int z) {
+					return Sampler.this.temperature.sampleValue(context, x, 0, z);
+				}
+
+				@Override
+				public float humidity(int x, int z) {
+					return Sampler.this.vegetation.sampleValue(context, x, 0, z);
+				}
+
+				@Override
+				public float continents(int x, int z) {
+					return Sampler.this.continents.sampleValue(context, x, 0, z);
+				}
+			}, blockX, blockZ);
 		}
 
 		@Override

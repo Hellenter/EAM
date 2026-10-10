@@ -3,41 +3,55 @@ package io.github.hellenter.eam.world.swamp;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Where the swampy forest lies. Vanilla picks overworld biomes from six climate noises; the swampy forest instead looks
- * at the same climate map zoomed in {@link #REGION_SCALE} times, so its regions come out about ten times the area of an
- * ordinary biome. Inside a region the real humidity under each spot chooses the part of the swamp: hummocks where it is
- * drier, lakes where it is wettest, forest in between.
+ * Where the swampy forest lies and how its ground is shaped. The world is cut into {@link #CELL}-block cells; a cell
+ * whose centre has temperate, inland climate holds one swamp, a round region about {@code 2 * RADIUS} blocks across
+ * with a ragged edge, placed at a random spot in the cell. Inside it the real humidity chooses the part of the swamp:
+ * hummocks where it is drier, lakes where it is wettest, forest in between. The ground there is not vanilla's: it is a
+ * low plain a few blocks above the water ({@link #surfaceHeight}) with lakes 2 to 3 blocks deep, blended into the
+ * vanilla terrain over the region's rim ({@link #weight}).
  */
 public final class SwampyForestLogic {
-	/** The region map is the climate map stretched this many times along each axis: 9 times the area. */
-	public static final int REGION_SCALE = 3;
-	/** Vanilla's forest temperature band (temperature index 2), so the swamp sits among temperate biomes. */
-	static final float MIN_TEMPERATURE = -0.15F;
-	static final float MAX_TEMPERATURE = 0.2F;
-	/** Only the wet half of that band (vanilla humidity index 3 and 4: forests, dark forests, jungles). */
-	static final float MIN_HUMIDITY = 0.1F;
-	/** Inland on the stretched map too, so a region is not centred on an ocean and left with a thin strip of coast. */
-	static final float MIN_CONTINENTALNESS = -0.11F;
+	/** The climate a swamp reads: the overworld's own temperature, humidity and continentalness noises at a block. */
+	public interface Climate {
+		float temperature(int x, int z);
+
+		float humidity(int x, int z);
+
+		float continents(int x, int z);
+	}
+
+	/** Side of a cell, in blocks; each cell holds at most one swamp. */
+	static final int CELL = 2048;
+	/** Radius of a swamp in blocks, before the edge wobble: about 1000 blocks across. */
+	static final int RADIUS = 500;
+	/** How far a swamp's centre may sit from its cell's centre, so the swamps do not form a grid. */
+	static final int JITTER = 360;
+	/** The radius grows and shrinks by up to this share with the humidity under the edge, so the outline is ragged. */
+	static final float EDGE_WOBBLE = 0.15F;
+	/** Share of the radius over which the ground blends from vanilla to the swamp plain; the biome starts halfway. */
+	static final float EDGE_WIDTH = 0.18F;
+	/** The swamp's centre must be neither snowy nor desert hot (vanilla's temperature bands 1 to 3)... */
+	static final float MIN_TEMPERATURE = -0.45F;
+	static final float MAX_TEMPERATURE = 0.55F;
+	/** ...and well inland (vanilla's mid-inland band), so the sea does not eat most of the swamp. */
+	static final float MIN_CONTINENTALNESS = 0.03F;
+	/** Real continentalness of the coast band: the swamp keeps the vanilla shore below it and is fully flat above. */
+	static final float COAST_FROM = -0.19F;
+	static final float COAST_TO = -0.11F;
 	/** Real humidity below this gives hummocks with low trees... */
 	static final float HUMMOCKS_BELOW = -0.2F;
 	/** ...above this, open lakes; the forest takes what is left in between. */
 	static final float LAKES_ABOVE = 0.25F;
 
-	/** How far inside a region (in climate units on the stretched map) the terrain becomes fully flat. */
-	static final float FLAT_MARGIN = 0.04F;
-	/** Real continentalness of the coast band: the swamp keeps the vanilla shore below it and is fully flat above. */
-	static final float COAST_FROM = -0.19F;
-	static final float COAST_TO = -0.11F;
-	/**
-	 * Terrain offset (vanilla's base height: 0 is about y 64, 0.0078 a block) that the swamp flattens toward. Inside a
-	 * region the vanilla offset is clamped to +-{@link #OFFSET_LIMIT} and squeezed to {@link #OFFSET_SQUEEZE} of its
-	 * distance from this level: hills shrink to a block or two, rivers to shallow water.
-	 */
-	static final float FLAT_OFFSET = -0.01F;
-	static final float OFFSET_LIMIT = 0.3F;
-	static final float OFFSET_SQUEEZE = 0.15F;
-	/** Vanilla's terrain factor: the higher, the less the 3D noise bends the ground. Flat plains are about 6. */
-	static final float MIN_FACTOR = 12.0F;
+	/** Sea level: water fills everything below it, so the water's surface is the block under it. */
+	static final int SEA_LEVEL = 63;
+	/** The lowest dry ground is the first block above the water; the highest is this many blocks higher. */
+	static final float LAND_RISE = 5.0F;
+	/** Lakes are this many blocks deep at most (2 to 3 over most of their area, shallower at the rim). */
+	static final float LAKE_DEPTH = 3.0F;
+	/** Ground noise sizes: broad lakes and low rises, and smaller bumps on top. */
+	static final float BROAD_SCALE = 44.0F;
+	static final float SMALL_SCALE = 13.0F;
 
 	public enum Part {
 		FOREST, LAKES, HUMMOCKS
@@ -46,18 +60,40 @@ public final class SwampyForestLogic {
 	private SwampyForestLogic() {
 	}
 
-	/** The block coordinate on the stretched climate map that decides whether {@code block} is in a swampy forest region. */
-	public static int regionCoordinate(int block) {
-		return Math.floorDiv(block, REGION_SCALE);
+	/**
+	 * How strongly a column belongs to a swamp, 0 (vanilla) to 1 (swamp plain). The swamp biomes cover what is at least
+	 * half; the terrain blends in over the outer part.
+	 */
+	public static float weight(Climate climate, int x, int z) {
+		int cellX = Math.floorDiv(x, CELL);
+		int cellZ = Math.floorDiv(z, CELL);
+		// The world's own temperature at the cell corner seeds the swamp's spot, so it moves with the world seed.
+		long hash = mix(cellX * 341873128712L + cellZ * 132897987541L + Float.floatToIntBits(climate.temperature(cellX * CELL, cellZ * CELL)));
+		int centreX = cellX * CELL + CELL / 2 + (int) ((hash & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
+		int centreZ = cellZ * CELL + CELL / 2 + (int) (((hash >>> 16) & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
+		float dx = x - centreX;
+		float dz = z - centreZ;
+		float reach = RADIUS * (1.0F + EDGE_WOBBLE) * (1.0F + EDGE_WIDTH / 2);
+		float distanceSquared = dx * dx + dz * dz;
+		if (distanceSquared >= reach * reach) {
+			return 0.0F;
+		}
+		float temperature = climate.temperature(centreX, centreZ);
+		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE || climate.continents(centreX, centreZ) < MIN_CONTINENTALNESS) {
+			return 0.0F;
+		}
+		float radius = RADIUS * (1.0F + EDGE_WOBBLE * Math.clamp(climate.humidity(x, z) * 2.0F, -1.0F, 1.0F));
+		float distance = (float) Math.sqrt(distanceSquared) / radius;
+		return ramp(1.0F + EDGE_WIDTH / 2 - distance, EDGE_WIDTH)
+				* ramp(climate.continents(x, z) - COAST_FROM, COAST_TO - COAST_FROM);
 	}
 
-	/** Whether the stretched climate at a spot (temperature, humidity, continentalness) makes it swampy forest. */
-	public static boolean inRegion(float temperature, float humidity, float continentalness) {
-		return temperature >= MIN_TEMPERATURE && temperature <= MAX_TEMPERATURE && humidity >= MIN_HUMIDITY
-				&& continentalness >= MIN_CONTINENTALNESS;
+	/** Whether a column with this {@link #weight} gets a swamp biome. */
+	public static boolean inSwamp(float weight) {
+		return weight >= 0.5F;
 	}
 
-	/** The part of the swamp a spot in a region gets, from the real (not stretched) humidity there. */
+	/** The part of the swamp a spot gets, from the real humidity there. */
 	public static Part part(float humidity) {
 		if (humidity < HUMMOCKS_BELOW) {
 			return Part.HUMMOCKS;
@@ -65,20 +101,79 @@ public final class SwampyForestLogic {
 		return humidity > LAKES_ABOVE ? Part.LAKES : Part.FOREST;
 	}
 
-	/**
-	 * How strongly the terrain at a spot is flattened, 0 (vanilla) to 1 (swamp flat): 0 on the region border, growing
-	 * to 1 within {@link #FLAT_MARGIN} of every climate limit, and 0 again toward real coasts so oceans stay oceans.
-	 */
-	public static float flatness(float regionTemperature, float regionHumidity, float regionContinentalness, float continentalness) {
-		return ramp(regionTemperature - MIN_TEMPERATURE, FLAT_MARGIN) * ramp(MAX_TEMPERATURE - regionTemperature, FLAT_MARGIN)
-				* ramp(regionHumidity - MIN_HUMIDITY, FLAT_MARGIN) * ramp(regionContinentalness - MIN_CONTINENTALNESS, FLAT_MARGIN)
-				* ramp(continentalness - COAST_FROM, COAST_TO - COAST_FROM);
+	/** The swamp part of a column, or {@code null} outside every swamp. */
+	public static @Nullable Part choose(Climate climate, int x, int z) {
+		return inSwamp(weight(climate, x, z)) ? part(climate.humidity(x, z)) : null;
 	}
 
-	/** The flat swamp's terrain offset for a vanilla offset. */
-	public static float flatOffset(float offset) {
-		float clamped = Math.clamp(offset, -OFFSET_LIMIT, OFFSET_LIMIT);
-		return FLAT_OFFSET + (clamped - FLAT_OFFSET) * OFFSET_SQUEEZE;
+	/**
+	 * Height of the swamp plain at a column: the ground is solid below this y. Dry land runs from the first block above
+	 * the water to {@link #LAND_RISE} blocks higher, mostly low; where the noise dips below a humidity-dependent level
+	 * there is a lake up to {@link #LAKE_DEPTH} deep. The wetter the spot, the more of it is lake.
+	 */
+	public static float surfaceHeight(int x, int z, float humidity) {
+		float noise = valueNoise(x / BROAD_SCALE, z / BROAD_SCALE, 0) * 0.72F + valueNoise(x / SMALL_SCALE, z / SMALL_SCALE, 1) * 0.28F;
+		float waterLine = lakeLevel(humidity);
+		if (noise >= waterLine) {
+			float t = (noise - waterLine) / (1.0F - waterLine);
+			return SEA_LEVEL + 0.5F + (float) Math.pow(t, 1.4) * LAND_RISE;
+		}
+		float s = Math.clamp((waterLine - noise) / 0.12F, 0.0F, 1.0F);
+		return SEA_LEVEL - 0.5F - (float) Math.sqrt(s) * LAKE_DEPTH;
+	}
+
+	/** Solid ground under the plain's surface, so no cave opens into the swamp floor or a lake bed. */
+	static final float CRUST = 10.0F;
+	/** Density change per block across the plain's surface; vanilla's terrain is about as steep near the ground. */
+	private static final float GROUND_GRADIENT = 0.25F;
+
+	/**
+	 * The final density at one block: vanilla's density there blended by the column's {@link #weight} toward the plain,
+	 * which is solid below {@code height}, air above it, and vanilla again under its {@link #CRUST}.
+	 */
+	public static float groundDensity(float vanilla, float weight, float height, int y) {
+		if (weight <= 0.0F) {
+			return vanilla;
+		}
+		float plain = Math.clamp((height - y) * GROUND_GRADIENT, -1.0F, 1.0F);
+		float crust = y > height - CRUST ? 1.0F : -1.0F;
+		float swamp = Math.min(plain, Math.max(vanilla, crust));
+		return vanilla + (swamp - vanilla) * weight;
+	}
+
+	/** Noise level below which the ground is a lake: higher (more lakes) where it is wetter. */
+	static float lakeLevel(float humidity) {
+		return Math.clamp(-0.28F + 0.6F * humidity, -0.5F, 0.1F);
+	}
+
+	/** Smooth value noise, -1 to 1, on a unit lattice. */
+	static float valueNoise(float x, float z, int salt) {
+		int x0 = (int) Math.floor(x);
+		int z0 = (int) Math.floor(z);
+		float fx = smooth(x - x0);
+		float fz = smooth(z - z0);
+		float a = lattice(x0, z0, salt);
+		float b = lattice(x0 + 1, z0, salt);
+		float c = lattice(x0, z0 + 1, salt);
+		float d = lattice(x0 + 1, z0 + 1, salt);
+		float top = a + (b - a) * fx;
+		float bottom = c + (d - c) * fx;
+		return top + (bottom - top) * fz;
+	}
+
+	private static float smooth(float t) {
+		return t * t * (3.0F - 2.0F * t);
+	}
+
+	private static float lattice(int x, int z, int salt) {
+		long hash = mix(x * 0x9E3779B97F4A7C15L + z * 0xC2B2AE3D27D4EB4FL + salt * 0x165667B19E3779F9L);
+		return (hash >>> 40) / (float) (1L << 23) - 1.0F;
+	}
+
+	private static long mix(long value) {
+		long h = value * 0x9E3779B97F4A7C15L;
+		h = (h ^ (h >>> 32)) * 0xD6E8FEB86659FD93L;
+		return h ^ (h >>> 32);
 	}
 
 	/**
@@ -105,10 +200,5 @@ public final class SwampyForestLogic {
 	static float ramp(float distance, float width) {
 		float t = Math.clamp(distance / width, 0.0F, 1.0F);
 		return t * t * (3.0F - 2.0F * t);
-	}
-
-	/** {@link #part} if the stretched climate puts the spot in a region, else {@code null}. */
-	public static @Nullable Part choose(float regionTemperature, float regionHumidity, float regionContinentalness, float humidity) {
-		return inRegion(regionTemperature, regionHumidity, regionContinentalness) ? part(humidity) : null;
 	}
 }

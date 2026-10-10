@@ -101,15 +101,22 @@ public final class SwampyForestBiomes {
 	}
 
 	private static SwampyForestLogic.@Nullable Part choose(Climate.Sampler sampler, int quartX, int quartZ) {
-		int x = QuartPos.toBlock(quartX);
-		int z = QuartPos.toBlock(quartZ);
-		int regionX = SwampyForestLogic.regionCoordinate(x);
-		int regionZ = SwampyForestLogic.regionCoordinate(z);
-		return SwampyForestLogic.choose(
-				sampler.temperature().sampleValue(regionX, 0, regionZ),
-				sampler.humidity().sampleValue(regionX, 0, regionZ),
-				sampler.continentalness().sampleValue(regionX, 0, regionZ),
-				sampler.humidity().sampleValue(x, 0, z));
+		return SwampyForestLogic.choose(new SwampyForestLogic.Climate() {
+			@Override
+			public float temperature(int x, int z) {
+				return sampler.temperature().sampleValue(x, 0, z);
+			}
+
+			@Override
+			public float humidity(int x, int z) {
+				return sampler.humidity().sampleValue(x, 0, z);
+			}
+
+			@Override
+			public float continents(int x, int z) {
+				return sampler.continentalness().sampleValue(x, 0, z);
+			}
+		}, QuartPos.toBlock(quartX), QuartPos.toBlock(quartZ));
 	}
 
 	private record Holders(Holder<Biome> forest, Holder<Biome> lakes, Holder<Biome> hummocks) {

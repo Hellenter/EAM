@@ -3,7 +3,6 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamWorldgen;
-import io.github.hellenter.eam.content.swamp.DenseShrubBlock;
 import io.github.hellenter.eam.world.swamp.DuckweedMatFeature;
 import io.github.hellenter.eam.world.swamp.FallenLogFeature;
 import io.github.hellenter.eam.world.swamp.ShelfMushroomFeature;
@@ -23,7 +22,6 @@ import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BlockStateProviders;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
-import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -58,8 +56,11 @@ import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.BlobFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.BushFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FancyFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
+import net.minecraft.world.level.levelgen.feature.treedecorators.LeaveVineDecorator;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.FancyTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
@@ -75,6 +76,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  * The swampy forest's three biomes and their features. All three share the bog flora (duckweed, cattails, swamp grass,
@@ -98,6 +100,10 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> DEAD_TRUNK = feature("dead_trunk");
 	static final ResourceKey<Feature> LOW_BIRCH = feature("swamp_low_birch");
 	static final ResourceKey<Feature> OAK_BUSH = feature("swamp_oak_bush");
+	static final ResourceKey<Feature> TALL_BIRCH = feature("swamp_tall_birch");
+	static final ResourceKey<Feature> TALL_OAK = feature("swamp_tall_oak");
+	static final ResourceKey<Feature> TALL_SWAMP_OAK = feature("swamp_tall_swamp_oak");
+	static final ResourceKey<Feature> TALL_FANCY_OAK = feature("swamp_tall_fancy_oak");
 	static final ResourceKey<Feature> TREES_FOREST = feature("trees_swampy_forest");
 	static final ResourceKey<Feature> TREES_LAKES = feature("trees_swampy_lakes");
 	static final ResourceKey<Feature> TREES_HUMMOCKS = feature("trees_swampy_hummocks");
@@ -114,6 +120,7 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> FIREWEED = feature("fireweed");
 	static final ResourceKey<Feature> MARSH_MARIGOLD = feature("marsh_marigold");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(POND_FOREST, POND_LAKES, POND_HUMMOCKS, DEAD_TRUNK, LOW_BIRCH, OAK_BUSH,
+			TALL_BIRCH, TALL_OAK, TALL_SWAMP_OAK, TALL_FANCY_OAK,
 			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED_FOREST, DUCKWEED_LAKES, DUCKWEED_HUMMOCKS, DENSE_SHRUB, FALLEN_HOLLOW_LOG, SHELF_MUSHROOMS, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD);
 
 	/** One set of placed features per part of the swamp, each named after its part. */
@@ -173,9 +180,9 @@ final class SwampyForestWorldgen {
 
 		BlockStateProvider bottom = weighted(Blocks.MUD, 7, Blocks.CLAY, 2, Blocks.GRAVEL, 1);
 		BlockStateProvider bank = weighted(Blocks.MUD, 3, Blocks.MOSS_BLOCK, 2, Blocks.COARSE_DIRT, 1);
-		context.register(POND_FOREST, new SwampPondFeature(UniformInt.of(2, 4), 2, 0.0F, bottom, bank));
+		context.register(POND_FOREST, new SwampPondFeature(UniformInt.of(2, 4), 3, 0.0F, bottom, bank));
 		context.register(POND_LAKES, new SwampPondFeature(UniformInt.of(3, 6), 3, 0.08F, bottom, bank));
-		context.register(POND_HUMMOCKS, new SwampPondFeature(UniformInt.of(3, 5), 2, 0.35F, bottom, bank));
+		context.register(POND_HUMMOCKS, new SwampPondFeature(UniformInt.of(3, 5), 3, 0.35F, bottom, bank));
 
 		// A dead trunk is one kind of log, bark on or bark peeled off, 2 to 6 blocks tall, on land or out of shallow water.
 		List<WeightedPlacedFeature> trunks = new ArrayList<>();
@@ -184,17 +191,25 @@ final class SwampyForestWorldgen {
 		}
 		context.register(DEAD_TRUNK, new RandomSelectorFeature(trunks, PlacementUtils.inlinePlaced(deadTrunk(Blocks.STRIPPED_BIRCH_LOG))));
 
-		context.register(LOW_BIRCH, new TreeFeature.Builder(BlockStateProvider.of(Blocks.BIRCH_LOG), new StraightTrunkPlacer(2, 1, 0),
+		context.register(LOW_BIRCH, new TreeFeature.Builder(BlockStateProvider.of(Blocks.BIRCH_LOG), new StraightTrunkPlacer(4, 1, 0),
 				BlockStateProvider.of(Blocks.BIRCH_LEAVES), new BlobFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
 				new TwoLayersFeatureSize(1, 0, 1), soil).ignoreVines().build());
 		context.register(OAK_BUSH, new TreeFeature.Builder(BlockStateProvider.of(Blocks.OAK_LOG), new StraightTrunkPlacer(1, 0, 0),
 				BlockStateProvider.of(Blocks.OAK_LEAVES), new BushFoliagePlacer(ConstantInt.of(2), ConstantInt.of(1), 2),
 				new TwoLayersFeatureSize(0, 0, 0), soil).build());
 
-		Holder<PlacedFeature> birch = tree(features, TreeFeatures.BIRCH, Blocks.BIRCH_SAPLING);
-		Holder<PlacedFeature> oak = tree(features, TreeFeatures.OAK, Blocks.OAK_SAPLING);
-		Holder<PlacedFeature> fancyOak = tree(features, TreeFeatures.FANCY_OAK, Blocks.OAK_SAPLING);
-		Holder<PlacedFeature> swampOak = tree(features, TreeFeatures.SWAMP_OAK, Blocks.OAK_SAPLING);
+		// Vanilla's birch, oak, swamp oak and fancy oak, each two blocks taller.
+		context.register(TALL_BIRCH, straightTree(Blocks.BIRCH_LOG, Blocks.BIRCH_LEAVES, 7, 2, 2, soil).ignoreVines().build());
+		context.register(TALL_OAK, straightTree(Blocks.OAK_LOG, Blocks.OAK_LEAVES, 6, 2, 2, soil).ignoreVines().build());
+		context.register(TALL_SWAMP_OAK, straightTree(Blocks.OAK_LOG, Blocks.OAK_LEAVES, 7, 3, 3, soil)
+				.decorators(List.of(new LeaveVineDecorator(0.25F))).build());
+		context.register(TALL_FANCY_OAK, new TreeFeature.Builder(BlockStateProvider.of(Blocks.OAK_LOG), new FancyTrunkPlacer(5, 11, 0),
+				BlockStateProvider.of(Blocks.OAK_LEAVES), new FancyFoliagePlacer(ConstantInt.of(2), ConstantInt.of(4), 4),
+				new TwoLayersFeatureSize(0, 0, 0, OptionalInt.of(4)), soil).ignoreVines().build());
+		Holder<PlacedFeature> birch = tree(features, TALL_BIRCH, Blocks.BIRCH_SAPLING);
+		Holder<PlacedFeature> oak = tree(features, TALL_OAK, Blocks.OAK_SAPLING);
+		Holder<PlacedFeature> fancyOak = tree(features, TALL_FANCY_OAK, Blocks.OAK_SAPLING);
+		Holder<PlacedFeature> swampOak = tree(features, TALL_SWAMP_OAK, Blocks.OAK_SAPLING);
 		Holder<PlacedFeature> lowBirch = tree(features, LOW_BIRCH, Blocks.BIRCH_SAPLING);
 		Holder<PlacedFeature> oakBush = tree(features, OAK_BUSH, Blocks.OAK_SAPLING);
 		Holder<PlacedFeature> fallenBirch = placed.getOrThrow(TreePlacements.FALLEN_BIRCH_TREE);
@@ -217,12 +232,7 @@ final class SwampyForestWorldgen {
 		context.register(DUCKWEED_FOREST, new DuckweedMatFeature(4));
 		context.register(DUCKWEED_LAKES, new DuckweedMatFeature(6));
 		context.register(DUCKWEED_HUMMOCKS, new DuckweedMatFeature(5));
-		// A dense shrub, half of them with a second, all-leaves block on top.
-		BlockState shrub = EamBlocks.DENSE_SHRUB.defaultBlockState();
-		context.register(DENSE_SHRUB, new BlockColumnFeature(List.of(
-				BlockColumnFeature.layer(ConstantInt.of(1), BlockStateProvider.of(shrub)),
-				BlockColumnFeature.layer(UniformInt.of(0, 1), BlockStateProvider.of(shrub.setValue(DenseShrubBlock.TOP, true)))),
-				Direction.UP, BlockPredicate.ONLY_IN_AIR_PREDICATE, false));
+		context.register(DENSE_SHRUB, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.DENSE_SHRUB)));
 		// Fallen hollow oak and birch logs, on the ground or floating in the ponds.
 		context.register(FALLEN_HOLLOW_LOG, new FallenLogFeature(HolderSet.direct(Block::builtInRegistryHolder, EamBlocks.HOLLOW_OAK_LOG,
 				EamBlocks.HOLLOW_BIRCH_LOG), UniformInt.of(3, 6)));
@@ -240,6 +250,12 @@ final class SwampyForestWorldgen {
 				BlockPredicate.anyOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, BlockPredicate.matchesFluids(Fluids.WATER)), false);
 	}
 
+	private static TreeFeature.Builder straightTree(Block log, Block leaves, int height, int randomA, int blobRadius,
+			Holder<BlockStateProvider> soil) {
+		return new TreeFeature.Builder(BlockStateProvider.of(log), new StraightTrunkPlacer(height, randomA, 0), BlockStateProvider.of(leaves),
+				new BlobFoliagePlacer(ConstantInt.of(blobRadius), ConstantInt.of(0), 3), new TwoLayersFeatureSize(1, 0, 1), soil);
+	}
+
 	private static Holder<PlacedFeature> tree(HolderGetter<Feature> features, ResourceKey<Feature> tree, Block sapling) {
 		return PlacementUtils.inlinePlaced(features.getOrThrow(tree), PlacementUtils.filteredByBlockSurvival(sapling));
 	}
@@ -248,11 +264,11 @@ final class SwampyForestWorldgen {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
 		// counts per chunk:  pond trunks trees cattails grass tall shrubs thickets fireweed marigolds fallen-logs shelves brown red
 		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, DUCKWEED_FOREST,
-				new int[] {-2, -2, 16, 2, 4, 1, 2, 5, -2, 1, -2, 1, 2, -2});
+				new int[] {-4, -2, 16, 2, 4, 1, 2, 5, -2, 1, -2, 1, 2, -2});
 		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, DUCKWEED_LAKES,
-				new int[] {3, 2, 3, 6, 3, 2, 1, 1, 1, 2, 2, 1, 1, -3});
+				new int[] {-2, 2, 3, 6, 3, 2, 1, 1, 1, 2, 2, 1, 1, -3});
 		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, DUCKWEED_HUMMOCKS,
-				new int[] {2, 1, 7, 3, 6, 7, 3, 3, -3, 1, 1, 1, 1, -3});
+				new int[] {-2, 1, 7, 3, 6, 7, 3, 3, -3, 1, 1, 1, 1, -3});
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
 				CountPlacement.of(MITHRIL_DEEP_VEINS),
@@ -270,7 +286,7 @@ final class SwampyForestWorldgen {
 				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(2), PlacementUtils.HEIGHTMAP_TOP_SOLID, BiomeFilter.biome(),
 				BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.OAK_SAPLING))));
 		PlacementUtils.register(context, part.trees, features.getOrThrow(trees), List.of(PlacementUtils.countExtra(counts[2], 0.1F, 1),
-				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(1), PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome()));
+				InSquarePlacement.spread(), SurfaceWaterDepthFilter.forMaxDepth(0), PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome()));
 		// Duckweed covers the water of the whole chunk at once, by distance from the banks.
 		PlacementUtils.register(context, part.duckweed, features.getOrThrow(duckweed), List.of());
 		// Cattails in water one block deep, or on dry ground right at the water's edge.
@@ -286,7 +302,7 @@ final class SwampyForestWorldgen {
 				patch(counts[6], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 8, 5, 2, BlockPredicate.ONLY_IN_AIR_PREDICATE));
 		// Thickets of dense shrubs: many tries packed close, so they grow wall to wall.
 		PlacementUtils.register(context, part.denseShrubs, features.getOrThrow(DENSE_SHRUB),
-				patch(counts[7], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 40, 4, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+				patch(counts[7], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 28, 4, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.wouldSurvive(EamBlocks.DENSE_SHRUB))));
 		PlacementUtils.register(context, part.fallenLogs, features.getOrThrow(FALLEN_HOLLOW_LOG),
 				List.of(frequency(counts[10]), InSquarePlacement.spread(), BiomeFilter.biome()));

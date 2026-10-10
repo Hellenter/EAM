@@ -1,7 +1,7 @@
 {
   "type": "minecraft:random_selector",
   "default": {
-    "feature": "minecraft:birch",
+    "feature": "eam:swamp_tall_birch",
     "placement": [
       {
         "type": "minecraft:block_predicate_filter",
