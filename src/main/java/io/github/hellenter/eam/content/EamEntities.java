@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
+import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -45,6 +46,14 @@ public final class EamEntities {
 					.sized(1.0F, 0.2F)
 					.clientTrackingRange(6)
 					.updateInterval(20));
+
+	/** Crypt skeleton with a shield and a sword, as tall as a wither skeleton; spawned by green-wool trial spawners. */
+	public static final EntityType<SkeletonKnight> SKELETON_KNIGHT = register("skeleton_knight",
+			EntityType.Builder.of(SkeletonKnight::new, MobCategory.MONSTER)
+					.sized(0.7F, 2.4F)
+					.eyeHeight(2.1F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
 
 	private EamEntities() {
 	}

@@ -205,6 +205,8 @@ public final class EamItems {
 
 	public static final Item FALLEN_LORD_SPAWN_EGG = register("fallen_lord_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.FALLEN_LORD));
+	public static final Item SKELETON_KNIGHT_SPAWN_EGG = register("skeleton_knight_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.SKELETON_KNIGHT));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);

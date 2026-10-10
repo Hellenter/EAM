@@ -1,0 +1,100 @@
+{
+  "type": "minecraft:equipment",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:protection": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 2
+              }
+            }
+          },
+          "name": "eam:ancient_metal_chestplate"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:protection": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 2
+              }
+            }
+          },
+          "name": "eam:ancient_metal_helmet"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:protection": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 2
+              }
+            }
+          },
+          "name": "eam:ancient_metal_boots"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:protection": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 2
+              }
+            }
+          },
+          "name": "eam:ancient_metal_leggings"
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:sharpness": {
+                "type": "minecraft:uniform",
+                "max": 3,
+                "min": 2
+              }
+            }
+          },
+          "name": "eam:ancient_metal_sword"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

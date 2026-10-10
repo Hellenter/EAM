@@ -1,0 +1,17 @@
+{
+  "attack_pause": 14,
+  "reach": 3.0,
+  "shield_range": 10.0,
+  "shield_disable_multiplier": 1.0,
+  "combo_chance": 0.4,
+  "combo_cooldown": 90,
+  "combo_hit_multiplier": 0.6,
+  "heavy_chance": 0.25,
+  "heavy_chance_vs_shield": 0.7,
+  "heavy_cooldown": 140,
+  "heavy_damage_multiplier": 1.8,
+  "heavy_extra_reach": 0.5,
+  "heavy_blocked_share": 0.5,
+  "heavy_shield_seconds": 5.0,
+  "backstep": 0.55
+}

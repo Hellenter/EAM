@@ -57,6 +57,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(SKELETONS);
 		builder(CowDefenseModule.DEFENDERS).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM);
 		// The Fallen Lord is undead: smite and silver hurt him more.
-		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key());
+		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),
+				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());
+		// Wolves hunt him like any skeleton.
+		builder(EntityTypeTags.SKELETONS).add(EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());
 	}
 }

@@ -1,0 +1,337 @@
+{
+  "type": "minecraft:equipment",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": {
+            "pools": [
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chestplate"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_chestplate"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              },
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_helmet"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_helmet"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              },
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_boots"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_boots"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": {
+            "pools": [
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chestplate"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_chestplate"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              },
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_helmet"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_helmet"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              },
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_boots"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_boots"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              },
+              {
+                "entries": [
+                  {
+                    "type": "minecraft:alternatives",
+                    "children": [
+                      {
+                        "type": "minecraft:item",
+                        "condition": {
+                          "type": "minecraft:random_chance",
+                          "chance": 0.25
+                        },
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_leggings"
+                      },
+                      {
+                        "type": "minecraft:item",
+                        "modifier": {
+                          "type": "minecraft:set_enchantments",
+                          "enchantments": {
+                            "minecraft:protection": {
+                              "type": "minecraft:uniform",
+                              "max": 2,
+                              "min": 1
+                            }
+                          }
+                        },
+                        "name": "eam:ancient_metal_chainmail_leggings"
+                      }
+                    ]
+                  }
+                ],
+                "rolls": 1
+              }
+            ]
+          }
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_enchantments",
+            "enchantments": {
+              "minecraft:power": {
+                "type": "minecraft:uniform",
+                "max": 2,
+                "min": 1
+              }
+            }
+          },
+          "name": "minecraft:bow"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

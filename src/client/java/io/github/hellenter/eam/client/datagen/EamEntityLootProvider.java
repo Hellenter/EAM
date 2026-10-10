@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntPr
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-/** Extra death loot added to vanilla mobs by {@code MobDropsModule}. */
+/** Extra death loot added to vanilla mobs by {@code MobDropsModule}, and the skeleton knight's own. */
 public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 	private final CompletableFuture<HolderLookup.Provider> registries;
 
@@ -45,6 +46,13 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 				.when(LootItemRandomChanceCondition.randomChance(1.0F / 3.0F))
 				.add(LootItem.lootTableItem(Items.LEATHER)
 						.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+						.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
+		// The skeleton knight: bones like a skeleton, his ancient metal gear never drops.
+		output.accept(EamEntities.SKELETON_KNIGHT.getDefaultLootTable().orElseThrow(), LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ContextIntProviders.exactly(1))
+				.add(LootItem.lootTableItem(Items.BONE)
+						.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3)))
 						.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 	}
 }

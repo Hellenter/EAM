@@ -1,0 +1,30 @@
+{
+  "loot_tables_to_eject": [
+    {
+      "data": "minecraft:spawners/ominous/trial_chamber/key",
+      "weight": 3
+    },
+    {
+      "data": "minecraft:spawners/ominous/trial_chamber/consumables",
+      "weight": 7
+    }
+  ],
+  "simultaneous_mobs_added_per_player": 0.0,
+  "spawn_potentials": [
+    {
+      "data": {
+        "entity": {
+          "id": "eam:skeleton_knight"
+        },
+        "equipment": {
+          "loot_table": "eam:equipment/crypt/knight_ominous",
+          "slot_drop_chances": 0.0
+        }
+      },
+      "weight": 1
+    }
+  ],
+  "ticks_between_spawn": 60,
+  "total_mobs": 5.0,
+  "total_mobs_added_per_player": 0.0
+}

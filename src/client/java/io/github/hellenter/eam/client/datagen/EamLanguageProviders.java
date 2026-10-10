@@ -184,10 +184,12 @@ public final class EamLanguageProviders {
 			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
 			builder.add(EamEntities.PEBBLE, "Pebble");
 			builder.add(EamEntities.FALLEN_LORD, "Fallen Lord");
+			builder.add(EamEntities.SKELETON_KNIGHT, "Skeleton Knight");
 			builder.add(EamEntities.LORD_SPEAR, "Fallen Lord's Spear");
 			builder.add(EamEntities.LORD_SHIELD, "Fallen Lord's Shield");
 			builder.add("entity.eam.fallen_lord.phase", "%s: Phase %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
+			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
@@ -578,10 +580,12 @@ public final class EamLanguageProviders {
 			builder.add(CampFireModule.IGNITERS, "Растопка для костра");
 			builder.add(EamEntities.PEBBLE, "Камушек");
 			builder.add(EamEntities.FALLEN_LORD, "Павший лорд");
+			builder.add(EamEntities.SKELETON_KNIGHT, "Скелет-рыцарь");
 			builder.add(EamEntities.LORD_SPEAR, "Копьё Павшего лорда");
 			builder.add(EamEntities.LORD_SHIELD, "Щит Павшего лорда");
 			builder.add("entity.eam.fallen_lord.phase", "%s: фаза %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
+			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");

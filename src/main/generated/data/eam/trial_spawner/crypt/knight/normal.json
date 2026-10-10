@@ -1,0 +1,21 @@
+{
+  "simultaneous_mobs": 1.0,
+  "simultaneous_mobs_added_per_player": 0.0,
+  "spawn_potentials": [
+    {
+      "data": {
+        "entity": {
+          "id": "eam:skeleton_knight"
+        },
+        "equipment": {
+          "loot_table": "eam:equipment/crypt/knight",
+          "slot_drop_chances": 0.0
+        }
+      },
+      "weight": 1
+    }
+  ],
+  "ticks_between_spawn": 60,
+  "total_mobs": 3.0,
+  "total_mobs_added_per_player": 0.0
+}
