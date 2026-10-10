@@ -64,18 +64,18 @@ public class EamCryptLootProvider extends SimpleFabricLootTableSubProvider {
 	}
 
 	private LootTable.Builder tierOne() {
-		LootPool.Builder supplies = LootPool.lootPool().setRolls(ContextIntProviders.between(3, 5))
-				.add(item(Items.BONE, 20, 1, 4))
-				.add(item(Items.ROTTEN_FLESH, 20, 1, 4))
-				.add(item(Items.ARROW, 10, 2, 8))
+		LootPool.Builder supplies = LootPool.lootPool().setRolls(ContextIntProviders.between(2, 4))
+				.add(item(Items.BONE, 20, 1, 3))
+				.add(item(Items.ROTTEN_FLESH, 20, 1, 3))
+				.add(item(Items.ARROW, 10, 2, 6))
 				.add(item(Items.BREAD, 10, 1, 2))
-				.add(item(Items.COPPER_NUGGET, 10, 2, 6))
-				.add(item(EamItems.SILVER_NUGGET, 6, 1, 4))
-				.add(item(Items.IRON_NUGGET, 6, 1, 4));
+				.add(item(Items.COPPER_NUGGET, 10, 2, 5))
+				.add(item(EamItems.SILVER_NUGGET, 6, 1, 3))
+				.add(item(Items.IRON_NUGGET, 6, 1, 3));
 		LootPool.Builder jewels = LootPool.lootPool().setRolls(ContextIntProviders.between(1, 2))
-				.add(item(Items.AMETHYST_SHARD, 12, 2, 5))
-				.add(item(Items.GOLD_NUGGET, 10, 3, 8))
-				.add(item(Items.LAPIS_LAZULI, 8, 2, 6))
+				.add(item(Items.AMETHYST_SHARD, 12, 2, 4))
+				.add(item(Items.GOLD_NUGGET, 10, 2, 6))
+				.add(item(Items.LAPIS_LAZULI, 8, 2, 5))
 				.add(item(Items.EMERALD, 3, 1, 1))
 				.add(item(Items.DIAMOND, 1, 1, 1));
 		LootPool.Builder books = LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
@@ -91,21 +91,21 @@ public class EamCryptLootProvider extends SimpleFabricLootTableSubProvider {
 	}
 
 	private LootTable.Builder tierTwo() {
-		LootPool.Builder supplies = LootPool.lootPool().setRolls(ContextIntProviders.between(3, 5))
-				.add(item(Items.BONE, 15, 1, 4))
-				.add(item(Items.ARROW, 10, 4, 12))
-				.add(item(Items.BREAD, 10, 2, 4))
-				.add(item(EamItems.SILVER_NUGGET, 10, 3, 8))
-				.add(item(Items.IRON_NUGGET, 10, 3, 8))
+		LootPool.Builder supplies = LootPool.lootPool().setRolls(ContextIntProviders.between(2, 4))
+				.add(item(Items.BONE, 15, 1, 3))
+				.add(item(Items.ARROW, 10, 3, 9))
+				.add(item(Items.BREAD, 10, 1, 3))
+				.add(item(EamItems.SILVER_NUGGET, 10, 2, 6))
+				.add(item(Items.IRON_NUGGET, 10, 2, 6))
 				.add(item(Items.IRON_INGOT, 5, 1, 2))
 				.add(item(Items.NAME_TAG, 1, 1, 1));
 		LootPool.Builder jewels = LootPool.lootPool().setRolls(ContextIntProviders.between(2, 3))
-				.add(item(Items.EMERALD, 8, 1, 3))
-				.add(item(Items.GOLD_NUGGET, 8, 4, 9))
-				.add(item(Items.AMETHYST_SHARD, 6, 3, 6))
-				.add(item(Items.LAPIS_LAZULI, 6, 4, 9))
+				.add(item(Items.EMERALD, 8, 1, 2))
+				.add(item(Items.GOLD_NUGGET, 8, 3, 7))
+				.add(item(Items.AMETHYST_SHARD, 6, 2, 5))
+				.add(item(Items.LAPIS_LAZULI, 6, 3, 7))
 				.add(item(Items.DIAMOND, 5, 1, 2))
-				.add(item(Items.GOLD_INGOT, 4, 1, 3));
+				.add(item(Items.GOLD_INGOT, 4, 1, 2));
 		LootPool.Builder books = LootPool.lootPool().setRolls(ContextIntProviders.between(1, 2))
 				.add(book(55, 18, 30, false))
 				.add(LootItem.lootTableItem(Items.BOOK).setWeight(15)

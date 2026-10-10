@@ -50,7 +50,10 @@ public class EamCryptProvider extends FabricDynamicRegistryProvider {
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
 				UniformInt.of(7, 10), UniformInt.of(1, 3), 17,
 				// Maxim's harder rooms wait for the second level.
-				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6").map(room -> Eam.id("crypt/" + room)).toList(),
+				Stream.of("treasury/4", "treasury/5", "fight/5", "fight/6", "big/2").map(room -> Eam.id("crypt/" + room)).toList(),
+				// The harder rooms turn up more often the deeper the level: half as often again on the second, twice on
+				// the third.
+				List.of(100, 150, 200),
 				3, UniformInt.of(2, 3),
 				// Tier-2 treasuries: none on the first level (they are deep rooms anyway), at most two on the second.
 				List.of(0, 2), villages,

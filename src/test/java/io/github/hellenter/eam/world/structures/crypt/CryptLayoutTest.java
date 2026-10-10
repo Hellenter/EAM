@@ -160,4 +160,15 @@ class CryptLayoutTest {
 		assertEquals(1, big.quarters(), "the north doors turn to the east side");
 		assertNull(CryptLayout.fit(bigs, Role.BIG, 0b101, bound -> 0), "big rooms never fall back to corridors");
 	}
+
+	@Test
+	void weightsPickTemplatesInProportion() {
+		List<Piece<String>> pieces = List.of(
+				new Piece<>("plain", Role.FIGHT, EAST | WEST),
+				new Piece<>("deep", Role.FIGHT, EAST | WEST));
+		// Each template fits turned twice; "deep" weighs 3, so it owns picks 2..7 of 8.
+		assertEquals("plain", CryptLayout.fit(pieces, Role.FIGHT, EAST | WEST, id -> id.equals("deep") ? 3 : 1, bound -> 1).id());
+		assertEquals("deep", CryptLayout.fit(pieces, Role.FIGHT, EAST | WEST, id -> id.equals("deep") ? 3 : 1, bound -> 2).id());
+		assertEquals("deep", CryptLayout.fit(pieces, Role.FIGHT, EAST | WEST, id -> id.equals("deep") ? 3 : 1, bound -> bound - 1).id());
+	}
 }

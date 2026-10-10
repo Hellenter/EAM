@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.IntBinaryOperator;
+import java.util.function.ToIntFunction;
 
 /**
  * A crypt: an entrance on the surface whose stairs lead down to the first level of rooms laid out by
@@ -44,6 +45,8 @@ import java.util.function.IntBinaryOperator;
  * @param branches       how many side passages each level tries to have
  * @param entranceGround the entrance template's layer that sits at ground level
  * @param deepRooms      room templates that only appear from the second level down
+ * @param deepRoomWeights how often deep rooms are picked on each level, from the top, in percent of other rooms of
+ *                       their kind; levels past the end of the list use 100. Big rooms are picked evenly.
  * @param levels         how many levels the crypt has
  * @param bigRooms       how many big rooms the crypt has, on different levels while there are enough
  * @param tier2Treasuries the most treasuries with a tier-2 chest each level may have, from the top; levels past the
@@ -58,6 +61,7 @@ public class CryptStructure extends Structure {
 			IntProviders.codec(0, 8).fieldOf("branches").forGetter(crypt -> crypt.branches),
 			Codec.INT.fieldOf("entrance_ground").forGetter(crypt -> crypt.entranceGround),
 			Identifier.CODEC.listOf().optionalFieldOf("deep_rooms", List.of()).forGetter(crypt -> crypt.deepRooms),
+			ExtraCodecs.POSITIVE_INT.listOf().optionalFieldOf("deep_room_weights", List.of()).forGetter(crypt -> crypt.deepRoomWeights),
 			Codec.intRange(1, 4).optionalFieldOf("levels", 2).forGetter(crypt -> crypt.levels),
 			IntProviders.codec(0, 8).optionalFieldOf("big_rooms", ConstantInt.of(0)).forGetter(crypt -> crypt.bigRooms),
 			ExtraCodecs.NON_NEGATIVE_INT.listOf().optionalFieldOf("max_tier_2_treasuries", List.of()).forGetter(crypt -> crypt.tier2Treasuries),
@@ -100,6 +104,7 @@ public class CryptStructure extends Structure {
 	private final IntProvider branches;
 	private final int entranceGround;
 	private final List<Identifier> deepRooms;
+	private final List<Integer> deepRoomWeights;
 	private final int levels;
 	private final IntProvider bigRooms;
 	private final List<Integer> tier2Treasuries;
@@ -107,13 +112,14 @@ public class CryptStructure extends Structure {
 	private final List<Identifier> unusedPieces;
 
 	public CryptStructure(StructureSettings settings, IntProvider rooms, IntProvider branches, int entranceGround,
-			List<Identifier> deepRooms, int levels, IntProvider bigRooms, List<Integer> tier2Treasuries, Optional<VillageRule> village,
+			List<Identifier> deepRooms, List<Integer> deepRoomWeights, int levels, IntProvider bigRooms, List<Integer> tier2Treasuries, Optional<VillageRule> village,
 			List<Identifier> unusedPieces) {
 		super(settings);
 		this.rooms = rooms;
 		this.branches = branches;
 		this.entranceGround = entranceGround;
 		this.deepRooms = deepRooms;
+		this.deepRoomWeights = deepRoomWeights;
 		this.levels = levels;
 		this.bigRooms = bigRooms;
 		this.tier2Treasuries = tier2Treasuries;
@@ -223,6 +229,8 @@ public class CryptStructure extends Structure {
 			CryptLayout layout = levels.get(level);
 			boolean deep = level > 0;
 			List<Piece<Identifier>> templates = pieces.rooms().stream().filter(piece -> deep || !deepRooms.contains(piece.id())).toList();
+			int deepWeight = level < deepRoomWeights.size() ? deepRoomWeights.get(level) : 100;
+			ToIntFunction<Identifier> weight = id -> deepRooms.contains(id) ? deepWeight : 100;
 			int tier2Left = level < tier2Treasuries.size() ? tier2Treasuries.get(level) : Integer.MAX_VALUE;
 			BlockPos levelCorner = firstCell.below(level * CryptModule.LEVEL_HEIGHT);
 			for (Map.Entry<Cell, Room> entry : layout.rooms().entrySet()) {
@@ -241,7 +249,7 @@ public class CryptStructure extends Structure {
 				if (role == Role.TREASURY && tier2Left <= 0) {
 					choice = templates.stream().filter(piece -> !pieces.tier2Treasuries().contains(piece.id())).toList();
 				}
-				Fit<Identifier> fit = CryptLayout.fit(choice, role, room.doors(), random::nextInt);
+				Fit<Identifier> fit = CryptLayout.fit(choice, role, room.doors(), weight, random::nextInt);
 				if (fit == null) continue;
 				if (role == Role.TREASURY && pieces.tier2Treasuries().contains(fit.id())) tier2Left--;
 				builder.addPiece(new CryptRoomPiece(manager, fit.id(), position, Rotation.values()[fit.quarters()], fit.extraDoors(), 0,

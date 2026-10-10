@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntSupplier;
 import java.util.function.IntUnaryOperator;
+import java.util.function.ToIntFunction;
 
 /**
  * Pure layout of one crypt level on a grid of 15x15 cells. On the first level cell {@code (0, 0)} is the first room past
@@ -514,6 +515,14 @@ public final class CryptLayout {
 	 * @return null when no template fits at all
 	 */
 	public static <T> Fit<T> fit(List<Piece<T>> pieces, Role role, int doors, IntUnaryOperator nextInt) {
+		return fit(pieces, role, doors, id -> 1, nextInt);
+	}
+
+	/**
+	 * Like {@link #fit(List, Role, int, IntUnaryOperator)}, but each fitting template is picked in proportion to its
+	 * {@code weight}.
+	 */
+	public static <T> Fit<T> fit(List<Piece<T>> pieces, Role role, int doors, ToIntFunction<T> weight, IntUnaryOperator nextInt) {
 		List<Role> roles = role == Role.CORRIDOR || role == Role.BIG ? List.of(role) : List.of(role, Role.CORRIDOR);
 		for (Role wanted : roles) {
 			for (boolean exact : new boolean[] {true, false}) {
@@ -525,7 +534,13 @@ public final class CryptLayout {
 						if (exact ? turned == doors : (turned & doors) == doors) fits.add(new Fit<>(piece.id(), q, turned & ~doors));
 					}
 				}
-				if (!fits.isEmpty()) return fits.get(nextInt.applyAsInt(fits.size()));
+				if (fits.isEmpty()) continue;
+				int total = fits.stream().mapToInt(fit -> weight.applyAsInt(fit.id())).sum();
+				int pick = nextInt.applyAsInt(total);
+				for (Fit<T> fit : fits) {
+					pick -= weight.applyAsInt(fit.id());
+					if (pick < 0) return fit;
+				}
 			}
 		}
 		return null;

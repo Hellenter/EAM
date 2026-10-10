@@ -11,11 +11,17 @@
     "max_inclusive": 3,
     "min_inclusive": 1
   },
+  "deep_room_weights": [
+    100,
+    150,
+    200
+  ],
   "deep_rooms": [
     "eam:crypt/treasury/4",
     "eam:crypt/treasury/5",
     "eam:crypt/fight/5",
-    "eam:crypt/fight/6"
+    "eam:crypt/fight/6",
+    "eam:crypt/big/2"
   ],
   "entrance_ground": 17,
   "levels": 3,
