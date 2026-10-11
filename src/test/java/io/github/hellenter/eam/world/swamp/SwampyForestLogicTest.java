@@ -76,6 +76,100 @@ class SwampyForestLogicTest {
 	}
 
 	@Test
+	void ordinaryForestRingsTheSwamp() {
+		int cell = SwampyForestLogic.CELL;
+		int rim = 0;
+		int nearSwamp = 0;
+		for (int z = 0; z < cell; z += 8) {
+			for (int x = 0; x < cell; x += 8) {
+				float weight = SwampyForestLogic.weight(TEMPERATE, x, z);
+				boolean inRim = SwampyForestLogic.inRim(TEMPERATE, x, z, weight);
+				assertFalse(inRim && SwampyForestLogic.inSwamp(weight), "the rim is outside the swamp");
+				if (inRim) {
+					rim++;
+					// Every rim column has swamp within the rim's width plus the blend zone.
+					boolean swampClose = false;
+					for (int a = 0; a < 16 && !swampClose; a++) {
+						double angle = a * Math.PI / 8;
+						for (int r = 16; r <= SwampyForestLogic.RIM_WIDTH + 140 && !swampClose; r += 16) {
+							int sx = x + (int) (Math.cos(angle) * r);
+							int sz = z + (int) (Math.sin(angle) * r);
+							swampClose = SwampyForestLogic.inSwamp(SwampyForestLogic.weight(TEMPERATE, sx, sz));
+						}
+					}
+					if (swampClose) {
+						nearSwamp++;
+					}
+				}
+			}
+		}
+		assertTrue(rim * 64.0F > 250_000, "a band a couple of hundred blocks wide: " + rim * 64.0F);
+		assertTrue(nearSwamp > rim * 0.97, "the rim hugs the swamp: " + nearSwamp + " of " + rim);
+	}
+
+	@Test
+	void theRimClimbsFoothillsButNotMountains() {
+		SwampyForestLogic.Climate hills = new SwampyForestLogic.Climate() {
+			@Override
+			public float temperature(int x, int z) {
+				return 0.0F;
+			}
+
+			@Override
+			public float humidity(int x, int z) {
+				return 0.0F;
+			}
+
+			@Override
+			public float continents(int x, int z) {
+				return 0.3F;
+			}
+
+			// Low land in the cell's middle, rising steadily east of x = 1000.
+			@Override
+			public float relief(int x, int z) {
+				return x < 1000 ? 70.0F : 70.0F + (x - 1000) * 0.2F;
+			}
+		};
+		boolean foothills = false;
+		for (int z = 0; z < SwampyForestLogic.CELL; z += 16) {
+			for (int x = 1000; x < SwampyForestLogic.CELL; x += 16) {
+				float relief = hills.relief(x, z);
+				boolean inRim = SwampyForestLogic.inRim(hills, x, z, SwampyForestLogic.weight(hills, x, z));
+				if (relief > SwampyForestLogic.RIM_LOWLAND_TO + 30) {
+					assertFalse(inRim, "no forest rim on mountains at " + x + ", " + z);
+				}
+				foothills |= inRim && relief > 90.0F;
+			}
+		}
+		assertTrue(foothills, "the rim climbs onto the foothills");
+	}
+
+	@Test
+	void noRimWithoutASwamp() {
+		SwampyForestLogic.Climate hot = new FlatClimate(0.7F, 0.0F, 0.3F);
+		for (int z = 0; z < SwampyForestLogic.CELL; z += 32) {
+			for (int x = 0; x < SwampyForestLogic.CELL; x += 32) {
+				assertFalse(SwampyForestLogic.inRim(hot, x, z, SwampyForestLogic.weight(hot, x, z)));
+			}
+		}
+	}
+
+	@Test
+	void rimIsMostlyPlainForestWithBirchAndDarkPatches() {
+		int[] counts = new int[SwampyForestLogic.RimForest.values().length];
+		for (int z = 0; z < 4000; z += 8) {
+			for (int x = 0; x < 4000; x += 8) {
+				counts[SwampyForestLogic.rimForest(x, z).ordinal()]++;
+			}
+		}
+		int total = 500 * 500;
+		assertTrue(counts[SwampyForestLogic.RimForest.FOREST.ordinal()] > total * 0.5);
+		assertTrue(counts[SwampyForestLogic.RimForest.BIRCH.ordinal()] > total * 0.08);
+		assertTrue(counts[SwampyForestLogic.RimForest.DARK.ordinal()] > total * 0.04);
+	}
+
+	@Test
 	void noSwampInHotColdOrOceanCells() {
 		for (SwampyForestLogic.Climate climate : new SwampyForestLogic.Climate[] {new FlatClimate(0.6F, 0.0F, 0.3F),
 				new FlatClimate(-0.7F, 0.0F, 0.3F), new FlatClimate(0.0F, 0.0F, -0.5F)}) {

@@ -76,6 +76,47 @@ public final class SwampyForestLogic {
 	 * half; the terrain blends in over the outer part.
 	 */
 	public static float weight(Climate climate, int x, int z) {
+		return region(climate, x, z, 0, LOWLAND_FROM, LOWLAND_TO);
+	}
+
+	/**
+	 * Whether a column lies in the band of ordinary forest around a swamp: {@link #RIM_WIDTH} blocks past the swamp's
+	 * outline, and up the feet of the hills to where vanilla's land reaches {@link #RIM_LOWLAND_TO}, so the swamp meets
+	 * forest instead of bare mountain biomes. The swamp itself (weight at least a half) is not part of the rim.
+	 */
+	public static boolean inRim(Climate climate, int x, int z, float weight) {
+		if (inSwamp(weight)) {
+			return false;
+		}
+		return weight > 0.0F || region(climate, x, z, RIM_WIDTH, RIM_LOWLAND_FROM, RIM_LOWLAND_TO) >= 0.5F;
+	}
+
+	/** Blocks of ordinary forest between the swamp's outline and the vanilla land around it, on level ground. */
+	static final int RIM_WIDTH = 160;
+	/** The rim forest climbs hills while vanilla's land there is at most this high, fading out by the second height. */
+	static final float RIM_LOWLAND_FROM = 100.0F;
+	static final float RIM_LOWLAND_TO = 124.0F;
+
+	/** Which vanilla forest the rim has at a column: mostly plain forest, with birch and dark forest patches. */
+	public static RimForest rimForest(int x, int z) {
+		float noise = valueNoise(x / RIM_PATCH_SCALE, z / RIM_PATCH_SCALE, 7);
+		if (noise > 0.3F) {
+			return RimForest.BIRCH;
+		}
+		return noise < -0.4F ? RimForest.DARK : RimForest.FOREST;
+	}
+
+	static final float RIM_PATCH_SCALE = 96.0F;
+
+	public enum RimForest {
+		FOREST, BIRCH, DARK
+	}
+
+	/**
+	 * The swamp's shape, 0 to 1, grown outward by {@code extra} blocks and limited to land vanilla keeps below
+	 * {@code lowFrom}..{@code lowTo}. The cell's centre always has to suit a swamp, so a rim never comes without one.
+	 */
+	private static float region(Climate climate, int x, int z, int extra, float lowFrom, float lowTo) {
 		int cellX = Math.floorDiv(x, CELL);
 		int cellZ = Math.floorDiv(z, CELL);
 		// The world's own temperature at the cell corner seeds the swamp's spot, so it moves with the world seed.
@@ -84,40 +125,40 @@ public final class SwampyForestLogic {
 		int centreZ = cellZ * CELL + CELL / 2 + (int) (((hash >>> 16) & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
 		float dx = x - centreX + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 5);
 		float dz = z - centreZ + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 6);
-		float reach = RADIUS * (1.0F + EDGE_WOBBLE) * (1.0F + EDGE_WIDTH / 2);
+		float reach = RADIUS * (1.0F + EDGE_WOBBLE) * (1.0F + EDGE_WIDTH / 2) + extra;
 		float distanceSquared = dx * dx + dz * dz;
 		if (distanceSquared >= reach * reach) {
 			return 0.0F;
 		}
 		float temperature = climate.temperature(centreX, centreZ);
 		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE || climate.continents(centreX, centreZ) < MIN_CONTINENTALNESS
-				|| lowland(climate, centreX, centreZ) < 0.5F) {
+				|| lowland(climate, centreX, centreZ, LOWLAND_FROM, LOWLAND_TO) < 0.5F) {
 			return 0.0F;
 		}
 		float radius = RADIUS * (1.0F + EDGE_WOBBLE * Math.clamp(climate.humidity(x, z) * 2.0F, -1.0F, 1.0F));
-		float distance = (float) Math.sqrt(distanceSquared) / radius;
+		float distance = ((float) Math.sqrt(distanceSquared) - extra) / radius;
 		float shape = ramp(1.0F + EDGE_WIDTH / 2 - distance, EDGE_WIDTH);
 		if (shape <= 0.0F) {
 			return 0.0F;
 		}
-		return shape * lowland(climate, x, z);
+		return shape * lowland(climate, x, z, lowFrom, lowTo);
 	}
 
 	/**
 	 * How low vanilla's land is at a column, 0 (hills, mountains, sea) to 1 (lowland inland). The swamp fades out where
 	 * this drops, so it stops at the foot of the hills and the shore instead of planing them off.
 	 */
-	static float lowland(Climate climate, int x, int z) {
+	static float lowland(Climate climate, int x, int z, float from, float to) {
 		// Read on a coarse grid and blended between its points: vanilla's height estimate can climb 20 blocks within a
 		// dozen, and a swamp that let go that fast would leave a wall where it ends.
 		int gx = Math.floorDiv(x, LOWLAND_GRID);
 		int gz = Math.floorDiv(z, LOWLAND_GRID);
 		float fx = smooth((x - gx * LOWLAND_GRID) / (float) LOWLAND_GRID);
 		float fz = smooth((z - gz * LOWLAND_GRID) / (float) LOWLAND_GRID);
-		float a = lowlandAt(climate, gx, gz);
-		float b = lowlandAt(climate, gx + 1, gz);
-		float c = lowlandAt(climate, gx, gz + 1);
-		float d = lowlandAt(climate, gx + 1, gz + 1);
+		float a = lowlandAt(climate, gx, gz, from, to);
+		float b = lowlandAt(climate, gx + 1, gz, from, to);
+		float c = lowlandAt(climate, gx, gz + 1, from, to);
+		float d = lowlandAt(climate, gx + 1, gz + 1, from, to);
 		float top = a + (b - a) * fx;
 		return top + (c + (d - c) * fx - top) * fz;
 	}
@@ -126,10 +167,10 @@ public final class SwampyForestLogic {
 	static final int LOWLAND_GRID = 128;
 
 	/** Low land that is not sea: the swamp keeps vanilla's shore and fades out over the hills. */
-	private static float lowlandAt(Climate climate, int gx, int gz) {
+	private static float lowlandAt(Climate climate, int gx, int gz, float from, float to) {
 		int x = gx * LOWLAND_GRID;
 		int z = gz * LOWLAND_GRID;
-		return ramp(LOWLAND_TO - climate.relief(x, z), LOWLAND_TO - LOWLAND_FROM)
+		return ramp(to - climate.relief(x, z), to - from)
 				* ramp(climate.continents(x, z) - COAST_FROM, COAST_TO - COAST_FROM);
 	}
 

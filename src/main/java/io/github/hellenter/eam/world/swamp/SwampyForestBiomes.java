@@ -10,10 +10,12 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
@@ -28,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * small mixins call this class: one lists the biomes in the overworld biome list (at a climate point no spot ever
  * reaches, so vanilla never picks them itself, but chunk generators know their features), the other wraps the overworld
  * biome resolver so that inside a swampy forest region ({@link SwampyForestLogic}) the replaceable land biomes become
- * the swamp.
+ * the swamp, and in a band around it plain vanilla forests, so the swamp never borders mountains or deserts directly.
  */
 public final class SwampyForestBiomes {
 	public static final ResourceKey<Biome> SWAMPY_FOREST = key("swampy_forest");
@@ -84,24 +86,51 @@ public final class SwampyForestBiomes {
 				return biome.is(REPLACEABLE) ? holders.or(choose(sampler, quartX, quartZ), biome) : biome;
 			};
 		}
-		Long2ObjectOpenHashMap<SwampyForestLogic.Part> columns = new Long2ObjectOpenHashMap<>();
+		Long2ObjectOpenHashMap<Pick> columns = new Long2ObjectOpenHashMap<>();
 		return (quartX, quartY, quartZ) -> {
 			Holder<Biome> biome = vanilla.getNoiseBiome(quartX, quartY, quartZ);
 			if (!biome.is(REPLACEABLE)) {
 				return biome;
 			}
 			long column = ChunkPos.pack(quartX, quartZ);
-			SwampyForestLogic.Part part = columns.get(column);
-			if (part == null && !columns.containsKey(column)) {
-				part = choose(sampler, quartX, quartZ);
-				columns.put(column, part);
+			Pick pick = columns.get(column);
+			if (pick == null) {
+				pick = choose(sampler, quartX, quartZ);
+				columns.put(column, pick);
 			}
-			return holders.or(part, biome);
+			return holders.or(pick, biome);
 		};
 	}
 
-	private static SwampyForestLogic.@Nullable Part choose(Climate.Sampler sampler, int quartX, int quartZ) {
-		return SwampyForestLogic.choose(new SwampyForestLogic.Climate() {
+	/** What a replaceable column becomes: a part of the swamp, a forest of its rim, or nothing (vanilla stays). */
+	private enum Pick {
+		FOREST, LAKES, HUMMOCKS, RIM_FOREST, RIM_BIRCH, RIM_DARK, NONE
+	}
+
+	private static Pick choose(Climate.Sampler sampler, int quartX, int quartZ) {
+		int x = QuartPos.toBlock(quartX);
+		int z = QuartPos.toBlock(quartZ);
+		SwampyForestLogic.Climate climate = climate(sampler);
+		float weight = SwampyForestLogic.weight(climate, x, z);
+		if (SwampyForestLogic.inSwamp(weight)) {
+			return switch (SwampyForestLogic.part(climate.humidity(x, z))) {
+				case FOREST -> Pick.FOREST;
+				case LAKES -> Pick.LAKES;
+				case HUMMOCKS -> Pick.HUMMOCKS;
+			};
+		}
+		if (!SwampyForestLogic.inRim(climate, x, z, weight)) {
+			return Pick.NONE;
+		}
+		return switch (SwampyForestLogic.rimForest(x, z)) {
+			case FOREST -> Pick.RIM_FOREST;
+			case BIRCH -> Pick.RIM_BIRCH;
+			case DARK -> Pick.RIM_DARK;
+		};
+	}
+
+	private static SwampyForestLogic.Climate climate(Climate.Sampler sampler) {
+		return new SwampyForestLogic.Climate() {
 			@Override
 			public float temperature(int x, int z) {
 				return sampler.temperature().sampleValue(x, 0, z);
@@ -122,14 +151,18 @@ public final class SwampyForestBiomes {
 				return VanillaRelief.height(sampler.continentalness().sampleValue(x, 0, z), sampler.erosion().sampleValue(x, 0, z),
 						sampler.weirdness().sampleValue(x, 0, z));
 			}
-		}, QuartPos.toBlock(quartX), QuartPos.toBlock(quartZ));
+		};
 	}
 
-	private record Holders(Holder<Biome> forest, Holder<Biome> lakes, Holder<Biome> hummocks) {
+	private record Holders(Holder<Biome> forest, Holder<Biome> lakes, Holder<Biome> hummocks, Holder<Biome> rimForest,
+			Holder<Biome> rimBirch, Holder<Biome> rimDark) {
 		static @Nullable Holders find(MultiNoiseBiomeSource source) {
 			Holder<Biome> forest = null;
 			Holder<Biome> lakes = null;
 			Holder<Biome> hummocks = null;
+			Holder<Biome> rimForest = null;
+			Holder<Biome> rimBirch = null;
+			Holder<Biome> rimDark = null;
 			for (Holder<Biome> biome : source.possibleBiomes()) {
 				if (biome.is(SWAMPY_FOREST)) {
 					forest = biome;
@@ -137,20 +170,37 @@ public final class SwampyForestBiomes {
 					lakes = biome;
 				} else if (biome.is(SWAMPY_HUMMOCKS)) {
 					hummocks = biome;
+				} else if (biome.is(Biomes.FOREST)) {
+					rimForest = biome;
+				} else if (biome.is(Biomes.BIRCH_FOREST)) {
+					rimBirch = biome;
+				} else if (biome.is(Biomes.DARK_FOREST)) {
+					rimDark = biome;
 				}
 			}
-			return forest == null || lakes == null || hummocks == null ? null : new Holders(forest, lakes, hummocks);
+			if (forest == null || lakes == null || hummocks == null || rimForest == null || rimBirch == null || rimDark == null) {
+				return null;
+			}
+			return new Holders(forest, lakes, hummocks, rimForest, rimBirch, rimDark);
 		}
 
-		Holder<Biome> or(SwampyForestLogic.@Nullable Part part, Holder<Biome> vanilla) {
-			if (part == null) {
-				return vanilla;
-			}
-			return switch (part) {
+		Holder<Biome> or(Pick pick, Holder<Biome> vanilla) {
+			return switch (pick) {
 				case FOREST -> this.forest;
 				case LAKES -> this.lakes;
 				case HUMMOCKS -> this.hummocks;
+				// The rim leaves forests, taiga and rivers as they are; everything else becomes forest.
+				case RIM_FOREST, RIM_BIRCH, RIM_DARK -> keepsInRim(vanilla) ? vanilla : switch (pick) {
+					case RIM_BIRCH -> this.rimBirch;
+					case RIM_DARK -> this.rimDark;
+					default -> this.rimForest;
+				};
+				case NONE -> vanilla;
 			};
+		}
+
+		private static boolean keepsInRim(Holder<Biome> vanilla) {
+			return vanilla.is(BiomeTags.IS_FOREST) || vanilla.is(BiomeTags.IS_TAIGA) || vanilla.is(BiomeTags.IS_RIVER);
 		}
 	}
 
