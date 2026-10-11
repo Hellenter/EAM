@@ -155,4 +155,9 @@ public final class PillagerKingLogic {
 	public static float damageTo(float damage, boolean player, float mobMultiplier) {
 		return player ? damage : damage * mobMultiplier;
 	}
+
+	/** Whether {@code taken} health lost lately, out of {@code maxHealth}, is more than {@code share} of it: time to leap back. */
+	public static boolean burstLeap(float taken, float maxHealth, float share) {
+		return taken > maxHealth * share;
+	}
 }

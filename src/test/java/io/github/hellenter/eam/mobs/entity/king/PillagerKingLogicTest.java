@@ -133,4 +133,10 @@ class PillagerKingLogicTest {
 		assertEquals(7.0F, PillagerKingLogic.damageTo(7.0F, true, 5.0F), 1.0E-6);
 		assertEquals(35.0F, PillagerKingLogic.damageTo(7.0F, false, 5.0F), 1.0E-6);
 	}
+
+	@Test
+	void leapsBackAfterLosingAQuarterFast() {
+		assertFalse(PillagerKingLogic.burstLeap(25.0F, 100.0F, 0.25F));
+		assertTrue(PillagerKingLogic.burstLeap(25.5F, 100.0F, 0.25F));
+	}
 }

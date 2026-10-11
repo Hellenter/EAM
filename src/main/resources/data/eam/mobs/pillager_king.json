@@ -85,7 +85,10 @@
   "hop": {
     "cooldown": 60,
     "chance": 0.15,
-    "speed": 0.6
+    "speed": 0.6,
+    "burst_share": 0.25,
+    "burst_window": 100,
+    "burst_speed": 1.1
   },
   "mob_damage_multiplier": 5.0
 }

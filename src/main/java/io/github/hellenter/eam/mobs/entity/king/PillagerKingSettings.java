@@ -22,7 +22,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param charge      a run at the target after a red warning: three cuts and a kick
  * @param arrowParry  he knocks arrows from the front aside with an axe
  * @param dash        a few fast steps at the target
- * @param hop         a hop back from a player who crowds him
+ * @param hop         a hop back from a player who crowds him, and a leap back when he loses health fast
  * @param mobDamageMultiplier his blows and thrown axes deal this many times their damage to anything but a player
  */
 public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attackPause, double reach, Slash slash, Combo combo,
@@ -262,14 +262,20 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param cooldown ticks before the next hop
 	 * @param chance   chance per attack pause to hop back from a target within his reach, when the hop is ready
 	 * @param speed    how hard he pushes off
+	 * @param burstShare  losing more than this share of his health within {@code burstWindow} ticks makes him leap back
+	 * @param burstWindow ticks over which the damage he takes is added up
+	 * @param burstSpeed  how hard he pushes off in that leap
 	 */
-	public record Hop(int cooldown, double chance, double speed) {
-		public static final Hop DEFAULT = new Hop(60, 0.15, 0.6);
+	public record Hop(int cooldown, double chance, double speed, float burstShare, int burstWindow, double burstSpeed) {
+		public static final Hop DEFAULT = new Hop(60, 0.15, 0.6, 0.25F, 100, 1.1);
 
 		public static final Codec<Hop> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Hop::cooldown),
 				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Hop::chance),
-				Codec.doubleRange(0.0, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Hop::speed)
+				Codec.doubleRange(0.0, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Hop::speed),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("burst_share").orElse(DEFAULT.burstShare).forGetter(Hop::burstShare),
+				Codec.intRange(1, 2400).fieldOf("burst_window").orElse(DEFAULT.burstWindow).forGetter(Hop::burstWindow),
+				Codec.doubleRange(0.0, 3.0).fieldOf("burst_speed").orElse(DEFAULT.burstSpeed).forGetter(Hop::burstSpeed)
 		).apply(instance, Hop::new));
 	}
 

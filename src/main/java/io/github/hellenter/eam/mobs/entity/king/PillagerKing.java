@@ -61,6 +61,7 @@ import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 
 /**
@@ -108,6 +109,10 @@ public class PillagerKing extends Monster {
 	private int dashTicks;
 	private @Nullable LivingEntity dashTarget;
 	private int hopCooldown;
+	/** Damage he took lately: when and how much, oldest first. */
+	private final ArrayDeque<Hit> recentHits = new ArrayDeque<>();
+	/** Where the one who hurt him fast stands: he leaps back from there on his next tick, after the hit's knockback. */
+	private @Nullable Vec3 leapFrom;
 	/** Ticks his target has stayed out of his reach. */
 	private int outOfReach;
 	/** Whether he has already decided how to reach the coming hit. */
@@ -278,6 +283,10 @@ public class PillagerKing extends Monster {
 		}
 		if (dashCooldown > 0) dashCooldown--;
 		if (hopCooldown > 0) hopCooldown--;
+		if (leapFrom != null) {
+			leapBack(leapFrom);
+			leapFrom = null;
+		}
 		if (axeAway >= 0 && ++axeAway > AXE_BACK_AFTER) {
 			catchAxe();
 		}
@@ -862,10 +871,50 @@ public class PillagerKing extends Monster {
 
 	@Override
 	protected void actuallyHurt(ServerLevel level, DamageSource source, float damage) {
+		float before = getHealth();
 		super.actuallyHurt(level, source, damage);
 		if (PillagerKingLogic.totemSaves(getHealth(), totemUsed, source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))) {
 			useTotem(level);
+		} else if (isAlive()) {
+			leapIfHurtFast(level, source, before - getHealth());
 		}
+	}
+
+	/** Losing health fast, he breaks off whatever he is doing and leaps back away from who hurts him. */
+	private void leapIfHurtFast(ServerLevel level, DamageSource source, float lost) {
+		PillagerKingSettings.Hop hop = settings().hop();
+		long now = level.getGameTime();
+		recentHits.addLast(new Hit(now, Math.max(0.0F, lost)));
+		while (!recentHits.isEmpty() && now - recentHits.peekFirst().time() > hop.burstWindow()) {
+			recentHits.removeFirst();
+		}
+		float taken = 0.0F;
+		for (Hit hit : recentHits) {
+			taken += hit.amount();
+		}
+		if (!PillagerKingLogic.burstLeap(taken, getMaxHealth(), hop.burstShare()) || !onGround() || action == KingAction.TOTEM) {
+			return;
+		}
+		recentHits.clear();
+		Entity from = source.getEntity() != null ? source.getEntity() : getTarget();
+		if (from == null) {
+			return;
+		}
+		if (action != KingAction.NONE) {
+			endAction();
+		}
+		hopCooldown = hop.cooldown();
+		leapFrom = from.position();
+	}
+
+	private void leapBack(Vec3 from) {
+		double speed = settings().hop().burstSpeed();
+		Vec3 away = horizontal(position().subtract(from));
+		setDeltaMovement(away.x * speed, 0.45, away.z * speed);
+		playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 0.5F);
+	}
+
+	private record Hit(long time, float amount) {
 	}
 
 	/** His totem of undying breaks instead of him: he is healed and stands up again. */
