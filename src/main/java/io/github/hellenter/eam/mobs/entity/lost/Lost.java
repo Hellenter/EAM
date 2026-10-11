@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.lost;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -180,6 +181,7 @@ public class Lost extends SkeletonKnight {
 			}
 			level.addFreshEntityWithPassengers(follower);
 		}
+		UndeadWarlockModule.maybeJoinSquad(level, difficulty, this);
 	}
 
 	/** A free spot on solid ground within three blocks of the leader, or his own. */

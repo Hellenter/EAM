@@ -1,0 +1,37 @@
+{
+  "health": 30.0,
+  "squad_chance": 0.1,
+  "min_range": 7.0,
+  "max_range": 14.0,
+  "spell_gap": 15,
+  "missiles": {
+    "count": 3,
+    "damage": 1.0,
+    "speed": 0.55,
+    "turn": 0.12,
+    "lifetime": 100,
+    "range": 20.0,
+    "cooldown": 70
+  },
+  "wind": {
+    "trigger": 5.0,
+    "reach": 7.0,
+    "push": 1.1,
+    "lift": 0.4,
+    "damage": 1.0,
+    "cooldown": 140
+  },
+  "buff": {
+    "radius": 16.0,
+    "duration": 600,
+    "cooldown": 400
+  },
+  "bats": {
+    "min": 3,
+    "max": 4,
+    "chance": 0.4,
+    "first_delay": 300,
+    "cooldown": 900,
+    "max_nearby": 8
+  }
+}

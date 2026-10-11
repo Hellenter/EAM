@@ -23,6 +23,7 @@ import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightModule;
 import io.github.hellenter.eam.mobs.entity.lost.LostModule;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
@@ -89,6 +90,7 @@ public class Eam implements ModInitializer {
 		SwampyForestModule.register();
 		WightModule.register();
 		LostModule.register();
+		UndeadWarlockModule.register();
 		SpiderModule.register();
 		VampireBatModule.register();
 		BleedingModule.register();

@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -82,25 +83,36 @@ public final class VampireBatModule {
 			return;
 		}
 		int size = VampireBatLogic.flockSize(current.minFlock(), current.maxFlock(), random.nextFloat());
+		if (summon(level, center, player, size) > 0) {
+			warn(level, player, center, random);
+		}
+	}
+
+	/**
+	 * Up to {@code size} vampire bats in the open air around {@code center}, all set on {@code target}; the undead
+	 * warlock calls them this way too.
+	 *
+	 * @return how many came
+	 */
+	public static int summon(ServerLevel level, Vec3 center, LivingEntity target, int size) {
+		RandomSource random = level.getRandom();
 		int spawned = 0;
 		for (int i = 0; i < size * 3 && spawned < size; i++) {
 			Vec3 pos = center.add(random.nextDouble() * 3.0 - 1.5, random.nextDouble() * 2.0 - 1.0, random.nextDouble() * 3.0 - 1.5);
 			VampireBat bat = EamEntities.VAMPIRE_BAT.create(level, EntitySpawnReason.EVENT);
 			if (bat == null) {
-				return;
+				return spawned;
 			}
 			bat.snapTo(pos.x, pos.y, pos.z, random.nextFloat() * 360.0F, 0.0F);
 			if (!level.noCollision(bat) || level.containsAnyLiquid(bat.getBoundingBox())) {
 				continue;
 			}
 			bat.finalizeSpawn(level, level.getCurrentDifficultyAt(bat.blockPosition()), EntitySpawnReason.EVENT, null);
-			bat.setTarget(player);
+			bat.setTarget(target);
 			level.addFreshEntity(bat);
 			spawned++;
 		}
-		if (spawned > 0) {
-			warn(level, player, center, random);
-		}
+		return spawned;
 	}
 
 	/** A spot of open air 40-50 blocks away that the flock fits into, roughly at the player's height. */

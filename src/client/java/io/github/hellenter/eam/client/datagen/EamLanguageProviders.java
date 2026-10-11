@@ -209,6 +209,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add(EamEntities.LOST, "Lost");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Lost Spawn Egg");
+			builder.add(EamEntities.UNDEAD_WARLOCK, "Undead Warlock");
+			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Undead Warlock Spawn Egg");
+			builder.add(EamEntities.MAGIC_MISSILE, "Magic Missile");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
 			builder.add(EamBlocks.DUCKWEED, "Duckweed");
@@ -674,6 +677,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add(EamEntities.LOST, "Сгинувший");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Яйцо призыва отряда сгинувших");
+			builder.add(EamEntities.UNDEAD_WARLOCK, "Нежить-колдун");
+			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Яйцо призыва нежити-колдуна");
+			builder.add(EamEntities.MAGIC_MISSILE, "Волшебная стрела");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");
 			builder.add(EamBlocks.DUCKWEED, "Ряска");

@@ -11,6 +11,8 @@ import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
 import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
+import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 
 import net.minecraft.core.Registry;
@@ -108,6 +110,22 @@ public final class EamEntities {
 					.eyeHeight(0.6F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
+
+	/** One of the Lost who kept his mind: a caster in a black torn robe and cloak, as tall as the Lost; walks with their squads. */
+	public static final EntityType<UndeadWarlock> UNDEAD_WARLOCK = register("undead_warlock",
+			EntityType.Builder.of(UndeadWarlock::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.25F)
+					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** The undead warlock's red homing missile. */
+	public static final EntityType<MagicMissile> MAGIC_MISSILE = register("magic_missile",
+			EntityType.Builder.<MagicMissile>of(MagicMissile::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3125F, 0.3125F)
+					.clientTrackingRange(8)
+					.updateInterval(2));
 
 	private EamEntities() {
 	}

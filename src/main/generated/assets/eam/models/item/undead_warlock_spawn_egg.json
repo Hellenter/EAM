@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "eam:item/undead_warlock_spawn_egg"
+  }
+}

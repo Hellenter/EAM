@@ -19,6 +19,8 @@ import io.github.hellenter.eam.client.mobs.fallenlord.HeavyWaveParticle;
 import io.github.hellenter.eam.client.mobs.knight.SkeletonKnightRenderer;
 import io.github.hellenter.eam.client.mobs.lost.LostModel;
 import io.github.hellenter.eam.client.mobs.lost.LostRenderer;
+import io.github.hellenter.eam.client.mobs.warlock.UndeadWarlockModel;
+import io.github.hellenter.eam.client.mobs.warlock.UndeadWarlockRenderer;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerModel;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerRenderer;
 import io.github.hellenter.eam.client.mobs.spider.SmallSpiderRenderer;
@@ -47,6 +49,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CraftingMenu;
@@ -78,6 +81,10 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(LostModel.ARMOR.legs(), () -> LostModel.createArmorLayers().legs());
 		ModelLayerRegistry.registerModelLayer(LostModel.ARMOR.feet(), () -> LostModel.createArmorLayers().feet());
 		EntityRendererRegistry.register(EamEntities.LOST, LostRenderer::new);
+		ModelLayerRegistry.registerModelLayer(UndeadWarlockModel.LAYER, UndeadWarlockModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.UNDEAD_WARLOCK, UndeadWarlockRenderer::new);
+		// The missile is only its trail of red sparks.
+		EntityRendererRegistry.register(EamEntities.MAGIC_MISSILE, NoopRenderer::new);
 		ModelLayerRegistry.registerModelLayer(SwampLurkerModel.LAYER, SwampLurkerModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.SWAMP_LURKER, SwampLurkerRenderer::new);
 		ModelLayerRegistry.registerModelLayer(WightModel.LAYER, WightModel::createLayer);
