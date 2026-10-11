@@ -1,0 +1,50 @@
+{
+  "ambient_light": 0.05,
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:gameplay/bed_rule": {
+      "can_set_spawn": "always",
+      "can_sleep": "never",
+      "error_message": {
+        "translate": "block.eam.bed.underworld"
+      }
+    },
+    "minecraft:gameplay/can_start_raid": false,
+    "minecraft:gameplay/sky_light_level": 0.0,
+    "minecraft:gameplay/straw_bed_rule": {
+      "can_set_spawn": "always",
+      "can_sleep": "never",
+      "error_message": {
+        "translate": "block.eam.bed.underworld"
+      }
+    },
+    "minecraft:visual/ambient_light_color": "#1a1a1e",
+    "minecraft:visual/fog_color": "#2b2b2b",
+    "minecraft:visual/fog_end_distance": 88.0,
+    "minecraft:visual/fog_start_distance": 8.0,
+    "minecraft:visual/sky_light_factor": 0.0
+  },
+  "coordinate_scale": 8.0,
+  "has_ceiling": true,
+  "has_ender_dragon_fight": false,
+  "has_fixed_time": true,
+  "has_skylight": false,
+  "height": 192,
+  "infiniburn": "#minecraft:infiniburn_overworld",
+  "logical_height": 192,
+  "min_y": 0,
+  "monster_spawn_block_light_limit": 0,
+  "monster_spawn_light_level": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 7,
+    "min_inclusive": 0
+  },
+  "skybox": "none"
+}

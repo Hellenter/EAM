@@ -1,0 +1,8 @@
+{
+  "type": "eam:underworld_fluids",
+  "blue_ice_chance": 0.08,
+  "frozen_biomes": "eam:underworld_frozen_lakes",
+  "lava_biomes": "eam:underworld_lava_lakes",
+  "magma_chance": 0.35,
+  "packed_ice_chance": 0.2
+}

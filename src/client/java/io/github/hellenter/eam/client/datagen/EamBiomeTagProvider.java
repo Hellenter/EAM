@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamWorldgen;
+import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 
@@ -42,6 +43,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 						Biomes.WOODED_BADLANDS, Biomes.SAVANNA_PLATEAU, Biomes.WINDSWEPT_SAVANNA, Biomes.SNOWY_PLAINS,
 						Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES);
 		builder(BiomeTags.IS_OVERWORLD).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		builder(UnderworldWorldgen.IS_UNDERWORLD).addAll(UnderworldDimension.BIOMES);
+		builder(UnderworldWorldgen.LAVA_LAKES).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.DEPTHS);
+		builder(UnderworldWorldgen.FROZEN_LAKES).add(UnderworldDimension.ICE_CAVES);
 		builder(BiomeTags.IS_FOREST).add(SwampyForestBiomes.SWAMPY_FOREST);
 		builder(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(BiomeTags.WATER_ON_MAP_OUTLINES).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);

@@ -1,0 +1,19 @@
+{
+  "type": "eam:giant_mushroom",
+  "cap": "minecraft:red_mushroom_block",
+  "cap_radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 6,
+    "min_inclusive": 3
+  },
+  "dome": true,
+  "height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 18,
+    "min_inclusive": 7
+  },
+  "light": "minecraft:shroomlight",
+  "light_chance": 0.1,
+  "stem": "minecraft:mushroom_stem",
+  "thick_above": 13
+}

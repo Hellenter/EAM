@@ -17,6 +17,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
@@ -102,6 +103,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		), COPPER_VEIN_SIZE));
 		mithrilFeature(context);
 		SwampyForestWorldgen.bootstrapFeatures(context);
+		UnderworldWorldgen.bootstrapFeatures(context);
 	}
 
 	private static void mithrilFeature(BootstrapContext<Feature> context) {
@@ -109,6 +111,12 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.MITHRIL_ORE.defaultBlockState()),
 				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_MITHRIL_ORE.defaultBlockState())
 		), MITHRIL_VEIN_SIZE, MITHRIL_DISCARD_ON_AIR));
+	}
+
+	/** Every EAM biome: the swampy forest and the underworld. */
+	public static void bootstrapBiomes(BootstrapContext<Biome> context) {
+		SwampyForestWorldgen.bootstrapBiomes(context);
+		UnderworldWorldgen.bootstrapBiomes(context);
 	}
 
 	public static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -148,6 +156,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		PlacementUtils.register(context, EamWorldgen.ORE_MITHRIL_PLACED, mithril, mithrilOre(MITHRIL_VEIN_TRIES, MITHRIL_VEIN_RARITY));
 		PlacementUtils.register(context, EamWorldgen.ORE_MITHRIL_RICH, mithril, mithrilOre(MITHRIL_RICH_VEIN_TRIES, MITHRIL_RICH_VEIN_RARITY));
 		SwampyForestWorldgen.bootstrapPlacedFeatures(context);
+		UnderworldWorldgen.bootstrapPlacedFeatures(context);
 	}
 
 	/** Mithril below y -32: {@code tries} veins per chunk, each kept 1 time in {@code rarity}. */
@@ -256,6 +265,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.ORE_MITHRIL_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_MITHRIL_RICH);
 		SwampyForestWorldgen.configure(registries, entries);
+		UnderworldWorldgen.configure(registries, entries);
 	}
 
 	@Override

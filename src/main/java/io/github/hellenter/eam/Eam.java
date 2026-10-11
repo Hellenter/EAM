@@ -17,6 +17,7 @@ import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
+import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
@@ -107,6 +108,7 @@ public class Eam implements ModInitializer {
 		BloodMoonModule.register();
 		BucketModule.register();
 		TalismanModule.register();
+		UnderworldModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -144,6 +146,7 @@ public class Eam implements ModInitializer {
 		if (config.bloodMoon()) BloodMoonModule.init();
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();
+		if (config.underworld()) UnderworldModule.init();
 	}
 
 	public static EamConfig config() {

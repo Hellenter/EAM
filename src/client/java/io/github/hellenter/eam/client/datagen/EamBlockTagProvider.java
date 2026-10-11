@@ -188,5 +188,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				BlockItemIds.CHISELED_TUFF_BRICKS);
 		builder(SafeRoomModule.SAFE_WALLS).forceAddTag(BlockTags.PLANKS).forceAddTag(BlockTags.WOODEN_SLABS)
 				.forceAddTag(BlockTags.WOODEN_STAIRS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
+		// Deep bedrock holds like bedrock against bosses and worldgen.
+		builder(BlockTags.WITHER_IMMUNE).add(EamBlocks.DEEP_BEDROCK.builtInRegistryHolder().key());
+		builder(BlockTags.DRAGON_IMMUNE).add(EamBlocks.DEEP_BEDROCK.builtInRegistryHolder().key());
+		builder(BlockTags.FEATURES_CANNOT_REPLACE).add(EamBlocks.DEEP_BEDROCK.builtInRegistryHolder().key());
+		builder(BlockTags.GEODE_INVALID_BLOCKS).add(EamBlocks.DEEP_BEDROCK.builtInRegistryHolder().key());
 	}
 }

@@ -1,0 +1,256 @@
+{
+  "aquifers": {
+    "barrier": {
+      "type": "minecraft:noise",
+      "noise": "minecraft:aquifer_barrier",
+      "xz_scale": 1.0,
+      "y_scale": 0.5
+    },
+    "exclusion": 0.0,
+    "fluid_level_floodedness": {
+      "type": "minecraft:clamp",
+      "input": {
+        "type": "minecraft:lerp",
+        "alpha": {
+          "type": "minecraft:gradient",
+          "axis": "y",
+          "from_coordinate": 40,
+          "from_value": 0.0,
+          "to_coordinate": 51,
+          "to_value": 1.0
+        },
+        "first": {
+          "type": "minecraft:add",
+          "left": 0.5,
+          "right": {
+            "type": "minecraft:mul",
+            "left": 0.3,
+            "right": {
+              "type": "minecraft:noise",
+              "noise": "minecraft:aquifer_fluid_level_floodedness",
+              "xz_scale": 1.0,
+              "y_scale": 0.67
+            }
+          }
+        },
+        "second": {
+          "type": "minecraft:add",
+          "left": {
+            "type": "minecraft:spline",
+            "spline": {
+              "coordinate": "eam:underworld/temperature",
+              "points": [
+                {
+                  "derivative": 0.0,
+                  "location": -1.0,
+                  "value": 0.5
+                },
+                {
+                  "derivative": 0.0,
+                  "location": -0.62,
+                  "value": 0.5
+                },
+                {
+                  "derivative": 0.0,
+                  "location": -0.3,
+                  "value": 0.66
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 0.0,
+                  "value": 0.18
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 0.3,
+                  "value": 0.3
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 0.62,
+                  "value": 0.55
+                },
+                {
+                  "derivative": 0.0,
+                  "location": 1.0,
+                  "value": 0.55
+                }
+              ]
+            }
+          },
+          "right": {
+            "type": "minecraft:mul",
+            "left": 0.3,
+            "right": {
+              "type": "minecraft:noise",
+              "noise": "minecraft:aquifer_fluid_level_floodedness",
+              "xz_scale": 1.0,
+              "y_scale": 0.67
+            }
+          }
+        }
+      },
+      "max": 0.78,
+      "min": -1.0
+    },
+    "fluid_level_spread": {
+      "type": "minecraft:noise",
+      "noise": "minecraft:aquifer_fluid_level_spread",
+      "xz_scale": 1.0,
+      "y_scale": 0.7142857142857143
+    },
+    "lava": 0.0,
+    "surface_level": 1000.0
+  },
+  "default_block": "minecraft:stone",
+  "default_fluid": "minecraft:water",
+  "disable_mob_generation": false,
+  "legacy_random_source": false,
+  "material_rule": "eam:underworld",
+  "noise": {
+    "height": 192,
+    "min_y": 0
+  },
+  "noise_router": {
+    "chunk_surface_level": 0.0,
+    "continents": 0.0,
+    "depth": {
+      "type": "minecraft:gradient",
+      "axis": "y",
+      "from_coordinate": 44,
+      "from_value": 1.0,
+      "to_coordinate": 48,
+      "to_value": 0.0
+    },
+    "erosion": 0.0,
+    "final_density": {
+      "type": "minecraft:add",
+      "left": {
+        "type": "minecraft:squeeze",
+        "input": {
+          "type": "minecraft:interpolated",
+          "cell_size_xz": 4,
+          "cell_size_y": 8,
+          "input": {
+            "type": "minecraft:mul",
+            "left": {
+              "type": "minecraft:blend_density",
+              "input": {
+                "type": "minecraft:min",
+                "left": {
+                  "type": "minecraft:lerp",
+                  "alpha": {
+                    "type": "minecraft:gradient",
+                    "axis": "y",
+                    "from_coordinate": 53,
+                    "from_value": 0.0,
+                    "to_coordinate": 66,
+                    "to_value": 1.0
+                  },
+                  "first": 2.5,
+                  "second": {
+                    "type": "minecraft:lerp",
+                    "alpha": {
+                      "type": "minecraft:gradient",
+                      "axis": "y",
+                      "from_coordinate": 170,
+                      "from_value": 1.0,
+                      "to_coordinate": 187,
+                      "to_value": 0.0
+                    },
+                    "first": 0.9375,
+                    "second": {
+                      "type": "minecraft:add",
+                      "left": "minecraft:nether/base_3d_noise",
+                      "right": {
+                        "type": "minecraft:spline",
+                        "spline": {
+                          "coordinate": "eam:underworld/temperature",
+                          "points": [
+                            {
+                              "derivative": 0.0,
+                              "location": -1.0,
+                              "value": -0.18
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": -0.62,
+                              "value": -0.18
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": -0.3,
+                              "value": -0.12
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": 0.0,
+                              "value": 0.0
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": 0.3,
+                              "value": -0.34
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": 0.62,
+                              "value": -0.08
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": 1.0,
+                              "value": -0.08
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "type": "minecraft:lerp",
+                  "alpha": {
+                    "type": "minecraft:gradient",
+                    "axis": "y",
+                    "from_coordinate": 4,
+                    "from_value": 0.0,
+                    "to_coordinate": 10,
+                    "to_value": 1.0
+                  },
+                  "first": 2.5,
+                  "second": {
+                    "type": "minecraft:lerp",
+                    "alpha": {
+                      "type": "minecraft:gradient",
+                      "axis": "y",
+                      "from_coordinate": 36,
+                      "from_value": 1.0,
+                      "to_coordinate": 41,
+                      "to_value": 0.0
+                    },
+                    "first": 2.5,
+                    "second": {
+                      "type": "minecraft:add",
+                      "left": "minecraft:nether/base_3d_noise",
+                      "right": -0.14
+                    }
+                  }
+                }
+              }
+            },
+            "right": 0.64
+          }
+        }
+      },
+      "right": {
+        "type": "minecraft:beardifier"
+      }
+    },
+    "ridges": 0.0,
+    "temperature": "eam:underworld/temperature",
+    "vegetation": 0.0
+  },
+  "sea_level": 0,
+  "spawn_target": []
+}

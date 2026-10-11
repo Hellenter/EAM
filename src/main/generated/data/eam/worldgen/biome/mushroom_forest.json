@@ -1,0 +1,128 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "max_delay": 24000,
+        "min_delay": 12000,
+        "sound": "minecraft:music.overworld.lush_caves"
+      }
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ],
+          "monster": [
+            {
+              "type": "minecraft:zombie",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 90
+            },
+            {
+              "type": "minecraft:skeleton",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 80
+            },
+            {
+              "type": "minecraft:spider",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 80
+            },
+            {
+              "type": "minecraft:creeper",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 60
+            },
+            {
+              "type": "minecraft:witch",
+              "count": 1,
+              "weight": 10
+            },
+            {
+              "type": "minecraft:enderman",
+              "count": 1,
+              "weight": 5
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "minecraft:mycelium"
+        },
+        "probability": 0.02
+      }
+    ],
+    "minecraft:visual/fog_color": "#2d2433"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#3d57d6"
+  },
+  "features": [
+    [],
+    [
+      "eam:underworld/fluids"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "eam:underworld/ore_iron",
+      "eam:underworld/ore_gold",
+      "eam:underworld/ore_copper",
+      "eam:underworld/ore_silver",
+      "eam:underworld/ore_mithril"
+    ],
+    [],
+    [
+      "eam:underworld/spring_water"
+    ],
+    [
+      "eam:underworld/giant_brown_mushroom",
+      "eam:underworld/giant_red_mushroom",
+      "eam:underworld/huge_brown_mushroom",
+      "eam:underworld/huge_red_mushroom",
+      "eam:underworld/brown_mushrooms",
+      "eam:underworld/red_mushrooms",
+      "eam:underworld/glow_lichen"
+    ]
+  ],
+  "has_precipitation": false,
+  "temperature": 0.9
+}

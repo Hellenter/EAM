@@ -20,6 +20,7 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.dimension.DeepBedrockBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -121,6 +122,15 @@ public final class EamBlocks {
 			.requiresCorrectToolForDrops()
 			.strength(5.0F, 6.0F)
 			.sound(SoundType.METAL));
+
+	/** The band of bedrock between the underworld's two levels: only an item in {@code #eam:breaks_deep_bedrock} breaks it. */
+	public static final Block DEEP_BEDROCK = register("deep_bedrock", DeepBedrockBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.STONE)
+			.instrument(NoteBlockInstrument.BASEDRUM)
+			.strength(50.0F, 3600000.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.IMMOVEABLE)
+			.isValidSpawn((state, level, pos, type) -> false));
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),

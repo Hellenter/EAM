@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.content.talisman;
 
+import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mixin.content.talisman.PortalShapeAccessor;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -59,9 +60,9 @@ public final class TalismanModule {
 		return TalismanLogic.fireLightsPortal(level.dimension() == Level.OVERWORLD, restricted);
 	}
 
-	/** Whether the talisman works here: wherever vanilla fire could light a portal. */
+	/** Whether the talisman works here: wherever fire could light a portal, the underworld included. */
 	public static boolean canOpenPortalIn(Level level) {
-		return level.dimension() == Level.OVERWORLD || level.dimension() == Level.NETHER;
+		return level.dimension() == Level.OVERWORLD || level.dimension() == Level.NETHER || UnderworldModule.portalsWork(level);
 	}
 
 	/** An empty, complete frame around {@code pos}, trying the frame across the player's view first; or nothing. */

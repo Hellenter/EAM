@@ -63,6 +63,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
+		generators.createTrivialCube(EamBlocks.DEEP_BEDROCK);
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);
@@ -601,6 +602,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FILTERED_LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_HATCHET, ModelTemplates.FLAT_HANDHELD_ITEM);
+		generators.generateFlatItem(EamItems.BEDROCK_BREAKER, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.COPPER_KNIFE, ModelTemplates.FLAT_HANDHELD_ITEM);

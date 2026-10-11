@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
@@ -66,6 +67,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		// Logs break only with these; a battle axe goes here too.
 		builder(HandBreakingModule.CHOPS_LOGS).forceAddTag(ItemTags.AXES);
+
+		// The only thing that breaks the underworld's deep bedrock.
+		builder(UnderworldDimension.BREAKS_DEEP_BEDROCK).add(EamItems.BEDROCK_BREAKER.builtInRegistryHolder().key());
 
 		// Bows, crossbows and dispensers take anything in this tag as arrows.
 		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,

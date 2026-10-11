@@ -1,0 +1,127 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "max_delay": 24000,
+        "min_delay": 12000,
+        "sound": "minecraft:music.overworld.dripstone_caves"
+      }
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ],
+          "monster": [
+            {
+              "type": "minecraft:skeleton",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 100
+            },
+            {
+              "type": "minecraft:zombie",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 95
+            },
+            {
+              "type": "minecraft:spider",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 60
+            },
+            {
+              "type": "minecraft:cave_spider",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 40
+            },
+            {
+              "type": "minecraft:creeper",
+              "count": {
+                "type": "minecraft:uniform",
+                "max_inclusive": 4,
+                "min_inclusive": 1
+              },
+              "weight": 50
+            },
+            {
+              "type": "minecraft:enderman",
+              "count": 1,
+              "weight": 8
+            },
+            {
+              "type": "minecraft:witch",
+              "count": 1,
+              "weight": 5
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/fog_color": "#2e2e2e"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#3f4a55"
+  },
+  "features": [
+    [],
+    [
+      "eam:underworld/fluids"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "eam:underworld/ore_iron",
+      "eam:underworld/ore_gold",
+      "eam:underworld/ore_copper",
+      "eam:underworld/ore_silver",
+      "eam:underworld/ore_mithril",
+      "eam:underworld/ore_gravel"
+    ],
+    [],
+    [
+      "eam:underworld/spring_water",
+      "eam:underworld/spring_lava"
+    ],
+    [
+      "eam:underworld/brown_mushrooms_few",
+      "eam:underworld/cobweb",
+      "eam:underworld/glow_lichen"
+    ]
+  ],
+  "has_precipitation": false,
+  "temperature": 0.5
+}

@@ -33,6 +33,7 @@ import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -54,6 +55,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect;
@@ -165,6 +167,16 @@ public final class EamItems {
 			new Item.Properties().durability(16).rarity(Rarity.EPIC).fireResistant()
 					.component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("item.eam.black_talisman.desc")
 							.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))))));
+
+	/**
+	 * Breaks the deep bedrock between the underworld's two levels. A placeholder until the boss that drops it exists:
+	 * creative only for now.
+	 */
+	public static final Item BEDROCK_BREAKER = register("bedrock_breaker", Item::new, new Item.Properties().durability(64).rarity(Rarity.EPIC)
+			.fireResistant()
+			.component(DataComponents.TOOL, new Tool(List.of(Tool.Rule.minesAndDrops(
+					HolderSet.direct(Block::builtInRegistryHolder, EamBlocks.DEEP_BEDROCK), 20.0F)), 1.0F, 1, false)));
+	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);
