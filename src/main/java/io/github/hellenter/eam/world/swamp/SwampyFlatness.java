@@ -15,17 +15,20 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
  * A 2D density function: how strongly a column belongs to a swamp ({@link SwampyForestLogic#weight}), 0 to 1. It reads
  * the overworld's own climate functions, like the biome choice does, so the flat ground lines up with the swamp biomes.
  */
-public record SwampyFlatness(DensityFunction temperature, DensityFunction vegetation, DensityFunction continents) implements DensityFunction {
+public record SwampyFlatness(DensityFunction temperature, DensityFunction vegetation, DensityFunction continents, DensityFunction erosion,
+		DensityFunction ridges) implements DensityFunction {
 	public static final MapCodec<SwampyFlatness> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			DensityFunction.CODEC.fieldOf("temperature").forGetter(SwampyFlatness::temperature),
 			DensityFunction.CODEC.fieldOf("vegetation").forGetter(SwampyFlatness::vegetation),
-			DensityFunction.CODEC.fieldOf("continents").forGetter(SwampyFlatness::continents))
+			DensityFunction.CODEC.fieldOf("continents").forGetter(SwampyFlatness::continents),
+			DensityFunction.CODEC.fieldOf("erosion").forGetter(SwampyFlatness::erosion),
+			DensityFunction.CODEC.fieldOf("ridges").forGetter(SwampyFlatness::ridges))
 			.apply(i, SwampyFlatness::new));
 
 	@Override
 	public DensitySampler compileSampler(DensityFunction.CompileContext context) {
 		return new Sampler(this.temperature.compileSampler(context), this.vegetation.compileSampler(context),
-				this.continents.compileSampler(context));
+				this.continents.compileSampler(context), this.erosion.compileSampler(context), this.ridges.compileSampler(context));
 	}
 
 	@Override
@@ -33,8 +36,11 @@ public record SwampyFlatness(DensityFunction temperature, DensityFunction vegeta
 		DensityFunction temperature = rule.rewrite(this.temperature);
 		DensityFunction vegetation = rule.rewrite(this.vegetation);
 		DensityFunction continents = rule.rewrite(this.continents);
+		DensityFunction erosion = rule.rewrite(this.erosion);
+		DensityFunction ridges = rule.rewrite(this.ridges);
 		return temperature == this.temperature && vegetation == this.vegetation && continents == this.continents
-				? this : new SwampyFlatness(temperature, vegetation, continents);
+				&& erosion == this.erosion && ridges == this.ridges
+				? this : new SwampyFlatness(temperature, vegetation, continents, erosion, ridges);
 	}
 
 	@Override
@@ -52,7 +58,8 @@ public record SwampyFlatness(DensityFunction temperature, DensityFunction vegeta
 		return CODEC;
 	}
 
-	private record Sampler(DensitySampler temperature, DensitySampler vegetation, DensitySampler continents) implements DensitySampler {
+	private record Sampler(DensitySampler temperature, DensitySampler vegetation, DensitySampler continents, DensitySampler erosion,
+			DensitySampler ridges) implements DensitySampler {
 		@Override
 		public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
 			return SwampyForestLogic.weight(new SwampyForestLogic.Climate() {
@@ -69,6 +76,12 @@ public record SwampyFlatness(DensityFunction temperature, DensityFunction vegeta
 				@Override
 				public float continents(int x, int z) {
 					return Sampler.this.continents.sampleValue(context, x, 0, z);
+				}
+
+				@Override
+				public float relief(int x, int z) {
+					return VanillaRelief.height(Sampler.this.continents.sampleValue(context, x, 0, z),
+							Sampler.this.erosion.sampleValue(context, x, 0, z), Sampler.this.ridges.sampleValue(context, x, 0, z));
 				}
 			}, blockX, blockZ);
 		}

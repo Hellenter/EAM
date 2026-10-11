@@ -116,6 +116,12 @@ public final class SwampyForestBiomes {
 			public float continents(int x, int z) {
 				return sampler.continentalness().sampleValue(x, 0, z);
 			}
+
+			@Override
+			public float relief(int x, int z) {
+				return VanillaRelief.height(sampler.continentalness().sampleValue(x, 0, z), sampler.erosion().sampleValue(x, 0, z),
+						sampler.weirdness().sampleValue(x, 0, z));
+			}
 		}, QuartPos.toBlock(quartX), QuartPos.toBlock(quartZ));
 	}
 

@@ -7,8 +7,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class SwampyForestLogicTest {
-	/** A world with the same climate everywhere, except continentalness can be set per call. */
-	private record FlatClimate(float temperature, float humidity, float continents) implements SwampyForestLogic.Climate {
+	/** A world with the same climate everywhere. */
+	private record FlatClimate(float temperature, float humidity, float continents, float relief) implements SwampyForestLogic.Climate {
+		/** Lowland a few blocks above the sea. */
+		FlatClimate(float temperature, float humidity, float continents) {
+			this(temperature, humidity, continents, 70.0F);
+		}
+
+		@Override
+		public float relief(int x, int z) {
+			return this.relief;
+		}
+
 		@Override
 		public float temperature(int x, int z) {
 			return this.temperature;
@@ -46,11 +56,23 @@ class SwampyForestLogicTest {
 					}
 				}
 				float area = swampColumns * 256.0F;
-				assertTrue(area > 600_000 && area < 1_000_000, "a round swamp ~1000 across, area " + area);
+				assertTrue(area > 600_000 && area < 1_300_000, "a swamp ~1000 across, area " + area);
 				widest = Math.max(widest, maxX - minX);
 			}
 		}
-		assertTrue(widest > 900 && widest < 1100, "about 1000 blocks across: " + widest);
+		assertTrue(widest > 850 && widest < 1400, "about 1000 blocks across: " + widest);
+	}
+
+	@Test
+	void noSwampInHillsOrMountains() {
+		for (SwampyForestLogic.Climate climate : new SwampyForestLogic.Climate[] {new FlatClimate(0.0F, 0.0F, 0.3F, 95.0F),
+				new FlatClimate(0.0F, 0.0F, 0.3F, 160.0F)}) {
+			for (int z = 0; z < SwampyForestLogic.CELL; z += 32) {
+				for (int x = 0; x < SwampyForestLogic.CELL; x += 32) {
+					assertEquals(0.0F, SwampyForestLogic.weight(climate, x, z));
+				}
+			}
+		}
 	}
 
 	@Test
@@ -123,6 +145,26 @@ class SwampyForestLogicTest {
 		assertTrue(SwampyForestLogic.groundDensity(1.0F, 1.0F, height, 66) < 0.0F, "air above it even inside a vanilla mountain");
 		assertTrue(SwampyForestLogic.groundDensity(-1.0F, 1.0F, height, 30) < 0.0F, "vanilla caves stay under the crust");
 		assertEquals(0.7F, SwampyForestLogic.groundDensity(0.7F, 0.0F, height, 100), "outside the swamp nothing changes");
+	}
+
+	@Test
+	void theRimIsASlopeNotAWall() {
+		// A vanilla hill (solid up to y 110) is cut to a ceiling that rises steadily as the weight drops toward the rim.
+		float height = 66.0F;
+		int previous = 65;
+		for (float w = 1.0F; w > 0.05F; w -= 0.05F) {
+			int top = 0;
+			for (int y = 0; y < 200; y++) {
+				float vanilla = Math.clamp((110 - y) * 0.25F, -1.0F, 1.0F);
+				if (SwampyForestLogic.groundDensity(vanilla, w, height, y) > 0.0F) {
+					top = y;
+				}
+			}
+			assertTrue(top >= previous, "the ground only rises toward the rim");
+			assertTrue(top - previous <= 12, "no wall: " + previous + " -> " + top + " at weight " + w);
+			previous = top;
+		}
+		assertEquals(109, previous, "and meets the hill");
 	}
 
 	@Test

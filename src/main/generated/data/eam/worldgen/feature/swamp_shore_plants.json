@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:simple_block",
+  "to_place": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "eam:tall_swamp_grass",
+        "weight": 6
+      },
+      {
+        "data": "eam:swamp_grass",
+        "weight": 3
+      },
+      {
+        "data": "eam:marsh_marigold",
+        "weight": 1
+      }
+    ]
+  }
+}

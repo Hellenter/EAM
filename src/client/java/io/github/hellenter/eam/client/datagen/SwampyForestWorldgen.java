@@ -131,10 +131,11 @@ final class SwampyForestWorldgen {
 	static final ResourceKey<Feature> MOSS_PATCH = feature("swamp_moss_patch");
 	static final ResourceKey<Feature> COARSE_DIRT_PATCH = feature("swamp_coarse_dirt_patch");
 	static final ResourceKey<Feature> GROUND_PATCH = feature("swamp_ground_patch");
+	static final ResourceKey<Feature> SHORE_PLANTS = feature("swamp_shore_plants");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(POND_FOREST, POND_LAKES, POND_HUMMOCKS, DEAD_TRUNK, LOW_BIRCH,
 			TALL_BIRCH, TALL_OAK, TALL_SWAMP_OAK, TALL_FANCY_OAK,
 			TREES_FOREST, TREES_LAKES, TREES_HUMMOCKS, DUCKWEED_FOREST, DUCKWEED_LAKES, DUCKWEED_HUMMOCKS, DENSE_SHRUB, BIG_SHRUB, LAKE_BED_FOREST, LAKE_BED_LAKES, LAKE_BED_HUMMOCKS, FALLEN_HOLLOW_LOG, SHELF_MUSHROOMS, CATTAIL, SWAMP_GRASS, TALL_SWAMP_GRASS, SWAMP_SHRUB, FIREWEED, MARSH_MARIGOLD,
-			PODZOL_PATCH, MOSS_PATCH, COARSE_DIRT_PATCH, GROUND_PATCH);
+			PODZOL_PATCH, MOSS_PATCH, COARSE_DIRT_PATCH, GROUND_PATCH, SHORE_PLANTS);
 
 	/** One set of placed features per part of the swamp, each named after its part. */
 	private enum Part {
@@ -158,6 +159,7 @@ final class SwampyForestWorldgen {
 		final ResourceKey<PlacedFeature> fireweed;
 		final ResourceKey<PlacedFeature> marigolds;
 		final ResourceKey<PlacedFeature> groundPatches;
+		final ResourceKey<PlacedFeature> shoreGrass;
 
 		Part(String name) {
 			this.pond = placed("swamp_pond_" + name);
@@ -178,11 +180,13 @@ final class SwampyForestWorldgen {
 			this.fireweed = placed("fireweed_" + name);
 			this.marigolds = placed("marsh_marigolds_" + name);
 			this.groundPatches = placed("ground_patches_" + name);
+			this.shoreGrass = placed("shore_plants_" + name);
 		}
 
 		List<ResourceKey<PlacedFeature>> all() {
 			return List.of(this.pond, this.deadTrunks, this.trees, this.duckweed, this.cattails, this.grass, this.tallGrass, this.shrubs,
-					this.denseShrubs, this.bigShrubs, this.lakeBed, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms, this.groundPatches);
+					this.denseShrubs, this.bigShrubs, this.lakeBed, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms, this.groundPatches,
+					this.shoreGrass);
 		}
 	}
 
@@ -272,6 +276,8 @@ final class SwampyForestWorldgen {
 				.add(cattail.setValue(CattailBlock.AMOUNT, 4), 1))));
 		context.register(SWAMP_GRASS, new SimpleBlockFeature(weighted(EamBlocks.SWAMP_GRASS, 4, Blocks.SHORT_GRASS, 6, Blocks.FERN, 1)));
 		context.register(TALL_SWAMP_GRASS, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.TALL_SWAMP_GRASS)));
+		context.register(SHORE_PLANTS, new SimpleBlockFeature(weighted(EamBlocks.TALL_SWAMP_GRASS, 6, EamBlocks.SWAMP_GRASS, 3,
+				EamBlocks.MARSH_MARIGOLD, 1)));
 		context.register(SWAMP_SHRUB, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.SWAMP_SHRUB)));
 		context.register(FIREWEED, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.FIREWEED)));
 		context.register(MARSH_MARIGOLD, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.MARSH_MARIGOLD)));
@@ -304,16 +310,16 @@ final class SwampyForestWorldgen {
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
-		// counts per chunk: pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs ground
+		// counts per chunk: pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs ground shore-grass
 		// The forest's trees and big shrubs follow a broad noise, like vanilla's plains flowers: groves about 200 blocks
 		// across with 28 trees a chunk, and lighter stretches with 10 trees where the big shrubs grow thickest instead.
 		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, DUCKWEED_FOREST, LAKE_BED_FOREST,
-				new int[] {-4, -2, 22, 2, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4, 3},
-				NoiseThresholdCountPlacement.of(-0.2, 10, 28), NoiseThresholdCountPlacement.of(-0.2, 7, 2));
+				new int[] {-4, -2, 22, 6, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4, 3, 4},
+				NoiseThresholdCountPlacement.of(-0.2, 10, 28), NoiseThresholdCountPlacement.of(-0.2, 14, 6));
 		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, DUCKWEED_LAKES, LAKE_BED_LAKES,
-				new int[] {-2, 2, 5, 6, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 1, 1}, null, null);
+				new int[] {-2, 2, 5, 14, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 4, 1, 8}, null, null);
 		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, DUCKWEED_HUMMOCKS, LAKE_BED_HUMMOCKS,
-				new int[] {-2, 1, 9, 3, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 2, 2}, null, null);
+				new int[] {-2, 1, 9, 8, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 5, 2, 5}, null, null);
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
 				CountPlacement.of(MITHRIL_DEEP_VEIN_TRIES),
@@ -344,6 +350,10 @@ final class SwampyForestWorldgen {
 				patch(counts[3], PlacementUtils.HEIGHTMAP_TOP_SOLID, 24, 5, 2, BlockPredicate.anyOf(
 						BlockPredicate.allOf(BlockPredicate.matchesFluids(Fluids.WATER), BlockPredicate.matchesBlocks(Direction.UP, Blocks.AIR)),
 						BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, nearWater()))));
+		// The banks of the lakes: a fringe of tall grass and marigolds right at the water, behind the cattails.
+		PlacementUtils.register(context, part.shoreGrass, features.getOrThrow(SHORE_PLANTS),
+				patch(counts[16], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 32, 6, 2, BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.wouldSurvive(EamBlocks.TALL_SWAMP_GRASS), byWater())));
 		PlacementUtils.register(context, part.grass, features.getOrThrow(SWAMP_GRASS),
 				patch(counts[4], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 32, 7, 3, BlockPredicate.ONLY_IN_AIR_PREDICATE));
 		PlacementUtils.register(context, part.tallGrass, features.getOrThrow(TALL_SWAMP_GRASS),
@@ -444,6 +454,7 @@ final class SwampyForestWorldgen {
 		generation.addFeature(vegetal, part.trees);
 		generation.addFeature(vegetal, part.shelfMushrooms);
 		generation.addFeature(vegetal, part.cattails);
+		generation.addFeature(vegetal, part.shoreGrass);
 		generation.addFeature(vegetal, part.tallGrass);
 		generation.addFeature(vegetal, part.fireweed);
 		generation.addFeature(vegetal, part.shrubs);

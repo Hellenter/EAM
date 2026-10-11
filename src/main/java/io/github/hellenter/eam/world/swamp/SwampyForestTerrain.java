@@ -71,7 +71,8 @@ public final class SwampyForestTerrain {
 		if (!SwampyForestBiomes.enabled() || !isOverworld(router.finalDensity())) {
 			return router;
 		}
-		DensityFunction weight = DensityFunctions.cache(new SwampyFlatness(router.temperature(), router.vegetation(), router.continents()));
+		DensityFunction weight = DensityFunctions.cache(new SwampyFlatness(router.temperature(), router.vegetation(), router.continents(),
+				router.erosion(), router.ridges()));
 		DensityFunction height = DensityFunctions.cache(new SwampyHeight(router.vegetation()));
 		SwampyForestTerrain terrain = new SwampyForestTerrain(weight, height, router.finalDensity());
 		DensityFunction finalDensity = new SwampyGround(terrain.rule.rewrite(router.finalDensity()), weight, height);

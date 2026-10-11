@@ -4,8 +4,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Where the swampy forest lies and how its ground is shaped. The world is cut into {@link #CELL}-block cells; a cell
- * whose centre has temperate, inland climate holds one swamp, a round region about {@code 2 * RADIUS} blocks across
- * with a ragged edge, placed at a random spot in the cell. Inside it the real humidity chooses the part of the swamp:
+ * whose centre has temperate, inland, low-lying climate holds one swamp, a blob about {@code 2 * RADIUS} blocks across
+ * with a wobbly outline, placed at a random spot in the cell. The swamp only spreads over ground vanilla keeps fairly
+ * low (its own surface estimate from continentalness, erosion and weirdness), so it never cuts into hills or mountains:
+ * its rim runs along their feet, where vanilla's ground is already about as low as the swamp plain. Inside it the real humidity chooses the part of the swamp:
  * hummocks where it is drier, lakes where it is wettest, forest in between. The ground there is not vanilla's: it is a
  * low plain a few blocks above the water ({@link #surfaceHeight}) with lakes 2 to 3 blocks deep, blended into the
  * vanilla terrain over the region's rim ({@link #weight}).
@@ -18,18 +20,27 @@ public final class SwampyForestLogic {
 		float humidity(int x, int z);
 
 		float continents(int x, int z);
+
+		/** Vanilla's rough surface height at a column, from its terrain spline: what the land would be without the swamp. */
+		float relief(int x, int z);
 	}
 
 	/** Side of a cell, in blocks; each cell holds at most one swamp. */
 	static final int CELL = 2048;
 	/** Radius of a swamp in blocks, before the edge wobble: about 1000 blocks across. */
-	static final int RADIUS = 500;
+	static final int RADIUS = 520;
 	/** How far a swamp's centre may sit from its cell's centre, so the swamps do not form a grid. */
 	static final int JITTER = 360;
 	/** The radius grows and shrinks by up to this share with the humidity under the edge, so the outline is ragged. */
 	static final float EDGE_WOBBLE = 0.15F;
 	/** Share of the radius over which the ground blends from vanilla to the swamp plain; the biome starts halfway. */
-	static final float EDGE_WIDTH = 0.18F;
+	static final float EDGE_WIDTH = 0.3F;
+	/** The outline is pushed in and out by a broad noise by up to this share of the radius, so swamps are not round. */
+	static final float SHAPE_WARP = 0.3F;
+	static final float SHAPE_SCALE = 380.0F;
+	/** Where vanilla's land is at most this high the swamp may lie fully; above the second height it fades out. */
+	static final float LOWLAND_FROM = 74.0F;
+	static final float LOWLAND_TO = 86.0F;
 	/** The swamp's centre must be neither snowy nor desert hot (vanilla's temperature bands 1 to 3)... */
 	static final float MIN_TEMPERATURE = -0.45F;
 	static final float MAX_TEMPERATURE = 0.55F;
@@ -71,20 +82,54 @@ public final class SwampyForestLogic {
 		long hash = mix(cellX * 341873128712L + cellZ * 132897987541L + Float.floatToIntBits(climate.temperature(cellX * CELL, cellZ * CELL)));
 		int centreX = cellX * CELL + CELL / 2 + (int) ((hash & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
 		int centreZ = cellZ * CELL + CELL / 2 + (int) (((hash >>> 16) & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
-		float dx = x - centreX;
-		float dz = z - centreZ;
+		float dx = x - centreX + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 5);
+		float dz = z - centreZ + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 6);
 		float reach = RADIUS * (1.0F + EDGE_WOBBLE) * (1.0F + EDGE_WIDTH / 2);
 		float distanceSquared = dx * dx + dz * dz;
 		if (distanceSquared >= reach * reach) {
 			return 0.0F;
 		}
 		float temperature = climate.temperature(centreX, centreZ);
-		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE || climate.continents(centreX, centreZ) < MIN_CONTINENTALNESS) {
+		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE || climate.continents(centreX, centreZ) < MIN_CONTINENTALNESS
+				|| lowland(climate, centreX, centreZ) < 0.5F) {
 			return 0.0F;
 		}
 		float radius = RADIUS * (1.0F + EDGE_WOBBLE * Math.clamp(climate.humidity(x, z) * 2.0F, -1.0F, 1.0F));
 		float distance = (float) Math.sqrt(distanceSquared) / radius;
-		return ramp(1.0F + EDGE_WIDTH / 2 - distance, EDGE_WIDTH)
+		float shape = ramp(1.0F + EDGE_WIDTH / 2 - distance, EDGE_WIDTH);
+		if (shape <= 0.0F) {
+			return 0.0F;
+		}
+		return shape * lowland(climate, x, z);
+	}
+
+	/**
+	 * How low vanilla's land is at a column, 0 (hills, mountains, sea) to 1 (lowland inland). The swamp fades out where
+	 * this drops, so it stops at the foot of the hills and the shore instead of planing them off.
+	 */
+	static float lowland(Climate climate, int x, int z) {
+		// Read on a coarse grid and blended between its points: vanilla's height estimate can climb 20 blocks within a
+		// dozen, and a swamp that let go that fast would leave a wall where it ends.
+		int gx = Math.floorDiv(x, LOWLAND_GRID);
+		int gz = Math.floorDiv(z, LOWLAND_GRID);
+		float fx = smooth((x - gx * LOWLAND_GRID) / (float) LOWLAND_GRID);
+		float fz = smooth((z - gz * LOWLAND_GRID) / (float) LOWLAND_GRID);
+		float a = lowlandAt(climate, gx, gz);
+		float b = lowlandAt(climate, gx + 1, gz);
+		float c = lowlandAt(climate, gx, gz + 1);
+		float d = lowlandAt(climate, gx + 1, gz + 1);
+		float top = a + (b - a) * fx;
+		return top + (c + (d - c) * fx - top) * fz;
+	}
+
+	/** Spacing of the grid {@link #lowland} is read on: the shortest distance over which the swamp fades out. */
+	static final int LOWLAND_GRID = 128;
+
+	/** Low land that is not sea: the swamp keeps vanilla's shore and fades out over the hills. */
+	private static float lowlandAt(Climate climate, int gx, int gz) {
+		int x = gx * LOWLAND_GRID;
+		int z = gz * LOWLAND_GRID;
+		return ramp(LOWLAND_TO - climate.relief(x, z), LOWLAND_TO - LOWLAND_FROM)
 				* ramp(climate.continents(x, z) - COAST_FROM, COAST_TO - COAST_FROM);
 	}
 
@@ -128,17 +173,30 @@ public final class SwampyForestLogic {
 	private static final float GROUND_GRADIENT = 0.25F;
 
 	/**
-	 * The final density at one block: vanilla's density there blended by the column's {@link #weight} toward the plain,
-	 * which is solid below {@code height}, air above it, and vanilla again under its {@link #CRUST}.
+	 * How far above and below the plain the ground may still reach at a partial {@link #weight}, in blocks: 0 inside the
+	 * swamp, growing smoothly toward the rim and past the world's height at weight 0. Blending heights instead of densities
+	 * keeps the rim a slope: a hill outside is cut down to a rising ceiling rather than sheared off into a wall.
+	 */
+	static float edgeSpread(float weight) {
+		return EDGE_RISE * (1.0F - weight) / (weight + 0.1F);
+	}
+
+	/** Blocks the ceiling over the plain rises per unit of lost weight, near the swamp. */
+	static final float EDGE_RISE = 40.0F;
+
+	/**
+	 * The final density at one block: vanilla's density kept between a ceiling and a floor that close in on the plain's
+	 * {@code height} as the column's {@link #weight} grows. Under the floor's {@link #CRUST} vanilla's caves stay.
 	 */
 	public static float groundDensity(float vanilla, float weight, float height, int y) {
 		if (weight <= 0.0F) {
 			return vanilla;
 		}
-		float plain = Math.clamp((height - y) * GROUND_GRADIENT, -1.0F, 1.0F);
-		float crust = y > height - CRUST ? 1.0F : -1.0F;
-		float swamp = Math.min(plain, Math.max(vanilla, crust));
-		return vanilla + (swamp - vanilla) * weight;
+		float spread = edgeSpread(weight);
+		float ceiling = Math.clamp((height + spread - y) * GROUND_GRADIENT, -1.0F, 1.0F);
+		float floor = height - spread;
+		float solid = y > floor - CRUST ? Math.clamp((floor - y) * GROUND_GRADIENT, -1.0F, 1.0F) : -1.0F;
+		return Math.min(ceiling, Math.max(vanilla, solid));
 	}
 
 	/** Noise level below which the ground is a lake: higher (more lakes) where it is wetter. */
