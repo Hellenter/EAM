@@ -16,6 +16,9 @@ import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.HeavyWaveParticle;
+import io.github.hellenter.eam.client.mobs.king.KingAxeRenderer;
+import io.github.hellenter.eam.client.mobs.king.PillagerKingModel;
+import io.github.hellenter.eam.client.mobs.king.PillagerKingRenderer;
 import io.github.hellenter.eam.client.mobs.knight.SkeletonKnightRenderer;
 import io.github.hellenter.eam.client.mobs.lost.LostModel;
 import io.github.hellenter.eam.client.mobs.lost.LostRenderer;
@@ -88,6 +91,9 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);
 		ModelLayerRegistry.registerModelLayer(UndeadWarlockModel.LAYER, UndeadWarlockModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.UNDEAD_WARLOCK, UndeadWarlockRenderer::new);
+		ModelLayerRegistry.registerModelLayer(PillagerKingModel.LAYER, PillagerKingModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.PILLAGER_KING, PillagerKingRenderer::new);
+		EntityRendererRegistry.register(EamEntities.KING_AXE, KingAxeRenderer::new);
 		// The missile is only its trail of red sparks.
 		EntityRendererRegistry.register(EamEntities.MAGIC_MISSILE, MagicMissileRenderer::new);
 		ModelLayerRegistry.registerModelLayer(SwampLurkerModel.LAYER, SwampLurkerModel::createLayer);

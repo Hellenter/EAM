@@ -8,6 +8,8 @@ import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
+import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
+import io.github.hellenter.eam.mobs.entity.king.ThrownKingAxe;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
@@ -149,6 +151,21 @@ public final class EamEntities {
 					.sized(0.3125F, 0.3125F)
 					.clientTrackingRange(8)
 					.updateInterval(2));
+
+	/** The first boss: a giant in black plate with two axes, two and a half blocks tall. */
+	public static final EntityType<PillagerKing> PILLAGER_KING = register("pillager_king",
+			EntityType.Builder.of(PillagerKing::new, MobCategory.MONSTER)
+					.sized(0.8F, 2.5F)
+					.eyeHeight(2.2F)
+					.clientTrackingRange(10));
+
+	/** The Pillager King's thrown axe. */
+	public static final EntityType<ThrownKingAxe> KING_AXE = register("king_axe",
+			EntityType.Builder.<ThrownKingAxe>of(ThrownKingAxe::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
 
 	private EamEntities() {
 	}

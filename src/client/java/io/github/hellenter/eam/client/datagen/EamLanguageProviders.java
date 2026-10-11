@@ -218,6 +218,11 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.lost_cavalry_sweep.player", "%1$s was cut down by the sweeping axe of %2$s");
 			builder.add(EamEntities.UNDEAD_WARLOCK, "Undead Warlock");
 			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Undead Warlock Spawn Egg");
+			builder.add(EamEntities.PILLAGER_KING, "Pillager King");
+			builder.add(EamEntities.KING_AXE, "Pillager King's Axe");
+			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Pillager King Spawn Egg");
+			builder.add("death.attack.eam.pillager_king_whirl", "%1$s was cut down by %2$s's whirl");
+			builder.add("death.attack.eam.pillager_king_whirl.player", "%1$s was cut down by %2$s's whirl");
 			builder.add(EamEntities.MAGIC_MISSILE, "Magic Missile");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
@@ -693,6 +698,11 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.lost_cavalry_sweep.player", "%2$s срубил %1$s круговым ударом топора");
 			builder.add(EamEntities.UNDEAD_WARLOCK, "Нежить-колдун");
 			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Яйцо призыва нежити-колдуна");
+			builder.add(EamEntities.PILLAGER_KING, "Король разбойников");
+			builder.add(EamEntities.KING_AXE, "Топор Короля разбойников");
+			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Яйцо призыва Короля разбойников");
+			builder.add("death.attack.eam.pillager_king_whirl", "%2$s изрубил %1$s в вихре топоров");
+			builder.add("death.attack.eam.pillager_king_whirl.player", "%2$s изрубил %1$s в вихре топоров");
 			builder.add(EamEntities.MAGIC_MISSILE, "Волшебная стрела");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");

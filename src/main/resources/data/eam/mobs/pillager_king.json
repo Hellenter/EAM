@@ -1,0 +1,65 @@
+{
+  "stats": {
+    "health": 75.0,
+    "armor": 10,
+    "speed": 0.3324,
+    "follow_range": 32.0,
+    "xp": 200,
+    "regen": 1.0,
+    "armor_piercing": 0.1
+  },
+  "run": {
+    "after": 110,
+    "bonus": 0.33
+  },
+  "totem": {
+    "heal": 25.0
+  },
+  "attack_pause": 12,
+  "reach": 3.0,
+  "slash": {
+    "damage": 7.0
+  },
+  "combo": {
+    "damage": 5.5,
+    "chance": 0.4,
+    "cooldown": 100,
+    "parry_multiplier": 1.5
+  },
+  "whirl": {
+    "damage": 6.0,
+    "radius": 3.6,
+    "chance": 0.25,
+    "chance_vs_shield": 0.5,
+    "cooldown": 160
+  },
+  "tornado": {
+    "damage": 5.0,
+    "radius": 3.2,
+    "chance": 0.2,
+    "cooldown": 240,
+    "drift": 0.1
+  },
+  "throw": {
+    "damage": 5.0,
+    "min_range": 4.0,
+    "max_range": 14.0,
+    "after": 40,
+    "chance_vs_shield": 0.6,
+    "cooldown": 140,
+    "shield_seconds": 5.0,
+    "speed": 1.5
+  },
+  "dash": {
+    "cooldown": 70,
+    "ticks": 4,
+    "speed": 0.9,
+    "from": 4.5,
+    "to": 8.0
+  },
+  "hop": {
+    "cooldown": 60,
+    "chance": 0.15,
+    "speed": 0.6
+  }
+}

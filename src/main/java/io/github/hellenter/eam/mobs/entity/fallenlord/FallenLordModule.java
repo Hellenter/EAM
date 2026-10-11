@@ -2,6 +2,8 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
+import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -42,8 +44,11 @@ public final class FallenLordModule {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FallenLordSettingsLoader.ID, new FallenLordSettingsLoader());
 	}
 
-	/** Share of this damage that goes through armor and Protection: only the Fallen Lord's own hits have one. */
+	/** Share of this damage that goes through armor and Protection: only the bosses' own hits have one. */
 	public static double armorPiercing(DamageSource source) {
+		if (source.getEntity() instanceof PillagerKing) {
+			return PillagerKingModule.settings().stats().armorPiercing();
+		}
 		return source.getEntity() instanceof FallenLord ? settings.later().armorPiercing() : 0.0;
 	}
 
