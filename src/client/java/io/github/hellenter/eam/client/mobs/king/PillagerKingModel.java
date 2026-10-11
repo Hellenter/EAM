@@ -1,77 +1,58 @@
 package io.github.hellenter.eam.client.mobs.king;
 
-import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mobs.entity.king.KingAction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
- * The Pillager King in closed black plate: a bulky crested helm with cheek guards, a breastplate over a skirt of plates
- * with dark chainmail hanging from under it to the knees, big pauldrons on thin plated arms, and an axe in each hand.
- * Like the Fallen Lord his arms and legs bend at the elbows and knees. The chainmail is four hanging panels that the
- * thighs push aside, trail behind as he moves, swing out as he turns and flare in his spins; the plume of the crest
- * sways too. His attacks are posed here from the action and the ticks into it; the turns of the tornado are the
- * renderer's.
+ * The Pillager King's skeleton and moves, shared by his looks: his arms and legs bend at the elbows and knees like the
+ * Fallen Lord's, the plume of his crest sways, and his attacks are posed here from the action and the ticks into it (the
+ * turns of the tornado are the renderer's). Each look adds its own body and the cloth or mail that hangs from it.
  */
-public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
-	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("pillager_king"), "main");
+public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 	/** Arms straight out to the sides. */
 	private static final float ARMS_OUT = 1.45F;
 	/** The elbow below the shoulder pivot and the knee below the hip, as on the Fallen Lord. */
-	private static final float ELBOW = 4.0F;
-	private static final float KNEE = 6.0F;
-	private static final float SHIN = 6.0F;
+	protected static final float ELBOW = 4.0F;
+	protected static final float KNEE = 6.0F;
+	protected static final float SHIN = 6.0F;
 	/** The hand at the end of the forearm, as far below the shoulder as on the vanilla arm. */
 	private static final float HAND = 10.0F;
 	/** The helm with its crest is drawn this much smaller than modelled, shrunk toward the neck. */
 	private static final float HEAD_SCALE = 0.8F;
-	/** The top of the chainmail panels, hidden under the skirt of plates. */
-	private static final float MAIL_TOP = 10.0F;
 	/** Share of the knee sink kept while he just walks; more makes him bob up and down. */
 	private static final float WALK_SINK = 1.0F / 6.0F;
 
-	private final ModelPart rightForearm;
-	private final ModelPart leftForearm;
-	private final ModelPart rightShin;
-	private final ModelPart leftShin;
+	protected final ModelPart rightForearm;
+	protected final ModelPart leftForearm;
+	protected final ModelPart rightShin;
+	protected final ModelPart leftShin;
 	private final ModelPart crest;
-	private final ModelPart mailFront;
-	private final ModelPart mailBack;
-	private final ModelPart mailRight;
-	private final ModelPart mailLeft;
 
-	public PillagerKingModel(ModelPart root) {
+	protected PillagerKingModel(ModelPart root) {
 		super(root);
 		rightForearm = rightArm.getChild("right_forearm");
 		leftForearm = leftArm.getChild("left_forearm");
 		rightShin = rightLeg.getChild("right_shin");
 		leftShin = leftLeg.getChild("left_shin");
 		crest = head.getChild("crest");
-		mailFront = body.getChild("mail_front");
-		mailBack = body.getChild("mail_back");
-		mailRight = body.getChild("mail_right");
-		mailLeft = body.getChild("mail_left");
 	}
 
-	public static LayerDefinition createLayer() {
-		MeshDefinition mesh = new MeshDefinition();
-		PartDefinition root = mesh.getRoot();
-		CubeDeformation plate = new CubeDeformation(0.25F);
-		// A Corinthian-style helm: the shell, its dome, the brow, the nasal, two cheek guards with the mouth slot between
-		// them, and the flare over the nape.
+	/**
+	 * The head both looks share: a Corinthian-style helm (the shell, its dome, the brow, the nasal, two cheek guards with
+	 * the mouth slot between them, and the flare over the nape) with a crest on top, a ridge on the dome holding a plume
+	 * that rises toward the back and hangs down behind. It sits in the top left of the 128 x 128 texture, rows 0 to 36.
+	 */
+	protected static void addHelm(PartDefinition root) {
 		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
 				.texOffs(0, 0).addBox(-5.0F, -10.0F, -5.0F, 10.0F, 10.0F, 10.0F)
 				.texOffs(40, 0).addBox(-4.0F, -11.0F, -4.0F, 8.0F, 1.0F, 8.0F)
@@ -81,50 +62,11 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 				.texOffs(40, 10).addBox(-5.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F)
 				.texOffs(52, 10).addBox(1.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F), PartPose.ZERO.withScale(HEAD_SCALE));
 		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-		// The crest: a ridge on the dome holding a plume that rises toward the back and hangs down behind.
 		head.addOrReplaceChild("crest", CubeListBuilder.create()
 				.texOffs(104, 0).addBox(-0.5F, 0.0F, -4.5F, 1.0F, 1.0F, 9.0F)
 				.texOffs(0, 20).addBox(-1.0F, -4.0F, -6.0F, 2.0F, 4.0F, 12.0F)
 				.texOffs(28, 20).addBox(-1.0F, -6.0F, -3.0F, 2.0F, 2.0F, 9.0F)
 				.texOffs(50, 20).addBox(-1.0F, -4.0F, 6.0F, 2.0F, 6.0F, 2.0F), PartPose.offset(0.0F, -12.0F, 0.0F));
-		// Breastplate and the skirt of plates over the hips, ending where the chainmail begins.
-		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
-				.texOffs(0, 36).addBox(-4.5F, 0.0F, -2.5F, 9.0F, 12.0F, 5.0F)
-				.texOffs(28, 36).addBox(-5.5F, MAIL_TOP - 4.0F, -3.5F, 11.0F, 4.0F, 7.0F), PartPose.ZERO);
-		// Chainmail hanging from under the plates to the knees, one panel on each side of the hips.
-		body.addOrReplaceChild("mail_front", CubeListBuilder.create().texOffs(64, 20).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 9.0F, 1.0F),
-				PartPose.offset(0.0F, MAIL_TOP, -2.6F));
-		body.addOrReplaceChild("mail_back", CubeListBuilder.create().texOffs(86, 20).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 9.0F, 1.0F),
-				PartPose.offset(0.0F, MAIL_TOP, 2.6F));
-		body.addOrReplaceChild("mail_right", CubeListBuilder.create().texOffs(64, 30).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 9.0F, 6.0F),
-				PartPose.offset(-4.9F, MAIL_TOP, 0.0F));
-		body.addOrReplaceChild("mail_left", CubeListBuilder.create().texOffs(78, 30).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 9.0F, 6.0F),
-				PartPose.offset(4.9F, MAIL_TOP, 0.0F));
-		// Thin plated arms under big pauldrons, a gauntlet cuff at the wrist; they bend at the elbow.
-		root.addOrReplaceChild("right_arm", CubeListBuilder.create()
-				.texOffs(0, 56).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, plate)
-				.texOffs(24, 56).addBox(-3.0F, -3.0F, -2.5F, 5.0F, 4.0F, 5.0F), PartPose.offset(-5.5F, 2.0F, 0.0F))
-				.addOrReplaceChild("right_forearm", CubeListBuilder.create()
-						.texOffs(12, 56).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, plate)
-						.texOffs(44, 56).addBox(-2.5F, 3.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.offset(0.0F, ELBOW, 0.0F));
-		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror()
-				.texOffs(0, 56).addBox(-1.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, plate)
-				.texOffs(24, 56).addBox(-2.0F, -3.0F, -2.5F, 5.0F, 4.0F, 5.0F), PartPose.offset(5.5F, 2.0F, 0.0F))
-				.addOrReplaceChild("left_forearm", CubeListBuilder.create().mirror()
-						.texOffs(12, 56).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, plate)
-						.texOffs(44, 56).addBox(-1.5F, 3.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.offset(0.0F, ELBOW, 0.0F));
-		// Plated legs bending at the knee, a knee guard on top of each shin.
-		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
-				.texOffs(0, 66).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, plate), PartPose.offset(-2.0F, 12.0F, 0.0F))
-				.addOrReplaceChild("right_shin", CubeListBuilder.create()
-						.texOffs(16, 66).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, plate)
-						.texOffs(32, 66).addBox(-2.0F, -1.0F, -3.0F, 4.0F, 3.0F, 1.0F), PartPose.offset(0.0F, KNEE, 0.0F));
-		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror()
-				.texOffs(0, 66).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, plate), PartPose.offset(2.0F, 12.0F, 0.0F))
-				.addOrReplaceChild("left_shin", CubeListBuilder.create().mirror()
-						.texOffs(16, 66).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, plate)
-						.texOffs(32, 66).addBox(-2.0F, -1.0F, -3.0F, 4.0F, 3.0F, 1.0F), PartPose.offset(0.0F, KNEE, 0.0F));
-		return LayerDefinition.create(mesh, 128, 128);
 	}
 
 	@Override
@@ -264,9 +206,12 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 		// Bent knees would lift his feet off the ground: he sinks instead. Only a sixth as much while just walking, a slight bob.
 		float sink = Math.min(footLift(rightLeg.xRot, rightShin.xRot), footLift(leftLeg.xRot, leftShin.xRot));
 		root().y += sink * (state.action == KingAction.NONE ? WALK_SINK : 1.0F);
-		mail(state);
+		cloth(state);
 		crest(state);
 	}
+
+	/** Swings what hangs from his body, after the pose of his limbs is set. */
+	protected abstract void cloth(PillagerKingRenderState state);
 
 	/** Knees fold as each leg swings forward; elbows stay a little bent, more as the arm swings forward. */
 	private void walk(PillagerKingRenderState state) {
@@ -276,32 +221,6 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 		leftShin.xRot = (0.1F + 1.1F * Math.max(0.0F, -Mth.sin(phase))) * speed;
 		rightForearm.xRot = -0.25F - 0.6F * Math.max(0.0F, -rightArm.xRot);
 		leftForearm.xRot = -0.25F - 0.6F * Math.max(0.0F, -leftArm.xRot);
-	}
-
-	/**
-	 * The chainmail panels hang from under the plates. The thigh swinging forward pushes the front panel out and the one
-	 * swinging back the back panel; moving, they trail behind and bounce with his steps; turning, they lag to the
-	 * outside of the turn; falling, they lift; in his spins they flare out all round.
-	 */
-	private void mail(PillagerKingRenderState state) {
-		float walk = Math.min(state.walkAnimationSpeed, 1.0F);
-		float bounce = Mth.sin(state.walkAnimationPos * 0.6662F * 2.0F) * 0.07F * walk;
-		float sway = Mth.sin(state.ageInTicks * 0.09F) * 0.025F;
-		float trail = 0.22F * walk + 0.45F * state.dash;
-		float flare = Math.clamp(state.spinSpeed / 40.0F, 0.0F, 1.1F) + Math.clamp(-state.fallSpeed * 1.5F, 0.0F, 0.6F);
-		float forward = Math.max(0.0F, -Math.min(rightLeg.xRot, leftLeg.xRot));
-		float back = Math.max(0.0F, Math.max(rightLeg.xRot, leftLeg.xRot));
-		float turn = Math.clamp(state.turnRate / 25.0F, -1.0F, 1.0F) * 0.35F;
-		mailFront.xRot = -0.8F * forward + trail + bounce + sway - flare;
-		mailBack.xRot = 0.8F * back + trail * 0.6F + bounce - sway + flare;
-		mailFront.zRot = -turn;
-		mailBack.zRot = -turn;
-		// The sides lift with the legs set apart, swing with the turn, and swing a little with each step.
-		float step = Mth.sin(state.walkAnimationPos * 0.6662F) * 0.08F * walk;
-		mailRight.zRot = 0.9F * Math.max(0.0F, rightLeg.zRot) + flare + Math.max(0.0F, turn) + step + sway;
-		mailLeft.zRot = 0.9F * Math.min(0.0F, leftLeg.zRot) - flare + Math.min(0.0F, turn) + step - sway;
-		mailRight.xRot = trail * 0.5F;
-		mailLeft.xRot = trail * 0.5F;
 	}
 
 	/** The plume streams back as he moves and sways with his steps. */
@@ -322,7 +241,7 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 	}
 
 	/** Bends a leg, blending from its current pose: {@code hip} below zero swings it forward, {@code knee} folds the shin back. */
-	private static void bendLeg(ModelPart leg, ModelPart shin, float amount, float hip, float knee) {
+	protected static void bendLeg(ModelPart leg, ModelPart shin, float amount, float hip, float knee) {
 		leg.xRot = Mth.lerp(amount, leg.xRot, hip);
 		shin.xRot = Mth.lerp(amount, shin.xRot, knee);
 	}
@@ -388,7 +307,7 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 	}
 
 	/** The value at {@code t} of a curve through the given keys, eased between them. */
-	private static float keys(float t, float[] times, float[] values) {
+	protected static float keys(float t, float[] times, float[] values) {
 		if (t <= times[0]) {
 			return values[0];
 		}

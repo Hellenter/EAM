@@ -32,7 +32,6 @@ import org.jspecify.annotations.Nullable;
 public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, PillagerKingRenderState, PillagerKingModel> {
 	/** The model is 2 blocks tall. */
 	private static final float SCALE = 2.5F / 2.0F;
-	private static final Identifier TEXTURE = Eam.id("textures/entity/pillager_king/pillager_king.png");
 	private static final RenderType RED_EYES = RenderTypes.eyes(Eam.id("textures/entity/pillager_king/pillager_king_eyes.png"));
 	private static final RenderType YELLOW_EYES = RenderTypes.eyes(Eam.id("textures/entity/pillager_king/pillager_king_parry_eyes.png"));
 	/** Turns of the tornado: it speeds up over {@link #TORNADO_RAMP} ticks, spins, and slows down to end facing ahead. */
@@ -43,13 +42,13 @@ public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, Pill
 	private @Nullable ItemStack totem;
 
 	public PillagerKingRenderer(EntityRendererProvider.Context context) {
-		super(context, new PillagerKingModel(context.bakeLayer(PillagerKingModel.LAYER)), 0.5F * SCALE);
+		super(context, PillagerKingLook.CURRENT.model.apply(context.bakeLayer(PillagerKingLook.CURRENT.layer)), 0.5F * SCALE);
 		addLayer(new Eyes(this));
 	}
 
 	@Override
 	public Identifier getTextureLocation(PillagerKingRenderState state) {
-		return TEXTURE;
+		return PillagerKingLook.CURRENT.texture;
 	}
 
 	@Override
