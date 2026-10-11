@@ -63,7 +63,9 @@
     "hits_min": 2,
     "hits_max": 3,
     "seconds": 5.0,
-    "window": 200
+    "window": 200,
+    "phase_two_hits_min": 2,
+    "phase_two_hits_max": 2
   },
   "players": {
     "radius": 32.0,
@@ -107,7 +109,7 @@
   },
   "heavy_strike": {
     "damage_multiplier": 2.6,
-    "extra_reach": 1.17,
+    "extra_reach": 1.37,
     "blocked_share": 0.5,
     "shield_seconds": 5.0,
     "cooldown": 183,
@@ -177,14 +179,14 @@
   "dash_break": {
     "max_depth": 2.5
   },
-  "armor_piercing": 0.12,
+  "armor_piercing": 0.16,
   "dash_delay": {
     "close_range": 2.0,
     "close_ticks": 3,
     "after_shield_knock": 60
   },
   "parry": {
-    "window": 14,
+    "window": 12,
     "push": 3.0,
     "damage_multiplier": 1.5,
     "heal": 3.0

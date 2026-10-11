@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -147,6 +148,10 @@ public class FallenLord extends Monster {
 	private static final float GUARD_SPEED = 0.2F;
 
 	/** Attacks from the stance that a blocking player can parry. */
+	/** Yellow sparks where the blades meet on a parry. */
+	private static final DustParticleOptions PARRY_SPARK = new DustParticleOptions(0xFFD21E, 1.1F);
+	private static final DustParticleOptions PARRY_SPARK_BRIGHT = new DustParticleOptions(0xFFF27A, 0.7F);
+
 	private static final Set<FallenLordAction> PARRIABLE = EnumSet.of(FallenLordAction.LUNGE, FallenLordAction.SWORD_DASH,
 			FallenLordAction.SLASH);
 	/** What a parry breaks off: the parried attack and the combo after it. */
@@ -1757,6 +1762,13 @@ public class FallenLord extends Monster {
 		if (!(defender instanceof Player) || !(level() instanceof ServerLevel level)) {
 			return;
 		}
+		if (stanceAttack && action == FallenLordAction.LUNGE && phase() == 2) {
+			// The thrust from his stance knocks the shield out at once: only a parry gets it back.
+			blockStreaks.remove(defender.getUUID());
+			knockShieldOut(level, defender, settings().shieldBreak().seconds());
+			openParry(level, defender);
+			return;
+		}
 		if (stanceAttack && PARRIABLE.contains(action)) {
 			// Blocked an attack from his stance: a quick hit back now parries it.
 			openParry(level, defender);
@@ -1767,7 +1779,7 @@ public class FallenLord extends Monster {
 			openParry(level, defender);
 			return;
 		}
-		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak();
+		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak().forPhase(phase());
 		BlockStreak streak = FallenLordLogic.addBlock(blockStreaks.getOrDefault(defender.getUUID(), BlockStreak.NONE), level.getGameTime(),
 				shieldBreak, random.nextDouble());
 		if (!FallenLordLogic.breaksShield(streak)) {
@@ -1915,6 +1927,10 @@ public class FallenLord extends Monster {
 		player.syncVelocity = true;
 		level.playSound(null, getX(), getY(0.6), getZ(), EamSounds.FALLEN_LORD_PARRY, getSoundSource(), 2.0F, 1.0F);
 		level.sendParticles(ParticleTypes.CRIT, getX(), getY(0.6), getZ(), 12, getBbWidth() * 0.4, getBbHeight() * 0.2, getBbWidth() * 0.4, 0.2);
+		// Sparks between the two of them, where the blades met.
+		Vec3 spark = position().add(0.0, getBbHeight() * 0.6, 0.0).lerp(player.getEyePosition().subtract(0.0, 0.4, 0.0), 0.5);
+		level.sendParticles(PARRY_SPARK, spark.x, spark.y, spark.z, 10, 0.25, 0.25, 0.25, 0.0);
+		level.sendParticles(PARRY_SPARK_BRIGHT, spark.x, spark.y, spark.z, 8, 0.4, 0.3, 0.4, 0.0);
 	}
 
 	private void blockWithShield(ServerLevel level, LivingEntity attacker) {

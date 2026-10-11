@@ -513,13 +513,20 @@ class FallenLordLogicTest {
 	}
 
 	@Test
-	void comboCutsAreSevenTicksApart() {
+	void comboCutsAreSixTicksApart() {
 		int gap = FallenLordLogic.COMBO_GAP;
 		assertEquals(10, FallenLordLogic.comboCut(0, gap));
-		assertEquals(17, FallenLordLogic.comboCut(1, gap));
-		assertEquals(24, FallenLordLogic.comboCut(2, gap));
-		assertEquals(33, FallenLordLogic.comboKick(gap));
-		// The skeleton knight keeps the old timing.
-		assertEquals(30, FallenLordLogic.comboKick(6));
+		assertEquals(16, FallenLordLogic.comboCut(1, gap));
+		assertEquals(22, FallenLordLogic.comboCut(2, gap));
+		assertEquals(30, FallenLordLogic.comboKick(gap));
+	}
+
+	@Test
+	void phaseTwoKnocksShieldsOutAfterTwoBlocks() {
+		FallenLordSettings.ShieldBreak two = FallenLordSettings.ShieldBreak.DEFAULT.forPhase(2);
+		BlockStreak streak = FallenLordLogic.addBlock(BlockStreak.NONE, 0, two, 0.99);
+		assertFalse(FallenLordLogic.breaksShield(streak));
+		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(streak, 10, two, 0.99)));
+		assertEquals(FallenLordSettings.ShieldBreak.DEFAULT, FallenLordSettings.ShieldBreak.DEFAULT.forPhase(1));
 	}
 }

@@ -231,16 +231,27 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param hitsMax and at most; picked anew between the two for every count
 	 * @param seconds how long the shield cannot be raised again (an axe does 5)
 	 * @param window  a blocked hit further than this many ticks after the previous one starts the count again
+	 * @param phaseTwoHitsMin {@code hitsMin} in phase two
+	 * @param phaseTwoHitsMax {@code hitsMax} in phase two
 	 */
-	public record ShieldBreak(int hitsMin, int hitsMax, float seconds, int window) {
-		public static final ShieldBreak DEFAULT = new ShieldBreak(2, 3, 5.0F, 200);
+	public record ShieldBreak(int hitsMin, int hitsMax, float seconds, int window, int phaseTwoHitsMin, int phaseTwoHitsMax) {
+		public static final ShieldBreak DEFAULT = new ShieldBreak(2, 3, 5.0F, 200, 2, 2);
 
 		public static final Codec<ShieldBreak> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("hits_min").orElse(DEFAULT.hitsMin).forGetter(ShieldBreak::hitsMin),
 				Codec.intRange(1, 100).fieldOf("hits_max").orElse(DEFAULT.hitsMax).forGetter(ShieldBreak::hitsMax),
 				Codec.floatRange(0.0F, 600.0F).fieldOf("seconds").orElse(DEFAULT.seconds).forGetter(ShieldBreak::seconds),
-				ticks().fieldOf("window").orElse(DEFAULT.window).forGetter(ShieldBreak::window)
+				ticks().fieldOf("window").orElse(DEFAULT.window).forGetter(ShieldBreak::window),
+				Codec.intRange(1, 100).fieldOf("phase_two_hits_min").orElse(DEFAULT.phaseTwoHitsMin)
+						.forGetter(ShieldBreak::phaseTwoHitsMin),
+				Codec.intRange(1, 100).fieldOf("phase_two_hits_max").orElse(DEFAULT.phaseTwoHitsMax)
+						.forGetter(ShieldBreak::phaseTwoHitsMax)
 		).apply(instance, ShieldBreak::new));
+
+		/** These settings with the hit counts of {@code phase}. */
+		public ShieldBreak forPhase(int phase) {
+			return phase == 2 ? new ShieldBreak(phaseTwoHitsMin, phaseTwoHitsMax, seconds, window, phaseTwoHitsMin, phaseTwoHitsMax) : this;
+		}
 	}
 
 	/**
@@ -342,7 +353,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
 			double extraWidth, int sweepTicks, int waves, int waveGap, int extraWindup) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.17, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.37, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
@@ -422,7 +433,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	public record Later(SpearDash spearDash, Breather breather, LeapBack leapBack, Stance stance, Vampirism vampirism, LeapUp leapUp,
 			Sprint sprint, DashBreak dashBreak, double armorPiercing, DashDelay dashDelay, Parry parry, Height height) {
 		public static final Later DEFAULT = new Later(SpearDash.DEFAULT, Breather.DEFAULT, LeapBack.DEFAULT, Stance.DEFAULT,
-				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.12, DashDelay.DEFAULT, Parry.DEFAULT,
+				Vampirism.DEFAULT, LeapUp.DEFAULT, Sprint.DEFAULT, DashBreak.DEFAULT, 0.16, DashDelay.DEFAULT, Parry.DEFAULT,
 				Height.DEFAULT);
 
 		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -486,7 +497,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param heal   health the parrying player gets back
 	 */
 	public record Parry(int window, double push, float damageMultiplier, float heal) {
-		public static final Parry DEFAULT = new Parry(14, 3.0, 1.5F, 3.0F);
+		public static final Parry DEFAULT = new Parry(12, 3.0, 1.5F, 3.0F);
 
 		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 200).fieldOf("window").orElse(DEFAULT.window).forGetter(Parry::window),

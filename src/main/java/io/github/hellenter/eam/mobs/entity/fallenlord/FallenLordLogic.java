@@ -27,7 +27,7 @@ public final class FallenLordLogic {
 	public static final double COMBO_CUT_REACH = SWORD_REACH + 0.2;
 	public static final double COMBO_KICK_REACH = SWORD_REACH - 0.2;
 	/** The Fallen Lord's combo: ticks between its three cuts, and the first cut's tick. The kick follows two ticks longer. */
-	public static final int COMBO_GAP = 7;
+	public static final int COMBO_GAP = 6;
 	public static final int COMBO_FIRST = 10;
 	/** A plain cut lands only on a target at least this far ahead of him. */
 	public static final double HEAVY_FRONT = 0.3;
