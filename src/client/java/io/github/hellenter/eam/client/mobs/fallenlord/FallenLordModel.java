@@ -48,8 +48,8 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	private static final float WALK_SINK = 1.0F / 6.0F;
 	/** The shield in the guard, in model space: upright and facing forward, its top leaning back, turned a little outward. */
 	private static final Quaternionfc SHIELD_GUARD = new Quaternionf().rotateY(-0.15F).rotateX(-0.12F).rotateY(QUARTER).rotateX(-QUARTER);
-	/** The shield lowered: its top tipped well forward and turned a little out, the face towards the ground ahead. */
-	private static final Quaternionfc SHIELD_LOWERED = new Quaternionf().rotateY(-0.4F).rotateX(0.9F).mul(SHIELD_GUARD);
+	/** The shield lowered in front of his left thigh: nearly upright, its top tipped a little forward and turned a little out. */
+	private static final Quaternionfc SHIELD_LOWERED = new Quaternionf().rotateY(-0.3F).rotateX(0.35F).mul(SHIELD_GUARD);
 	/**
 	 * The shield knocked out of the guard: hanging upright from the hand at his side, its face turned out and a little
 	 * forward, the top tipped a little forward and the bottom edge clear of his leg.
