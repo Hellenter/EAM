@@ -36,6 +36,10 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 	private static final float SHIN = 6.0F;
 	/** The hand at the end of the forearm, as far below the shoulder as on the vanilla arm. */
 	private static final float HAND = 10.0F;
+	/** The helm with its crest is drawn this much smaller than modelled, shrunk toward the neck. */
+	private static final float HEAD_SCALE = 0.8F;
+	/** The top of the chainmail panels, hidden under the skirt of plates. */
+	private static final float MAIL_TOP = 10.0F;
 	/** Share of the knee sink kept while he just walks; more makes him bob up and down. */
 	private static final float WALK_SINK = 1.0F / 6.0F;
 
@@ -75,7 +79,7 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 				.texOffs(72, 8).addBox(-5.5F, -8.0F, -6.0F, 11.0F, 2.0F, 1.0F)
 				.texOffs(96, 8).addBox(-1.0F, -8.0F, -6.5F, 2.0F, 4.0F, 1.0F)
 				.texOffs(40, 10).addBox(-5.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F)
-				.texOffs(52, 10).addBox(1.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F), PartPose.ZERO);
+				.texOffs(52, 10).addBox(1.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F), PartPose.ZERO.withScale(HEAD_SCALE));
 		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 		// The crest: a ridge on the dome holding a plume that rises toward the back and hangs down behind.
 		head.addOrReplaceChild("crest", CubeListBuilder.create()
@@ -87,15 +91,15 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
 				.texOffs(0, 36).addBox(-4.5F, 0.0F, -2.5F, 9.0F, 12.0F, 5.0F)
 				.texOffs(28, 36).addBox(-5.5F, 10.0F, -3.5F, 11.0F, 4.0F, 7.0F), PartPose.ZERO);
-		// Chainmail hanging from under the plates to below the knees, one panel on each side of the hips.
+		// Chainmail hanging from under the plates to the knees, one panel on each side of the hips.
 		body.addOrReplaceChild("mail_front", CubeListBuilder.create().texOffs(64, 20).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 9.0F, 1.0F),
-				PartPose.offset(0.0F, 12.0F, -2.6F));
+				PartPose.offset(0.0F, MAIL_TOP, -2.6F));
 		body.addOrReplaceChild("mail_back", CubeListBuilder.create().texOffs(86, 20).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 9.0F, 1.0F),
-				PartPose.offset(0.0F, 12.0F, 2.6F));
+				PartPose.offset(0.0F, MAIL_TOP, 2.6F));
 		body.addOrReplaceChild("mail_right", CubeListBuilder.create().texOffs(64, 30).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 9.0F, 6.0F),
-				PartPose.offset(-4.9F, 12.0F, 0.0F));
+				PartPose.offset(-4.9F, MAIL_TOP, 0.0F));
 		body.addOrReplaceChild("mail_left", CubeListBuilder.create().texOffs(78, 30).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 9.0F, 6.0F),
-				PartPose.offset(4.9F, 12.0F, 0.0F));
+				PartPose.offset(4.9F, MAIL_TOP, 0.0F));
 		// Thin plated arms under big pauldrons, a gauntlet cuff at the wrist; they bend at the elbow.
 		root.addOrReplaceChild("right_arm", CubeListBuilder.create()
 				.texOffs(0, 56).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, plate)

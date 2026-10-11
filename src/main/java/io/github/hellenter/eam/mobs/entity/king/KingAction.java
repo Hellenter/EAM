@@ -21,7 +21,7 @@ public enum KingAction {
 	ONSLAUGHT(30),
 	/** Eyes flash red, axes drawn back, feet set: the time to step away. Then {@link #CHARGE}. */
 	CHARGE_WINDUP(14),
-	/** Runs at the target; reaching it, he knocks its shield away and goes on to {@link #CHARGE_HITS}. */
+	/** Runs at the target; reaching it, he goes on to {@link #CHARGE_HITS}. */
 	CHARGE(12),
 	/** Three quick cuts on {@link #CHARGE_CUTS}, then a kick on {@link #CHARGE_KICK}. */
 	CHARGE_HITS(24),

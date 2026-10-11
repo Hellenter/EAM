@@ -31,6 +31,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -43,6 +44,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -50,7 +52,6 @@ import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
@@ -66,13 +67,15 @@ import java.util.Arrays;
  * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (rush, kick, a leap with both axes
  * for a blow a shield only softens, parried by a hit while he is in the air), spins in a long tornado of weak blockable
  * cuts, throws his left axe to knock a raised shield out or round the target into its back, and from afar charges after
- * his eyes flash red, knocking the shield away for three cuts and a kick. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
+ * his eyes flash red for three cuts a raised shield blocks and a kick, slower after the first cut. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
 public class PillagerKing extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(PillagerKing.class, EntityDataSerializers.BYTE);
 	private static final Identifier RUN_MODIFIER = Eam.id("pillager_king_run");
+	/** Slower after the first cut of a charge, to the end of it. */
+	private static final Identifier CHARGE_SLOW_MODIFIER = Eam.id("pillager_king_charge_slow");
 	/** The look of his axes, named by the item_model component. */
 	public static final Identifier AXE_MODEL = Eam.id("pillager_king_axe");
 	/** Hits further than this flat distance past their reach still land, for a moving target. */
@@ -156,6 +159,9 @@ public class PillagerKing extends Monster {
 		targetSelector.addGoal(1, new HurtByTargetGoal(this));
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+		// The monsters that go for him, he goes for too; a player in sight still comes first.
+		targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Mob.class, true,
+				(entity, level) -> entity.is(PillagerKingModule.ATTACKERS)));
 	}
 
 	@Override
@@ -349,6 +355,10 @@ public class PillagerKing extends Monster {
 	}
 
 	private void setAction(KingAction next) {
+		AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+		if (speed != null && speed.hasModifier(CHARGE_SLOW_MODIFIER)) {
+			speed.removeModifier(CHARGE_SLOW_MODIFIER);
+		}
 		action = next;
 		actionTicks = 0;
 		entityData.set(DATA_ACTION, (byte) next.ordinal());
@@ -468,6 +478,11 @@ public class PillagerKing extends Monster {
 			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2,
 					KingAction.ONSLAUGHT_HIT - KingAction.ONSLAUGHT_LEAP));
 			setDeltaMovement(to.x * speed, LEAP_UP, to.z * speed);
+		} else if (t > KingAction.ONSLAUGHT_LEAP && t < KingAction.ONSLAUGHT_HIT && !onGround()) {
+			// The kick throws the target far back: he steers in the air to come down on it, in reach of its parry.
+			Vec3 to = horizontal(target.position().subtract(position()));
+			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2, KingAction.ONSLAUGHT_HIT - t));
+			setDeltaMovement(to.x * speed, getDeltaMovement().y, to.z * speed);
 		}
 		if (t == KingAction.ONSLAUGHT_HIT) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.MACE_SMASH_GROUND_HEAVY, getSoundSource(), 1.5F, 0.7F);
@@ -499,7 +514,7 @@ public class PillagerKing extends Monster {
 		target.push(away.x * push, 0.35, away.z * push);
 	}
 
-	/** Runs at the target; on reaching it, knocks its shield away and goes into the cuts. */
+	/** Runs at the target; on reaching it, goes into the cuts. A raised shield blocks them. */
 	private void tickCharge(ServerLevel level, @Nullable LivingEntity target, PillagerKingSettings.Charge charge) {
 		if (target == null) {
 			return;
@@ -512,34 +527,29 @@ public class PillagerKing extends Monster {
 			}
 			return;
 		}
-		knockShieldAway(level, target, charge.shieldSeconds());
 		setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
 		setAction(KingAction.CHARGE_HITS);
 	}
 
-	/** Knocks the target's shield out of its hands for a while, raised or not. */
-	private void knockShieldAway(ServerLevel level, LivingEntity target, float seconds) {
-		for (ItemStack held : new ItemStack[] {target.getMainHandItem(), target.getOffhandItem()}) {
-			BlocksAttacks blocks = held.get(DataComponents.BLOCKS_ATTACKS);
-			if (blocks != null) {
-				blocks.disable(level, target, seconds, held);
-				level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F,
-						0.8F);
-				return;
-			}
-		}
-	}
-
-	/** Three quick cuts after the charge, then a kick. */
+	/** Three quick cuts after the charge, then a kick; slower after the first cut. */
 	private void tickChargeHits(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings settings) {
 		if (target == null) {
 			return;
 		}
 		PillagerKingSettings.Charge charge = settings.charge();
+		boolean slowed = t > KingAction.CHARGE_CUTS[0];
+		if (t == KingAction.CHARGE_CUTS[0] + 1) {
+			AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+			if (speed != null) {
+				speed.addOrUpdateTransientModifier(new AttributeModifier(CHARGE_SLOW_MODIFIER, -charge.slowAfterHit(),
+						AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			}
+		}
 		// He keeps on the target as it backs off.
 		if (t < KingAction.CHARGE_KICK && horizontalDistanceTo(target) > 1.8) {
 			Vec3 to = horizontal(target.position().subtract(position()));
-			setDeltaMovement(to.x * 0.35, getDeltaMovement().y, to.z * 0.35);
+			double follow = 0.35 * (slowed ? 1.0 - charge.slowAfterHit() : 1.0);
+			setDeltaMovement(to.x * follow, getDeltaMovement().y, to.z * follow);
 		}
 		for (int cut : KingAction.CHARGE_CUTS) {
 			if (t == cut) {
@@ -728,11 +738,10 @@ public class PillagerKing extends Monster {
 		}
 	}
 
-	/** Cuts everyone around him that he fights: players, golems and his target, whichever side they are on. */
+	/** Cuts everything alive around him: players, golems, monsters, animals, villagers. */
 	private void hitAround(ServerLevel level, double radius, float damage, DamageSource source, float knockback) {
 		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(radius, 1.0, radius),
-				e -> e != this && e.isAlive() && (e == actionTarget || e instanceof IronGolem
-						|| e instanceof Player && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e)))) {
+				e -> e != this && e.isAlive() && !(e instanceof ArmorStand) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e))) {
 			if (horizontalDistanceTo(victim) <= radius + victim.getBbWidth() * 0.5 && Math.abs(victim.getY() - getY()) < 2.5
 					&& hasLineOfSight(victim)) {
 				victim.damageCooldownTime = 0;

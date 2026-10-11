@@ -19,7 +19,7 @@ public final class PillagerKingLogic {
 		THROW,
 		/** The left axe thrown round the target into its back. */
 		BOOMERANG,
-		/** A run at the target after a red warning: its shield knocked away, three cuts and a kick. */
+		/** A run at the target after a red warning: three cuts and a kick. */
 		CHARGE
 	}
 

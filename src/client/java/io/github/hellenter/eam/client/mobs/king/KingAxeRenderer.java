@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 /** Draws the thrown axe as its item, spinning end over end along its flight. */
 public class KingAxeRenderer extends EntityRenderer<ThrownKingAxe, KingAxeRenderer.State> {
 	/** The axe's 32x32 texture keeps the pixel size of a 16x16 item: this draws it as big as in his hand. */
-	private static final float SCALE = 2.1F;
+	private static final float SCALE = 1.575F;
 	/** Degrees per tick it turns end over end. */
 	private static final float SPIN = 50.0F;
 

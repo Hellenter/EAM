@@ -19,7 +19,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param tornado     a long spin of weak cuts all around
  * @param axeThrow    the left axe thrown, mostly to knock a raised shield out
  * @param boomerang   the left axe thrown round the target to strike it in the back
- * @param charge      a run at the target after a red warning: shield knocked away, three cuts and a kick
+ * @param charge      a run at the target after a red warning: three cuts and a kick
  * @param arrowParry  he knocks arrows from the front aside with an axe
  * @param dash        a few fast steps at the target
  * @param hop         a hop back from a player who crowds him
@@ -114,7 +114,7 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 */
 	public record Onslaught(float damage, float shieldReduction, float kickDamage, double kickPush, double rushSpeed, double chance,
 			double chanceVsShield, int cooldown) {
-		public static final Onslaught DEFAULT = new Onslaught(25.0F, 0.25F, 2.0F, 1.4, 0.7, 0.25, 0.5, 220);
+		public static final Onslaught DEFAULT = new Onslaught(25.0F, 0.25F, 2.0F, 0.7, 0.7, 0.25, 0.5, 220);
 
 		public static final Codec<Onslaught> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 200.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Onslaught::damage),
@@ -198,22 +198,22 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param damage        damage of each of the three cuts
 	 * @param kickDamage    damage of the kick that ends it
 	 * @param kickPush      how hard the kick pushes the target back
-	 * @param shieldSeconds the target's shield is knocked away for this long
+	 * @param slowAfterHit  share of his speed he loses after the first cut, to the end of the attack
 	 * @param speed         blocks per tick he runs
 	 * @param from          he charges at a target at least this far
 	 * @param to            and at most this far
 	 * @param chance        chance to pick it when it is ready and the target is in range
 	 * @param cooldown      ticks before the next charge
 	 */
-	public record Charge(float damage, float kickDamage, double kickPush, float shieldSeconds, double speed, double from, double to,
+	public record Charge(float damage, float kickDamage, double kickPush, double slowAfterHit, double speed, double from, double to,
 			double chance, int cooldown) {
-		public static final Charge DEFAULT = new Charge(6.0F, 2.0F, 1.2, 5.0F, 0.95, 4.0, 12.0, 0.35, 200);
+		public static final Charge DEFAULT = new Charge(6.0F, 2.0F, 1.2, 0.33, 0.95, 4.0, 12.0, 0.35, 200);
 
 		public static final Codec<Charge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Charge::damage),
 				Codec.floatRange(0.0F, 100.0F).fieldOf("kick_damage").orElse(DEFAULT.kickDamage).forGetter(Charge::kickDamage),
 				Codec.doubleRange(0.0, 5.0).fieldOf("kick_push").orElse(DEFAULT.kickPush).forGetter(Charge::kickPush),
-				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Charge::shieldSeconds),
+				Codec.doubleRange(0.0, 0.95).fieldOf("slow_after_hit").orElse(DEFAULT.slowAfterHit).forGetter(Charge::slowAfterHit),
 				Codec.doubleRange(0.0, 3.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Charge::speed),
 				Codec.doubleRange(0.0, 64.0).fieldOf("from").orElse(DEFAULT.from).forGetter(Charge::from),
 				Codec.doubleRange(0.0, 64.0).fieldOf("to").orElse(DEFAULT.to).forGetter(Charge::to),
