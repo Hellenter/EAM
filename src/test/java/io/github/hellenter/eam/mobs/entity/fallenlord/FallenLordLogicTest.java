@@ -385,9 +385,9 @@ class FallenLordLogicTest {
 	@Test
 	void leapBackGetsLikelierWithEveryAttack() {
 		FallenLordSettings.LeapBack leapBack = SETTINGS.later().leapBack();
-		assertEquals(0.0, FallenLordLogic.leapBackChance(1, leapBack), 1.0E-9);
-		assertEquals(0.25, FallenLordLogic.leapBackChance(2, leapBack), 1.0E-9);
-		assertEquals(0.5, FallenLordLogic.leapBackChance(3, leapBack), 1.0E-9);
+		assertEquals(0.0, FallenLordLogic.leapBackChance(2, leapBack), 1.0E-9);
+		assertEquals(0.2, FallenLordLogic.leapBackChance(3, leapBack), 1.0E-9);
+		assertEquals(0.4, FallenLordLogic.leapBackChance(4, leapBack), 1.0E-9);
 		assertEquals(1.0, FallenLordLogic.leapBackChance(9, leapBack), 1.0E-9);
 	}
 

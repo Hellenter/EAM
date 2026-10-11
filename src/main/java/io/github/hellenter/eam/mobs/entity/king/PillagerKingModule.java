@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.king;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -25,6 +26,7 @@ public final class PillagerKingModule {
 	}
 
 	public static void register() {
+		BossParry.register();
 		FabricDefaultAttributeRegistry.register(EamEntities.PILLAGER_KING, PillagerKing.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(PillagerKingSettingsLoader.ID, new PillagerKingSettingsLoader());
 	}

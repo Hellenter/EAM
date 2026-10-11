@@ -2,6 +2,9 @@ package io.github.hellenter.eam.mobs.entity.king;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
+import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingLogic.Attack;
 
 import net.minecraft.core.particles.ParticleTypes;
@@ -78,6 +81,8 @@ public class PillagerKing extends Monster {
 	private KingAction action = KingAction.NONE;
 	private int actionTicks;
 	private @Nullable LivingEntity actionTarget;
+	/** Who parried him and when: a quick second parry is harder. */
+	private final ParryStreak parryStreak = new ParryStreak();
 	private int idleTicks;
 	private final int[] cooldowns = new int[Attack.values().length];
 	private int dashCooldown;
@@ -599,10 +604,13 @@ public class PillagerKing extends Monster {
 		if (action == KingAction.TOTEM && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			return false;
 		}
+		ParryPenalty penalty = BossParry.penalty();
+		boolean penalized = source.getEntity() instanceof Player hitter
+				&& parryStreak.penalized(hitter.getUUID(), level.getGameTime(), penalty);
 		boolean parry = source.getEntity() instanceof Player player && source.getDirectEntity() == player
-				&& PillagerKingLogic.parries(action, actionTicks);
+				&& PillagerKingLogic.parries(action, actionTicks, penalty.window(KingAction.COMBO_PARRY_END, penalized));
 		if (parry) {
-			damage *= settings().combo().parryMultiplier();
+			damage *= penalty.multiplier(settings().combo().parryMultiplier(), penalized);
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (parry && isAlive() && action != KingAction.TOTEM) {
@@ -613,6 +621,7 @@ public class PillagerKing extends Monster {
 
 	/** A player hit him as the combo began: it breaks off and he staggers back, open to hits. */
 	private void parried(ServerLevel level, Player player) {
+		parryStreak.parried(player.getUUID(), level.getGameTime());
 		LivingEntity target = actionTarget;
 		setAction(KingAction.STAGGER);
 		actionTarget = target;

@@ -131,7 +131,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 			float comboKnockback, int comboCooldown, float lungeDamage, int lungeCooldown, float whirlMultiplier, double whirlRadius,
 			float whirlKnockback, int whirlCooldown, int attackPause, float damageMultiplier) {
 		public static final PhaseTwo DEFAULT = new PhaseTwo(112.0F, 1.125, 9.0F, 20, 6.0F, 5.0F, 1.2F, 300, 10.0F, 140, 1.5F, 4.0, 1.0F, 400, 6,
-				0.875F);
+				1.05F);
 
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 10000.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseTwo::health),
@@ -359,7 +359,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 */
 	public record HeavyStrike(float damageMultiplier, double extraReach, float blockedShare, float shieldSeconds, int cooldown,
 			double extraWidth, int sweepTicks, int waves, int waveGap, int extraWindup) {
-		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.37, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 3);
+		public static final HeavyStrike DEFAULT = new HeavyStrike(2.6F, 1.37, 0.5F, 5.0F, 183, 0.33, 8, 3, 4, 0);
 
 		public static final Codec<HeavyStrike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(HeavyStrike::damageMultiplier),
@@ -638,7 +638,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param maxRange   he only leaps back from a player this close
 	 */
 	public record LeapBack(int after, double chanceStep, double distance, double maxRange) {
-		public static final LeapBack DEFAULT = new LeapBack(2, 0.25, 4.5, 6.0);
+		public static final LeapBack DEFAULT = new LeapBack(3, 0.2, 4.5, 6.0);
 
 		public static final Codec<LeapBack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("after").orElse(DEFAULT.after).forGetter(LeapBack::after),

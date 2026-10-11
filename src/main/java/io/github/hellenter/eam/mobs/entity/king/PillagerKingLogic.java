@@ -109,6 +109,11 @@ public final class PillagerKingLogic {
 
 	/** Whether a hit taken on tick {@code t} of an action parries him. */
 	public static boolean parries(KingAction action, int t) {
-		return action == KingAction.COMBO && t < KingAction.COMBO_PARRY_END;
+		return parries(action, t, KingAction.COMBO_PARRY_END);
+	}
+
+	/** Whether a hit taken on tick {@code t} of an action parries him, with the window ending at tick {@code end}. */
+	public static boolean parries(KingAction action, int t, int end) {
+		return action == KingAction.COMBO && t < end;
 	}
 }

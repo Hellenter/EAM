@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 
@@ -40,6 +41,7 @@ public final class FallenLordModule {
 	}
 
 	public static void register() {
+		BossParry.register();
 		FabricDefaultAttributeRegistry.register(EamEntities.FALLEN_LORD, FallenLord.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FallenLordSettingsLoader.ID, new FallenLordSettingsLoader());
 	}

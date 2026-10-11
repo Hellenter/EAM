@@ -4,6 +4,9 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
+import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.BlockStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
@@ -269,6 +272,10 @@ public class FallenLord extends Monster {
 	/** The player who may parry, and the game time until which their hit counts. */
 	private @Nullable UUID parryPlayer;
 	private long parryUntil;
+	/** Whether the open parry window is a repeat soon after the same player's last parry: shorter, weaker. */
+	private boolean parryPenalized;
+	/** Who parried him and when. */
+	private final ParryStreak parryStreak = new ParryStreak();
 
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
@@ -1807,7 +1814,9 @@ public class FallenLord extends Monster {
 		}
 		boolean alreadyOpen = defender.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil;
 		parryPlayer = defender.getUUID();
-		parryUntil = level.getGameTime() + settings().later().parry().window();
+		ParryPenalty penalty = BossParry.penalty();
+		parryPenalized = parryStreak.penalized(parryPlayer, level.getGameTime(), penalty);
+		parryUntil = level.getGameTime() + penalty.window(settings().later().parry().window(), parryPenalized);
 		entityData.set(DATA_PARRY_OPEN, true);
 		if (!alreadyOpen) {
 			level.playSound(null, defender.getX(), defender.getY(), defender.getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(),
@@ -1874,7 +1883,7 @@ public class FallenLord extends Monster {
 				&& player.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil ? player : null;
 		if (parrying != null) {
 			// A parry lands harder.
-			damage *= settings().later().parry().damageMultiplier();
+			damage *= BossParry.penalty().multiplier(settings().later().parry().damageMultiplier(), parryPenalized);
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (parrying != null) {
@@ -1910,6 +1919,7 @@ public class FallenLord extends Monster {
 	 * and their shield is ready again.
 	 */
 	private void parried(ServerLevel level, Player player) {
+		parryStreak.parried(player.getUUID(), level.getGameTime());
 		parryPlayer = null;
 		entityData.set(DATA_PARRY_OPEN, false);
 		player.heal(settings().later().parry().heal());
