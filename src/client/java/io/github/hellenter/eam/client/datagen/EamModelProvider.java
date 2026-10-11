@@ -107,13 +107,14 @@ public class EamModelProvider extends FabricModelProvider {
 	}
 
 	/**
-	 * The small dense shrub: a box of vanilla oak leaves wider than the block, tinted with the biome's foliage colour like
-	 * the trees, with leafy planes through it whose edges stick out as tufts, on a cross of twig legs. A ripe cranberry
+	 * The small dense shrub: a box of its own chunky 16x16 leaves wider than the block, tinted with the biome's foliage
+	 * colour like the trees, with leafy planes through it whose edges stick out as tufts, on a cross of twig legs. A ripe cranberry
 	 * shrub has the berries drawn just outside its leaves.
 	 */
 	private static void denseShrub(BlockModelGenerators generators) {
 		Block block = EamBlocks.DENSE_SHRUB;
 		String stem = TextureMapping.getBlockTexture(block, "_stem").sprite().toString();
+		String leaves = TextureMapping.getBlockTexture(block, "_leaves").sprite().toString();
 		String berries = TextureMapping.getBlockTexture(block, "_cranberries").sprite().toString();
 		Identifier plain = ModelLocationUtils.getModelLocation(block);
 		Identifier ripe = ModelLocationUtils.getModelLocation(block, "_berries");
@@ -130,7 +131,7 @@ public class EamModelProvider extends FabricModelProvider {
 				if (withBerries) {
 					leafBox(elements, -1.1, 2.9, 17.1, 17.1, "#berries", false);
 				}
-				return shrubModel(stem, "minecraft:block/oak_leaves", berries, elements);
+				return shrubModel(stem, leaves, berries, elements);
 			});
 		}
 		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(PropertyDispatch.initial(BerryShrub.BERRIES)

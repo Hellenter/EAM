@@ -2212,8 +2212,8 @@
   ],
   "textures": {
     "berries": "eam:block/dense_shrub_cranberries",
-    "leaves": "minecraft:block/oak_leaves",
-    "particle": "minecraft:block/oak_leaves",
+    "leaves": "eam:block/dense_shrub_leaves",
+    "particle": "eam:block/dense_shrub_leaves",
     "stem": "eam:block/dense_shrub_stem"
   }
 }
