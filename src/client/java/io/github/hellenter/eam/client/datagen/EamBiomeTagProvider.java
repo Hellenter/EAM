@@ -8,6 +8,7 @@ import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
+import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
@@ -67,6 +68,10 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		// Vampire bat flocks hunt the whole upper underworld, not the depths below the deep bedrock.
+		builder(VampireBatModule.SPAWNS_IN)
+				.add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST, UnderworldDimension.STONE_WASTES,
+						UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
 		builder(SpiderModule.BLACK_WIDOWS_SPAWN_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.DARK_FOREST, Biomes.PALE_GARDEN);

@@ -22,6 +22,7 @@
 		"mobs.vanilla.MobSunBurnMixin",
 		"mobs.vanilla.TargetGoalAccessor",
 		"mobs.vanilla.TrialSpawnerMixin",
+		"survival.bleeding.PlayerBleedingMixin",
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",

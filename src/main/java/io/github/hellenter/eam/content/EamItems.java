@@ -251,6 +251,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.WOOD_SPIDER));
 	public static final Item BLACK_WIDOW_SPAWN_EGG = register("black_widow_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.BLACK_WIDOW));
+	public static final Item VAMPIRE_BAT_SPAWN_EGG = register("vampire_bat_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.VAMPIRE_BAT));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);

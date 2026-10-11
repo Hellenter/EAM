@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
+import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -26,6 +27,9 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.BYPASSES_EFFECTS).add(ThirstModule.DEHYDRATION);
 		builder(DamageTypeTags.NO_KNOCKBACK).add(ThirstModule.DEHYDRATION);
 		builder(DamageTypeTags.BYPASSES_WOLF_ARMOR).add(ThirstModule.DEHYDRATION);
+		// Bleeding goes through armor without knockback.
+		builder(DamageTypeTags.BYPASSES_ARMOR).add(BleedingModule.DAMAGE);
+		builder(DamageTypeTags.NO_KNOCKBACK).add(BleedingModule.DAMAGE);
 		// The Fallen Lord's dash can only be dodged.
 		// His heavy strike goes through shields too: he works out the share a shield takes himself.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(FallenLordModule.DASH_DAMAGE, FallenLordModule.HEAVY_DAMAGE);

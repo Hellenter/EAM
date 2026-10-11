@@ -94,7 +94,8 @@ public final class EamCreativeTabs {
 			EamItems.BLACK_TALISMAN,
 			EamItems.BEDROCK_BREAKER,
 			EamItems.FALLEN_LORD_SPAWN_EGG, EamItems.SKELETON_KNIGHT_SPAWN_EGG, EamItems.SWAMP_LURKER_SPAWN_EGG,
-			EamItems.WIGHT_SPAWN_EGG, EamItems.WOOD_SPIDER_SPAWN_EGG, EamItems.BLACK_WIDOW_SPAWN_EGG);
+			EamItems.WIGHT_SPAWN_EGG, EamItems.WOOD_SPIDER_SPAWN_EGG, EamItems.BLACK_WIDOW_SPAWN_EGG,
+			EamItems.VAMPIRE_BAT_SPAWN_EGG);
 
 	public static final CreativeModeTab WORKSHOP = register("workshop", () -> new ItemStack(EamItems.COPPER_ANVIL),
 			EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL, EamItems.OBSIDIAN_BLAST_FURNACE,

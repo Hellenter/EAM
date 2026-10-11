@@ -72,6 +72,12 @@ public final class ThirstLogic {
 		return new TickResult(next, new ThirstCounters(exhaustion, timer, sipCooldown, immunity), dehydrate);
 	}
 
+	/** Adds {@code factor} ticks' worth of passive thirst, for effects that make the player thirsty faster. */
+	public static ThirstCounters addPassive(ThirstCounters counters, ThirstSettings settings, float factor) {
+		float exhaustion = counters.exhaustion() + settings.passiveExhaustion() * factor;
+		return counters.withExhaustion(Math.min(exhaustion, MAX_EXHAUSTION));
+	}
+
 	/** Thirst share of one tick of food poisoning. */
 	public static ThirstCounters addPoisoning(ThirstCounters counters, ThirstSettings settings) {
 		float exhaustion = counters.exhaustion() + settings.poisoning().thirstExhaustion();

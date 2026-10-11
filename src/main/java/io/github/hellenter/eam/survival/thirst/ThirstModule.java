@@ -206,6 +206,16 @@ public final class ThirstModule {
 		return off || thirst == null || player.getAbilities().mayfly || ThirstLogic.canSprint(thirst);
 	}
 
+	/** Extra passive thirst for one tick: {@code factor} times the normal drain of standing still. */
+	public static void addPassiveDrain(ServerPlayer player, float factor) {
+		if (enabled && factor > 0.0F && !ProgressionModule.inGracePeriod(player)) {
+			ThirstSettings settings = ThirstModule.settings;
+			boolean hot = player.level().getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature();
+			player.setAttached(COUNTERS, ThirstLogic.addPassive(player.getAttachedOrCreate(COUNTERS), settings,
+					hot ? factor * settings.hotMultiplier() : factor));
+		}
+	}
+
 	/** One tick of food poisoning: costs water and food. */
 	static void poisoningTick(ServerPlayer player) {
 		if (!enabled || player.getAbilities().invulnerable) {

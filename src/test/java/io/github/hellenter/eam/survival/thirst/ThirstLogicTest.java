@@ -156,4 +156,12 @@ class ThirstLogicTest {
 		assertEquals(6, small.withMax(8).water());
 		assertFalse(small.withMax(8).isFull());
 	}
+
+	@Test
+	void extraPassiveDrainScalesAndCaps() {
+		ThirstSettings settings = ThirstSettings.DEFAULT;
+		assertEquals(settings.passiveExhaustion() * 2.0F, ThirstLogic.addPassive(ThirstCounters.ZERO, settings, 2.0F).exhaustion(), 1.0E-7);
+		ThirstCounters full = ThirstCounters.ZERO.withExhaustion(ThirstLogic.MAX_EXHAUSTION);
+		assertEquals(ThirstLogic.MAX_EXHAUSTION, ThirstLogic.addPassive(full, settings, 2.0F).exhaustion());
+	}
 }

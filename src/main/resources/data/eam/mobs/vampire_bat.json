@@ -1,0 +1,12 @@
+{
+  "bleeding_ticks": 60,
+  "attack_cooldown": 20,
+  "chase_speed": 0.7,
+  "check_interval": 200,
+  "flock_chance": 0.12,
+  "min_flock": 4,
+  "max_flock": 6,
+  "min_distance": 40.0,
+  "max_distance": 50.0,
+  "max_nearby": 10
+}

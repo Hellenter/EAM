@@ -36,6 +36,14 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.WIGHT_GROAN, wight(EamSounds.WIGHT_GROAN, "groan", "mob/husk/idle", 3, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_HURT, wight(EamSounds.WIGHT_HURT, "hurt", "mob/husk/hurt", 2, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_DEATH, wight(EamSounds.WIGHT_DEATH, "death", "mob/husk/death", 2, 0.5F, 1.0F));
+		// A vampire bat flock in the distance: vanilla bat take-off and squeaks pitched down into a harsh screech.
+		exporter.add(EamSounds.VAMPIRE_BAT_SWARM, SoundTypeBuilder.of(EamSounds.VAMPIRE_BAT_SWARM)
+				.subtitle("subtitles.eam.entity.vampire_bat.swarm")
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("mob/bat/takeoff")).pitch(0.7F))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("mob/bat/idle1")).pitch(0.6F))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("mob/bat/idle2")).pitch(0.6F))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("mob/bat/idle3")).pitch(0.6F))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("mob/bat/idle4")).pitch(0.6F)));
 	}
 
 	private static SoundTypeBuilder wight(SoundEvent event, String name, String file, int files, float pitch, float volume) {

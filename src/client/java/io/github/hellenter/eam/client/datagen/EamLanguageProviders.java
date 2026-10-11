@@ -251,6 +251,12 @@ public final class EamLanguageProviders {
 			builder.add("subtitles.eam.entity.wight.groan", "Burning wight groans");
 			builder.add("subtitles.eam.entity.wight.hurt", "Wight hurts");
 			builder.add("subtitles.eam.entity.wight.death", "Wight dies");
+			builder.add(EamEntities.VAMPIRE_BAT, "Vampire Bat");
+			builder.add(EamItems.VAMPIRE_BAT_SPAWN_EGG, "Vampire Bat Spawn Egg");
+			builder.add("subtitles.eam.entity.vampire_bat.swarm", "Vampire bats screech");
+			builder.add("effect.eam.bleeding", "Bleeding");
+			builder.add("death.attack.eam.bleeding", "%1$s bled out");
+			builder.add("death.attack.eam.bleeding.player", "%1$s bled out while fighting %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%1$s was run through by %2$s");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%1$s was cleaved by %2$s");
@@ -713,6 +719,12 @@ public final class EamLanguageProviders {
 			builder.add("subtitles.eam.entity.wight.groan", "Горящий вихт стонет");
 			builder.add("subtitles.eam.entity.wight.hurt", "Вихт ранен");
 			builder.add("subtitles.eam.entity.wight.death", "Вихт умирает");
+			builder.add(EamEntities.VAMPIRE_BAT, "Летучая мышь-кровосос");
+			builder.add(EamItems.VAMPIRE_BAT_SPAWN_EGG, "Яйцо призыва летучей мыши-кровососа");
+			builder.add("subtitles.eam.entity.vampire_bat.swarm", "Визг стаи кровососов");
+			builder.add("effect.eam.bleeding", "Кровотечение");
+			builder.add("death.attack.eam.bleeding", "%1$s истёк кровью");
+			builder.add("death.attack.eam.bleeding.player", "%1$s истёк кровью, сражаясь с %2$s");
 			builder.add("death.attack.eam.fallen_lord_dash", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_dash.player", "%2$s пронзил %1$s в рывке");
 			builder.add("death.attack.eam.fallen_lord_heavy", "%2$s разрубил %1$s");

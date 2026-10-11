@@ -80,6 +80,11 @@ public final class HungerModule {
 		return enabled;
 	}
 
+	/** Food exhaustion every player gets each tick just for being alive; zero while the module is off. */
+	public static float passiveExhaustion() {
+		return enabled ? rules.passiveExhaustion() : 0.0F;
+	}
+
 	static void setRules(HungerRules newRules) {
 		rules = newRules;
 	}

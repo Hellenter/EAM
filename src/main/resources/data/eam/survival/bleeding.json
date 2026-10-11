@@ -1,0 +1,5 @@
+{
+	"damage_interval": 15,
+	"damage": 0.5,
+	"drain_multiplier": 3.0
+}

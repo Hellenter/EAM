@@ -25,6 +25,9 @@ public final class EamSounds {
 	public static final SoundEvent WIGHT_HURT = register("entity.wight.hurt");
 	public static final SoundEvent WIGHT_DEATH = register("entity.wight.death");
 
+	/** The screech of a vampire bat flock taking wing in the distance: get ready. */
+	public static final SoundEvent VAMPIRE_BAT_SWARM = register("entity.vampire_bat.swarm");
+
 	private EamSounds() {
 	}
 

@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
+import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
@@ -88,6 +89,15 @@ public final class EamEntities {
 			EntityType.Builder.of(BlackWidow::new, MobCategory.MONSTER)
 					.sized(0.84F, 0.54F)
 					.eyeHeight(0.39F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A blood-sucking underworld bat, a third bigger than a cave bat; flocks of them hunt players. */
+	public static final EntityType<VampireBat> VAMPIRE_BAT = register("vampire_bat",
+			EntityType.Builder.of(VampireBat::new, MobCategory.MONSTER)
+					.noLootTable()
+					.sized(0.65F, 1.15F)
+					.eyeHeight(0.6F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
 
