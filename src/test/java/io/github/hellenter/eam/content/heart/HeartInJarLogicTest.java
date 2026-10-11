@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.content.heart;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,5 +22,18 @@ class HeartInJarLogicTest {
 			assertTrue(step > previousStep);
 			previousStep = step;
 		}
+	}
+
+	@Test
+	void pathRunsFromTheHandOverTheTopIntoTheChest() {
+		double[] chest = {0.0, -0.5, 0.1};
+		double[] p = HeartInJarLogic.HAND;
+		double[] b = HeartInJarLogic.RISE;
+		double[] c = HeartInJarLogic.ACROSS;
+		assertArrayEquals(p, HeartInJarLogic.bezier(0.0, p, b, c, chest), 1.0E-9);
+		assertArrayEquals(chest, HeartInJarLogic.bezier(1.0, p, b, c, chest), 1.0E-9);
+		double[] middle = HeartInJarLogic.bezier(0.5, p, b, c, chest);
+		assertTrue(middle[1] > p[1], "rises above the hand");
+		assertTrue(middle[0] < p[0], "swings away from the jar hand");
 	}
 }

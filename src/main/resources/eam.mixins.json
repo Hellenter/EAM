@@ -7,6 +7,8 @@
 		"content.arrows.AbstractArrowStuckMixin",
 		"content.bucket.CauldronDispatcherInvoker",
 		"content.campfire.PotionItemMixin",
+		"content.heart.DisplayInvoker",
+		"content.heart.ItemDisplayInvoker",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
 		"content.talisman.BaseFireBlockPortalMixin",
