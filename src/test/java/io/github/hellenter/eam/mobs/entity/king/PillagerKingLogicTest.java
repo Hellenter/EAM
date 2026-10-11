@@ -106,7 +106,7 @@ class PillagerKingLogicTest {
 
 	@Test
 	void theOnslaughtCanBeParriedOnlyInTheLeap() {
-		assertFalse(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_KICK));
+		assertFalse(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_RUSH_END));
 		assertTrue(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_PARRY_START));
 		assertFalse(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_HIT));
 	}

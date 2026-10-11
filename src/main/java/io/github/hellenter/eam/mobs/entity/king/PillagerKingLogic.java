@@ -11,7 +11,7 @@ public final class PillagerKingLogic {
 		SLASH,
 		/** Four cuts, parryable at the start. */
 		COMBO,
-		/** Rush, kick and a leap with both axes; a shield only softens it, a hit while he is in the air parries it. */
+		/** A rush and a leap with both axes; a shield only softens it, a hit while he is in the air parries it. */
 		ONSLAUGHT,
 		/** A long spin of six weak cuts. */
 		TORNADO,

@@ -15,7 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param reach       how far his axes reach, measured flat from his centre to the target's
  * @param slash       one cut with the right axe
  * @param combo       four cuts, the first of them parryable
- * @param onslaught   rush, kick, and a leap with both axes, which a shield only softens
+ * @param onslaught   a rush and a leap with both axes, which a shield only softens
  * @param tornado     a long spin of weak cuts all around
  * @param axeThrow    the left axe thrown, mostly to knock a raised shield out
  * @param boomerang   the left axe thrown round the target to strike it in the back
@@ -105,22 +105,18 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	/**
 	 * @param damage          damage of the blow of both axes at the end of the leap
 	 * @param shieldReduction a shield raised against him takes off only this share of the blow
-	 * @param kickDamage      damage of the kick
-	 * @param kickPush        how hard the kick pushes the target back
-	 * @param rushSpeed       blocks per tick he rushes in before the kick
+	 * @param rushSpeed       blocks per tick he rushes in before the leap
 	 * @param chance          chance to pick it when it is ready
 	 * @param chanceVsShield  the same when the target holds up a shield
 	 * @param cooldown        ticks before the next onslaught
 	 */
-	public record Onslaught(float damage, float shieldReduction, float kickDamage, double kickPush, double rushSpeed, double chance,
+	public record Onslaught(float damage, float shieldReduction, double rushSpeed, double chance,
 			double chanceVsShield, int cooldown) {
-		public static final Onslaught DEFAULT = new Onslaught(25.0F, 0.25F, 2.0F, 0.7, 0.7, 0.25, 0.5, 220);
+		public static final Onslaught DEFAULT = new Onslaught(25.0F, 0.25F, 0.7, 0.25, 0.5, 220);
 
 		public static final Codec<Onslaught> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 200.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Onslaught::damage),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("shield_reduction").orElse(DEFAULT.shieldReduction).forGetter(Onslaught::shieldReduction),
-				Codec.floatRange(0.0F, 100.0F).fieldOf("kick_damage").orElse(DEFAULT.kickDamage).forGetter(Onslaught::kickDamage),
-				Codec.doubleRange(0.0, 5.0).fieldOf("kick_push").orElse(DEFAULT.kickPush).forGetter(Onslaught::kickPush),
 				Codec.doubleRange(0.0, 2.0).fieldOf("rush_speed").orElse(DEFAULT.rushSpeed).forGetter(Onslaught::rushSpeed),
 				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Onslaught::chance),
 				Codec.doubleRange(0.0, 1.0).fieldOf("chance_vs_shield").orElse(DEFAULT.chanceVsShield).forGetter(Onslaught::chanceVsShield),

@@ -14,7 +14,7 @@ public enum KingAction {
 	 */
 	COMBO(36),
 	/**
-	 * The onslaught: he rushes at the target, kicks it back on {@link #ONSLAUGHT_KICK}, leaps after it with both axes
+	 * The onslaught: he rushes at the target until {@link #ONSLAUGHT_RUSH_END}, crouches and leaps at it with both axes
 	 * raised on {@link #ONSLAUGHT_LEAP} and brings them down on {@link #ONSLAUGHT_HIT}. A shield only softens the blow;
 	 * a player's hit while he is in the air ({@link #ONSLAUGHT_PARRY_START} to {@link #ONSLAUGHT_PARRY_END}) parries him.
 	 */
@@ -42,7 +42,6 @@ public enum KingAction {
 	public static final int COMBO_PARRY_END = 10;
 	public static final int[] COMBO_HITS = {10, 16, 22, 28};
 	public static final int ONSLAUGHT_RUSH_END = 6;
-	public static final int ONSLAUGHT_KICK = 7;
 	public static final int ONSLAUGHT_LEAP = 10;
 	public static final int ONSLAUGHT_PARRY_START = 10;
 	public static final int ONSLAUGHT_PARRY_END = 19;

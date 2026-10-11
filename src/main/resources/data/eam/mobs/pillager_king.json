@@ -29,8 +29,6 @@
   "onslaught": {
     "damage": 25.0,
     "shield_reduction": 0.25,
-    "kick_damage": 2.0,
-    "kick_push": 0.7,
     "rush_speed": 0.7,
     "chance": 0.25,
     "chance_vs_shield": 0.5,

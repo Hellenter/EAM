@@ -342,13 +342,12 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 	}
 
 	/**
-	 * The onslaught: a rush bent forward, a kick, a crouch and a leap with both axes high over the head, brought down
+	 * The onslaught: a rush bent forward, a crouch and a leap with both axes high over the head, brought down
 	 * together as he lands.
 	 */
 	private void onslaught(float t, float restR, float restL, float restFr, float restFl) {
 		float rush = keys(t, new float[] {0, 2, 6, 8}, new float[] {0.0F, 1.0F, 1.0F, 0.0F});
 		body.xRot = 0.3F * rush;
-		kick(t, 5.0F, KingAction.ONSLAUGHT_KICK, 9.5F);
 		float[] times = {0, 6, 10, 16, 18, 20, 24, 30};
 		rightArm.xRot = keys(t, times, new float[] {restR, 0.6F, -2.9F, -3.0F, -3.0F, -0.4F, -0.4F, restR});
 		leftArm.xRot = keys(t, times, new float[] {restL, 0.6F, -2.9F, -3.0F, -3.0F, -0.4F, -0.4F, restL});

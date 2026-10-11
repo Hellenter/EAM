@@ -64,7 +64,7 @@ import java.util.Arrays;
 
 /**
  * The Pillager King: a giant two and a half blocks tall in closed black plate, a long netherite axe in each hand.
- * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (rush, kick, a leap with both axes
+ * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (a rush and a leap with both axes
  * for a blow a shield only softens, parried by a hit while he is in the air), spins in a long tornado of weak blockable
  * cuts, throws his left axe to knock a raised shield out or round the target into its back, and from afar charges after
  * his eyes flash red for three cuts a raised shield blocks and a kick, slower after the first cut. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
@@ -452,7 +452,7 @@ public class PillagerKing extends Monster {
 	}
 
 	/**
-	 * The onslaught: a rush up to the target, a kick that throws it back, a leap after it with both axes raised and
+	 * The onslaught: a rush up to the target, a leap at it with both axes raised and
 	 * one blow of both that a shield only softens.
 	 */
 	private void tickOnslaught(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings.Onslaught onslaught,
@@ -468,9 +468,6 @@ public class PillagerKing extends Monster {
 			Vec3 to = horizontal(target.position().subtract(position()));
 			setDeltaMovement(to.x * onslaught.rushSpeed(), getDeltaMovement().y, to.z * onslaught.rushSpeed());
 		}
-		if (t == KingAction.ONSLAUGHT_KICK) {
-			kick(level, target, onslaught.kickDamage(), onslaught.kickPush());
-		}
 		if (t == KingAction.ONSLAUGHT_LEAP) {
 			// A bell: the moment to parry him, while he is in the air.
 			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 0.7F);
@@ -479,7 +476,7 @@ public class PillagerKing extends Monster {
 					KingAction.ONSLAUGHT_HIT - KingAction.ONSLAUGHT_LEAP));
 			setDeltaMovement(to.x * speed, LEAP_UP, to.z * speed);
 		} else if (t > KingAction.ONSLAUGHT_LEAP && t < KingAction.ONSLAUGHT_HIT && !onGround()) {
-			// The kick throws the target far back: he steers in the air to come down on it, in reach of its parry.
+			// The target may back off: he steers in the air to come down on it, in reach of its parry.
 			Vec3 to = horizontal(target.position().subtract(position()));
 			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2, KingAction.ONSLAUGHT_HIT - t));
 			setDeltaMovement(to.x * speed, getDeltaMovement().y, to.z * speed);
