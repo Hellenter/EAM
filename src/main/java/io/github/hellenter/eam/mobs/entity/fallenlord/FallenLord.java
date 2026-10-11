@@ -2129,8 +2129,9 @@ public class FallenLord extends Monster {
 
 	// ---- Boss bar ----
 
+	// No phase in the name: the second phase stays a surprise.
 	private Component bossName() {
-		return Component.translatable("entity.eam.fallen_lord.phase", getDisplayName(), phase());
+		return getDisplayName();
 	}
 
 	@Override

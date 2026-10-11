@@ -203,7 +203,6 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.SKELETON_KNIGHT, "Skeleton Knight");
 			builder.add(EamEntities.LORD_SPEAR, "Fallen Lord's Spear");
 			builder.add(EamEntities.LORD_SHIELD, "Fallen Lord's Shield");
-			builder.add("entity.eam.fallen_lord.phase", "%s: Phase %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
@@ -655,7 +654,6 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.SKELETON_KNIGHT, "Скелет-рыцарь");
 			builder.add(EamEntities.LORD_SPEAR, "Копьё Павшего лорда");
 			builder.add(EamEntities.LORD_SHIELD, "Щит Павшего лорда");
-			builder.add("entity.eam.fallen_lord.phase", "%s: фаза %s");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
