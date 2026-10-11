@@ -1,0 +1,19 @@
+{
+  "type": "eam:giant_mushroom",
+  "cap": "eam:chanterelle_cap",
+  "cap_radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 5,
+    "min_inclusive": 2
+  },
+  "height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 7,
+    "min_inclusive": 3
+  },
+  "light": "minecraft:shroomlight",
+  "light_chance": 0.0,
+  "shape": "chanterelle",
+  "stem": "eam:chanterelle_stem",
+  "thick_above": 6
+}

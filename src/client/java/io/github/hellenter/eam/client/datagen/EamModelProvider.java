@@ -64,6 +64,10 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createTrivialCube(EamBlocks.DEEP_BEDROCK);
+		generators.createMushroomBlock(EamBlocks.CHANTERELLE_CAP);
+		generators.createMushroomBlock(EamBlocks.CHANTERELLE_STEM);
+		generators.createMushroomBlock(EamBlocks.CHAMPIGNON_CAP);
+		generators.createMushroomBlock(EamBlocks.GLOWING_CHAMPIGNON_CAP);
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);

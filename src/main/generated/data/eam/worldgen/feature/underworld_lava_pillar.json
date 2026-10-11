@@ -1,0 +1,12 @@
+{
+  "type": "eam:cave_pillar",
+  "accent": "minecraft:blackstone",
+  "accent_chance": 0.2,
+  "block": "minecraft:basalt",
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 1
+  },
+  "search": 96
+}

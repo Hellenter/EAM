@@ -96,6 +96,7 @@
   "features": [
     [],
     [
+      "eam:underworld/lakes_few",
       "eam:underworld/fluids"
     ],
     [],
@@ -116,6 +117,8 @@
     [
       "eam:underworld/giant_brown_mushroom",
       "eam:underworld/giant_red_mushroom",
+      "eam:underworld/giant_chanterelle",
+      "eam:underworld/giant_champignon",
       "eam:underworld/huge_brown_mushroom",
       "eam:underworld/huge_red_mushroom",
       "eam:underworld/brown_mushrooms",

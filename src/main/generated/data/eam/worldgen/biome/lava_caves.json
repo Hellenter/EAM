@@ -95,6 +95,7 @@
   "features": [
     [],
     [
+      "eam:underworld/lakes",
       "eam:underworld/fluids"
     ],
     [],
@@ -114,7 +115,7 @@
       "eam:underworld/spring_lava_many"
     ],
     [
-      "eam:underworld/basalt_pillar"
+      "eam:underworld/lava_pillar"
     ]
   ],
   "has_precipitation": false,

@@ -1,0 +1,18 @@
+{
+  "type": "eam:underworld_lake",
+  "cascade_chance": 0.6,
+  "cascades": 2,
+  "depth": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 4,
+    "min_inclusive": 2
+  },
+  "island_chance": 0.3,
+  "max_y": 178,
+  "min_y": 53,
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 6,
+    "min_inclusive": 3
+  }
+}

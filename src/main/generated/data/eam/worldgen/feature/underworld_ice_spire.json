@@ -1,0 +1,24 @@
+{
+  "type": "eam:ice_spire",
+  "giant_chance": 0.12,
+  "giant_height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 110,
+    "min_inclusive": 30
+  },
+  "giant_radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 6,
+    "min_inclusive": 3
+  },
+  "height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 22,
+    "min_inclusive": 5
+  },
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 1
+  }
+}

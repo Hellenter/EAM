@@ -11,7 +11,7 @@
           "parameters": {
             "temperature": [
               -2.0,
-              -0.46
+              -0.2
             ],
             "humidity": [
               -1.0,
@@ -37,8 +37,8 @@
           "biome": "eam:lake_caves",
           "parameters": {
             "temperature": [
-              -0.46,
-              -0.15
+              -0.2,
+              -0.04
             ],
             "humidity": [
               -1.0,
@@ -64,8 +64,8 @@
           "biome": "eam:stone_wastes",
           "parameters": {
             "temperature": [
-              -0.15,
-              0.15
+              -0.04,
+              0.13
             ],
             "humidity": [
               -1.0,
@@ -91,8 +91,8 @@
           "biome": "eam:mushroom_forest",
           "parameters": {
             "temperature": [
-              0.15,
-              0.46
+              0.13,
+              0.32
             ],
             "humidity": [
               -1.0,
@@ -118,7 +118,7 @@
           "biome": "eam:lava_caves",
           "parameters": {
             "temperature": [
-              0.46,
+              0.32,
               2.0
             ],
             "humidity": [

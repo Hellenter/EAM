@@ -234,6 +234,10 @@ public final class EamLanguageProviders {
 			builder.add("biome.eam.ice_caves", "Ice Caves");
 			builder.add("biome.eam.underworld_depths", "Underworld Depths");
 			builder.add(EamItems.DEEP_BEDROCK, "Deep Bedrock");
+			builder.add(EamBlocks.CHANTERELLE_CAP, "Chanterelle Cap");
+			builder.add(EamBlocks.CHANTERELLE_STEM, "Chanterelle Stem");
+			builder.add(EamBlocks.CHAMPIGNON_CAP, "Champignon Cap");
+			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Glowing Champignon Cap");
 			builder.add(EamItems.BEDROCK_BREAKER, "Bedrock Breaker");
 			builder.add("block.eam.bed.underworld", "There is no rest in the underworld");
 			builder.add(EamEntities.WIGHT, "Wight");
@@ -692,6 +696,10 @@ public final class EamLanguageProviders {
 			builder.add("biome.eam.ice_caves", "Ледяные пещеры");
 			builder.add("biome.eam.underworld_depths", "Глубины подземного мира");
 			builder.add(EamItems.DEEP_BEDROCK, "Глубинный бедрок");
+			builder.add(EamBlocks.CHANTERELLE_CAP, "Шляпка лисички");
+			builder.add(EamBlocks.CHANTERELLE_STEM, "Ножка лисички");
+			builder.add(EamBlocks.CHAMPIGNON_CAP, "Шляпка шампиньона");
+			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Светящаяся шляпка шампиньона");
 			builder.add(EamItems.BEDROCK_BREAKER, "Сокрушитель бедрока");
 			builder.add("block.eam.bed.underworld", "В подземном мире не уснуть");
 			builder.add(EamEntities.WIGHT, "Вихт");

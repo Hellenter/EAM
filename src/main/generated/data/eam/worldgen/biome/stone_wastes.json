@@ -97,6 +97,7 @@
   "features": [
     [],
     [
+      "eam:underworld/lakes_few",
       "eam:underworld/fluids"
     ],
     [],

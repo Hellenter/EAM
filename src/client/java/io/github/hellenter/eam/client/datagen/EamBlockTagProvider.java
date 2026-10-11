@@ -136,6 +136,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 			builder(BlockTags.MINEABLE_WITH_AXE).add(hollow.builtInRegistryHolder().key());
 		}
 		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SHELF_MUSHROOM.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.CHANTERELLE_CAP.builtInRegistryHolder().key(),
+				EamBlocks.CHANTERELLE_STEM.builtInRegistryHolder().key(), EamBlocks.CHAMPIGNON_CAP.builtInRegistryHolder().key(),
+				EamBlocks.GLOWING_CHAMPIGNON_CAP.builtInRegistryHolder().key());
 
 		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
 		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
@@ -155,6 +158,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key(), EamBlocks.BIG_SHRUB_STEM.builtInRegistryHolder().key(),
 				EamBlocks.SHELF_MUSHROOM.builtInRegistryHolder().key());
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.CHANTERELLE_CAP.builtInRegistryHolder().key(),
+				EamBlocks.CHANTERELLE_STEM.builtInRegistryHolder().key(), EamBlocks.CHAMPIGNON_CAP.builtInRegistryHolder().key(),
+				EamBlocks.GLOWING_CHAMPIGNON_CAP.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());
 		builder(BlockTags.SWORD_EFFICIENT).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),

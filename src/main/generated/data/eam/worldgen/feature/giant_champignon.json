@@ -1,0 +1,19 @@
+{
+  "type": "eam:giant_mushroom",
+  "cap": "eam:champignon_cap",
+  "cap_radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 6,
+    "min_inclusive": 3
+  },
+  "height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 8,
+    "min_inclusive": 4
+  },
+  "light": "eam:glowing_champignon_cap",
+  "light_chance": 0.22,
+  "shape": "champignon",
+  "stem": "minecraft:mushroom_stem",
+  "thick_above": 7
+}

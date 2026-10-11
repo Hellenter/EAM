@@ -88,6 +88,10 @@
     "eam:dense_shrub",
     "eam:big_shrub_leaves",
     "eam:big_shrub_stem",
-    "eam:shelf_mushroom"
+    "eam:shelf_mushroom",
+    "eam:chanterelle_cap",
+    "eam:chanterelle_stem",
+    "eam:champignon_cap",
+    "eam:glowing_champignon_cap"
   ]
 }

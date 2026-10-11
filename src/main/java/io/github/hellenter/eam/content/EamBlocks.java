@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TallFlowerBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -131,6 +132,12 @@ public final class EamBlocks {
 			.noLootTable()
 			.pushReaction(PushReaction.IMMOVEABLE)
 			.isValidSpawn((state, level, pos, type) -> false));
+
+	/** Underworld mushrooms: a chanterelle (orange funnel cap) and a champignon (white dome, some cap blocks glow blue). */
+	public static final Block CHANTERELLE_CAP = mushroomBlock("chanterelle_cap", MapColor.COLOR_ORANGE, 0);
+	public static final Block CHANTERELLE_STEM = mushroomBlock("chanterelle_stem", MapColor.TERRACOTTA_YELLOW, 0);
+	public static final Block CHAMPIGNON_CAP = mushroomBlock("champignon_cap", MapColor.QUARTZ, 0);
+	public static final Block GLOWING_CHAMPIGNON_CAP = mushroomBlock("glowing_champignon_cap", MapColor.COLOR_LIGHT_BLUE, 12);
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
@@ -261,6 +268,17 @@ public final class EamBlocks {
 			hollow.put(log, register(name, HollowLogBlock::new, BlockBehaviour.Properties.ofLegacyCopy(log).noOcclusion()));
 		}
 		return Collections.unmodifiableMap(hollow);
+	}
+
+	/** A huge mushroom block like vanilla's: faces show the skin where the mushroom does not continue. */
+	private static Block mushroomBlock(String name, MapColor color, int light) {
+		return register(name, HugeMushroomBlock::new, BlockBehaviour.Properties.of()
+				.mapColor(color)
+				.instrument(NoteBlockInstrument.BASS)
+				.strength(0.2F)
+				.sound(SoundType.WOOD)
+				.lightLevel(state -> light)
+				.ignitedByLava());
 	}
 
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {

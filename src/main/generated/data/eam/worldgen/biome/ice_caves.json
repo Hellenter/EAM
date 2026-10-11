@@ -86,6 +86,7 @@
   "features": [
     [],
     [
+      "eam:underworld/lakes_few",
       "eam:underworld/fluids"
     ],
     [],
@@ -102,6 +103,7 @@
     [],
     [],
     [
+      "eam:underworld/ice_spire",
       "eam:underworld/ice_spike",
       "eam:underworld/glow_lichen"
     ]

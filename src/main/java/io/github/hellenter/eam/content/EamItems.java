@@ -177,6 +177,10 @@ public final class EamItems {
 			.component(DataComponents.TOOL, new Tool(List.of(Tool.Rule.minesAndDrops(
 					HolderSet.direct(Block::builtInRegistryHolder, EamBlocks.DEEP_BEDROCK), 20.0F)), 1.0F, 1, false)));
 	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
+	public static final Item CHANTERELLE_CAP = blockItem("chanterelle_cap", EamBlocks.CHANTERELLE_CAP);
+	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);
+	public static final Item CHAMPIGNON_CAP = blockItem("champignon_cap", EamBlocks.CHAMPIGNON_CAP);
+	public static final Item GLOWING_CHAMPIGNON_CAP = blockItem("glowing_champignon_cap", EamBlocks.GLOWING_CHAMPIGNON_CAP);
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);

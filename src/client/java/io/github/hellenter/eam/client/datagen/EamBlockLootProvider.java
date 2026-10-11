@@ -75,6 +75,11 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
 		dropSelf(EamBlocks.SHELF_MUSHROOM);
+		// Underworld mushroom blocks, like vanilla stems, give themselves only to silk touch.
+		dropWhenSilkTouch(EamBlocks.CHANTERELLE_CAP);
+		dropWhenSilkTouch(EamBlocks.CHANTERELLE_STEM);
+		dropWhenSilkTouch(EamBlocks.CHAMPIGNON_CAP);
+		dropWhenSilkTouch(EamBlocks.GLOWING_CHAMPIGNON_CAP);
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
 		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,

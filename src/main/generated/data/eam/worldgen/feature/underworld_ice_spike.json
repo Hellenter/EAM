@@ -2,7 +2,7 @@
   "type": "eam:ice_spike_cave",
   "length": {
     "type": "minecraft:uniform",
-    "max_inclusive": 22,
+    "max_inclusive": 26,
     "min_inclusive": 5
   },
   "radius": {
@@ -10,6 +10,6 @@
     "max_inclusive": 4,
     "min_inclusive": 1
   },
-  "search": 40,
-  "stalagmite_chance": 0.35
+  "search": 48,
+  "stalagmite_chance": 0.0
 }
