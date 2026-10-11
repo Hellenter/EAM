@@ -19,7 +19,7 @@ import java.util.Map;
  * Models for the Fallen Lord's spear and shield, which keep their vanilla items and switch looks through the
  * item_model component: a mithril spear head and a mithril shield instead of a wooden one. Also his mithril sword with
  * its edge glowing red, which the renderer shows while he winds up the heavy strike, and the same in yellow for the
- * moment a player may parry him.
+ * moment a player may parry him. The Lost's battered shield uses the same shield model.
  */
 final class FallenLordItemModels {
 	static final Identifier SPEAR = Eam.id("fallen_lord_spear");
@@ -40,10 +40,15 @@ final class FallenLordItemModels {
 	private FallenLordItemModels() {
 	}
 
+	/** The Lost's battered wooden shield: split, chipped and holed by arrows. */
+	static final Identifier LOST_SHIELD = Eam.id("lost_shield");
+	private static final Identifier LOST_SHIELD_MODEL = Eam.id("item/lost_shield");
+
 	static void generate(ItemModelGenerators generators) {
+		generators.modelOutput.accept(LOST_SHIELD_MODEL, () -> shieldModel(LOST_SHIELD_MODEL));
 		ModelTemplates.FLAT_ITEM.create(SPEAR_MODEL, TextureMapping.layer0(new Material(SPEAR_MODEL)), generators.modelOutput);
 		ModelTemplates.SPEAR_IN_HAND.create(SPEAR_IN_HAND_MODEL, TextureMapping.layer0(new Material(SPEAR_IN_HAND_MODEL)), generators.modelOutput);
-		generators.modelOutput.accept(SHIELD_MODEL, FallenLordItemModels::shieldModel);
+		generators.modelOutput.accept(SHIELD_MODEL, () -> shieldModel(SHIELD_MODEL));
 		generators.modelOutput.accept(BLADE_GLOW, () -> bladeGlowModel(BLADE_GLOW));
 		generators.modelOutput.accept(PARRY_GLOW, () -> bladeGlowModel(PARRY_GLOW));
 	}
@@ -54,6 +59,7 @@ final class FallenLordItemModels {
 				SPEAR, new ClientItem(ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(SPEAR_MODEL),
 						ItemModelUtils.plainModel(SPEAR_IN_HAND_MODEL)), new ClientItem.Properties(true, false, 1.95F)),
 				SHIELD, new ClientItem(ItemModelUtils.plainModel(SHIELD_MODEL), ClientItem.Properties.DEFAULT),
+				LOST_SHIELD, new ClientItem(ItemModelUtils.plainModel(LOST_SHIELD_MODEL), ClientItem.Properties.DEFAULT),
 				HEAVY_SWORD, new ClientItem(ItemModelUtils.composite(ItemModelUtils.plainModel(SWORD_MODEL), ItemModelUtils.plainModel(BLADE_GLOW)),
 						ClientItem.Properties.DEFAULT),
 				PARRY_SWORD, new ClientItem(ItemModelUtils.composite(ItemModelUtils.plainModel(SWORD_MODEL), ItemModelUtils.plainModel(PARRY_GLOW)),
@@ -105,12 +111,12 @@ final class FallenLordItemModels {
 	 * The vanilla shield's plate and handle as model elements, placed where its special renderer draws them (the
 	 * shield model flipped in y and z, in the same pixel units), so the vanilla shield's hand poses fit unchanged.
 	 */
-	private static JsonObject shieldModel() {
+	static JsonObject shieldModel(Identifier texture) {
 		JsonObject model = new JsonObject();
 		model.addProperty("gui_light", "front");
 		JsonObject textures = new JsonObject();
-		textures.addProperty("shield", SHIELD_MODEL.toString());
-		textures.addProperty("particle", SHIELD_MODEL.toString());
+		textures.addProperty("shield", texture.toString());
+		textures.addProperty("particle", texture.toString());
 		model.add("textures", textures);
 		JsonArray elements = new JsonArray();
 		// Plate: front face shows the texture at (1, 1), back at (14, 1), 12x22 each.

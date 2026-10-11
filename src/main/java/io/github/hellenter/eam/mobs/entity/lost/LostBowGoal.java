@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -12,13 +13,18 @@ import java.util.EnumSet;
 
 /**
  * An archer of the Lost keeps the player at bow range: he backs away when the player comes close, walks closer when
- * the player is far or out of sight, and otherwise stands, steps to the side now and then, and shoots.
+ * the player is far or out of sight, and otherwise stands and steps to the side now and then. Before each shot he stops,
+ * turns to face the player and holds still for a moment.
  */
 final class LostBowGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
 	/** He lowers a drawn bow after this many ticks without sight of the target. */
 	private static final int BLIND_TICKS = 40;
 	private static final double RETREAT_SPEED = 1.15;
+	/** How fast he turns to the target while aiming, degrees per tick. */
+	private static final float AIM_TURN = 40.0F;
+	/** He looses only once he faces the target this closely, in degrees. */
+	private static final float AIM_TOLERANCE = 12.0F;
 
 	private final Lost lost;
 	private int cooldown;
@@ -26,6 +32,8 @@ final class LostBowGoal extends Goal {
 	private int blind;
 	private int strafeTicks;
 	private boolean strafeRight;
+	/** Ticks he has stood aiming with the bow fully drawn, or -1 while he is not aiming. */
+	private int aimTicks = -1;
 
 	LostBowGoal(Lost lost) {
 		this.lost = lost;
@@ -48,6 +56,7 @@ final class LostBowGoal extends Goal {
 	public void stop() {
 		lost.setAggressive(false);
 		lost.stopUsingItem();
+		aimTicks = -1;
 		lost.getNavigation().stop();
 		lost.getMoveControl().strafe(0.0F, 0.0F);
 	}
@@ -68,6 +77,9 @@ final class LostBowGoal extends Goal {
 		boolean sees = lost.getSensing().hasLineOfSight(target);
 		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		repath--;
+		if (aim(target, sees, archer)) {
+			return;
+		}
 		switch (LostLogic.archerMove(distance, sees, archer)) {
 			case RETREAT -> {
 				if (repath <= 0 || lost.getNavigation().isDone()) {
@@ -97,16 +109,43 @@ final class LostBowGoal extends Goal {
 		shoot(target, distance, sees, archer);
 	}
 
+	/**
+	 * With the bow fully drawn and the target in sight he stops where he is, turns to face it and holds still for a
+	 * moment, then looses: never over his shoulder while backing off. Returns whether he is aiming this tick.
+	 */
+	private boolean aim(LivingEntity target, boolean sees, LostSettings.Archer archer) {
+		if (!lost.isUsingItem() || !sees || lost.getTicksUsingItem() < archer.drawTicks()) {
+			aimTicks = -1;
+			return false;
+		}
+		if (aimTicks < 0) {
+			aimTicks = 0;
+			lost.getNavigation().stop();
+			lost.getMoveControl().strafe(0.0F, 0.0F);
+		}
+		aimTicks++;
+		// Stand still: no strafing or walking while he aims.
+		lost.getMoveControl().setWantedPosition(lost.getX(), lost.getY(), lost.getZ(), 0.0);
+		float yaw = (float) (Mth.atan2(target.getZ() - lost.getZ(), target.getX() - lost.getX()) * Mth.RAD_TO_DEG) - 90.0F;
+		lost.setYRot(Mth.rotateIfNecessary(lost.getYRot(), yaw, AIM_TURN));
+		lost.setYBodyRot(lost.getYRot());
+		lost.setYHeadRot(lost.getYRot());
+		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
+		if (aimTicks >= archer.aimTicks() && Mth.degreesDifferenceAbs(lost.getYRot(), yaw) <= AIM_TOLERANCE) {
+			int drawn = lost.getTicksUsingItem();
+			lost.stopUsingItem();
+			lost.performRangedAttack(target, BowItem.getPowerForTime(drawn));
+			cooldown = archer.cooldown();
+			aimTicks = -1;
+		}
+		return true;
+	}
+
 	private void shoot(LivingEntity target, double distance, boolean sees, LostSettings.Archer archer) {
 		if (lost.isUsingItem()) {
 			blind = sees ? 0 : blind + 1;
-			int drawn = lost.getTicksUsingItem();
 			if (blind > BLIND_TICKS) {
 				lost.stopUsingItem();
-			} else if (sees && drawn >= archer.drawTicks()) {
-				lost.stopUsingItem();
-				lost.performRangedAttack(target, BowItem.getPowerForTime(drawn));
-				cooldown = archer.cooldown();
 			}
 		} else if (--cooldown <= 0 && sees && distance <= archer.maxRange() + 4.0) {
 			blind = 0;

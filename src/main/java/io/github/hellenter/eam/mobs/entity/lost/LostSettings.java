@@ -59,15 +59,17 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 	 * @param maxRange  further than this, or out of sight, he walks closer
 	 * @param drawTicks ticks he draws the bow before a shot
 	 * @param cooldown  ticks between the end of one shot and the next draw
+	 * @param aimTicks  with the bow drawn he stops, turns to face the target and holds still this long before he looses
 	 */
-	public record Archer(double minRange, double maxRange, int drawTicks, int cooldown) {
-		public static final Archer DEFAULT = new Archer(7.0, 15.0, 20, 25);
+	public record Archer(double minRange, double maxRange, int drawTicks, int cooldown, int aimTicks) {
+		public static final Archer DEFAULT = new Archer(7.0, 15.0, 20, 25, 6);
 
 		public static final Codec<Archer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.0, 32.0).fieldOf("min_range").orElse(DEFAULT.minRange).forGetter(Archer::minRange),
 				Codec.doubleRange(1.0, 48.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(Archer::maxRange),
 				Codec.intRange(1, 100).fieldOf("draw_ticks").orElse(DEFAULT.drawTicks).forGetter(Archer::drawTicks),
-				Codec.intRange(0, 400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Archer::cooldown)
+				Codec.intRange(0, 400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Archer::cooldown),
+				Codec.intRange(0, 60).fieldOf("aim_ticks").orElse(DEFAULT.aimTicks).forGetter(Archer::aimTicks)
 		).apply(instance, Archer::new));
 	}
 

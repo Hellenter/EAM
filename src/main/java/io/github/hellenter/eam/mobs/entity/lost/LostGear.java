@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,12 +22,16 @@ import java.util.Optional;
 /**
  * The Lost wear ancient metal armor worn through: the pieces are real ancient metal armor (its protection, and what drops),
  * drawn with one of the {@code eam:worn_ancient_metal_N} looks. The leader's is only scratched and dented; followers'
- * breastplates have holes punched through (three looks), and every chestplate has torn chainmail sleeves.
+ * breastplates have holes punched through (three looks), and every chestplate has torn chainmail sleeves. Their shields
+ * are battered too.
  */
 public final class LostGear {
 	/** The leader's look, then the three holed breastplates of the followers. */
 	public static final List<ResourceKey<EquipmentAsset>> WORN = List.of(asset("worn_ancient_metal_0"), asset("worn_ancient_metal_1"),
 			asset("worn_ancient_metal_2"), asset("worn_ancient_metal_3"));
+
+	/** The look of their shields: {@code assets/eam/items/lost_shield.json}. */
+	static final Identifier SHIELD_MODEL = Eam.id("lost_shield");
 
 	private LostGear() {
 	}
@@ -41,7 +46,7 @@ public final class LostGear {
 		boolean leader = role == LostRole.LEADER;
 		boolean archer = role == LostRole.ARCHER;
 		mob.setItemSlot(EquipmentSlot.CHEST, worn(EamItems.ANCIENT_METAL_CHESTPLATE, look));
-		if (leader || random.nextFloat() < (archer ? 0.6F : 0.75F)) {
+		if (leader || random.nextFloat() < (archer ? 0.85F : 0.95F)) {
 			mob.setItemSlot(EquipmentSlot.HEAD, worn(EamItems.ANCIENT_METAL_HELMET, look));
 		}
 		if (leader || random.nextFloat() < 0.5F) {
@@ -60,7 +65,12 @@ public final class LostGear {
 
 	private static void arm(Mob mob, Item mainHand, Item offHand) {
 		mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(mainHand));
-		mob.setItemSlot(EquipmentSlot.OFFHAND, offHand == null ? ItemStack.EMPTY : new ItemStack(offHand));
+		ItemStack shield = offHand == null ? ItemStack.EMPTY : new ItemStack(offHand);
+		if (shield.is(Items.SHIELD)) {
+			// A battered wooden shield, split and holed; it is still a plain shield.
+			shield.set(DataComponents.ITEM_MODEL, SHIELD_MODEL);
+		}
+		mob.setItemSlot(EquipmentSlot.OFFHAND, shield);
 	}
 
 	/** An armor piece drawn with the worn look {@code look}; everything else about it stays as it is. */
