@@ -71,6 +71,11 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.forceAddTag(BiomeTags.IS_HILL);
 		builder(EamWorldgen.HAS_MITHRIL_ORE)
 				.forceAddTag(BiomeTags.IS_OVERWORLD);
+		builder(EamWorldgen.HAS_RICH_MITHRIL_ORE)
+				.forceAddTag(BiomeTags.IS_MOUNTAIN)
+				.add(SwampyForestBiomes.SWAMPY_FOREST)
+				.add(SwampyForestBiomes.SWAMPY_LAKES)
+				.add(SwampyForestBiomes.SWAMPY_HUMMOCKS);
 		// Any biome: the feature itself only places sticks next to trees.
 		builder(EamWorldgen.HAS_GROUND_STICKS)
 				.forceAddTag(BiomeTags.IS_OVERWORLD);

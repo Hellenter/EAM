@@ -43,8 +43,10 @@ public final class EamWorldgen {
 	/** As many silver veins again in the mountains, so they have twice the silver. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_MOUNTAIN = placed("ore_silver_mountain");
 
-	/** Mithril veins below y -32, a bit fewer than diamond. */
+	/** Mithril veins below y -32 in every overworld biome, much fewer than diamond. */
 	public static final ResourceKey<PlacedFeature> ORE_MITHRIL_PLACED = placed("ore_mithril");
+	/** Extra mithril veins in the mountains and the swampy forest, which keep more of it. */
+	public static final ResourceKey<PlacedFeature> ORE_MITHRIL_RICH = placed("ore_mithril_rich");
 
 	public static final TagKey<Biome> HAS_FOREST_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_forest_pebbles"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_PEBBLES = TagKey.create(Registries.BIOME, Eam.id("has_mountain_pebbles"));
@@ -52,6 +54,7 @@ public final class EamWorldgen {
 	public static final TagKey<Biome> HAS_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_silver_ore"));
 	public static final TagKey<Biome> HAS_MOUNTAIN_SILVER_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mountain_silver_ore"));
 	public static final TagKey<Biome> HAS_MITHRIL_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mithril_ore"));
+	public static final TagKey<Biome> HAS_RICH_MITHRIL_ORE = TagKey.create(Registries.BIOME, Eam.id("has_rich_mithril_ore"));
 	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
 
 	private EamWorldgen() {
@@ -70,6 +73,7 @@ public final class EamWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SILVER_ORE), ores, ORE_SILVER_PLACED);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_SILVER_ORE), ores, ORE_SILVER_MOUNTAIN);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MITHRIL_ORE), ores, ORE_MITHRIL_PLACED);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_RICH_MITHRIL_ORE), ores, ORE_MITHRIL_RICH);
 	}
 
 	private static ResourceKey<Feature> feature(String name) {

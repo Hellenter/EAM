@@ -91,13 +91,13 @@ import java.util.OptionalInt;
  * <li>Swampy lakes: a chain of overlapping ponds, the deepest ones, with few trees, many dead trunks and duckweed mats.</li>
  * <li>Swampy hummocks: shallow water full of grassy tussocks, low birches and big shrubs.</li>
  * </ul>
- * Below y -42 each part gets as many extra mithril veins again as the overworld has there, so twice the mithril.
+ * Below y -42 each part gets extra mithril veins on top of the mountains' amount (see EamWorldgenProvider).
  */
 final class SwampyForestWorldgen {
-	/** Overworld mithril veins: 7 per chunk spread evenly over y -64..-32 (33 levels). Below y -42 that is 23 levels... */
 	private static final int MITHRIL_DEEP_TOP = -42;
-	/** ...so about 7 * 23 / 33 = 4.9 veins; the same again doubles the mithril there. */
-	private static final int MITHRIL_DEEP_VEINS = 5;
+	/** Was 5 veins per chunk; 25% fewer: 15 tries, each kept 1 time in 4 = 3.75. */
+	private static final int MITHRIL_DEEP_VEIN_TRIES = 15;
+	private static final int MITHRIL_DEEP_VEIN_RARITY = 4;
 
 	static final ResourceKey<Feature> POND_FOREST = feature("swamp_pond_forest");
 	static final ResourceKey<Feature> POND_LAKES = feature("swamp_pond_lakes");
@@ -316,7 +316,8 @@ final class SwampyForestWorldgen {
 				new int[] {-2, 1, 9, 3, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 2, 2}, null, null);
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
-				CountPlacement.of(MITHRIL_DEEP_VEINS),
+				CountPlacement.of(MITHRIL_DEEP_VEIN_TRIES),
+				RarityFilter.onAverageOnceEvery(MITHRIL_DEEP_VEIN_RARITY),
 				InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(MITHRIL_DEEP_TOP)),
 				BiomeFilter.biome()));
