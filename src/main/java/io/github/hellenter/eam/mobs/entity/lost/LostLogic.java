@@ -98,4 +98,14 @@ public final class LostLogic {
 		}
 		return !sees || distance > archer.maxRange() ? ArcherMove.APPROACH : ArcherMove.HOLD;
 	}
+
+	/**
+	 * Turns a yaw {@code current} towards {@code target} by at most {@code step} degrees, all the way once it is within
+	 * {@code step}. Unlike {@code Mth.rotateIfNecessary}, which only keeps an angle within {@code step} of the target and
+	 * so can leave an archer aiming 13-40 degrees off forever.
+	 */
+	public static float turnTowards(float current, float target, float step) {
+		float difference = (float) (((target - current) % 360.0 + 540.0) % 360.0 - 180.0);
+		return current + Math.max(-step, Math.min(step, difference));
+	}
 }

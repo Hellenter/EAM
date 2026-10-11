@@ -69,4 +69,19 @@ class LostLogicTest {
 		assertEquals(LostLogic.ArcherMove.APPROACH, LostLogic.archerMove(10.0, false, archer));
 		assertEquals(LostLogic.ArcherMove.APPROACH, LostLogic.archerMove(20.0, true, archer));
 	}
+
+	@Test
+	void archerTurnsAllTheWayToTheTarget() {
+		// Facing away (after backing off) he ends up facing the player within a few ticks, not 40 degrees off.
+		float yaw = 180.0F;
+		for (int tick = 0; tick < 5; tick++) {
+			yaw = LostLogic.turnTowards(yaw, 0.0F, 40.0F);
+		}
+		assertEquals(0.0F, yaw, 1.0E-4F);
+		// A small error is closed at once.
+		assertEquals(10.0F, LostLogic.turnTowards(35.0F, 10.0F, 40.0F), 1.0E-4F);
+		// Across the -180/180 seam he takes the short way.
+		assertEquals(190.0F, LostLogic.turnTowards(170.0F, -170.0F, 40.0F), 1.0E-4F);
+		assertEquals(100.0F, LostLogic.turnTowards(60.0F, 120.0F, 40.0F), 1.0E-4F);
+	}
 }

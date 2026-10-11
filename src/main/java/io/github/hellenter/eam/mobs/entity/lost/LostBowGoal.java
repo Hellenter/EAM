@@ -124,10 +124,12 @@ final class LostBowGoal extends Goal {
 			lost.getMoveControl().strafe(0.0F, 0.0F);
 		}
 		aimTicks++;
-		// Stand still: no strafing or walking while he aims.
+		// Stand still: no strafing or walking while he aims. The move control keeps the sideways input of an earlier
+		// strafe, so clear it here.
 		lost.getMoveControl().setWantedPosition(lost.getX(), lost.getY(), lost.getZ(), 0.0);
+		lost.setXxa(0.0F);
 		float yaw = (float) (Mth.atan2(target.getZ() - lost.getZ(), target.getX() - lost.getX()) * Mth.RAD_TO_DEG) - 90.0F;
-		lost.setYRot(Mth.rotateIfNecessary(lost.getYRot(), yaw, AIM_TURN));
+		lost.setYRot(LostLogic.turnTowards(lost.getYRot(), yaw, AIM_TURN));
 		lost.setYBodyRot(lost.getYRot());
 		lost.setYHeadRot(lost.getYRot());
 		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
