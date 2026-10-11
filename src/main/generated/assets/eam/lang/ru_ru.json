@@ -124,6 +124,7 @@
   "effect.eam.food_poisoning": "Пищевое отравление",
   "effect.eam.light_healing": "Лёгкое исцеление",
   "effect.eam.malnourished": "Истощение",
+  "enchantment.eam.arrow_recovery": "Возврат стрел",
   "entity.eam.fallen_lord": "Павший лорд",
   "entity.eam.fallen_lord.phase": "%s: фаза %s",
   "entity.eam.lord_shield": "Щит Павшего лорда",

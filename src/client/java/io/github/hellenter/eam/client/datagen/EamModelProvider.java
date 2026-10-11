@@ -672,6 +672,7 @@ public class EamModelProvider extends FabricModelProvider {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		PotionModels.generate(generators);
+		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		// The same talisman with its crystal glowing, shown while it lights a portal.

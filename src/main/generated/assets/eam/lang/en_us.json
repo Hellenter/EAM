@@ -124,6 +124,7 @@
   "effect.eam.food_poisoning": "Food Poisoning",
   "effect.eam.light_healing": "Light Healing",
   "effect.eam.malnourished": "Malnourished",
+  "enchantment.eam.arrow_recovery": "Arrow Recovery",
   "entity.eam.fallen_lord": "Fallen Lord",
   "entity.eam.fallen_lord.phase": "%s: Phase %s",
   "entity.eam.lord_shield": "Fallen Lord's Shield",

@@ -53,10 +53,11 @@ public record EamConfig(
 		boolean enchanting,
 		boolean arrowHeads,
 		boolean swampyForest,
-		boolean talismanPortal
+		boolean talismanPortal,
+		boolean arrowRecovery
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -93,13 +94,14 @@ public record EamConfig(
 	}
 
 	/** The third map codec, for flags after {@code swampy_forest}: {@link LaterFlags} is full too. */
-	private record LastFlags(boolean talismanPortal) {
+	private record LastFlags(boolean talismanPortal, boolean arrowRecovery) {
 		private static final MapCodec<LastFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal)
+				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal),
+				Codec.BOOL.optionalFieldOf("arrow_recovery", DEFAULT.arrowRecovery).forGetter(LastFlags::arrowRecovery)
 		).apply(instance, LastFlags::new));
 
 		private static LastFlags of(EamConfig config) {
-			return new LastFlags(config.talismanPortal);
+			return new LastFlags(config.talismanPortal, config.arrowRecovery);
 		}
 	}
 
@@ -126,7 +128,7 @@ public record EamConfig(
 			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures,
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
-			last.talismanPortal)));
+			last.talismanPortal, last.arrowRecovery)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

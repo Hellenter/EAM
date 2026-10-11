@@ -4,6 +4,7 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"content.arrows.AbstractArrowDamageMixin",
+		"content.arrows.AbstractArrowStuckMixin",
 		"content.bucket.CauldronDispatcherInvoker",
 		"content.campfire.PotionItemMixin",
 		"content.brewing.StructureTemplateMixin",

@@ -12,6 +12,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		FabricDataGenerator.Pack pack = generator.createPack();
 		pack.addProvider(EamDamageTypeProvider::new);
 		pack.addProvider(EamDamageTypeTagProvider::new);
+		pack.addProvider(EamEnchantmentProvider::new);
 		pack.addProvider(EamEnchantmentTagProvider::new);
 		pack.addProvider(EamBiomeTagProvider::new);
 		pack.addProvider(EamBlockTagProvider::new);
@@ -45,6 +46,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void buildRegistry(RegistrySetBuilder registryBuilder) {
 		registryBuilder.add(Registries.DAMAGE_TYPE, EamDamageTypeProvider::bootstrap);
+		registryBuilder.add(Registries.ENCHANTMENT, EamEnchantmentProvider::bootstrap);
 		registryBuilder.add(Registries.FEATURE, EamWorldgenProvider::bootstrapFeatures);
 		registryBuilder.add(Registries.PLACED_FEATURE, EamWorldgenProvider::bootstrapPlacedFeatures);
 		registryBuilder.add(Registries.BIOME, SwampyForestWorldgen::bootstrapBiomes);

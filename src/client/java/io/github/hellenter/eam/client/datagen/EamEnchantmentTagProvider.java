@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingTags;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -7,6 +8,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
@@ -34,6 +36,8 @@ public class EamEnchantmentTagProvider extends FabricTagsProvider<Enchantment> {
 				Enchantments.PROJECTILE_PROTECTION, Enchantments.FEATHER_FALLING, Enchantments.RESPIRATION,
 				Enchantments.AQUA_AFFINITY, Enchantments.DEPTH_STRIDER, Enchantments.EFFICIENCY, Enchantments.SILK_TOUCH,
 				Enchantments.UNBREAKING, Enchantments.FORTUNE, Enchantments.LUCK_OF_THE_SEA, Enchantments.LURE,
-				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE);
+				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE, ArrowRecoveryModule.ARROW_RECOVERY);
+		// Arrow Recovery is an ordinary enchantment: on the table, on books, in loot and trades.
+		builder(EnchantmentTags.NON_TREASURE).add(ArrowRecoveryModule.ARROW_RECOVERY);
 	}
 }

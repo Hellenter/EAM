@@ -16,6 +16,7 @@
     "minecraft:lure",
     "minecraft:infinity",
     "minecraft:loyalty",
-    "minecraft:riptide"
+    "minecraft:riptide",
+    "eam:arrow_recovery"
   ]
 }
