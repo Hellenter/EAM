@@ -153,6 +153,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 			case HEAVY_STRIKE -> heavyStrike(t);
 			case STANCE -> stance(t);
 			case LEAP_UP -> leapUp(t);
+			case STANCE_KICK -> stanceKick(t);
 			case NONE -> {
 			}
 		}
@@ -666,6 +667,27 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		bendLeg(leftLeg, leftShin, in, 0.35F, 0.3F);
 		rightLeg.zRot = 0.15F * in;
 		leftLeg.zRot = -0.15F * in;
+	}
+
+	/** From the stance, the sword still pointed: knee up, the foot snaps into the raised shield, back down. */
+	private void stanceKick(float t) {
+		float hit = FallenLordAction.STANCE_KICK_HIT;
+		float hold = 1.0F - seg(t, hit + 3.0F, FallenLordAction.STANCE_KICK.length());
+		rightArm.xRot = Mth.lerp(hold, rightArm.xRot, -1.25F);
+		rightArm.yRot = Mth.lerp(hold, rightArm.yRot, 0.15F);
+		rightArm.z -= 2.5F * hold;
+		rightForearm.xRot = Mth.lerp(hold, rightForearm.xRot, -0.15F);
+		swordPoint = hold;
+		// The free arm swings out for balance.
+		leftArm.xRot = Mth.lerp(hold, leftArm.xRot, 0.35F);
+		leftArm.zRot = Mth.lerp(hold, leftArm.zRot, -1.2F);
+		float chamber = seg(t, 0.0F, hit - 1.0F);
+		float extend = seg(t, hit - 1.0F, hit + 1.0F);
+		float retract = seg(t, hit + 1.0F, hit + 6.0F);
+		rightLeg.xRot = -1.4F * chamber * (1.0F - retract);
+		rightShin.xRot = 1.5F * chamber * (1.0F - extend) + 0.6F * Mth.sin((float) Math.PI * retract);
+		bendLeg(leftLeg, leftShin, chamber * (1.0F - retract), 0.15F, 0.35F);
+		body.xRot = -0.2F * Mth.sin((float) Math.PI * seg(t, 0.0F, hit + 4.0F));
 	}
 
 	/**

@@ -127,6 +127,8 @@ public class FallenLord extends Monster {
 	private static final int RETREAT_TICKS = 8;
 	/** The lunge's run in lasts this many ticks. */
 	private static final int LUNGE_RUSH_TICKS = 6;
+	/** The stance kick's step in stops this close to the player. */
+	private static final double STANCE_KICK_STOP = 1.6;
 	/** The leap back after a burst of damage. */
 	private static final double BURST_LEAP = 6.0;
 	/** Swirls of the regeneration potion while he drinks. */
@@ -163,15 +165,15 @@ public class FallenLord extends Monster {
 	/** Phase two actions that start an attack, and those that end one: counted for his leap back. */
 	private static final Set<FallenLordAction> ATTACK_STARTS = EnumSet.of(FallenLordAction.SLASH, FallenLordAction.COMBO,
 			FallenLordAction.LUNGE, FallenLordAction.WHIRL, FallenLordAction.SWORD_DASH_WINDUP, FallenLordAction.BACKSTAB,
-			FallenLordAction.HEAVY_WINDUP);
+			FallenLordAction.HEAVY_WINDUP, FallenLordAction.STANCE_KICK);
 	/** Attacks he breaks off at once when their target dies, instead of finishing them at nothing. */
 	private static final Set<FallenLordAction> BROKEN_BY_KILL = EnumSet.of(FallenLordAction.POKE, FallenLordAction.DASH_WINDUP,
 			FallenLordAction.SWIPE, FallenLordAction.SLASH, FallenLordAction.COMBO, FallenLordAction.LUNGE,
 			FallenLordAction.SWORD_DASH_WINDUP, FallenLordAction.BACKSTAB, FallenLordAction.HEAVY_WINDUP, FallenLordAction.HEAVY_STRIKE,
-			FallenLordAction.COUNTER, FallenLordAction.HOP);
+			FallenLordAction.COUNTER, FallenLordAction.HOP, FallenLordAction.STANCE_KICK);
 	private static final Set<FallenLordAction> ATTACK_ENDS = EnumSet.of(FallenLordAction.SLASH, FallenLordAction.COMBO,
 			FallenLordAction.LUNGE, FallenLordAction.WHIRL, FallenLordAction.SWORD_DASH, FallenLordAction.BACKSTAB,
-			FallenLordAction.HEAVY_STRIKE);
+			FallenLordAction.HEAVY_STRIKE, FallenLordAction.STANCE_KICK);
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
 			BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
@@ -269,6 +271,8 @@ public class FallenLord extends Monster {
 	private int windupExtra;
 	/** The current attack was started from his stance: a shield that blocks it opens a parry window. */
 	private boolean stanceAttack;
+	/** The game time the current attack from his stance began. */
+	private long stanceAttackStart;
 	/** The player who may parry, and the game time until which their hit counts. */
 	private @Nullable UUID parryPlayer;
 	private long parryUntil;
@@ -790,6 +794,7 @@ public class FallenLord extends Monster {
 
 	void startAttack(Attack attack, LivingEntity target) {
 		stanceAttack = action == FallenLordAction.STANCE;
+		stanceAttackStart = level().getGameTime();
 		lastAttack = attack;
 		// Against undead his attacks are free.
 		boolean free = isUndeadFoe(target) && settings().undead().freeAbilities();
@@ -1032,6 +1037,7 @@ public class FallenLord extends Monster {
 			}
 			case COMBO -> tickCombo(level, t, target, two);
 			case LUNGE -> tickLunge(level, t, target, two);
+			case STANCE_KICK -> tickStanceKick(level, t, target);
 			case WHIRL -> {
 				if (t == 8) {
 					playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.6F);
@@ -1241,6 +1247,12 @@ public class FallenLord extends Monster {
 			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.2F, 1.2F);
 		}
 		if (FallenLordLogic.stanceApproached(distance, stanceDistance, stance) && hasLineOfSight(target)) {
+			if (FallenLordLogic.shieldRaisedEarly(shieldRaisedTicks(target), 0, stance.earlyTicks())) {
+				// Coming at him behind a raised shield: he kicks it aside instead of stabbing into it.
+				stanceAttack = false;
+				setAction(FallenLordAction.STANCE_KICK, target);
+				return true;
+			}
 			// Coming at him: a lunging stab.
 			startAttack(Attack.LUNGE, target);
 			return true;
@@ -1522,6 +1534,34 @@ public class FallenLord extends Monster {
 		}
 	}
 
+	/** The kick at a shield brought in raised: a step in, then the foot knocks the shield out and lands. */
+	private void tickStanceKick(ServerLevel level, int t, @Nullable LivingEntity target) {
+		if (target == null) {
+			return;
+		}
+		int hit = FallenLordAction.STANCE_KICK_HIT;
+		if (t == 0) {
+			turnTo(target);
+			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.2F, 0.7F);
+		}
+		if (t < hit) {
+			faceTowards(target);
+			rushDirection = horizontal(target.position().subtract(position()));
+			double speed = horizontalDistanceTo(target) > STANCE_KICK_STOP ? 0.7 : 0.0;
+			setDeltaMovement(rushDirection.x * speed, getDeltaMovement().y, rushDirection.z * speed);
+		} else if (t == hit) {
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+			if (horizontalDistanceTo(target) <= FallenLordLogic.COMBO_KICK_REACH + REACH_SLACK && Math.abs(target.getY() - getY()) < 2.5
+					&& hasLineOfSight(target)) {
+				playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.2F, 0.7F);
+				knockShieldOut(level, target, settings().shieldBreak().seconds());
+				FallenLordSettings.Stance stance = settings().later().stance();
+				target.damageCooldownTime = 0;
+				strike(level, target, damageSources().mobAttack(this), stance.kickDamage(), stance.kickPush());
+			}
+		}
+	}
+
 	private void tickTransition(ServerLevel level, int t, @Nullable LivingEntity target) {
 		if (t == 0) {
 			ItemStack shield = getOffhandItem();
@@ -1627,6 +1667,9 @@ public class FallenLord extends Monster {
 		float scaled = damage * damageMultiplier() * phaseDamage;
 		if (isUndeadFoe(target)) {
 			scaled *= settings().undead().damageMultiplier();
+		}
+		if (stanceAttack && PARRIABLE.contains(action) && blockedWhileRaising(level, target, source, scaled)) {
+			return false;
 		}
 		float before = target.getHealth() + target.getAbsorptionAmount();
 		if (!target.hurtServer(level, source, scaled)) {
@@ -1780,21 +1823,28 @@ public class FallenLord extends Monster {
 		if (!(defender instanceof Player) || !(level() instanceof ServerLevel level)) {
 			return;
 		}
+		// A shield brought in raised, not raised in answer to the attack from his stance, earns no parry.
+		boolean early = stanceAttack && FallenLordLogic.shieldRaisedEarly(shieldRaisedTicks(defender),
+				level.getGameTime() - stanceAttackStart, settings().later().stance().earlyTicks());
 		if (stanceAttack && action == FallenLordAction.LUNGE && phase() == 2) {
 			// The thrust from his stance knocks the shield out at once: only a parry gets it back.
 			blockStreaks.remove(defender.getUUID());
 			knockShieldOut(level, defender, settings().shieldBreak().seconds());
-			openParry(level, defender);
+			if (!early) {
+				openParry(level, defender);
+			}
 			return;
 		}
-		if (stanceAttack && PARRIABLE.contains(action)) {
+		if (stanceAttack && PARRIABLE.contains(action) && !early) {
 			// Blocked an attack from his stance: a quick hit back now parries it.
 			openParry(level, defender);
 		}
 		if (breaksShields) {
 			blockStreaks.remove(defender.getUUID());
 			knockShieldOut(level, defender, settings().swordDash().shieldSeconds());
-			openParry(level, defender);
+			if (!early) {
+				openParry(level, defender);
+			}
 			return;
 		}
 		FallenLordSettings.ShieldBreak shieldBreak = settings().shieldBreak().forPhase(phase());
@@ -1830,11 +1880,49 @@ public class FallenLord extends Monster {
 	}
 
 	private static void knockShieldOut(ServerLevel level, LivingEntity defender, float seconds) {
-		ItemStack shield = defender.getItemBlockingWith();
+		ItemStack shield = raisedShield(defender);
 		BlocksAttacks blocks = shield != null ? shield.get(DataComponents.BLOCKS_ATTACKS) : null;
 		if (blocks != null) {
 			blocks.disable(level, defender, seconds, shield);
 		}
+	}
+
+	/** The shield {@code entity} holds up, counted from the first tick it is raised: no block delay. */
+	private static @Nullable ItemStack raisedShield(LivingEntity entity) {
+		return entity.isUsingItem() && entity.getUseItem().has(DataComponents.BLOCKS_ATTACKS) ? entity.getUseItem() : null;
+	}
+
+	/** Ticks {@code entity} has held its shield up; 0 when it holds none up. */
+	private static int shieldRaisedTicks(LivingEntity entity) {
+		return raisedShield(entity) != null ? entity.getTicksUsingItem() : 0;
+	}
+
+	/**
+	 * An attack from his stance meets a shield the player has just raised, still within the shield's block delay
+	 * (a quarter second for a vanilla shield), when vanilla would let the hit through. It counts as blocked: a shield
+	 * raised in answer to the attack is what the parry rewards. True when it was blocked here.
+	 */
+	private boolean blockedWhileRaising(ServerLevel level, LivingEntity target, DamageSource source, float damage) {
+		ItemStack shield = raisedShield(target);
+		if (shield == null || target.isBlocking() || damage <= 0.0F) {
+			return false;
+		}
+		BlocksAttacks blocks = shield.get(DataComponents.BLOCKS_ATTACKS);
+		if (blocks == null || blocks.bypassedBy().map(types -> types.contains(source.typeHolder())).orElse(false)) {
+			return false;
+		}
+		// The angle between where the player looks and where the blow comes from, as vanilla measures it.
+		Vec3 look = Vec3.directionFromRotation(0.0F, target.getYHeadRot());
+		Vec3 from = horizontal(position().subtract(target.position()));
+		double angle = from.lengthSqr() < 1.0E-6 ? 0.0 : Math.acos(Mth.clamp(from.dot(look), -1.0, 1.0));
+		float blocked = blocks.resolveBlockedDamage(source, damage, angle);
+		if (blocked < damage) {
+			return false;
+		}
+		blocks.hurtBlockingItem(level, shield, target, target.getUsedItemHand(), blocked);
+		blocks.onBlocked(level, target);
+		blockedByItem(target, source, damage, true);
+		return true;
 	}
 
 	private boolean inFront(LivingEntity other, double minDot) {

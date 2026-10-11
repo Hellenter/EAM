@@ -661,16 +661,25 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param healed    or once their health is up by this much
 	 * @param lungeFrom a player this close who has come nearer gets the lunge
 	 * @param approach  coming nearer means this much closer than when the stance began
+	 * @param earlyTicks a shield raised more than this many ticks before his attack from the stance began counts as
+	 *                   raised early: one brought in already raised gets {@link #kickDamage the kick} instead of the
+	 *                   lunge, and blocking any attack from the stance with it opens no parry
+	 * @param kickDamage the kick at a shield brought in raised; it knocks the shield out first, so it always lands
+	 * @param kickPush   knockback of the kick
 	 */
-	public record Stance(int duration, double runAway, float healed, double lungeFrom, double approach) {
-		public static final Stance DEFAULT = new Stance(50, 1.5, 1.0F, 6.5, 0.5);
+	public record Stance(int duration, double runAway, float healed, double lungeFrom, double approach, int earlyTicks,
+			float kickDamage, float kickPush) {
+		public static final Stance DEFAULT = new Stance(50, 1.5, 1.0F, 6.5, 0.5, 5, 5.0F, 0.8F);
 
 		public static final Codec<Stance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 400).fieldOf("duration").orElse(DEFAULT.duration).forGetter(Stance::duration),
 				Codec.doubleRange(0.0, 64.0).fieldOf("run_away").orElse(DEFAULT.runAway).forGetter(Stance::runAway),
 				Codec.floatRange(0.0F, 100.0F).fieldOf("healed").orElse(DEFAULT.healed).forGetter(Stance::healed),
 				Codec.doubleRange(0.0, 16.0).fieldOf("lunge_from").orElse(DEFAULT.lungeFrom).forGetter(Stance::lungeFrom),
-				Codec.doubleRange(0.0, 16.0).fieldOf("approach").orElse(DEFAULT.approach).forGetter(Stance::approach)
+				Codec.doubleRange(0.0, 16.0).fieldOf("approach").orElse(DEFAULT.approach).forGetter(Stance::approach),
+				Codec.intRange(0, 200).fieldOf("early_ticks").orElse(DEFAULT.earlyTicks).forGetter(Stance::earlyTicks),
+				damage().fieldOf("kick_damage").orElse(DEFAULT.kickDamage).forGetter(Stance::kickDamage),
+				Codec.floatRange(0.0F, 16.0F).fieldOf("kick_push").orElse(DEFAULT.kickPush).forGetter(Stance::kickPush)
 		).apply(instance, Stance::new));
 	}
 }

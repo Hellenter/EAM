@@ -434,6 +434,20 @@ class FallenLordLogicTest {
 	}
 
 	@Test
+	void aShieldBroughtInRaisedIsEarlyOneRaisedInAnswerIsNot() {
+		// No shield up, or one just raised as he steps in: the lunge, and blocking it opens a parry.
+		assertFalse(FallenLordLogic.shieldRaisedEarly(0, 0, 5));
+		assertFalse(FallenLordLogic.shieldRaisedEarly(5, 0, 5));
+		// Walked in behind it: the kick.
+		assertTrue(FallenLordLogic.shieldRaisedEarly(6, 0, 5));
+		// Raised during the lunge's draw back, blocked on its eighth tick: in time.
+		assertFalse(FallenLordLogic.shieldRaisedEarly(4, 8, 5));
+		assertFalse(FallenLordLogic.shieldRaisedEarly(13, 8, 5));
+		// Held up since well before he moved.
+		assertTrue(FallenLordLogic.shieldRaisedEarly(30, 8, 5));
+	}
+
+	@Test
 	void higherJumpsNeedMoreSpeed() {
 		assertEquals(0.42, FallenLordLogic.jumpSpeed(1.0), 1.0E-9);
 		double two = FallenLordLogic.jumpSpeed(2.2);

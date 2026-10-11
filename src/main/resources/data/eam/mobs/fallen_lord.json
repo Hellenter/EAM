@@ -161,7 +161,10 @@
     "run_away": 1.5,
     "healed": 1.0,
     "lunge_from": 6.5,
-    "approach": 0.5
+    "approach": 0.5,
+    "early_ticks": 5,
+    "kick_damage": 5.0,
+    "kick_push": 0.8
   },
   "vampirism": {
     "kill_heal": 0.5,

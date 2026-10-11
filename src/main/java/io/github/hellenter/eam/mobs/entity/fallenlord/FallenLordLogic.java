@@ -599,7 +599,16 @@ public final class FallenLordLogic {
 		return depth;
 	}
 
-	/** After a passive player broke his stance he sword dashes at once if they are in its range. */
+		/**
+	 * Whether a shield held up {@code raisedTicks} (0 when none) was raised early for an attack from his stance that
+	 * began {@code attackTicks} ago: more than {@code earlyTicks} before the attack. Brought in raised, not raised in
+	 * answer to it.
+	 */
+	public static boolean shieldRaisedEarly(int raisedTicks, long attackTicks, int earlyTicks) {
+		return raisedTicks > attackTicks + earlyTicks;
+	}
+
+/** After a passive player broke his stance he sword dashes at once if they are in its range. */
 	public static boolean dashFromStance(double distance) {
 		return distance >= SWORD_REACH && distance <= SWORD_DASH_MAX;
 	}

@@ -55,7 +55,12 @@ public enum FallenLordAction {
 	 * Phase two: a leap up at a player standing too high. Crouches until {@link #LEAP_UP_LAUNCH}, rises beside them
 	 * with the sword raised and cuts on {@link #LEAP_UP_CUT}, then falls back.
 	 */
-	LEAP_UP(24);
+	LEAP_UP(24),
+	/**
+	 * Phase two: a player stepped up to his stance with the shield already raised. A front kick lands on
+	 * {@link #STANCE_KICK_HIT}, knocking the shield out; it cannot be parried.
+	 */
+	STANCE_KICK(14);
 
 	/** Backstab: crouch until this tick, dart to the player's side, then to their back, cut on {@link #BACKSTAB_CUT}. */
 	public static final int BACKSTAB_DART = 2;
@@ -63,6 +68,8 @@ public enum FallenLordAction {
 	public static final int BACKSTAB_CUT = 10;
 	/** Lunge: the draw-back ends and the run in starts on this tick; the time a player has to raise a shield. */
 	public static final int LUNGE_PUSH = 5;
+	/** Stance kick: the foot lands on this tick. */
+	public static final int STANCE_KICK_HIT = 6;
 	/** Heavy strike: the blade starts glowing on this tick of the windup. */
 	public static final int HEAVY_GLOW = 3;
 	/** Heavy strike: the cut lands on this tick. */
