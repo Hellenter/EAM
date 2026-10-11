@@ -1887,11 +1887,20 @@ public class FallenLord extends Monster {
 		return hurt;
 	}
 
-	/** A player parried him: he breaks his attack off, combo and all, and shoves them back unharmed; they heal a little. */
+	/**
+	 * A player parried him: he breaks his attack off, combo and all, and shoves them back unharmed; they heal a little
+	 * and their shield is ready again.
+	 */
 	private void parried(ServerLevel level, Player player) {
 		parryPlayer = null;
 		entityData.set(DATA_PARRY_OPEN, false);
 		player.heal(settings().later().parry().heal());
+		// A knocked-out shield is ready again at once.
+		for (ItemStack held : List.of(player.getMainHandItem(), player.getOffhandItem())) {
+			if (held.has(DataComponents.BLOCKS_ATTACKS)) {
+				player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(held));
+			}
+		}
 		if (BROKEN_BY_PARRY.contains(action)) {
 			setAction(FallenLordAction.NONE, null);
 		}

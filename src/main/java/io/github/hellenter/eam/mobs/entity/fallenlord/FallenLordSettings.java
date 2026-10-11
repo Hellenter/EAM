@@ -486,7 +486,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param heal   health the parrying player gets back
 	 */
 	public record Parry(int window, double push, float damageMultiplier, float heal) {
-		public static final Parry DEFAULT = new Parry(14, 3.0, 1.5F, 2.0F);
+		public static final Parry DEFAULT = new Parry(14, 3.0, 1.5F, 3.0F);
 
 		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 200).fieldOf("window").orElse(DEFAULT.window).forGetter(Parry::window),
