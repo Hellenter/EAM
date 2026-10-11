@@ -7,8 +7,8 @@
   "missiles": {
     "count": 3,
     "damage": 1.0,
-    "speed": 0.55,
-    "turn": 0.12,
+    "speed": 0.85,
+    "turn": 0.16,
     "lifetime": 100,
     "range": 20.0,
     "cooldown": 70

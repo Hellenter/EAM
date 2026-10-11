@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.mobs.warlock;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
+import io.github.hellenter.eam.mobs.entity.warlock.WarlockSpell;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -15,7 +16,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 
-/** The undead warlock, 2.25 blocks tall like the Lost, his eyes glowing red in the dark of his hood. */
+/** The undead warlock, 2.25 blocks tall like the Lost; his eyes flare red in the dark of his hood while he casts. */
 public class UndeadWarlockRenderer extends MobRenderer<UndeadWarlock, UndeadWarlockRenderState, UndeadWarlockModel> {
 	/** The model is 2 blocks tall. */
 	private static final float SCALE = 2.25F / 2.0F;
@@ -50,7 +51,7 @@ public class UndeadWarlockRenderer extends MobRenderer<UndeadWarlock, UndeadWarl
 		poseStack.scale(SCALE, SCALE, SCALE);
 	}
 
-	/** Two red embers under the hood, lit whatever the light around. */
+	/** Two red embers under the hood, lit whatever the light around, only while a spell is in his hands. */
 	private static final class Eyes extends RenderLayer<UndeadWarlockRenderState, UndeadWarlockModel> {
 		Eyes(RenderLayerParent<UndeadWarlockRenderState, UndeadWarlockModel> renderer) {
 			super(renderer);
@@ -59,6 +60,9 @@ public class UndeadWarlockRenderer extends MobRenderer<UndeadWarlock, UndeadWarl
 		@Override
 		public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, UndeadWarlockRenderState state, float yRot,
 				float xRot) {
+			if (state.spell == WarlockSpell.NONE) {
+				return;
+			}
 			collector.order(1).submitModel(getParentModel(), state, poseStack, EYES, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 	}

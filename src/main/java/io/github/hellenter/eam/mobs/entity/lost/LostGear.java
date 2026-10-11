@@ -52,9 +52,8 @@ public final class LostGear {
 		if (leader || random.nextFloat() < 0.5F) {
 			mob.setItemSlot(EquipmentSlot.LEGS, worn(EamItems.ANCIENT_METAL_LEGGINGS, look));
 		}
-		if (leader || random.nextFloat() < 0.5F) {
-			mob.setItemSlot(EquipmentSlot.FEET, worn(EamItems.ANCIENT_METAL_BOOTS, look));
-		}
+		// Every one of them keeps his boots.
+		mob.setItemSlot(EquipmentSlot.FEET, worn(EamItems.ANCIENT_METAL_BOOTS, look));
 		switch (role) {
 			case LEADER -> arm(mob, EamItems.ANCIENT_METAL_SWORD, Items.SHIELD);
 			case SWORDSMAN -> arm(mob, random.nextBoolean() ? EamItems.ANCIENT_METAL_SWORD : EamItems.RUSTY_IRON_SWORD, Items.SHIELD);

@@ -32,7 +32,7 @@ public record UndeadWarlockSettings(double health, float squadChance, double min
 	 * @param cooldown ticks between two casts
 	 */
 	public record Missiles(int count, float damage, double speed, double turn, int lifetime, double range, int cooldown) {
-		public static final Missiles DEFAULT = new Missiles(3, 1.0F, 0.55, 0.12, 100, 20.0, 70);
+		public static final Missiles DEFAULT = new Missiles(3, 1.0F, 0.85, 0.16, 100, 20.0, 70);
 
 		public static final Codec<Missiles> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 10).fieldOf("count").orElse(DEFAULT.count).forGetter(Missiles::count),

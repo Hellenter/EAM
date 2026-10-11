@@ -16,8 +16,9 @@ import net.minecraft.util.Mth;
 
 /**
  * The undead warlock: one of the Lost, thin-limbed and dried up, in a black robe torn at the hem and the wide sleeves,
- * chainmail showing at the chest and arms, a hood with only his eyes in it and a long tattered cloak hanging from a
- * mantle over the shoulders. The cloak and the skirt of the robe sway as he walks. Casting, he points his right hand
+ * chainmail showing at the chest, a hood with only his eyes in it and a long tattered cloak hanging from a
+ * mantle over the shoulders. Ancient metal chainmail covers his forearms below the sleeves and he wears ancient metal
+ * boots. The cloak and the skirt of the robe sway as he walks. Casting, he points his right hand
  * at the target for the missiles, thrusts both palms out for the gust, raises both arms for the buff and spreads them
  * wide for the bats.
  */
@@ -61,16 +62,23 @@ public class UndeadWarlockModel extends EntityModel<UndeadWarlockRenderState> {
 				PartPose.offset(0.0F, 10.0F, 0.0F));
 		body.addOrReplaceChild("cloak", CubeListBuilder.create().texOffs(64, 0).addBox(-5.0F, 0.0F, 0.0F, 10.0F, 22.0F, 1.0F),
 				PartPose.offset(0.0F, 0.5F, 2.8F));
+		// Below the wide robe sleeves his forearms are in ancient metal chainmail, down to the bony hands.
 		CubeListBuilder arm = CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F)
-				.texOffs(28, 32).addBox(-2.5F, -2.5F, -2.0F, 4.0F, 7.0F, 4.0F);
+				.texOffs(28, 32).addBox(-2.5F, -2.5F, -2.0F, 4.0F, 7.0F, 4.0F)
+				.texOffs(80, 32).addBox(-2.0F, 3.5F, -1.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.2F));
 		CubeListBuilder leftArm = CubeListBuilder.create().mirror().texOffs(40, 16).addBox(-1.0F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F)
-				.texOffs(28, 32).addBox(-1.5F, -2.5F, -2.0F, 4.0F, 7.0F, 4.0F);
+				.texOffs(28, 32).addBox(-1.5F, -2.5F, -2.0F, 4.0F, 7.0F, 4.0F)
+				.texOffs(80, 32).addBox(-1.0F, 3.5F, -1.5F, 3.0F, 5.0F, 3.0F, new CubeDeformation(0.2F));
 		root.addOrReplaceChild("right_arm", arm, PartPose.offset(-5.0F, 2.0F, 0.0F));
 		root.addOrReplaceChild("left_arm", leftArm, PartPose.offset(5.0F, 2.0F, 0.0F));
-		root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 16).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F),
-				PartPose.offset(-1.9F, 12.0F, 0.0F));
-		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror().texOffs(0, 16).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F),
-				PartPose.offset(1.9F, 12.0F, 0.0F));
+		// Ancient metal boots with a toe cap under the hem of the robe.
+		CubeDeformation boot = new CubeDeformation(0.3F);
+		root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 16).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F)
+				.texOffs(96, 32).addBox(-1.5F, 7.0F, -1.5F, 3.0F, 5.0F, 3.0F, boot)
+				.texOffs(108, 32).addBox(-1.5F, 10.0F, -2.5F, 3.0F, 2.0F, 1.0F, boot), PartPose.offset(-1.9F, 12.0F, 0.0F));
+		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror().texOffs(0, 16).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F)
+				.texOffs(96, 32).addBox(-1.5F, 7.0F, -1.5F, 3.0F, 5.0F, 3.0F, boot)
+				.texOffs(108, 32).addBox(-1.5F, 10.0F, -2.5F, 3.0F, 2.0F, 1.0F, boot), PartPose.offset(1.9F, 12.0F, 0.0F));
 		return LayerDefinition.create(mesh, 128, 64);
 	}
 

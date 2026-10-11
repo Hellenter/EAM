@@ -28,14 +28,14 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The undead warlock's magic missile: a red spark that leaves his hand at an angle and curves after its target. It
+ * The undead warlock's magic missile: a glowing red arrow that leaves his hand at an angle and curves after its target. It
  * strikes through armor and shields, as magic does, but a wall stops it and a blow knocks it out of the air.
  */
 public class MagicMissile extends Projectile {
 	/** The entity it flies after; synced so clients curve it the same way between position updates. */
 	private static final EntityDataAccessor<Integer> DATA_TARGET = SynchedEntityData.defineId(MagicMissile.class, EntityDataSerializers.INT);
 	public static final int COLOR = 0xE8202A;
-	private static final DustParticleOptions TRAIL = new DustParticleOptions(COLOR, 1.1F);
+	private static final DustParticleOptions TRAIL = new DustParticleOptions(COLOR, 0.8F);
 	private static final DustParticleOptions SPARK = new DustParticleOptions(0xFF8A70, 0.6F);
 
 	private float damage = UndeadWarlockSettings.Missiles.DEFAULT.damage();
@@ -101,9 +101,9 @@ public class MagicMissile extends Projectile {
 		}
 		ProjectileUtil.rotateTowardsMovement(this, 0.5F);
 		if (!server) {
-			// A thick red trail with a few bright sparks, so the missile reads as a streak of light.
-			for (int i = 0; i < 3; i++) {
-				double t = i / 3.0;
+			// A thin red trail with a few bright sparks behind the arrow.
+			for (int i = 1; i < 3; i++) {
+				double t = i / 2.0;
 				level().addParticle(TRAIL, getX() - movement.x * t, getY() - movement.y * t + 0.1, getZ() - movement.z * t, 0.0, 0.0, 0.0);
 			}
 			if (random.nextInt(2) == 0) {
