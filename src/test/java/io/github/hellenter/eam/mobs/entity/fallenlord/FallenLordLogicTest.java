@@ -166,25 +166,23 @@ class FallenLordLogicTest {
 	}
 
 	@Test
-	void knocksTheShieldOutAfterTwoOrThreeBlocks() {
+	void knocksTheShieldOutAfterOneOrTwoBlocks() {
 		FallenLordSettings.ShieldBreak settings = SETTINGS.shieldBreak();
 		BlockStreak low = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.0);
-		assertEquals(2, low.needed());
-		assertFalse(FallenLordLogic.breaksShield(low));
-		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(low, 120L, settings, 0.9)));
+		assertEquals(1, low.needed());
+		assertTrue(FallenLordLogic.breaksShield(low));
 
 		BlockStreak high = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.99);
-		assertEquals(3, high.needed());
-		high = FallenLordLogic.addBlock(high, 120L, settings, 0.0);
+		assertEquals(2, high.needed());
 		assertFalse(FallenLordLogic.breaksShield(high));
-		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(high, 140L, settings, 0.0)));
+		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(high, 120L, settings, 0.0)));
 	}
 
 	@Test
 	void blocksFarApartStartTheCountAgain() {
 		FallenLordSettings.ShieldBreak settings = SETTINGS.shieldBreak();
-		BlockStreak first = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.0);
-		BlockStreak late = FallenLordLogic.addBlock(first, 100L + settings.window() + 1, settings, 0.0);
+		BlockStreak first = FallenLordLogic.addBlock(BlockStreak.NONE, 100L, settings, 0.99);
+		BlockStreak late = FallenLordLogic.addBlock(first, 100L + settings.window() + 1, settings, 0.99);
 		assertEquals(1, late.hits());
 		assertFalse(FallenLordLogic.breaksShield(late));
 	}
@@ -522,11 +520,28 @@ class FallenLordLogicTest {
 	}
 
 	@Test
-	void phaseTwoKnocksShieldsOutAfterTwoBlocks() {
+	void phaseTwoKnocksShieldsOutAfterOneOrTwoBlocks() {
 		FallenLordSettings.ShieldBreak two = FallenLordSettings.ShieldBreak.DEFAULT.forPhase(2);
+		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(BlockStreak.NONE, 0, two, 0.0)));
 		BlockStreak streak = FallenLordLogic.addBlock(BlockStreak.NONE, 0, two, 0.99);
 		assertFalse(FallenLordLogic.breaksShield(streak));
 		assertTrue(FallenLordLogic.breaksShield(FallenLordLogic.addBlock(streak, 10, two, 0.99)));
-		assertEquals(FallenLordSettings.ShieldBreak.DEFAULT, FallenLordSettings.ShieldBreak.DEFAULT.forPhase(1));
+	}
+
+	@Test
+	void drinkHealsFastInTheFirstSecondThenAtTheUsualRate() {
+		FallenLordSettings.Regen regen = SETTINGS.regen();
+		float healed = 0.0F;
+		int tick = 0;
+		for (; tick < 20; tick++) {
+			healed += FallenLordLogic.drinkHeal(tick, healed, regen);
+		}
+		assertEquals(regen.firstSecondHeal(), healed, 1.0E-3);
+		assertEquals(regen.healPerSecond() / 20.0F, FallenLordLogic.drinkHeal(20, healed, regen), 1.0E-6);
+		for (; tick < 400; tick++) {
+			healed += FallenLordLogic.drinkHeal(tick, healed, regen);
+		}
+		assertEquals(regen.maxHeal(), healed, 1.0E-3);
+		assertEquals(0.0F, FallenLordLogic.drinkHeal(tick, healed, regen), 1.0E-6);
 	}
 }

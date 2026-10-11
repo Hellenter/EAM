@@ -52,7 +52,9 @@
     "counter_damage": 4.0,
     "counter_knockback": 2.5,
     "retreat": 8.5,
-    "keep_away": 9.0
+    "keep_away": 9.0,
+    "first_second_heal": 12.5,
+    "min_gap": 250
   },
   "burst": {
     "health_share": 0.3,
@@ -60,11 +62,11 @@
     "drink_chance": 0.5
   },
   "shield_break": {
-    "hits_min": 2,
-    "hits_max": 3,
+    "hits_min": 1,
+    "hits_max": 2,
     "seconds": 5.0,
     "window": 200,
-    "phase_two_hits_min": 2,
+    "phase_two_hits_min": 1,
     "phase_two_hits_max": 2
   },
   "players": {
@@ -186,7 +188,7 @@
     "after_shield_knock": 60
   },
   "parry": {
-    "window": 12,
+    "window": 11,
     "push": 3.0,
     "damage_multiplier": 1.5,
     "heal": 3.0

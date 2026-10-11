@@ -186,10 +186,13 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param counterKnockback how far the bash pushes (2.5 is about seven blocks)
 	 * @param retreat          how far he leaps back before he drinks
 	 * @param keepAway         while he drinks he backs away from a player closer than this
+	 * @param firstSecondHeal  health the first second of a drink restores; then {@code healPerSecond} takes over
+	 * @param minGap           ticks from the start of one drink to the next, at least; unlike {@code cooldown} nothing
+	 *                         resets it, not even a burst of damage
 	 */
 	public record Regen(double healthBelow, float healPerSecond, float maxHeal, int usesPerPhase, int cooldown, float counterDamage,
-			float counterKnockback, double retreat, double keepAway) {
-		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F, 8.5, 9.0);
+			float counterKnockback, double retreat, double keepAway, float firstSecondHeal, int minGap) {
+		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F, 8.5, 9.0, 12.5F, 250);
 
 		public static final Codec<Regen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.0, 1.0).fieldOf("health_below").orElse(DEFAULT.healthBelow).forGetter(Regen::healthBelow),
@@ -200,7 +203,10 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				damage().fieldOf("counter_damage").orElse(DEFAULT.counterDamage).forGetter(Regen::counterDamage),
 				Codec.floatRange(0.0F, 5.0F).fieldOf("counter_knockback").orElse(DEFAULT.counterKnockback).forGetter(Regen::counterKnockback),
 				Codec.doubleRange(0.0, 16.0).fieldOf("retreat").orElse(DEFAULT.retreat).forGetter(Regen::retreat),
-				Codec.doubleRange(0.0, 32.0).fieldOf("keep_away").orElse(DEFAULT.keepAway).forGetter(Regen::keepAway)
+				Codec.doubleRange(0.0, 32.0).fieldOf("keep_away").orElse(DEFAULT.keepAway).forGetter(Regen::keepAway),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("first_second_heal").orElse(DEFAULT.firstSecondHeal)
+						.forGetter(Regen::firstSecondHeal),
+				ticks().fieldOf("min_gap").orElse(DEFAULT.minGap).forGetter(Regen::minGap)
 		).apply(instance, Regen::new));
 	}
 
@@ -235,7 +241,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param phaseTwoHitsMax {@code hitsMax} in phase two
 	 */
 	public record ShieldBreak(int hitsMin, int hitsMax, float seconds, int window, int phaseTwoHitsMin, int phaseTwoHitsMax) {
-		public static final ShieldBreak DEFAULT = new ShieldBreak(2, 3, 5.0F, 200, 2, 2);
+		public static final ShieldBreak DEFAULT = new ShieldBreak(1, 2, 5.0F, 200, 1, 2);
 
 		public static final Codec<ShieldBreak> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 100).fieldOf("hits_min").orElse(DEFAULT.hitsMin).forGetter(ShieldBreak::hitsMin),
@@ -497,7 +503,7 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param heal   health the parrying player gets back
 	 */
 	public record Parry(int window, double push, float damageMultiplier, float heal) {
-		public static final Parry DEFAULT = new Parry(12, 3.0, 1.5F, 3.0F);
+		public static final Parry DEFAULT = new Parry(11, 3.0, 1.5F, 3.0F);
 
 		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 200).fieldOf("window").orElse(DEFAULT.window).forGetter(Parry::window),

@@ -341,6 +341,19 @@ public final class FallenLordLogic {
 	}
 
 	/**
+	 * Health one tick of the drink restores: {@link FallenLordSettings.Regen#firstSecondHeal()} spread over the first
+	 * second, then {@link FallenLordSettings.Regen#healPerSecond()}, never past {@link FallenLordSettings.Regen#maxHeal()}
+	 * for the whole drink.
+	 *
+	 * @param tick   ticks since the drink began, from 0
+	 * @param healed health this drink has restored so far
+	 */
+	public static float drinkHeal(int tick, float healed, FallenLordSettings.Regen regen) {
+		float perSecond = tick < 20 ? regen.firstSecondHeal() : regen.healPerSecond();
+		return Math.max(0.0F, Math.min(perSecond / 20.0F, regen.maxHeal() - healed));
+	}
+
+	/**
 	 * Whether he breaks off to drink: hurt to {@link FallenLordSettings.Regen#healthBelow()} of the phase's health,
 	 * drinks left this phase and the last one at least {@link FallenLordSettings.Regen#cooldown()} ago.
 	 *

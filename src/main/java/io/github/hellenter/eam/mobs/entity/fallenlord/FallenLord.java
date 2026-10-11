@@ -200,6 +200,8 @@ public class FallenLord extends Monster {
 	private @Nullable UUID thrownSpear;
 	private int drinksThisPhase;
 	private int drinkCooldown;
+	/** Ticks until he may drink at all; unlike the cooldown nothing resets it. */
+	private int drinkLock;
 	private float healedThisDrink;
 	/** The leap back ends in a drink. */
 	private boolean drinkAfterRetreat;
@@ -708,13 +710,14 @@ public class FallenLord extends Monster {
 	}
 
 	boolean wantsToDrink() {
-		return FallenLordLogic.shouldDrink(getHealth(), getMaxHealth(), drinksThisPhase, drinkCooldown, settings());
+		return drinkLock <= 0 && FallenLordLogic.shouldDrink(getHealth(), getMaxHealth(), drinksThisPhase, drinkCooldown, settings());
 	}
 
 	/** Leaps back from the target, then drinks. */
 	void startDrinking(@Nullable LivingEntity target) {
 		drinksThisPhase++;
 		drinkCooldown = settings().regen().cooldown();
+		drinkLock = settings().regen().minGap();
 		healedThisDrink = 0.0F;
 		drinkAfterRetreat = true;
 		stanceAfterRetreat = false;
@@ -731,7 +734,7 @@ public class FallenLord extends Monster {
 		hitStreak = HitStreak.NONE;
 		swipePending = false;
 		FallenLordSettings.Regen regen = settings().regen();
-		if (drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F && getHealth() < getMaxHealth()
+		if (drinkLock <= 0 && drinksThisPhase < regen.usesPerPhase() && regen.maxHeal() > 0.0F && getHealth() < getMaxHealth()
 				&& random.nextDouble() < settings().burst().drinkChance()) {
 			startDrinking(getTarget());
 		} else {
@@ -849,6 +852,9 @@ public class FallenLord extends Monster {
 		}
 		if (drinkCooldown > 0) {
 			drinkCooldown--;
+		}
+		if (drinkLock > 0) {
+			drinkLock--;
 		}
 		if (breatherCooldown > 0) {
 			breatherCooldown--;
@@ -1544,7 +1550,7 @@ public class FallenLord extends Monster {
 			level.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, REGEN_COLOR), getX(), getY(0.6), getZ(), 2,
 					getBbWidth() * 0.4, getBbHeight() * 0.3, getBbWidth() * 0.4, 1.0);
 		}
-		float amount = Math.min(regen.healPerSecond() / 20.0F, regen.maxHeal() - healedThisDrink);
+		float amount = FallenLordLogic.drinkHeal(t, healedThisDrink, regen);
 		if (amount > 0.0F) {
 			heal(amount);
 			healedThisDrink += amount;
@@ -2154,6 +2160,7 @@ public class FallenLord extends Monster {
 		output.putInt("ShieldDisabled", shieldDisabledTicks);
 		output.putInt("Drinks", drinksThisPhase);
 		output.putInt("DrinkCooldown", drinkCooldown);
+		output.putInt("DrinkLock", drinkLock);
 		output.storeNullable("Arena", BoundingBox.CODEC, arena);
 	}
 
@@ -2166,6 +2173,7 @@ public class FallenLord extends Monster {
 		arena = input.read("Arena", BoundingBox.CODEC).orElse(null);
 		drinksThisPhase = input.getIntOr("Drinks", 0);
 		drinkCooldown = input.getIntOr("DrinkCooldown", 0);
+		drinkLock = input.getIntOr("DrinkLock", 0);
 		applyBaseStats(phase);
 		bossEvent.setColor(phase == 2 ? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.WHITE);
 		bossEvent.setName(bossName());
