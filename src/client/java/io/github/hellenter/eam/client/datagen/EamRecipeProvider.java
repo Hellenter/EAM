@@ -181,6 +181,18 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
 						.save(output);
 
+				// Heart in a jar: glass jar with a lapis lid held by silver clasps.
+				shaped(RecipeCategory.FOOD, EamItems.HEART_IN_JAR)
+						.define('N', EamItems.SILVER_NUGGET)
+						.define('L', Items.LAPIS_LAZULI)
+						.define('G', Items.GLASS)
+						.define('H', EamItems.VAMPIRE_HEART)
+						.pattern("NLN")
+						.pattern("GHG")
+						.pattern("NGN")
+						.unlockedBy(getHasName(EamItems.VAMPIRE_HEART), has(EamItems.VAMPIRE_HEART))
+						.save(output);
+
 				// Threads stretched over a frame of planks on stick legs.
 				shaped(RecipeCategory.DECORATIONS, EamItems.SIEVE)
 						.define('T', EamItems.FLASK_THREADS)

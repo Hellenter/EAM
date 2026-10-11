@@ -120,6 +120,13 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
+		// The vampire bat: its heart, one kill in seven or so; Looting adds nothing.
+		output.accept(EamEntities.VAMPIRE_BAT.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.when(LootItemRandomChanceCondition.randomChance(0.15F))
+						.add(LootItem.lootTableItem(EamItems.VAMPIRE_HEART))));
+
 		// The small spiders: a string four times in ten, as in MITE.
 		for (EntityType<?> spider : List.of(EamEntities.WOOD_SPIDER, EamEntities.BLACK_WIDOW)) {
 			output.accept(spider.getDefaultLootTable().orElseThrow(), LootTable.lootTable()

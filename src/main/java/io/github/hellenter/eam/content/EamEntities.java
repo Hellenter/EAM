@@ -104,7 +104,6 @@ public final class EamEntities {
 	/** A blood-sucking underworld bat, a third bigger than a cave bat; flocks of them hunt players. */
 	public static final EntityType<VampireBat> VAMPIRE_BAT = register("vampire_bat",
 			EntityType.Builder.of(VampireBat::new, MobCategory.MONSTER)
-					.noLootTable()
 					.sized(0.65F, 1.15F)
 					.eyeHeight(0.6F)
 					.clientTrackingRange(8)

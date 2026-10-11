@@ -11,6 +11,7 @@ import io.github.hellenter.eam.content.bucket.MetalPowderSnowBucketItem;
 import io.github.hellenter.eam.content.campfire.CampFireLogic;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
+import io.github.hellenter.eam.content.heart.HeartInJarItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
@@ -161,6 +162,13 @@ public final class EamItems {
 
 	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
+
+	/** Vampire bat drop, 15%: the core of the heart in a jar. */
+	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
+
+	/** A golden apple used in an instant: heals two hearts, Regeneration II and Saturation II. Stacks to 4. */
+	public static final Item HEART_IN_JAR = register("heart_in_jar", HeartInJarItem::new,
+			new Item.Properties().stacksTo(4).rarity(Rarity.RARE));
 
 	/** The Fallen Lord's drop: the only thing that opens a nether portal in the overworld. Loses 1 durability per portal. */
 	public static final Item BLACK_TALISMAN = register("black_talisman", BlackTalismanItem::new,

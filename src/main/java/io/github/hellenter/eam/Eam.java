@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.bucket.BucketModule;
+import io.github.hellenter.eam.content.heart.HeartInJarModule;
 import io.github.hellenter.eam.content.talisman.TalismanModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.EamEntities;
@@ -114,6 +115,7 @@ public class Eam implements ModInitializer {
 		BloodMoonModule.register();
 		BucketModule.register();
 		TalismanModule.register();
+		HeartInJarModule.register();
 		UnderworldModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.

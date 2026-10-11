@@ -171,6 +171,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
 			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
+			builder.add(EamItems.VAMPIRE_HEART, "Vampire Heart");
+			builder.add(EamItems.HEART_IN_JAR, "Heart in a Jar");
 			builder.add("item.eam.black_talisman.desc", "Use on a portal frame to open the way");
 			builder.add(BrewingModule.REAGENTS, "Silver Brewing Reagents");
 			builder.add("effect.eam.light_healing", "Light Healing");
@@ -634,6 +636,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
 			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
+			builder.add(EamItems.VAMPIRE_HEART, "Сердце вампира");
+			builder.add(EamItems.HEART_IN_JAR, "Сердце в банке");
 			builder.add("item.eam.black_talisman.desc", "Используйте на рамке портала, чтобы открыть путь");
 			builder.add(BrewingModule.REAGENTS, "Ингредиенты для серебряной стойки");
 			builder.add("effect.eam.light_healing", "Лёгкое исцеление");

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:heart_in_jar"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_vampire_heart": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:vampire_heart"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_vampire_heart"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:heart_in_jar"
+    ]
+  }
+}

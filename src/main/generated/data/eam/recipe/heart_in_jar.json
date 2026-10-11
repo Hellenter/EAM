@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": "minecraft:glass",
+    "H": "eam:vampire_heart",
+    "L": "minecraft:lapis_lazuli",
+    "N": "eam:silver_nugget"
+  },
+  "pattern": [
+    "NLN",
+    "GHG",
+    "NGN"
+  ],
+  "result": {
+    "id": "eam:heart_in_jar"
+  }
+}

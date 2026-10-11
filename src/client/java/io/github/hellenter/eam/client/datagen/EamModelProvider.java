@@ -685,6 +685,8 @@ public class EamModelProvider extends FabricModelProvider {
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.VAMPIRE_HEART, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);
 		// The same talisman with its crystal glowing, shown while it lights a portal.
 		ModelTemplates.FLAT_ITEM.create(TALISMAN_GLOWING_MODEL, TextureMapping.layer0(new Material(TALISMAN_GLOWING_MODEL)), generators.modelOutput);
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
