@@ -26,6 +26,7 @@ import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BlockStateProviders;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.features.AquaticFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -160,6 +161,7 @@ final class SwampyForestWorldgen {
 		final ResourceKey<PlacedFeature> marigolds;
 		final ResourceKey<PlacedFeature> groundPatches;
 		final ResourceKey<PlacedFeature> shoreGrass;
+		final ResourceKey<PlacedFeature> seagrass;
 
 		Part(String name) {
 			this.pond = placed("swamp_pond_" + name);
@@ -181,12 +183,13 @@ final class SwampyForestWorldgen {
 			this.marigolds = placed("marsh_marigolds_" + name);
 			this.groundPatches = placed("ground_patches_" + name);
 			this.shoreGrass = placed("shore_plants_" + name);
+			this.seagrass = placed("lake_seagrass_" + name);
 		}
 
 		List<ResourceKey<PlacedFeature>> all() {
 			return List.of(this.pond, this.deadTrunks, this.trees, this.duckweed, this.cattails, this.grass, this.tallGrass, this.shrubs,
 					this.denseShrubs, this.bigShrubs, this.lakeBed, this.fireweed, this.marigolds, this.fallenLogs, this.shelfMushrooms, this.brownMushrooms, this.redMushrooms, this.groundPatches,
-					this.shoreGrass);
+					this.shoreGrass, this.seagrass);
 		}
 	}
 
@@ -310,16 +313,16 @@ final class SwampyForestWorldgen {
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
-		// counts per chunk: pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs ground shore-grass
+		// counts per chunk: pond trunks trees cattails grass tall shrubs small-shrubs fireweed marigolds fallen-logs shelves brown red big-shrubs ground shore-grass seagrass
 		// The forest's trees and big shrubs follow a broad noise, like vanilla's plains flowers: groves about 200 blocks
 		// across with 28 trees a chunk, and lighter stretches with 10 trees where the big shrubs grow thickest instead.
 		placeAll(context, features, Part.FOREST, POND_FOREST, TREES_FOREST, DUCKWEED_FOREST, LAKE_BED_FOREST,
-				new int[] {-4, -2, 22, 6, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4, 3, 4},
+				new int[] {-4, -2, 22, 6, 5, 1, 2, 1, -2, 1, -2, 1, 2, -2, 4, 3, 4, 3},
 				NoiseThresholdCountPlacement.of(-0.2, 10, 28), NoiseThresholdCountPlacement.of(-0.2, 14, 6));
 		placeAll(context, features, Part.LAKES, POND_LAKES, TREES_LAKES, DUCKWEED_LAKES, LAKE_BED_LAKES,
-				new int[] {-2, 2, 5, 14, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 4, 1, 8}, null, null);
+				new int[] {-2, 2, 5, 14, 4, 2, 1, 2, 1, 2, 2, 1, 1, -3, 4, 1, 8, 6}, null, null);
 		placeAll(context, features, Part.HUMMOCKS, POND_HUMMOCKS, TREES_HUMMOCKS, DUCKWEED_HUMMOCKS, LAKE_BED_HUMMOCKS,
-				new int[] {-2, 1, 9, 8, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 5, 2, 5}, null, null);
+				new int[] {-2, 1, 9, 8, 6, 7, 3, 2, -3, 1, 1, 1, 1, -3, 5, 2, 5, 4}, null, null);
 
 		PlacementUtils.register(context, ORE_MITHRIL_DEEP, features.getOrThrow(EamWorldgen.ORE_MITHRIL), List.of(
 				CountPlacement.of(MITHRIL_DEEP_VEIN_TRIES),
@@ -388,6 +391,10 @@ final class SwampyForestWorldgen {
 		PlacementUtils.register(context, part.marigolds, features.getOrThrow(MARSH_MARIGOLD),
 				patch(counts[9], PlacementUtils.HEIGHTMAP_WORLD_SURFACE, 16, 5, 1,
 						BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE, nearWater())));
+		// Beds of seagrass on the lake bottoms, tall where the water is two deep: clumps with bare mud between them.
+		PlacementUtils.register(context, part.seagrass, features.getOrThrow(AquaticFeatures.SEAGRASS_MID), List.of(frequency(counts[17]),
+				InSquarePlacement.spread(), CountPlacement.of(40), OffsetPlacement.ofTriangle(4, 0), PlacementUtils.HEIGHTMAP_OCEAN_FLOOR,
+				BlockPredicateFilter.forPredicate(BlockPredicate.matchesBlocks(Blocks.WATER)), BiomeFilter.biome()));
 	}
 
 	private static PlacementModifier frequency(int count) {
@@ -465,6 +472,7 @@ final class SwampyForestWorldgen {
 		generation.addFeature(vegetal, part.grass);
 		generation.addFeature(vegetal, part.marigolds);
 		generation.addFeature(vegetal, part.duckweed);
+		generation.addFeature(vegetal, part.seagrass);
 		// Vanilla features keep the order they have in the vanilla swamp: every biome must agree on it.
 		if (part == Part.FOREST) {
 			generation.addFeature(vegetal, VegetationPlacements.PATCH_LARGE_FERN);
