@@ -37,6 +37,9 @@ public class ThrownLordSpear extends AbstractArrow {
 	/** His sword, thrown in phase two at a player out of reach, instead of the spear; clients draw it. */
 	private static final EntityDataAccessor<Boolean> DATA_SWORD = SynchedEntityData.defineId(ThrownLordSpear.class,
 			EntityDataSerializers.BOOLEAN);
+	/** A plain iron spear, thrown by the Lost cavalrymen; clients draw it instead of his. */
+	private static final EntityDataAccessor<Boolean> DATA_PLAIN = SynchedEntityData.defineId(ThrownLordSpear.class,
+			EntityDataSerializers.BOOLEAN);
 	/** A spear that hit nothing starts back after this many ticks, before it gets far. */
 	private static final int RETURN_AFTER = 8;
 	/** A spear left lying vanishes after this many ticks in the ground. */
@@ -65,6 +68,18 @@ public class ThrownLordSpear extends AbstractArrow {
 		entityData.set(DATA_SWORD, sword);
 	}
 
+	/** A plain iron spear thrown by someone else (a Lost cavalryman); it stays where it lands and vanishes like his second-phase spear. */
+	public static ThrownLordSpear plain(Level level, LivingEntity owner, float damage) {
+		ThrownLordSpear spear = new ThrownLordSpear(level, owner, damage, false, false);
+		spear.entityData.set(DATA_PLAIN, true);
+		return spear;
+	}
+
+	/** Whether this is a plain iron spear rather than his. */
+	public boolean isPlain() {
+		return entityData.get(DATA_PLAIN);
+	}
+
 	/** Whether this is his sword rather than his spear. */
 	public boolean isSword() {
 		return entityData.get(DATA_SWORD);
@@ -75,6 +90,7 @@ public class ThrownLordSpear extends AbstractArrow {
 		super.defineSynchedData(builder);
 		builder.define(DATA_FLYING_BACK, false);
 		builder.define(DATA_SWORD, false);
+		builder.define(DATA_PLAIN, false);
 	}
 
 	@Override
@@ -137,8 +153,9 @@ public class ThrownLordSpear extends AbstractArrow {
 
 	@Override
 	protected boolean canHitEntity(Entity entity) {
-		// He never spears himself on the way back.
-		return entity != getOwner() && super.canHitEntity(entity);
+		// He never spears himself on the way back; a rider never spears his own horse.
+		Entity owner = getOwner();
+		return entity != owner && (owner == null || entity != owner.getVehicle()) && super.canHitEntity(entity);
 	}
 
 	@Override
@@ -187,6 +204,7 @@ public class ThrownLordSpear extends AbstractArrow {
 		output.putBoolean("DealtDamage", dealtDamage);
 		output.putBoolean("FlyingBack", entityData.get(DATA_FLYING_BACK));
 		output.putBoolean("Sword", isSword());
+		output.putBoolean("Plain", isPlain());
 	}
 
 	@Override
@@ -197,6 +215,7 @@ public class ThrownLordSpear extends AbstractArrow {
 		entityData.set(DATA_FLYING_BACK, input.getBooleanOr("FlyingBack", false));
 		dealtDamage = input.getBooleanOr("DealtDamage", false);
 		entityData.set(DATA_SWORD, input.getBooleanOr("Sword", false));
+		entityData.set(DATA_PLAIN, input.getBooleanOr("Plain", false));
 		pickup = Pickup.DISALLOWED;
 	}
 }

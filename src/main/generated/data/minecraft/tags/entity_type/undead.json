@@ -5,6 +5,8 @@
     "eam:swamp_lurker",
     "eam:wight",
     "eam:lost",
-    "eam:undead_warlock"
+    "eam:undead_warlock",
+    "eam:lost_cavalryman",
+    "eam:lost_warhorse"
   ]
 }

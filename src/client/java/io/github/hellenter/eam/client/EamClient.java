@@ -26,6 +26,8 @@ import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerModel;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerRenderer;
 import io.github.hellenter.eam.client.mobs.spider.SmallSpiderRenderer;
 import io.github.hellenter.eam.client.mobs.bat.VampireBatRenderer;
+import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
+import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
 import io.github.hellenter.eam.client.mobs.wight.WightModel;
 import io.github.hellenter.eam.client.mobs.wight.WightRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
@@ -81,6 +83,9 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(LostModel.ARMOR.legs(), () -> LostModel.createArmorLayers().legs());
 		ModelLayerRegistry.registerModelLayer(LostModel.ARMOR.feet(), () -> LostModel.createArmorLayers().feet());
 		EntityRendererRegistry.register(EamEntities.LOST, LostRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LOST_CAVALRYMAN, LostCavalrymanRenderer::new);
+		ModelLayerRegistry.registerModelLayer(LostWarhorseRenderer.BARDING, LostWarhorseRenderer::createBardingLayer);
+		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);
 		ModelLayerRegistry.registerModelLayer(UndeadWarlockModel.LAYER, UndeadWarlockModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.UNDEAD_WARLOCK, UndeadWarlockRenderer::new);
 		// The missile is only its trail of red sparks.

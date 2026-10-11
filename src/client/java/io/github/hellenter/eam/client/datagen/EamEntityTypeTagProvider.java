@@ -64,7 +64,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),
 				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
 				EamEntities.WIGHT.builtInRegistryHolder().key(), EamEntities.LOST.builtInRegistryHolder().key(),
-				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key());
+				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
+				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key());
 		// The swamp lurker burns in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key());
 		// Spiders all the same for Bane of Arthropods.

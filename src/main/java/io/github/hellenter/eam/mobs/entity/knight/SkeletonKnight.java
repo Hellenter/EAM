@@ -243,6 +243,14 @@ public class SkeletonKnight extends AbstractSkeleton {
 		}
 	}
 
+	/** Starts an action of a mob built on him; he handles its ticks in {@link #tickOwnAction}. */
+	protected void startAction(KnightAction next, LivingEntity target) {
+		actionTarget = target;
+		hitChecked = false;
+		comboStops = false;
+		setAction(next);
+	}
+
 	public void startAttack(Attack attack, LivingEntity target) {
 		actionTarget = target;
 		hitChecked = false;
@@ -262,7 +270,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 		}
 	}
 
-	private void setAction(KnightAction next) {
+	protected void setAction(KnightAction next) {
 		action = next;
 		actionTicks = 0;
 		if (next != KnightAction.NONE) {
@@ -271,7 +279,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 		entityData.set(DATA_ACTION, (byte) next.ordinal());
 	}
 
-	private void endAction() {
+	protected void endAction() {
 		setAction(KnightAction.NONE);
 		actionTarget = null;
 		idleTicks = 0;
@@ -291,6 +299,9 @@ public class SkeletonKnight extends AbstractSkeleton {
 		}
 		if (target == null || !target.isAlive()) {
 			endAction();
+			return;
+		}
+		if (tickOwnAction(level, action, t, target)) {
 			return;
 		}
 		getNavigation().stop();
@@ -323,6 +334,14 @@ public class SkeletonKnight extends AbstractSkeleton {
 			default -> {
 			}
 		}
+	}
+
+	/**
+	 * A mob built on him runs its own actions here, tick {@code t} of {@code action}, and returns true; for his own
+	 * actions it returns false and he goes on as usual.
+	 */
+	protected boolean tickOwnAction(ServerLevel level, KnightAction action, int t, LivingEntity target) {
+		return false;
 	}
 
 	private void tickCombo(ServerLevel level, int t, LivingEntity target, SkeletonKnightSettings settings) {
@@ -452,19 +471,19 @@ public class SkeletonKnight extends AbstractSkeleton {
 		};
 	}
 
-	private void hitIfInReach(ServerLevel level, LivingEntity target, double reach, float multiplier, float knockback) {
+	protected void hitIfInReach(ServerLevel level, LivingEntity target, double reach, float multiplier, float knockback) {
 		if (inReach(target, reach)) {
 			hit(level, target, multiplier, knockback);
 		}
 	}
 
-	private boolean inReach(LivingEntity target, double reach) {
+	protected boolean inReach(LivingEntity target, double reach) {
 		return horizontalDistanceTo(target) <= reach + REACH_SLACK && Math.abs(target.getY() - getY()) < 2.5 && inFront(target)
 				&& hasLineOfSight(target);
 	}
 
 	/** {@link #doHurtTarget} with the damage scaled: the sword, its enchantments and their after-effects all apply. */
-	private boolean hit(ServerLevel level, LivingEntity target, float multiplier, float extraKnockback) {
+	protected boolean hit(ServerLevel level, LivingEntity target, float multiplier, float extraKnockback) {
 		ItemStack weapon = getWeaponItem();
 		DamageSource source = weapon.getDamageSource(this);
 		float damage = (float) getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -521,13 +540,13 @@ public class SkeletonKnight extends AbstractSkeleton {
 		return to.lengthSqr() < 1.0E-6 || to.dot(facing) >= 0.3;
 	}
 
-	private void faceTowards(LivingEntity target) {
+	protected void faceTowards(LivingEntity target) {
 		float yaw = (float) (Mth.atan2(target.getZ() - getZ(), target.getX() - getX()) * Mth.RAD_TO_DEG) - 90.0F;
 		setYRot(Mth.rotateIfNecessary(getYRot(), yaw, 30.0F));
 		setYBodyRot(getYRot());
 	}
 
-	private static Vec3 horizontal(Vec3 vector) {
+	protected static Vec3 horizontal(Vec3 vector) {
 		Vec3 flat = new Vec3(vector.x, 0.0, vector.z);
 		return flat.lengthSqr() < 1.0E-6 ? Vec3.ZERO : flat.normalize();
 	}

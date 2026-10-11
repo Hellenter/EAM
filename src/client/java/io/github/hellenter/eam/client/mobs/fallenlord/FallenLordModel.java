@@ -62,10 +62,10 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	/** How far back the pointed sword is pulled into the fist, in model pixels. */
 	private static final float SWORD_GRIP_BACK = 2.0F;
 
-	protected final ModelPart rightForearm;
-	protected final ModelPart leftForearm;
-	protected final ModelPart rightShin;
-	protected final ModelPart leftShin;
+	public final ModelPart rightForearm;
+	public final ModelPart leftForearm;
+	public final ModelPart rightShin;
+	public final ModelPart leftShin;
 	/** How far the shield and the potion are turned from where the hand holds them into {@link #SHIELD_GUARD} and {@link #POTION_AT_MOUTH}. */
 	private float shieldGuard;
 	/** How far the shield is turned into {@link #SHIELD_LOWERED} and {@link #SHIELD_KNOCKED}. */
@@ -251,6 +251,11 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 		rightArm.xRot = Mth.lerp(amount, rightArm.xRot, 0.2F + 0.4F * swing);
 		rightArm.yRot = Mth.lerp(amount, rightArm.yRot, 0.0F);
 		rightForearm.xRot = Mth.lerp(amount, rightForearm.xRot, -1.5F);
+	}
+
+	/** Raises the shield into the guard by {@code amount}, as when it is up, for a pose of a mob built on this model. */
+	public void raiseShieldGuard(float amount) {
+		guard(amount);
 	}
 
 	/** The shield lowered at his left knee, ready to go up: the upper arm hangs, the forearm reaches a little forward. */

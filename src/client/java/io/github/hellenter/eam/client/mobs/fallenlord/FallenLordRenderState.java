@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.mobs.fallenlord;
 
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordAction;
+import io.github.hellenter.eam.mobs.entity.knight.KnightAction;
 
 import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 
@@ -24,4 +25,8 @@ public class FallenLordRenderState extends SkeletonRenderState {
 	public int comboGap = 6;
 	/** Ticks since he died, with the partial tick, or -1 while he lives. */
 	public float dying = -1.0F;
+	/** A mob built on the skeleton knight: its own action, for the actions with no Fallen Lord animation. */
+	public KnightAction knightAction = KnightAction.NONE;
+	/** A Lost cavalryman: how fast his horse moves, 0 to 1. */
+	public float mountSpeed;
 }

@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -28,6 +29,9 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		context.register(FallenLordModule.DASH_DAMAGE, new DamageType("eam.fallen_lord_dash", 0.1F));
 		// Death message key: death.attack.eam.fallen_lord_heavy
 		context.register(FallenLordModule.HEAVY_DAMAGE, new DamageType("eam.fallen_lord_heavy", 0.1F));
+		// Death message keys: death.attack.eam.lost_cavalry_lance, death.attack.eam.lost_cavalry_sweep
+		context.register(LostCavalryModule.LANCE_DAMAGE, new DamageType("eam.lost_cavalry_lance", 0.1F));
+		context.register(LostCavalryModule.SWEEP_DAMAGE, new DamageType("eam.lost_cavalry_sweep", 0.1F));
 	}
 
 	@Override
@@ -36,6 +40,8 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), BleedingModule.DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), FallenLordModule.DASH_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), FallenLordModule.HEAVY_DAMAGE);
+		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostCavalryModule.LANCE_DAMAGE);
+		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostCavalryModule.SWEEP_DAMAGE);
 	}
 
 	@Override

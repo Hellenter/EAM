@@ -209,6 +209,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add(EamEntities.LOST, "Lost");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Lost Spawn Egg");
+			builder.add(EamEntities.LOST_CAVALRYMAN, "Heavy Lost Cavalryman");
+			builder.add(EamEntities.LOST_WARHORSE, "Lost Warhorse");
+			builder.add(EamItems.LOST_CAVALRYMAN_SPAWN_EGG, "Heavy Lost Cavalry Spawn Egg");
+			builder.add("death.attack.eam.lost_cavalry_lance", "%1$s was skewered on the lance of %2$s");
+			builder.add("death.attack.eam.lost_cavalry_lance.player", "%1$s was skewered on the lance of %2$s");
+			builder.add("death.attack.eam.lost_cavalry_sweep", "%1$s was cut down by the sweeping axe of %2$s");
+			builder.add("death.attack.eam.lost_cavalry_sweep.player", "%1$s was cut down by the sweeping axe of %2$s");
 			builder.add(EamEntities.UNDEAD_WARLOCK, "Undead Warlock");
 			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Undead Warlock Spawn Egg");
 			builder.add(EamEntities.MAGIC_MISSILE, "Magic Missile");
@@ -677,6 +684,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add(EamEntities.LOST, "Сгинувший");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Яйцо призыва отряда сгинувших");
+			builder.add(EamEntities.LOST_CAVALRYMAN, "Тяжёлый потерянный кавалерист");
+			builder.add(EamEntities.LOST_WARHORSE, "Боевой конь потерянного кавалериста");
+			builder.add(EamItems.LOST_CAVALRYMAN_SPAWN_EGG, "Яйцо призыва пары тяжёлых кавалеристов");
+			builder.add("death.attack.eam.lost_cavalry_lance", "%2$s насадил %1$s на копьё");
+			builder.add("death.attack.eam.lost_cavalry_lance.player", "%2$s насадил %1$s на копьё");
+			builder.add("death.attack.eam.lost_cavalry_sweep", "%2$s срубил %1$s круговым ударом топора");
+			builder.add("death.attack.eam.lost_cavalry_sweep.player", "%2$s срубил %1$s круговым ударом топора");
 			builder.add(EamEntities.UNDEAD_WARLOCK, "Нежить-колдун");
 			builder.add(EamItems.UNDEAD_WARLOCK_SPAWN_EGG, "Яйцо призыва нежити-колдуна");
 			builder.add(EamEntities.MAGIC_MISSILE, "Волшебная стрела");

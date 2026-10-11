@@ -17,11 +17,12 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 
 import org.jspecify.annotations.Nullable;
 
-/** Draws the thrown spear (or sword) as its item, point first along its flight. */
+/** Draws the thrown spear (or sword, or a Lost cavalryman's iron spear) as its item, point first along its flight. */
 public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpearRenderer.State> {
 	private static final float SCALE = 1.6F;
 
@@ -29,6 +30,7 @@ public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpear
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack spear;
 	private @Nullable ItemStack sword;
+	private @Nullable ItemStack plain;
 
 	public LordSpearRenderer(EntityRendererProvider.Context context) {
 		super(context);
@@ -66,8 +68,10 @@ public class LordSpearRenderer extends EntityRenderer<ThrownLordSpear, LordSpear
 		if (spear == null) {
 			spear = FallenLord.spearStack();
 			sword = new ItemStack(EamItems.MITHRIL_SWORD);
+			plain = new ItemStack(Items.IRON_SPEAR);
 		}
-		itemModelResolver.updateForNonLiving(state.item, entity.isSword() ? sword : spear, ItemDisplayContext.NONE, entity);
+		ItemStack stack = entity.isPlain() ? plain : entity.isSword() ? sword : spear;
+		itemModelResolver.updateForNonLiving(state.item, stack, ItemDisplayContext.NONE, entity);
 	}
 
 	public static class State extends EntityRenderState {

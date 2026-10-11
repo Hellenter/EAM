@@ -31,7 +31,7 @@ public final class LostGear {
 			asset("worn_ancient_metal_2"), asset("worn_ancient_metal_3"));
 
 	/** The look of their shields: {@code assets/eam/items/lost_shield.json}. */
-	static final Identifier SHIELD_MODEL = Eam.id("lost_shield");
+	public static final Identifier SHIELD_MODEL = Eam.id("lost_shield");
 
 	private LostGear() {
 	}
@@ -73,7 +73,7 @@ public final class LostGear {
 	}
 
 	/** An armor piece drawn with the worn look {@code look}; everything else about it stays as it is. */
-	static ItemStack worn(Item item, int look) {
+	public static ItemStack worn(Item item, int look) {
 		ItemStack stack = new ItemStack(item);
 		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
 		if (equippable != null) {

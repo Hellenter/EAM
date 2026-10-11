@@ -17,7 +17,20 @@ public enum KnightAction {
 	/** The overhead cut, landing on {@link #HEAVY_HIT}. */
 	HEAVY_STRIKE(FallenLordAction.HEAVY_STRIKE),
 	/** A spear jab, landing on {@link #POKE_HIT}; only the Lost carry spears. */
-	POKE(FallenLordAction.POKE);
+	POKE(FallenLordAction.POKE),
+	/**
+	 * The heavy cavalryman's gallop with the lance couched, until it strikes or he gives up; the server ends it. The
+	 * cavalryman's own model draws this and the actions below.
+	 */
+	LANCE_CHARGE(FallenLordAction.NONE, 100),
+	/** The cavalryman throws his lance overhand from the saddle, letting go on {@link #LANCE_THROW_RELEASE}. */
+	LANCE_THROW(FallenLordAction.THROW),
+	/** Two quick axe cuts, right then left, on {@link #AXE_DOUBLE_HITS}. */
+	AXE_DOUBLE(FallenLordAction.NONE, 16),
+	/** Axe drawn far back with a crouch, then a full turn hitting everyone around on {@link #AXE_SWEEP_HIT}. */
+	AXE_SWEEP(FallenLordAction.NONE, 26),
+	/** Thrown from his dying horse: he lands, staggers up and draws his axe. */
+	DISMOUNT(FallenLordAction.NONE, 24);
 
 	public static final int SLASH_HIT = 5;
 	public static final int POKE_HIT = 6;
@@ -25,17 +38,28 @@ public enum KnightAction {
 	public static final int COMBO_KICK = 30;
 	public static final int COMBO_BACKSTEP = 33;
 	public static final int HEAVY_HIT = FallenLordAction.HEAVY_HIT;
+	public static final int LANCE_THROW_RELEASE = 8;
+	public static final int[] AXE_DOUBLE_HITS = {5, 10};
+	public static final int AXE_SWEEP_WINDUP = 11;
+	public static final int AXE_SWEEP_HIT = 14;
 
 	private final FallenLordAction animation;
+	private final int length;
 
 	KnightAction(FallenLordAction animation) {
+		this(animation, animation.length());
+	}
+
+	KnightAction(FallenLordAction animation, int length) {
 		this.animation = animation;
+		this.length = length;
 	}
 
 	/** Length in ticks. */
 	public int length() {
-		return animation.length();
+		return length;
 	}
+
 
 	/** The Fallen Lord's action whose animation the client plays. */
 	public FallenLordAction animation() {

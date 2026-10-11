@@ -29,8 +29,8 @@ public class FallenLordGearModel extends FallenLordModel {
 	private static final CubeDeformation OUTER = new CubeDeformation(1.0F);
 	private static final CubeDeformation INNER = new CubeDeformation(0.5F);
 
-	private final ModelPart cape;
-	private final ModelPart capeLower;
+	protected final ModelPart cape;
+	protected final ModelPart capeLower;
 
 	public FallenLordGearModel(ModelPart root) {
 		super(root);

@@ -1,6 +1,8 @@
 {
   "values": [
     "eam:fallen_lord_dash",
-    "eam:fallen_lord_heavy"
+    "eam:fallen_lord_heavy",
+    "eam:lost_cavalry_lance",
+    "eam:lost_cavalry_sweep"
   ]
 }

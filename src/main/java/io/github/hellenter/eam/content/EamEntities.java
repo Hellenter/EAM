@@ -3,6 +3,8 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
+import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
+import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
@@ -68,6 +70,27 @@ public final class EamEntities {
 			EntityType.Builder.of(Lost::new, MobCategory.MONSTER)
 					.sized(0.65F, 2.25F)
 					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/**
+	 * A heavy Lost cavalryman: one of the Lost in full plate with lance and shield, a tenth smaller than the skeleton
+	 * knight; he spawns on his armored horse with a partner.
+	 */
+	public static final EntityType<LostCavalryman> LOST_CAVALRYMAN = register("lost_cavalryman",
+			EntityType.Builder.of(LostCavalryman::new, MobCategory.MONSTER)
+					.sized(0.57F, 1.94F)
+					.eyeHeight(1.7F)
+					.ridingOffset(-0.7F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** The heavy cavalryman's horse: an undead horse in plate barding over chainmail. */
+	public static final EntityType<LostWarhorse> LOST_WARHORSE = register("lost_warhorse",
+			EntityType.Builder.of(LostWarhorse::new, MobCategory.MONSTER)
+					.sized(1.3964844F, 1.6F)
+					.eyeHeight(1.52F)
+					.passengerAttachments(1.31875F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
 
