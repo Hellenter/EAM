@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunctio
 import net.minecraft.world.level.storage.loot.functions.SetItemDamageFunction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCon
 import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -104,6 +106,16 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(LootItem.lootTableItem(Items.STRING)
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
+		// The small spiders: a string four times in ten, as in MITE.
+		for (EntityType<?> spider : List.of(EamEntities.WOOD_SPIDER, EamEntities.BLACK_WIDOW)) {
+			output.accept(spider.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+					.withPool(LootPool.lootPool()
+							.setRolls(ContextIntProviders.exactly(1))
+							.when(LootItemRandomChanceCondition.randomChance(0.4F))
+							.add(LootItem.lootTableItem(Items.STRING)
+									.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+		}
 	}
 
 	/** A piece of the Lord's armor: enchanted like on a table with 25-35 levels, 40-70% of its durability left. */

@@ -230,6 +230,10 @@ public final class EamLanguageProviders {
 			builder.add("biome.eam.swampy_hummocks", "Swampy Forest Hummocks");
 			builder.add(EamEntities.WIGHT, "Wight");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Wight Spawn Egg");
+			builder.add(EamEntities.WOOD_SPIDER, "Wood Spider");
+			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Wood Spider Spawn Egg");
+			builder.add(EamEntities.BLACK_WIDOW, "Black Widow");
+			builder.add(EamItems.BLACK_WIDOW_SPAWN_EGG, "Black Widow Spawn Egg");
 			builder.add("subtitles.eam.entity.wight.ambient", "Wight rasps");
 			builder.add("subtitles.eam.entity.wight.attack", "Wight hisses");
 			builder.add("subtitles.eam.entity.wight.groan", "Burning wight groans");
@@ -676,6 +680,10 @@ public final class EamLanguageProviders {
 			builder.add("biome.eam.swampy_hummocks", "Болотные кочки");
 			builder.add(EamEntities.WIGHT, "Вихт");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Яйцо призыва вихта");
+			builder.add(EamEntities.WOOD_SPIDER, "Лесной паук");
+			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Яйцо призыва лесного паука");
+			builder.add(EamEntities.BLACK_WIDOW, "Чёрная вдова");
+			builder.add(EamItems.BLACK_WIDOW_SPAWN_EGG, "Яйцо призыва чёрной вдовы");
 			builder.add("subtitles.eam.entity.wight.ambient", "Вихт хрипит");
 			builder.add("subtitles.eam.entity.wight.attack", "Вихт шипит");
 			builder.add("subtitles.eam.entity.wight.groan", "Горящий вихт стонет");

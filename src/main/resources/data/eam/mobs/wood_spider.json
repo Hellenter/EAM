@@ -1,0 +1,8 @@
+{
+  "poison_ticks": 40,
+  "bright_range": 0.5,
+  "spawn_chance": 1.0,
+  "day_spawn_chance": 0.03,
+  "max_nearby": 3,
+  "needs_trees": true
+}

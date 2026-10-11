@@ -38,7 +38,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
 						EntityTypeIds.VINDICATOR)
 				.add(SKELETONS);
-		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS);
+		// The small spiders live in tree crowns and spot a player through the leaves.
+		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
+				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		builder(BlockBreakingModule.TARGETS).add(EntityTypeIds.PLAYER);
 		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
@@ -64,6 +66,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				EamEntities.WIGHT.builtInRegistryHolder().key());
 		// The swamp lurker burns in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key());
+		// Spiders all the same for Bane of Arthropods.
+		builder(EntityTypeTags.ARTHROPOD).add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(),
+				EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		builder(EntityTypeTags.SKELETONS).add(EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());
 	}

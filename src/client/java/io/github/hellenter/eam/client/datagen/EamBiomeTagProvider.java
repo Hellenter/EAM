@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
+import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 
 import net.minecraft.core.HolderLookup;
@@ -55,6 +56,16 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		// Wood spiders spawn wherever trees grow thick; the spawn rules still want a tree right next to them.
+		builder(SpiderModule.WOOD_SPIDERS_SPAWN_IN)
+				.forceAddTag(BiomeTags.IS_FOREST)
+				.forceAddTag(BiomeTags.IS_TAIGA)
+				.forceAddTag(BiomeTags.IS_JUNGLE)
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		builder(SpiderModule.BLACK_WIDOWS_SPAWN_IN)
+				.forceAddTag(BiomeTags.IS_JUNGLE)
+				.add(Biomes.DARK_FOREST, Biomes.PALE_GARDEN);
 		builder(EamWorldgen.HAS_FOREST_PEBBLES)
 				.forceAddTag(BiomeTags.IS_FOREST)
 				.add(SwampyForestBiomes.SWAMPY_HUMMOCKS)

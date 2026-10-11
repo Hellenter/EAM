@@ -7,6 +7,8 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
+import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
+import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 
 import net.minecraft.core.Registry;
@@ -71,6 +73,22 @@ public final class EamEntities {
 					.sized(0.6F, 1.8F)
 					.eyeHeight(1.55F)
 					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** MITE's wood spider: a small bark-brown spider from the tree crowns, 0.6 the size of a spider. */
+	public static final EntityType<WoodSpider> WOOD_SPIDER = register("wood_spider",
+			EntityType.Builder.of(WoodSpider::new, MobCategory.MONSTER)
+					.sized(0.84F, 0.54F)
+					.eyeHeight(0.39F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** MITE's black widow: a wood spider in black with a poisonous bite. */
+	public static final EntityType<BlackWidow> BLACK_WIDOW = register("black_widow",
+			EntityType.Builder.of(BlackWidow::new, MobCategory.MONSTER)
+					.sized(0.84F, 0.54F)
+					.eyeHeight(0.39F)
+					.clientTrackingRange(8)
 					.notInPeaceful());
 
 	private EamEntities() {
