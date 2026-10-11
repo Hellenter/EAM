@@ -150,4 +150,9 @@ public final class PillagerKingLogic {
 		double carried = (1.0 - Math.pow(0.91, ticks)) / 0.09;
 		return Math.max(0.0, distance) / carried;
 	}
+
+	/** Damage of his blow or thrown axe to this target: a player takes it as it is, anything else {@code mobMultiplier} times. */
+	public static float damageTo(float damage, boolean player, float mobMultiplier) {
+		return player ? damage : damage * mobMultiplier;
+	}
 }

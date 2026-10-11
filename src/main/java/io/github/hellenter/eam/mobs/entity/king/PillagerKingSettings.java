@@ -23,13 +23,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param arrowParry  he knocks arrows from the front aside with an axe
  * @param dash        a few fast steps at the target
  * @param hop         a hop back from a player who crowds him
+ * @param mobDamageMultiplier his blows and thrown axes deal this many times their damage to anything but a player
  */
 public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attackPause, double reach, Slash slash, Combo combo,
 		Onslaught onslaught, Tornado tornado, AxeThrow axeThrow, Boomerang boomerang, Charge charge, ArrowParry arrowParry, Dash dash,
-		Hop hop) {
+		Hop hop, float mobDamageMultiplier) {
 	public static final PillagerKingSettings DEFAULT = new PillagerKingSettings(Stats.DEFAULT, Run.DEFAULT, Totem.DEFAULT, 12, 3.33,
 			Slash.DEFAULT, Combo.DEFAULT, Onslaught.DEFAULT, Tornado.DEFAULT, AxeThrow.DEFAULT, Boomerang.DEFAULT, Charge.DEFAULT,
-			ArrowParry.DEFAULT, Dash.DEFAULT, Hop.DEFAULT);
+			ArrowParry.DEFAULT, Dash.DEFAULT, Hop.DEFAULT, 5.0F);
 
 	/**
 	 * @param health        his health
@@ -125,21 +126,23 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	}
 
 	/**
-	 * @param damage   damage of each of the six cuts; a shield blocks them and stays up
+	 * @param damage   damage of each of the six cuts; a shield blocks them, but the second knocks it out
 	 * @param radius   everyone this close (flat) is cut
 	 * @param chance   chance to pick it when it is ready
 	 * @param cooldown ticks before the next tornado
 	 * @param drift    blocks per tick he drifts at the target while he spins
+	 * @param shieldSeconds a shield the second cut hits is knocked out for this long
 	 */
-	public record Tornado(float damage, double radius, double chance, int cooldown, double drift) {
-		public static final Tornado DEFAULT = new Tornado(5.0F, 3.53, 0.2, 240, 0.1);
+	public record Tornado(float damage, double radius, double chance, int cooldown, double drift, float shieldSeconds) {
+		public static final Tornado DEFAULT = new Tornado(5.0F, 3.53, 0.2, 240, 0.1, 5.0F);
 
 		public static final Codec<Tornado> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Tornado::damage),
 				Codec.doubleRange(0.5, 8.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Tornado::radius),
 				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Tornado::chance),
 				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Tornado::cooldown),
-				Codec.doubleRange(0.0, 1.0).fieldOf("drift").orElse(DEFAULT.drift).forGetter(Tornado::drift)
+				Codec.doubleRange(0.0, 1.0).fieldOf("drift").orElse(DEFAULT.drift).forGetter(Tornado::drift),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Tornado::shieldSeconds)
 		).apply(instance, Tornado::new));
 	}
 
@@ -195,6 +198,7 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param kickDamage    damage of the kick that ends it
 	 * @param kickPush      how hard the kick pushes the target back
 	 * @param slowAfterHit  share of his speed he loses after the first cut, to the end of the attack
+	 * @param shieldSeconds a shield the first cut hits is knocked out for this long
 	 * @param speed         blocks per tick he runs
 	 * @param from          he charges at a target at least this far
 	 * @param to            and at most this far
@@ -202,8 +206,8 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param cooldown      ticks before the next charge
 	 */
 	public record Charge(float damage, float kickDamage, double kickPush, double slowAfterHit, double speed, double from, double to,
-			double chance, int cooldown) {
-		public static final Charge DEFAULT = new Charge(6.0F, 2.0F, 1.2, 0.33, 0.95, 4.0, 12.0, 0.35, 200);
+			double chance, int cooldown, float shieldSeconds) {
+		public static final Charge DEFAULT = new Charge(6.0F, 2.0F, 1.2, 0.33, 0.95, 4.0, 12.0, 0.35, 200, 5.0F);
 
 		public static final Codec<Charge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Charge::damage),
@@ -214,7 +218,8 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 				Codec.doubleRange(0.0, 64.0).fieldOf("from").orElse(DEFAULT.from).forGetter(Charge::from),
 				Codec.doubleRange(0.0, 64.0).fieldOf("to").orElse(DEFAULT.to).forGetter(Charge::to),
 				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Charge::chance),
-				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Charge::cooldown)
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Charge::cooldown),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Charge::shieldSeconds)
 		).apply(instance, Charge::new));
 	}
 
@@ -283,6 +288,8 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 			Charge.CODEC.fieldOf("charge").orElse(DEFAULT.charge).forGetter(PillagerKingSettings::charge),
 			ArrowParry.CODEC.fieldOf("arrow_parry").orElse(DEFAULT.arrowParry).forGetter(PillagerKingSettings::arrowParry),
 			Dash.CODEC.fieldOf("dash").orElse(DEFAULT.dash).forGetter(PillagerKingSettings::dash),
-			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(PillagerKingSettings::hop)
+			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(PillagerKingSettings::hop),
+			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
+					.forGetter(PillagerKingSettings::mobDamageMultiplier)
 	).apply(instance, PillagerKingSettings::new));
 }

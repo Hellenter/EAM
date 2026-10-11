@@ -193,7 +193,7 @@ public class ThrownKingAxe extends AbstractArrow {
 			Entity owner = getOwner();
 			DamageSource source = damageSources().thrown(this, owner == null ? this : owner);
 			target.damageCooldownTime = 0;
-			if (target.hurtServer(level, source, damage)) {
+			if (target.hurtServer(level, source, damageTo(target))) {
 				doKnockback(target, source);
 			}
 			playSound(SoundEvents.TRIDENT_HIT, 1.0F, 0.7F);
@@ -255,7 +255,7 @@ public class ThrownKingAxe extends AbstractArrow {
 			BlocksAttacks blocks = shield != null ? shield.get(DataComponents.BLOCKS_ATTACKS) : null;
 			Vec3 motion = getDeltaMovement();
 			boolean onShield = blocks != null && FallenLordLogic.shieldCovers(living.getYHeadRot(), -motion.x, -motion.z);
-			if (living.hurtServer(level, source, damage)) {
+			if (living.hurtServer(level, source, damageTo(living))) {
 				doKnockback(living, source);
 			}
 			if (onShield) {
@@ -313,5 +313,10 @@ public class ThrownKingAxe extends AbstractArrow {
 		dealtDamage = input.getBooleanOr("DealtDamage", false);
 		entityData.set(DATA_FLYING_BACK, input.getBooleanOr("FlyingBack", false));
 		pickup = Pickup.DISALLOWED;
+	}
+
+	/** A player takes the axe as it is, anything else many times over. */
+	private float damageTo(Entity target) {
+		return PillagerKingLogic.damageTo(damage, target instanceof Player, PillagerKingModule.settings().mobDamageMultiplier());
 	}
 }

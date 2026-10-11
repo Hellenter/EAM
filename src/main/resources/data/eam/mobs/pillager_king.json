@@ -39,7 +39,8 @@
     "radius": 3.53,
     "chance": 0.2,
     "cooldown": 240,
-    "drift": 0.1
+    "drift": 0.1,
+    "shield_seconds": 5.0
   },
   "throw": {
     "damage": 5.0,
@@ -68,7 +69,8 @@
     "from": 4.0,
     "to": 12.0,
     "chance": 0.35,
-    "cooldown": 200
+    "cooldown": 200,
+    "shield_seconds": 5.0
   },
   "arrow_parry": {
     "chance": 1.0
@@ -84,5 +86,6 @@
     "cooldown": 60,
     "chance": 0.15,
     "speed": 0.6
-  }
+  },
+  "mob_damage_multiplier": 5.0
 }

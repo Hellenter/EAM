@@ -127,4 +127,10 @@ class PillagerKingLogicTest {
 		}
 		assertEquals(5.0, travelled, 1.0E-9);
 	}
+
+	@Test
+	void hitsMobsHarderThanPlayers() {
+		assertEquals(7.0F, PillagerKingLogic.damageTo(7.0F, true, 5.0F), 1.0E-6);
+		assertEquals(35.0F, PillagerKingLogic.damageTo(7.0F, false, 5.0F), 1.0E-6);
+	}
 }

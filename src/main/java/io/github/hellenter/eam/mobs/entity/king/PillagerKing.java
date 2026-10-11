@@ -51,6 +51,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -67,7 +68,7 @@ import java.util.Arrays;
  * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (a rush and a leap with both axes
  * for a blow a shield only softens, parried by a hit while he is in the air), spins in a long tornado of weak blockable
  * cuts, throws his left axe to knock a raised shield out or round the target into its back, and from afar charges after
- * his eyes flash red for three cuts a raised shield blocks and a kick, slower after the first cut. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
+ * his eyes flash red for three cuts, the first knocking a raised shield out, and a kick, slower after the first cut. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
@@ -511,7 +512,7 @@ public class PillagerKing extends Monster {
 		target.push(away.x * push, 0.35, away.z * push);
 	}
 
-	/** Runs at the target; on reaching it, goes into the cuts. A raised shield blocks them. */
+	/** Runs at the target; on reaching it, goes into the cuts. */
 	private void tickCharge(ServerLevel level, @Nullable LivingEntity target, PillagerKingSettings.Charge charge) {
 		if (target == null) {
 			return;
@@ -552,7 +553,8 @@ public class PillagerKing extends Monster {
 			if (t == cut) {
 				playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 0.8F + t * 0.02F);
 				target.damageCooldownTime = 0;
-				hitIfInReach(level, target, settings.reach(), charge.damage());
+				// The first cut knocks a raised shield out.
+				hitIfInReach(level, target, settings.reach(), charge.damage(), cut == KingAction.CHARGE_CUTS[0] ? charge.shieldSeconds() : 0.0F);
 			}
 		}
 		if (t == KingAction.CHARGE_KICK) {
@@ -574,7 +576,9 @@ public class PillagerKing extends Monster {
 				playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.9F + t * 0.01F);
 				level.sendParticles(ParticleTypes.SWEEP_ATTACK, getX(), getY(0.5), getZ(), 3, tornado.radius() * 0.4, 0.2,
 						tornado.radius() * 0.4, 0.0);
-				hitAround(level, tornado.radius(), tornado.damage(), damageSources().mobAttack(this), 0.2F);
+				// The second cut knocks a raised shield out.
+				hitAround(level, tornado.radius(), tornado.damage(), damageSources().mobAttack(this), 0.2F,
+						hit == KingAction.TORNADO_HITS[1] ? tornado.shieldSeconds() : 0.0F);
 			}
 		}
 	}
@@ -729,26 +733,53 @@ public class PillagerKing extends Monster {
 	// ---- Hits ----
 
 	private void hitIfInReach(ServerLevel level, LivingEntity target, double reach, float damage) {
+		hitIfInReach(level, target, reach, damage, 0.0F);
+	}
+
+	/** As {@link #hitIfInReach(ServerLevel, LivingEntity, double, float)}; a shield that blocks it is knocked out for {@code shieldSeconds}. */
+	private void hitIfInReach(ServerLevel level, LivingEntity target, double reach, float damage, float shieldSeconds) {
 		if (horizontalDistanceTo(target) <= reach + REACH_SLACK && Math.abs(target.getY() - getY()) < 2.5 && inFront(target)
 				&& hasLineOfSight(target)) {
+			ItemStack shield = blockingShield(target);
 			strike(level, target, damageSources().mobAttack(this), damage, 0.0F);
+			knockShieldOut(level, target, shield, shieldSeconds);
 		}
 	}
 
-	/** Cuts everything alive around him: players, golems, monsters, animals, villagers. */
-	private void hitAround(ServerLevel level, double radius, float damage, DamageSource source, float knockback) {
+	/** The shield the target holds up against him, or null. */
+	private @Nullable ItemStack blockingShield(LivingEntity target) {
+		ItemStack shield = target.getItemBlockingWith();
+		return shield != null && shield.has(DataComponents.BLOCKS_ATTACKS)
+				&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ()) ? shield : null;
+	}
+
+	/** Knocks a shield that blocked his blow out of the target's hands for a while. */
+	private void knockShieldOut(ServerLevel level, LivingEntity target, @Nullable ItemStack shield, float seconds) {
+		BlocksAttacks blocks = shield != null ? shield.get(DataComponents.BLOCKS_ATTACKS) : null;
+		if (blocks == null || seconds <= 0.0F) {
+			return;
+		}
+		blocks.disable(level, target, seconds, shield);
+		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.8F);
+	}
+
+	/** Cuts everything alive around him: players, golems, monsters, animals, villagers. A shield that blocks it is knocked out for {@code shieldSeconds}. */
+	private void hitAround(ServerLevel level, double radius, float damage, DamageSource source, float knockback, float shieldSeconds) {
 		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(radius, 1.0, radius),
 				e -> e != this && e.isAlive() && !(e instanceof ArmorStand) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e))) {
 			if (horizontalDistanceTo(victim) <= radius + victim.getBbWidth() * 0.5 && Math.abs(victim.getY() - getY()) < 2.5
 					&& hasLineOfSight(victim)) {
 				victim.damageCooldownTime = 0;
+				ItemStack shield = blockingShield(victim);
 				strike(level, victim, source, damage, knockback);
+				knockShieldOut(level, victim, shield, shieldSeconds);
 			}
 		}
 	}
 
 	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback) {
-		if (!target.hurtServer(level, source, damage)) {
+		if (!target.hurtServer(level, source,
+				PillagerKingLogic.damageTo(damage, target instanceof Player, settings().mobDamageMultiplier()))) {
 			return false;
 		}
 		if (knockback > 0.0F) {

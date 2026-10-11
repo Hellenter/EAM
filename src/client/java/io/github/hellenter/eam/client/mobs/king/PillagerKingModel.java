@@ -87,10 +87,10 @@ public class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
 				.texOffs(0, 20).addBox(-1.0F, -4.0F, -6.0F, 2.0F, 4.0F, 12.0F)
 				.texOffs(28, 20).addBox(-1.0F, -6.0F, -3.0F, 2.0F, 2.0F, 9.0F)
 				.texOffs(50, 20).addBox(-1.0F, -4.0F, 6.0F, 2.0F, 6.0F, 2.0F), PartPose.offset(0.0F, -12.0F, 0.0F));
-		// Breastplate and the skirt of plates over the hips.
+		// Breastplate and the skirt of plates over the hips, ending where the chainmail begins.
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
 				.texOffs(0, 36).addBox(-4.5F, 0.0F, -2.5F, 9.0F, 12.0F, 5.0F)
-				.texOffs(28, 36).addBox(-5.5F, 10.0F, -3.5F, 11.0F, 4.0F, 7.0F), PartPose.ZERO);
+				.texOffs(28, 36).addBox(-5.5F, MAIL_TOP - 4.0F, -3.5F, 11.0F, 4.0F, 7.0F), PartPose.ZERO);
 		// Chainmail hanging from under the plates to the knees, one panel on each side of the hips.
 		body.addOrReplaceChild("mail_front", CubeListBuilder.create().texOffs(64, 20).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 9.0F, 1.0F),
 				PartPose.offset(0.0F, MAIL_TOP, -2.6F));
