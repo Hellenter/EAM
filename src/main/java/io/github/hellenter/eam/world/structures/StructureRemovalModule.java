@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 
 /**
  * Structures in {@link #REMOVED} never start in newly generated chunks; the ones already in the world stay. The tag
- * holds trial chambers for now.
+ * holds trial chambers and the overworld ruined portals.
  */
 public final class StructureRemovalModule {
 	public static final TagKey<Structure> REMOVED = TagKey.create(Registries.STRUCTURE, Eam.id("removed_structures"));
