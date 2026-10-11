@@ -43,9 +43,10 @@ final class PillagerKingItemModels {
 		textures.addProperty("layer0", AXE_MODEL.toString());
 		model.add("textures", textures);
 		JsonObject display = new JsonObject();
-		// The fist on the end of the haft, the head straight out from the forearm, the edge down.
-		display.add("thirdperson_righthand", FallenLordItemModels.transform(new double[] {0, 90, 35}, new double[] {-0.5, 3.6, 10.2}, SCALE));
-		display.add("thirdperson_lefthand", FallenLordItemModels.transform(new double[] {0, -90, -35}, new double[] {-0.5, 3.6, 10.2}, SCALE));
+		// The fist on the end of the haft, the head straight out from the forearm, the edge (the light left side of the
+		// texture) down.
+		display.add("thirdperson_righthand", FallenLordItemModels.transform(new double[] {0, -90, 24}, new double[] {-0.5, 3.3, 12.8}, SCALE));
+		display.add("thirdperson_lefthand", FallenLordItemModels.transform(new double[] {0, 90, -24}, new double[] {-0.5, 3.3, 12.8}, SCALE));
 		display.add("firstperson_righthand", FallenLordItemModels.transform(new double[] {0, -90, 25}, new double[] {1.13, 3.2, 1.13}, 1.36));
 		display.add("firstperson_lefthand", FallenLordItemModels.transform(new double[] {0, 90, -25}, new double[] {1.13, 3.2, 1.13}, 1.36));
 		model.add("display", display);

@@ -41,7 +41,7 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param armorPiercing share of all his damage that ignores the player's armor and Protection
 	 */
 	public record Stats(float health, int armor, double speed, double followRange, int xp, float regen, double armorPiercing) {
-		public static final Stats DEFAULT = new Stats(75.0F, 10, 0.3324, 32.0, 200, 1.0F, 0.1);
+		public static final Stats DEFAULT = new Stats(100.0F, 10, 0.3324, 32.0, 200, 1.0F, 0.1);
 
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(Stats::health),
@@ -69,7 +69,7 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 
 	/** @param heal health he is left with when the totem saves him from death */
 	public record Totem(float heal) {
-		public static final Totem DEFAULT = new Totem(25.0F);
+		public static final Totem DEFAULT = new Totem(35.0F);
 
 		public static final Codec<Totem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 2048.0F).fieldOf("heal").orElse(DEFAULT.heal).forGetter(Totem::heal)

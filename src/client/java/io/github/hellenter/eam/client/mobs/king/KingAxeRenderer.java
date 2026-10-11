@@ -40,8 +40,9 @@ public class KingAxeRenderer extends EntityRenderer<ThrownKingAxe, KingAxeRender
 	public void submit(State state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
 		poseStack.pushPose();
 		poseStack.translate(0.0F, 0.25F, 0.0F);
-		poseStack.rotateDegrees(Axis.YP, state.yRot - 90.0F);
-		poseStack.rotateDegrees(Axis.ZP, -state.spin);
+		// The texture's left side, the edge, faces the way it flies, and the head turns over forward: the edge leads.
+		poseStack.rotateDegrees(Axis.YP, state.yRot + 90.0F);
+		poseStack.rotateDegrees(Axis.ZP, state.spin);
 		poseStack.scale(SCALE, SCALE, SCALE);
 		state.item.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();

@@ -1,6 +1,6 @@
 {
   "stats": {
-    "health": 75.0,
+    "health": 100.0,
     "armor": 10,
     "speed": 0.3324,
     "follow_range": 32.0,
@@ -13,7 +13,7 @@
     "bonus": 0.33
   },
   "totem": {
-    "heal": 25.0
+    "heal": 35.0
   },
   "attack_pause": 12,
   "reach": 3.33,
