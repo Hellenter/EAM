@@ -16,8 +16,8 @@ import java.util.Map;
  * The Pillager King's axes: netherite axes with a haft about twice as long, switched in by the item_model component.
  * The texture is 32x32 drawn at the density of a 16x16 item, so the held model is scaled up past the vanilla handheld
  * size. His model's {@code translateToHand} already ends at the fist and the item layer then moves 10 down the arm, so
- * the held pose pulls the axe back up: the fist closes on the end of the haft and the head points forward and up, 50
- * degrees above square to the forearm, its edge forward. The game negates the left-hand rotation, so the left pose is written with the right one's
+ * the held pose pulls the axe back up: the fist closes on the end of the haft and the head points straight out from the
+ * forearm, its edge down. The game negates the left-hand rotation, so the left pose is written with the right one's
  * turns reversed: the axe lies across the arm, so the same turns give its mirror image.
  */
 final class PillagerKingItemModels {
@@ -43,9 +43,10 @@ final class PillagerKingItemModels {
 		textures.addProperty("layer0", AXE_MODEL.toString());
 		model.add("textures", textures);
 		JsonObject display = new JsonObject();
-		// The fist on the end of the haft, the head forward and up, the edge (the light left side of the texture) ahead.
-		display.add("thirdperson_righthand", FallenLordItemModels.transform(new double[] {0, -90, -20}, new double[] {-0.5, 0.6, 16.0}, SCALE));
-		display.add("thirdperson_lefthand", FallenLordItemModels.transform(new double[] {0, 90, 20}, new double[] {-0.5, 0.6, 16.0}, SCALE));
+		// The fist on the end of the haft, the head straight out from the forearm, the edge (the light left side of the
+		// texture) down.
+		display.add("thirdperson_righthand", FallenLordItemModels.transform(new double[] {0, -90, 24}, new double[] {-0.5, 3.3, 12.8}, SCALE));
+		display.add("thirdperson_lefthand", FallenLordItemModels.transform(new double[] {0, 90, -24}, new double[] {-0.5, 3.3, 12.8}, SCALE));
 		display.add("firstperson_righthand", FallenLordItemModels.transform(new double[] {0, -90, 25}, new double[] {1.13, 3.2, 1.13}, 1.36));
 		display.add("firstperson_lefthand", FallenLordItemModels.transform(new double[] {0, 90, -25}, new double[] {1.13, 3.2, 1.13}, 1.36));
 		model.add("display", display);
