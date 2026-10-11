@@ -23,6 +23,7 @@ public class EamClientItemProvider extends FabricCodecDataProvider<ClientItem> {
 	@Override
 	protected void configure(BiConsumer<Identifier, ClientItem> provider, HolderLookup.Provider registries) {
 		FallenLordItemModels.clientItems().forEach(provider);
+		PillagerKingItemModels.clientItems().forEach(provider);
 		provider.accept(TalismanActivation.GLOWING,
 				new ClientItem(ItemModelUtils.plainModel(EamModelProvider.TALISMAN_GLOWING_MODEL), ClientItem.Properties.DEFAULT));
 	}

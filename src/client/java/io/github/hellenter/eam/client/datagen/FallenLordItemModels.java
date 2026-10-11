@@ -164,7 +164,7 @@ final class FallenLordItemModels {
 		return display;
 	}
 
-	private static JsonObject transform(double[] rotation, double[] translation, double scale) {
+	static JsonObject transform(double[] rotation, double[] translation, double scale) {
 		JsonObject transform = new JsonObject();
 		transform.add("rotation", vector(rotation));
 		transform.add("translation", vector(translation));
@@ -172,7 +172,7 @@ final class FallenLordItemModels {
 		return transform;
 	}
 
-	private static JsonArray vector(double[] values) {
+	static JsonArray vector(double[] values) {
 		JsonArray vector = new JsonArray();
 		for (double value : values) {
 			vector.add(value);

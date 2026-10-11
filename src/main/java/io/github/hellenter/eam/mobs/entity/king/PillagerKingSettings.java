@@ -15,16 +15,21 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param reach       how far his axes reach, measured flat from his centre to the target's
  * @param slash       one cut with the right axe
  * @param combo       four cuts, the first of them parryable
- * @param whirl       a full turn with both axes out, through shields
+ * @param onslaught   rush, kick, and a leap with both axes, which a shield only softens
  * @param tornado     a long spin of weak cuts all around
  * @param axeThrow    the left axe thrown, mostly to knock a raised shield out
+ * @param boomerang   the left axe thrown round the target to strike it in the back
+ * @param charge      a run at the target after a red warning: shield knocked away, three cuts and a kick
+ * @param arrowParry  he knocks arrows from the front aside with an axe
  * @param dash        a few fast steps at the target
  * @param hop         a hop back from a player who crowds him
  */
 public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attackPause, double reach, Slash slash, Combo combo,
-		Whirl whirl, Tornado tornado, AxeThrow axeThrow, Dash dash, Hop hop) {
-	public static final PillagerKingSettings DEFAULT = new PillagerKingSettings(Stats.DEFAULT, Run.DEFAULT, Totem.DEFAULT, 12, 3.0,
-			Slash.DEFAULT, Combo.DEFAULT, Whirl.DEFAULT, Tornado.DEFAULT, AxeThrow.DEFAULT, Dash.DEFAULT, Hop.DEFAULT);
+		Onslaught onslaught, Tornado tornado, AxeThrow axeThrow, Boomerang boomerang, Charge charge, ArrowParry arrowParry, Dash dash,
+		Hop hop) {
+	public static final PillagerKingSettings DEFAULT = new PillagerKingSettings(Stats.DEFAULT, Run.DEFAULT, Totem.DEFAULT, 12, 3.33,
+			Slash.DEFAULT, Combo.DEFAULT, Onslaught.DEFAULT, Tornado.DEFAULT, AxeThrow.DEFAULT, Boomerang.DEFAULT, Charge.DEFAULT,
+			ArrowParry.DEFAULT, Dash.DEFAULT, Hop.DEFAULT);
 
 	/**
 	 * @param health        his health
@@ -98,22 +103,29 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	}
 
 	/**
-	 * @param damage          damage of each of the two cuts
-	 * @param radius          everyone this close (flat) is cut, whichever side they stand on
+	 * @param damage          damage of the blow of both axes at the end of the leap
+	 * @param shieldReduction a shield raised against him takes off only this share of the blow
+	 * @param kickDamage      damage of the kick
+	 * @param kickPush        how hard the kick pushes the target back
+	 * @param rushSpeed       blocks per tick he rushes in before the kick
 	 * @param chance          chance to pick it when it is ready
 	 * @param chanceVsShield  the same when the target holds up a shield
-	 * @param cooldown        ticks before the next whirl
+	 * @param cooldown        ticks before the next onslaught
 	 */
-	public record Whirl(float damage, double radius, double chance, double chanceVsShield, int cooldown) {
-		public static final Whirl DEFAULT = new Whirl(6.0F, 3.6, 0.25, 0.5, 160);
+	public record Onslaught(float damage, float shieldReduction, float kickDamage, double kickPush, double rushSpeed, double chance,
+			double chanceVsShield, int cooldown) {
+		public static final Onslaught DEFAULT = new Onslaught(25.0F, 0.25F, 2.0F, 1.4, 0.7, 0.25, 0.5, 220);
 
-		public static final Codec<Whirl> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Whirl::damage),
-				Codec.doubleRange(0.5, 8.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Whirl::radius),
-				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Whirl::chance),
-				Codec.doubleRange(0.0, 1.0).fieldOf("chance_vs_shield").orElse(DEFAULT.chanceVsShield).forGetter(Whirl::chanceVsShield),
-				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Whirl::cooldown)
-		).apply(instance, Whirl::new));
+		public static final Codec<Onslaught> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 200.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Onslaught::damage),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("shield_reduction").orElse(DEFAULT.shieldReduction).forGetter(Onslaught::shieldReduction),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("kick_damage").orElse(DEFAULT.kickDamage).forGetter(Onslaught::kickDamage),
+				Codec.doubleRange(0.0, 5.0).fieldOf("kick_push").orElse(DEFAULT.kickPush).forGetter(Onslaught::kickPush),
+				Codec.doubleRange(0.0, 2.0).fieldOf("rush_speed").orElse(DEFAULT.rushSpeed).forGetter(Onslaught::rushSpeed),
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Onslaught::chance),
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance_vs_shield").orElse(DEFAULT.chanceVsShield).forGetter(Onslaught::chanceVsShield),
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Onslaught::cooldown)
+		).apply(instance, Onslaught::new));
 	}
 
 	/**
@@ -124,7 +136,7 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 	 * @param drift    blocks per tick he drifts at the target while he spins
 	 */
 	public record Tornado(float damage, double radius, double chance, int cooldown, double drift) {
-		public static final Tornado DEFAULT = new Tornado(5.0F, 3.2, 0.2, 240, 0.1);
+		public static final Tornado DEFAULT = new Tornado(5.0F, 3.53, 0.2, 240, 0.1);
 
 		public static final Codec<Tornado> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Tornado::damage),
@@ -159,6 +171,64 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(AxeThrow::shieldSeconds),
 				Codec.doubleRange(0.1, 5.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(AxeThrow::speed)
 		).apply(instance, AxeThrow::new));
+	}
+
+	/**
+	 * @param damage   damage of the axe when it strikes the back
+	 * @param minRange the target must be at least this far
+	 * @param maxRange and at most this far
+	 * @param chance   chance to pick it when it is ready and the target is in range
+	 * @param cooldown ticks before the next boomerang
+	 * @param speed    blocks per tick the axe flies
+	 */
+	public record Boomerang(float damage, double minRange, double maxRange, double chance, int cooldown, double speed) {
+		public static final Boomerang DEFAULT = new Boomerang(6.0F, 4.0, 16.0, 0.4, 200, 1.0);
+
+		public static final Codec<Boomerang> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Boomerang::damage),
+				Codec.doubleRange(0.0, 64.0).fieldOf("min_range").orElse(DEFAULT.minRange).forGetter(Boomerang::minRange),
+				Codec.doubleRange(0.0, 64.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(Boomerang::maxRange),
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Boomerang::chance),
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Boomerang::cooldown),
+				Codec.doubleRange(0.1, 5.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Boomerang::speed)
+		).apply(instance, Boomerang::new));
+	}
+
+	/**
+	 * @param damage        damage of each of the three cuts
+	 * @param kickDamage    damage of the kick that ends it
+	 * @param kickPush      how hard the kick pushes the target back
+	 * @param shieldSeconds the target's shield is knocked away for this long
+	 * @param speed         blocks per tick he runs
+	 * @param from          he charges at a target at least this far
+	 * @param to            and at most this far
+	 * @param chance        chance to pick it when it is ready and the target is in range
+	 * @param cooldown      ticks before the next charge
+	 */
+	public record Charge(float damage, float kickDamage, double kickPush, float shieldSeconds, double speed, double from, double to,
+			double chance, int cooldown) {
+		public static final Charge DEFAULT = new Charge(6.0F, 2.0F, 1.2, 5.0F, 0.95, 4.0, 12.0, 0.35, 200);
+
+		public static final Codec<Charge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Charge::damage),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("kick_damage").orElse(DEFAULT.kickDamage).forGetter(Charge::kickDamage),
+				Codec.doubleRange(0.0, 5.0).fieldOf("kick_push").orElse(DEFAULT.kickPush).forGetter(Charge::kickPush),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Charge::shieldSeconds),
+				Codec.doubleRange(0.0, 3.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Charge::speed),
+				Codec.doubleRange(0.0, 64.0).fieldOf("from").orElse(DEFAULT.from).forGetter(Charge::from),
+				Codec.doubleRange(0.0, 64.0).fieldOf("to").orElse(DEFAULT.to).forGetter(Charge::to),
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Charge::chance),
+				Codec.intRange(0, 2400).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Charge::cooldown)
+		).apply(instance, Charge::new));
+	}
+
+	/** @param chance chance to knock an arrow from the front aside while he is not in the middle of an attack */
+	public record ArrowParry(double chance) {
+		public static final ArrowParry DEFAULT = new ArrowParry(1.0);
+
+		public static final Codec<ArrowParry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 1.0).fieldOf("chance").orElse(DEFAULT.chance).forGetter(ArrowParry::chance)
+		).apply(instance, ArrowParry::new));
 	}
 
 	/**
@@ -210,9 +280,12 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 			Codec.doubleRange(1.0, 6.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(PillagerKingSettings::reach),
 			Slash.CODEC.fieldOf("slash").orElse(DEFAULT.slash).forGetter(PillagerKingSettings::slash),
 			Combo.CODEC.fieldOf("combo").orElse(DEFAULT.combo).forGetter(PillagerKingSettings::combo),
-			Whirl.CODEC.fieldOf("whirl").orElse(DEFAULT.whirl).forGetter(PillagerKingSettings::whirl),
+			Onslaught.CODEC.fieldOf("onslaught").orElse(DEFAULT.onslaught).forGetter(PillagerKingSettings::onslaught),
 			Tornado.CODEC.fieldOf("tornado").orElse(DEFAULT.tornado).forGetter(PillagerKingSettings::tornado),
 			AxeThrow.CODEC.fieldOf("throw").orElse(DEFAULT.axeThrow).forGetter(PillagerKingSettings::axeThrow),
+			Boomerang.CODEC.fieldOf("boomerang").orElse(DEFAULT.boomerang).forGetter(PillagerKingSettings::boomerang),
+			Charge.CODEC.fieldOf("charge").orElse(DEFAULT.charge).forGetter(PillagerKingSettings::charge),
+			ArrowParry.CODEC.fieldOf("arrow_parry").orElse(DEFAULT.arrowParry).forGetter(PillagerKingSettings::arrowParry),
 			Dash.CODEC.fieldOf("dash").orElse(DEFAULT.dash).forGetter(PillagerKingSettings::dash),
 			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(PillagerKingSettings::hop)
 	).apply(instance, PillagerKingSettings::new));

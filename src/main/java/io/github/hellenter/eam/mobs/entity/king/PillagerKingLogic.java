@@ -11,12 +11,16 @@ public final class PillagerKingLogic {
 		SLASH,
 		/** Four cuts, parryable at the start. */
 		COMBO,
-		/** A full turn with both axes, through shields, after a red-eyed warning. */
-		WHIRL,
+		/** Rush, kick and a leap with both axes; a shield only softens it, a hit while he is in the air parries it. */
+		ONSLAUGHT,
 		/** A long spin of six weak cuts. */
 		TORNADO,
 		/** The left axe thrown; it knocks out a shield it hits. */
-		THROW
+		THROW,
+		/** The left axe thrown round the target into its back. */
+		BOOMERANG,
+		/** A run at the target after a red warning: its shield knocked away, three cuts and a kick. */
+		CHARGE
 	}
 
 	/** What he does about a hit that is about to come. */
@@ -46,6 +50,16 @@ public final class PillagerKingLogic {
 		PillagerKingSettings.AxeThrow axe = settings.axeThrow();
 		boolean throwReady = cooldowns[Attack.THROW.ordinal()] <= 0 && distance <= axe.maxRange();
 		if (distance > settings.reach()) {
+			PillagerKingSettings.Charge charge = settings.charge();
+			if (cooldowns[Attack.CHARGE.ordinal()] <= 0 && distance >= charge.from() && distance <= charge.to()
+					&& rolls.getAsDouble() < charge.chance()) {
+				return Attack.CHARGE;
+			}
+			PillagerKingSettings.Boomerang boomerang = settings.boomerang();
+			if (cooldowns[Attack.BOOMERANG.ordinal()] <= 0 && distance >= boomerang.minRange() && distance <= boomerang.maxRange()
+					&& (blocking || outOfReach >= axe.after()) && rolls.getAsDouble() < boomerang.chance()) {
+				return Attack.BOOMERANG;
+			}
 			return throwReady && distance >= axe.minRange() && (blocking || outOfReach >= axe.after()) ? Attack.THROW : null;
 		}
 		// A raised shield is what the throw is for: it knocks it out for the attack that follows.
@@ -57,9 +71,10 @@ public final class PillagerKingLogic {
 
 	/** One of his axe attacks, for a target in reach. */
 	public static Attack chooseMelee(boolean blocking, int[] cooldowns, PillagerKingSettings settings, DoubleSupplier rolls) {
-		PillagerKingSettings.Whirl whirl = settings.whirl();
-		if (cooldowns[Attack.WHIRL.ordinal()] <= 0 && rolls.getAsDouble() < (blocking ? whirl.chanceVsShield() : whirl.chance())) {
-			return Attack.WHIRL;
+		PillagerKingSettings.Onslaught onslaught = settings.onslaught();
+		if (cooldowns[Attack.ONSLAUGHT.ordinal()] <= 0
+				&& rolls.getAsDouble() < (blocking ? onslaught.chanceVsShield() : onslaught.chance())) {
+			return Attack.ONSLAUGHT;
 		}
 		if (cooldowns[Attack.TORNADO.ordinal()] <= 0 && rolls.getAsDouble() < settings.tornado().chance()) {
 			return Attack.TORNADO;
@@ -107,13 +122,32 @@ public final class PillagerKingLogic {
 		return health <= 0.0F && !used && !unstoppable;
 	}
 
-	/** Whether a hit taken on tick {@code t} of an action parries him. */
+	/** Whether a hit taken on tick {@code t} of an action parries him: at the start of a combo, or while he leaps in the onslaught. */
 	public static boolean parries(KingAction action, int t) {
 		return parries(action, t, KingAction.COMBO_PARRY_END);
 	}
 
-	/** Whether a hit taken on tick {@code t} of an action parries him, with the window ending at tick {@code end}. */
+	/**
+	 * Whether a hit taken on tick {@code t} of an action parries him, with the combo's window ending at tick {@code end};
+	 * the onslaught's window is cut short by as much.
+	 */
 	public static boolean parries(KingAction action, int t, int end) {
-		return action == KingAction.COMBO && t < end;
+		int cut = KingAction.COMBO_PARRY_END - end;
+		return action == KingAction.COMBO && t < end
+				|| action == KingAction.ONSLAUGHT && t >= KingAction.ONSLAUGHT_PARRY_START && t < KingAction.ONSLAUGHT_PARRY_END - cut;
+	}
+
+	/** The blow of the onslaught on a target that may hold up a shield against it: the shield only takes a share off. */
+	public static float onslaughtDamage(float damage, boolean shielded, float shieldReduction) {
+		return shielded ? damage * (1.0F - shieldReduction) : damage;
+	}
+
+	/**
+	 * Horizontal speed for a leap that lands {@code distance} blocks away after {@code ticks} ticks in the air, with the
+	 * air slowing a mob to 0.91 of its speed each tick.
+	 */
+	public static double leapSpeed(double distance, int ticks) {
+		double carried = (1.0 - Math.pow(0.91, ticks)) / 0.09;
+		return Math.max(0.0, distance) / carried;
 	}
 }

@@ -16,7 +16,7 @@
     "heal": 25.0
   },
   "attack_pause": 12,
-  "reach": 3.0,
+  "reach": 3.33,
   "slash": {
     "damage": 7.0
   },
@@ -26,16 +26,19 @@
     "cooldown": 100,
     "parry_multiplier": 1.5
   },
-  "whirl": {
-    "damage": 6.0,
-    "radius": 3.6,
+  "onslaught": {
+    "damage": 25.0,
+    "shield_reduction": 0.25,
+    "kick_damage": 2.0,
+    "kick_push": 1.4,
+    "rush_speed": 0.7,
     "chance": 0.25,
     "chance_vs_shield": 0.5,
-    "cooldown": 160
+    "cooldown": 220
   },
   "tornado": {
     "damage": 5.0,
-    "radius": 3.2,
+    "radius": 3.53,
     "chance": 0.2,
     "cooldown": 240,
     "drift": 0.1
@@ -49,6 +52,28 @@
     "cooldown": 140,
     "shield_seconds": 5.0,
     "speed": 1.5
+  },
+  "boomerang": {
+    "damage": 6.0,
+    "min_range": 4.0,
+    "max_range": 16.0,
+    "chance": 0.4,
+    "cooldown": 200,
+    "speed": 1.0
+  },
+  "charge": {
+    "damage": 6.0,
+    "kick_damage": 2.0,
+    "kick_push": 1.2,
+    "shield_seconds": 5.0,
+    "speed": 0.95,
+    "from": 4.0,
+    "to": 12.0,
+    "chance": 0.35,
+    "cooldown": 200
+  },
+  "arrow_parry": {
+    "chance": 1.0
   },
   "dash": {
     "cooldown": 70,

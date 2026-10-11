@@ -687,6 +687,7 @@ public class EamModelProvider extends FabricModelProvider {
 		PotionModels.generate(generators);
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
+		PillagerKingItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_HEART, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);

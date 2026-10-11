@@ -5,8 +5,10 @@ import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
+import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingLogic.Attack;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -43,8 +45,12 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
@@ -56,22 +62,31 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * The Pillager King: a giant two and a half blocks tall in closed black plate trimmed with diamond, an axe in each hand.
- * He cuts once, in a four-cut combo that a hit at its start parries, whirls round once with both axes through any
- * shield after his eyes flash red, spins in a long tornado of weak blockable cuts, and throws his left axe to knock a
- * raised shield out before he goes in. He dashes at players a few blocks off and hops back from those who crowd him,
+ * The Pillager King: a giant two and a half blocks tall in closed black plate, a long netherite axe in each hand.
+ * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (rush, kick, a leap with both axes
+ * for a blow a shield only softens, parried by a hit while he is in the air), spins in a long tornado of weak blockable
+ * cuts, throws his left axe to knock a raised shield out or round the target into its back, and from afar charges after
+ * his eyes flash red, knocking the shield away for three cuts and a kick. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
 public class PillagerKing extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(PillagerKing.class, EntityDataSerializers.BYTE);
 	private static final Identifier RUN_MODIFIER = Eam.id("pillager_king_run");
+	/** The look of his axes, named by the item_model component. */
+	public static final Identifier AXE_MODEL = Eam.id("pillager_king_axe");
 	/** Hits further than this flat distance past their reach still land, for a moving target. */
 	private static final double REACH_SLACK = 0.3;
 	/** A dash stops this much short of the hit's reach, so the cut lands even if the target keeps backing off. */
 	private static final double DASH_STOP_SHORT = 1.0;
 	/** The thrown axe is back in his hand after this many ticks at the latest, even if it got lost. */
-	private static final int AXE_BACK_AFTER = 80;
+	private static final int AXE_BACK_AFTER = 100;
+	/** How far his kick reaches, flat from his centre. */
+	private static final double KICK_REACH = 2.4;
+	/** The charge reaches the target this close. */
+	private static final double CHARGE_CONTACT = 2.0;
+	/** Upward speed of the onslaught's leap: about the ticks it has in the air. */
+	private static final double LEAP_UP = 0.45;
 	/** The combo ends with a hop back on this tick, if the hop is ready. */
 	private static final int COMBO_HOP = 32;
 
@@ -150,18 +165,30 @@ public class PillagerKing extends Monster {
 		setLeftHanded(false);
 		setCanPickUpLoot(false);
 		applyStats(true);
+		equipAxes();
 		return data;
 	}
 
 	@Override
 	protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
-		setItemSlot(EquipmentSlot.MAINHAND, axeStack());
-		setItemSlot(EquipmentSlot.OFFHAND, axeStack());
+		// Gear is fixed, set in finalizeSpawn.
 	}
 
-	/** One of his two axes. */
+	/** An axe in each hand that is empty. */
+	private void equipAxes() {
+		if (getMainHandItem().isEmpty()) {
+			setItemSlot(EquipmentSlot.MAINHAND, axeStack());
+		}
+		if (getOffhandItem().isEmpty()) {
+			setItemSlot(EquipmentSlot.OFFHAND, axeStack());
+		}
+	}
+
+	/** One of his two axes: a netherite axe with a long haft. */
 	public static ItemStack axeStack() {
-		return new ItemStack(Items.IRON_AXE);
+		ItemStack axe = new ItemStack(Items.NETHERITE_AXE);
+		axe.set(DataComponents.ITEM_MODEL, AXE_MODEL);
+		return axe;
 	}
 
 	/** Health, armor, speed and the rest from the data file; {@code full} also heals him to the new maximum. */
@@ -295,9 +322,19 @@ public class PillagerKing extends Monster {
 				cooldowns[attack.ordinal()] = settings.combo().cooldown();
 				setAction(KingAction.COMBO);
 			}
-			case WHIRL -> {
-				cooldowns[attack.ordinal()] = settings.whirl().cooldown();
-				setAction(KingAction.WHIRL_WINDUP);
+			case ONSLAUGHT -> {
+				cooldowns[attack.ordinal()] = settings.onslaught().cooldown();
+				setAction(KingAction.ONSLAUGHT);
+			}
+			case CHARGE -> {
+				cooldowns[attack.ordinal()] = settings.charge().cooldown();
+				setAction(KingAction.CHARGE_WINDUP);
+			}
+			case BOOMERANG -> {
+				cooldowns[attack.ordinal()] = settings.boomerang().cooldown();
+				// He has one axe to throw: no plain throw right after.
+				cooldowns[Attack.THROW.ordinal()] = Math.max(cooldowns[Attack.THROW.ordinal()], 60);
+				setAction(KingAction.BOOMERANG);
 			}
 			case TORNADO -> {
 				cooldowns[attack.ordinal()] = settings.tornado().cooldown();
@@ -305,6 +342,7 @@ public class PillagerKing extends Monster {
 			}
 			case THROW -> {
 				cooldowns[attack.ordinal()] = settings.axeThrow().cooldown();
+				cooldowns[Attack.BOOMERANG.ordinal()] = Math.max(cooldowns[Attack.BOOMERANG.ordinal()], 60);
 				setAction(KingAction.THROW);
 			}
 		}
@@ -327,15 +365,16 @@ public class PillagerKing extends Monster {
 		int t = actionTicks++;
 		LivingEntity target = actionTarget;
 		if (t >= action.length()) {
-			if (action == KingAction.WHIRL_WINDUP) {
-				setAction(KingAction.WHIRL);
+			if (action == KingAction.CHARGE_WINDUP) {
+				setAction(KingAction.CHARGE);
 			} else {
 				endAction();
 			}
 			return;
 		}
-		boolean spinning = action == KingAction.WHIRL || action == KingAction.TORNADO;
-		if (action != KingAction.TOTEM && action != KingAction.STAGGER && !spinning && (target == null || !target.isAlive())) {
+		boolean spinning = action == KingAction.TORNADO;
+		if (action != KingAction.TOTEM && action != KingAction.STAGGER && action != KingAction.PARRY_ARROW && !spinning
+				&& (target == null || !target.isAlive())) {
 			endAction();
 			return;
 		}
@@ -355,24 +394,23 @@ public class PillagerKing extends Monster {
 				}
 			}
 			case COMBO -> tickCombo(level, t, target, settings);
-			case WHIRL_WINDUP -> {
+			case ONSLAUGHT -> tickOnslaught(level, t, target, settings.onslaught(), settings.reach());
+			case CHARGE_WINDUP -> {
 				if (t == 0) {
 					level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_DASH_WARNING, getSoundSource(), 2.0F, 0.8F);
 				}
 			}
-			case WHIRL -> {
-				for (int hit : KingAction.WHIRL_HITS) {
-					if (t == hit) {
-						playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.5F, 0.6F + t * 0.03F);
-						PillagerKingSettings.Whirl whirl = settings.whirl();
-						hitAround(level, whirl.radius(), whirl.damage(), damageSources().source(PillagerKingModule.WHIRL_DAMAGE, this), 0.6F);
-					}
-				}
-			}
+			case CHARGE -> tickCharge(level, target, settings.charge());
+			case CHARGE_HITS -> tickChargeHits(level, t, target, settings);
 			case TORNADO -> tickTornado(level, t, target, settings);
 			case THROW -> {
 				if (t == KingAction.THROW_RELEASE && target != null) {
 					throwAxe(level, target, settings.axeThrow());
+				}
+			}
+			case BOOMERANG -> {
+				if (t == KingAction.THROW_RELEASE && target != null) {
+					throwBoomerang(level, target, settings.boomerang());
 				}
 			}
 			default -> {
@@ -400,6 +438,118 @@ public class PillagerKing extends Monster {
 		}
 		if (t == COMBO_HOP) {
 			hopBack(target, settings.hop());
+		}
+	}
+
+	/**
+	 * The onslaught: a rush up to the target, a kick that throws it back, a leap after it with both axes raised and
+	 * one blow of both that a shield only softens.
+	 */
+	private void tickOnslaught(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings.Onslaught onslaught,
+			double reach) {
+		if (target == null) {
+			return;
+		}
+		double distance = horizontalDistanceTo(target);
+		if (t == 0) {
+			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 0.6F);
+		}
+		if (t < KingAction.ONSLAUGHT_RUSH_END && distance > KICK_REACH - 0.6) {
+			Vec3 to = horizontal(target.position().subtract(position()));
+			setDeltaMovement(to.x * onslaught.rushSpeed(), getDeltaMovement().y, to.z * onslaught.rushSpeed());
+		}
+		if (t == KingAction.ONSLAUGHT_KICK) {
+			kick(level, target, onslaught.kickDamage(), onslaught.kickPush());
+		}
+		if (t == KingAction.ONSLAUGHT_LEAP) {
+			// A bell: the moment to parry him, while he is in the air.
+			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 0.7F);
+			Vec3 to = horizontal(target.position().subtract(position()));
+			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2,
+					KingAction.ONSLAUGHT_HIT - KingAction.ONSLAUGHT_LEAP));
+			setDeltaMovement(to.x * speed, LEAP_UP, to.z * speed);
+		}
+		if (t == KingAction.ONSLAUGHT_HIT) {
+			level.playSound(null, getX(), getY(), getZ(), SoundEvents.MACE_SMASH_GROUND_HEAVY, getSoundSource(), 1.5F, 0.7F);
+			level.sendParticles(ParticleTypes.EXPLOSION, getX() + getLookAngle().x * 1.5, getY() + 0.2, getZ() + getLookAngle().z * 1.5,
+					1, 0.0, 0.0, 0.0, 0.0);
+			if (horizontalDistanceTo(target) <= reach + REACH_SLACK && Math.abs(target.getY() - getY()) < 2.5 && hasLineOfSight(target)) {
+				boolean shielded = target.isBlocking()
+						&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ());
+				float damage = PillagerKingLogic.onslaughtDamage(onslaught.damage(), shielded, onslaught.shieldReduction());
+				target.damageCooldownTime = 0;
+				strike(level, target, damageSources().source(PillagerKingModule.ONSLAUGHT_DAMAGE, this), damage, 0.8F);
+				if (shielded) {
+					level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(),
+							1.0F, 0.6F);
+				}
+			}
+		}
+	}
+
+	/** A kick in front of him: a little damage and a hard push back. */
+	private void kick(ServerLevel level, LivingEntity target, float damage, double push) {
+		if (horizontalDistanceTo(target) > KICK_REACH + REACH_SLACK || Math.abs(target.getY() - getY()) > 2.0 || !inFront(target)) {
+			return;
+		}
+		playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.5F, 0.6F);
+		target.damageCooldownTime = 0;
+		strike(level, target, damageSources().mobAttack(this), damage, 0.0F);
+		Vec3 away = horizontal(target.position().subtract(position()));
+		target.push(away.x * push, 0.35, away.z * push);
+	}
+
+	/** Runs at the target; on reaching it, knocks its shield away and goes into the cuts. */
+	private void tickCharge(ServerLevel level, @Nullable LivingEntity target, PillagerKingSettings.Charge charge) {
+		if (target == null) {
+			return;
+		}
+		if (horizontalDistanceTo(target) > CHARGE_CONTACT) {
+			Vec3 to = horizontal(target.position().subtract(position()));
+			setDeltaMovement(to.x * charge.speed(), getDeltaMovement().y, to.z * charge.speed());
+			if (tickCount % 3 == 0) {
+				level.sendParticles(ParticleTypes.CLOUD, getX(), getY() + 0.1, getZ(), 2, 0.3, 0.0, 0.3, 0.01);
+			}
+			return;
+		}
+		knockShieldAway(level, target, charge.shieldSeconds());
+		setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
+		setAction(KingAction.CHARGE_HITS);
+	}
+
+	/** Knocks the target's shield out of its hands for a while, raised or not. */
+	private void knockShieldAway(ServerLevel level, LivingEntity target, float seconds) {
+		for (ItemStack held : new ItemStack[] {target.getMainHandItem(), target.getOffhandItem()}) {
+			BlocksAttacks blocks = held.get(DataComponents.BLOCKS_ATTACKS);
+			if (blocks != null) {
+				blocks.disable(level, target, seconds, held);
+				level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F,
+						0.8F);
+				return;
+			}
+		}
+	}
+
+	/** Three quick cuts after the charge, then a kick. */
+	private void tickChargeHits(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings settings) {
+		if (target == null) {
+			return;
+		}
+		PillagerKingSettings.Charge charge = settings.charge();
+		// He keeps on the target as it backs off.
+		if (t < KingAction.CHARGE_KICK && horizontalDistanceTo(target) > 1.8) {
+			Vec3 to = horizontal(target.position().subtract(position()));
+			setDeltaMovement(to.x * 0.35, getDeltaMovement().y, to.z * 0.35);
+		}
+		for (int cut : KingAction.CHARGE_CUTS) {
+			if (t == cut) {
+				playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 0.8F + t * 0.02F);
+				target.damageCooldownTime = 0;
+				hitIfInReach(level, target, settings.reach(), charge.damage());
+			}
+		}
+		if (t == KingAction.CHARGE_KICK) {
+			kick(level, target, charge.kickDamage(), charge.kickPush());
 		}
 	}
 
@@ -436,6 +586,17 @@ public class PillagerKing extends Monster {
 		thrown.shoot(dx, dy + flat * 0.05, dz, (float) axe.speed(), 0.5F);
 		level.addFreshEntity(thrown);
 		playSound(SoundEvents.TRIDENT_THROW.value(), 1.2F, 0.6F);
+		setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+		axeAway = 0;
+	}
+
+	/** The left axe thrown round the target: it curves past it and strikes it in the back. */
+	private void throwBoomerang(ServerLevel level, LivingEntity target, PillagerKingSettings.Boomerang boomerang) {
+		Vec3 left = Vec3.directionFromRotation(0.0F, getYRot() + 90.0F).scale(0.6);
+		ThrownKingAxe thrown = ThrownKingAxe.boomerang(level, this, target, boomerang.damage(), boomerang.speed(), random.nextBoolean());
+		thrown.setPos(getX() + left.x, getY(0.75), getZ() + left.z);
+		level.addFreshEntity(thrown);
+		playSound(SoundEvents.TRIDENT_THROW.value(), 1.2F, 0.5F);
 		setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
 		axeAway = 0;
 	}
@@ -597,6 +758,36 @@ public class PillagerKing extends Monster {
 		return 0.0F;
 	}
 
+	// ---- Arrows ----
+
+	/** Arrows from the front are knocked aside by an axe while he is not in the middle of an attack. */
+	@Override
+	public ProjectileDeflection deflection(Projectile projectile) {
+		if (!(projectile instanceof AbstractArrow) || projectile instanceof ThrownKingAxe || projectile.getOwner() == this
+				|| level().isClientSide()) {
+			return super.deflection(projectile);
+		}
+		Vec3 motion = projectile.getDeltaMovement();
+		if (!FallenLordLogic.shieldCovers(yBodyRot, -motion.x, -motion.z) || getMainHandItem().isEmpty()
+				|| action != KingAction.NONE && action != KingAction.PARRY_ARROW
+				|| random.nextDouble() >= settings().arrowParry().chance()) {
+			return super.deflection(projectile);
+		}
+		return this::parryArrow;
+	}
+
+	/** Runs on the server only. The arrow flies off to one side, slowed, and he flicks an axe. */
+	private void parryArrow(Projectile projectile, @Nullable Entity by, RandomSource random, Vec3 power) {
+		Vec3 motion = projectile.getDeltaMovement();
+		Vec3 side = new Vec3(-motion.z, 0.0, motion.x).normalize().scale(random.nextBoolean() ? 1.0 : -1.0);
+		projectile.setDeltaMovement(side.scale(motion.length() * 0.3).add(motion.scale(-0.1)).add(0.0, 0.2, 0.0));
+		projectile.needsSync = true;
+		level().playSound(null, getX(), getY(0.6), getZ(), SoundEvents.ANVIL_LAND, getSoundSource(), 0.35F, 1.8F + random.nextFloat() * 0.2F);
+		LivingEntity target = getTarget();
+		setAction(KingAction.PARRY_ARROW);
+		actionTarget = target;
+	}
+
 	// ---- Damage: parry and totem ----
 
 	@Override
@@ -619,7 +810,7 @@ public class PillagerKing extends Monster {
 		return hurt;
 	}
 
-	/** A player hit him as the combo began: it breaks off and he staggers back, open to hits. */
+	/** A player hit him as the combo began or as he leapt in the onslaught: it breaks off and he staggers back, open to hits. */
 	private void parried(ServerLevel level, Player player) {
 		parryStreak.parried(player.getUUID(), level.getGameTime());
 		LivingEntity target = actionTarget;
@@ -714,10 +905,8 @@ public class PillagerKing extends Monster {
 		totemUsed = input.getBooleanOr("TotemUsed", false);
 		applyStats(false);
 		bossEvent.setName(getDisplayName());
-		// Saved mid-throw (the action itself is not saved): give the axe back.
-		if (getOffhandItem().isEmpty()) {
-			setItemSlot(EquipmentSlot.OFFHAND, axeStack());
-		}
+		// Saved mid-throw (the action itself is not saved), or spawned before he got both axes: give them back.
+		equipAxes();
 		Arrays.fill(cooldowns, 0);
 	}
 

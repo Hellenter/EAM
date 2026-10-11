@@ -13,14 +13,26 @@ public enum KingAction {
 	 * cut ({@link #COMBO_PARRY_END}) parries him.
 	 */
 	COMBO(36),
-	/** Eyes flash red, both axes drawn back: the time to step away. Then {@link #WHIRL}. */
-	WHIRL_WINDUP(16),
-	/** A quick full turn on the spot; each axe cuts everyone around once, on {@link #WHIRL_HITS}. Shields don't stop it. */
-	WHIRL(12),
+	/**
+	 * The onslaught: he rushes at the target, kicks it back on {@link #ONSLAUGHT_KICK}, leaps after it with both axes
+	 * raised on {@link #ONSLAUGHT_LEAP} and brings them down on {@link #ONSLAUGHT_HIT}. A shield only softens the blow;
+	 * a player's hit while he is in the air ({@link #ONSLAUGHT_PARRY_START} to {@link #ONSLAUGHT_PARRY_END}) parries him.
+	 */
+	ONSLAUGHT(30),
+	/** Eyes flash red, axes drawn back, feet set: the time to step away. Then {@link #CHARGE}. */
+	CHARGE_WINDUP(14),
+	/** Runs at the target; reaching it, he knocks its shield away and goes on to {@link #CHARGE_HITS}. */
+	CHARGE(12),
+	/** Three quick cuts on {@link #CHARGE_CUTS}, then a kick on {@link #CHARGE_KICK}. */
+	CHARGE_HITS(24),
 	/** Spins up, then six weak cuts all around on {@link #TORNADO_HITS} while drifting at the target. */
 	TORNADO(42),
 	/** Left axe drawn back, thrown on {@link #THROW_RELEASE}. */
 	THROW(16),
+	/** Left axe swung out flat and thrown on {@link #THROW_RELEASE}; it curves round the target and comes in from behind. */
+	BOOMERANG(16),
+	/** Knocks an arrow aside with an axe. */
+	PARRY_ARROW(6),
 	/** Parried at the start of a combo: thrown off balance, open to hits. */
 	STAGGER(24),
 	/** His totem breaks instead of him: invulnerable for the moment, healed. */
@@ -29,7 +41,14 @@ public enum KingAction {
 	public static final int SLASH_HIT = 7;
 	public static final int COMBO_PARRY_END = 10;
 	public static final int[] COMBO_HITS = {10, 16, 22, 28};
-	public static final int[] WHIRL_HITS = {4, 8};
+	public static final int ONSLAUGHT_RUSH_END = 6;
+	public static final int ONSLAUGHT_KICK = 7;
+	public static final int ONSLAUGHT_LEAP = 10;
+	public static final int ONSLAUGHT_PARRY_START = 10;
+	public static final int ONSLAUGHT_PARRY_END = 19;
+	public static final int ONSLAUGHT_HIT = 20;
+	public static final int[] CHARGE_CUTS = {3, 7, 11};
+	public static final int CHARGE_KICK = 17;
 	/** The tornado spins up until this tick. */
 	public static final int TORNADO_SPIN_UP = 8;
 	public static final int[] TORNADO_HITS = {12, 17, 22, 27, 32, 37};

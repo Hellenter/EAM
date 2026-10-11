@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -24,8 +25,9 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Pillager King, two and a half blocks tall. He spins round for the whirl and the tornado, his eyes glow red in the
- * slit of the helm before the whirl and yellow while he can be parried, and he holds up a totem when it saves him.
+ * The Pillager King, two and a half blocks tall, a long netherite axe in each hand. He spins round in the tornado, his
+ * eyes glow red in the slit of the helm before the charge and yellow while he can be parried, and he holds up a totem
+ * when it saves him.
  */
 public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, PillagerKingRenderState, PillagerKingModel> {
 	/** The model is 2 blocks tall. */
@@ -62,11 +64,19 @@ public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, Pill
 		state.actionTime = king.actionTime(partialTicks);
 		float t = state.actionTime;
 		state.eyes = switch (state.action) {
-			case WHIRL_WINDUP -> PillagerKingRenderState.Eyes.RED;
+			case CHARGE_WINDUP -> PillagerKingRenderState.Eyes.RED;
 			case COMBO -> t < KingAction.COMBO_PARRY_END ? PillagerKingRenderState.Eyes.YELLOW : PillagerKingRenderState.Eyes.NONE;
+			case ONSLAUGHT -> t >= KingAction.ONSLAUGHT_PARRY_START && t < KingAction.ONSLAUGHT_PARRY_END
+					? PillagerKingRenderState.Eyes.YELLOW : PillagerKingRenderState.Eyes.NONE;
 			default -> PillagerKingRenderState.Eyes.NONE;
 		};
 		state.bodyRot += spin(state.action, t);
+		state.spinSpeed = Math.abs(spin(state.action, t + 0.5F) - spin(state.action, t - 0.5F));
+		state.turnRate = Mth.wrapDegrees(king.yBodyRot - king.yBodyRotO);
+		state.fallSpeed = (float) (king.getY() - king.yo);
+		double dx = king.getX() - king.xo;
+		double dz = king.getZ() - king.zo;
+		state.dash = Math.clamp(((float) Math.sqrt(dx * dx + dz * dz) - 0.25F) / 0.35F, 0.0F, 1.0F);
 		if (state.action == KingAction.TOTEM) {
 			if (totem == null) {
 				totem = new ItemStack(Items.TOTEM_OF_UNDYING);
@@ -76,10 +86,9 @@ public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, Pill
 		}
 	}
 
-	/** Degrees he has turned on the spot so far in a whirl or a tornado. */
+	/** Degrees he has turned on the spot so far in a tornado. */
 	static float spin(KingAction action, float t) {
 		return switch (action) {
-			case WHIRL -> 360.0F * ease(t / 10.0F);
 			case TORNADO -> {
 				float start = KingAction.TORNADO_SPIN_UP;
 				float end = action.length();
@@ -100,11 +109,6 @@ public class PillagerKingRenderer extends HumanoidMobRenderer<PillagerKing, Pill
 			}
 			default -> 0.0F;
 		};
-	}
-
-	private static float ease(float x) {
-		float c = Math.clamp(x, 0.0F, 1.0F);
-		return c * c * (3.0F - 2.0F * c);
 	}
 
 	@Override

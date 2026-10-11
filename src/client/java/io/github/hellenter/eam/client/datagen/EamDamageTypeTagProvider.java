@@ -38,7 +38,7 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		// The heavy cavalryman's lance works out the share a shield takes itself; his axe sweep goes round a shield.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(LostCavalryModule.LANCE_DAMAGE, LostCavalryModule.SWEEP_DAMAGE);
 		// The Pillager King's whirl: only stepping away helps.
-		builder(DamageTypeTags.BYPASSES_SHIELD).add(PillagerKingModule.WHIRL_DAMAGE);
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(PillagerKingModule.ONSLAUGHT_DAMAGE);
 		// Weapon hits and projectiles, which the Fallen Lord partly resists.
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,

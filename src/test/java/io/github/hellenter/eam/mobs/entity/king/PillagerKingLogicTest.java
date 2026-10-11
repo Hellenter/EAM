@@ -31,8 +31,9 @@ class PillagerKingLogicTest {
 
 	@Test
 	void outOfReachHeWalksUntilThePlayerKeepsAway() {
-		assertNull(PillagerKingLogic.choose(6.0, false, 10, ready(), SETTINGS, ALWAYS));
-		assertEquals(Attack.THROW, PillagerKingLogic.choose(6.0, false, SETTINGS.axeThrow().after(), ready(), SETTINGS, ALWAYS));
+		int[] noRunNoBoomerang = cooling(Attack.CHARGE, Attack.BOOMERANG);
+		assertNull(PillagerKingLogic.choose(6.0, false, 10, noRunNoBoomerang, SETTINGS, ALWAYS));
+		assertEquals(Attack.THROW, PillagerKingLogic.choose(6.0, false, SETTINGS.axeThrow().after(), noRunNoBoomerang, SETTINGS, ALWAYS));
 		// Too close for a throw at a player who does not block, too far for any.
 		assertNull(PillagerKingLogic.choose(3.5, false, 100, ready(), SETTINGS, ALWAYS));
 		assertNull(PillagerKingLogic.choose(20.0, true, 100, ready(), SETTINGS, ALWAYS));
@@ -40,16 +41,16 @@ class PillagerKingLogicTest {
 
 	@Test
 	void aRaisedShieldDrawsTheThrow() {
-		assertEquals(Attack.THROW, PillagerKingLogic.choose(6.0, true, 0, ready(), SETTINGS, ALWAYS));
+		assertEquals(Attack.THROW, PillagerKingLogic.choose(6.0, true, 0, cooling(Attack.CHARGE, Attack.BOOMERANG), SETTINGS, ALWAYS));
 		assertEquals(Attack.THROW, PillagerKingLogic.choose(2.0, true, 0, ready(), SETTINGS, ALWAYS));
-		assertEquals(Attack.WHIRL, PillagerKingLogic.choose(2.0, true, 0, cooling(Attack.THROW), SETTINGS, ALWAYS));
+		assertEquals(Attack.ONSLAUGHT, PillagerKingLogic.choose(2.0, true, 0, cooling(Attack.THROW), SETTINGS, ALWAYS));
 	}
 
 	@Test
 	void inReachHePicksAnAxeAttack() {
-		assertEquals(Attack.WHIRL, PillagerKingLogic.choose(2.0, false, 0, ready(), SETTINGS, ALWAYS));
-		assertEquals(Attack.TORNADO, PillagerKingLogic.choose(2.0, false, 0, cooling(Attack.WHIRL), SETTINGS, ALWAYS));
-		assertEquals(Attack.COMBO, PillagerKingLogic.choose(2.0, false, 0, cooling(Attack.WHIRL, Attack.TORNADO), SETTINGS, ALWAYS));
+		assertEquals(Attack.ONSLAUGHT, PillagerKingLogic.choose(2.0, false, 0, ready(), SETTINGS, ALWAYS));
+		assertEquals(Attack.TORNADO, PillagerKingLogic.choose(2.0, false, 0, cooling(Attack.ONSLAUGHT), SETTINGS, ALWAYS));
+		assertEquals(Attack.COMBO, PillagerKingLogic.choose(2.0, false, 0, cooling(Attack.ONSLAUGHT, Attack.TORNADO), SETTINGS, ALWAYS));
 		assertEquals(Attack.SLASH, PillagerKingLogic.choose(2.0, false, 0, ready(), SETTINGS, NEVER));
 	}
 
@@ -92,5 +93,38 @@ class PillagerKingLogicTest {
 		assertFalse(PillagerKingLogic.parries(KingAction.COMBO, KingAction.COMBO_PARRY_END));
 		assertFalse(PillagerKingLogic.parries(KingAction.SLASH, 0));
 		assertEquals(KingAction.COMBO_PARRY_END, KingAction.COMBO_HITS[0]);
+	}
+
+	@Test
+	void fromAfarHeChargesOrThrowsTheBoomerang() {
+		assertEquals(Attack.CHARGE, PillagerKingLogic.choose(6.0, false, 0, ready(), SETTINGS, ALWAYS));
+		assertEquals(Attack.BOOMERANG, PillagerKingLogic.choose(14.0, false, SETTINGS.axeThrow().after(), ready(), SETTINGS, ALWAYS));
+		assertEquals(Attack.BOOMERANG, PillagerKingLogic.choose(6.0, true, 0, cooling(Attack.CHARGE), SETTINGS, ALWAYS));
+		// In reach he fights with the axes.
+		assertEquals(Attack.SLASH, PillagerKingLogic.choose(SETTINGS.reach(), false, 0, ready(), SETTINGS, NEVER));
+	}
+
+	@Test
+	void theOnslaughtCanBeParriedOnlyInTheLeap() {
+		assertFalse(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_KICK));
+		assertTrue(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_PARRY_START));
+		assertFalse(PillagerKingLogic.parries(KingAction.ONSLAUGHT, KingAction.ONSLAUGHT_HIT));
+	}
+
+	@Test
+	void aShieldOnlySoftensTheOnslaught() {
+		assertEquals(25.0F, PillagerKingLogic.onslaughtDamage(25.0F, false, 0.25F), 1.0E-6);
+		assertEquals(18.75F, PillagerKingLogic.onslaughtDamage(25.0F, true, 0.25F), 1.0E-6);
+	}
+
+	@Test
+	void theLeapLandsWhereItAims() {
+		double v = PillagerKingLogic.leapSpeed(5.0, 10);
+		double travelled = 0.0;
+		for (int i = 0; i < 10; i++) {
+			travelled += v;
+			v *= 0.91;
+		}
+		assertEquals(5.0, travelled, 1.0E-9);
 	}
 }
