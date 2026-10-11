@@ -21,6 +21,7 @@ import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightModule;
+import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
@@ -86,6 +87,7 @@ public class Eam implements ModInitializer {
 		SwampLurkerModule.register();
 		SwampyForestModule.register();
 		WightModule.register();
+		LostModule.register();
 		SpiderModule.register();
 		VampireBatModule.register();
 		BleedingModule.register();
@@ -124,6 +126,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) ThroughLeavesModule.init();
 		if (config.mobs()) SwampLurkerModule.init();
 		if (config.mobs()) WightModule.init();
+		if (config.mobs()) LostModule.init();
 		if (config.mobs()) SpiderModule.init();
 		if (config.mobs()) VampireBatModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();

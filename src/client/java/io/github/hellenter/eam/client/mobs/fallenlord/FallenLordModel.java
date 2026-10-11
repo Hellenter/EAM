@@ -34,7 +34,7 @@ import org.joml.Quaternionfc;
 public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("fallen_lord"), "main");
 	/** As big as the wither skeleton model. */
-	static final float MODEL_SCALE = 1.2F;
+	public static final float MODEL_SCALE = 1.2F;
 	/** The elbow below the shoulder pivot; arms reach 10 below it, like the vanilla arm. */
 	static final float ELBOW = 4.0F;
 	/** The knee below the hip; legs are 12 long. */
@@ -94,7 +94,7 @@ public class FallenLordModel extends SkeletonModel<FallenLordRenderState> {
 	 * Adds the arms and legs, each as an upper segment with the lower one hanging from its joint. Every layer of his
 	 * model has the same joints, so the layers bend together.
 	 */
-	static void addLimbs(PartDefinition root, CubeListBuilder rightArm, CubeListBuilder rightForearm, CubeListBuilder leftArm,
+	public static void addLimbs(PartDefinition root, CubeListBuilder rightArm, CubeListBuilder rightForearm, CubeListBuilder leftArm,
 			CubeListBuilder leftForearm, CubeListBuilder rightLeg, CubeListBuilder rightShin, CubeListBuilder leftLeg, CubeListBuilder leftShin) {
 		root.addOrReplaceChild("right_arm", rightArm, PartPose.offset(-5.0F, 2.0F, 0.0F))
 				.addOrReplaceChild("right_forearm", rightForearm, PartPose.offset(0.0F, ELBOW, 0.0F));

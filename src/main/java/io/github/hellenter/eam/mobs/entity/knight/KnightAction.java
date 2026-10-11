@@ -15,9 +15,12 @@ public enum KnightAction {
 	/** Sword raised overhead: the time a player has to step back. Then {@link #HEAVY_STRIKE}. */
 	HEAVY_WINDUP(FallenLordAction.HEAVY_WINDUP),
 	/** The overhead cut, landing on {@link #HEAVY_HIT}. */
-	HEAVY_STRIKE(FallenLordAction.HEAVY_STRIKE);
+	HEAVY_STRIKE(FallenLordAction.HEAVY_STRIKE),
+	/** A spear jab, landing on {@link #POKE_HIT}; only the Lost carry spears. */
+	POKE(FallenLordAction.POKE);
 
 	public static final int SLASH_HIT = 5;
+	public static final int POKE_HIT = 6;
 	public static final int[] COMBO_HITS = {10, 16, 22};
 	public static final int COMBO_KICK = 30;
 	public static final int COMBO_BACKSTEP = 33;

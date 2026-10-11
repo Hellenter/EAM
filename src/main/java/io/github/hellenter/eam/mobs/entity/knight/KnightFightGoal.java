@@ -63,7 +63,7 @@ final class KnightFightGoal extends Goal {
 		}
 		knight.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		double distance = knight.horizontalDistanceTo(target);
-		SkeletonKnightSettings settings = SkeletonKnightModule.settings();
+		SkeletonKnightSettings settings = knight.settings();
 
 		boolean sees = knight.getSensing().hasLineOfSight(target);
 		if (sees && knight.isIdleFor(settings.attackPause()) && Math.abs(target.getY() - knight.getY()) < 2.5) {

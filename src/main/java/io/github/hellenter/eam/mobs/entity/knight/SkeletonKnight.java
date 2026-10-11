@@ -98,8 +98,14 @@ public class SkeletonKnight extends AbstractSkeleton {
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.3);
 	}
 
-	private static SkeletonKnightSettings settings() {
+	/** His balance numbers; a mob built on him may read its own. */
+	protected SkeletonKnightSettings settings() {
 		return SkeletonKnightModule.settings();
+	}
+
+	/** How far a spear jab ({@link KnightAction#POKE}) reaches; the knight himself carries no spear. */
+	protected double pokeReach() {
+		return settings().reach() + 0.6;
 	}
 
 	@Override
@@ -191,19 +197,19 @@ public class SkeletonKnight extends AbstractSkeleton {
 		}
 	}
 
-	boolean isBusy() {
+	public boolean isBusy() {
 		return action != KnightAction.NONE;
 	}
 
-	boolean isIdleFor(int ticks) {
+	public boolean isIdleFor(int ticks) {
 		return action == KnightAction.NONE && idleTicks >= ticks;
 	}
 
-	int comboCooldown() {
+	public int comboCooldown() {
 		return comboCooldown;
 	}
 
-	int heavyCooldown() {
+	public int heavyCooldown() {
 		return heavyCooldown;
 	}
 
@@ -232,18 +238,19 @@ public class SkeletonKnight extends AbstractSkeleton {
 				&& distanceTo(target) <= settings().shieldRange() && getOffhandItem().has(DataComponents.BLOCKS_ATTACKS);
 		if (want && !isUsingItem()) {
 			startUsingItem(InteractionHand.OFF_HAND);
-		} else if (!want && isUsingItem()) {
+		} else if (!want && isUsingItem() && getUseItem().has(DataComponents.BLOCKS_ATTACKS)) {
 			stopUsingItem();
 		}
 	}
 
-	void startAttack(Attack attack, LivingEntity target) {
+	public void startAttack(Attack attack, LivingEntity target) {
 		actionTarget = target;
 		hitChecked = false;
 		comboStops = false;
 		SkeletonKnightSettings settings = settings();
 		switch (attack) {
 			case SLASH -> setAction(KnightAction.SLASH);
+			case POKE -> setAction(KnightAction.POKE);
 			case COMBO -> {
 				comboCooldown = settings.comboCooldown();
 				setAction(KnightAction.COMBO);
@@ -296,6 +303,13 @@ public class SkeletonKnight extends AbstractSkeleton {
 				if (t == KnightAction.SLASH_HIT) {
 					playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.9F);
 					hitIfInReach(level, target, settings.reach(), 1.0F, 0.0F);
+					hitDone();
+				}
+			}
+			case POKE -> {
+				if (t == KnightAction.POKE_HIT) {
+					playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 1.2F);
+					hitIfInReach(level, target, pokeReach(), 1.0F, 0.3F);
 					hitDone();
 				}
 			}
@@ -415,6 +429,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 	private int ticksToHit(int t) {
 		return switch (action) {
 			case SLASH -> t <= KnightAction.SLASH_HIT ? KnightAction.SLASH_HIT - t : -1;
+			case POKE -> t <= KnightAction.POKE_HIT ? KnightAction.POKE_HIT - t : -1;
 			case COMBO -> {
 				for (int hit : KnightAction.COMBO_HITS) {
 					if (hit >= t) yield hit - t;
@@ -431,6 +446,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 	private double hitReach(SkeletonKnightSettings settings) {
 		return switch (action) {
 			case COMBO -> settings.reach() + 0.3;
+			case POKE -> pokeReach();
 			case HEAVY_WINDUP, HEAVY_STRIKE -> settings.reach() + settings.heavyExtraReach();
 			default -> settings.reach();
 		};
@@ -493,7 +509,7 @@ public class SkeletonKnight extends AbstractSkeleton {
 
 	// ---- Geometry ----
 
-	double horizontalDistanceTo(Entity other) {
+	public double horizontalDistanceTo(Entity other) {
 		double dx = other.getX() - getX();
 		double dz = other.getZ() - getZ();
 		return Math.sqrt(dx * dx + dz * dz);

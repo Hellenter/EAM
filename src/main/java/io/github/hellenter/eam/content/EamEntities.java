@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
+import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
 import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
@@ -58,6 +59,14 @@ public final class EamEntities {
 					.sized(0.63F, 2.16F)
 					.eyeHeight(1.89F)
 					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** One of the Lost: an underworld corpse in worn ancient metal, 2.25 blocks tall, roaming in squads. */
+	public static final EntityType<Lost> LOST = register("lost",
+			EntityType.Builder.of(Lost::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.25F)
+					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
 					.notInPeaceful());
 
 	/** A withered body in a monk's robe that hides in swamp mud; hunched on all fours. */

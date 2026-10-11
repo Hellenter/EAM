@@ -63,7 +63,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// The Fallen Lord is undead: smite and silver hurt him more.
 		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),
 				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
-				EamEntities.WIGHT.builtInRegistryHolder().key());
+				EamEntities.WIGHT.builtInRegistryHolder().key(), EamEntities.LOST.builtInRegistryHolder().key());
 		// The swamp lurker burns in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key());
 		// Spiders all the same for Bane of Arthropods.

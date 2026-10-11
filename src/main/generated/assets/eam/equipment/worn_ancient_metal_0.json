@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "eam:worn_ancient_metal_0"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "eam:worn_ancient_metal"
+      }
+    ]
+  }
+}

@@ -243,6 +243,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.FALLEN_LORD));
 	public static final Item SKELETON_KNIGHT_SPAWN_EGG = register("skeleton_knight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SKELETON_KNIGHT));
+	public static final Item LOST_SPAWN_EGG = register("lost_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LOST));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SWAMP_LURKER));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,

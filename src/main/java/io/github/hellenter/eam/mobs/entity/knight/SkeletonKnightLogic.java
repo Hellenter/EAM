@@ -7,6 +7,8 @@ public final class SkeletonKnightLogic {
 	public enum Attack {
 		/** One cut. */
 		SLASH,
+		/** A spear jab with a longer reach. */
+		POKE,
 		/** Three quick cuts and a hop back. */
 		COMBO,
 		/** Sword raised overhead, then a cut that goes through a shield and knocks it out. */

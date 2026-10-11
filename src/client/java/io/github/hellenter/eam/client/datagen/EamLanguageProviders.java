@@ -205,6 +205,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.LORD_SHIELD, "Fallen Lord's Shield");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Fallen Lord Spawn Egg");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
+			builder.add(EamEntities.LOST, "Lost");
+			builder.add(EamItems.LOST_SPAWN_EGG, "Lost Spawn Egg");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
 			builder.add(EamBlocks.DUCKWEED, "Duckweed");
@@ -666,6 +668,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.LORD_SHIELD, "Щит Павшего лорда");
 			builder.add(EamItems.FALLEN_LORD_SPAWN_EGG, "Яйцо призыва Павшего лорда");
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
+			builder.add(EamEntities.LOST, "Сгинувший");
+			builder.add(EamItems.LOST_SPAWN_EGG, "Яйцо призыва отряда сгинувших");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");
 			builder.add(EamBlocks.DUCKWEED, "Ряска");

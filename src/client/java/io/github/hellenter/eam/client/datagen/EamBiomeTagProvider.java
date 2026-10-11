@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -57,6 +58,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(SwampLurkerModule.SPAWNS_IN)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		// Squads of the Lost roam the underworld's upper level, not its depths.
+		builder(LostModule.SPAWNS_IN).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
+				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
 		builder(WightModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
