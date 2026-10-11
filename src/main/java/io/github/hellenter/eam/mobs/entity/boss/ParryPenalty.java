@@ -12,7 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param bonusCut  taken off the parrying hit's damage multiplier (1.5 becomes 1.25 at 0.25)
  */
 public record ParryPenalty(int memory, int windowCut, float bonusCut) {
-	public static final ParryPenalty DEFAULT = new ParryPenalty(160, 2, 0.25F);
+	public static final ParryPenalty DEFAULT = new ParryPenalty(160, 1, 0.25F);
 
 	public static final Codec<ParryPenalty> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 24000).fieldOf("memory").orElse(DEFAULT.memory).forGetter(ParryPenalty::memory),

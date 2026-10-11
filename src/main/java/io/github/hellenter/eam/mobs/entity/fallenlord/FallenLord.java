@@ -1353,7 +1353,7 @@ public class FallenLord extends Monster {
 			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.7F);
 			openParry(level, target);
 		}
-		if (!strike(level, target, damageSources().source(FallenLordModule.HEAVY_DAMAGE, this), damage, 0.6F)) {
+		if (!strike(level, target, damageSources().source(FallenLordModule.HEAVY_DAMAGE, this), damage, 0.6F, heavy.phaseDamage())) {
 			return false;
 		}
 		lastAttack = Attack.COMBO;
@@ -1619,7 +1619,12 @@ public class FallenLord extends Monster {
 	}
 
 	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback) {
-		float scaled = damage * damageMultiplier() * phaseDamage();
+		return strike(level, target, source, damage, knockback, phaseDamage());
+	}
+
+	/** A blow scaled by {@code phaseDamage} in place of the phase's own damage share. */
+	private boolean strike(ServerLevel level, LivingEntity target, DamageSource source, float damage, float knockback, float phaseDamage) {
+		float scaled = damage * damageMultiplier() * phaseDamage;
 		if (isUndeadFoe(target)) {
 			scaled *= settings().undead().damageMultiplier();
 		}

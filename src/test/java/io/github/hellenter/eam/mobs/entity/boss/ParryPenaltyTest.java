@@ -25,7 +25,7 @@ class ParryPenaltyTest {
 	@Test
 	void penaltyShortensWindowAndCutsBonus() {
 		assertEquals(11, PENALTY.window(11, false));
-		assertEquals(9, PENALTY.window(11, true));
+		assertEquals(10, PENALTY.window(11, true));
 		assertEquals(1, PENALTY.window(1, true));
 		assertEquals(1.5F, PENALTY.multiplier(1.5F, false), 1.0E-6);
 		assertEquals(1.25F, PENALTY.multiplier(1.5F, true), 1.0E-6);
