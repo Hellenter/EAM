@@ -23,6 +23,7 @@ import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
+import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -106,6 +107,14 @@ public final class EamEntities {
 			EntityType.Builder.of(SwampLurker::new, MobCategory.MONSTER)
 					.sized(0.8F, 1.3F)
 					.eyeHeight(1.1F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A draugr: a dead warrior in what is left of his armor, frozen into the floor of the underworld's ice caves. */
+	public static final EntityType<Draugr> DRAUGR = register("draugr",
+			EntityType.Builder.of(Draugr::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.1F)
+					.eyeHeight(1.82F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
 

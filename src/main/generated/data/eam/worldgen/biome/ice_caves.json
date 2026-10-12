@@ -105,7 +105,8 @@
     [
       "eam:underworld/ice_spire",
       "eam:underworld/ice_spike",
-      "eam:underworld/glow_lichen"
+      "eam:underworld/glow_lichen",
+      "eam:underworld/draugr_pack"
     ]
   ],
   "has_precipitation": false,

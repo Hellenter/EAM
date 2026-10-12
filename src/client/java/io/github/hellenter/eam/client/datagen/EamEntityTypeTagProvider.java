@@ -70,7 +70,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
 				EamEntities.WIGHT.builtInRegistryHolder().key(), EamEntities.LOST.builtInRegistryHolder().key(),
 				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
-				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key());
+				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
+				EamEntities.DRAUGR.builtInRegistryHolder().key());
 		// The swamp lurker and the upyr burn in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
 				EamEntities.UPYR.builtInRegistryHolder().key());
@@ -91,7 +92,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(), EamEntities.WIGHT.builtInRegistryHolder().key(),
 						EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key(),
 						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
-						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key());
+						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
+						EamEntities.DRAUGR.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());

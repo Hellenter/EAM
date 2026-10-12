@@ -10,6 +10,7 @@ import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature.Shape;
 import io.github.hellenter.eam.dimension.feature.IceSpikeCaveFeature;
 import io.github.hellenter.eam.dimension.feature.IceSpireFeature;
+import io.github.hellenter.eam.mobs.entity.draugr.DraugrPackFeature;
 import io.github.hellenter.eam.dimension.feature.UnderworldFluidsFeature;
 import io.github.hellenter.eam.dimension.feature.UnderworldLakeFeature;
 
@@ -145,8 +146,9 @@ final class UnderworldWorldgen {
 	static final ResourceKey<Feature> ICE_SPIRE = feature("underworld_ice_spire");
 	static final ResourceKey<Feature> GIANT_CHANTERELLE = feature("giant_chanterelle");
 	static final ResourceKey<Feature> GIANT_CHAMPIGNON = feature("giant_champignon");
+	static final ResourceKey<Feature> DRAUGR_PACK = feature("underworld_draugr_pack");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(FLUIDS, GIANT_BROWN_MUSHROOM, GIANT_RED_MUSHROOM, ICE_SPIKE, COBWEB, LAKE,
-			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON);
+			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON, DRAUGR_PACK);
 
 	/**
 	 * Every placed feature of the underworld, in the one order all its biomes share (a biome takes a subset), so
@@ -186,6 +188,8 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_COBWEB = placed("underworld/cobweb", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_GLOW_LICHEN = placed("underworld/glow_lichen", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_GLOW_LICHEN_MANY = placed("underworld/glow_lichen_many", GenerationStep.Decoration.VEGETAL_DECORATION);
+	/** Last, so the draugr lie in a floor that has its ice spires already. */
+	static final ResourceKey<PlacedFeature> P_DRAUGR_PACK = placed("underworld/draugr_pack", GenerationStep.Decoration.VEGETAL_DECORATION);
 
 	private UnderworldWorldgen() {
 	}
@@ -411,6 +415,8 @@ final class UnderworldWorldgen {
 		context.register(LAVA_PILLAR, new CavePillarFeature(Blocks.BASALT.defaultBlockState(), Blocks.BLACKSTONE.defaultBlockState(),
 				UniformInt.of(1, 3), 0.2F, 96));
 		context.register(COBWEB, new SimpleBlockFeature(BlockStateProvider.of(Blocks.COBWEB)));
+		// About thirty draugr frozen into the floor, two to four of them waiting.
+		context.register(DRAUGR_PACK, new DraugrPackFeature(UniformInt.of(24, 34), UniformInt.of(2, 4), 20, 0.25F));
 	}
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -452,6 +458,11 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
 				List.of(CountPlacement.of(UniformInt.of(1, 2)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_ICE_SPIRE, features.getOrThrow(ICE_SPIRE), List.of(CountPlacement.of(UniformInt.of(3, 7)),
+				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
+				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
+				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
+		// A pack every forty chunks or so of the ice caves, on the floor of the great hall.
+		PlacementUtils.register(context, P_DRAUGR_PACK, features.getOrThrow(DRAUGR_PACK), List.of(RarityFilter.onAverageOnceEvery(40),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
@@ -533,7 +544,7 @@ final class UnderworldWorldgen {
 						EntityTypes.CREEPER, 20)));
 		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.004F),
-				features(common, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN),
+				features(common, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN, P_DRAUGR_PACK),
 				spawns(EntityTypes.SKELETON, 100, EntityTypes.ZOMBIE, 80, EntityTypes.SPIDER, 40, EntityTypes.CREEPER, 40)));
 		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),

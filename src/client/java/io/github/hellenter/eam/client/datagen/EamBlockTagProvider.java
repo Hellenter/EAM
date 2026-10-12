@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
+import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
@@ -143,6 +144,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
 		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
 				BlockItemIds.CLAY);
+
+		// Ice-cave floors draugr lie frozen in.
+		builder(DraugrModule.BURIED_IN).add(BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.PACKED_ICE, BlockItemIds.ICE,
+				BlockItemIds.BLUE_ICE);
 
 		// Swampy forest plants: cattails root in mud, clay, sand and gravel too; ponds are dug only into soft ground.
 		builder(CattailBlock.SUPPORTS_CATTAIL).add(BlockItemIds.CLAY, BlockItemIds.SAND, BlockItemIds.RED_SAND, BlockItemIds.GRAVEL)

@@ -281,6 +281,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.UPYR));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WIGHT));
+	public static final Item DRAUGR_SPAWN_EGG = register("draugr_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.DRAUGR));
 	public static final Item WOOD_SPIDER_SPAWN_EGG = register("wood_spider_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WOOD_SPIDER));
 	public static final Item BLACK_WIDOW_SPAWN_EGG = register("black_widow_spawn_egg", SpawnEggItem::new,

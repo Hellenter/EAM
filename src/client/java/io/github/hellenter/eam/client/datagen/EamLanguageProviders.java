@@ -274,6 +274,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BEDROCK_BREAKER, "Bedrock Breaker");
 			builder.add("block.eam.bed.underworld", "There is no rest in the underworld");
 			builder.add(EamEntities.WIGHT, "Wight");
+			builder.add(EamEntities.DRAUGR, "Draugr");
+			builder.add(EamItems.DRAUGR_SPAWN_EGG, "Draugr Spawn Egg");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Wight Spawn Egg");
 			builder.add(EamEntities.WOOD_SPIDER, "Wood Spider");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Wood Spider Spawn Egg");
@@ -785,6 +787,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BEDROCK_BREAKER, "Сокрушитель бедрока");
 			builder.add("block.eam.bed.underworld", "В подземном мире не уснуть");
 			builder.add(EamEntities.WIGHT, "Вихт");
+			builder.add(EamEntities.DRAUGR, "Драугр");
+			builder.add(EamItems.DRAUGR_SPAWN_EGG, "Яйцо призыва драугра");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Яйцо призыва вихта");
 			builder.add(EamEntities.WOOD_SPIDER, "Лесной паук");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Яйцо призыва лесного паука");
