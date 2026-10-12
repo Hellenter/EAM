@@ -14,9 +14,6 @@ public interface DisplayInvoker {
 	@Invoker("setTransformation")
 	void eam$setTransformation(Transformation transformation);
 
-	@Invoker("setPosRotInterpolationDuration")
-	void eam$setPosRotInterpolationDuration(int ticks);
-
 	@Invoker("setBillboardConstraints")
 	void eam$setBillboardConstraints(Display.BillboardConstraints constraints);
 
