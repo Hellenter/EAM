@@ -18,10 +18,11 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.monster.illager.AbstractIllager.IllagerArmPose;
 
 /**
- * A pillager guard: helmet, cuirass and axe. Like a vindicator he shows the axe only when he fights; his eyes glow
- * yellow under the brim while a hit parries his onslaught, as the king's do.
+ * A pillager guard: helmet, cuirass and axe. Like a vindicator he shows the axe only when he fights, but he never folds
+ * his arms; his eyes glow yellow under the brim while a hit parries his onslaught, as the king's do.
  */
 public class PillagerGuardRenderer extends IllagerRenderer<PillagerGuard, PillagerGuardRenderState> {
 	private static final Identifier TEXTURE = Eam.id("textures/entity/pillager_guard/pillager_guard.png");
@@ -54,6 +55,10 @@ public class PillagerGuardRenderer extends IllagerRenderer<PillagerGuard, Pillag
 	@Override
 	public void extractRenderState(PillagerGuard guard, PillagerGuardRenderState state, float partialTicks) {
 		super.extractRenderState(guard, state, partialTicks);
+		// A vindicator folds his arms when calm; the guard keeps them free and swings them as he walks.
+		if (state.armPose == IllagerArmPose.CROSSED) {
+			state.armPose = IllagerArmPose.NEUTRAL;
+		}
 		state.action = guard.action();
 		state.actionTime = guard.actionTime(partialTicks);
 		state.parryEyes = PillagerGuardLogic.parries(state.action, (int) state.actionTime);
