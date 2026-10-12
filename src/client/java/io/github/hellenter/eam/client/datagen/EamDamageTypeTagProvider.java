@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryModule;
+import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
@@ -38,11 +39,15 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(FallenLordModule.DASH_DAMAGE, FallenLordModule.HEAVY_DAMAGE);
 		// The heavy cavalryman's lance works out the share a shield takes itself; his axe sweep goes round a shield.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(LostCavalryModule.LANCE_DAMAGE, LostCavalryModule.SWEEP_DAMAGE);
+		// The elite crossbowman's red bolt goes through a shield, which still takes part of the damage (worked out by the bolt).
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(EliteCrossbowmanModule.RED_BOLT_DAMAGE);
+		builder(DamageTypeTags.IS_PROJECTILE).add(EliteCrossbowmanModule.RED_BOLT_DAMAGE);
 		// The onslaught of the Pillager King and his guards works out the share a shield takes itself.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(PillagerKingModule.ONSLAUGHT_DAMAGE, PillagerGuardModule.ONSLAUGHT_DAMAGE);
 		// Weapon hits and projectiles, which the Fallen Lord partly resists.
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,
-				DamageTypes.MACE_SMASH).add(FallenLordModule.HEAVY_DAMAGE, LostCavalryModule.LANCE_DAMAGE, LostCavalryModule.SWEEP_DAMAGE);
+				DamageTypes.MACE_SMASH).add(FallenLordModule.HEAVY_DAMAGE, LostCavalryModule.LANCE_DAMAGE, LostCavalryModule.SWEEP_DAMAGE,
+				EliteCrossbowmanModule.RED_BOLT_DAMAGE);
 	}
 }

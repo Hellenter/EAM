@@ -259,6 +259,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.UNDEAD_WARLOCK));
 	public static final Item PILLAGER_KING_SPAWN_EGG = register("pillager_king_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_KING));
+	public static final Item ELITE_CROSSBOWMAN_SPAWN_EGG = register("elite_crossbowman_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.ELITE_CROSSBOWMAN));
 	public static final Item PILLAGER_GUARD_SPAWN_EGG = register("pillager_guard_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_GUARD));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
@@ -372,6 +374,9 @@ public final class EamItems {
 	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
 			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();
 	public static final Item FIREWEED = plantItem("fireweed", EamBlocks.FIREWEED, ContextIntProviders.COMPOSTABLE_MEDIUM);
+
+	/** The elite crossbowman's net: he shoots it as this item, and creative players can place it. */
+	public static final Item NET = blockItem("net", EamBlocks.NET);
 	public static final Item MARSH_MARIGOLD = plantItem("marsh_marigold", EamBlocks.MARSH_MARIGOLD, ContextIntProviders.COMPOSTABLE_MEDIUM);
 
 	public static final Item SILVER_BARS = blockItem("silver_bars", EamBlocks.SILVER_BARS);

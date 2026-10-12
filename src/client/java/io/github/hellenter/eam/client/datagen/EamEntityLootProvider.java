@@ -124,6 +124,14 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 		// The Pillager King drops only experience for now.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 
+		// The elite crossbowman: a few bolts from his quiver; his crossbow drops by the mob's own drop chance, like a pillager's.
+		output.accept(EamEntities.ELITE_CROSSBOWMAN.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.ARROW)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 3)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
 		// A pillager guard: a vindicator's emerald for a player's kill, and a few iron nuggets from his battered cuirass.
 		output.accept(EamEntities.PILLAGER_GUARD.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

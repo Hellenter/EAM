@@ -11,6 +11,9 @@ import io.github.hellenter.eam.client.enchanting.EnchantingClient;
 import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
+import io.github.hellenter.eam.client.mobs.crossbowman.EliteCrossbowmanRenderer;
+import io.github.hellenter.eam.client.mobs.crossbowman.KettleHelmetLayer;
+import io.github.hellenter.eam.client.mobs.crossbowman.RedBoltRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordEyesModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordGearModel;
 import io.github.hellenter.eam.client.mobs.fallenlord.FallenLordModel;
@@ -98,6 +101,11 @@ public class EamClient implements ClientModInitializer {
 		}
 		EntityRendererRegistry.register(EamEntities.PILLAGER_KING, PillagerKingRenderer::new);
 		EntityRendererRegistry.register(EamEntities.KING_AXE, KingAxeRenderer::new);
+		ModelLayerRegistry.registerModelLayer(EliteCrossbowmanRenderer.OUTFIT, EliteCrossbowmanRenderer::createOutfitLayer);
+		ModelLayerRegistry.registerModelLayer(KettleHelmetLayer.ILLAGER, () -> KettleHelmetLayer.createLayer(KettleHelmetLayer.ILLAGER_HEAD_TOP));
+		EntityRendererRegistry.register(EamEntities.ELITE_CROSSBOWMAN, EliteCrossbowmanRenderer::new);
+		EntityRendererRegistry.register(EamEntities.RED_BOLT, RedBoltRenderer::new);
+		EntityRendererRegistry.register(EamEntities.NET_SHOT, ThrownItemRenderer::new);
 		ModelLayerRegistry.registerModelLayer(PillagerGuardModel.LAYER, PillagerGuardModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.PILLAGER_GUARD, PillagerGuardRenderer::new);
 		EntityRendererRegistry.register(EamEntities.GUARD_AXE, KingAxeRenderer::guard);

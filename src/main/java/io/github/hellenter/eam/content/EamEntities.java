@@ -3,6 +3,9 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
+import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
+import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
+import io.github.hellenter.eam.mobs.entity.crossbowman.RedBolt;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
@@ -165,6 +168,33 @@ public final class EamEntities {
 			EntityType.Builder.<ThrownKingAxe>of(ThrownKingAxe::new, MobCategory.MISC)
 					.noLootTable()
 					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
+
+	/** A pillager in a cuirass and a round helmet with a few tricks for his crossbow. */
+	public static final EntityType<EliteCrossbowman> ELITE_CROSSBOWMAN = register("elite_crossbowman",
+			EntityType.Builder.of(EliteCrossbowman::new, MobCategory.MONSTER)
+					.canSpawnFarFromPlayer()
+					.sized(0.6F, 1.95F)
+					.passengerAttachments(2.0F)
+					.ridingOffset(-0.6F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** The elite crossbowman's charged red bolt. */
+	public static final EntityType<RedBolt> RED_BOLT = register("red_bolt",
+			EntityType.Builder.<RedBolt>of(RedBolt::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.5F, 0.5F)
+					.eyeHeight(0.13F)
+					.clientTrackingRange(4)
+					.updateInterval(20));
+
+	/** The elite crossbowman's net in flight. */
+	public static final EntityType<NetShot> NET_SHOT = register("net_shot",
+			EntityType.Builder.<NetShot>of(NetShot::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.4F, 0.4F)
 					.clientTrackingRange(4)
 					.updateInterval(10));
 

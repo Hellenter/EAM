@@ -20,6 +20,7 @@ import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
+import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
@@ -90,6 +91,7 @@ public class Eam implements ModInitializer {
 		FallenLordModule.register();
 		SkeletonKnightModule.register();
 		PillagerKingModule.register();
+		EliteCrossbowmanModule.register();
 		PillagerGuardModule.register();
 		SwampLurkerModule.register();
 		SwampyForestModule.register();
@@ -139,6 +141,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) LostModule.init();
 		if (config.mobs()) SpiderModule.init();
 		if (config.mobs()) PillagerKingModule.init();
+		if (config.mobs()) EliteCrossbowmanModule.init();
 		if (config.mobs()) PillagerGuardModule.init();
 		if (config.mobs()) VampireBatModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();

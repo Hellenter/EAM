@@ -91,5 +91,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		builder(EntityTypeTags.RAIDERS).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		builder(EntityTypeTags.SKELETONS).add(EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());
+		// The elite crossbowman is a pillager: he joins raids and counts as an illager.
+		builder(EntityTypeTags.ILLAGER).add(EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key());
+		builder(EntityTypeTags.RAIDERS).add(EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key());
 	}
 }

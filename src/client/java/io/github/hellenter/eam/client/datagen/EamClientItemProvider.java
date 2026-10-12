@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.client.content.talisman.TalismanActivation;
+import io.github.hellenter.eam.client.mobs.crossbowman.EliteCrossbowmanRenderer;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
@@ -24,6 +25,9 @@ public class EamClientItemProvider extends FabricCodecDataProvider<ClientItem> {
 	protected void configure(BiConsumer<Identifier, ClientItem> provider, HolderLookup.Provider registries) {
 		FallenLordItemModels.clientItems().forEach(provider);
 		PillagerKingItemModels.clientItems().forEach(provider);
+		// The elite crossbowman's loaded crossbow, red before his charged shot.
+		provider.accept(EliteCrossbowmanRenderer.RED_CROSSBOW, new ClientItem(ItemModelUtils.tintedModel(
+				Identifier.withDefaultNamespace("item/crossbow_arrow"), ItemModelUtils.constantTint(0xFFFF3A22)), ClientItem.Properties.DEFAULT));
 		provider.accept(TalismanActivation.GLOWING,
 				new ClientItem(ItemModelUtils.plainModel(EamModelProvider.TALISMAN_GLOWING_MODEL), ClientItem.Properties.DEFAULT));
 	}

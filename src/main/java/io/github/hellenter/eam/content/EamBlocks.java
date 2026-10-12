@@ -21,6 +21,7 @@ import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
+import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -235,6 +236,17 @@ public final class EamBlocks {
 			}
 		});
 	}
+
+	/** The elite crossbowman's net: slows whoever stands in it and falls apart after a while; see {@link NetBlock}. */
+	public static final Block NET = register("net", NetBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOL)
+			.sound(SoundType.COBWEB)
+			.forceSolidOn()
+			.noCollision()
+			.requiresCorrectToolForDrops()
+			.strength(2.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
 
 	private static BlockBehaviour.Properties mithril(Block iron) {
 		return BlockBehaviour.Properties.ofLegacyCopy(iron).mapColor(MapColor.ICE).strength(10.0F, 1200.0F);

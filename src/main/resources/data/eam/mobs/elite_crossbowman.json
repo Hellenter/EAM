@@ -1,0 +1,48 @@
+{
+  "stats": {
+    "health": 24.0,
+    "armor": 6.0,
+    "speed": 0.35,
+    "follow_range": 32.0,
+    "xp": 10
+  },
+  "replace_chance": 0.15,
+  "min_range": 5.0,
+  "max_range": 14.0,
+  "pause_min": 15,
+  "pause_max": 35,
+  "aim_ticks": 6,
+  "normal": {
+    "weight": 6,
+    "load_ticks": 22,
+    "damage": 5.0,
+    "speed": 1.6,
+    "inaccuracy": 3.0
+  },
+  "burst": {
+    "weight": 3,
+    "cooldown": 120,
+    "load_ticks": 34,
+    "shots": 3,
+    "interval": 5,
+    "damage_multiplier": 0.85,
+    "inaccuracy": 5.0
+  },
+  "charged": {
+    "weight": 2,
+    "cooldown": 200,
+    "load_ticks": 22,
+    "windup_ticks": 30,
+    "damage_multiplier": 2.0,
+    "speed_multiplier": 2.0,
+    "shield_multiplier": 0.5
+  },
+  "net": {
+    "weight": 1,
+    "cooldown": 400,
+    "load_ticks": 26,
+    "speed": 1.4,
+    "max_range": 12.0,
+    "seconds": 10
+  }
+}

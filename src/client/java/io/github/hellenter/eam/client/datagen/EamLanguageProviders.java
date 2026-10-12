@@ -223,6 +223,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Pillager King Spawn Egg");
 			builder.add("death.attack.eam.pillager_king_onslaught", "%1$s was crushed by %2$s's onslaught");
 			builder.add("death.attack.eam.pillager_king_onslaught.player", "%1$s was crushed by %2$s's onslaught");
+			builder.add(EamEntities.ELITE_CROSSBOWMAN, "Elite Crossbowman");
+			builder.add(EamItems.ELITE_CROSSBOWMAN_SPAWN_EGG, "Elite Crossbowman Spawn Egg");
+			builder.add(EamEntities.RED_BOLT, "Red Bolt");
+			builder.add(EamEntities.NET_SHOT, "Net");
+			builder.add(EamBlocks.NET, "Net");
+			builder.add("death.attack.eam.red_bolt", "%1$s was pierced by %2$s's red bolt");
+			builder.add("death.attack.eam.red_bolt.player", "%1$s was pierced by %2$s's red bolt");
 			builder.add(EamEntities.PILLAGER_GUARD, "Pillager Guard");
 			builder.add(EamEntities.GUARD_AXE, "Pillager Guard's Axe");
 			builder.add(EamItems.PILLAGER_GUARD_SPAWN_EGG, "Pillager Guard Spawn Egg");
@@ -708,6 +715,13 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Яйцо призыва Короля разбойников");
 			builder.add("death.attack.eam.pillager_king_onslaught", "%2$s обрушил на %1$s оба топора");
 			builder.add("death.attack.eam.pillager_king_onslaught.player", "%2$s обрушил на %1$s оба топора");
+			builder.add(EamEntities.ELITE_CROSSBOWMAN, "Элитный арбалетчик");
+			builder.add(EamItems.ELITE_CROSSBOWMAN_SPAWN_EGG, "Яйцо призыва элитного арбалетчика");
+			builder.add(EamEntities.RED_BOLT, "Красный болт");
+			builder.add(EamEntities.NET_SHOT, "Сеть");
+			builder.add(EamBlocks.NET, "Сеть");
+			builder.add("death.attack.eam.red_bolt", "%2$s пронзил %1$s красным болтом");
+			builder.add("death.attack.eam.red_bolt.player", "%2$s пронзил %1$s красным болтом");
 			builder.add(EamEntities.PILLAGER_GUARD, "Гвардеец разбойников");
 			builder.add(EamEntities.GUARD_AXE, "Топор гвардейца разбойников");
 			builder.add(EamItems.PILLAGER_GUARD_SPAWN_EGG, "Яйцо призыва гвардейца разбойников");
