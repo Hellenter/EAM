@@ -96,6 +96,7 @@
     [],
     [
       "eam:underworld/lakes",
+      "eam:underworld/lava_lakes",
       "eam:underworld/fluids"
     ],
     [],

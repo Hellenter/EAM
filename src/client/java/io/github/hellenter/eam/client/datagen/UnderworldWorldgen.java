@@ -77,6 +77,7 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 import net.minecraft.world.level.levelgen.material.MaterialRules;
 import net.minecraft.world.level.levelgen.material.condition.MaterialCondition;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
@@ -135,6 +136,8 @@ final class UnderworldWorldgen {
 	/** Where the ice caves' hall has its floor and its roof. */
 	private static final int ICE_FLOOR = 64;
 	private static final int ICE_ROOF = 172;
+	/** The lava caves turn to solid rock above this height, so they are lower than the other biomes' halls. */
+	private static final int LAVA_ROOF = 128;
 
 	static final ResourceKey<Feature> FLUIDS = feature("underworld_fluids");
 	static final ResourceKey<Feature> GIANT_BROWN_MUSHROOM = feature("giant_brown_mushroom");
@@ -142,12 +145,13 @@ final class UnderworldWorldgen {
 	static final ResourceKey<Feature> ICE_SPIKE = feature("underworld_ice_spike");
 	static final ResourceKey<Feature> COBWEB = feature("underworld_cobweb");
 	static final ResourceKey<Feature> LAKE = feature("underworld_lake");
+	static final ResourceKey<Feature> LAVA_LAKE = feature("underworld_lava_lake");
 	static final ResourceKey<Feature> LAVA_PILLAR = feature("underworld_lava_pillar");
 	static final ResourceKey<Feature> ICE_SPIRE = feature("underworld_ice_spire");
 	static final ResourceKey<Feature> GIANT_CHANTERELLE = feature("giant_chanterelle");
 	static final ResourceKey<Feature> GIANT_CHAMPIGNON = feature("giant_champignon");
 	static final ResourceKey<Feature> DRAUGR_PACK = feature("underworld_draugr_pack");
-	static final List<ResourceKey<Feature>> FEATURES = List.of(FLUIDS, GIANT_BROWN_MUSHROOM, GIANT_RED_MUSHROOM, ICE_SPIKE, COBWEB, LAKE,
+	static final List<ResourceKey<Feature>> FEATURES = List.of(FLUIDS, GIANT_BROWN_MUSHROOM, GIANT_RED_MUSHROOM, ICE_SPIKE, COBWEB, LAKE, LAVA_LAKE,
 			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON, DRAUGR_PACK);
 
 	/**
@@ -158,6 +162,7 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_LAKES_FEW = placed("underworld/lakes_few", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_LAKES = placed("underworld/lakes", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_LAKES_MANY = placed("underworld/lakes_many", GenerationStep.Decoration.LAKES);
+	static final ResourceKey<PlacedFeature> P_LAVA_LAKES = placed("underworld/lava_lakes", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_FLUIDS = placed("underworld/fluids", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_ORE_IRON = placed("underworld/ore_iron", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_GOLD = placed("underworld/ore_gold", GenerationStep.Decoration.UNDERGROUND_ORES);
@@ -242,6 +247,13 @@ final class UnderworldWorldgen {
 				.addPoint(ICE_EDGE - 0.08F, 1.0F)
 				.addPoint(ICE_EDGE + 0.02F, 0.0F)
 				.build());
+		// The lava caves are lower: rock closes in from y 100 and is solid by the roof height.
+		DensityFunction lavaWeight = DensityFunctions.spline(CubicSpline.builder(t)
+				.addPoint(LAVA_EDGE - 0.03F, 0.0F)
+				.addPoint(LAVA_EDGE + 0.02F, 1.0F)
+				.build());
+		DensityFunction lavaRoof = DensityFunctions.mul(lavaWeight, DensityFunctions.yClampedGradient(LAVA_ROOF - 28, LAVA_ROOF, 0.0F, 1.5F));
+		caves = DensityFunctions.add(caves, lavaRoof);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
 		// Lower level: wide, lower halls between the floor bedrock and the band.
 		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.HEIGHT,
@@ -326,9 +338,13 @@ final class UnderworldWorldgen {
 				MaterialRules.ifTrue(onCeiling, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.NETHER_STATE_SELECTOR, 0.0),
 						state(Blocks.BASALT)))));
 		MaterialRule ice = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.ICE_CAVES), MaterialRules.sequence(
+				// Powder snow pits, read from a 2D noise so each is a straight shaft: three blocks deep at the rim, five in the middle.
+				MaterialRules.ifTrue(dry, MaterialRules.ifTrue(MaterialRules.stoneDepthCheck(4, false, CaveSurface.FLOOR),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition2d(Noises.POWDER_SNOW, 0.48, 0.55), state(Blocks.POWDER_SNOW)))),
+				MaterialRules.ifTrue(dry, MaterialRules.ifTrue(MaterialRules.stoneDepthCheck(2, false, CaveSurface.FLOOR),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition2d(Noises.POWDER_SNOW, 0.45, 0.58), state(Blocks.POWDER_SNOW)))),
 				MaterialRules.ifTrue(onFloor, MaterialRules.ifTrue(dry, MaterialRules.sequence(
 						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PACKED_ICE, 0.0, 0.25), state(Blocks.PACKED_ICE)),
-						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.POWDER_SNOW, 0.45, 0.58), state(Blocks.POWDER_SNOW)),
 						state(Blocks.SNOW_BLOCK)))),
 				MaterialRules.ifTrue(underFloor, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.ICE, -0.2, 0.2), state(Blocks.PACKED_ICE))),
 				MaterialRules.ifTrue(onCeiling, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PACKED_ICE, -0.3, 0.3),
@@ -411,7 +427,11 @@ final class UnderworldWorldgen {
 		context.register(ICE_SPIKE, new IceSpikeCaveFeature(UniformInt.of(5, 26), UniformInt.of(1, 4), 0.0F, 48));
 		context.register(ICE_SPIRE, new IceSpireFeature(UniformInt.of(5, 22), UniformInt.of(1, 3), UniformInt.of(30, 110), UniformInt.of(3, 6),
 				0.12F));
-		context.register(LAKE, new UnderworldLakeFeature(UniformInt.of(3, 6), UniformInt.of(2, 4), 0.3F, 0.6F, 2, UPPER_BOTTOM, UPPER_TOP - 8));
+		context.register(LAKE, new UnderworldLakeFeature(UniformInt.of(3, 6), UniformInt.of(2, 4), 0.3F, 0.6F, 2, UPPER_BOTTOM, UPPER_TOP - 8,
+				LAVA_LAKES));
+		// Big lava lakes of the lava caves, now and then fed by a lavafall from another one on a ledge above.
+		context.register(LAVA_LAKE, new UnderworldLakeFeature(UniformInt.of(7, 10), UniformInt.of(3, 5), 0.25F, 0.3F, 1, UPPER_BOTTOM,
+				UPPER_TOP - 8, LAVA_LAKES));
 		context.register(LAVA_PILLAR, new CavePillarFeature(Blocks.BASALT.defaultBlockState(), Blocks.BLACKSTONE.defaultBlockState(),
 				UniformInt.of(1, 3), 0.2F, 96));
 		context.register(COBWEB, new SimpleBlockFeature(BlockStateProvider.of(Blocks.COBWEB)));
@@ -432,6 +452,8 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, P_LAKES, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(1, 2)),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_LAKES_MANY, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(3, 5)),
+				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
+		PlacementUtils.register(context, P_LAVA_LAKES, features.getOrThrow(LAVA_LAKE), List.of(RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
 		// Ores: MITE's underworld is richer than the overworld. Iron and gold everywhere, copper and silver in the upper
@@ -539,7 +561,7 @@ final class UnderworldWorldgen {
 						EntityTypes.CAVE_SPIDER, 20, EntityTypes.WITCH, 5)));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
-				features(common, P_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
+				features(common, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
 				spawns(EntityTypes.MAGMA_CUBE, 60, EntityTypes.SKELETON, 80, EntityTypes.ZOMBIE, 60, EntityTypes.CAVE_SPIDER, 30,
 						EntityTypes.CREEPER, 20)));
 		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,

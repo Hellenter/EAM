@@ -1,0 +1,19 @@
+{
+  "type": "eam:underworld_lake",
+  "cascade_chance": 0.3,
+  "cascades": 1,
+  "depth": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 5,
+    "min_inclusive": 3
+  },
+  "island_chance": 0.25,
+  "lava_biomes": "eam:underworld_lava_lakes",
+  "max_y": 178,
+  "min_y": 53,
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 10,
+    "min_inclusive": 7
+  }
+}

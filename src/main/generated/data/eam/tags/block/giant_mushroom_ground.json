@@ -1,0 +1,8 @@
+{
+  "values": [
+    "minecraft:gravel",
+    "minecraft:clay",
+    "#minecraft:substrate_overworld",
+    "#minecraft:base_stone_overworld"
+  ]
+}

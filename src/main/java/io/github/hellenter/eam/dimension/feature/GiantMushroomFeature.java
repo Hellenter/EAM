@@ -1,17 +1,22 @@
 package io.github.hellenter.eam.dimension.feature;
 
+import io.github.hellenter.eam.Eam;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PipeBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +32,8 @@ import java.util.Set;
  * A mushroom bigger than vanilla's huge ones but built the same way, standing on the floor of a cave: a stem one block
  * thick, or a cross five columns thick for the tallest, under a cap of {@code cap} blocks shaped by {@link Shape}. For
  * a champignon some of the cap itself is {@code light} (glowing patches); for the others a few {@code light} blocks hang
- * under the cap. It fits itself under the ceiling, or is not placed.
+ * under the cap. It fits itself under the ceiling, or is not placed. It stands only on natural ground ({@link #GROUND}, so
+ * never on another mushroom's cap) and only where its whole stem and cap find free space, so mushrooms never overlap.
  *
  * @param height      stem height
  * @param capRadius   cap radius
@@ -72,6 +78,9 @@ public record GiantMushroomFeature(BlockState cap, BlockState stem, BlockState l
 		}
 	}
 
+	/** What a giant mushroom may stand on: the cave floor, never another mushroom. */
+	public static final TagKey<Block> GROUND = TagKey.create(Registries.BLOCK, Eam.id("giant_mushroom_ground"));
+
 	/** Room left between the cap's top and the ceiling. */
 	private static final int HEADROOM = 1;
 	private static final int MIN_HEIGHT = 3;
@@ -84,7 +93,7 @@ public record GiantMushroomFeature(BlockState cap, BlockState stem, BlockState l
 	@Override
 	public boolean place(WorldGenLevel level, ChunkGenerator chunkGenerator, RandomSource random, BlockPos origin) {
 		BlockState ground = level.getBlockState(origin.below());
-		if (!ground.isFaceSturdy(level, origin.below(), Direction.UP) || !level.getBlockState(origin).isAir()) {
+		if (!ground.is(GROUND) || !ground.isFaceSturdy(level, origin.below(), Direction.UP) || !level.getBlockState(origin).isAir()) {
 			return false;
 		}
 		int radius = this.capRadius.sample(random);
@@ -119,17 +128,24 @@ public record GiantMushroomFeature(BlockState cap, BlockState stem, BlockState l
 			case CHAMPIGNON -> champignonCap(top, radius);
 		};
 		capBlocks.removeAll(stemBlocks);
-		Set<BlockPos> glowing = this.shape == Shape.CHAMPIGNON ? glowPatches(capBlocks, random) : Set.of();
-
+		// The whole mushroom needs free space: it is not cut into walls or into another mushroom.
 		for (BlockPos pos : stemBlocks) {
-			if (replaceable(level, pos)) {
-				level.setBlock(pos, faces(this.stem, pos, stemBlocks, Set.of()), 2);
+			if (!replaceable(level, pos)) {
+				return false;
 			}
 		}
 		for (BlockPos pos : capBlocks) {
-			if (replaceable(level, pos)) {
-				level.setBlock(pos, faces(glowing.contains(pos) ? this.light : this.cap, pos, capBlocks, stemBlocks), 2);
+			if (!replaceable(level, pos)) {
+				return false;
 			}
+		}
+		Set<BlockPos> glowing = this.shape == Shape.CHAMPIGNON ? glowPatches(capBlocks, random) : Set.of();
+
+		for (BlockPos pos : stemBlocks) {
+			level.setBlock(pos, faces(this.stem, pos, stemBlocks, Set.of()), 2);
+		}
+		for (BlockPos pos : capBlocks) {
+			level.setBlock(pos, faces(glowing.contains(pos) ? this.light : this.cap, pos, capBlocks, stemBlocks), 2);
 		}
 		if (this.shape != Shape.CHAMPIGNON) {
 			for (BlockPos pos : capBlocks) {

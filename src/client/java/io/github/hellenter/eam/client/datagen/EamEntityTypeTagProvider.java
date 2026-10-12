@@ -72,6 +72,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
 				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
 				EamEntities.DRAUGR.builtInRegistryHolder().key());
+		// Draugr walk on powder snow like a wearer of leather boots and never freeze.
+		builder(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS).add(EamEntities.DRAUGR.builtInRegistryHolder().key());
+		builder(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES).add(EamEntities.DRAUGR.builtInRegistryHolder().key());
 		// The swamp lurker and the upyr burn in daylight like a zombie.
 		builder(EntityTypeTags.BURN_IN_DAYLIGHT).add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
 				EamEntities.UPYR.builtInRegistryHolder().key());

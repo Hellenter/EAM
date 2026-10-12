@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
@@ -146,6 +147,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				BlockItemIds.CLAY);
 
 		// Ice-cave floors draugr lie frozen in.
+		// Giant underworld mushrooms grow from the cave floor only, never from another mushroom's cap.
+		builder(GiantMushroomFeature.GROUND).add(BlockItemIds.GRAVEL, BlockItemIds.CLAY).forceAddTag(BlockTags.SUBSTRATE_OVERWORLD)
+				.forceAddTag(BlockTags.BASE_STONE_OVERWORLD);
 		builder(DraugrModule.BURIED_IN).add(BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.PACKED_ICE, BlockItemIds.ICE,
 				BlockItemIds.BLUE_ICE);
 

@@ -103,73 +103,105 @@
                     }
                   },
                   "first": {
-                    "type": "minecraft:lerp",
-                    "alpha": {
-                      "type": "minecraft:gradient",
-                      "axis": "y",
-                      "from_coordinate": 53,
-                      "from_value": 0.0,
-                      "to_coordinate": 66,
-                      "to_value": 1.0
-                    },
-                    "first": 2.5,
-                    "second": {
+                    "type": "minecraft:add",
+                    "left": {
                       "type": "minecraft:lerp",
                       "alpha": {
                         "type": "minecraft:gradient",
                         "axis": "y",
-                        "from_coordinate": 170,
-                        "from_value": 1.0,
-                        "to_coordinate": 187,
-                        "to_value": 0.0
+                        "from_coordinate": 53,
+                        "from_value": 0.0,
+                        "to_coordinate": 66,
+                        "to_value": 1.0
                       },
-                      "first": 0.9375,
+                      "first": 2.5,
                       "second": {
-                        "type": "minecraft:add",
-                        "left": "minecraft:nether/base_3d_noise",
-                        "right": {
-                          "type": "minecraft:spline",
-                          "spline": {
-                            "coordinate": "eam:underworld/temperature",
-                            "points": [
-                              {
-                                "derivative": 0.0,
-                                "location": -1.0,
-                                "value": -0.12
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": -0.6,
-                                "value": -0.12
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": -0.120000005,
-                                "value": -0.12
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": 0.044999998,
-                                "value": 0.0
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": 0.225,
-                                "value": -0.34
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": 0.65999997,
-                                "value": -0.08
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": 1.0,
-                                "value": -0.08
-                              }
-                            ]
+                        "type": "minecraft:lerp",
+                        "alpha": {
+                          "type": "minecraft:gradient",
+                          "axis": "y",
+                          "from_coordinate": 170,
+                          "from_value": 1.0,
+                          "to_coordinate": 187,
+                          "to_value": 0.0
+                        },
+                        "first": 0.9375,
+                        "second": {
+                          "type": "minecraft:add",
+                          "left": "minecraft:nether/base_3d_noise",
+                          "right": {
+                            "type": "minecraft:spline",
+                            "spline": {
+                              "coordinate": "eam:underworld/temperature",
+                              "points": [
+                                {
+                                  "derivative": 0.0,
+                                  "location": -1.0,
+                                  "value": -0.12
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": -0.6,
+                                  "value": -0.12
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": -0.120000005,
+                                  "value": -0.12
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": 0.044999998,
+                                  "value": 0.0
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": 0.225,
+                                  "value": -0.34
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": 0.65999997,
+                                  "value": -0.08
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": 1.0,
+                                  "value": -0.08
+                                }
+                              ]
+                            }
                           }
                         }
+                      }
+                    },
+                    "right": {
+                      "type": "minecraft:mul",
+                      "left": {
+                        "type": "minecraft:spline",
+                        "spline": {
+                          "coordinate": "eam:underworld/temperature",
+                          "points": [
+                            {
+                              "derivative": 0.0,
+                              "location": 0.29,
+                              "value": 0.0
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": 0.34,
+                              "value": 1.0
+                            }
+                          ]
+                        }
+                      },
+                      "right": {
+                        "type": "minecraft:gradient",
+                        "axis": "y",
+                        "from_coordinate": 100,
+                        "from_value": 0.0,
+                        "to_coordinate": 128,
+                        "to_value": 1.5
                       }
                     }
                   },

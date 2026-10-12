@@ -121,7 +121,8 @@ public class Draugr extends Monster {
 		goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-		targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+		// A blow from a packmate (a spear thrust through the press) is no reason to turn on him.
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, Draugr.class).setAlertOthers());
 		// The dead do not need to see the living: they feel them through the ice and rock.
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
 	}
@@ -258,6 +259,12 @@ public class Draugr extends Monster {
 		return false;
 	}
 
+	/** A pack fights as one. */
+	@Override
+	protected boolean considersEntityAsAlly(Entity other) {
+		return other instanceof Draugr || super.considersEntityAsAlly(other);
+	}
+
 	@Override
 	public boolean removeWhenFarAway(double distanceSquared) {
 		return !state.buried() && super.removeWhenFarAway(distanceSquared);
@@ -265,7 +272,8 @@ public class Draugr extends Monster {
 
 	/**
 	 * The ice around a buried draugr takes the blows: break it first. Only what ignores invulnerability, like /kill, gets
-	 * through. Climbing out he does not choke in the floor; up, fire and lava hurt him double.
+	 * through. Climbing out he does not choke in the floor; up, fire and lava hurt him double, and his packmates' blows not
+	 * at all.
 	 */
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
@@ -273,6 +281,10 @@ public class Draugr extends Monster {
 			return false;
 		}
 		if (state == DraugrState.RISING && source.is(DamageTypes.IN_WALL)) {
+			return false;
+		}
+		// Draugr do not hurt each other: a spear thrust or a swing at the player that catches a packmate does nothing.
+		if (source.getEntity() instanceof Draugr) {
 			return false;
 		}
 		return super.hurtServer(level, source, DraugrLogic.damageTaken(damage, source.is(DamageTypeTags.IS_FIRE), settings().fireMultiplier()));

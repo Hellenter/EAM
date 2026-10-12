@@ -6,18 +6,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.material.Fluids;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,27 +30,34 @@ import java.util.Set;
  * A cave lake dug into the floor, at the lowest floor of its column between {@code minY} and {@code maxY}; then, with
  * {@code cascadeChance} each, up to {@code cascades} more lakes on higher floors beside it, each spilling over its rim
  * so water runs down towards the lake below. Every lake has walls and a bed at least two blocks thick of solid rock, no
- * falling blocks, so it never leaks or drops sand and gravel when it loads. Water only: {@link UnderworldFluidsFeature}
- * turns it to lava or ice by biome.
+ * falling blocks, so it never leaks or drops sand and gravel when it loads. It holds lava wherever its biome is one of
+ * {@code lavaBiomes}, otherwise water, which {@link UnderworldFluidsFeature} freezes in the cold biomes. The lake picks
+ * its fluid itself because it may reach into a neighbouring chunk that was decorated already.
  *
  * @param radius      lake radius
  * @param depth       depth at the middle
  * @param islandChance chance that a lake of radius 4 or more keeps an island of rock in its middle
  */
 public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float islandChance, float cascadeChance, int cascades,
-		int minY, int maxY) implements Feature {
+		int minY, int maxY, TagKey<Biome> lavaBiomes) implements Feature {
 	public static final MapCodec<UnderworldLakeFeature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			IntProviders.codec(2, 7).fieldOf("radius").forGetter(UnderworldLakeFeature::radius),
+			IntProviders.codec(2, UnderworldLakeFeature.MAX_RADIUS).fieldOf("radius").forGetter(UnderworldLakeFeature::radius),
 			IntProviders.codec(1, 6).fieldOf("depth").forGetter(UnderworldLakeFeature::depth),
 			Codec.floatRange(0.0F, 1.0F).fieldOf("island_chance").forGetter(UnderworldLakeFeature::islandChance),
 			Codec.floatRange(0.0F, 1.0F).fieldOf("cascade_chance").forGetter(UnderworldLakeFeature::cascadeChance),
 			Codec.intRange(0, 4).fieldOf("cascades").forGetter(UnderworldLakeFeature::cascades),
 			Codec.INT.fieldOf("min_y").forGetter(UnderworldLakeFeature::minY),
-			Codec.INT.fieldOf("max_y").forGetter(UnderworldLakeFeature::maxY)
+			Codec.INT.fieldOf("max_y").forGetter(UnderworldLakeFeature::maxY),
+			TagKey.codec(Registries.BIOME).fieldOf("lava_biomes").forGetter(UnderworldLakeFeature::lavaBiomes)
 	).apply(i, UnderworldLakeFeature::new));
 
 	/** How thick the rock round a lake is made. */
 	private static final int WALL = 2;
+	/**
+	 * The widest lake. A feature may change blocks up to 16 out of its chunk, and a lake reaches radius + 1 + {@link #WALL}
+	 * from its centre, which lies inside the chunk; cascade lakes beside it shrink their reach to fit.
+	 */
+	private static final int MAX_RADIUS = 10;
 	/** A lake is given up when more than this share of its surface has no ground under it. */
 	private static final float MAX_OVERHANG = 0.25F;
 	/** How far beside the lake below a cascade lake may stand, centre to centre. */
@@ -56,11 +65,6 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	/** How much higher than the lake below a cascade lake must be, and at most. */
 	private static final int CASCADE_MIN_RISE = 4;
 	private static final int CASCADE_MAX_RISE = 40;
-	/**
-	 * How far outside the chunk a cascade lake's centre may be: a feature may change blocks up to 16 out, and a lake
-	 * reaches radius + 1 + {@link #WALL} from its centre.
-	 */
-	private static final int REACH = 16 - 7 - 1 - WALL;
 
 	@Override
 	public MapCodec<UnderworldLakeFeature> codec() {
@@ -75,21 +79,23 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		}
 		int minX = origin.getX() & ~15;
 		int minZ = origin.getZ() & ~15;
-		Lake below = lake(level, random, floor);
+		Lake below = lake(level, random, floor, this.radius.sample(random));
 		if (below == null) {
 			return false;
 		}
 		for (int i = 0; i < this.cascades && random.nextFloat() < this.cascadeChance; i++) {
 			Lake above = null;
+			int radius = this.radius.sample(random);
+			// How far outside the chunk the cascade lake's centre may be, so it stays inside the area a feature may change.
+			int reach = Math.max(0, 16 - radius - 1 - WALL);
 			for (int tries = 0; tries < 6 && above == null; tries++) {
 				float angle = random.nextFloat() * Mth.TWO_PI;
 				int distance = below.radius + 1 + random.nextInt(Math.max(1, CASCADE_OFFSET - below.radius));
-				// Kept close enough to this chunk that the lake, its walls and its spill stay inside the area a feature may change.
-				int x = Mth.clamp(below.centre.getX() + Math.round(Mth.cos(angle) * distance), minX - REACH, minX + 15 + REACH);
-				int z = Mth.clamp(below.centre.getZ() + Math.round(Mth.sin(angle) * distance), minZ - REACH, minZ + 15 + REACH);
+				int x = Mth.clamp(below.centre.getX() + Math.round(Mth.cos(angle) * distance), minX - reach, minX + 15 + reach);
+				int z = Mth.clamp(below.centre.getZ() + Math.round(Mth.sin(angle) * distance), minZ - reach, minZ + 15 + reach);
 				BlockPos higher = floorAbove(level, x, below.centre.getY() + CASCADE_MIN_RISE, below.centre.getY() + CASCADE_MAX_RISE, z);
 				if (higher != null) {
-					above = lake(level, random, higher);
+					above = lake(level, random, higher, radius);
 				}
 			}
 			if (above == null) {
@@ -101,7 +107,16 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		return true;
 	}
 
-	private record Lake(BlockPos centre, int radius) {
+	private record Lake(BlockPos centre, int radius, BlockState fluid) {
+	}
+
+	/** Lava in the hot biomes, water elsewhere. */
+	private BlockState fluidAt(WorldGenLevel level, BlockPos pos) {
+		return level.getBiome(pos).is(this.lavaBiomes) ? Blocks.LAVA.defaultBlockState() : Blocks.WATER.defaultBlockState();
+	}
+
+	private static boolean isFluid(BlockState state) {
+		return state.is(Blocks.WATER) || state.is(Blocks.LAVA);
 	}
 
 	/** The top block of the lowest ground with air above it in this column, or null. */
@@ -141,8 +156,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	}
 
 	/** Digs a lake whose water surface is the ground at {@code surface}, or digs nothing and returns null. */
-	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface) {
-		int radius = this.radius.sample(random);
+	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface, int radius) {
 		int depth = this.depth.sample(random);
 		boolean island = radius >= 4 && random.nextFloat() < this.islandChance;
 		float phase = random.nextFloat() * Mth.TWO_PI;
@@ -162,7 +176,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				int cellDepth = Math.max(1, (int) Math.round(depth * (1.0 - (d / edge) * (d / edge)) + 0.4));
 				surfaceCells++;
 				pos.set(surface.getX() + dx, surface.getY(), surface.getZ() + dz);
-				if (!level.getBlockState(pos).isSolid() && !level.getBlockState(pos).is(Blocks.WATER)) {
+				if (!level.getBlockState(pos).isSolid() && !isFluid(level.getBlockState(pos))) {
 					overhang++;
 				}
 				for (int y = 0; y < cellDepth; y++) {
@@ -179,7 +193,9 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			}
 		}
 
-		// Walls and bed: whatever round the water is not solid rock becomes stone, two blocks out.
+		BlockState fluid = fluidAt(level, surface);
+		boolean lava = fluid.is(Blocks.LAVA);
+		// Walls and bed: whatever round the water is not solid rock becomes stone (basalt round lava), two blocks out.
 		for (BlockPos cell : water) {
 			for (Direction direction : Direction.values()) {
 				if (direction == Direction.UP) {
@@ -191,18 +207,20 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 						break;
 					}
 					BlockState state = level.getBlockState(near);
-					if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || state.is(Blocks.WATER)) {
+					if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || isFluid(state)) {
 						continue;
 					}
 					if (!state.isSolid() || state.getBlock() instanceof FallingBlock) {
-						level.setBlock(near, step == 1 && direction == Direction.DOWN && random.nextInt(3) == 0
+						level.setBlock(near, lava ? Blocks.BASALT.defaultBlockState()
+								: step == 1 && direction == Direction.DOWN && random.nextInt(3) == 0
 								? Blocks.CLAY.defaultBlockState() : Blocks.STONE.defaultBlockState(), 2);
 					}
 				}
 			}
 		}
 		for (BlockPos cell : water) {
-			level.setBlock(cell, Blocks.WATER.defaultBlockState(), 2);
+			// Each block takes its own biome's fluid, so a lake never brings water into the lava caves.
+			level.setBlock(cell, lava ? fluid : fluidAt(level, cell), 2);
 			// Plants and loose blocks resting on the old floor go with it.
 			BlockPos above = cell.above();
 			if (!water.contains(above)) {
@@ -212,7 +230,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				}
 			}
 		}
-		return new Lake(surface, radius);
+		return new Lake(surface, radius, fluid);
 	}
 
 	/** Opens the rim of {@code from} on the side facing {@code to}, so its water runs over the edge and down. */
@@ -229,7 +247,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		for (int step = 1; step <= from.radius + 2 * WALL + 4; step++) {
 			pos.set(from.centre.getX() + Math.round(dx / length * step), from.centre.getY(), from.centre.getZ() + Math.round(dz / length * step));
 			BlockState state = level.getBlockState(pos);
-			if (state.is(Blocks.WATER)) {
+			if (isFluid(state)) {
 				inWater = true;
 				continue;
 			}
@@ -238,7 +256,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			}
 			// Cut a channel through the rim, one source at a time, until it reaches open air to pour into.
 			if (!state.isAir()) {
-				level.setBlock(pos, Blocks.WATER.defaultBlockState(), 2);
+				level.setBlock(pos, from.fluid, 2);
 				BlockPos above = pos.above();
 				BlockState over = level.getBlockState(above);
 				if (!over.isAir() && !over.is(BlockTags.FEATURES_CANNOT_REPLACE)) {
@@ -248,9 +266,9 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			channel++;
 			if (state.isAir() || opensOut(level, pos)) {
 				if (state.isAir()) {
-					level.setBlock(pos, Blocks.WATER.defaultBlockState(), 2);
+					level.setBlock(pos, from.fluid, 2);
 				}
-				level.scheduleTick(pos.immutable(), Fluids.WATER, 1);
+				level.scheduleTick(pos.immutable(), from.fluid.getFluidState().getType(), 1);
 				return;
 			}
 		}
