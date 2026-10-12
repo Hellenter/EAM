@@ -124,6 +124,20 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 		// The Pillager King drops only experience for now.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 
+		// A pillager guard: a vindicator's emerald for a player's kill, and a few iron nuggets from his battered cuirass.
+		output.accept(EamEntities.PILLAGER_GUARD.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.when(LootItemKilledByPlayerCondition.killedByPlayer())
+						.add(LootItem.lootTableItem(Items.EMERALD)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 1)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.IRON_NUGGET)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
 		// The undead warlock: like the Lost, plus a rare piece of the chainmail from under his robe.
 		output.accept(EamEntities.UNDEAD_WARLOCK.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

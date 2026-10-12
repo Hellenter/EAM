@@ -1,0 +1,30 @@
+{
+  "stats": {
+    "health": 24.0,
+    "armor": 8,
+    "speed": 0.35,
+    "follow_range": 16.0,
+    "xp": 10
+  },
+  "decide_every": 10,
+  "onslaught": {
+    "damage": 10.0,
+    "shield_reduction": 0.25,
+    "rush_speed": 0.55,
+    "reach": 2.6,
+    "from": 2.5,
+    "to": 7.0,
+    "chance": 0.35,
+    "cooldown": 300,
+    "parry_multiplier": 1.5
+  },
+  "throw": {
+    "damage": 5.0,
+    "min_range": 5.0,
+    "max_range": 12.0,
+    "chance": 0.3,
+    "cooldown": 200,
+    "speed": 1.3
+  },
+  "spawn_share": 0.2
+}

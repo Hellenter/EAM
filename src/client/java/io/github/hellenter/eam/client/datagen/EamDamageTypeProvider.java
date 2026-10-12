@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
+import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
@@ -35,6 +36,8 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		context.register(LostCavalryModule.SWEEP_DAMAGE, new DamageType("eam.lost_cavalry_sweep", 0.1F));
 		// Death message key: death.attack.eam.pillager_king_onslaught
 		context.register(PillagerKingModule.ONSLAUGHT_DAMAGE, new DamageType("eam.pillager_king_onslaught", 0.1F));
+		// Death message key: death.attack.eam.pillager_guard_onslaught
+		context.register(PillagerGuardModule.ONSLAUGHT_DAMAGE, new DamageType("eam.pillager_guard_onslaught", 0.1F));
 	}
 
 	@Override
@@ -46,6 +49,7 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostCavalryModule.LANCE_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostCavalryModule.SWEEP_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), PillagerKingModule.ONSLAUGHT_DAMAGE);
+		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), PillagerGuardModule.ONSLAUGHT_DAMAGE);
 	}
 
 	@Override

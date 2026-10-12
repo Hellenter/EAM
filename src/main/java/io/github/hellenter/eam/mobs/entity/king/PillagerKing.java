@@ -73,7 +73,7 @@ import java.util.Arrays;
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
-public class PillagerKing extends Monster {
+public class PillagerKing extends Monster implements AxeThrower {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(PillagerKing.class, EntityDataSerializers.BYTE);
 	private static final Identifier RUN_MODIFIER = Eam.id("pillager_king_run");
 	/** Slower after the first cut of a charge, to the end of it. */
@@ -90,8 +90,6 @@ public class PillagerKing extends Monster {
 	private static final double KICK_REACH = 2.4;
 	/** The charge reaches the target this close. */
 	private static final double CHARGE_CONTACT = 2.0;
-	/** Upward speed of the onslaught's leap: about the ticks it has in the air. */
-	private static final double LEAP_UP = 0.45;
 	/** The combo ends with a hop back on this tick, if the hop is ready. */
 	private static final int COMBO_HOP = 32;
 
@@ -467,45 +465,15 @@ public class PillagerKing extends Monster {
 	 */
 	private void tickOnslaught(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings.Onslaught onslaught,
 			double reach) {
-		if (target == null) {
+		if (target == null || !OnslaughtMoves.tick(this, level, t, target, onslaught.rushSpeed(), reach)) {
 			return;
 		}
-		double distance = horizontalDistanceTo(target);
-		if (t == 0) {
-			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 0.6F);
-		}
-		if (t < KingAction.ONSLAUGHT_RUSH_END && distance > KICK_REACH - 0.6) {
-			Vec3 to = horizontal(target.position().subtract(position()));
-			setDeltaMovement(to.x * onslaught.rushSpeed(), getDeltaMovement().y, to.z * onslaught.rushSpeed());
-		}
-		if (t == KingAction.ONSLAUGHT_LEAP) {
-			// A bell: the moment to parry him, while he is in the air.
-			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 0.7F);
-			Vec3 to = horizontal(target.position().subtract(position()));
-			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2,
-					KingAction.ONSLAUGHT_HIT - KingAction.ONSLAUGHT_LEAP));
-			setDeltaMovement(to.x * speed, LEAP_UP, to.z * speed);
-		} else if (t > KingAction.ONSLAUGHT_LEAP && t < KingAction.ONSLAUGHT_HIT && !onGround()) {
-			// The target may back off: he steers in the air to come down on it, in reach of its parry.
-			Vec3 to = horizontal(target.position().subtract(position()));
-			double speed = Math.min(1.3, PillagerKingLogic.leapSpeed(horizontalDistanceTo(target) - 1.2, KingAction.ONSLAUGHT_HIT - t));
-			setDeltaMovement(to.x * speed, getDeltaMovement().y, to.z * speed);
-		}
-		if (t == KingAction.ONSLAUGHT_HIT) {
-			level.playSound(null, getX(), getY(), getZ(), SoundEvents.MACE_SMASH_GROUND_HEAVY, getSoundSource(), 1.5F, 0.7F);
-			level.sendParticles(ParticleTypes.EXPLOSION, getX() + getLookAngle().x * 1.5, getY() + 0.2, getZ() + getLookAngle().z * 1.5,
-					1, 0.0, 0.0, 0.0, 0.0);
-			if (horizontalDistanceTo(target) <= reach + REACH_SLACK && Math.abs(target.getY() - getY()) < 2.5 && hasLineOfSight(target)) {
-				boolean shielded = target.isBlocking()
-						&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ());
-				float damage = PillagerKingLogic.onslaughtDamage(onslaught.damage(), shielded, onslaught.shieldReduction());
-				target.damageCooldownTime = 0;
-				strike(level, target, damageSources().source(PillagerKingModule.ONSLAUGHT_DAMAGE, this), damage, 0.8F);
-				if (shielded) {
-					level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(),
-							1.0F, 0.6F);
-				}
-			}
+		boolean shielded = OnslaughtMoves.shielded(target, this);
+		float damage = PillagerKingLogic.onslaughtDamage(onslaught.damage(), shielded, onslaught.shieldReduction());
+		target.damageCooldownTime = 0;
+		strike(level, target, damageSources().source(PillagerKingModule.ONSLAUGHT_DAMAGE, this), damage, 0.8F);
+		if (shielded) {
+			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 0.6F);
 		}
 	}
 
@@ -622,7 +590,8 @@ public class PillagerKing extends Monster {
 	}
 
 	/** The thrown axe is back in his left hand. */
-	void catchAxe() {
+	@Override
+	public void catchAxe() {
 		axeAway = -1;
 		if (getOffhandItem().isEmpty()) {
 			setItemSlot(EquipmentSlot.OFFHAND, axeStack());
@@ -630,11 +599,18 @@ public class PillagerKing extends Monster {
 	}
 
 	/** His axe knocked out the target's shield: he dashes in and attacks at once. */
-	void axeBrokeShield(LivingEntity target) {
+	@Override
+	public void axeBrokeShield(LivingEntity target) {
 		if (target == getTarget()) {
 			followUp = true;
 			dashCooldown = 0;
 		}
+	}
+
+	/** A player takes his thrown axe as it is, anything else many times over. */
+	@Override
+	public float axeDamageTo(float damage, Entity target) {
+		return PillagerKingLogic.damageTo(damage, target instanceof Player, settings().mobDamageMultiplier());
 	}
 
 	// ---- Dash and hop ----

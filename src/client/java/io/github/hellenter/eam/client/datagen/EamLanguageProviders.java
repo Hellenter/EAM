@@ -223,6 +223,11 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Pillager King Spawn Egg");
 			builder.add("death.attack.eam.pillager_king_onslaught", "%1$s was crushed by %2$s's onslaught");
 			builder.add("death.attack.eam.pillager_king_onslaught.player", "%1$s was crushed by %2$s's onslaught");
+			builder.add(EamEntities.PILLAGER_GUARD, "Pillager Guard");
+			builder.add(EamEntities.GUARD_AXE, "Pillager Guard's Axe");
+			builder.add(EamItems.PILLAGER_GUARD_SPAWN_EGG, "Pillager Guard Spawn Egg");
+			builder.add("death.attack.eam.pillager_guard_onslaught", "%1$s was cut down by %2$s's leap");
+			builder.add("death.attack.eam.pillager_guard_onslaught.player", "%1$s was cut down by %2$s's leap");
 			builder.add(EamEntities.MAGIC_MISSILE, "Magic Missile");
 			builder.add(EamEntities.SWAMP_LURKER, "Swamp Lurker");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Swamp Lurker Spawn Egg");
@@ -703,6 +708,11 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.PILLAGER_KING_SPAWN_EGG, "Яйцо призыва Короля разбойников");
 			builder.add("death.attack.eam.pillager_king_onslaught", "%2$s обрушил на %1$s оба топора");
 			builder.add("death.attack.eam.pillager_king_onslaught.player", "%2$s обрушил на %1$s оба топора");
+			builder.add(EamEntities.PILLAGER_GUARD, "Гвардеец разбойников");
+			builder.add(EamEntities.GUARD_AXE, "Топор гвардейца разбойников");
+			builder.add(EamItems.PILLAGER_GUARD_SPAWN_EGG, "Яйцо призыва гвардейца разбойников");
+			builder.add("death.attack.eam.pillager_guard_onslaught", "%2$s зарубил %1$s в прыжке");
+			builder.add("death.attack.eam.pillager_guard_onslaught.player", "%2$s зарубил %1$s в прыжке");
 			builder.add(EamEntities.MAGIC_MISSILE, "Волшебная стрела");
 			builder.add(EamEntities.SWAMP_LURKER, "Болотник");
 			builder.add(EamItems.SWAMP_LURKER_SPAWN_EGG, "Яйцо призыва болотника");

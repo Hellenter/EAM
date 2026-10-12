@@ -38,7 +38,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
 						EntityTypeIds.VINDICATOR)
-				.add(SKELETONS);
+				.add(SKELETONS)
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		// The small spiders live in tree crowns and spot a player through the leaves.
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
 				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
@@ -48,7 +49,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(RunningModule.RUNNERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
-						EntityTypeIds.VINDICATOR, EntityTypeIds.SILVERFISH, EntityTypeIds.ENDERMITE);
+						EntityTypeIds.VINDICATOR, EntityTypeIds.SILVERFISH, EntityTypeIds.ENDERMITE)
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		// Blood moon: zombies and skeletons put on armor; zombies take up melee weapons, skeletons keep their bows.
 		builder(BloodMoonModule.ARMORED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER)
@@ -57,7 +59,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(BloodMoonModule.HUNTERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER, EntityTypeIds.VINDICATOR)
-				.add(SKELETONS);
+				.add(SKELETONS)
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		// The Fallen Lord drops exactly one black talisman, blood moon or not.
 		builder(BloodMoonModule.SINGLE_LOOT).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key());
 		builder(CowDefenseModule.DEFENDERS).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM);
@@ -84,6 +87,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
 						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
+		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
+		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
+		builder(EntityTypeTags.RAIDERS).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		builder(EntityTypeTags.SKELETONS).add(EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());
 	}
 }

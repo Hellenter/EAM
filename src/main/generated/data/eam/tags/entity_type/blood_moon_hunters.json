@@ -11,6 +11,7 @@
     "minecraft:stray",
     "minecraft:bogged",
     "minecraft:parched",
-    "minecraft:wither_skeleton"
+    "minecraft:wither_skeleton",
+    "eam:pillager_guard"
   ]
 }

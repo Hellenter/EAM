@@ -9,6 +9,7 @@
     "minecraft:cave_spider",
     "minecraft:vindicator",
     "minecraft:silverfish",
-    "minecraft:endermite"
+    "minecraft:endermite",
+    "eam:pillager_guard"
   ]
 }

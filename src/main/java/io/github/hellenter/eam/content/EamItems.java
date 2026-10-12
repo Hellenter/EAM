@@ -259,6 +259,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.UNDEAD_WARLOCK));
 	public static final Item PILLAGER_KING_SPAWN_EGG = register("pillager_king_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_KING));
+	public static final Item PILLAGER_GUARD_SPAWN_EGG = register("pillager_guard_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.PILLAGER_GUARD));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SWAMP_LURKER));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,

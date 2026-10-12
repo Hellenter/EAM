@@ -30,8 +30,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * The Pillager King's thrown axe. It spins through the air, knocks out a shield it hits and flies back to his hand.
- * Thrown as a boomerang it curves past its target, round behind it and into its back. Nobody can pick it up.
+ * An axe thrown by the Pillager King or one of his guards ({@link AxeThrower}). It spins through the air, knocks out
+ * a shield it hits (if it is meant to) and flies back to the thrower's hand. Thrown as a boomerang it curves past its
+ * target, round behind it and into its back. Nobody can pick it up.
  */
 public class ThrownKingAxe extends AbstractArrow {
 	private static final EntityDataAccessor<Boolean> DATA_FLYING_BACK = SynchedEntityData.defineId(ThrownKingAxe.class,
@@ -75,7 +76,13 @@ public class ThrownKingAxe extends AbstractArrow {
 	}
 
 	public ThrownKingAxe(Level level, LivingEntity owner, float damage, float shieldSeconds) {
-		super(EamEntities.KING_AXE, owner, level, PillagerKing.axeStack(), null);
+		this(EamEntities.KING_AXE, level, owner, PillagerKing.axeStack(), damage, shieldSeconds);
+	}
+
+	/** An axe of type {@code type} that looks like {@code axe}; with no {@code shieldSeconds} it leaves shields be. */
+	public ThrownKingAxe(EntityType<? extends ThrownKingAxe> type, Level level, LivingEntity owner, ItemStack axe, float damage,
+			float shieldSeconds) {
+		super(type, owner, level, axe, null);
 		this.damage = damage;
 		this.shieldSeconds = shieldSeconds;
 		pickup = Pickup.DISALLOWED;
@@ -204,16 +211,16 @@ public class ThrownKingAxe extends AbstractArrow {
 	private boolean flyBack() {
 		Entity owner = getOwner();
 		boolean server = !level().isClientSide();
-		if (!(owner instanceof PillagerKing king) || !king.isAlive()) {
+		if (!(owner instanceof LivingEntity thrower) || !(owner instanceof AxeThrower hand) || !thrower.isAlive()) {
 			if (server) {
 				discard();
 				return false;
 			}
 			return true;
 		}
-		Vec3 toHand = king.position().add(0.0, king.getBbHeight() * 0.6, 0.0).subtract(position());
-		if (server && toHand.length() < king.getBbWidth() + 1.0) {
-			king.catchAxe();
+		Vec3 toHand = thrower.position().add(0.0, thrower.getBbHeight() * 0.6, 0.0).subtract(position());
+		if (server && toHand.length() < thrower.getBbWidth() + 1.0) {
+			hand.catchAxe();
 			discard();
 			return false;
 		}
@@ -258,11 +265,11 @@ public class ThrownKingAxe extends AbstractArrow {
 			if (living.hurtServer(level, source, damageTo(living))) {
 				doKnockback(living, source);
 			}
-			if (onShield) {
+			if (onShield && shieldSeconds > 0.0F) {
 				blocks.disable(level, living, shieldSeconds, shield);
 				level.playSound(null, living.getX(), living.getY(), living.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.8F);
-				if (owner instanceof PillagerKing king) {
-					king.axeBrokeShield(living);
+				if (owner instanceof AxeThrower thrower) {
+					thrower.axeBrokeShield(living);
 				}
 			}
 		}
@@ -315,8 +322,13 @@ public class ThrownKingAxe extends AbstractArrow {
 		pickup = Pickup.DISALLOWED;
 	}
 
-	/** A player takes the axe as it is, anything else many times over. */
+	/** As much as the thrower says: the king's axe hits anything but a player many times over, even with him unloaded. */
 	private float damageTo(Entity target) {
-		return PillagerKingLogic.damageTo(damage, target instanceof Player, PillagerKingModule.settings().mobDamageMultiplier());
+		if (getOwner() instanceof AxeThrower thrower) {
+			return thrower.axeDamageTo(damage, target);
+		}
+		return getType() == EamEntities.KING_AXE
+				? PillagerKingLogic.damageTo(damage, target instanceof Player, PillagerKingModule.settings().mobDamageMultiplier())
+				: damage;
 	}
 }

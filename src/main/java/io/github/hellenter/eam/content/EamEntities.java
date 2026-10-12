@@ -8,6 +8,7 @@ import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
+import io.github.hellenter.eam.mobs.entity.guard.PillagerGuard;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
 import io.github.hellenter.eam.mobs.entity.king.ThrownKingAxe;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
@@ -161,6 +162,22 @@ public final class EamEntities {
 
 	/** The Pillager King's thrown axe. */
 	public static final EntityType<ThrownKingAxe> KING_AXE = register("king_axe",
+			EntityType.Builder.<ThrownKingAxe>of(ThrownKingAxe::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
+
+	/** A pillager in a helmet and cuirass with an axe: the king's onslaught, weakened, and a thrown axe. */
+	public static final EntityType<PillagerGuard> PILLAGER_GUARD = register("pillager_guard",
+			EntityType.Builder.of(PillagerGuard::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.passengerAttachments(2.0F)
+					.ridingOffset(-0.6F)
+					.clientTrackingRange(8));
+
+	/** A pillager guard's thrown axe. */
+	public static final EntityType<ThrownKingAxe> GUARD_AXE = register("guard_axe",
 			EntityType.Builder.<ThrownKingAxe>of(ThrownKingAxe::new, MobCategory.MISC)
 					.noLootTable()
 					.sized(0.5F, 0.5F)

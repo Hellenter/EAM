@@ -16,24 +16,42 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 
 import org.jspecify.annotations.Nullable;
 
-/** Draws the thrown axe as its item, spinning end over end along its flight. */
+import java.util.function.Supplier;
+
+/** Draws a thrown axe as its item, spinning end over end along its flight. */
 public class KingAxeRenderer extends EntityRenderer<ThrownKingAxe, KingAxeRenderer.State> {
-	/** The axe's 32x32 texture keeps the pixel size of a 16x16 item: this draws it as big as in his hand. */
-	private static final float SCALE = 1.575F;
+	/** The king's axe: its 32x32 texture keeps the pixel size of a 16x16 item, this draws it as big as in his hand. */
+	private static final float KING_SCALE = 1.575F;
+	/** A guard's iron axe, as big as in his hand. */
+	private static final float GUARD_SCALE = 0.9F;
 	/** Degrees per tick it turns end over end. */
 	private static final float SPIN = 50.0F;
 
 	private final ItemModelResolver itemModelResolver;
+	private final Supplier<ItemStack> look;
+	private final float scale;
 	// Built on first use: item components are not bound yet when renderers are created.
 	private @Nullable ItemStack axe;
 
 	public KingAxeRenderer(EntityRendererProvider.Context context) {
+		this(context, PillagerKing::axeStack, KING_SCALE);
+	}
+
+	private KingAxeRenderer(EntityRendererProvider.Context context, Supplier<ItemStack> look, float scale) {
 		super(context);
 		itemModelResolver = context.getItemModelResolver();
+		this.look = look;
+		this.scale = scale;
+	}
+
+	/** A pillager guard's thrown iron axe. */
+	public static KingAxeRenderer guard(EntityRendererProvider.Context context) {
+		return new KingAxeRenderer(context, () -> new ItemStack(Items.IRON_AXE), GUARD_SCALE);
 	}
 
 	@Override
@@ -43,7 +61,7 @@ public class KingAxeRenderer extends EntityRenderer<ThrownKingAxe, KingAxeRender
 		// The texture's left side, the edge, faces the way it flies, and the head turns over forward: the edge leads.
 		poseStack.rotateDegrees(Axis.YP, state.yRot + 90.0F);
 		poseStack.rotateDegrees(Axis.ZP, state.spin);
-		poseStack.scale(SCALE, SCALE, SCALE);
+		poseStack.scale(scale, scale, scale);
 		state.item.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();
 		super.submit(state, poseStack, collector, camera);
@@ -65,7 +83,7 @@ public class KingAxeRenderer extends EntityRenderer<ThrownKingAxe, KingAxeRender
 		state.yRot = entity.getYRot(partialTicks);
 		state.spin = entity.isStuck() ? 0.0F : (entity.tickCount + partialTicks) * SPIN;
 		if (axe == null) {
-			axe = PillagerKing.axeStack();
+			axe = look.get();
 		}
 		itemModelResolver.updateForNonLiving(state.item, axe, ItemDisplayContext.NONE, entity);
 	}
