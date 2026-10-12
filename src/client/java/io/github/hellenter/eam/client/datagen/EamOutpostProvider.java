@@ -42,10 +42,10 @@ public class EamOutpostProvider extends FabricDynamicRegistryProvider {
 	public static void bootstrapSets(BootstrapContext<StructureSet> context) {
 		context.register(OutpostModule.STRUCTURE_SET, new StructureSet(
 				context.lookup(Registries.STRUCTURE).getOrThrow(OutpostModule.STRUCTURE),
-				new RandomSpreadStructurePlacement(Vec3i.ZERO, AbstractSpreadingStructurePlacement.FrequencyReductionMethod.DEFAULT, 0.2F,
+				new RandomSpreadStructurePlacement(Vec3i.ZERO, AbstractSpreadingStructurePlacement.FrequencyReductionMethod.DEFAULT, 0.35F,
 						20261012, Optional.of(new AbstractSpreadingStructurePlacement.ExclusionZone(
 								context.lookup(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES), 10)),
-						32, 8, RandomSpreadType.LINEAR)));
+						26, 7, RandomSpreadType.LINEAR)));
 	}
 
 	@Override
