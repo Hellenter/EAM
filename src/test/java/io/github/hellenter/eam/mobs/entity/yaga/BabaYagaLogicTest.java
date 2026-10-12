@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Buff;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Creature;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.GroupKind;
+
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -115,5 +119,46 @@ class BabaYagaLogicTest {
 		assertEquals(0.0, BabaYagaLogic.arc(0.0, 3.0), 1.0E-9);
 		assertEquals(3.0, BabaYagaLogic.arc(0.5, 3.0), 1.0E-9);
 		assertEquals(0.0, BabaYagaLogic.arc(1.0, 3.0), 1.0E-9);
+	}
+
+	@Test
+	void waveGroupsTakeTurnsSoTwoGroupsAreOneOfEach() {
+		assertEquals(GroupKind.LURKERS, BabaYagaLogic.waveGroupKind(0, GroupKind.LURKERS));
+		assertEquals(GroupKind.WIGHTS, BabaYagaLogic.waveGroupKind(1, GroupKind.LURKERS));
+		assertEquals(GroupKind.WIGHTS, BabaYagaLogic.waveGroupKind(0, GroupKind.WIGHTS));
+		assertEquals(GroupKind.LURKERS, BabaYagaLogic.waveGroupKind(1, GroupKind.WIGHTS));
+	}
+
+	@Test
+	void lurkerGroupIsOneToTwoLurkersAndOneToThreeSoldiers() {
+		BabaYagaSettings.Summon summon = SETTINGS.summon();
+		List<Creature> fewest = BabaYagaLogic.waveGroup(GroupKind.LURKERS, summon, () -> 0.0);
+		assertEquals(1, Collections.frequency(fewest, Creature.LURKER));
+		assertEquals(1, Collections.frequency(fewest, Creature.SOLDIER));
+		List<Creature> most = BabaYagaLogic.waveGroup(GroupKind.LURKERS, summon, () -> 0.999);
+		assertEquals(2, Collections.frequency(most, Creature.LURKER));
+		assertEquals(3, Collections.frequency(most, Creature.SOLDIER));
+		assertFalse(most.contains(Creature.WIGHT));
+	}
+
+	@Test
+	void wightGroupIsOneWightAndTwoToThreeSoldiers() {
+		BabaYagaSettings.Summon summon = SETTINGS.summon();
+		List<Creature> fewest = BabaYagaLogic.waveGroup(GroupKind.WIGHTS, summon, () -> 0.0);
+		assertEquals(1, Collections.frequency(fewest, Creature.WIGHT));
+		assertEquals(2, Collections.frequency(fewest, Creature.SOLDIER));
+		List<Creature> most = BabaYagaLogic.waveGroup(GroupKind.WIGHTS, summon, () -> 0.999);
+		assertEquals(1, Collections.frequency(most, Creature.WIGHT));
+		assertEquals(3, Collections.frequency(most, Creature.SOLDIER));
+		assertFalse(most.contains(Creature.LURKER));
+	}
+
+	@Test
+	void dataFileHasTheGroupMixes() throws Exception {
+		try (var reader = new java.io.InputStreamReader(BabaYagaLogicTest.class.getResourceAsStream("/data/eam/mobs/baba_yaga.json"))) {
+			var json = com.google.gson.JsonParser.parseReader(reader);
+			BabaYagaSettings parsed = BabaYagaSettings.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json).getOrThrow();
+			assertEquals(SETTINGS.summon(), parsed.summon());
+		}
 	}
 }

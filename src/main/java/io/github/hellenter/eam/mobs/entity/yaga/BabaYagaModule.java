@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 
 /**
  * Baba Yaga, the swamp witch boss. In phase one she circles in her mortar, out of reach of anything but a parry, and
@@ -27,6 +28,8 @@ public final class BabaYagaModule {
 	public static final ResourceKey<DamageType> BEAM_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("baba_yaga_beam"));
 	/** The entity tag on the creatures she raised. */
 	public static final String MINION_TAG = "eam.baba_yaga_minion";
+	/** Her creatures this close to her never burn in daylight. */
+	public static final double SUN_SHELTER_RADIUS = 100.0;
 
 	private static volatile BabaYagaSettings settings = BabaYagaSettings.DEFAULT;
 
@@ -52,5 +55,11 @@ public final class BabaYagaModule {
 	/** Whether Baba Yaga raised this creature: it fights at once, in the open, and her spells and glyphs help it. */
 	public static boolean isMinion(Entity entity) {
 		return entity.entityTags().contains(MINION_TAG);
+	}
+
+	/** Whether daylight spares this mob: one of her creatures within {@link #SUN_SHELTER_RADIUS} of a Baba Yaga. */
+	public static boolean shelteredFromSun(Mob mob) {
+		return isMinion(mob) && !mob.level().getEntitiesOfClass(BabaYaga.class, mob.getBoundingBox().inflate(SUN_SHELTER_RADIUS),
+				yaga -> yaga.isAlive() && yaga.distanceToSqr(mob) <= SUN_SHELTER_RADIUS * SUN_SHELTER_RADIUS).isEmpty();
 	}
 }

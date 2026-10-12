@@ -1,8 +1,10 @@
 package io.github.hellenter.eam.mixin.mobs.vanilla;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 
 import net.minecraft.world.entity.Mob;
@@ -10,12 +12,17 @@ import net.minecraft.world.entity.Mob;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** Remembers when daylight set an undead mob on fire. */
+/** Remembers when daylight set an undead mob on fire, and spares Baba Yaga's creatures near her. */
 @Mixin(Mob.class)
 public abstract class MobSunBurnMixin {
 	@WrapOperation(method = "burnUndead", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;igniteForSeconds(F)V"))
 	private void eam$markSunIgnition(Mob mob, float seconds, Operation<Void> original) {
 		original.call(mob, seconds);
 		MobDropsModule.onSunIgnition(mob);
+	}
+
+	@ModifyReturnValue(method = "isSunBurnTick", at = @At("RETURN"))
+	private boolean eam$shelterYagaCreatures(boolean burns) {
+		return burns && !BabaYagaModule.shelteredFromSun((Mob) (Object) this);
 	}
 }

@@ -3,7 +3,7 @@
     "phase_one_health": 50.0,
     "phase_two_health": 100.0,
     "armor": 4.0,
-    "speed": 0.3,
+    "speed": 0.42,
     "follow_range": 64.0,
     "xp": 300
   },
@@ -26,8 +26,18 @@
   "summon": {
     "groups": 2,
     "group_interval": 240,
-    "min_size": 3,
-    "max_size": 5,
+    "lurker_group": {
+      "min": 1,
+      "max": 2,
+      "soldiers_min": 1,
+      "soldiers_max": 3
+    },
+    "wight_group": {
+      "min": 1,
+      "max": 1,
+      "soldiers_min": 2,
+      "soldiers_max": 3
+    },
     "max_wights": 3,
     "min_radius": 16.0,
     "max_radius": 35.0,
@@ -81,15 +91,25 @@
     "attack_pause": 30,
     "summon_below": 2,
     "summon_cooldown": 300,
-    "min_size": 3,
-    "max_size": 5,
+    "lurker_group": {
+      "min": 1,
+      "max": 2,
+      "soldiers_min": 1,
+      "soldiers_max": 3
+    },
+    "wight_group": {
+      "min": 1,
+      "max": 1,
+      "soldiers_min": 2,
+      "soldiers_max": 3
+    },
     "flee_speed": 1.4
   },
   "escape": {
     "hits": 2,
     "window": 100,
-    "blind_ticks": 100,
-    "run_ticks": 24,
+    "blind_ticks": 30,
+    "run_ticks": 12,
     "run_speed": 5.0,
     "distance": 20.0,
     "min_spawn": 2,
@@ -124,7 +144,7 @@
   },
   "claws": {
     "cooldown": 420,
-    "blind_ticks": 40,
+    "blind_ticks": 30,
     "distance": 6.0,
     "angle": 35.0,
     "lunge": 14,

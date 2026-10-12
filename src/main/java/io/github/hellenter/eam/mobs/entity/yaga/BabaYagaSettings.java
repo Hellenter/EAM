@@ -55,7 +55,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param xp             experience dropped on death
 	 */
 	public record Stats(float phaseOneHealth, float phaseTwoHealth, double armor, double speed, double followRange, int xp) {
-		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.3, 64.0, 300);
+		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.42, 64.0, 300);
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_one_health").orElse(DEFAULT.phaseOneHealth).forGetter(Stats::phaseOneHealth),
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_two_health").orElse(DEFAULT.phaseTwoHealth).forGetter(Stats::phaseTwoHealth),
@@ -110,29 +110,29 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	/**
 	 * @param groups        groups in one phase-one wave
 	 * @param groupInterval ticks between two groups of the same wave (the first rises at once)
-	 * @param minSize       creatures in a group, at least
-	 * @param maxSize       creatures in a group, at most
-	 * @param maxWights     wights in one group, at most
+	 * @param lurkerGroup   a phase-one group of swamp lurkers: how many lurkers and how many drowned soldiers go with them
+	 * @param wightGroup    a phase-one group of wights: how many wights and how many drowned soldiers go with them
+	 * @param maxWights     wights in one phase-two group, at most
 	 * @param minRadius     groups appear at least this far from the player
 	 * @param maxRadius     and at most this far
 	 * @param firstDelay    ticks after she notices a player before she raises her first wave
-	 * @param lurkerWeight  how often a creature is a swamp lurker, against the other two weights
-	 * @param wightWeight   how often it is a wight
-	 * @param soldierWeight how often it is a drowned soldier
+	 * @param lurkerWeight  phase two: how often a creature is a swamp lurker, against the other two weights
+	 * @param wightWeight   phase two: how often it is a wight
+	 * @param soldierWeight phase two: how often it is a drowned soldier
 	 * @param followRange   her creatures follow the player from this far
 	 * @param glowAfter     a phase-one group still alive this long after it rose starts to glow
 	 * @param fadeAfter     and this long after it rose it starts to die
 	 * @param fadeTicks     dying takes this long: each creature loses its full health over it, then falls
 	 */
-	public record Summon(int groups, int groupInterval, int minSize, int maxSize, int maxWights, double minRadius, double maxRadius,
+	public record Summon(int groups, int groupInterval, Mix lurkerGroup, Mix wightGroup, int maxWights, double minRadius, double maxRadius,
 			int firstDelay, int lurkerWeight, int wightWeight, int soldierWeight, double followRange,
 			int glowAfter, int fadeAfter, int fadeTicks) {
-		public static final Summon DEFAULT = new Summon(2, 240, 3, 5, 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200);
+		public static final Summon DEFAULT = new Summon(2, 240, new Mix(1, 2, 1, 3), new Mix(1, 1, 2, 3), 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200);
 		public static final Codec<Summon> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 8).fieldOf("groups").orElse(DEFAULT.groups).forGetter(Summon::groups),
 				Codec.intRange(0, 2400).fieldOf("group_interval").orElse(DEFAULT.groupInterval).forGetter(Summon::groupInterval),
-				Codec.intRange(1, 16).fieldOf("min_size").orElse(DEFAULT.minSize).forGetter(Summon::minSize),
-				Codec.intRange(1, 16).fieldOf("max_size").orElse(DEFAULT.maxSize).forGetter(Summon::maxSize),
+				Mix.CODEC.fieldOf("lurker_group").orElse(DEFAULT.lurkerGroup).forGetter(Summon::lurkerGroup),
+				Mix.CODEC.fieldOf("wight_group").orElse(DEFAULT.wightGroup).forGetter(Summon::wightGroup),
 				Codec.intRange(0, 16).fieldOf("max_wights").orElse(DEFAULT.maxWights).forGetter(Summon::maxWights),
 				Codec.doubleRange(2.0, 64.0).fieldOf("min_radius").orElse(DEFAULT.minRadius).forGetter(Summon::minRadius),
 				Codec.doubleRange(2.0, 64.0).fieldOf("max_radius").orElse(DEFAULT.maxRadius).forGetter(Summon::maxRadius),
@@ -145,6 +145,23 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.intRange(0, 72000).fieldOf("fade_after").orElse(DEFAULT.fadeAfter).forGetter(Summon::fadeAfter),
 				Codec.intRange(20, 2400).fieldOf("fade_ticks").orElse(DEFAULT.fadeTicks).forGetter(Summon::fadeTicks)
 		).apply(instance, Summon::new));
+
+		/**
+		 * One kind of phase-one group: its own creatures (lurkers or wights) and the drowned soldiers that rise with them.
+		 *
+		 * @param min         its own creatures, at least
+		 * @param max         at most
+		 * @param soldiersMin drowned soldiers with them, at least
+		 * @param soldiersMax at most
+		 */
+		public record Mix(int min, int max, int soldiersMin, int soldiersMax) {
+			public static final Codec<Mix> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+					Codec.intRange(0, 16).fieldOf("min").forGetter(Mix::min),
+					Codec.intRange(0, 16).fieldOf("max").forGetter(Mix::max),
+					Codec.intRange(0, 16).fieldOf("soldiers_min").forGetter(Mix::soldiersMin),
+					Codec.intRange(0, 16).fieldOf("soldiers_max").forGetter(Mix::soldiersMax)
+			).apply(instance, Mix::new));
+		}
 	}
 
 	/**
@@ -271,7 +288,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 */
 	public record Escape(int hits, int window, int blindTicks, int runTicks, double runSpeed, double distance, int minSpawn, int maxSpawn,
 			int cooldown) {
-		public static final Escape DEFAULT = new Escape(2, 100, 100, 24, 5.0, 20.0, 2, 3, 200);
+		public static final Escape DEFAULT = new Escape(2, 100, 30, 12, 5.0, 20.0, 2, 3, 200);
 		public static final Codec<Escape> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 20).fieldOf("hits").orElse(DEFAULT.hits).forGetter(Escape::hits),
 				Codec.intRange(1, 1200).fieldOf("window").orElse(DEFAULT.window).forGetter(Escape::window),
@@ -364,7 +381,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 */
 	public record Claws(int cooldown, int blindTicks, double distance, float angle, int lunge, int parryWindow, int hits, int gap,
 			float damage, float shieldSeconds, float parryMultiplier) {
-		public static final Claws DEFAULT = new Claws(420, 40, 6.0, 35.0F, 14, 11, 5, 4, 6.0F, 5.0F, 1.5F);
+		public static final Claws DEFAULT = new Claws(420, 30, 6.0, 35.0F, 14, 11, 5, 4, 6.0F, 5.0F, 1.5F);
 		public static final Codec<Claws> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Claws::cooldown),
 				Codec.intRange(0, 1200).fieldOf("blind_ticks").orElse(DEFAULT.blindTicks).forGetter(Claws::blindTicks),

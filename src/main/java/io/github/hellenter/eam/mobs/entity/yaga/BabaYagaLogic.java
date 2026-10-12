@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.yaga;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /** Baba Yaga's decisions, free of the game so they can be unit tested. */
@@ -9,6 +11,9 @@ public final class BabaYagaLogic {
 
 	/** The creatures she raises. */
 	public enum Creature { LURKER, WIGHT, SOLDIER }
+
+	/** The two kinds of phase-one group: swamp lurkers or wights, each with drowned soldiers. */
+	public enum GroupKind { LURKERS, WIGHTS }
 
 	/** The spells she casts on a group of her creatures. */
 	public enum Buff { ABSORPTION, SPEED, STRENGTH }
@@ -71,6 +76,28 @@ public final class BabaYagaLogic {
 			return Creature.WIGHT;
 		}
 		return Creature.SOLDIER;
+	}
+
+	/** Kind of a wave's group number {@code index}: the kinds take turns, starting with {@code first}. */
+	public static GroupKind waveGroupKind(int index, GroupKind first) {
+		GroupKind[] kinds = GroupKind.values();
+		return kinds[(first.ordinal() + index) % kinds.length];
+	}
+
+	/** The creatures of a phase-one group of this kind: its lurkers or wights first, then the drowned soldiers. */
+	public static List<Creature> waveGroup(GroupKind kind, BabaYagaSettings.Summon summon, DoubleSupplier random) {
+		BabaYagaSettings.Summon.Mix mix = kind == GroupKind.LURKERS ? summon.lurkerGroup() : summon.wightGroup();
+		Creature own = kind == GroupKind.LURKERS ? Creature.LURKER : Creature.WIGHT;
+		int owns = groupSize(mix.min(), mix.max(), random);
+		int soldiers = groupSize(mix.soldiersMin(), mix.soldiersMax(), random);
+		List<Creature> creatures = new ArrayList<>(owns + soldiers);
+		for (int i = 0; i < owns; i++) {
+			creatures.add(own);
+		}
+		for (int i = 0; i < soldiers; i++) {
+			creatures.add(Creature.SOLDIER);
+		}
+		return creatures;
 	}
 
 	/** How many creatures go in a group, from {@code min} to {@code max}. */

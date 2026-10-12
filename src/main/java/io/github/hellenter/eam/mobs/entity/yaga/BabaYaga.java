@@ -12,6 +12,7 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Buff;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Creature;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Glyph;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.GroupKind;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,6 +67,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -86,7 +88,9 @@ import java.util.UUID;
  * spell, and fights through others: three groups of swamp creatures raised around the player at once, poison flasks,
  * spells that strengthen one group (absorption, speed or strength, picked by what the group needs) and glyphs on the
  * ground that curse the player and help her creatures. Only once a wave is dead does she dive at the player with her
- * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. The fifth
+ * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. A dive that
+ * misses the player is flown again: no new wave rises until one reaches them. While she fights, a thunderstorm keeps the
+ * sun off her creatures. The fifth
  * parry bursts her mortar and she drops to the ground: phase two. On foot she keeps behind one group raised in front of
  * her and casts on it, runs from a player who comes close, escapes into the dark after a couple of hits to come back
  * behind them with more creatures, shoots acid bolts (through a shield), purple bolts that tie the player down with
@@ -114,6 +118,10 @@ public class BabaYaga extends Monster {
 	/** Icons over a strengthened creature: how many go round in each ring, and how fast (radians a tick). */
 	private static final int ICONS = 3;
 	private static final double ICON_TURN = 0.08;
+	/** With nobody to fight for this long the fight is over, and the weather goes back to what it was before her storm. */
+	private static final int STORM_CALM_TICKS = 200;
+	/** While she fights, the thunderstorm is kept booked this far ahead. */
+	private static final int STORM_TICKS = 1200;
 	private static final DustParticleOptions MORTAR_DUST = new DustParticleOptions(0x5A4632, 1.4F);
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
@@ -137,7 +145,10 @@ public class BabaYaga extends Monster {
 	private int waveGroupsLeft;
 	private int waveGroupTimer;
 	private float waveAngle;
+	private GroupKind waveFirstKind = GroupKind.LURKERS;
 	private int clearedTicks;
+	/** Whether her last dive reached the player (a blow, blocked or not, or a parry); without that no new wave rises. */
+	private boolean diveLanded;
 	private float orbitAngle;
 	private int climbTicks;
 	private @Nullable Glyph lastGlyph;
@@ -152,9 +163,22 @@ public class BabaYaga extends Monster {
 	private int repath;
 	private final ArrayDeque<Long> recentHits = new ArrayDeque<>();
 	private boolean escapeRequested;
+	/** The escape after a parry: she blinks away at once, without running off first. */
+	private boolean escapeAtOnce;
 	private @Nullable Mob eatTarget;
 	private Vec3 beamAim = Vec3.ZERO;
 	private @Nullable Vec3 escapeTo;
+
+	// Her thunderstorm: daylight would burn her creatures
+	private boolean stormRaised;
+	/** Whether she keeps the weather from before the storm, to put back when the fight is over. */
+	private boolean stormOwner;
+	private int stormCalm;
+	private int weatherClear;
+	private int weatherRain;
+	private int weatherThunder;
+	private boolean weatherRaining;
+	private boolean weatherThundering;
 
 	private final List<Group> groups = new ArrayList<>();
 	private final List<SpellBolt> spells = new ArrayList<>();
@@ -383,6 +407,7 @@ public class BabaYaga extends Monster {
 			setTarget(null);
 			target = null;
 		}
+		tickStorm(level, target);
 		tickWaveGroups(level, target);
 		if (action != YagaAction.NONE) {
 			tickAction(level);
@@ -400,6 +425,74 @@ public class BabaYaga extends Monster {
 			tickPhaseTwo(level, target);
 		}
 		bossEvent.setProgress(getHealth() / getMaxHealth());
+	}
+
+	// ---- The storm ----
+
+	/**
+	 * While she fights, a thunderstorm: the rain keeps the sun off her creatures. Weather is the whole world's, so the
+	 * first Baba Yaga to call a storm keeps the weather from before it and puts it back once the fight is over.
+	 */
+	private void tickStorm(ServerLevel level, @Nullable LivingEntity target) {
+		if (!level.canHaveWeather()) {
+			return;
+		}
+		if (target == null) {
+			if (stormRaised && ++stormCalm >= STORM_CALM_TICKS) {
+				endStorm(level);
+			}
+			return;
+		}
+		stormCalm = 0;
+		WeatherData weather = level.getServer().getWeatherData();
+		if (!stormRaised) {
+			stormRaised = true;
+			if (level.getEntities(EamEntities.BABA_YAGA, other -> other != this && other.stormOwner).isEmpty()) {
+				stormOwner = true;
+				weatherClear = weather.getClearWeatherTime();
+				weatherRain = weather.getRainTime();
+				weatherThunder = weather.getThunderTime();
+				weatherRaining = weather.isRaining();
+				weatherThundering = weather.isThundering();
+			}
+		}
+		if (tickCount % 20 == 0 || !weather.isThundering() || !weather.isRaining()) {
+			level.getServer().setWeatherParameters(0, STORM_TICKS, true, true);
+		}
+	}
+
+	/** The fight is over: the weather from before goes back, unless another Baba Yaga still fights and takes it over. */
+	private void endStorm(ServerLevel level) {
+		boolean owner = stormOwner;
+		stormRaised = false;
+		stormOwner = false;
+		stormCalm = 0;
+		if (!owner) {
+			return;
+		}
+		for (BabaYaga other : level.getEntities(EamEntities.BABA_YAGA, other -> other != this && other.isAlive() && other.stormRaised)) {
+			other.stormOwner = true;
+			other.weatherClear = weatherClear;
+			other.weatherRain = weatherRain;
+			other.weatherThunder = weatherThunder;
+			other.weatherRaining = weatherRaining;
+			other.weatherThundering = weatherThundering;
+			return;
+		}
+		WeatherData weather = level.getServer().getWeatherData();
+		weather.setClearWeatherTime(weatherClear);
+		weather.setRainTime(weatherRain);
+		weather.setThunderTime(weatherThunder);
+		weather.setRaining(weatherRaining);
+		weather.setThundering(weatherThundering);
+	}
+
+	@Override
+	public void remove(RemovalReason reason) {
+		if (reason.shouldDestroy() && stormRaised && level() instanceof ServerLevel level) {
+			endStorm(level);
+		}
+		super.remove(reason);
 	}
 
 	// ---- Phase one ----
@@ -533,6 +626,12 @@ public class BabaYaga extends Monster {
 	}
 
 	private void setAction(YagaAction next) {
+		if (action == YagaAction.CLAWS && next != YagaAction.CLAWS) {
+			releaseMinions();
+		}
+		if (next != YagaAction.ESCAPE) {
+			escapeAtOnce = false;
+		}
 		action = next;
 		actionTicks = 0;
 		entityData.set(DATA_ACTION, (byte) next.ordinal());
@@ -619,7 +718,15 @@ public class BabaYaga extends Monster {
 					setAction(YagaAction.RETREAT);
 				}
 			}
-			case RETREAT -> nextWave = NEXT_WAVE_DELAY;
+			case RETREAT -> {
+				if (diveLanded) {
+					nextWave = NEXT_WAVE_DELAY;
+				} else {
+					// The dive missed: she comes down again before she raises anyone.
+					clearedTicks = 0;
+				}
+				diveLanded = false;
+			}
 			case EAT_RUN -> {
 				if (eatTarget != null && eatTarget.isAlive() && distanceTo(eatTarget) <= EAT_REACH + 0.5) {
 					setAction(YagaAction.EAT);
@@ -655,12 +762,16 @@ public class BabaYaga extends Monster {
 		}
 	}
 
-	/** Phase one: the wave's first group rises at once, the rest one by one after it, each a good way off on its own side. */
+	/**
+	 * Phase one: the wave's first group rises at once, the rest one by one after it, each a good way off on its own side.
+	 * Lurker and wight groups take turns, so a wave of two has one of each.
+	 */
 	private void raiseWave(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings settings = settings();
 		BabaYagaSettings.Summon summon = settings.summon();
 		groups.removeIf(group -> group.alive(level) == 0);
 		waveAngle = random.nextFloat() * 360.0F;
+		waveFirstKind = random.nextBoolean() ? GroupKind.LURKERS : GroupKind.WIGHTS;
 		raiseWaveGroup(level, target, 0);
 		waveGroupsLeft = summon.groups() - 1;
 		waveGroupTimer = summon.groupInterval();
@@ -704,7 +815,8 @@ public class BabaYaga extends Monster {
 					EamEntities.DROWNED_SOLDIER);
 		}
 		if (center != null) {
-			raiseGroup(level, target, center, BabaYagaLogic.groupSize(summon.minSize(), summon.maxSize(), random::nextDouble));
+			GroupKind kind = BabaYagaLogic.waveGroupKind(g, waveFirstKind);
+			raiseGroup(level, target, center, BabaYagaLogic.waveGroup(kind, summon, random::nextDouble));
 		}
 	}
 
@@ -735,9 +847,10 @@ public class BabaYaga extends Monster {
 		}
 	}
 
+	/** A group of {@code size} creatures mixed by the weights, as in phase two. */
 	private void raiseGroup(ServerLevel level, LivingEntity target, Vec3 center, int size) {
 		BabaYagaSettings.Summon summon = settings().summon();
-		Group group = new Group();
+		List<Creature> creatures = new ArrayList<>(size);
 		int wights = 0;
 		for (int i = 0; i < size; i++) {
 			Creature creature = BabaYagaLogic.creature(summon.lurkerWeight(), summon.wightWeight(), summon.soldierWeight(), wights,
@@ -745,6 +858,14 @@ public class BabaYaga extends Monster {
 			if (creature == Creature.WIGHT) {
 				wights++;
 			}
+			creatures.add(creature);
+		}
+		raiseGroup(level, target, center, creatures);
+	}
+
+	private void raiseGroup(ServerLevel level, LivingEntity target, Vec3 center, List<Creature> creatures) {
+		Group group = new Group();
+		for (Creature creature : creatures) {
 			EntityType<? extends Mob> type = switch (creature) {
 				case LURKER -> EamEntities.SWAMP_LURKER;
 				case WIGHT -> EamEntities.WIGHT;
@@ -1100,6 +1221,7 @@ public class BabaYaga extends Monster {
 		BabaYagaSettings.Swoop swoop = settings().swoop();
 		int strike = swoop.strikeTick();
 		if (t == 0) {
+			diveLanded = false;
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 0.6F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.PHANTOM_SWOOP, getSoundSource(), 2.0F, 0.7F);
 		}
@@ -1125,6 +1247,7 @@ public class BabaYaga extends Monster {
 		if (t == strike) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, getSoundSource(), 1.5F, 0.7F);
 			if (distanceTo(target) <= swoop.reach() + target.getBbWidth() * 0.5 + 0.5) {
+				diveLanded = true;
 				target.damageCooldownTime = 0;
 				if (target.hurtServer(level, damageSources().mobAttack(this), swoop.damage())) {
 					Vec3 push = horizontal(target.position().subtract(position()));
@@ -1302,6 +1425,7 @@ public class BabaYaga extends Monster {
 		BabaYagaSettings.Claws claws = settings().claws();
 		if (t == 0) {
 			target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, claws.blindTicks(), 0), this);
+			holdMinions();
 			Vec3 spot = null;
 			for (int attempt = 0; attempt < 6 && spot == null; attempt++) {
 				float turn = (random.nextFloat() * 2.0F - 1.0F) * claws.angle();
@@ -1348,6 +1472,27 @@ public class BabaYaga extends Monster {
 			if (blocks != null) {
 				blocks.disable(level, target, claws.shieldSeconds(), shield);
 				level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK.value(), getSoundSource(), 1.0F, 0.8F);
+			}
+		}
+	}
+
+	/** While her claws are out, her creatures hang back: slowness III until the attack is over. */
+	private void holdMinions() {
+		for (Group group : groups) {
+			for (Mob mob : group.living) {
+				mob.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, actionLength() + 1, 2, false, true), this);
+			}
+		}
+	}
+
+	/** The claw attack is over: her creatures move freely again. */
+	private void releaseMinions() {
+		for (Group group : groups) {
+			for (Mob mob : group.living) {
+				MobEffectInstance slowness = mob.getEffect(MobEffects.SLOWNESS);
+				if (slowness != null && slowness.getAmplifier() == 2) {
+					mob.removeEffect(MobEffects.SLOWNESS);
+				}
 			}
 		}
 	}
@@ -1432,7 +1577,7 @@ public class BabaYaga extends Monster {
 			escapeCooldown = escape.cooldown();
 			recentHits.clear();
 		}
-		if (t < escape.runTicks()) {
+		if (t < escape.runTicks() && !escapeAtOnce) {
 			if (escapeTo != null && (t % 5 == 0 || getNavigation().isDone())) {
 				getNavigation().moveTo(escapeTo.x, escapeTo.y, escapeTo.z, escape.runSpeed());
 			}
@@ -1451,6 +1596,10 @@ public class BabaYaga extends Monster {
 		int count = escape.minSpawn() + (escape.maxSpawn() > escape.minSpawn() ? random.nextInt(escape.maxSpawn() - escape.minSpawn() + 1) : 0);
 		raiseNear(level, target, count);
 		escapeTo = null;
+		if (escapeAtOnce) {
+			escapeAtOnce = false;
+			endAction();
+		}
 	}
 
 	/** Of a few spots away from the player, the darkest. */
@@ -1534,7 +1683,20 @@ public class BabaYaga extends Monster {
 	/** She is thrown back and breaks off. */
 	private void parried(ServerLevel level, Player player) {
 		parryStreak.parried(player.getUUID(), level.getGameTime());
+		if (phase() == 1) {
+			diveLanded = true;
+		}
 		LivingEntity target = actionTarget != null ? actionTarget : getTarget();
+		if (phase() == 2 && target != null) {
+			// On foot a parry makes her blink away at once.
+			setAction(YagaAction.ESCAPE);
+			escapeAtOnce = true;
+			actionTarget = target;
+			getNavigation().stop();
+			level.playSound(null, getX(), getY(0.6), getZ(), EamSounds.FALLEN_LORD_PARRY, getSoundSource(), 2.0F, 1.0F);
+			level.sendParticles(ParticleTypes.CRIT, getX(), getY(0.6), getZ(), 16, 0.4, 0.4, 0.4, 0.2);
+			return;
+		}
 		setAction(YagaAction.STAGGER);
 		actionTarget = target;
 		setGlow(YagaGlow.NONE);
@@ -1622,6 +1784,14 @@ public class BabaYaga extends Monster {
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putByte("Phase", (byte) phase());
+		if (stormOwner) {
+			output.putBoolean("StormOwner", true);
+			output.putInt("WeatherClear", weatherClear);
+			output.putInt("WeatherRain", weatherRain);
+			output.putInt("WeatherThunder", weatherThunder);
+			output.putBoolean("WeatherRaining", weatherRaining);
+			output.putBoolean("WeatherThundering", weatherThundering);
+		}
 	}
 
 	@Override
@@ -1637,6 +1807,14 @@ public class BabaYaga extends Monster {
 			bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		}
 		bossEvent.setName(getDisplayName());
+		// Her storm goes on after a reload; she still knows the weather to put back.
+		stormOwner = input.getBooleanOr("StormOwner", false);
+		stormRaised = stormOwner;
+		weatherClear = input.getIntOr("WeatherClear", 0);
+		weatherRain = input.getIntOr("WeatherRain", 0);
+		weatherThunder = input.getIntOr("WeatherThunder", 0);
+		weatherRaining = input.getBooleanOr("WeatherRaining", false);
+		weatherThundering = input.getBooleanOr("WeatherThundering", false);
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
 		waveGroupsLeft = 0;
