@@ -13,7 +13,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * The Pillager King's first look (#166 to #178), kept for later: closed black plate, a breastplate over a skirt of
+ * The Pillager King's first look (#166 to #178), kept for later: a crested Corinthian helm, closed black plate, a breastplate over a skirt of
  * plates with dark chainmail hanging from under it to the knees, big pauldrons on thin plated arms. The chainmail is four
  * hanging panels that the thighs push aside, trail behind as he moves, swing out as he turns and flare in his spins.
  * {@link PillagerKingLook#PLATE} draws him in it.
@@ -34,6 +34,28 @@ public class PillagerKingPlateModel extends PillagerKingModel {
 		mailBack = body.getChild("mail_back");
 		mailRight = body.getChild("mail_right");
 		mailLeft = body.getChild("mail_left");
+	}
+
+	/**
+	 * A Corinthian-style helm (the shell, its dome, the brow, the nasal, two cheek guards with
+	 * the mouth slot between them, and the flare over the nape) with a crest on top, a ridge on the dome holding a plume
+	 * that rises toward the back and hangs down behind. It sits in the top left of the 128 x 128 texture, rows 0 to 36.
+	 */
+	private static void addHelm(PartDefinition root) {
+		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
+				.texOffs(0, 0).addBox(-5.0F, -10.0F, -5.0F, 10.0F, 10.0F, 10.0F)
+				.texOffs(40, 0).addBox(-4.0F, -11.0F, -4.0F, 8.0F, 1.0F, 8.0F)
+				.texOffs(72, 0).addBox(-5.5F, -1.5F, 0.5F, 11.0F, 2.0F, 5.0F)
+				.texOffs(72, 8).addBox(-5.5F, -8.0F, -6.0F, 11.0F, 2.0F, 1.0F)
+				.texOffs(96, 8).addBox(-1.0F, -8.0F, -6.5F, 2.0F, 4.0F, 1.0F)
+				.texOffs(40, 10).addBox(-5.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F)
+				.texOffs(52, 10).addBox(1.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F), PartPose.ZERO.withScale(HEAD_SCALE));
+		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+		head.addOrReplaceChild("crest", CubeListBuilder.create()
+				.texOffs(104, 0).addBox(-0.5F, 0.0F, -4.5F, 1.0F, 1.0F, 9.0F)
+				.texOffs(0, 20).addBox(-1.0F, -4.0F, -6.0F, 2.0F, 4.0F, 12.0F)
+				.texOffs(28, 20).addBox(-1.0F, -6.0F, -3.0F, 2.0F, 2.0F, 9.0F)
+				.texOffs(50, 20).addBox(-1.0F, -4.0F, 6.0F, 2.0F, 6.0F, 2.0F), PartPose.offset(0.0F, -12.0F, 0.0F));
 	}
 
 	public static LayerDefinition createLayer() {

@@ -6,16 +6,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The Pillager King's skeleton and moves, shared by his looks: his arms and legs bend at the elbows and knees like the
- * Fallen Lord's, the plume of his crest sways, and his attacks are posed here from the action and the ticks into it (the
+ * Fallen Lord's, the plume of a crested helm sways, and his attacks are posed here from the action and the ticks into it (the
  * turns of the tornado are the renderer's). Each look adds its own body and the cloth or mail that hangs from it.
  */
 public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRenderState> {
@@ -27,8 +26,8 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 	protected static final float SHIN = 6.0F;
 	/** The hand at the end of the forearm, as far below the shoulder as on the vanilla arm. */
 	private static final float HAND = 10.0F;
-	/** The helm with its crest is drawn this much smaller than modelled, shrunk toward the neck. */
-	private static final float HEAD_SCALE = 0.8F;
+	/** The helm is drawn this much smaller than modelled, shrunk toward the neck. */
+	protected static final float HEAD_SCALE = 0.8F;
 	/** Share of the knee sink kept while he just walks; more makes him bob up and down. */
 	private static final float WALK_SINK = 1.0F / 6.0F;
 
@@ -36,7 +35,8 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 	protected final ModelPart leftForearm;
 	protected final ModelPart rightShin;
 	protected final ModelPart leftShin;
-	private final ModelPart crest;
+	/** The plume on the helm, if his helm has one. */
+	private final @Nullable ModelPart crest;
 
 	protected PillagerKingModel(ModelPart root) {
 		super(root);
@@ -44,29 +44,7 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 		leftForearm = leftArm.getChild("left_forearm");
 		rightShin = rightLeg.getChild("right_shin");
 		leftShin = leftLeg.getChild("left_shin");
-		crest = head.getChild("crest");
-	}
-
-	/**
-	 * The head both looks share: a Corinthian-style helm (the shell, its dome, the brow, the nasal, two cheek guards with
-	 * the mouth slot between them, and the flare over the nape) with a crest on top, a ridge on the dome holding a plume
-	 * that rises toward the back and hangs down behind. It sits in the top left of the 128 x 128 texture, rows 0 to 36.
-	 */
-	protected static void addHelm(PartDefinition root) {
-		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
-				.texOffs(0, 0).addBox(-5.0F, -10.0F, -5.0F, 10.0F, 10.0F, 10.0F)
-				.texOffs(40, 0).addBox(-4.0F, -11.0F, -4.0F, 8.0F, 1.0F, 8.0F)
-				.texOffs(72, 0).addBox(-5.5F, -1.5F, 0.5F, 11.0F, 2.0F, 5.0F)
-				.texOffs(72, 8).addBox(-5.5F, -8.0F, -6.0F, 11.0F, 2.0F, 1.0F)
-				.texOffs(96, 8).addBox(-1.0F, -8.0F, -6.5F, 2.0F, 4.0F, 1.0F)
-				.texOffs(40, 10).addBox(-5.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F)
-				.texOffs(52, 10).addBox(1.5F, -5.0F, -6.0F, 4.0F, 6.0F, 2.0F), PartPose.ZERO.withScale(HEAD_SCALE));
-		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-		head.addOrReplaceChild("crest", CubeListBuilder.create()
-				.texOffs(104, 0).addBox(-0.5F, 0.0F, -4.5F, 1.0F, 1.0F, 9.0F)
-				.texOffs(0, 20).addBox(-1.0F, -4.0F, -6.0F, 2.0F, 4.0F, 12.0F)
-				.texOffs(28, 20).addBox(-1.0F, -6.0F, -3.0F, 2.0F, 2.0F, 9.0F)
-				.texOffs(50, 20).addBox(-1.0F, -4.0F, 6.0F, 2.0F, 6.0F, 2.0F), PartPose.offset(0.0F, -12.0F, 0.0F));
+		crest = head.hasChild("crest") ? head.getChild("crest") : null;
 	}
 
 	@Override
@@ -225,6 +203,9 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 
 	/** The plume streams back as he moves and sways with his steps. */
 	private void crest(PillagerKingRenderState state) {
+		if (crest == null) {
+			return;
+		}
 		float walk = Math.min(state.walkAnimationSpeed, 1.0F);
 		crest.xRot = 0.12F * walk + 0.2F * state.dash + Mth.sin(state.walkAnimationPos * 0.6662F * 2.0F) * 0.04F * walk;
 		crest.zRot = -Math.clamp(state.turnRate / 25.0F, -1.0F, 1.0F) * 0.12F;

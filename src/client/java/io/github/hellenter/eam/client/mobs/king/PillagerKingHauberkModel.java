@@ -13,7 +13,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * The Pillager King in a blackened chainmail hauberk to the knees under a leather yoke, a scarf wound round his neck,
+ * The Pillager King in a closed visored helm and a blackened chainmail hauberk to the knees under a leather yoke, a scarf wound round his neck,
  * two belts at the waist, rounded steel pauldrons and vambraces, tall boots, and a long dark leather coat hanging behind
  * and at the hips down to his shins. The mail skirt is split in front, each half riding its own thigh with a leather flap
  * hanging on from its hem. The long coat flaps bend halfway down: the upper part swings with the legs, the lower part
@@ -57,6 +57,23 @@ public class PillagerKingHauberkModel extends PillagerKingModel {
 		coatBack = body.getChild("coat_back");
 		coatRight = body.getChild("coat_right");
 		coatLeft = body.getChild("coat_left");
+	}
+
+	/**
+	 * A closed helm: a rounded dome with a ridge running from the brow over the top, and a visor over the face pointed
+	 * down its middle, with an eye slit on each side and rows of breathing holes below them (in the texture). The flare
+	 * over the nape is the same as on the old helm. It sits in the top left of the 128 x 128 texture, rows 0 to 29.
+	 */
+	private static void addHelm(PartDefinition root) {
+		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
+				.texOffs(0, 0).addBox(-5.0F, -10.0F, -5.0F, 10.0F, 10.0F, 10.0F)
+				.texOffs(40, 0).addBox(-4.0F, -11.0F, -4.0F, 8.0F, 1.0F, 8.0F)
+				.texOffs(72, 0).addBox(-0.5F, -12.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+				.texOffs(90, 0).addBox(-0.5F, -11.0F, -5.5F, 1.0F, 3.0F, 1.0F)
+				.texOffs(0, 20).addBox(-5.0F, -8.0F, -6.0F, 10.0F, 8.0F, 1.0F)
+				.texOffs(22, 20).addBox(-1.0F, -8.0F, -7.0F, 2.0F, 8.0F, 1.0F)
+				.texOffs(28, 20).addBox(-5.5F, -1.5F, 0.5F, 11.0F, 2.0F, 5.0F), PartPose.ZERO.withScale(HEAD_SCALE));
+		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 	}
 
 	public static LayerDefinition createLayer() {
