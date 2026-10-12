@@ -22,6 +22,14 @@ class LostLogicTest {
 	}
 
 	@Test
+	void spawnCooldownBetweenMinAndMax() {
+		assertEquals(2400, LostLogic.spawnCooldown(2400, 4800, 0.0));
+		assertEquals(3600, LostLogic.spawnCooldown(2400, 4800, 0.5));
+		assertTrue(LostLogic.spawnCooldown(2400, 4800, 0.999) < 4800);
+		assertEquals(2400, LostLogic.spawnCooldown(4800, 2400, 0.0));
+	}
+
+	@Test
 	void firstFollowerShieldsSecondShoots() {
 		List<LostRole> roles = LostLogic.followerRoles(2, () -> 0.9);
 		assertTrue(roles.get(0).shielded());

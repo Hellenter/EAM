@@ -38,12 +38,14 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 	 * @param leaderHealth    the leader's health
 	 * @param followerHealth  a follower's health
 	 * @param spawnSpacing    no squad spawns naturally this close to another of the Lost
+	 * @param spawnCooldownMin after a squad spawns naturally near a player, no other spawns near them for at least this many ticks
+	 * @param spawnCooldownMax and at most this many
 	 * @param leaderDropChance   chance for each piece of the leader's gear to drop, battered
 	 * @param followerDropChance the same for a follower
 	 */
 	public record Squad(int minFollowers, int maxFollowers, double leaderHealth, double followerHealth, double spawnSpacing,
-			float leaderDropChance, float followerDropChance) {
-		public static final Squad DEFAULT = new Squad(2, 4, 35.0, 25.0, 48.0, 0.1F, 0.04F);
+			int spawnCooldownMin, int spawnCooldownMax, float leaderDropChance, float followerDropChance) {
+		public static final Squad DEFAULT = new Squad(2, 4, 35.0, 25.0, 64.0, 2400, 4800, 0.1F, 0.04F);
 
 		public static final Codec<Squad> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 8).fieldOf("min_followers").orElse(DEFAULT.minFollowers).forGetter(Squad::minFollowers),
@@ -51,6 +53,8 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 				Codec.doubleRange(1.0, 1024.0).fieldOf("leader_health").orElse(DEFAULT.leaderHealth).forGetter(Squad::leaderHealth),
 				Codec.doubleRange(1.0, 1024.0).fieldOf("follower_health").orElse(DEFAULT.followerHealth).forGetter(Squad::followerHealth),
 				Codec.doubleRange(0.0, 256.0).fieldOf("spawn_spacing").orElse(DEFAULT.spawnSpacing).forGetter(Squad::spawnSpacing),
+				Codec.intRange(0, 72000).fieldOf("spawn_cooldown_min").orElse(DEFAULT.spawnCooldownMin).forGetter(Squad::spawnCooldownMin),
+				Codec.intRange(0, 72000).fieldOf("spawn_cooldown_max").orElse(DEFAULT.spawnCooldownMax).forGetter(Squad::spawnCooldownMax),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("leader_drop_chance").orElse(DEFAULT.leaderDropChance).forGetter(Squad::leaderDropChance),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("follower_drop_chance").orElse(DEFAULT.followerDropChance)
 						.forGetter(Squad::followerDropChance)

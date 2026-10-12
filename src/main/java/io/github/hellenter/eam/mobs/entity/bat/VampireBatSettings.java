@@ -20,7 +20,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  */
 public record VampireBatSettings(int bleedingTicks, int attackCooldown, double chaseSpeed, int checkInterval, float flockChance,
 		int minFlock, int maxFlock, double minDistance, double maxDistance, int maxNearby) {
-	public static final VampireBatSettings DEFAULT = new VampireBatSettings(60, 20, 0.7, 200, 0.12F, 4, 6, 40.0, 50.0, 10);
+	public static final VampireBatSettings DEFAULT = new VampireBatSettings(60, 20, 0.7, 200, 0.06F, 4, 6, 40.0, 50.0, 10);
 
 	public static final Codec<VampireBatSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(0, 2400).fieldOf("bleeding_ticks").orElse(DEFAULT.bleedingTicks).forGetter(VampireBatSettings::bleedingTicks),

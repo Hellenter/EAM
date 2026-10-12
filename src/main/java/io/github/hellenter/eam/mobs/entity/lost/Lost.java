@@ -90,9 +90,12 @@ public class Lost extends SkeletonKnight {
 		if (!Monster.checkMonsterSpawnRules(type, level, reason, pos, random)) {
 			return false;
 		}
-		// One squad at a time in any one stretch of the caves.
-		return reason != EntitySpawnReason.NATURAL
-				|| level.getEntitiesOfClass(Lost.class, new AABB(pos).inflate(LostModule.settings().squad().spawnSpacing())).isEmpty();
+		if (reason != EntitySpawnReason.NATURAL) {
+			return true;
+		}
+		// A rest after each squad near a player, and one squad at a time in any one stretch of the caves.
+		return LostSpawnCooldowns.ready(level.getLevel(), pos)
+				&& level.getEntitiesOfClass(Lost.class, new AABB(pos).inflate(LostModule.settings().squad().spawnSpacing())).isEmpty();
 	}
 
 	@Override
@@ -189,6 +192,9 @@ public class Lost extends SkeletonKnight {
 		// A centurion from his egg comes alone.
 		if (leader == null && !(role == LostRole.CENTURION && fromEgg(reason))) {
 			spawnFollowers(level, difficulty, settings, reason);
+			if (reason == EntitySpawnReason.NATURAL) {
+				LostSpawnCooldowns.start(level.getLevel(), blockPosition(), settings.squad(), getRandom());
+			}
 		}
 		return data;
 	}

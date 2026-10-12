@@ -50,7 +50,9 @@
     "max_followers": 4,
     "leader_health": 35.0,
     "follower_health": 25.0,
-    "spawn_spacing": 48.0,
+    "spawn_spacing": 64.0,
+    "spawn_cooldown_min": 2400,
+    "spawn_cooldown_max": 4800,
     "leader_drop_chance": 0.1,
     "follower_drop_chance": 0.04
   },

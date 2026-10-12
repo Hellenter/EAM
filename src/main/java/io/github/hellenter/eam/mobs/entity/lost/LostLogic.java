@@ -36,6 +36,12 @@ public final class LostLogic {
 		return low + Math.min(high - low, (int) (roll * (high - low + 1)));
 	}
 
+	/** Ticks until the next natural squad may spawn near a player, from a uniform roll in [0, 1): {@code min} to {@code max}. */
+	public static int spawnCooldown(int min, int max, double roll) {
+		int low = Math.min(min, max);
+		return low + (int) ((Math.max(min, max) - low) * roll);
+	}
+
 	/**
 	 * The followers' roles: the first carries a shield (sword or spear), the second a bow, the rest are mixed. So any
 	 * squad of three or more has someone to stand in the player's way and someone to shoot past him.
