@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:pillager",
+    "minecraft:vindicator",
+    "eam:pillager_guard",
+    "eam:elite_crossbowman",
+    "eam:pillager_king"
+  ]
+}

@@ -1,10 +1,11 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
-import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
+
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
+import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
@@ -75,9 +76,13 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// Spiders all the same for Bane of Arthropods.
 		builder(EntityTypeTags.ARTHROPOD).add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(),
 				EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
-		// Undead and other monsters go for the Pillager King; the Fallen Lord and his crypt guards keep to their crypt,
-		// and illagers serve him.
-		builder(PillagerKingModule.ATTACKERS)
+		// Monsters and pillagers fight each other on sight.
+		builder(PillagerFeudModule.PILLAGERS)
+				.add(EntityTypeIds.PILLAGER, EntityTypeIds.VINDICATOR)
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key(),
+						EamEntities.PILLAGER_KING.builtInRegistryHolder().key());
+		// Undead and other monsters; the Fallen Lord and his crypt guards keep to their crypt.
+		builder(PillagerFeudModule.ATTACKERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER, EntityTypeIds.CREEPER, EntityTypeIds.WITCH,
 						EntityTypeIds.SILVERFISH, EntityTypeIds.ENDERMITE, EntityTypeIds.BLAZE)

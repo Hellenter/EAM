@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingLogic.Attack;
+import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,7 +32,6 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -163,9 +163,8 @@ public class PillagerKing extends Monster implements AxeThrower {
 		targetSelector.addGoal(1, new HurtByTargetGoal(this));
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
-		// The monsters that go for him, he goes for too; a player in sight still comes first.
-		targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Mob.class, true,
-				(entity, level) -> entity.is(PillagerKingModule.ATTACKERS)));
+		// The monsters that go for pillagers, he goes for too; a player in sight still comes first.
+		targetSelector.addGoal(PillagerFeudModule.TARGET_PRIORITY, new PillagerFeudModule.FeudTargetGoal(this, PillagerFeudModule.ATTACKERS));
 	}
 
 	@Override

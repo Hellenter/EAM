@@ -34,6 +34,7 @@ import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
+import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
@@ -140,7 +141,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) WightModule.init();
 		if (config.mobs()) LostModule.init();
 		if (config.mobs()) SpiderModule.init();
-		if (config.mobs()) PillagerKingModule.init();
+		if (config.mobs()) PillagerFeudModule.init();
 		if (config.mobs()) EliteCrossbowmanModule.init();
 		if (config.mobs()) PillagerGuardModule.init();
 		if (config.mobs()) VampireBatModule.init();
