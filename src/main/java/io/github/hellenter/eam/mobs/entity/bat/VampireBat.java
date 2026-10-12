@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.bat;
 
+import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 
 import net.minecraft.core.BlockPos;
@@ -138,7 +139,8 @@ public class VampireBat extends Bat implements Enemy {
 
 	@Override
 	public boolean doHurtTarget(ServerLevel level, Entity target) {
-		boolean hurt = super.doHurtTarget(level, target);
+		// Garlic and black blood ward against its bite as against the upyr's.
+		boolean hurt = UpyrModule.wardedAttack(this, level, target, () -> super.doHurtTarget(level, target));
 		if (hurt) {
 			playSound(SoundEvents.BAT_HURT, 0.6F, 1.4F + random.nextFloat() * 0.2F);
 		}

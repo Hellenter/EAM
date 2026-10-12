@@ -50,7 +50,7 @@ public final class EamCreativeTabs {
 			EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN, EamItems.BURNT_RABBIT,
 			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.ASH,
 			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.DENSE_SHRUB, EamItems.BIG_SHRUB_STEM, EamItems.BIG_SHRUB_LEAVES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.FIREWEED,
-			EamItems.MARSH_MARIGOLD, EamItems.SHELF_MUSHROOM, EamItems.HOLLOW_LOGS,
+			EamItems.MARSH_MARIGOLD, EamItems.SHELF_MUSHROOM, EamItems.GARLIC, EamItems.WILD_GARLIC, EamItems.HOLLOW_LOGS,
 			EamItems.CHANTERELLE_CAP, EamItems.CHANTERELLE_STEM, EamItems.CHAMPIGNON_CAP, EamItems.GLOWING_CHAMPIGNON_CAP,
 			EamItems.VAMPIRE_HEART, EamItems.HEART_IN_JAR);
 
@@ -98,7 +98,7 @@ public final class EamCreativeTabs {
 			EamItems.PILLAGER_KING_SPAWN_EGG, EamItems.PILLAGER_GUARD_SPAWN_EGG, EamItems.ELITE_CROSSBOWMAN_SPAWN_EGG, EamItems.NET,
 			EamItems.SWAMP_LURKER_SPAWN_EGG,
 			EamItems.WIGHT_SPAWN_EGG, EamItems.WOOD_SPIDER_SPAWN_EGG, EamItems.BLACK_WIDOW_SPAWN_EGG,
-			EamItems.VAMPIRE_BAT_SPAWN_EGG);
+			EamItems.VAMPIRE_BAT_SPAWN_EGG, EamItems.UPYR_SPAWN_EGG);
 
 	public static final CreativeModeTab WORKSHOP = register("workshop", () -> new ItemStack(EamItems.COPPER_ANVIL),
 			EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL, EamItems.OBSIDIAN_BLAST_FURNACE,
@@ -115,6 +115,7 @@ public final class EamCreativeTabs {
 						output.accept(EamItems.SILVER_REDSTONE_DUST);
 						output.accept(EamItems.FLOWER_MIX);
 						output.accept(EamItems.FERMENTED_ENDER_EYE);
+						output.accept(EamItems.GARLIC_ORCHID_MIX);
 						output.acceptAll(potionStacks());
 					})
 					.build());

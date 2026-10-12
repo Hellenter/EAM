@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content.brewing;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 
@@ -84,9 +85,12 @@ public final class BrewingModule {
 	public static final Holder<Potion> LIGHT_STRENGTH = potion("light_strength",
 			new MobEffectInstance(MobEffects.STRENGTH, SilverBrewingLogic.lightDuration(3600)));
 
+	/** Holy water with garlic and blue orchid: for 10 minutes upyrs and vampire bats that hurt the drinker are hurt back. */
+	public static final Holder<Potion> BLACK_BLOOD = potion("black_blood", new MobEffectInstance(UpyrModule.BLACK_BLOOD, 12000));
+
 	/** Potions with an effect; gunpowder turns each into its splash version, and they get the silver stopper. */
 	public static final List<Holder<Potion>> LIGHT_POTIONS = List.of(LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS,
-			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH);
+			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, BLACK_BLOOD);
 
 	private static boolean replaceInStructures;
 

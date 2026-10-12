@@ -30,6 +30,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.resources.Identifier;
@@ -99,6 +100,9 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_GRASS, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.SWAMP_SHRUB, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.createCrossBlockWithDefaultItem(EamBlocks.WILD_GARLIC, BlockModelGenerators.PlantType.NOT_TINTED);
+		// Four looks over eight ages, like carrots.
+		generators.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
 		bigShrub(generators);
@@ -609,6 +613,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.PILLAGER_GUARD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.SWAMP_LURKER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WIGHT_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.UPYR_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WOOD_SPIDER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_BAT_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BLACK_WIDOW_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
@@ -633,7 +638,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.IRON_PLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAMP_FIRE, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.SILVER_BREWING_STAND, EamItems.LAPIS_GUNPOWDER_MIX, EamItems.SILVER_REDSTONE_DUST, EamItems.FLOWER_MIX,
-				EamItems.FERMENTED_ENDER_EYE)) {
+				EamItems.FERMENTED_ENDER_EYE, EamItems.GARLIC_ORCHID_MIX)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		for (Item item : List.of(EamItems.RAW_SILVER, EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET,

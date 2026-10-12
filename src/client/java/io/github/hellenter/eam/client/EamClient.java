@@ -36,6 +36,8 @@ import io.github.hellenter.eam.client.mobs.spider.SmallSpiderRenderer;
 import io.github.hellenter.eam.client.mobs.bat.VampireBatRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
+import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
+import io.github.hellenter.eam.client.mobs.upyr.UpyrRenderer;
 import io.github.hellenter.eam.client.mobs.wight.WightModel;
 import io.github.hellenter.eam.client.mobs.wight.WightRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
@@ -120,6 +122,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.WOOD_SPIDER, SmallSpiderRenderer::woodSpider);
 		EntityRendererRegistry.register(EamEntities.BLACK_WIDOW, SmallSpiderRenderer::blackWidow);
 		EntityRendererRegistry.register(EamEntities.VAMPIRE_BAT, VampireBatRenderer::new);
+		ModelLayerRegistry.registerModelLayer(UpyrModel.LAYER, UpyrModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.UPYR, UpyrRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		MenuScreens.<CraftingMenu, CraftingTableScreen>register(CraftingTypes.MENU, (menu, inventory, title) ->
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));

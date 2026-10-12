@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
+import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 import io.github.hellenter.eam.content.metal.MetalBarsBlock;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -221,6 +223,12 @@ public final class EamBlocks {
 	/** Marsh marigold is poisonous: in suspicious stew it gives nausea. */
 	public static final Block MARSH_MARIGOLD = register("marsh_marigold", p -> new FlowerBlock(MobEffects.NAUSEA, 7.0F, p),
 			plant().offsetType(BlockBehaviour.OffsetType.XZ));
+	/** Garlic growing on farmland, planted from a garlic bulb. */
+	public static final Block GARLIC_CROP = register("garlic_crop", GarlicCropBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.PLANT).noCollision().randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.POPPED));
+	/** Wild garlic (ramsons) in plains and forests: the only source of garlic bulbs before the first harvest. */
+	public static final Block WILD_GARLIC = register("wild_garlic", p -> new BushBlock(p, 10), plant().replaceable()
+			.offsetType(BlockBehaviour.OffsetType.XZ));
 
 	private EamBlocks() {
 	}

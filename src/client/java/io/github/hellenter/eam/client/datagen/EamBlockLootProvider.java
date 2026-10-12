@@ -17,10 +17,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
@@ -75,6 +77,15 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
 		dropSelf(EamBlocks.SHELF_MUSHROOM);
+		// Garlic drops like carrots: one bulb back, and two to five from a ripe plant. Wild garlic gives one or two bulbs.
+		add(EamBlocks.GARLIC_CROP, block -> applyExplosionDecay(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().add(LootItem.lootTableItem(EamItems.GARLIC)))
+				.withPool(LootPool.lootPool()
+						.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, CropBlock.MAX_AGE)))
+						.add(LootItem.lootTableItem(EamItems.GARLIC)
+								.apply(ApplyBonusCount.addBonusBinomialDistributionCount(enchantments.getOrThrow(Enchantments.FORTUNE), 0.5714286F, 3))))));
+		add(EamBlocks.WILD_GARLIC, block -> createShearsDispatchTable(block, applyExplosionDecay(block,
+				LootItem.lootTableItem(EamItems.GARLIC).apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))));
 		// Underworld mushroom blocks, like vanilla stems, give themselves only to silk touch.
 		dropWhenSilkTouch(EamBlocks.CHANTERELLE_CAP);
 		dropWhenSilkTouch(EamBlocks.CHANTERELLE_STEM);

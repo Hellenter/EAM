@@ -22,6 +22,7 @@ import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
+import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
@@ -75,6 +76,9 @@ import java.util.function.Function;
 
 /** Items added by EAM. Registered whatever the config says, so client and server registries match. */
 public final class EamItems {
+	/** How long eaten garlic wards off bloodsuckers: 30 seconds. */
+	private static final int GARLIC_WARD_TICKS = 600;
+
 	public static final Item LEATHER_THREAD = register("leather_thread", Item::new, new Item.Properties());
 
 	public static final Item LEATHER_FLASK = register("leather_flask", FlaskItem::new, new Item.Properties()
@@ -160,6 +164,9 @@ public final class EamItems {
 
 	/** Turns holy water into a light regeneration potion. */
 	public static final Item FLOWER_MIX = register("flower_mix", Item::new, new Item.Properties());
+
+	/** Turns holy water into black blood. */
+	public static final Item GARLIC_ORCHID_MIX = register("garlic_orchid_mix", Item::new, new Item.Properties());
 
 	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
@@ -270,6 +277,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_GUARD));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SWAMP_LURKER));
+	public static final Item UPYR_SPAWN_EGG = register("upyr_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.UPYR));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WIGHT));
 	public static final Item WOOD_SPIDER_SPAWN_EGG = register("wood_spider_spawn_egg", SpawnEggItem::new,
@@ -375,6 +384,18 @@ public final class EamItems {
 					Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
 							new MobEffectInstance(MobEffects.POISON, 200), new MobEffectInstance(MobEffects.NAUSEA, 200)))).build())
 			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1)));
+	/**
+	 * A garlic bulb: planted on farmland like a carrot, or eaten raw. Eaten, it wards off bloodsuckers for a while: upyrs
+	 * and vampire bats hit for less and upyrs will not drink.
+	 */
+	public static final Item GARLIC = register("garlic", p -> new BlockItem(EamBlocks.GARLIC_CROP, p), new Item.Properties()
+			.useItemDescriptionPrefix()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).alwaysEdible().build(),
+					Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(
+							new MobEffectInstance(UpyrModule.GARLIC, GARLIC_WARD_TICKS))).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1))
+			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
+	public static final Item WILD_GARLIC = plantItem("wild_garlic", EamBlocks.WILD_GARLIC, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final Item SHELF_MUSHROOM = plantItem("shelf_mushroom", EamBlocks.SHELF_MUSHROOM, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
 			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();

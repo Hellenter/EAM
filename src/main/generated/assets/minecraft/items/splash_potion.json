@@ -46,6 +46,9 @@
           },
           {
             "potion": "eam:light_strength"
+          },
+          {
+            "potion": "eam:black_blood"
           }
         ]
       }

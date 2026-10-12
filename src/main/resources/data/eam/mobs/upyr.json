@@ -1,0 +1,12 @@
+{
+  "weakness_ticks": 200,
+  "weakness_level": 0,
+  "heal_factor": 1.0,
+  "garlic_damage_factor": 0.5,
+  "black_blood_damage": 2.0,
+  "check_interval": 200,
+  "spawn_chance": 0.2,
+  "max_nearby": 2,
+  "min_distance": 20.0,
+  "max_distance": 36.0
+}

@@ -65,6 +65,10 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		// Squads of the Lost roam the underworld's upper level, not its depths.
 		builder(LostModule.SPAWNS_IN).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
 				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
+		// Wild garlic grows in the plains, meadows and every forest.
+		builder(EamWorldgen.HAS_WILD_GARLIC)
+				.forceAddTag(BiomeTags.IS_FOREST)
+				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW);
 		builder(WightModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)

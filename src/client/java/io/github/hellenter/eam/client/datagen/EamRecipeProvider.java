@@ -434,6 +434,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(Items.CORNFLOWER)
 						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
 						.save(output);
+				shapeless(RecipeCategory.BREWING, EamItems.GARLIC_ORCHID_MIX)
+						.requires(EamItems.GARLIC)
+						.requires(Items.BLUE_ORCHID)
+						.unlockedBy(getHasName(EamItems.GARLIC), has(EamItems.GARLIC))
+						.save(output);
 				shapeless(RecipeCategory.BREWING, EamItems.FERMENTED_ENDER_EYE)
 						.requires(Items.ENDER_EYE)
 						.requires(EamItems.SILVER_NUGGET, 2)
@@ -448,6 +453,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silverBrewing(BrewingModule.HOLY_WATER, Items.GLISTERING_MELON_SLICE, BrewingModule.LIGHT_HEALING_POTION);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.FERMENTED_SPIDER_EYE, BrewingModule.LIGHT_WEAKNESS);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FERMENTED_ENDER_EYE, BrewingModule.LIGHT_STRENGTH);
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.GARLIC_ORCHID_MIX, BrewingModule.BLACK_BLOOD);
 				// Gunpowder makes a splash potion of the same light potion, as in the vanilla stand.
 				for (Holder<Potion> potion : BrewingModule.LIGHT_POTIONS) {
 					silverBrewing(Items.POTION, potion, Items.GUNPOWDER, Items.SPLASH_POTION, potion,

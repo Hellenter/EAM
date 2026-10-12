@@ -150,10 +150,13 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(SwampPondFeature.DIGGABLE).add(BlockItemIds.PODZOL).forceAddTag(BlockTags.SUBSTRATE_OVERWORLD);
 		builder(BlockTags.SMALL_FLOWERS).add(EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
 		builder(BlockTags.FLOWERS).add(EamBlocks.FIREWEED.builtInRegistryHolder().key());
+		// Garlic is a crop like carrots: bees tend it and it keeps its farmland moist.
+		builder(BlockTags.CROPS).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
+		builder(BlockTags.MAINTAINS_FARMLAND).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
 		builder(BlockTags.REPLACEABLE_BY_TREES).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
-				EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key());
+				EamBlocks.MARSH_MARIGOLD.builtInRegistryHolder().key(), EamBlocks.WILD_GARLIC.builtInRegistryHolder().key());
 		// The dense shrub is a leafy bush: a hoe or shears take it fast, and bare hands can too.
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key(), EamBlocks.BIG_SHRUB_STEM.builtInRegistryHolder().key(),

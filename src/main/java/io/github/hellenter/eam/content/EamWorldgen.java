@@ -25,6 +25,7 @@ public final class EamWorldgen {
 	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
 	public static final ResourceKey<Feature> ORE_SILVER = feature("ore_silver");
 	public static final ResourceKey<Feature> ORE_MITHRIL = feature("ore_mithril");
+	public static final ResourceKey<Feature> WILD_GARLIC = feature("wild_garlic");
 
 	/** Pebbles on the forest floor. */
 	public static final ResourceKey<PlacedFeature> PEBBLE_FOREST = placed("pebble_forest");
@@ -38,6 +39,8 @@ public final class EamWorldgen {
 	/** Sticks on the ground next to trees, in any biome that has them. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_NEAR_TREES = placed("ground_stick_near_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
+	/** Small patches of wild garlic in plains and forests. */
+	public static final ResourceKey<PlacedFeature> WILD_GARLIC_PATCH = placed("wild_garlic_patch");
 	/** Silver veins in every overworld biome, 2.5 times fewer than copper. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_PLACED = placed("ore_silver");
 	/** As many silver veins again in the mountains, so they have twice the silver. */
@@ -56,6 +59,7 @@ public final class EamWorldgen {
 	public static final TagKey<Biome> HAS_MITHRIL_ORE = TagKey.create(Registries.BIOME, Eam.id("has_mithril_ore"));
 	public static final TagKey<Biome> HAS_RICH_MITHRIL_ORE = TagKey.create(Registries.BIOME, Eam.id("has_rich_mithril_ore"));
 	public static final TagKey<Biome> HAS_GROUND_STICKS = TagKey.create(Registries.BIOME, Eam.id("has_ground_sticks"));
+	public static final TagKey<Biome> HAS_WILD_GARLIC = TagKey.create(Registries.BIOME, Eam.id("has_wild_garlic"));
 
 	private EamWorldgen() {
 	}
@@ -69,6 +73,7 @@ public final class EamWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, PEBBLE_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SHORE_PEBBLES), step, FLINT_SHARD_SHORE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_GROUND_STICKS), step, GROUND_STICK_NEAR_TREES);
+		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_WILD_GARLIC), step, WILD_GARLIC_PATCH);
 		GenerationStep.Decoration ores = GenerationStep.Decoration.UNDERGROUND_ORES;
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_SILVER_ORE), ores, ORE_SILVER_PLACED);
 		BiomeModifications.addFeature(BiomeSelectors.tag(HAS_MOUNTAIN_SILVER_ORE), ores, ORE_SILVER_MOUNTAIN);

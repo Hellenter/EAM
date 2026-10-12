@@ -33,6 +33,7 @@ import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.level.levelgen.placement.OffsetPlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
@@ -78,6 +79,8 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int MITHRIL_RICH_VEIN_RARITY = 20;
 	private static final int MITHRIL_TOP = -32;
 	private static final float MITHRIL_DISCARD_ON_AIR = 0.5F;
+	private static final int WILD_GARLIC_RARITY = 12;
+	private static final int WILD_GARLIC_TRIES = 16;
 
 	public EamWorldgenProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -101,6 +104,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(stone, EamBlocks.SILVER_ORE.defaultBlockState()),
 				BlockReplacement.replace(deepslate, EamBlocks.DEEPSLATE_SILVER_ORE.defaultBlockState())
 		), COPPER_VEIN_SIZE));
+		context.register(EamWorldgen.WILD_GARLIC, new SimpleBlockFeature(BlockStateProvider.of(EamBlocks.WILD_GARLIC)));
 		mithrilFeature(context);
 		SwampyForestWorldgen.bootstrapFeatures(context);
 		UnderworldWorldgen.bootstrapFeatures(context);
@@ -150,6 +154,16 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				InSquarePlacement.spread(),
 				HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)),
 				BiomeFilter.biome()));
+		// A patch of up to a dozen plants once in 12 chunks on average, wherever the plant can root.
+		PlacementUtils.register(context, EamWorldgen.WILD_GARLIC_PATCH, features.getOrThrow(EamWorldgen.WILD_GARLIC), List.of(
+				RarityFilter.onAverageOnceEvery(WILD_GARLIC_RARITY),
+				InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_NO_LEAVES,
+				BiomeFilter.biome(),
+				CountPlacement.of(WILD_GARLIC_TRIES),
+				OffsetPlacement.ofTriangle(4, 2),
+				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+						BlockPredicate.wouldSurvive(EamBlocks.WILD_GARLIC)))));
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_PLACED, silver, silverOre());
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_MOUNTAIN, silver, silverOre());
 		var mithril = features.getOrThrow(EamWorldgen.ORE_MITHRIL);
@@ -251,6 +265,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(features, EamWorldgen.ORE_COPPER);
 		entries.add(features, EamWorldgen.ORE_SILVER);
 		entries.add(features, EamWorldgen.ORE_MITHRIL);
+		entries.add(features, EamWorldgen.WILD_GARLIC);
 		var placedFeatures = registries.lookupOrThrow(Registries.PLACED_FEATURE);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_FOREST);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_FOREST);
@@ -259,6 +274,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_SHORE);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_SHORE);
 		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_NEAR_TREES);
+		entries.add(placedFeatures, EamWorldgen.WILD_GARLIC_PATCH);
 		entries.add(placedFeatures, EamWorldgen.ORE_COPPER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_MOUNTAIN);

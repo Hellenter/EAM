@@ -21,6 +21,7 @@ import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
 import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
 import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
+import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 
 import net.minecraft.core.Registry;
@@ -114,6 +115,14 @@ public final class EamEntities {
 					.sized(0.6F, 1.8F)
 					.eyeHeight(1.55F)
 					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** A bloodsucking corpse in a burial shirt that crawls out at night by abandoned villages. */
+	public static final EntityType<Upyr> UPYR = register("upyr",
+			EntityType.Builder.of(Upyr::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.clientTrackingRange(8)
 					.notInPeaceful());
 
 	/** MITE's wood spider: a small bark-brown spider from the tree crowns, 0.6 the size of a spider. */
