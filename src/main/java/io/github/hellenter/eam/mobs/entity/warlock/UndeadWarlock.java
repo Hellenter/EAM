@@ -3,7 +3,9 @@ package io.github.hellenter.eam.mobs.entity.warlock;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
+import io.github.hellenter.eam.mobs.entity.lost.CommanderTargetGoal;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
+import io.github.hellenter.eam.mobs.entity.lost.LostCommander;
 
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -98,9 +100,16 @@ public class UndeadWarlock extends Monster {
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+		targetSelector.addGoal(1, new CommanderTargetGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this));
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+	}
+
+	/** He never turns on a player who carries the commander's horn. */
+	@Override
+	public boolean canAttack(LivingEntity target) {
+		return super.canAttack(target) && !LostCommander.commands(target);
 	}
 
 	@Override
@@ -251,6 +260,7 @@ public class UndeadWarlock extends Monster {
 		Vec3 centre = position().add(0.0, 1.0, 0.0);
 		List<LivingEntity> caught = level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(wind.reach()),
 				entity -> entity != this && entity.isAlive() && !isUndeadAlly(entity) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(entity)
+						&& !LostCommander.commands(entity)
 						&& entity.distanceToSqr(this) <= wind.reach() * wind.reach());
 		for (LivingEntity entity : caught) {
 			double dx = entity.getX() - getX();

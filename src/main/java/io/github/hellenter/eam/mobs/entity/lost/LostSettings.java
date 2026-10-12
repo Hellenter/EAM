@@ -17,9 +17,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param squad         how big squads are and how often they spawn
  * @param archer        how archers keep their distance and shoot
  * @param centurion     the centurion who comes with some squads
+ * @param commanderHorn the commander's horn and the Lost who serve whoever carries it
  */
 public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings follower, double spearReach, double guardDistance,
-		Squad squad, Archer archer, LostCenturionSettings centurion) {
+		Squad squad, Archer archer, LostCenturionSettings centurion, CommanderHorn commanderHorn) {
 	public static final SkeletonKnightSettings LEADER_DEFAULT = new SkeletonKnightSettings(10, 2.7, 12.0, 1.0F,
 			0.45, 80, 0.6F, 0.2, 0.6,
 			160, 1.7F, 0.5, 0.5F, 4.0F,
@@ -29,7 +30,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			400, 1.5F, 0.5, 0.5F, 3.0F,
 			0.5, new SkeletonKnightSettings.Dash(300, 3, 0.8));
 	public static final LostSettings DEFAULT = new LostSettings(LEADER_DEFAULT, FOLLOWER_DEFAULT, 3.4, 2.6, Squad.DEFAULT, Archer.DEFAULT,
-			LostCenturionSettings.DEFAULT);
+			LostCenturionSettings.DEFAULT, CommanderHorn.DEFAULT);
 
 	/**
 	 * @param minFollowers    fewest followers a leader brings (a squad is one more)
@@ -75,6 +76,27 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 		).apply(instance, Archer::new));
 	}
 
+	/**
+	 * @param cooldown    ticks between blasts of the horn
+	 * @param minDistance a called wave comes this far from the player at least
+	 * @param maxDistance and this far at most
+	 * @param guardRange  the Lost serve a player with the horn this close
+	 * @param enemyRange  they go for hostile mobs this close to themselves
+	 * @param memoryTicks they go for whoever the player hit, or was hit by, this many ticks ago at most
+	 */
+	public record CommanderHorn(int cooldown, double minDistance, double maxDistance, double guardRange, double enemyRange, int memoryTicks) {
+		public static final CommanderHorn DEFAULT = new CommanderHorn(40, 5.0, 10.0, 32.0, 16.0, 200);
+
+		public static final Codec<CommanderHorn> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(CommanderHorn::cooldown),
+				Codec.doubleRange(0.0, 64.0).fieldOf("min_distance").orElse(DEFAULT.minDistance).forGetter(CommanderHorn::minDistance),
+				Codec.doubleRange(1.0, 64.0).fieldOf("max_distance").orElse(DEFAULT.maxDistance).forGetter(CommanderHorn::maxDistance),
+				Codec.doubleRange(1.0, 128.0).fieldOf("guard_range").orElse(DEFAULT.guardRange).forGetter(CommanderHorn::guardRange),
+				Codec.doubleRange(1.0, 64.0).fieldOf("enemy_range").orElse(DEFAULT.enemyRange).forGetter(CommanderHorn::enemyRange),
+				Codec.intRange(1, 24000).fieldOf("memory_ticks").orElse(DEFAULT.memoryTicks).forGetter(CommanderHorn::memoryTicks)
+		).apply(instance, CommanderHorn::new));
+	}
+
 	public static final Codec<LostSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			SkeletonKnightSettings.CODEC.fieldOf("leader").orElse(DEFAULT.leader).forGetter(LostSettings::leader),
 			SkeletonKnightSettings.CODEC.fieldOf("follower").orElse(DEFAULT.follower).forGetter(LostSettings::follower),
@@ -82,6 +104,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			Codec.doubleRange(1.0, 8.0).fieldOf("guard_distance").orElse(DEFAULT.guardDistance).forGetter(LostSettings::guardDistance),
 			Squad.CODEC.fieldOf("squad").orElse(DEFAULT.squad).forGetter(LostSettings::squad),
 			Archer.CODEC.fieldOf("archer").orElse(DEFAULT.archer).forGetter(LostSettings::archer),
-			LostCenturionSettings.CODEC.fieldOf("centurion").orElse(DEFAULT.centurion).forGetter(LostSettings::centurion)
+			LostCenturionSettings.CODEC.fieldOf("centurion").orElse(DEFAULT.centurion).forGetter(LostSettings::centurion),
+			CommanderHorn.CODEC.fieldOf("commander_horn").orElse(DEFAULT.commanderHorn).forGetter(LostSettings::commanderHorn)
 	).apply(instance, LostSettings::new));
 }

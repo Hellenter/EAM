@@ -12,6 +12,7 @@ import io.github.hellenter.eam.content.campfire.CampFireLogic;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.heart.HeartInJarItem;
+import io.github.hellenter.eam.content.horn.CommanderHornItem;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
@@ -22,6 +23,7 @@ import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
+import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.hunger.Nutrients;
@@ -196,6 +198,9 @@ public final class EamItems {
 			.fireResistant()
 			.component(DataComponents.TOOL, new Tool(List.of(Tool.Rule.minesAndDrops(
 					HolderSet.direct(Block::builtInRegistryHolder, EamBlocks.DEEP_BEDROCK), 20.0F)), 1.0F, 1, false)));
+	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
+	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
+			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
 	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
 	public static final Item CHANTERELLE_CAP = blockItem("chanterelle_cap", EamBlocks.CHANTERELLE_CAP);
 	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);

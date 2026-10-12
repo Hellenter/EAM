@@ -1,17 +1,13 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
-import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.knight.KnightAction;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -28,14 +24,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -51,7 +44,6 @@ public class LostCenturion extends Lost {
 	private static final double NEARBY_RANGE = 48.0;
 	/** He answers being hit at most this often. */
 	private static final int RALLY_INTERVAL = 10;
-	private static final int SPOT_ATTEMPTS = 48;
 	/** Not yet counting down to the first call. */
 	private static final int UNSET = -1;
 
@@ -182,82 +174,11 @@ public class LostCenturion extends Lost {
 			return;
 		}
 		LostCenturionLogic.Call call = LostCenturionLogic.call(hornCalls, getRandom().nextDouble(), horn);
-		boolean cavalry = call == LostCenturionLogic.Call.CAVALRY;
-		Mob mob = cavalry ? EamEntities.LOST_CAVALRYMAN.create(level, EntitySpawnReason.MOB_SUMMONED)
-				: EamEntities.LOST.create(level, EntitySpawnReason.MOB_SUMMONED);
-		if (mob == null) {
-			return;
-		}
-		// A rider on his horse needs the horse's room and his own height above it.
-		AABB size = cavalry ? EamEntities.LOST_WARHORSE.getDimensions().makeBoundingBox(Vec3.ZERO).expandTowards(0.0, 1.4, 0.0)
-				: mob.getType().getDimensions().makeBoundingBox(Vec3.ZERO);
-		Vec3 spot = reinforcementSpot(level, player, size, horn);
-		float yaw = (float) (Mth.atan2(player.getZ() - spot.z, player.getX() - spot.x) * Mth.RAD_TO_DEG) - 90.0F;
-		mob.snapTo(spot.x, spot.y, spot.z, yaw, 0.0F);
-		if (mob instanceof Lost lost) {
-			// A called squad brings no centurion of its own.
-			lost.bringsCenturion = false;
-		}
-		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(spot)), EntitySpawnReason.MOB_SUMMONED, null);
-		level.addFreshEntityWithPassengers(mob);
+		LostWave wave = call == LostCenturionLogic.Call.CAVALRY ? LostWave.CAVALRY : LostWave.SQUAD;
 		// Everyone who came goes for the player: the squad, or both riders.
-		AABB arrived = new AABB(spot, spot).inflate(10.0);
-		for (Mob newcomer : level.getEntitiesOfClass(Mob.class, arrived,
-				m -> (m instanceof Lost || m instanceof LostCavalryman) && m.isAlive() && m.getTarget() == null)) {
+		for (Mob newcomer : LostReinforcements.bring(level, player, wave, horn.minDistance(), horn.maxDistance(), true, position(), false)) {
 			newcomer.setTarget(player);
 		}
-	}
-
-	/**
-	 * Where the reinforcements come: on solid ground {@code minDistance} to {@code maxDistance} from the player, with
-	 * room for them, best where the player cannot see. Failing that anywhere in that ring, and failing that next to
-	 * him.
-	 */
-	private Vec3 reinforcementSpot(ServerLevel level, Player player, AABB size, LostCenturionSettings.Horn horn) {
-		RandomSource random = getRandom();
-		Vec3 seen = null;
-		Vec3 eyes = player.getEyePosition();
-		double min = Math.min(horn.minDistance(), horn.maxDistance());
-		double max = Math.max(horn.minDistance(), horn.maxDistance());
-		for (int attempt = 0; attempt < SPOT_ATTEMPTS; attempt++) {
-			double angle = random.nextDouble() * Math.PI * 2.0;
-			double distance = min + random.nextDouble() * (max - min);
-			Vec3 found = standingSpot(level, BlockPos.containing(player.getX() + Math.cos(angle) * distance, player.getY(),
-					player.getZ() + Math.sin(angle) * distance), size, 8);
-			if (found == null) {
-				continue;
-			}
-			Vec3 head = found.add(0.0, size.getYsize() * 0.8, 0.0);
-			boolean hidden = level.clip(new ClipContext(eyes, head, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player)).getType()
-					!= HitResult.Type.MISS;
-			if (hidden) {
-				return found;
-			}
-			if (seen == null) {
-				seen = found;
-			}
-		}
-		if (seen != null) {
-			return seen;
-		}
-		Vec3 near = standingSpot(level, blockPosition(), size, 3);
-		return near != null ? near : position();
-	}
-
-	/** A spot on solid ground in the column of {@code column}, within {@code height} up or down, with room for {@code size}. */
-	private static @Nullable Vec3 standingSpot(ServerLevel level, BlockPos column, AABB size, int height) {
-		for (int dy = height; dy >= -height; dy--) {
-			BlockPos pos = column.above(dy);
-			BlockPos below = pos.below();
-			if (level.getBlockState(below).isFaceSturdy(level, below, Direction.UP) && level.getFluidState(pos).isEmpty()
-					&& level.getFluidState(pos.above()).isEmpty()) {
-				Vec3 feet = Vec3.atBottomCenterOf(pos);
-				if (level.noCollision(size.move(feet))) {
-					return feet;
-				}
-			}
-		}
-		return null;
 	}
 
 	// ---- His guard ----

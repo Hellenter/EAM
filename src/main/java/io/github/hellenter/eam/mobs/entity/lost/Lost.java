@@ -134,10 +134,17 @@ public class Lost extends SkeletonKnight {
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+		targetSelector.addGoal(1, new CommanderTargetGoal(this));
 		// A squad mate's stray arrow or swing does not turn him on his own side.
 		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+	}
+
+	/** He never turns on a player who carries the commander's horn. */
+	@Override
+	public boolean canAttack(LivingEntity target) {
+		return super.canAttack(target) && !LostCommander.commands(target);
 	}
 
 	public LostRole role() {
@@ -179,8 +186,9 @@ public class Lost extends SkeletonKnight {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, drop);
 		}
-		if (leader == null) {
-			spawnFollowers(level, difficulty, settings);
+		// A centurion from his egg comes alone.
+		if (leader == null && !(role == LostRole.CENTURION && fromEgg(reason))) {
+			spawnFollowers(level, difficulty, settings, reason);
 		}
 		return data;
 	}
@@ -190,13 +198,20 @@ public class Lost extends SkeletonKnight {
 		LostGear.equip(this, role, random);
 	}
 
-	private void spawnFollowers(ServerLevelAccessor level, DifficultyInstance difficulty, LostSettings settings) {
+	/** Spawned from a spawn egg, used by hand or by a dispenser. */
+	private static boolean fromEgg(EntitySpawnReason reason) {
+		return reason == EntitySpawnReason.SPAWN_ITEM_USE || reason == EntitySpawnReason.DISPENSER;
+	}
+
+	private void spawnFollowers(ServerLevelAccessor level, DifficultyInstance difficulty, LostSettings settings, EntitySpawnReason reason) {
 		RandomSource random = getRandom();
 		int count = LostLogic.followerCount(settings.squad().minFollowers(), settings.squad().maxFollowers(), random.nextDouble());
 		for (LostRole followerRole : LostLogic.followerRoles(count, random::nextDouble)) {
 			spawnMember(level, difficulty, EamEntities.LOST.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), followerRole);
 		}
-		if (role == LostRole.LEADER && bringsCenturion && random.nextDouble() < settings.centurion().chance()) {
+		// A squad from the Lost egg never brings a centurion; his own egg is for that.
+		if (role == LostRole.LEADER && bringsCenturion && !fromEgg(reason)
+				&& random.nextDouble() < settings.centurion().chance()) {
 			spawnMember(level, difficulty, EamEntities.LOST_CENTURION.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), LostRole.CENTURION);
 		}
 		UndeadWarlockModule.maybeJoinSquad(level, difficulty, this);
@@ -266,7 +281,7 @@ public class Lost extends SkeletonKnight {
 		}
 		for (Lost mate : squad) {
 			LivingEntity target = mate.getTarget();
-			if (target != null && target.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)
+			if (target != null && target.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target) && canAttack(target)
 					&& distanceToSqr(target) < SQUAD_RANGE * SQUAD_RANGE) {
 				setTarget(target);
 				return;

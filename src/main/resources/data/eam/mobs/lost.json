@@ -105,5 +105,13 @@
       "ticks": 200,
       "speed": 1.25
     }
+  },
+  "commander_horn": {
+    "cooldown": 40,
+    "min_distance": 5.0,
+    "max_distance": 10.0,
+    "guard_range": 32.0,
+    "enemy_range": 16.0,
+    "memory_ticks": 200
   }
 }

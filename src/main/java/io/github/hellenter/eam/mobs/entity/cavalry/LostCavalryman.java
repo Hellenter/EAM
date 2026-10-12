@@ -8,6 +8,8 @@ import io.github.hellenter.eam.mobs.entity.knight.KnightAction;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightLogic;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
+import io.github.hellenter.eam.mobs.entity.lost.CommanderTargetGoal;
+import io.github.hellenter.eam.mobs.entity.lost.LostCommander;
 import io.github.hellenter.eam.mobs.entity.lost.LostGear;
 
 import net.minecraft.core.BlockPos;
@@ -126,9 +128,16 @@ public class LostCavalryman extends SkeletonKnight {
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+		targetSelector.addGoal(1, new CommanderTargetGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+	}
+
+	/** He never turns on a player who carries the commander's horn. */
+	@Override
+	public boolean canAttack(LivingEntity target) {
+		return super.canAttack(target) && !LostCommander.commands(target);
 	}
 
 	public boolean isOnFoot() {
@@ -587,7 +596,7 @@ public class LostCavalryman extends SkeletonKnight {
 
 	private boolean sweepHits(LivingEntity victim) {
 		return victim == getTarget() || victim instanceof IronGolem
-				|| victim instanceof Player player && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player);
+				|| victim instanceof Player player && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && !LostCommander.commands(player);
 	}
 
 	/** Whether {@code target} has a shield it can raise: in hand, and not knocked out. */
