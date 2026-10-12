@@ -18,7 +18,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 /**
  * The pillager outpost built from Maxim's template {@code eam:pillager_outpost}. It replaces the vanilla outpost in
  * plains and forests, clears the trees around it, and keeps a garrison of pillagers, pillager guards and elite
- * crossbowmen standing where Maxim put wool markers. The red chest holds the map to the Pillager King's castle.
+ * crossbowmen (and their horses) standing where Maxim put wool markers. The red chest holds the map to the Pillager King's castle.
  */
 public final class OutpostModule {
 	public static final Identifier TEMPLATE = Eam.id("pillager_outpost");

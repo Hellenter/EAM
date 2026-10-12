@@ -60,6 +60,9 @@ public class OutpostPiece extends TemplateStructurePiece {
 				.setRotation(rotation)
 				.setRotationPivot(pivot)
 				.setLiquidSettings(LiquidSettings.IGNORE_WATERLOGGING)
+				// The template's blocks are already shaped. Reshaping them chunk by chunk breaks a bed whose other half
+				// lies in a chunk not placed yet.
+				.setKnownShape(true)
 				.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
 				.addProcessor(OutpostMarkers.INSTANCE);
 	}

@@ -25,8 +25,8 @@ import java.util.Map;
 /**
  * Turns the marker blocks of Maxim's outpost template into what they stand for:
  * <ul>
- * <li>red wool: a pillager guard, orange wool: an elite crossbowman, yellow wool: a pillager, standing where the wool
- * was (the wool turns to air here; {@link OutpostPiece} puts the mob in);</li>
+ * <li>red wool: a pillager guard, orange wool: an elite crossbowman, yellow wool: a pillager, blue wool: a horse,
+ * standing where the wool was (the wool turns to air here; {@link OutpostPiece} puts the mob in);</li>
  * <li>wool stairs: a chest opening toward the low side of the step, lime with a few arrows, yellow with basic things,
  * orange with better ones, red with the castle map;</li>
  * <li>barrels: some food.</li>
@@ -41,7 +41,8 @@ public final class OutpostMarkers implements StructureProcessor {
 	public static final Map<Block, EntityType<?>> MOBS = Map.of(
 			Blocks.WOOL.red(), EamEntities.PILLAGER_GUARD,
 			Blocks.WOOL.orange(), EamEntities.ELITE_CROSSBOWMAN,
-			Blocks.WOOL.yellow(), EntityTypes.PILLAGER);
+			Blocks.WOOL.yellow(), EntityTypes.PILLAGER,
+			Blocks.WOOL.blue(), EntityTypes.HORSE);
 
 	private static final Map<Block, ResourceKey<LootTable>> CHESTS = Map.of(
 			Blocks.WOOL_STAIRS.lime(), OutpostModule.ARROWS_LOOT,

@@ -25,8 +25,9 @@ import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import java.util.Optional;
 
 /**
- * Maxim's pillager outpost: one template set into the ground in the middle of its chunk, on dry land that is not too
- * steep. It generates after the trees, and clears every tree, its leaves and the forest's huge mushrooms within
+ * Maxim's pillager outpost: one template on the flattest dry land near the middle of its chunk that is not too steep,
+ * standing on the highest ground of its footprint with its gate toward the lowest land around, and earth banked under
+ * and around it. It generates after the trees, and clears every tree, its leaves and the forest's huge mushrooms within
  * {@code clearRadius} blocks of its footprint.
  */
 public class OutpostStructure extends Structure {
@@ -41,6 +42,10 @@ public class OutpostStructure extends Structure {
 	 * its edges, so trees grown in a neighbouring chunk after it are cleared by that chunk, leaves and all.
 	 */
 	private static final int LEAF_REACH = 8;
+	/** How far out the bank of earth around a raised outpost reaches; as far as the steepest site rises. */
+	private static final int BANK = 10;
+	/** How deep earth is filled under a raised outpost or its bank at most. */
+	private static final int FOUNDATION_DEPTH = 16;
 
 	private final int clearRadius;
 	private final int maxSlope;
@@ -53,26 +58,28 @@ public class OutpostStructure extends Structure {
 
 	@Override
 	protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
-		var size = context.structureTemplateManager().getOrCreate(OutpostModule.TEMPLATE).getSize();
 		ChunkPos chunk = context.chunkPos();
-		int minX = chunk.getMiddleBlockX() - size.getX() / 2;
-		int minZ = chunk.getMiddleBlockZ() - size.getZ() / 2;
-		int lowest = Integer.MAX_VALUE;
-		int highest = Integer.MIN_VALUE;
-		for (int[] spot : new int[][] {{0, 0}, {size.getX() - 1, 0}, {0, size.getZ() - 1}, {size.getX() - 1, size.getZ() - 1}, {size.getX() / 2, size.getZ() / 2}}) {
-			int x = minX + spot[0];
-			int z = minZ + spot[1];
-			int ground = surface(context, x, z, Heightmap.Types.WORLD_SURFACE_WG);
-			// Dry land only: in a river or a lake the cellar would flood.
-			if (surface(context, x, z, Heightmap.Types.OCEAN_FLOOR_WG) < ground) return Optional.empty();
-			lowest = Math.min(lowest, ground);
-			highest = Math.max(highest, ground);
+		int width = 2 * OutpostLogic.REACH + 1;
+		int[][] ground = new int[width][width];
+		boolean[][] wet = new boolean[width][width];
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < width; j++) {
+				int x = chunk.getMiddleBlockX() + (i - OutpostLogic.REACH) * OutpostLogic.STEP;
+				int z = chunk.getMiddleBlockZ() + (j - OutpostLogic.REACH) * OutpostLogic.STEP;
+				ground[i][j] = surface(context, x, z, Heightmap.Types.WORLD_SURFACE_WG);
+				// Dry land only: in a river or a lake the cellar would flood.
+				wet[i][j] = surface(context, x, z, Heightmap.Types.OCEAN_FLOOR_WG) < ground[i][j];
+			}
 		}
-		if (highest - lowest > maxSlope) return Optional.empty();
-		int ground = surface(context, minX + size.getX() / 2, minZ + size.getZ() / 2, Heightmap.Types.WORLD_SURFACE_WG);
-		BlockPos corner = new BlockPos(minX, ground - OutpostPiece.GROUND, minZ);
-		Rotation rotation = Rotation.getRandom(context.random());
-		return Optional.of(new GenerationStub(new BlockPos(chunk.getMiddleBlockX(), ground, chunk.getMiddleBlockZ()),
+		OutpostLogic.Site site = OutpostLogic.site(ground, wet, maxSlope, context.random().nextInt(4));
+		if (site == null) return Optional.empty();
+		var size = context.structureTemplateManager().getOrCreate(OutpostModule.TEMPLATE).getSize();
+		int middleX = chunk.getMiddleBlockX() + site.dx() * OutpostLogic.STEP;
+		int middleZ = chunk.getMiddleBlockZ() + site.dz() * OutpostLogic.STEP;
+		BlockPos corner = new BlockPos(middleX - size.getX() / 2, site.ground() - OutpostPiece.GROUND, middleZ - size.getZ() / 2);
+		// The template's gate is on its north side; each turn moves it one side clockwise.
+		Rotation rotation = Rotation.BY_ID.apply(site.gate());
+		return Optional.of(new GenerationStub(new BlockPos(middleX, site.ground(), middleZ),
 				builder -> builder.addPiece(new OutpostPiece(context.structureTemplateManager(), corner, rotation))));
 	}
 
@@ -90,9 +97,39 @@ public class OutpostStructure extends Structure {
 	@Override
 	public void afterPlace(WorldGenLevel level, StructureManager structures, ChunkGenerator generator, RandomSource random,
 			BoundingBox chunkBox, ChunkPos chunk, PiecesContainer pieces) {
-		if (clearRadius <= 0) return;
 		for (StructurePiece piece : pieces.pieces()) {
-			if (piece instanceof OutpostPiece outpost) clearTrees(level, chunkBox, outpost.templateBox());
+			if (!(piece instanceof OutpostPiece outpost)) continue;
+			if (clearRadius > 0) clearTrees(level, chunkBox, outpost.templateBox());
+			bank(level, chunkBox, outpost.templateBox());
+		}
+	}
+
+	/**
+	 * Where the outpost stands above the ground, fills earth under it down to the ground and banks earth around it,
+	 * sloping one block down for each block out, so it neither floats nor sits on a cliff.
+	 */
+	private static void bank(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint) {
+		int grass = footprint.minY() + OutpostPiece.GROUND;
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		for (int x = Math.max(chunkBox.minX(), footprint.minX() - BANK); x <= Math.min(chunkBox.maxX(), footprint.maxX() + BANK); x++) {
+			for (int z = Math.max(chunkBox.minZ(), footprint.minZ() - BANK); z <= Math.min(chunkBox.maxZ(), footprint.maxZ() + BANK); z++) {
+				int distance = OutpostLogic.distance(footprint.minX(), footprint.minZ(), footprint.maxX(), footprint.maxZ(), x, z);
+				if (distance > BANK) continue;
+				int top = distance == 0 ? footprint.minY() - 1 : OutpostLogic.bankTop(grass, distance);
+				for (int y = top; y > top - FOUNDATION_DEPTH; y--) {
+					pos.set(x, y, z);
+					BlockState state = level.getBlockState(pos);
+					// The bank stops at water: a lake beside the outpost keeps its shore.
+					if (!state.getFluidState().isEmpty()) break;
+					if (!state.isAir() && !state.is(BlockTags.REPLACEABLE)) {
+						// Grass buried under the bank turns to dirt.
+						if (y < top && state.is(Blocks.GRASS_BLOCK)) level.setBlock(pos, Blocks.DIRT.defaultBlockState(), Block.UPDATE_CLIENTS);
+						break;
+					}
+					BlockState fill = distance > 0 && y == top ? Blocks.GRASS_BLOCK.defaultBlockState() : Blocks.DIRT.defaultBlockState();
+					level.setBlock(pos, fill, Block.UPDATE_CLIENTS);
+				}
+			}
 		}
 	}
 

@@ -36,7 +36,7 @@ import java.util.function.BiConsumer;
  * Yellow: basic things, a little food, copper or silver nuggets and now and then worn leather armour. Orange: better
  * food, a few jewels, and about every other chest a worn copper tool or armour piece, iron one time in thirty. Red: the
  * map to the Pillager King's castle, emeralds, maybe a golden apple and a book with a weak table enchantment. Barrels:
- * up to two pieces of food or a water bottle.
+ * two to five stacks of food and water bottles.
  */
 public class EamOutpostLootProvider extends SimpleFabricLootTableSubProvider {
 	private final CompletableFuture<HolderLookup.Provider> registries;
@@ -159,13 +159,16 @@ public class EamOutpostLootProvider extends SimpleFabricLootTableSubProvider {
 	}
 
 	private static LootTable.Builder barrel() {
-		return LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.between(0, 2))
-				.add(item(Items.COD, 6, 1, 2))
-				.add(item(Items.SALMON, 4, 1, 2))
-				.add(item(Items.BREAD, 6, 1, 2))
-				.add(item(Items.BEEF, 4, 1, 2))
-				.add(item(Items.PORKCHOP, 4, 1, 2))
-				.add(item(Items.MUTTON, 3, 1, 1))
+		return LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ContextIntProviders.between(2, 5))
+				.add(item(Items.COD, 6, 1, 3))
+				.add(item(Items.SALMON, 4, 1, 3))
+				.add(item(Items.BREAD, 6, 1, 3))
+				.add(item(Items.BEEF, 4, 1, 3))
+				.add(item(Items.PORKCHOP, 4, 1, 3))
+				.add(item(Items.MUTTON, 3, 1, 2))
+				.add(item(Items.APPLE, 4, 1, 3))
+				.add(item(Items.CARROT, 3, 1, 3))
+				.add(item(Items.POTATO, 3, 1, 3))
 				.add(LootItem.lootTableItem(Items.POTION).setWeight(6).apply(SetPotionFunction.setPotion(Potions.WATER))));
 	}
 
