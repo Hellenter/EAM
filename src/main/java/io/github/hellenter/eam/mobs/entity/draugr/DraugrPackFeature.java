@@ -45,6 +45,8 @@ public record DraugrPackFeature(IntProvider count, IntProvider waiting, int radi
 	/** How far above and below the origin a draugr's spot on the floor is looked for. */
 	private static final int SCAN_UP = 6;
 	private static final int SCAN_DOWN = 10;
+	/** Air blocks needed over a column's top for the draugr to stand up. */
+	private static final int HEADROOM = 3;
 	/** Columns stand at least this far apart. */
 	private static final int SPACING = 2;
 
@@ -91,7 +93,10 @@ public record DraugrPackFeature(IntProvider count, IntProvider waiting, int radi
 		return false;
 	}
 
-	/** The floor's top block at {@code x, z} near {@code y}, if it is ice or snow with solid ground under it and room above. */
+	/**
+	 * The floor's top block at {@code x, z} near {@code y}, if it is ice or snow with solid ground under it and room above
+	 * for a draugr to stand up in (he is a little over two blocks tall).
+	 */
 	private static @Nullable BlockPos floor(WorldGenLevel level, int x, int y, int z) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for (int top = y + SCAN_UP; top >= y - SCAN_DOWN; top--) {
@@ -99,7 +104,11 @@ public record DraugrPackFeature(IntProvider count, IntProvider waiting, int radi
 			if (!level.getBlockState(pos).is(DraugrModule.BURIED_IN)) {
 				continue;
 			}
-			if (!level.getBlockState(pos.setY(top + 1)).isAir() || !level.getBlockState(pos.setY(top + 2)).isAir()) {
+			boolean room = true;
+			for (int dy = 1; dy <= HEADROOM && room; dy++) {
+				room = level.getBlockState(pos.setY(top + dy)).isAir();
+			}
+			if (!room) {
 				continue;
 			}
 			boolean grounded = true;
@@ -113,11 +122,15 @@ public record DraugrPackFeature(IntProvider count, IntProvider waiting, int radi
 		return null;
 	}
 
-	/** Freezes a draugr into the column under {@code top}: ice under ice, snow under snow. */
+	/**
+	 * Freezes a draugr into the column under {@code top}, in the floor's own block so the grave does not stand out: snow
+	 * under snow, packed ice under ice. Only in an ice floor is the top now and then clear ice.
+	 */
 	private void bury(WorldGenLevel level, RandomSource random, BlockPos top, DraugrState state) {
-		boolean snow = level.getBlockState(top).is(Blocks.SNOW_BLOCK) || level.getBlockState(top).is(Blocks.POWDER_SNOW);
+		BlockState floor = level.getBlockState(top);
+		boolean snow = floor.is(Blocks.SNOW_BLOCK) || floor.is(Blocks.POWDER_SNOW);
 		BlockState below = snow ? Blocks.SNOW_BLOCK.defaultBlockState() : Blocks.PACKED_ICE.defaultBlockState();
-		BlockState surface = random.nextFloat() < this.clearIceChance ? Blocks.ICE.defaultBlockState() : below;
+		BlockState surface = snow ? below : random.nextFloat() < this.clearIceChance ? Blocks.ICE.defaultBlockState() : floor;
 		for (int dy = 1; dy < Draugr.DEPTH; dy++) {
 			level.setBlock(top.below(dy), below, 2);
 		}

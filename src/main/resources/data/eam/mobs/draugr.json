@@ -1,6 +1,6 @@
 {
   "health": 22.0,
-  "speed": 0.17,
+  "speed": 0.255,
   "fire_multiplier": 2.0,
   "wait_radius": 10.0,
   "waves": [

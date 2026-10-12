@@ -55,7 +55,8 @@ import java.util.UUID;
  * A draugr: a warrior long dead, frozen into the floor of the underworld's ice caves with what is left of his armor and
  * an axe, sword or spear. Draugr lie in packs. A sleeper stays frozen until the ice or snow he lies in is broken or a
  * waiting draugr calls; a waiting one rises when a player comes close and wakes the pack around him in waves. Up, they
- * are slow and take numbers to be dangerous; fire and lava hurt them twice as much.
+ * move a little faster than a zombie and hunt the living whether they see them or not; fire and lava hurt them twice
+ * as much.
  */
 public class Draugr extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_STATE = SynchedEntityData.defineId(Draugr.class, EntityDataSerializers.BYTE);
@@ -70,6 +71,10 @@ public class Draugr extends Monster {
 	public static final double FEET_UNDER_TOP = 1.5;
 	/** Woken by his own block breaking, he goes for the nearest player this close. */
 	private static final double DUG_OUT_RANGE = 16.0;
+	/** Up, he hunts players this far off, seen or not; also how far he paths. */
+	private static final double HUNT_RANGE = 64.0;
+	/** Out of the floor, he looks this many blocks around and above his spot for room to stand if it is blocked. */
+	private static final int ROOM_SEARCH = 2;
 
 	/** Mirrors {@link #DATA_STATE}. */
 	private DraugrState state = DraugrState.AWAKE;
@@ -92,7 +97,7 @@ public class Draugr extends Monster {
 				.add(Attributes.MAX_HEALTH, DraugrSettings.DEFAULT.health())
 				.add(Attributes.MOVEMENT_SPEED, DraugrSettings.DEFAULT.speed())
 				.add(Attributes.ATTACK_DAMAGE, 2.0)
-				.add(Attributes.FOLLOW_RANGE, 40.0)
+				.add(Attributes.FOLLOW_RANGE, HUNT_RANGE)
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.2);
 	}
 
@@ -112,12 +117,13 @@ public class Draugr extends Monster {
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
 		goalSelector.addGoal(2, new SpearUseGoal<>(this, 1.0, 1.0, 10.0F, 2.0F));
-		goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0, false));
+		goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0, true));
 		goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
-		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		// The dead do not need to see the living: they feel them through the ice and rock.
+		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
 	}
 
 	// ---- Spawning and gear ----
@@ -371,17 +377,45 @@ public class Draugr extends Monster {
 			level.playSound(null, getX(), surface.getY() + 1.0, getZ(), block.getSoundType().getBreakSound(), SoundSource.HOSTILE, 1.0F, 0.6F);
 		}
 		if (riseTick >= total) {
-			setPos(getX(), riseTo, getZ());
+			Vec3 spot = roomToStand(level, new Vec3(getX(), riseTo, getZ()));
+			setPos(spot.x, spot.y, spot.z);
 			setState(DraugrState.AWAKE);
 			Player player = wakeTarget == null ? null : level.getPlayerByUUID(wakeTarget);
-			if (player == null || !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) || player.distanceToSqr(this) > 40.0 * 40.0) {
-				player = level.getNearestPlayer(this, 40.0);
+			if (player == null || !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) || player.distanceToSqr(this) > HUNT_RANGE * HUNT_RANGE) {
+				player = level.getNearestPlayer(getX(), getY(), getZ(), HUNT_RANGE, EntitySelector.NO_CREATIVE_OR_SPECTATOR);
 			}
-			if (player != null && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
+			if (player != null) {
 				setTarget(player);
+				// Start walking at once rather than when the attack goal next looks for a path.
+				getNavigation().moveTo(player, 1.0);
 			}
 			wakeTarget = null;
 		}
+	}
+
+	/**
+	 * Where he can stand on coming out of the floor: {@code spot} if nothing is in the way, else the nearest free spot a
+	 * block or two around or above it (something may have been built or grown over his column). If there is none he
+	 * stays at {@code spot}.
+	 */
+	private Vec3 roomToStand(ServerLevel level, Vec3 spot) {
+		@Nullable Vec3 best = null;
+		double bestDistance = Double.MAX_VALUE;
+		for (int dy = 0; dy <= ROOM_SEARCH; dy++) {
+			for (int dx = -ROOM_SEARCH; dx <= ROOM_SEARCH; dx++) {
+				for (int dz = -ROOM_SEARCH; dz <= ROOM_SEARCH; dz++) {
+					Vec3 at = spot.add(dx, dy, dz);
+					double distance = dx * dx + dy * dy + dz * dz;
+					if (distance < bestDistance && level.noCollision(this, getDimensions(getPose()).makeBoundingBox(at))
+							&& !level.getBlockState(BlockPos.containing(at.x, at.y - 0.5, at.z)).getCollisionShape(level,
+							BlockPos.containing(at.x, at.y - 0.5, at.z)).isEmpty()) {
+						best = at;
+						bestDistance = distance;
+					}
+				}
+			}
+		}
+		return best == null ? spot : best;
 	}
 
 	// ---- Sounds ----

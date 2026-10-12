@@ -37,7 +37,7 @@ public record DraugrSettings(double health, double speed, float fireMultiplier, 
 		).apply(instance, Wave::new));
 	}
 
-	public static final DraugrSettings DEFAULT = new DraugrSettings(22.0, 0.17, 2.0F, 10.0,
+	public static final DraugrSettings DEFAULT = new DraugrSettings(22.0, 0.255, 2.0F, 10.0,
 			List.of(new Wave(0, 15.0), new Wave(100, 30.0), new Wave(200, 50.0)), 20, 30, List.of(2.0, 3.0, 3.0, 2.0), 0.75, 0.4,
 			List.of(35.0, 35.0, 30.0), 0.05F);
 

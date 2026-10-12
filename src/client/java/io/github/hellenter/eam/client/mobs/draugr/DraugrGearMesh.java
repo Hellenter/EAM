@@ -61,256 +61,262 @@ final class DraugrGearMesh {
 	}
 
 	static void add(PartDefinition root) {
+		// The gaunt body, between a zombie's and a skeleton's: body 7x12x3, limbs 3x12x3, each limb centred on its pivot.
 		PartDefinition head = root.getChild("head");
-		PartDefinition body = root.getChild("body");
-		PartDefinition rightArm = root.getChild("right_arm");
-		PartDefinition leftArm = root.getChild("left_arm");
-		PartDefinition rightLeg = root.getChild("right_leg");
-		PartDefinition leftLeg = root.getChild("left_leg");
+		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
+				.texOffs(16, 16).addBox(-3.5F, 0.0F, -1.5F, 7.0F, 12.0F, 3.0F), PartPose.ZERO);
+		PartDefinition rightArm = root.addOrReplaceChild("right_arm", CubeListBuilder.create()
+				.texOffs(40, 16).addBox(-1.5F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F), PartPose.offset(-5.0F, 2.0F, 0.0F));
+		PartDefinition leftArm = root.addOrReplaceChild("left_arm", CubeListBuilder.create()
+				.texOffs(40, 16).mirror().addBox(-1.5F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F), PartPose.offset(5.0F, 2.0F, 0.0F));
+		PartDefinition rightLeg = root.addOrReplaceChild("right_leg", CubeListBuilder.create()
+				.texOffs(0, 16).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F), PartPose.offset(-1.6F, 12.0F, 0.0F));
+		PartDefinition leftLeg = root.addOrReplaceChild("left_leg", CubeListBuilder.create()
+				.texOffs(0, 16).mirror().addBox(-1.5F, 0.0F, -1.5F, 3.0F, 12.0F, 3.0F), PartPose.offset(1.6F, 12.0F, 0.0F));
 		head.addOrReplaceChild("hair", CubeListBuilder.create()
-				.texOffs(230, 32).addBox(-4F, -8F, 3.6F, 8F, 12F, 1F, new CubeDeformation(0.1F))
-				.texOffs(0, 50).addBox(-4.6F, -7F, -2F, 1F, 8F, 5F)
-				.texOffs(12, 50).addBox(3.6F, -7F, -2F, 1F, 8F, 5F),
+				.texOffs(184, 32).addBox(-4F, -8F, 3.6F, 8F, 12F, 1F, new CubeDeformation(0.1F))
+				.texOffs(202, 32).addBox(-4.6F, -7F, -2F, 1F, 8F, 5F)
+				.texOffs(214, 32).addBox(3.6F, -7F, -2F, 1F, 8F, 5F),
 				PartPose.ZERO);
 		body.addOrReplaceChild("loincloth", CubeListBuilder.create()
-				.texOffs(114, 85).addBox(-2.5F, 11F, -2.6F, 5F, 6F, 1F)
-				.texOffs(230, 75).addBox(-3F, 11F, 1.6F, 6F, 7F, 1F),
+				.texOffs(174, 73).addBox(-2.5F, 11F, -2.1F, 5F, 6F, 1F)
+				.texOffs(226, 62).addBox(-3F, 11F, 1.1F, 6F, 7F, 1F),
 				PartPose.ZERO);
 		// head 1: horned_helm (norse)
 		PartDefinition hd1_0 = head.addOrReplaceChild("hd1_cap_0", CubeListBuilder.create()
-				.texOffs(184, 50).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.55F))
-				.texOffs(224, 93).addBox(-4F, -5F, -5F, 8F, 3F, 1F, new CubeDeformation(0.1F))
-				.texOffs(106, 93).addBox(-0.5F, -6F, -5.6F, 1F, 4F, 1F),
+				.texOffs(84, 49).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.55F))
+				.texOffs(212, 81).addBox(-4F, -5F, -5F, 8F, 3F, 1F, new CubeDeformation(0.1F))
+				.texOffs(108, 81).addBox(-0.5F, -6F, -5.6F, 1F, 4F, 1F),
 				PartPose.ZERO);
 		PartDefinition hd1_0_0 = hd1_0.addOrReplaceChild("horn", CubeListBuilder.create()
-				.texOffs(242, 93).addBox(0F, -1F, -1F, 3F, 2F, 2F),
+				.texOffs(230, 81).addBox(0F, -1F, -1F, 3F, 2F, 2F),
 				PartPose.offsetAndRotation(4F, -6.5F, 0F, 0F, 0F, -0.3F));
 		PartDefinition hd1_0_0_0 = hd1_0_0.addOrReplaceChild("mid", CubeListBuilder.create()
-				.texOffs(0, 99).addBox(0F, -1F, -1F, 3F, 2F, 2F, new CubeDeformation(-0.2F)),
+				.texOffs(240, 81).addBox(0F, -1F, -1F, 3F, 2F, 2F, new CubeDeformation(-0.2F)),
 				PartPose.offsetAndRotation(3F, 0F, 0F, 0F, 0F, -0.75F));
 		hd1_0_0_0.addOrReplaceChild("tip", CubeListBuilder.create()
-				.texOffs(108, 99).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(178, 88).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(3F, 0F, 0F, 0F, 0F, -0.7F));
 		PartDefinition hd1_0_1 = hd1_0.addOrReplaceChild("horn", CubeListBuilder.create()
-				.texOffs(10, 99).addBox(-3F, -1F, -1F, 3F, 2F, 2F),
+				.texOffs(0, 88).addBox(-3F, -1F, -1F, 3F, 2F, 2F),
 				PartPose.offsetAndRotation(-4F, -6.5F, 0F, 0F, 0F, 0.3F));
 		PartDefinition hd1_0_1_0 = hd1_0_1.addOrReplaceChild("mid", CubeListBuilder.create()
-				.texOffs(20, 99).addBox(-3F, -1F, -1F, 3F, 2F, 2F, new CubeDeformation(-0.2F)),
+				.texOffs(10, 88).addBox(-3F, -1F, -1F, 3F, 2F, 2F, new CubeDeformation(-0.2F)),
 				PartPose.offsetAndRotation(-3F, 0F, 0F, 0F, 0F, 0.75F));
 		hd1_0_1_0.addOrReplaceChild("tip", CubeListBuilder.create()
-				.texOffs(116, 99).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(186, 88).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(-3F, 0F, 0F, 0F, 0F, 0.7F));
 		// head 2: nasal_helm (huscarl)
 		head.addOrReplaceChild("hd2_cone_0", CubeListBuilder.create()
-				.texOffs(24, 63).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.6F))
-				.texOffs(0, 85).addBox(-3F, -10F, -3F, 6F, 2F, 6F, new CubeDeformation(0.3F))
-				.texOffs(46, 99).addBox(-1F, -11F, -1F, 2F, 1F, 2F, new CubeDeformation(0.2F))
-				.texOffs(110, 93).addBox(-0.5F, -6F, -4.9F, 1F, 4F, 1F, new CubeDeformation(0.1F))
-				.texOffs(148, 32).addBox(-4F, -5F, -4F, 8F, 6F, 8F, new CubeDeformation(0.75F)),
+				.texOffs(212, 49).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.6F))
+				.texOffs(0, 73).addBox(-3F, -10F, -3F, 6F, 2F, 6F, new CubeDeformation(0.3F))
+				.texOffs(116, 88).addBox(-1F, -11F, -1F, 2F, 1F, 2F, new CubeDeformation(0.2F))
+				.texOffs(112, 81).addBox(-0.5F, -6F, -4.9F, 1F, 4F, 1F, new CubeDeformation(0.1F))
+				.texOffs(106, 32).addBox(-4F, -5F, -4F, 8F, 6F, 8F, new CubeDeformation(0.75F)),
 				PartPose.ZERO);
 		// head 3: spired_helm (eastern)
 		head.addOrReplaceChild("hd3_bowl_0", CubeListBuilder.create()
-				.texOffs(56, 63).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.6F))
-				.texOffs(228, 85).addBox(-1.5F, -11F, -1.5F, 3F, 3F, 3F, new CubeDeformation(0.1F))
-				.texOffs(30, 99).addBox(-0.5F, -14F, -0.5F, 1F, 3F, 1F)
-				.texOffs(24, 50).addBox(-4.7F, -5.5F, -3F, 1F, 6F, 7F)
-				.texOffs(40, 50).addBox(3.7F, -5.5F, -3F, 1F, 6F, 7F)
-				.texOffs(126, 85).addBox(-4F, -5.5F, 3.7F, 8F, 6F, 1F),
+				.texOffs(0, 62).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.6F))
+				.texOffs(52, 81).addBox(-1.5F, -11F, -1.5F, 3F, 3F, 3F, new CubeDeformation(0.1F))
+				.texOffs(20, 88).addBox(-0.5F, -14F, -0.5F, 1F, 3F, 1F)
+				.texOffs(226, 32).addBox(-4.7F, -5.5F, -3F, 1F, 6F, 7F)
+				.texOffs(0, 49).addBox(3.7F, -5.5F, -3F, 1F, 6F, 7F)
+				.texOffs(186, 73).addBox(-4F, -5.5F, 3.7F, 8F, 6F, 1F),
 				PartPose.ZERO);
 		// head 4: great_helm (knight)
 		head.addOrReplaceChild("hd4_bucket_0", CubeListBuilder.create()
-				.texOffs(24, 32).addBox(-4F, -8F, -4F, 8F, 9F, 8F, new CubeDeformation(0.6F))
-				.texOffs(16, 75).addBox(-4F, -9F, -4F, 8F, 1F, 8F, new CubeDeformation(0.2F)),
+				.texOffs(0, 32).addBox(-4F, -8F, -4F, 8F, 9F, 8F, new CubeDeformation(0.6F))
+				.texOffs(118, 62).addBox(-4F, -9F, -4F, 8F, 1F, 8F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		// head 5: kettle_hat (mercenary)
 		head.addOrReplaceChild("hd5_kettle_0", CubeListBuilder.create()
-				.texOffs(216, 50).addBox(-4F, -9F, -4F, 8F, 4F, 8F, new CubeDeformation(0.6F))
-				.texOffs(56, 50).addBox(-6F, -5.5F, -6F, 12F, 1F, 12F, new CubeDeformation(0.3F)),
+				.texOffs(116, 49).addBox(-4F, -9F, -4F, 8F, 4F, 8F, new CubeDeformation(0.6F))
+				.texOffs(16, 49).addBox(-6F, -5.5F, -6F, 12F, 1F, 12F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// head 6: antler_crown (clan)
 		PartDefinition hd6_0 = head.addOrReplaceChild("hd6_hood_0", CubeListBuilder.create()
-				.texOffs(180, 32).addBox(-4F, -8F, -1F, 8F, 9F, 5F, new CubeDeformation(0.6F))
-				.texOffs(144, 85).addBox(-3F, -9.5F, -5F, 6F, 2F, 5F)
-				.texOffs(54, 99).addBox(-2F, -8F, -5.5F, 4F, 2F, 1F),
+				.texOffs(138, 32).addBox(-4F, -8F, -1F, 8F, 9F, 5F, new CubeDeformation(0.6F))
+				.texOffs(204, 73).addBox(-3F, -9.5F, -5F, 6F, 2F, 5F)
+				.texOffs(124, 88).addBox(-2F, -8F, -5.5F, 4F, 2F, 1F),
 				PartPose.ZERO);
 		PartDefinition hd6_0_0 = hd6_0.addOrReplaceChild("antler", CubeListBuilder.create()
-				.texOffs(124, 99).addBox(0F, -0.5F, -0.5F, 5F, 1F, 1F),
+				.texOffs(194, 88).addBox(0F, -0.5F, -0.5F, 5F, 1F, 1F),
 				PartPose.offsetAndRotation(2.5F, -9F, -1F, 0F, 0F, -0.5F));
 		hd6_0_0.addOrReplaceChild("tine1", CubeListBuilder.create()
-				.texOffs(136, 99).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(206, 88).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(4F, 0F, 0F, 0F, -0.3F, -0.7F));
 		hd6_0_0.addOrReplaceChild("tine2", CubeListBuilder.create()
-				.texOffs(144, 99).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(214, 88).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(2F, 0F, 0F, 0F, 0.4F, -0.9F));
 		PartDefinition hd6_0_1 = hd6_0.addOrReplaceChild("antler", CubeListBuilder.create()
-				.texOffs(152, 99).addBox(-5F, -0.5F, -0.5F, 5F, 1F, 1F),
+				.texOffs(222, 88).addBox(-5F, -0.5F, -0.5F, 5F, 1F, 1F),
 				PartPose.offsetAndRotation(-2.5F, -9F, -1F, 0F, 0F, 0.5F));
 		hd6_0_1.addOrReplaceChild("tine1", CubeListBuilder.create()
-				.texOffs(164, 99).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(234, 88).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(-4F, 0F, 0F, 0F, -0.3F, 0.7F));
 		hd6_0_1.addOrReplaceChild("tine2", CubeListBuilder.create()
-				.texOffs(172, 99).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(242, 88).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(-2F, 0F, 0F, 0F, 0.4F, 0.9F));
 		// chest 1: torn_byrnie (huscarl)
 		body.addOrReplaceChild("ch1_byrnie_0", CubeListBuilder.create()
-				.texOffs(0, 32).addBox(-4F, 0F, -2F, 8F, 14F, 4F, new CubeDeformation(0.4F)),
+				.texOffs(32, 32).addBox(-3.5F, 0F, -1.5F, 7F, 14F, 3F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		rightArm.addOrReplaceChild("ch1_byrnie_sleeve_1", CubeListBuilder.create()
-				.texOffs(48, 75).addBox(-3F, -2F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(24, 73).addBox(-1.5F, -2F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ch1_byrnie_sleeve_2", CubeListBuilder.create()
-				.texOffs(64, 75).addBox(-1F, -2F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(36, 73).addBox(-1.5F, -2F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// chest 2: lamellar (eastern)
 		body.addOrReplaceChild("ch2_lamellar_0", CubeListBuilder.create()
-				.texOffs(206, 32).addBox(-4F, 1F, -2F, 8F, 10F, 4F, new CubeDeformation(0.5F))
-				.texOffs(240, 85).addBox(-3F, -0.5F, -2F, 1F, 2F, 4F, new CubeDeformation(0.55F))
-				.texOffs(0, 93).addBox(2F, -0.5F, -2F, 1F, 2F, 4F, new CubeDeformation(0.55F)),
+				.texOffs(64, 49).addBox(-3.5F, 1F, -1.5F, 7F, 10F, 3F, new CubeDeformation(0.5F))
+				.texOffs(116, 81).addBox(-2.688F, -0.5F, -1.5F, 1F, 2F, 3F, new CubeDeformation(0.55F))
+				.texOffs(124, 81).addBox(1.688F, -0.5F, -1.5F, 1F, 2F, 3F, new CubeDeformation(0.55F)),
 				PartPose.ZERO);
 		// chest 3: holed_breastplate (knight)
 		body.addOrReplaceChild("ch3_breastplate_0", CubeListBuilder.create()
-				.texOffs(0, 63).addBox(-4F, 0F, -2F, 8F, 8F, 4F, new CubeDeformation(0.6F))
-				.texOffs(166, 85).addBox(-4F, 8F, -2F, 8F, 3F, 4F, new CubeDeformation(0.65F)),
+				.texOffs(32, 62).addBox(-3.5F, 0F, -1.5F, 7F, 8F, 3F, new CubeDeformation(0.6F))
+				.texOffs(64, 81).addBox(-3.5F, 8F, -1.5F, 7F, 3F, 3F, new CubeDeformation(0.65F)),
 				PartPose.ZERO);
 		// chest 4: studded_jerkin (norse)
 		body.addOrReplaceChild("ch4_jerkin_0", CubeListBuilder.create()
-				.texOffs(56, 32).addBox(-4F, 0F, -2F, 8F, 12F, 4F, new CubeDeformation(0.3F))
-				.texOffs(64, 99).addBox(-3.5F, 1F, -3F, 2F, 2F, 1F, new CubeDeformation(0.1F)),
+				.texOffs(52, 32).addBox(-3.5F, 0F, -1.5F, 7F, 12F, 3F, new CubeDeformation(0.3F))
+				.texOffs(134, 88).addBox(-3.188F, 1F, -2.5F, 2F, 2F, 1F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		// chest 5: hide_vest (clan)
 		body.addOrReplaceChild("ch5_vest_0", CubeListBuilder.create()
-				.texOffs(104, 50).addBox(-4F, 0F, -2F, 8F, 9F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(148, 49).addBox(-3.5F, 0F, -1.5F, 7F, 9F, 3F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// chest 6: brigandine (mercenary)
 		body.addOrReplaceChild("ch6_brigandine_0", CubeListBuilder.create()
-				.texOffs(124, 32).addBox(-4F, 0F, -2F, 8F, 11F, 4F, new CubeDeformation(0.35F)),
+				.texOffs(164, 32).addBox(-3.5F, 0F, -1.5F, 7F, 11F, 3F, new CubeDeformation(0.35F)),
 				PartPose.ZERO);
 		// shoulders 1: round_pauldron (norse)
 		rightArm.addOrReplaceChild("sh1_pauldron_0", CubeListBuilder.create()
-				.texOffs(80, 75).addBox(-4F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
-				.texOffs(24, 85).addBox(-4F, 0F, -3F, 1F, 2F, 6F, new CubeDeformation(0.3F))
-				.texOffs(114, 93).addBox(-3F, -3.5F, -2F, 3F, 1F, 4F),
+				.texOffs(48, 73).addBox(-2.5F, -3F, -2.5F, 4F, 3F, 5F, new CubeDeformation(0.3F))
+				.texOffs(226, 73).addBox(-2.5F, 0F, -2.5F, 1F, 2F, 5F, new CubeDeformation(0.3F))
+				.texOffs(24, 88).addBox(-1.875F, -3.5F, -1.5F, 3F, 1F, 3F),
 				PartPose.ZERO);
 		// shoulders 2: plate_pauldrons (knight)
 		rightArm.addOrReplaceChild("sh2_pauldron_0", CubeListBuilder.create()
-				.texOffs(38, 85).addBox(-4F, -3F, -3F, 5F, 2F, 6F, new CubeDeformation(0.25F))
-				.texOffs(102, 75).addBox(-4F, -1F, -3F, 2F, 3F, 6F, new CubeDeformation(0.25F)),
+				.texOffs(238, 73).addBox(-2.5F, -3F, -2.5F, 4F, 2F, 5F, new CubeDeformation(0.25F))
+				.texOffs(66, 73).addBox(-2.5F, -1F, -2.5F, 2F, 3F, 5F, new CubeDeformation(0.25F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("sh2_pauldron_1", CubeListBuilder.create()
-				.texOffs(60, 85).addBox(-1F, -3F, -3F, 5F, 2F, 6F, new CubeDeformation(0.25F))
-				.texOffs(118, 75).addBox(2F, -1F, -3F, 2F, 3F, 6F, new CubeDeformation(0.25F)),
+				.texOffs(0, 81).addBox(-1.5F, -3F, -2.5F, 4F, 2F, 5F, new CubeDeformation(0.25F))
+				.texOffs(80, 73).addBox(0.5F, -1F, -2.5F, 2F, 3F, 5F, new CubeDeformation(0.25F)),
 				PartPose.ZERO);
 		// shoulders 3: lamellar_shoulders (eastern)
 		rightArm.addOrReplaceChild("sh3_shoulder_0", CubeListBuilder.create()
-				.texOffs(88, 63).addBox(-4F, -2F, -3F, 2F, 5F, 6F, new CubeDeformation(0.15F))
-				.texOffs(10, 93).addBox(-3F, -3F, -2.5F, 4F, 1F, 5F, new CubeDeformation(0.1F)),
+				.texOffs(52, 62).addBox(-2.5F, -2F, -2.5F, 2F, 5F, 5F, new CubeDeformation(0.15F))
+				.texOffs(132, 81).addBox(-1.5F, -3F, -2F, 3F, 1F, 4F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("sh3_shoulder_1", CubeListBuilder.create()
-				.texOffs(104, 63).addBox(2F, -2F, -3F, 2F, 5F, 6F, new CubeDeformation(0.15F))
-				.texOffs(28, 93).addBox(-1F, -3F, -2.5F, 4F, 1F, 5F, new CubeDeformation(0.1F)),
+				.texOffs(66, 62).addBox(0.5F, -2F, -2.5F, 2F, 5F, 5F, new CubeDeformation(0.15F))
+				.texOffs(146, 81).addBox(-1.5F, -3F, -2F, 3F, 1F, 4F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		// shoulders 4: fur_mantle (clan)
 		body.addOrReplaceChild("sh4_mantle_0", CubeListBuilder.create()
-				.texOffs(144, 63).addBox(-5F, -1F, -3F, 10F, 4F, 6F, new CubeDeformation(0.3F))
-				.texOffs(176, 63).addBox(-4.5F, 3F, 2.3F, 9F, 9F, 1F),
+				.texOffs(150, 62).addBox(-4.5F, -1F, -2.5F, 9F, 4F, 5F, new CubeDeformation(0.3F))
+				.texOffs(80, 62).addBox(-4F, 3F, 1.8F, 8F, 9F, 1F),
 				PartPose.ZERO);
 		// shoulders 5: mail_tippet (huscarl)
 		body.addOrReplaceChild("sh5_tippet_0", CubeListBuilder.create()
-				.texOffs(82, 85).addBox(-4F, -0.5F, -2F, 8F, 4F, 4F, new CubeDeformation(0.9F)),
+				.texOffs(18, 81).addBox(-3.5F, -0.5F, -1.5F, 7F, 4F, 3F, new CubeDeformation(0.9F)),
 				PartPose.ZERO);
 		// arms 1: leather_wraps (norse)
 		rightArm.addOrReplaceChild("ar1_wraps_0", CubeListBuilder.create()
-				.texOffs(196, 63).addBox(-3F, 4F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F))
-				.texOffs(128, 93).addBox(-3F, 5F, -2F, 4F, 1F, 4F, new CubeDeformation(0.45F))
-				.texOffs(144, 93).addBox(-3F, 8F, -2F, 4F, 1F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(178, 62).addBox(-1.5F, 4F, -1.5F, 3F, 6F, 3F, new CubeDeformation(0.25F))
+				.texOffs(36, 88).addBox(-1.5F, 5F, -1.5F, 3F, 1F, 3F, new CubeDeformation(0.45F))
+				.texOffs(48, 88).addBox(-1.5F, 8F, -1.5F, 3F, 1F, 3F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar1_wraps_1", CubeListBuilder.create()
-				.texOffs(212, 63).addBox(-1F, 4F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F))
-				.texOffs(160, 93).addBox(-1F, 5F, -2F, 4F, 1F, 4F, new CubeDeformation(0.45F))
-				.texOffs(176, 93).addBox(-1F, 8F, -2F, 4F, 1F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(190, 62).addBox(-1.5F, 4F, -1.5F, 3F, 6F, 3F, new CubeDeformation(0.25F))
+				.texOffs(60, 88).addBox(-1.5F, 5F, -1.5F, 3F, 1F, 3F, new CubeDeformation(0.45F))
+				.texOffs(72, 88).addBox(-1.5F, 8F, -1.5F, 3F, 1F, 3F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// arms 2: plate_vambraces (knight)
 		rightArm.addOrReplaceChild("ar2_vambrace_0", CubeListBuilder.create()
-				.texOffs(134, 75).addBox(-3F, 3F, -2F, 4F, 5F, 4F, new CubeDeformation(0.4F))
-				.texOffs(46, 93).addBox(-3F, 8F, -2F, 4F, 2F, 4F, new CubeDeformation(0.5F)),
+				.texOffs(94, 73).addBox(-1.5F, 3F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.4F))
+				.texOffs(160, 81).addBox(-1.5F, 8F, -1.5F, 3F, 2F, 3F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar2_vambrace_1", CubeListBuilder.create()
-				.texOffs(150, 75).addBox(-1F, 3F, -2F, 4F, 5F, 4F, new CubeDeformation(0.4F))
-				.texOffs(62, 93).addBox(-1F, 8F, -2F, 4F, 2F, 4F, new CubeDeformation(0.5F)),
+				.texOffs(106, 73).addBox(-1.5F, 3F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.4F))
+				.texOffs(172, 81).addBox(-1.5F, 8F, -1.5F, 3F, 2F, 3F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		// arms 3: mail_sleeves (huscarl)
 		rightArm.addOrReplaceChild("ar3_sleeve_0", CubeListBuilder.create()
-				.texOffs(128, 50).addBox(-3F, -2F, -2F, 4F, 9F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(168, 49).addBox(-1.5F, -2F, -1.5F, 3F, 9F, 3F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar3_sleeve_1", CubeListBuilder.create()
-				.texOffs(144, 50).addBox(-1F, -2F, -2F, 4F, 9F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(180, 49).addBox(-1.5F, -2F, -1.5F, 3F, 9F, 3F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// arms 4: bone_splints (clan)
 		rightArm.addOrReplaceChild("ar4_splint_0", CubeListBuilder.create()
-				.texOffs(166, 75).addBox(-3F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.2F))
-				.texOffs(106, 85).addBox(-3.6F, 3F, -0.5F, 1F, 7F, 1F)
-				.texOffs(190, 85).addBox(-1.5F, 3.5F, -2.6F, 1F, 6F, 1F),
+				.texOffs(118, 73).addBox(-1.5F, 4F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.2F))
+				.texOffs(130, 73).addBox(-2.1F, 3F, -0.5F, 1F, 7F, 1F)
+				.texOffs(38, 81).addBox(-0.5F, 3.5F, -2.1F, 1F, 6F, 1F),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar4_splint_1", CubeListBuilder.create()
-				.texOffs(182, 75).addBox(-1F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.2F))
-				.texOffs(110, 85).addBox(2.6F, 3F, -0.5F, 1F, 7F, 1F)
-				.texOffs(194, 85).addBox(0.5F, 3.5F, -2.6F, 1F, 6F, 1F),
+				.texOffs(134, 73).addBox(-1.5F, 4F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.2F))
+				.texOffs(146, 73).addBox(1.1F, 3F, -0.5F, 1F, 7F, 1F)
+				.texOffs(42, 81).addBox(-0.5F, 3.5F, -2.1F, 1F, 6F, 1F),
 				PartPose.ZERO);
 		// legs 1: strip_skirt (norse)
 		body.addOrReplaceChild("lg1_skirt_0", CubeListBuilder.create()
-				.texOffs(160, 50).addBox(-4F, 10F, -2F, 8F, 9F, 4F, new CubeDeformation(0.5F)),
+				.texOffs(192, 49).addBox(-3.5F, 10F, -1.5F, 7F, 9F, 3F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		// legs 2: tassets (knight)
 		rightLeg.addOrReplaceChild("lg2_tasset_0", CubeListBuilder.create()
-				.texOffs(198, 75).addBox(-2F, 0F, -2F, 4F, 5F, 4F, new CubeDeformation(0.5F))
-				.texOffs(70, 99).addBox(-1.5F, 5F, -2.8F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
+				.texOffs(150, 73).addBox(-1.5F, 0F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.5F))
+				.texOffs(140, 88).addBox(-1.5F, 5F, -2.3F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg2_tasset_1", CubeListBuilder.create()
-				.texOffs(214, 75).addBox(-2F, 0F, -2F, 4F, 5F, 4F, new CubeDeformation(0.5F))
-				.texOffs(78, 99).addBox(-1.5F, 5F, -2.8F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
+				.texOffs(162, 73).addBox(-1.5F, 0F, -1.5F, 3F, 5F, 3F, new CubeDeformation(0.5F))
+				.texOffs(148, 88).addBox(-1.5F, 5F, -2.3F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		// legs 3: lamellar_skirt (eastern)
 		body.addOrReplaceChild("lg3_skirt_0", CubeListBuilder.create()
-				.texOffs(120, 63).addBox(-4F, 10F, -2F, 8F, 7F, 4F, new CubeDeformation(0.55F)),
+				.texOffs(98, 62).addBox(-3.5F, 10F, -1.5F, 7F, 7F, 3F, new CubeDeformation(0.55F)),
 				PartPose.ZERO);
 		// legs 4: mail_chausses (huscarl)
 		rightLeg.addOrReplaceChild("lg4_chausses_0", CubeListBuilder.create()
-				.texOffs(80, 32).addBox(-2F, 0F, -2F, 4F, 12F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(72, 32).addBox(-1.5F, 0F, -1.5F, 3F, 12F, 3F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg4_chausses_1", CubeListBuilder.create()
-				.texOffs(96, 32).addBox(-2F, 0F, -2F, 4F, 12F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(84, 32).addBox(-1.5F, 0F, -1.5F, 3F, 12F, 3F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// legs 5: greaves (mercenary)
 		rightLeg.addOrReplaceChild("lg5_greave_0", CubeListBuilder.create()
-				.texOffs(228, 63).addBox(-2F, 6F, -2F, 4F, 6F, 4F, new CubeDeformation(0.4F))
-				.texOffs(86, 99).addBox(-1.5F, 4.5F, -2.7F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
+				.texOffs(202, 62).addBox(-1.5F, 6F, -1.5F, 3F, 6F, 3F, new CubeDeformation(0.4F))
+				.texOffs(156, 88).addBox(-1.5F, 4.5F, -2.2F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg5_greave_1", CubeListBuilder.create()
-				.texOffs(0, 75).addBox(-2F, 6F, -2F, 4F, 6F, 4F, new CubeDeformation(0.4F))
-				.texOffs(94, 99).addBox(-1.5F, 4.5F, -2.7F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
+				.texOffs(214, 62).addBox(-1.5F, 6F, -1.5F, 3F, 6F, 3F, new CubeDeformation(0.4F))
+				.texOffs(164, 88).addBox(-1.5F, 4.5F, -2.2F, 3F, 2F, 1F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		// belt 1: boss_belt (norse)
 		body.addOrReplaceChild("bl1_belt_0", CubeListBuilder.create()
-				.texOffs(78, 93).addBox(-4F, 9F, -2F, 8F, 2F, 4F, new CubeDeformation(0.55F))
-				.texOffs(34, 99).addBox(-1.5F, 8.5F, -3F, 3F, 3F, 1F, new CubeDeformation(0.1F))
-				.texOffs(102, 93).addBox(-3.5F, 11F, -2.9F, 1F, 5F, 1F, new CubeDeformation(-0.2F))
-				.texOffs(192, 93).addBox(2.5F, 11F, -2.9F, 1F, 4F, 1F, new CubeDeformation(-0.2F)),
+				.texOffs(184, 81).addBox(-3.5F, 9F, -1.5F, 7F, 2F, 3F, new CubeDeformation(0.55F))
+				.texOffs(84, 88).addBox(-1.5F, 8.5F, -2.5F, 3F, 3F, 1F, new CubeDeformation(0.1F))
+				.texOffs(84, 81).addBox(-3.125F, 11F, -2.4F, 1F, 5F, 1F, new CubeDeformation(-0.2F))
+				.texOffs(204, 81).addBox(2.125F, 11F, -2.4F, 1F, 4F, 1F, new CubeDeformation(-0.2F)),
 				PartPose.ZERO);
 		// belt 2: trophy_rope (clan)
 		body.addOrReplaceChild("bl2_rope_0", CubeListBuilder.create()
-				.texOffs(196, 93).addBox(-4F, 9.5F, -2F, 8F, 1F, 4F, new CubeDeformation(0.5F))
-				.texOffs(102, 99).addBox(1.5F, 10F, -3F, 2F, 2F, 1F)
-				.texOffs(220, 93).addBox(-3F, 10F, -2.8F, 1F, 4F, 1F)
-				.texOffs(42, 99).addBox(-1F, 10F, -2.8F, 1F, 3F, 1F, new CubeDeformation(-0.1F)),
+				.texOffs(92, 88).addBox(-3.5F, 9.5F, -1.5F, 7F, 1F, 3F, new CubeDeformation(0.5F))
+				.texOffs(172, 88).addBox(1.188F, 10F, -2.5F, 2F, 2F, 1F)
+				.texOffs(208, 81).addBox(-2.688F, 10F, -2.3F, 1F, 4F, 1F)
+				.texOffs(112, 88).addBox(-0.938F, 10F, -2.3F, 1F, 3F, 1F, new CubeDeformation(-0.1F)),
 				PartPose.ZERO);
 		// belt 3: sash (eastern)
 		body.addOrReplaceChild("bl3_sash_0", CubeListBuilder.create()
-				.texOffs(198, 85).addBox(-4F, 8.5F, -2F, 8F, 3F, 4F, new CubeDeformation(0.6F))
-				.texOffs(222, 85).addBox(1.5F, 11F, -2.9F, 2F, 6F, 1F),
+				.texOffs(88, 81).addBox(-3.5F, 8.5F, -1.5F, 7F, 3F, 3F, new CubeDeformation(0.6F))
+				.texOffs(46, 81).addBox(1.188F, 11F, -2.4F, 2F, 6F, 1F),
 				PartPose.ZERO);
 		// belt 4: baldric (mercenary)
 		body.addOrReplaceChild("bl4_baldric_0", CubeListBuilder.create()
-				.texOffs(112, 32).addBox(-1F, -6F, -2F, 2F, 12F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(96, 32).addBox(-1F, -6F, -1.5F, 2F, 12F, 3F, new CubeDeformation(0.45F)),
 				PartPose.offsetAndRotation(0F, 6F, 0F, 0F, 0F, 0.7F));
 	}
 }
