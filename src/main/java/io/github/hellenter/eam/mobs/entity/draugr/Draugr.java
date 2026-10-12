@@ -23,6 +23,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -36,7 +37,6 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -91,7 +91,7 @@ public class Draugr extends Monster {
 	private boolean sealed;
 	private int riseTick;
 	private double riseFrom;
-	/** Server: he is clawing his way up a wall after his target. */
+	/** Server: he is clawing his way up a wall toward his target above him. */
 	private boolean climbing;
 	/** Client: the tick count when he began to rise. */
 	private int clientRiseStart;
@@ -138,18 +138,37 @@ public class Draugr extends Monster {
 	}
 
 	/**
-	 * The ice caves are all ledges and spires a walking mob cannot path up. Like a spider, a draugr that cannot find a
-	 * way heads straight for his target and claws up whatever wall stands in it.
+	 * He walks around the spires of the ice caves like any walking mob. Unlike a spider he does not head straight for his
+	 * target when he has no path, or he would climb the nearest spire to the ceiling.
 	 */
 	@Override
 	protected PathNavigation createNavigation(Level level) {
-		return new WallClimberNavigation(this, level);
+		return new DraugrNavigation(this, level);
 	}
 
-	/** Only after someone: idle, he does not wander up the walls. */
+	/** Only up toward a target above him: idle or after someone on his own floor, he does not go up the walls. */
 	@Override
 	public boolean onClimbable() {
 		return climbing || super.onClimbable();
+	}
+
+	/**
+	 * Where to head when his path has run out: his target, if it stands close by on a ledge he could climb to, else
+	 * nothing. Right under it he stays put rather than hop about.
+	 */
+	@Nullable Vec3 ledgeTarget() {
+		LivingEntity target = getTarget();
+		if (state != DraugrState.AWAKE || target == null) {
+			return null;
+		}
+		double across = horizontalDistanceTo(target);
+		DraugrSettings settings = settings();
+		return across > getBbWidth() && DraugrLogic.climbs(target.getY() - getY(), across, false, settings.climbHeight(), settings.climbReach())
+				? target.position() : null;
+	}
+
+	private double horizontalDistanceTo(Entity other) {
+		return Math.hypot(other.getX() - getX(), other.getZ() - getZ());
 	}
 
 	// ---- Spawning and gear ----
@@ -327,7 +346,9 @@ public class Draugr extends Monster {
 		}
 		super.tick();
 		if (!level().isClientSide()) {
-			climbing = state == DraugrState.AWAKE && horizontalCollision && getTarget() != null;
+			LivingEntity target = getTarget();
+			climbing = state == DraugrState.AWAKE && target != null && horizontalCollision && DraugrLogic.climbs(target.getY() - getY(),
+					horizontalDistanceTo(target), climbing, settings().climbHeight(), settings().climbReach());
 		}
 	}
 

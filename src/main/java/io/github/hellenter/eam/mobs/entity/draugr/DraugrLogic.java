@@ -23,4 +23,21 @@ public final class DraugrLogic {
 		}
 		return index;
 	}
+
+	/**
+	 * Whether a draugr pressed against a wall claws his way up it, like a spider: only toward a target above him, at most
+	 * {@code maxRise} blocks up and {@code reach} blocks across, and never higher than it. A target on the same floor he
+	 * walks to; he does not climb the spires on the way. Once climbing he keeps on until his feet are a block above the
+	 * target's, enough to get over the lip of the ledge it stands on.
+	 *
+	 * @param rise       how far his target's feet are above his
+	 * @param horizontal how far his target is across
+	 * @param climbing   whether he was climbing last tick
+	 */
+	public static boolean climbs(double rise, double horizontal, boolean climbing, double maxRise, double reach) {
+		if (horizontal > reach || rise > maxRise) {
+			return false;
+		}
+		return climbing ? rise > -1.0 : rise >= 1.0;
+	}
 }

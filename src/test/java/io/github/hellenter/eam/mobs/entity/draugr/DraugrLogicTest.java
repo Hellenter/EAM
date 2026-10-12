@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.draugr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrGear.Faction;
@@ -24,6 +25,22 @@ class DraugrLogicTest {
 		assertEquals(3, DraugrLogic.wavesDue(WAVES, 2, 200));
 		assertEquals(3, DraugrLogic.wavesDue(WAVES, 0, 5000));
 		assertEquals(50.0, WAVES.get(2).radius());
+	}
+
+	@Test
+	void climbsOnlyTowardATargetAboveHim() {
+		// A player five blocks up on a ledge close by: up he goes.
+		assertTrue(DraugrLogic.climbs(5.0, 3.0, false, 16.0, 12.0));
+		// The player on the same floor: he walks there and climbs no spire on the way.
+		assertFalse(DraugrLogic.climbs(0.0, 3.0, false, 16.0, 12.0));
+		assertFalse(DraugrLogic.climbs(-4.0, 3.0, false, 16.0, 12.0));
+		// Too high up or too far across.
+		assertFalse(DraugrLogic.climbs(20.0, 3.0, false, 16.0, 12.0));
+		assertFalse(DraugrLogic.climbs(5.0, 15.0, false, 16.0, 12.0));
+		// Halfway up he keeps on until he is over the lip, but never climbs past the player.
+		assertTrue(DraugrLogic.climbs(0.2, 1.0, true, 16.0, 12.0));
+		assertFalse(DraugrLogic.climbs(0.2, 1.0, false, 16.0, 12.0));
+		assertFalse(DraugrLogic.climbs(-1.5, 1.0, true, 16.0, 12.0));
 	}
 
 	@Test

@@ -14,5 +14,7 @@
   "own_piece_chance": 0.75,
   "belt_chance": 0.4,
   "weapon_weights": [35.0, 35.0, 30.0],
-  "weapon_drop_chance": 0.05
+  "weapon_drop_chance": 0.05,
+  "climb_height": 24.0,
+  "climb_reach": 12.0
 }
