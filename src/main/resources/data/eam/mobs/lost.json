@@ -60,5 +60,50 @@
     "draw_ticks": 20,
     "cooldown": 25,
     "aim_ticks": 6
+  },
+  "centurion": {
+    "chance": 0.25,
+    "health": 45.0,
+    "extra_armor": 4.0,
+    "spear_reach": 3.9,
+    "drop_chance": 0.08,
+    "fight": {
+      "attack_pause": 16,
+      "reach": 2.7,
+      "shield_range": 14.0,
+      "shield_disable_multiplier": 0.8,
+      "combo_chance": 0.0,
+      "combo_cooldown": 400,
+      "combo_hit_multiplier": 0.6,
+      "heavy_chance": 0.0,
+      "heavy_chance_vs_shield": 0.0,
+      "heavy_cooldown": 400,
+      "heavy_damage_multiplier": 1.5,
+      "heavy_extra_reach": 0.5,
+      "heavy_blocked_share": 0.5,
+      "heavy_shield_seconds": 3.0,
+      "backstep": 0.5,
+      "dash": {
+        "cooldown": 240,
+        "ticks": 4,
+        "speed": 0.85
+      }
+    },
+    "horn": {
+      "first_delay": 30,
+      "second_cooldown": 600,
+      "later_cooldown": 800,
+      "second_cavalry_chance": 0.5,
+      "later_cavalry_chance": 0.3,
+      "range": 40.0,
+      "min_distance": 15.0,
+      "max_distance": 25.0,
+      "max_nearby": 24
+    },
+    "defend": {
+      "range": 32.0,
+      "ticks": 200,
+      "speed": 1.25
+    }
   }
 }

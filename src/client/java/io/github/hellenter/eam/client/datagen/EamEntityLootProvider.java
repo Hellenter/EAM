@@ -82,18 +82,20 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(lordArmor(enchantments, EamItems.MITHRIL_LEGGINGS))
 						.add(lordArmor(enchantments, EamItems.MITHRIL_BOOTS))));
 
-		// The Lost: half husk, half skeleton. Their worn gear drops by the mob's own drop chances.
-		output.accept(EamEntities.LOST.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
-				.withPool(LootPool.lootPool()
-						.setRolls(ContextIntProviders.exactly(1))
-						.add(LootItem.lootTableItem(Items.BONE)
-								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
-								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
-				.withPool(LootPool.lootPool()
-						.setRolls(ContextIntProviders.exactly(1))
-						.add(LootItem.lootTableItem(Items.ROTTEN_FLESH)
-								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
-								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+		// The Lost: half husk, half skeleton. Their worn gear drops by the mob's own drop chances; their centurion's too.
+		for (EntityType<?> lost : List.of(EamEntities.LOST, EamEntities.LOST_CENTURION)) {
+			output.accept(lost.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+					.withPool(LootPool.lootPool()
+							.setRolls(ContextIntProviders.exactly(1))
+							.add(LootItem.lootTableItem(Items.BONE)
+									.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+									.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+					.withPool(LootPool.lootPool()
+							.setRolls(ContextIntProviders.exactly(1))
+							.add(LootItem.lootTableItem(Items.ROTTEN_FLESH)
+									.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+									.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+		}
 
 		// The heavy cavalryman: like the Lost; his worn plate and weapons drop by the mob's own drop chances.
 		output.accept(EamEntities.LOST_CAVALRYMAN.getDefaultLootTable().orElseThrow(), LootTable.lootTable()

@@ -68,7 +68,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// The Fallen Lord is undead: smite and silver hurt him more.
 		builder(EntityTypeTags.UNDEAD).add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(),
 				EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key(), EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(),
-				EamEntities.WIGHT.builtInRegistryHolder().key(), EamEntities.LOST.builtInRegistryHolder().key(),
+				EamEntities.WIGHT.builtInRegistryHolder().key(), EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.LOST_CENTURION.builtInRegistryHolder().key(),
 				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
 				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
 				EamEntities.DRAUGR.builtInRegistryHolder().key());
@@ -94,7 +94,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(SKELETONS)
 				.add(EamEntities.SWAMP_LURKER.builtInRegistryHolder().key(), EamEntities.WIGHT.builtInRegistryHolder().key(),
 						EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key(),
-						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
+						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.LOST_CENTURION.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
 						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
 						EamEntities.DRAUGR.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.

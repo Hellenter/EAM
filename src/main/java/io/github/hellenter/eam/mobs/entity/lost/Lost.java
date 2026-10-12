@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
@@ -65,6 +66,10 @@ public class Lost extends SkeletonKnight {
 	private @Nullable UUID leader;
 	private List<Lost> squad = List.of();
 	private int squadRefresh;
+	/** Ticks he keeps rushing at whoever hit his centurion, or 0. */
+	private int defendTicks;
+	/** Spawned as a squad's leader, he may bring a centurion along; not for squads a centurion's horn calls up. */
+	boolean bringsCenturion = true;
 
 	public Lost(EntityType<? extends Lost> type, Level level) {
 		super(type, level);
@@ -100,6 +105,26 @@ public class Lost extends SkeletonKnight {
 		return LostModule.settings().spearReach();
 	}
 
+	/** How far his attacks reach: a spear's jab, or the sword's cut. */
+	double meleeReach() {
+		return role.spear() ? pokeReach() : settings().reach();
+	}
+
+	/** His role when he is spawned on his own, at the head of a squad. */
+	protected LostRole headRole() {
+		return LostRole.LEADER;
+	}
+
+	/** His health for his role. */
+	protected double roleHealth(LostSettings settings) {
+		return role == LostRole.LEADER ? settings.squad().leaderHealth() : settings.squad().followerHealth();
+	}
+
+	/** Chance for each piece of his gear to drop. */
+	protected float roleDropChance(LostSettings settings) {
+		return role == LostRole.LEADER ? settings.squad().leaderDropChance() : settings.squad().followerDropChance();
+	}
+
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
@@ -109,7 +134,8 @@ public class Lost extends SkeletonKnight {
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-		targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+		// A squad mate's stray arrow or swing does not turn him on his own side.
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 	}
@@ -137,24 +163,23 @@ public class Lost extends SkeletonKnight {
 			role = squadData.role();
 			leader = squadData.leader();
 		} else {
-			role = LostRole.LEADER;
+			role = headRole();
 			leader = null;
 		}
-		boolean isLeader = role == LostRole.LEADER;
 		AttributeInstance health = getAttribute(Attributes.MAX_HEALTH);
 		if (health != null) {
-			health.setBaseValue(isLeader ? settings.squad().leaderHealth() : settings.squad().followerHealth());
+			health.setBaseValue(roleHealth(settings));
 			setHealth(getMaxHealth());
 		}
-		if (isLeader) {
+		if (role == LostRole.LEADER) {
 			xpReward = 15;
 		}
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData instanceof Squad ? null : groupData);
-		float drop = isLeader ? settings.squad().leaderDropChance() : settings.squad().followerDropChance();
+		float drop = roleDropChance(settings);
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, drop);
 		}
-		if (isLeader) {
+		if (leader == null) {
 			spawnFollowers(level, difficulty, settings);
 		}
 		return data;
@@ -169,19 +194,25 @@ public class Lost extends SkeletonKnight {
 		RandomSource random = getRandom();
 		int count = LostLogic.followerCount(settings.squad().minFollowers(), settings.squad().maxFollowers(), random.nextDouble());
 		for (LostRole followerRole : LostLogic.followerRoles(count, random::nextDouble)) {
-			Lost follower = EamEntities.LOST.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED);
-			if (follower == null) {
-				continue;
-			}
-			Vec3 spot = followerSpot(level, follower, random);
-			follower.snapTo(spot.x, spot.y, spot.z, random.nextFloat() * 360.0F, 0.0F);
-			follower.finalizeSpawn(level, difficulty, EntitySpawnReason.MOB_SUMMONED, new Squad(followerRole, getUUID()));
-			if (isPersistenceRequired()) {
-				follower.setPersistenceRequired();
-			}
-			level.addFreshEntityWithPassengers(follower);
+			spawnMember(level, difficulty, EamEntities.LOST.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), followerRole);
+		}
+		if (role == LostRole.LEADER && bringsCenturion && random.nextDouble() < settings.centurion().chance()) {
+			spawnMember(level, difficulty, EamEntities.LOST_CENTURION.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), LostRole.CENTURION);
 		}
 		UndeadWarlockModule.maybeJoinSquad(level, difficulty, this);
+	}
+
+	private void spawnMember(ServerLevelAccessor level, DifficultyInstance difficulty, @Nullable Lost member, LostRole memberRole) {
+		if (member == null) {
+			return;
+		}
+		Vec3 spot = followerSpot(level, member, getRandom());
+		member.snapTo(spot.x, spot.y, spot.z, getRandom().nextFloat() * 360.0F, 0.0F);
+		member.finalizeSpawn(level, difficulty, EntitySpawnReason.MOB_SUMMONED, new Squad(memberRole, getUUID()));
+		if (isPersistenceRequired()) {
+			member.setPersistenceRequired();
+		}
+		level.addFreshEntityWithPassengers(member);
 	}
 
 	/** A free spot on solid ground within three blocks of the leader, or his own. */
@@ -215,6 +246,9 @@ public class Lost extends SkeletonKnight {
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
+		if (defendTicks > 0) {
+			defendTicks--;
+		}
 		if (--squadRefresh <= 0) {
 			squadRefresh = SQUAD_REFRESH_TICKS;
 			UUID id = squadId();
@@ -238,6 +272,20 @@ public class Lost extends SkeletonKnight {
 				return;
 			}
 		}
+	}
+
+	/**
+	 * His centurion is hit by {@code attacker}, whom he is fighting already: he leaves his place and goes for it for
+	 * {@code ticks}.
+	 */
+	void defendCenturion(LivingEntity attacker, int ticks) {
+		setTarget(attacker);
+		defendTicks = Math.max(defendTicks, ticks);
+	}
+
+	/** Whether he is rushing at someone who hit his centurion. */
+	boolean defending() {
+		return defendTicks > 0;
 	}
 
 	/** His leader, if alive and near. */
@@ -275,7 +323,7 @@ public class Lost extends SkeletonKnight {
 		List<Lost> guards = new ArrayList<>();
 		guards.add(this);
 		for (Lost mate : squad) {
-			if (mate.isAlive() && mate.role != LostRole.LEADER && mate.role.shielded()) {
+			if (mate.isAlive() && mate.role.guards()) {
 				guards.add(mate);
 			}
 		}

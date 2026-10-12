@@ -67,7 +67,7 @@ public final class LostLogic {
 			SkeletonKnightSettings settings, double spearReach, double heavyRoll, double comboRoll) {
 		return switch (role) {
 			case ARCHER -> null;
-			case SPEARMAN -> distance <= spearReach ? Attack.POKE : null;
+			case SPEARMAN, CENTURION -> distance <= spearReach ? Attack.POKE : null;
 			default -> SkeletonKnightLogic.choose(distance, targetBlocking, comboCooldown, heavyCooldown, settings, heavyRoll, comboRoll);
 		};
 	}

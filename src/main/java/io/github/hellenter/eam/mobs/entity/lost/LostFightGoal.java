@@ -81,7 +81,7 @@ final class LostFightGoal extends Goal {
 		boolean sees = lost.getSensing().hasLineOfSight(target);
 		if (sees && lost.isIdleFor(settings.attackPause()) && Math.abs(target.getY() - lost.getY()) < 2.5) {
 			Attack attack = LostLogic.choose(role, distance, target.isBlocking(), lost.comboCooldown(), lost.heavyCooldown(), settings,
-					lostSettings.spearReach(), lost.getRandom().nextDouble(), lost.getRandom().nextDouble());
+					lost.meleeReach(), lost.getRandom().nextDouble(), lost.getRandom().nextDouble());
 			if (attack != null) {
 				lost.getMoveControl().strafe(0.0F, 0.0F);
 				lost.startAttack(attack, target);
@@ -89,15 +89,16 @@ final class LostFightGoal extends Goal {
 			}
 		}
 
-		if (role != LostRole.LEADER && guard(lostSettings)) {
+		// Shield bearers hold their place in front of the archers, unless their centurion needs them.
+		if (role.guards() && !lost.defending() && guard(lostSettings)) {
 			return;
 		}
 
-		double reach = role == LostRole.SPEARMAN ? lostSettings.spearReach() : settings.reach();
+		double reach = lost.meleeReach();
 		if (distance > reach - 0.4 || !sees) {
 			if (repath <= 0 || lost.getNavigation().isDone()) {
 				repath = REPATH_INTERVAL;
-				lost.getNavigation().moveTo(target, 1.0);
+				lost.getNavigation().moveTo(target, lost.defending() ? lostSettings.centurion().defend().speed() : 1.0);
 			}
 			return;
 		}

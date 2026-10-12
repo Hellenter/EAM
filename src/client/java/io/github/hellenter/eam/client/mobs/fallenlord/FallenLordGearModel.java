@@ -39,6 +39,11 @@ public class FallenLordGearModel extends FallenLordModel {
 	}
 
 	public static LayerDefinition createLayer() {
+		return LayerDefinition.create(createMesh(), 128, 64).apply(MeshTransformer.scaling(MODEL_SCALE));
+	}
+
+	/** His armor's parts, unscaled, for a mob that wears it with parts of its own added. */
+	public static MeshDefinition createMesh() {
 		MeshDefinition mesh = new MeshDefinition();
 		PartDefinition root = mesh.getRoot();
 		// Shell down to the neck, its flared rim, a cap rounding the dome, the crest over it and the nasal down the face.
@@ -91,7 +96,7 @@ public class FallenLordGearModel extends FallenLordModel {
 				CubeListBuilder.create().mirror()
 						.texOffs(12, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F)
 						.texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, greaves));
-		return LayerDefinition.create(mesh, 128, 64).apply(MeshTransformer.scaling(MODEL_SCALE));
+		return mesh;
 	}
 
 	@Override

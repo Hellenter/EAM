@@ -30,7 +30,12 @@ public enum KnightAction {
 	/** Axe drawn far back with a crouch, then a full turn hitting everyone around on {@link #AXE_SWEEP_HIT}. */
 	AXE_SWEEP(FallenLordAction.NONE, 26),
 	/** Thrown from his dying horse: he lands, staggers up and draws his axe. */
-	DISMOUNT(FallenLordAction.NONE, 24);
+	DISMOUNT(FallenLordAction.NONE, 24),
+	/**
+	 * The Lost centurion raises his horn and blows it, calling up more of the Lost: the call sounds on
+	 * {@link #HORN_SOUND}, they come on {@link #HORN_CALL}. His own model draws it.
+	 */
+	HORN(FallenLordAction.NONE, 40);
 
 	public static final int SLASH_HIT = 5;
 	public static final int POKE_HIT = 6;
@@ -42,6 +47,8 @@ public enum KnightAction {
 	public static final int[] AXE_DOUBLE_HITS = {5, 10};
 	public static final int AXE_SWEEP_WINDUP = 11;
 	public static final int AXE_SWEEP_HIT = 14;
+	public static final int HORN_SOUND = 8;
+	public static final int HORN_CALL = 20;
 
 	private final FallenLordAction animation;
 	private final int length;

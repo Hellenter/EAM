@@ -16,9 +16,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param guardDistance shield bearers stand this far from the player, on the side of their archers
  * @param squad         how big squads are and how often they spawn
  * @param archer        how archers keep their distance and shoot
+ * @param centurion     the centurion who comes with some squads
  */
 public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings follower, double spearReach, double guardDistance,
-		Squad squad, Archer archer) {
+		Squad squad, Archer archer, LostCenturionSettings centurion) {
 	public static final SkeletonKnightSettings LEADER_DEFAULT = new SkeletonKnightSettings(10, 2.7, 12.0, 1.0F,
 			0.45, 80, 0.6F, 0.2, 0.6,
 			160, 1.7F, 0.5, 0.5F, 4.0F,
@@ -27,7 +28,8 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			0.15, 140, 0.6F, 0.0, 0.0,
 			400, 1.5F, 0.5, 0.5F, 3.0F,
 			0.5, new SkeletonKnightSettings.Dash(300, 3, 0.8));
-	public static final LostSettings DEFAULT = new LostSettings(LEADER_DEFAULT, FOLLOWER_DEFAULT, 3.4, 2.6, Squad.DEFAULT, Archer.DEFAULT);
+	public static final LostSettings DEFAULT = new LostSettings(LEADER_DEFAULT, FOLLOWER_DEFAULT, 3.4, 2.6, Squad.DEFAULT, Archer.DEFAULT,
+			LostCenturionSettings.DEFAULT);
 
 	/**
 	 * @param minFollowers    fewest followers a leader brings (a squad is one more)
@@ -79,6 +81,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			Codec.doubleRange(1.0, 6.0).fieldOf("spear_reach").orElse(DEFAULT.spearReach).forGetter(LostSettings::spearReach),
 			Codec.doubleRange(1.0, 8.0).fieldOf("guard_distance").orElse(DEFAULT.guardDistance).forGetter(LostSettings::guardDistance),
 			Squad.CODEC.fieldOf("squad").orElse(DEFAULT.squad).forGetter(LostSettings::squad),
-			Archer.CODEC.fieldOf("archer").orElse(DEFAULT.archer).forGetter(LostSettings::archer)
+			Archer.CODEC.fieldOf("archer").orElse(DEFAULT.archer).forGetter(LostSettings::archer),
+			LostCenturionSettings.CODEC.fieldOf("centurion").orElse(DEFAULT.centurion).forGetter(LostSettings::centurion)
 	).apply(instance, LostSettings::new));
 }

@@ -16,6 +16,7 @@ import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
 import io.github.hellenter.eam.mobs.entity.king.ThrownKingAxe;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
+import io.github.hellenter.eam.mobs.entity.lost.LostCenturion;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
 import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
@@ -76,6 +77,17 @@ public final class EamEntities {
 	/** One of the Lost: an underworld corpse in worn ancient metal, 2.25 blocks tall, roaming in squads. */
 	public static final EntityType<Lost> LOST = register("lost",
 			EntityType.Builder.of(Lost::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.25F)
+					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/**
+	 * The Lost centurion: one of the Lost in battered full plate with a red crest, a long bannered spear, a shield and
+	 * a horn that calls up more of them.
+	 */
+	public static final EntityType<LostCenturion> LOST_CENTURION = register("lost_centurion",
+			EntityType.Builder.of(LostCenturion::new, MobCategory.MONSTER)
 					.sized(0.65F, 2.25F)
 					.eyeHeight(1.97F)
 					.clientTrackingRange(10)

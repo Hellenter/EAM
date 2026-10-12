@@ -211,6 +211,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Skeleton Knight Spawn Egg");
 			builder.add(EamEntities.LOST, "Lost");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Lost Spawn Egg");
+			builder.add(EamEntities.LOST_CENTURION, "Lost Centurion");
+			builder.add(EamItems.LOST_CENTURION_SPAWN_EGG, "Lost Centurion Spawn Egg");
 			builder.add(EamEntities.LOST_CAVALRYMAN, "Heavy Lost Cavalryman");
 			builder.add(EamEntities.LOST_WARHORSE, "Lost Warhorse");
 			builder.add(EamItems.LOST_CAVALRYMAN_SPAWN_EGG, "Heavy Lost Cavalry Spawn Egg");
@@ -717,6 +719,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SKELETON_KNIGHT_SPAWN_EGG, "Яйцо призыва скелета-рыцаря");
 			builder.add(EamEntities.LOST, "Сгинувший");
 			builder.add(EamItems.LOST_SPAWN_EGG, "Яйцо призыва отряда сгинувших");
+			builder.add(EamEntities.LOST_CENTURION, "Потерянный сотник");
+			builder.add(EamItems.LOST_CENTURION_SPAWN_EGG, "Яйцо призыва потерянного сотника с отрядом");
 			builder.add(EamEntities.LOST_CAVALRYMAN, "Тяжёлый потерянный кавалерист");
 			builder.add(EamEntities.LOST_WARHORSE, "Боевой конь потерянного кавалериста");
 			builder.add(EamItems.LOST_CAVALRYMAN_SPAWN_EGG, "Яйцо призыва пары тяжёлых кавалеристов");
