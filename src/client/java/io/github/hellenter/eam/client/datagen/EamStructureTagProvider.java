@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.world.structures.StructureRemovalModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptLocator;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
+import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -30,7 +31,12 @@ public class EamStructureTagProvider extends FabricTagsProvider<Structure> {
 				.add(BuiltinStructures.RUINED_PORTAL_JUNGLE)
 				.add(BuiltinStructures.RUINED_PORTAL_SWAMP)
 				.add(BuiltinStructures.RUINED_PORTAL_MOUNTAIN)
-				.add(BuiltinStructures.RUINED_PORTAL_OCEAN);
+				.add(BuiltinStructures.RUINED_PORTAL_OCEAN)
+				// Maxim's outpost takes its place.
+				.add(BuiltinStructures.PILLAGER_OUTPOST);
+
+		// The Pillager King's castle is not built yet; the outpost's map says so until it is.
+		builder(OutpostModule.KING_CASTLE);
 
 		builder(CryptLocator.LOCATED_BY_EYE)
 				.add(CryptModule.STRUCTURE);

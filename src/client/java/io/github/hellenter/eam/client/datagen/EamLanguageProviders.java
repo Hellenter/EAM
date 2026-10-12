@@ -171,6 +171,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
 			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
+			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
+			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
 			builder.add(EamItems.VAMPIRE_HEART, "Vampire Heart");
 			builder.add(EamItems.HEART_IN_JAR, "Heart in a Jar");
 			builder.add("item.eam.black_talisman.desc", "Use on a portal frame to open the way");
@@ -663,6 +665,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
 			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
+			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
+			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
 			builder.add(EamItems.VAMPIRE_HEART, "Сердце вампира");
 			builder.add(EamItems.HEART_IN_JAR, "Сердце в банке");
 			builder.add("item.eam.black_talisman.desc", "Используйте на рамке портала, чтобы открыть путь");

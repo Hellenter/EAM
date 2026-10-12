@@ -56,6 +56,7 @@ import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 import io.github.hellenter.eam.world.structures.StructureRemovalModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
+import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
@@ -114,6 +115,7 @@ public class Eam implements ModInitializer {
 		CraftingModule.register();
 		VillageModule.register();
 		CryptModule.register();
+		OutpostModule.register();
 		ForgingModule.register();
 		SilverModule.register();
 		ArrowHeadModule.register();

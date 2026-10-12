@@ -32,6 +32,7 @@ import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
+import io.github.hellenter.eam.world.structures.outpost.KingCastleMapItem;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderSet;
@@ -162,6 +163,10 @@ public final class EamItems {
 
 	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
+
+	/** From the pillager outpost's red chest: in hand, it turns into a map to the Pillager King's castle. */
+	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
 	/** Vampire bat drop, 15%: the core of the heart in a jar. */
 	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));

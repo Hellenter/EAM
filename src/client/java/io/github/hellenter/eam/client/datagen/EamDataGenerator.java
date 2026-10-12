@@ -25,6 +25,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamBlockLootProvider::new);
 		pack.addProvider(EamWorldgenProvider::new);
 		pack.addProvider(EamCryptProvider::new);
+		pack.addProvider(EamOutpostProvider::new);
+		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamCryptSpawnerProvider::new);
 		pack.addProvider(EamCryptGearProvider::new);
@@ -56,8 +58,14 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.MATERIAL_RULE, UnderworldWorldgen::bootstrapMaterialRules);
 		registryBuilder.add(Registries.NOISE_SETTINGS, UnderworldWorldgen::bootstrapNoiseSettings);
 		registryBuilder.add(Registries.DIMENSION_TYPE, UnderworldWorldgen::bootstrapDimensionTypes);
-		registryBuilder.add(Registries.STRUCTURE, EamCryptProvider::bootstrap);
-		registryBuilder.add(Registries.STRUCTURE_SET, EamCryptProvider::bootstrapSets);
+		registryBuilder.add(Registries.STRUCTURE, context -> {
+			EamCryptProvider.bootstrap(context);
+			EamOutpostProvider.bootstrap(context);
+		});
+		registryBuilder.add(Registries.STRUCTURE_SET, context -> {
+			EamCryptProvider.bootstrapSets(context);
+			EamOutpostProvider.bootstrapSets(context);
+		});
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);
 	}
 }
