@@ -545,34 +545,30 @@ final class UnderworldWorldgen {
 		context.register(UnderworldDimension.STONE_WASTES, biome(placed, carvers, 0.5F, 0x2E2E2E, 0x3F4A55,
 				SoundEvents.MUSIC_BIOME_DRIPSTONE_CAVES, List.of(),
 				features(common, P_LAKES_FEW, P_ORE_GRAVEL, P_SPRING_WATER, P_SPRING_LAVA, P_BROWN_MUSHROOMS_FEW, P_COBWEB, P_GLOW_LICHEN),
-				spawns(EntityTypes.SKELETON, 100, EntityTypes.ZOMBIE, 95, EntityTypes.SPIDER, 60, EntityTypes.CAVE_SPIDER, 40,
-						EntityTypes.CREEPER, 50, EntityTypes.ENDERMAN, 8, EntityTypes.WITCH, 5)));
+				spawns()));
 		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x2D2433, 0x3D57D6,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.MYCELIUM, 0.02F),
 				features(common, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
 						P_HUGE_RED, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
-				spawns(EntityTypes.ZOMBIE, 90, EntityTypes.SKELETON, 80, EntityTypes.SPIDER, 80, EntityTypes.CREEPER, 60,
-						EntityTypes.WITCH, 10, EntityTypes.ENDERMAN, 5)));
+				spawns()));
 		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E6E8E,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
 				features(common, P_LAKES_MANY, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY),
-				spawns(EntityTypes.ZOMBIE, 90, EntityTypes.SKELETON, 90, EntityTypes.CREEPER, 40, EntityTypes.SPIDER, 40,
-						EntityTypes.CAVE_SPIDER, 20, EntityTypes.WITCH, 5)));
+				spawns()));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
 				features(common, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
-				spawns(EntityTypes.MAGMA_CUBE, 60, EntityTypes.SKELETON, 80, EntityTypes.ZOMBIE, 60, EntityTypes.CAVE_SPIDER, 30,
-						EntityTypes.CREEPER, 20)));
+				spawns()));
 		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.004F),
 				features(common, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN, P_DRAUGR_PACK),
-				spawns(EntityTypes.SKELETON, 100, EntityTypes.ZOMBIE, 80, EntityTypes.SPIDER, 40, EntityTypes.CREEPER, 40)));
+				spawns()));
 		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),
 				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD), P_ORE_MITHRIL_DEPTHS, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
 						P_GLOW_LICHEN),
-				spawns(EntityTypes.MAGMA_CUBE, 80, EntityTypes.SKELETON, 60, EntityTypes.CAVE_SPIDER, 60, EntityTypes.ZOMBIE, 40)));
+				spawns()));
 	}
 
 	@SafeVarargs
@@ -582,14 +578,12 @@ final class UnderworldWorldgen {
 		return list;
 	}
 
-	private static MobSpawnSettings spawns(Object... typesAndWeights) {
+	/**
+	 * No vanilla monsters spawn in the underworld: its monsters are our own (the Lost, vampire bats, draugr, ...), added
+	 * by their modules through biome tags. Only plain bats stay.
+	 */
+	private static MobSpawnSettings spawns() {
 		MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
-		for (int i = 0; i < typesAndWeights.length; i += 2) {
-			var type = (net.minecraft.world.entity.EntityType<?>) typesAndWeights[i];
-			int weight = (Integer) typesAndWeights[i + 1];
-			int group = type == EntityTypes.ENDERMAN || type == EntityTypes.WITCH ? 1 : 4;
-			mobs.addSpawn(type, weight, 1, group);
-		}
 		mobs.addSpawn(EntityTypes.BAT, 10, 8, 8);
 		return mobs.build();
 	}

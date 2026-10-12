@@ -25,54 +25,6 @@
               "count": 8,
               "weight": 10
             }
-          ],
-          "monster": [
-            {
-              "type": "minecraft:zombie",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 90
-            },
-            {
-              "type": "minecraft:skeleton",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 80
-            },
-            {
-              "type": "minecraft:spider",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 80
-            },
-            {
-              "type": "minecraft:creeper",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 60
-            },
-            {
-              "type": "minecraft:witch",
-              "count": 1,
-              "weight": 10
-            },
-            {
-              "type": "minecraft:enderman",
-              "count": 1,
-              "weight": 5
-            }
           ]
         }
       },

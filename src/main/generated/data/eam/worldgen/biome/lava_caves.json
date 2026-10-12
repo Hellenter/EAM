@@ -25,53 +25,6 @@
               "count": 8,
               "weight": 10
             }
-          ],
-          "monster": [
-            {
-              "type": "minecraft:magma_cube",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 60
-            },
-            {
-              "type": "minecraft:skeleton",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 80
-            },
-            {
-              "type": "minecraft:zombie",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 60
-            },
-            {
-              "type": "minecraft:cave_spider",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 30
-            },
-            {
-              "type": "minecraft:creeper",
-              "count": {
-                "type": "minecraft:uniform",
-                "max_inclusive": 4,
-                "min_inclusive": 1
-              },
-              "weight": 20
-            }
           ]
         }
       },
