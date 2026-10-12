@@ -111,12 +111,4 @@ public final class OutpostLogic {
 		long dz = Math.max(0, Math.max(minZ - z, z - maxZ));
 		return dx * dx + dz * dz <= (long) radius * radius;
 	}
-
-	/**
-	 * Whether a block at height {@code y} in a cleared column may be removed: anywhere outside the footprint, and only
-	 * above the template's top inside it, where the template has no blocks of its own.
-	 */
-	public static boolean mayClear(boolean inFootprint, int y, int templateTop) {
-		return !inFootprint || y > templateTop;
-	}
 }

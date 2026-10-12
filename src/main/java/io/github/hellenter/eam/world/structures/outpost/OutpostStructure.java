@@ -39,9 +39,10 @@ public class OutpostStructure extends Structure {
 
 	/**
 	 * How far the leaves of a tree growing outside the clearing may reach into it. Each chunk clears this far beyond
-	 * its edges, so trees grown in a neighbouring chunk after it are cleared by that chunk, leaves and all.
+	 * its edges, so trees grown in a neighbouring chunk after it are cleared by that chunk, leaves and all. A fancy
+	 * oak's branches with their leaves reach about this far from its trunk.
 	 */
-	private static final int LEAF_REACH = 8;
+	private static final int LEAF_REACH = 12;
 	/** How far out the bank of earth around a raised outpost reaches; as far as the steepest site rises. */
 	private static final int BANK = 10;
 	/** How deep earth is filled under a raised outpost or its bank at most. */
@@ -99,7 +100,7 @@ public class OutpostStructure extends Structure {
 			BoundingBox chunkBox, ChunkPos chunk, PiecesContainer pieces) {
 		for (StructurePiece piece : pieces.pieces()) {
 			if (!(piece instanceof OutpostPiece outpost)) continue;
-			if (clearRadius > 0) clearTrees(level, chunkBox, outpost.templateBox());
+			if (clearRadius > 0) clearTrees(level, chunkBox, outpost);
 			bank(level, chunkBox, outpost.templateBox());
 		}
 	}
@@ -133,7 +134,8 @@ public class OutpostStructure extends Structure {
 		}
 	}
 
-	private void clearTrees(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint) {
+	private void clearTrees(WorldGenLevel level, BoundingBox chunkBox, OutpostPiece outpost) {
+		BoundingBox footprint = outpost.templateBox();
 		int fromX = Math.max(chunkBox.minX() - LEAF_REACH, footprint.minX() - clearRadius);
 		int toX = Math.min(chunkBox.maxX() + LEAF_REACH, footprint.maxX() + clearRadius);
 		int fromZ = Math.max(chunkBox.minZ() - LEAF_REACH, footprint.minZ() - clearRadius);
@@ -143,16 +145,16 @@ public class OutpostStructure extends Structure {
 			for (int z = fromZ; z <= toZ; z++) {
 				if (!OutpostLogic.inClearing(footprint.minX(), footprint.minZ(), footprint.maxX(), footprint.maxZ(), clearRadius, x, z)) continue;
 				boolean inFootprint = x >= footprint.minX() && x <= footprint.maxX() && z >= footprint.minZ() && z <= footprint.maxZ();
-				clearColumn(level, pos, x, z, inFootprint, footprint.maxY());
+				if (inFootprint) clearFootprintColumn(level, pos, x, z, outpost, footprint.minY() + OutpostPiece.GROUND);
+				else clearColumn(level, pos, x, z);
 			}
 		}
 	}
 
 	/** Removes the tree blocks of one column from the top down to the ground, which keeps grass where a trunk stood. */
-	private static void clearColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z, boolean inFootprint, int templateTop) {
+	private static void clearColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z) {
 		boolean trunk = false;
 		for (int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1; y >= level.getMinY(); y--) {
-			if (!OutpostLogic.mayClear(inFootprint, y, templateTop)) return;
 			pos.set(x, y, z);
 			BlockState state = level.getBlockState(pos);
 			if (isTreePart(state)) {
@@ -163,6 +165,21 @@ public class OutpostStructure extends Structure {
 			} else {
 				if (trunk && state.is(Blocks.DIRT)) level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), Block.UPDATE_CLIENTS);
 				return;
+			}
+		}
+	}
+
+	/**
+	 * Removes the tree blocks of one column over the outpost down to its ground. A tree grown in a neighbouring chunk
+	 * after the outpost was placed puts its leaves and branches into the template's air, beside walls and under roofs,
+	 * so the whole height is searched, past the template's own blocks, and only the logs the template has stay.
+	 */
+	private static void clearFootprintColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z, OutpostPiece outpost, int ground) {
+		for (int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1; y >= ground; y--) {
+			pos.set(x, y, z);
+			BlockState state = level.getBlockState(pos);
+			if (isTreePart(state) && !(state.is(BlockTags.LOGS) && outpost.placesLog(pos))) {
+				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
 			}
 		}
 	}

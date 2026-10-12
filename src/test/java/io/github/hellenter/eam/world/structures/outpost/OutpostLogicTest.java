@@ -23,13 +23,6 @@ class OutpostLogicTest {
 		assertFalse(OutpostLogic.inClearing(0, 0, 32, 32, 15, -12, -12));
 	}
 
-	@Test
-	void templateIsOnlyClearedAboveItsTop() {
-		assertTrue(OutpostLogic.mayClear(false, 70, 90));
-		assertFalse(OutpostLogic.mayClear(true, 90, 90));
-		assertTrue(OutpostLogic.mayClear(true, 91, 90));
-	}
-
 	private static final int WIDTH = 2 * OutpostLogic.REACH + 1;
 
 	/** Ground rising {@code slopeX} per sample to the east and {@code slopeZ} per sample to the south, from 64. */
