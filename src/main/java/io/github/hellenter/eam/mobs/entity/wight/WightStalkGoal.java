@@ -57,7 +57,7 @@ final class WightStalkGoal extends Goal {
 
 	@Override
 	public boolean canUse() {
-		return wight.isOnFire() || wight.stalked() != null;
+		return !wight.summoned() && (wight.isOnFire() || wight.stalked() != null);
 	}
 
 	@Override

@@ -31,6 +31,7 @@ import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
@@ -107,6 +108,7 @@ public class Eam implements ModInitializer {
 		SpiderModule.register();
 		VampireBatModule.register();
 		UpyrModule.register();
+		BabaYagaModule.register();
 		BleedingModule.register();
 		EamWorldgen.init();
 		CampFireModule.register();

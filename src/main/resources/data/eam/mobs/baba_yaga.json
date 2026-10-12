@@ -1,0 +1,141 @@
+{
+  "stats": {
+    "phase_one_health": 50.0,
+    "phase_two_health": 100.0,
+    "armor": 4.0,
+    "speed": 0.3,
+    "follow_range": 64.0,
+    "xp": 300
+  },
+  "flight": {
+    "altitude": 7.0,
+    "orbit_radius": 14.0,
+    "orbit_turn": 0.6,
+    "speed": 0.35
+  },
+  "swoop": {
+    "delay": 40,
+    "wave_timeout": 2400,
+    "strike_tick": 30,
+    "parry_window": 12,
+    "damage": 5.0,
+    "parry_damage": 10.0,
+    "reach": 3.0,
+    "speed": 1.0,
+    "retreat_ticks": 40
+  },
+  "summon": {
+    "groups": 3,
+    "min_size": 3,
+    "max_size": 5,
+    "max_wights": 3,
+    "min_radius": 16.0,
+    "max_radius": 35.0,
+    "first_delay": 40,
+    "lurker_weight": 4,
+    "wight_weight": 3,
+    "soldier_weight": 4,
+    "follow_range": 64.0
+  },
+  "potion": {
+    "cooldown": 150,
+    "range": 28.0,
+    "radius": 6.0,
+    "poison_ticks": 200,
+    "nausea_ticks": 300,
+    "nausea_level": 1,
+    "weakness_ticks": 300,
+    "weakness_level": 0
+  },
+  "spell": {
+    "cooldown": 120,
+    "duration": 400,
+    "far_distance": 10.0,
+    "near_distance": 5.0,
+    "hurt_memory": 100,
+    "flight_ticks": 20,
+    "absorption_level": 3,
+    "speed_level": 1,
+    "strength_level": 1
+  },
+  "glyphs": {
+    "cooldown": 260,
+    "first_delay": 160,
+    "radius": 8.0,
+    "damage_radius": 6.0,
+    "duration": 240,
+    "damage_delay": 100,
+    "damage": 8.0,
+    "mob_heal": 16.0,
+    "drain_heal": 1.0,
+    "effect_ticks": 30
+  },
+  "phase_two": {
+    "min_distance": 10.0,
+    "max_distance": 18.0,
+    "flee_distance": 7.0,
+    "attack_pause": 30,
+    "summon_below": 2,
+    "summon_cooldown": 300,
+    "min_size": 3,
+    "max_size": 5,
+    "flee_speed": 1.4
+  },
+  "escape": {
+    "hits": 2,
+    "window": 100,
+    "blind_ticks": 100,
+    "run_ticks": 24,
+    "run_speed": 5.0,
+    "distance": 20.0,
+    "min_spawn": 2,
+    "max_spawn": 3,
+    "cooldown": 200
+  },
+  "acid": {
+    "cooldown": 110,
+    "range": 28.0,
+    "damage": 5.0,
+    "speed": 1.6,
+    "pool_ticks": 60,
+    "pool_damage": 3.0,
+    "pool_radius": 1.6
+  },
+  "threads": {
+    "cooldown": 360,
+    "range": 24.0,
+    "speed": 0.9,
+    "count": 3,
+    "health": 1.0,
+    "max_ticks": 300
+  },
+  "beam": {
+    "cooldown": 260,
+    "range": 22.0,
+    "windup": 16,
+    "ticks": 40,
+    "damage": 6.0,
+    "fire_ticks": 40,
+    "turn": 3.0
+  },
+  "claws": {
+    "cooldown": 420,
+    "blind_ticks": 40,
+    "distance": 6.0,
+    "angle": 35.0,
+    "lunge": 14,
+    "parry_window": 11,
+    "hits": 5,
+    "gap": 4,
+    "damage": 6.0,
+    "shield_seconds": 5.0,
+    "parry_multiplier": 1.5
+  },
+  "eat": {
+    "below": 60.0,
+    "heal": 25.0,
+    "cooldown": 800,
+    "range": 20.0,
+    "ticks": 30
+  }
+}

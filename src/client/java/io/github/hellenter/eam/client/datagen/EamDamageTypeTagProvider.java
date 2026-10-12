@@ -5,6 +5,7 @@ import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
@@ -44,6 +45,12 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.IS_PROJECTILE).add(EliteCrossbowmanModule.RED_BOLT_DAMAGE);
 		// The onslaught of the Pillager King and his guards works out the share a shield takes itself.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(PillagerKingModule.ONSLAUGHT_DAMAGE, PillagerGuardModule.ONSLAUGHT_DAMAGE);
+		// Baba Yaga's curse (glyph of harm, acid) is pure damage: through armor, its enchantments and shields. Her fire beam
+		// goes through armor too; she checks a shield held towards her herself.
+		builder(DamageTypeTags.BYPASSES_ARMOR).add(BabaYagaModule.CURSE_DAMAGE, BabaYagaModule.BEAM_DAMAGE);
+		builder(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(BabaYagaModule.CURSE_DAMAGE, BabaYagaModule.BEAM_DAMAGE);
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(BabaYagaModule.CURSE_DAMAGE, BabaYagaModule.BEAM_DAMAGE);
+		builder(DamageTypeTags.NO_KNOCKBACK).add(BabaYagaModule.CURSE_DAMAGE, BabaYagaModule.BEAM_DAMAGE);
 		// Weapon hits and projectiles, which the Fallen Lord partly resists.
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,

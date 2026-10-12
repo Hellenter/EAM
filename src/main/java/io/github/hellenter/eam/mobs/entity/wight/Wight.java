@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.wight;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonLogic;
 
 import net.minecraft.core.BlockPos;
@@ -23,8 +24,11 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +48,7 @@ import org.jspecify.annotations.Nullable;
  * eating, drinking), it darts in for a couple of blows and runs. A player under a third of their health is hunted down:
  * pass after pass from behind. It runs 1.7 times as fast as a sprinting player, so it cannot be caught; but fire undoes
  * it: burning, it shows itself, stops attacking, staggers about groaning looking for water and takes double damage.
- * The sun does not hurt it.
+ * The sun does not hurt it. One raised by Baba Yaga is another thing: it never cloaks and goes straight for the player.
  */
 public class Wight extends Monster {
 	/**
@@ -53,6 +57,8 @@ public class Wight extends Monster {
 	 */
 	static final double MOVEMENT_SPEED = 0.465;
 	private static final double FOLLOW_RANGE = 48.0;
+	/** A wight raised by Baba Yaga runs at the player a bit slower than its full speed. */
+	private static final double SUMMONED_RUN = 0.75;
 	/** A fresh wight watches a while before its first raid. */
 	private static final int FIRST_RAID_DELAY = 600;
 
@@ -110,6 +116,30 @@ public class Wight extends Monster {
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
+		// Raised by Baba Yaga: no stalking, a plain charge at the player.
+		goalSelector.addGoal(1, new MeleeAttackGoal(this, SUMMONED_RUN, true) {
+			@Override
+			public boolean canUse() {
+				return summoned() && super.canUse();
+			}
+
+			@Override
+			public boolean canContinueToUse() {
+				return summoned() && super.canContinueToUse();
+			}
+		});
+		targetSelector.addGoal(1, new HurtByTargetGoal(this) {
+			@Override
+			public boolean canUse() {
+				return summoned() && super.canUse();
+			}
+		});
+		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false) {
+			@Override
+			public boolean canUse() {
+				return summoned() && super.canUse();
+			}
+		});
 		goalSelector.addGoal(1, new WightStalkGoal(this));
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.4));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
@@ -201,9 +231,18 @@ public class Wight extends Monster {
 		return value;
 	}
 
+	/** Raised by Baba Yaga: it fights in the open and at once. */
+	boolean summoned() {
+		return BabaYagaModule.isMinion(this);
+	}
+
 	// ---- Invisibility ----
 
 	private void cloak() {
+		if (summoned()) {
+			decloak();
+			return;
+		}
 		if (!hasEffect(MobEffects.INVISIBILITY)) {
 			addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false));
 		}
@@ -253,7 +292,7 @@ public class Wight extends Monster {
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
 		float taken = WightLogic.damageTaken(damage, isOnFire(), settings().burningDamage());
 		boolean hurt = super.hurtServer(level, source, taken);
-		if (hurt && !isOnFire()) {
+		if (hurt && !isOnFire() && !summoned()) {
 			fleeRequested = true;
 		}
 		return hurt;

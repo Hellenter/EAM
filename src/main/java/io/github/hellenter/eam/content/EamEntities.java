@@ -25,6 +25,12 @@ import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
+import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
+import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
+import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
+import io.github.hellenter.eam.mobs.entity.yaga.HagPotion;
+import io.github.hellenter.eam.mobs.entity.yaga.HagThread;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -145,6 +151,54 @@ public final class EamEntities {
 					.eyeHeight(1.74F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
+
+	/** Baba Yaga: a hunched old witch with a staff, flying in her mortar until it breaks. Fire does not touch her in it. */
+	public static final EntityType<BabaYaga> BABA_YAGA = register("baba_yaga",
+			EntityType.Builder.of(BabaYaga::new, MobCategory.MONSTER)
+					.sized(0.95F, 2.1F)
+					.eyeHeight(1.85F)
+					.clientTrackingRange(10));
+
+	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */
+	public static final EntityType<DrownedSoldier> DROWNED_SOLDIER = register("drowned_soldier",
+			EntityType.Builder.of(DrownedSoldier::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A glowing glyph Baba Yaga lays on the ground, or her acid puddle. */
+	public static final EntityType<HagGlyph> HAG_GLYPH = register("hag_glyph",
+			EntityType.Builder.<HagGlyph>of(HagGlyph::new, MobCategory.MISC)
+					.noLootTable()
+					.noSave()
+					.sized(0.5F, 0.1F)
+					.clientTrackingRange(10)
+					.updateInterval(1));
+
+	/** Baba Yaga's poison flask. */
+	public static final EntityType<HagPotion> HAG_POTION = register("hag_potion",
+			EntityType.Builder.<HagPotion>of(HagPotion::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.25F, 0.25F)
+					.clientTrackingRange(8)
+					.updateInterval(10));
+
+	/** Baba Yaga's acid and purple bolts. */
+	public static final EntityType<HagBolt> HAG_BOLT = register("hag_bolt",
+			EntityType.Builder.<HagBolt>of(HagBolt::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3125F, 0.3125F)
+					.clientTrackingRange(8)
+					.updateInterval(2));
+
+	/** A purple thread out of the ground that holds a player by the legs. */
+	public static final EntityType<HagThread> HAG_THREAD = register("hag_thread",
+			EntityType.Builder.of(HagThread::new, MobCategory.MISC)
+					.noLootTable()
+					.noSave()
+					.sized(0.45F, 1.1F)
+					.clientTrackingRange(8));
 
 	/** MITE's wood spider: a small bark-brown spider from the tree crowns, 0.6 the size of a spider. */
 	public static final EntityType<WoodSpider> WOOD_SPIDER = register("wood_spider",

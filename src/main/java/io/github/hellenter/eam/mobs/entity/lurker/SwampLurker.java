@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.lurker;
 
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerLogic.Launch;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -17,6 +18,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
@@ -143,7 +146,10 @@ public class SwampLurker extends Monster {
 			@Nullable SpawnGroupData groupData) {
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
 		setCanPickUpLoot(false);
-		if (reason == EntitySpawnReason.NATURAL || reason == EntitySpawnReason.CHUNK_GENERATION) {
+		if (BabaYagaModule.isMinion(this)) {
+			// Raised by Baba Yaga: it fights in daylight too.
+			addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, MobEffectInstance.INFINITE_DURATION, 0, true, false, false));
+		} else if (reason == EntitySpawnReason.NATURAL || reason == EntitySpawnReason.CHUNK_GENERATION) {
 			// It spawns lying in wait.
 			BlockPos below = blockPosition().below();
 			if (canBurrowInto(level, below) && level.getLevel().getGameRules().get(GameRules.MOB_GRIEFING)) {
@@ -379,9 +385,10 @@ public class SwampLurker extends Monster {
 		}
 	}
 
-	/** With no one to hunt for a while, or burning in the sun, it dives into the ground under it. */
+	/** With no one to hunt for a while, or burning in the sun, it dives into the ground under it; not if Baba Yaga raised it. */
 	private boolean wantsToBurrow(ServerLevel level) {
-		if (!onGround() || !level.getGameRules().get(GameRules.MOB_GRIEFING) || !canBurrowInto(level, blockPosition().below())) {
+		// One raised by Baba Yaga fights to the end.
+		if (BabaYagaModule.isMinion(this) || !onGround() || !level.getGameRules().get(GameRules.MOB_GRIEFING) || !canBurrowInto(level, blockPosition().below())) {
 			return false;
 		}
 		boolean sunBurnt = isOnFire() && level.isBrightOutside() && level.canSeeSky(blockPosition());
