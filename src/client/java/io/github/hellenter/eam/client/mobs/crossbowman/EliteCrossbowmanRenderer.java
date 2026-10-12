@@ -88,6 +88,8 @@ public class EliteCrossbowmanRenderer extends IllagerRenderer<EliteCrossbowman, 
 	 */
 	public static LayerDefinition createOutfitLayer() {
 		CubeDeformation g = new CubeDeformation(0.3F);
+		// The gambeson sleeves sit close on the arm, like a shirt's.
+		CubeDeformation sleeve = new CubeDeformation(0.1F);
 		MeshDefinition mesh = new MeshDefinition();
 		PartDefinition root = mesh.getRoot();
 		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
@@ -96,19 +98,19 @@ public class EliteCrossbowmanRenderer extends IllagerRenderer<EliteCrossbowman, 
 				.texOffs(16, 20).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F, g)
 				.texOffs(0, 38).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 20.0F, 6.0F, new CubeDeformation(0.75F)), PartPose.ZERO);
 		PartDefinition arms = root.addOrReplaceChild("arms", CubeListBuilder.create()
-						.texOffs(44, 22).addBox(-8.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, g)
-						.texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F, g),
+						.texOffs(44, 22).addBox(-8.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, sleeve)
+						.texOffs(40, 38).addBox(-4.0F, 2.0F, -2.0F, 8.0F, 4.0F, 4.0F, sleeve),
 				PartPose.offsetAndRotation(0.0F, 3.0F, -1.0F, -0.75F, 0.0F, 0.0F));
 		arms.addOrReplaceChild("left_shoulder", CubeListBuilder.create().texOffs(44, 22).mirror()
-				.addBox(4.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, g), PartPose.ZERO);
+				.addBox(4.0F, -2.0F, -2.0F, 4.0F, 8.0F, 4.0F, sleeve), PartPose.ZERO);
 		root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 22)
 				.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, g), PartPose.offset(-2.0F, 12.0F, 0.0F));
 		root.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(0, 22).mirror()
 				.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, g), PartPose.offset(2.0F, 12.0F, 0.0F));
 		root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(40, 46)
-				.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, g), PartPose.offset(-5.0F, 2.0F, 0.0F));
+				.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, sleeve), PartPose.offset(-5.0F, 2.0F, 0.0F));
 		root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(40, 46).mirror()
-				.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, g), PartPose.offset(5.0F, 2.0F, 0.0F));
+				.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, sleeve), PartPose.offset(5.0F, 2.0F, 0.0F));
 		return LayerDefinition.create(mesh, 64, 64);
 	}
 
