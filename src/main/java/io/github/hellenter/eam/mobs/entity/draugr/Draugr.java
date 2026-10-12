@@ -239,6 +239,11 @@ public class Draugr extends Monster {
 	public void setState(DraugrState value) {
 		entityData.set(DATA_STATE, (byte) value.ordinal());
 		applyState(value);
+		// In the floor and climbing out he hangs where he is; up, he falls like anyone. This is the saved flag, not an
+		// override of isNoGravity(): the game saves whatever that returns, so a draugr saved while buried came back
+		// weightless for good once up, floating where he stood or drifting up into the air. Setting it here also mends
+		// draugr saved that way.
+		setNoGravity(value != DraugrState.AWAKE);
 	}
 
 	private void applyState(DraugrState value) {
@@ -265,11 +270,6 @@ public class Draugr extends Monster {
 			case RISING -> Math.min(1.0F, (tickCount - clientRiseStart + partialTicks) / Math.max(1, entityData.get(DATA_RISE_TICKS)));
 			case AWAKE -> 1.0F;
 		};
-	}
-
-	@Override
-	public boolean isNoGravity() {
-		return state != DraugrState.AWAKE || super.isNoGravity();
 	}
 
 	@Override
