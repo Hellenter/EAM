@@ -35,6 +35,8 @@ import net.minecraft.world.entity.ai.goal.SpearUseGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -81,8 +83,16 @@ public class Draugr extends Monster {
 	/** Ticks until he starts to rise, once woken; -1 while nothing has woken him. */
 	private int wakeDelay = -1;
 	private @Nullable UUID wakeTarget;
+	/**
+	 * Whether his column has held him whole at least once. The cave around a pack is not finished when the pack is laid:
+	 * a lake from a neighbouring chunk may still cut into the floor and open a grave. A grave found open before it ever
+	 * held him was spoiled that way, not dug out, so he is not there at all rather than standing about on the floor.
+	 */
+	private boolean sealed;
 	private int riseTick;
 	private double riseFrom;
+	/** Server: he is clawing his way up a wall after his target. */
+	private boolean climbing;
 	/** Client: the tick count when he began to rise. */
 	private int clientRiseStart;
 
@@ -125,6 +135,21 @@ public class Draugr extends Monster {
 		targetSelector.addGoal(1, new HurtByTargetGoal(this, Draugr.class).setAlertOthers());
 		// The dead do not need to see the living: they feel them through the ice and rock.
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
+	}
+
+	/**
+	 * The ice caves are all ledges and spires a walking mob cannot path up. Like a spider, a draugr that cannot find a
+	 * way heads straight for his target and claws up whatever wall stands in it.
+	 */
+	@Override
+	protected PathNavigation createNavigation(Level level) {
+		return new WallClimberNavigation(this, level);
+	}
+
+	/** Only after someone: idle, he does not wander up the walls. */
+	@Override
+	public boolean onClimbable() {
+		return climbing || super.onClimbable();
 	}
 
 	// ---- Spawning and gear ----
@@ -301,6 +326,9 @@ public class Draugr extends Monster {
 			return;
 		}
 		super.tick();
+		if (!level().isClientSide()) {
+			climbing = state == DraugrState.AWAKE && horizontalCollision && getTarget() != null;
+		}
 	}
 
 	@Override
@@ -325,12 +353,17 @@ public class Draugr extends Monster {
 			return;
 		}
 		if (!entombed(level)) {
+			if (!sealed) {
+				discard();
+				return;
+			}
 			// Dug out: he rises at whoever is near.
 			Player player = level.getNearestPlayer(getX(), getY() + 1.0, getZ(), DUG_OUT_RANGE, EntitySelector.NO_CREATIVE_OR_SPECTATOR);
 			wakeTarget = player == null ? null : player.getUUID();
 			startRising(level);
 			return;
 		}
+		sealed = true;
 		if (state == DraugrState.WAITING) {
 			Player player = level.getNearestPlayer(getX(), getY() + 1.0, getZ(), settings().waitRadius(), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
 			if (player != null) {
@@ -468,6 +501,7 @@ public class Draugr extends Monster {
 		output.putInt("WakeDelay", wakeDelay);
 		output.putInt("RiseTick", riseTick);
 		output.putDouble("RiseFrom", riseFrom);
+		output.putBoolean("Sealed", sealed);
 	}
 
 	@Override
@@ -478,5 +512,6 @@ public class Draugr extends Monster {
 		wakeDelay = input.getIntOr("WakeDelay", -1);
 		riseTick = input.getIntOr("RiseTick", 0);
 		riseFrom = input.getDoubleOr("RiseFrom", getY());
+		sealed = input.getBooleanOr("Sealed", false);
 	}
 }
