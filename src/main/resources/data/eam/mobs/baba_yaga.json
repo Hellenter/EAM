@@ -25,7 +25,7 @@
   },
   "summon": {
     "groups": 2,
-    "group_interval": 240,
+    "half_delay": 400,
     "lurker_group": {
       "min": 1,
       "max": 2,
@@ -57,7 +57,7 @@
     "poison_ticks": 200,
     "nausea_ticks": 50,
     "nausea_level": 0,
-    "weakness_ticks": 300,
+    "weakness_ticks": 0,
     "weakness_level": 0
   },
   "spell": {

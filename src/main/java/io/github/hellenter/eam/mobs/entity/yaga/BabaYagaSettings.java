@@ -109,7 +109,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 
 	/**
 	 * @param groups        groups in one phase-one wave
-	 * @param groupInterval ticks between two groups of the same wave (the first rises at once)
+	 * @param halfDelay     each group of a wave rises in two halves: the first at once, the second this many ticks later
 	 * @param lurkerGroup   a phase-one group of swamp lurkers: how many lurkers and how many drowned soldiers go with them
 	 * @param wightGroup    a phase-one group of wights: how many wights and how many drowned soldiers go with them
 	 * @param maxWights     wights in one phase-two group, at most
@@ -124,13 +124,13 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param fadeAfter     and this long after it rose it starts to die
 	 * @param fadeTicks     dying takes this long: each creature loses its full health over it, then falls
 	 */
-	public record Summon(int groups, int groupInterval, Mix lurkerGroup, Mix wightGroup, int maxWights, double minRadius, double maxRadius,
+	public record Summon(int groups, int halfDelay, Mix lurkerGroup, Mix wightGroup, int maxWights, double minRadius, double maxRadius,
 			int firstDelay, int lurkerWeight, int wightWeight, int soldierWeight, double followRange,
 			int glowAfter, int fadeAfter, int fadeTicks) {
-		public static final Summon DEFAULT = new Summon(2, 240, new Mix(1, 2, 1, 3), new Mix(1, 1, 2, 3), 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200);
+		public static final Summon DEFAULT = new Summon(2, 400, new Mix(1, 2, 1, 3), new Mix(1, 1, 2, 3), 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200);
 		public static final Codec<Summon> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 8).fieldOf("groups").orElse(DEFAULT.groups).forGetter(Summon::groups),
-				Codec.intRange(0, 2400).fieldOf("group_interval").orElse(DEFAULT.groupInterval).forGetter(Summon::groupInterval),
+				Codec.intRange(0, 2400).fieldOf("half_delay").orElse(DEFAULT.halfDelay).forGetter(Summon::halfDelay),
 				Mix.CODEC.fieldOf("lurker_group").orElse(DEFAULT.lurkerGroup).forGetter(Summon::lurkerGroup),
 				Mix.CODEC.fieldOf("wight_group").orElse(DEFAULT.wightGroup).forGetter(Summon::wightGroup),
 				Codec.intRange(0, 16).fieldOf("max_wights").orElse(DEFAULT.maxWights).forGetter(Summon::maxWights),
@@ -171,12 +171,12 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param poisonTicks   poison I
 	 * @param nauseaTicks   nausea
 	 * @param nauseaLevel   nausea's level
-	 * @param weaknessTicks weakness
+	 * @param weaknessTicks weakness (none by default)
 	 * @param weaknessLevel weakness's level
 	 */
 	public record Potion(int cooldown, double range, double radius, int poisonTicks, int nauseaTicks, int nauseaLevel, int weaknessTicks,
 			int weaknessLevel) {
-		public static final Potion DEFAULT = new Potion(150, 28.0, 6.0, 200, 50, 0, 300, 0);
+		public static final Potion DEFAULT = new Potion(150, 28.0, 6.0, 200, 50, 0, 0, 0);
 		public static final Codec<Potion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Potion::cooldown),
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Potion::range),

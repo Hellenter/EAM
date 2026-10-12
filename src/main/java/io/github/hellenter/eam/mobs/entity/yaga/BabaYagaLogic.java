@@ -100,6 +100,22 @@ public final class BabaYagaLogic {
 		return creatures;
 	}
 
+	/**
+	 * A wave group split into the half that rises at once and the half that rises later, picked at random. With an odd
+	 * count the first half gets the extra creature.
+	 */
+	public static <T> List<List<T>> halves(List<T> creatures, DoubleSupplier random) {
+		List<T> shuffled = new ArrayList<>(creatures);
+		for (int i = shuffled.size() - 1; i > 0; i--) {
+			int j = Math.min(i, (int) Math.floor(random.getAsDouble() * (i + 1)));
+			T swap = shuffled.get(i);
+			shuffled.set(i, shuffled.get(j));
+			shuffled.set(j, swap);
+		}
+		int first = (shuffled.size() + 1) / 2;
+		return List.of(List.copyOf(shuffled.subList(0, first)), List.copyOf(shuffled.subList(first, shuffled.size())));
+	}
+
 	/** How many creatures go in a group, from {@code min} to {@code max}. */
 	public static int groupSize(int min, int max, DoubleSupplier random) {
 		int low = Math.min(min, max);

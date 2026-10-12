@@ -85,7 +85,7 @@ import java.util.UUID;
 
 /**
  * Baba Yaga, the swamp witch. Phase one: she circles high over the player in her mortar, untouchable by blade, arrow or
- * spell, and fights through others: three groups of swamp creatures raised around the player at once, poison flasks,
+ * spell, and fights through others: groups of swamp creatures raised around the player, half at once and half later, poison flasks,
  * spells that strengthen one group (absorption, speed or strength, picked by what the group needs) and glyphs on the
  * ground that curse the player and help her creatures. Only once a wave is dead does she dive at the player with her
  * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. A dive that
@@ -141,9 +141,9 @@ public class BabaYaga extends Monster {
 	private int castGap;
 	/** Ticks until she raises the next wave, or -1 while one is out. */
 	private int nextWave = -1;
-	/** Groups of the current wave still to rise, and ticks until the next one does. */
-	private int waveGroupsLeft;
-	private int waveGroupTimer;
+	/** The second halves of the current wave's groups, still to rise, and ticks until they do. */
+	private final List<LaterHalf> laterHalves = new ArrayList<>();
+	private int laterHalvesTimer;
 	private float waveAngle;
 	private GroupKind waveFirstKind = GroupKind.LURKERS;
 	private int clearedTicks;
@@ -512,7 +512,7 @@ public class BabaYaga extends Monster {
 			}
 			return;
 		}
-		if (aliveMinions() == 0 && waveGroupsLeft == 0) {
+		if (aliveMinions() == 0 && laterHalves.isEmpty()) {
 			if (++clearedTicks >= settings.swoop().delay()) {
 				startAction(YagaAction.SWOOP, target);
 			}
@@ -763,8 +763,9 @@ public class BabaYaga extends Monster {
 	}
 
 	/**
-	 * Phase one: the wave's first group rises at once, the rest one by one after it, each a good way off on its own side.
-	 * Lurker and wight groups take turns, so a wave of two has one of each.
+	 * Phase one: every group of the wave is rolled at once, each a good way off on its own side, and splits in two: the
+	 * first half of every group rises at once, the second halves together a while later in the same spots. Lurker and
+	 * wight groups take turns, so a wave of two has one of each.
 	 */
 	private void raiseWave(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings settings = settings();
@@ -772,9 +773,20 @@ public class BabaYaga extends Monster {
 		groups.removeIf(group -> group.alive(level) == 0);
 		waveAngle = random.nextFloat() * 360.0F;
 		waveFirstKind = random.nextBoolean() ? GroupKind.LURKERS : GroupKind.WIGHTS;
-		raiseWaveGroup(level, target, 0);
-		waveGroupsLeft = summon.groups() - 1;
-		waveGroupTimer = summon.groupInterval();
+		laterHalves.clear();
+		for (int g = 0; g < summon.groups(); g++) {
+			Vec3 center = waveGroupCenter(level, target, g);
+			if (center == null) {
+				continue;
+			}
+			GroupKind kind = BabaYagaLogic.waveGroupKind(g, waveFirstKind);
+			List<List<Creature>> halves = BabaYagaLogic.halves(BabaYagaLogic.waveGroup(kind, summon, random::nextDouble), random::nextDouble);
+			raiseGroup(level, target, center, halves.get(0));
+			if (!halves.get(1).isEmpty()) {
+				laterHalves.add(new LaterHalf(center, halves.get(1)));
+			}
+		}
+		laterHalvesTimer = summon.halfDelay();
 		nextWave = -1;
 		clearedTicks = 0;
 		glyphCooldown = Math.max(glyphCooldown, settings.glyphs().firstDelay());
@@ -782,25 +794,25 @@ public class BabaYaga extends Monster {
 		potionCooldown = Math.max(potionCooldown, 40);
 	}
 
-	/** Phase one: raises the wave's later groups when their time comes, whatever she is busy with. */
+	/** Phase one: raises the second halves of the wave's groups when their time comes, whatever she is busy with. */
 	private void tickWaveGroups(ServerLevel level, @Nullable LivingEntity target) {
-		if (waveGroupsLeft <= 0 || phase() != 1 || --waveGroupTimer > 0) {
+		if (laterHalves.isEmpty() || phase() != 1 || --laterHalvesTimer > 0) {
 			return;
 		}
 		if (target == null) {
-			waveGroupTimer = 1;
+			laterHalvesTimer = 1;
 			return;
 		}
-		int index = settings().summon().groups() - waveGroupsLeft;
-		waveGroupsLeft--;
-		waveGroupTimer = settings().summon().groupInterval();
 		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, 0.6F);
 		Vec3 tip = staffTip();
 		level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.4F), tip.x, tip.y, tip.z, 20, 0.3, 0.3, 0.3, 0.0);
-		raiseWaveGroup(level, target, index);
+		for (LaterHalf half : laterHalves) {
+			raiseGroup(level, target, half.center(), half.creatures());
+		}
+		laterHalves.clear();
 	}
 
-	private void raiseWaveGroup(ServerLevel level, LivingEntity target, int g) {
+	private @Nullable Vec3 waveGroupCenter(ServerLevel level, LivingEntity target, int g) {
 		BabaYagaSettings.Summon summon = settings().summon();
 		double angle = Math.toRadians(waveAngle + 360.0 * g / summon.groups() + (random.nextDouble() - 0.5) * 50.0);
 		Vec3 center = null;
@@ -814,10 +826,11 @@ public class BabaYaga extends Monster {
 			center = ground(level, target.getX() + Math.cos(angle) * 5.0, target.getY(), target.getZ() + Math.sin(angle) * 5.0,
 					EamEntities.DROWNED_SOLDIER);
 		}
-		if (center != null) {
-			GroupKind kind = BabaYagaLogic.waveGroupKind(g, waveFirstKind);
-			raiseGroup(level, target, center, BabaYagaLogic.waveGroup(kind, summon, random::nextDouble));
-		}
+		return center;
+	}
+
+	/** The part of a wave group still to rise, and where. */
+	private record LaterHalf(Vec3 center, List<Creature> creatures) {
 	}
 
 	/** Phase two: one group between her and the player. */
@@ -1281,7 +1294,7 @@ public class BabaYaga extends Monster {
 		bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		bossEvent.setProgress(1.0F);
 		spells.clear();
-		waveGroupsLeft = 0;
+		laterHalves.clear();
 		LivingEntity target = getTarget();
 		setAction(YagaAction.SHATTER);
 		actionTarget = target;
@@ -1817,7 +1830,7 @@ public class BabaYaga extends Monster {
 		weatherThundering = input.getBooleanOr("WeatherThundering", false);
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
-		waveGroupsLeft = 0;
+		laterHalves.clear();
 	}
 
 	// ---- Sounds: a witch's voice, older ----

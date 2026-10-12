@@ -20,6 +20,21 @@ class BabaYagaLogicTest {
 	private static final BabaYagaSettings SETTINGS = BabaYagaSettings.DEFAULT;
 
 	@Test
+	void waveGroupSplitsInHalvesWithTheExtraCreatureFirst() {
+		List<Creature> group = List.of(Creature.WIGHT, Creature.SOLDIER, Creature.SOLDIER);
+		List<List<Creature>> halves = BabaYagaLogic.halves(group, () -> 0.7);
+		assertEquals(2, halves.get(0).size());
+		assertEquals(1, halves.get(1).size());
+		List<Creature> all = new java.util.ArrayList<>(halves.get(0));
+		all.addAll(halves.get(1));
+		Collections.sort(all);
+		List<Creature> expected = new java.util.ArrayList<>(group);
+		Collections.sort(expected);
+		assertEquals(expected, all);
+		assertEquals(List.of(List.of(Creature.SOLDIER), List.of()), BabaYagaLogic.halves(List.of(Creature.SOLDIER), () -> 0.99));
+	}
+
+	@Test
 	void hurtGroupGetsAbsorptionFarGroupSpeedNearGroupStrength() {
 		BabaYagaSettings.Spell spell = SETTINGS.spell();
 		assertEquals(Buff.ABSORPTION, BabaYagaLogic.buffFor(30.0, true, spell));

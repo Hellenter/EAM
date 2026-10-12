@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Baba Yaga's poison flask: it bursts wider than a splash potion and leaves whoever it reaches poisoned, sick and weak.
+ * Baba Yaga's poison flask: it bursts wider than a splash potion and leaves whoever it reaches poisoned and sick.
  * Her own creatures are spared.
  */
 public class HagPotion extends ThrowableItemProjectile {
