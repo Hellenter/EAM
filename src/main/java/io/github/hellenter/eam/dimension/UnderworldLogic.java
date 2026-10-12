@@ -23,6 +23,11 @@ public final class UnderworldLogic {
 	public static final int LOWER_PORTAL_MAX_Y = 30;
 	public static final int UPPER_PORTAL_MIN_Y = 54;
 	public static final int UPPER_PORTAL_MAX_Y = 176;
+	/**
+	 * How far out an exit portal looks for a safe spot, ring by ring: the next ring is searched only when the previous one
+	 * had none. The first is vanilla's radius.
+	 */
+	public static final int[] PORTAL_SEARCH_RADII = {16, 32, 48};
 
 	private UnderworldLogic() {
 	}

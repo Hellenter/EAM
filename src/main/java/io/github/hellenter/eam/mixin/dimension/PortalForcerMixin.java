@@ -19,7 +19,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Optional;
 
-/** In the underworld, portals are found and built only in the level the traveller is headed for. */
+/**
+ * In the underworld, portals are found and built only in the level the traveller is headed for; exit portals in the
+ * underworld, the overworld and the nether are built at the nearest safe spot.
+ */
 @Mixin(PortalForcer.class)
 public abstract class PortalForcerMixin {
 	@Shadow
@@ -38,7 +41,7 @@ public abstract class PortalForcerMixin {
 	@WrapMethod(method = "createPortal")
 	private Optional<BlockUtil.FoundRectangle> eam$createInLevel(BlockPos origin, Direction.Axis portalAxis,
 			Operation<Optional<BlockUtil.FoundRectangle>> original) {
-		if (UnderworldDimension.is(this.level)) {
+		if (UnderworldPortals.buildsPortalsIn(this.level)) {
 			return UnderworldPortals.createPortal(this.level, origin, portalAxis);
 		}
 		return original.call(origin, portalAxis);

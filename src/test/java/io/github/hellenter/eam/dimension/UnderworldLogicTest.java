@@ -38,4 +38,13 @@ class UnderworldLogicTest {
 		assertTrue(UnderworldLogic.portalMaxY(Place.UNDERWORLD_LOWER) + 5 < UnderworldLogic.BAND_BOTTOM);
 		assertTrue(UnderworldLogic.portalMinY(Place.UNDERWORLD_UPPER) > UnderworldLogic.BAND_TOP);
 	}
+
+	@Test
+	void portalSearchWidensFromVanillaRadius() {
+		int[] radii = UnderworldLogic.PORTAL_SEARCH_RADII;
+		assertEquals(16, radii[0]);
+		for (int i = 1; i < radii.length; i++) {
+			assertTrue(radii[i] > radii[i - 1]);
+		}
+	}
 }
