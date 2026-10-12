@@ -9,9 +9,9 @@ public enum YagaGlow {
 	/** She can be parried: she lights up yellow all over. */
 	PARRY(0xFFE36A),
 	SUMMON(0x46F04A),
-	ABSORPTION(0xFFC93A),
+	ABSORPTION(0xFF3B3B),
 	SPEED(0x63E6FF),
-	STRENGTH(0xFF3B2E),
+	STRENGTH(0xFFC700),
 	BLIND(0x9A4DFF),
 	DRAIN(0x7BE03A),
 	HARM(0xFF5A1A),

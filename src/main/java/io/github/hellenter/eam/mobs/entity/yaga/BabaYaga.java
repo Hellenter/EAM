@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.yaga;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
@@ -19,6 +20,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -109,6 +111,9 @@ public class BabaYaga extends Monster {
 	private static final double EAT_REACH = 1.9;
 	/** The fire beam deals its damage this often. */
 	private static final int BEAM_EVERY = 5;
+	/** Icons over a strengthened creature: how many go round in each ring, and how fast (radians a tick). */
+	private static final int ICONS = 3;
+	private static final double ICON_TURN = 0.08;
 	private static final DustParticleOptions MORTAR_DUST = new DustParticleOptions(0x5A4632, 1.4F);
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
@@ -128,7 +133,10 @@ public class BabaYaga extends Monster {
 	private int castGap;
 	/** Ticks until she raises the next wave, or -1 while one is out. */
 	private int nextWave = -1;
-	private int waveAge;
+	/** Groups of the current wave still to rise, and ticks until the next one does. */
+	private int waveGroupsLeft;
+	private int waveGroupTimer;
+	private float waveAngle;
 	private int clearedTicks;
 	private float orbitAngle;
 	private int climbTicks;
@@ -375,6 +383,7 @@ public class BabaYaga extends Monster {
 			setTarget(null);
 			target = null;
 		}
+		tickWaveGroups(level, target);
 		if (action != YagaAction.NONE) {
 			tickAction(level);
 		} else if (target == null) {
@@ -410,18 +419,13 @@ public class BabaYaga extends Monster {
 			}
 			return;
 		}
-		waveAge++;
-		if (aliveMinions() == 0) {
+		if (aliveMinions() == 0 && waveGroupsLeft == 0) {
 			if (++clearedTicks >= settings.swoop().delay()) {
 				startAction(YagaAction.SWOOP, target);
 			}
 			return;
 		}
 		clearedTicks = 0;
-		if (waveAge >= settings.swoop().waveTimeout()) {
-			startAction(YagaAction.SWOOP, target);
-			return;
-		}
 		if (castGap > 0) {
 			return;
 		}
@@ -651,35 +655,57 @@ public class BabaYaga extends Monster {
 		}
 	}
 
-	/** Phase one: groups all round the player, a good way off. */
+	/** Phase one: the wave's first group rises at once, the rest one by one after it, each a good way off on its own side. */
 	private void raiseWave(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings settings = settings();
 		BabaYagaSettings.Summon summon = settings.summon();
 		groups.removeIf(group -> group.alive(level) == 0);
-		float base = random.nextFloat() * 360.0F;
-		for (int g = 0; g < summon.groups(); g++) {
-			double angle = Math.toRadians(base + 360.0 * g / summon.groups() + (random.nextDouble() - 0.5) * 50.0);
-			Vec3 center = null;
-			for (int attempt = 0; attempt < 6 && center == null; attempt++) {
-				double distance = Mth.lerp(random.nextDouble(), summon.minRadius(), Math.max(summon.minRadius(), summon.maxRadius()));
-				distance *= 1.0 - attempt * 0.12;
-				center = ground(level, target.getX() + Math.cos(angle) * distance, target.getY(), target.getZ() + Math.sin(angle) * distance,
-						EamEntities.DROWNED_SOLDIER);
-			}
-			if (center == null) {
-				center = ground(level, target.getX() + Math.cos(angle) * 5.0, target.getY(), target.getZ() + Math.sin(angle) * 5.0,
-						EamEntities.DROWNED_SOLDIER);
-			}
-			if (center != null) {
-				raiseGroup(level, target, center, BabaYagaLogic.groupSize(summon.minSize(), summon.maxSize(), random::nextDouble));
-			}
-		}
+		waveAngle = random.nextFloat() * 360.0F;
+		raiseWaveGroup(level, target, 0);
+		waveGroupsLeft = summon.groups() - 1;
+		waveGroupTimer = summon.groupInterval();
 		nextWave = -1;
-		waveAge = 0;
 		clearedTicks = 0;
 		glyphCooldown = Math.max(glyphCooldown, settings.glyphs().firstDelay());
 		spellCooldown = Math.max(spellCooldown, 60);
 		potionCooldown = Math.max(potionCooldown, 40);
+	}
+
+	/** Phase one: raises the wave's later groups when their time comes, whatever she is busy with. */
+	private void tickWaveGroups(ServerLevel level, @Nullable LivingEntity target) {
+		if (waveGroupsLeft <= 0 || phase() != 1 || --waveGroupTimer > 0) {
+			return;
+		}
+		if (target == null) {
+			waveGroupTimer = 1;
+			return;
+		}
+		int index = settings().summon().groups() - waveGroupsLeft;
+		waveGroupsLeft--;
+		waveGroupTimer = settings().summon().groupInterval();
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, 0.6F);
+		Vec3 tip = staffTip();
+		level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.4F), tip.x, tip.y, tip.z, 20, 0.3, 0.3, 0.3, 0.0);
+		raiseWaveGroup(level, target, index);
+	}
+
+	private void raiseWaveGroup(ServerLevel level, LivingEntity target, int g) {
+		BabaYagaSettings.Summon summon = settings().summon();
+		double angle = Math.toRadians(waveAngle + 360.0 * g / summon.groups() + (random.nextDouble() - 0.5) * 50.0);
+		Vec3 center = null;
+		for (int attempt = 0; attempt < 6 && center == null; attempt++) {
+			double distance = Mth.lerp(random.nextDouble(), summon.minRadius(), Math.max(summon.minRadius(), summon.maxRadius()));
+			distance *= 1.0 - attempt * 0.12;
+			center = ground(level, target.getX() + Math.cos(angle) * distance, target.getY(), target.getZ() + Math.sin(angle) * distance,
+					EamEntities.DROWNED_SOLDIER);
+		}
+		if (center == null) {
+			center = ground(level, target.getX() + Math.cos(angle) * 5.0, target.getY(), target.getZ() + Math.sin(angle) * 5.0,
+					EamEntities.DROWNED_SOLDIER);
+		}
+		if (center != null) {
+			raiseGroup(level, target, center, BabaYagaLogic.groupSize(summon.minSize(), summon.maxSize(), random::nextDouble));
+		}
 	}
 
 	/** Phase two: one group between her and the player. */
@@ -733,6 +759,8 @@ public class BabaYaga extends Monster {
 			}
 		}
 		if (!group.members.isEmpty()) {
+			group.raisedAt = level.getGameTime();
+			group.wave = phase() == 1;
 			groups.add(group);
 			level.playSound(null, center.x, center.y, center.z, SoundEvents.MUD_BREAK, getSoundSource(), 2.0F, 0.6F);
 			level.playSound(null, center.x, center.y, center.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 2.0F, 0.6F);
@@ -797,9 +825,39 @@ public class BabaYaga extends Monster {
 			Group group = it.next();
 			if (group.update(level, now) == 0) {
 				it.remove();
+			} else if (group.wave) {
+				outlive(level, group, now);
 			}
 		}
 		showSpells(level);
+	}
+
+	/**
+	 * Phase one: a wave lingers no longer than she allows. A group still alive a while after it rose starts to glow, and
+	 * a while later its creatures wither away over a few seconds, so the next wave is not held up forever.
+	 */
+	private void outlive(ServerLevel level, Group group, long now) {
+		BabaYagaSettings.Summon summon = settings().summon();
+		long age = now - group.raisedAt;
+		if (age < summon.glowAfter()) {
+			return;
+		}
+		boolean fading = age >= summon.fadeAfter();
+		for (Mob mob : group.living) {
+			mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 40, 0, false, false));
+			if (!fading) {
+				continue;
+			}
+			if (age >= summon.fadeAfter() + summon.fadeTicks()) {
+				mob.kill(level);
+				continue;
+			}
+			// Every update takes its share of the full health; absorption goes first.
+			mob.setAbsorptionAmount(0.0F);
+			mob.setHealth(Math.max(0.5F, mob.getHealth() - mob.getMaxHealth() * 5.0F / summon.fadeTicks()));
+			level.sendParticles(ParticleTypes.SMOKE, mob.getX(), mob.getY() + mob.getBbHeight() * 0.6, mob.getZ(), 3, 0.25, 0.3, 0.25, 0.01);
+			level.sendParticles(ParticleTypes.SOUL, mob.getX(), mob.getY() + mob.getBbHeight() * 0.5, mob.getZ(), 1, 0.2, 0.3, 0.2, 0.01);
+		}
 	}
 
 	private int aliveMinions() {
@@ -823,11 +881,12 @@ public class BabaYaga extends Monster {
 	}
 
 	/**
-	 * A ring of coloured sparks circling over the head of each of her creatures for each of her spells it carries: gold
-	 * for absorption, pale blue for speed, red for strength.
+	 * A ring of icons circling over the head of each of her creatures for each of her spells it carries: yellow swords
+	 * for strength, red hearts for absorption, pale blue bolts for speed. Each icon lives a few ticks sliding along the
+	 * ring, and the next one is sent where it leaves off.
 	 */
 	private void showSpells(ServerLevel level) {
-		float spin = tickCount * 0.25F;
+		double spin = tickCount * ICON_TURN;
 		for (Group group : groups) {
 			for (Mob mob : group.living) {
 				int ring = 0;
@@ -835,16 +894,33 @@ public class BabaYaga extends Monster {
 					if (!mob.hasEffect(effectOf(buff))) {
 						continue;
 					}
-					DustParticleOptions spark = new DustParticleOptions(YagaGlow.of(buff).color, 1.1F);
-					double y = mob.getY() + mob.getBbHeight() + 0.35 + ring * 0.3;
-					for (int i = 0; i < 4; i++) {
-						double angle = spin + i * Math.PI / 2.0;
-						level.sendParticles(spark, mob.getX() + Math.cos(angle) * 0.45, y, mob.getZ() + Math.sin(angle) * 0.45, 1, 0.0, 0.0, 0.0, 0.0);
+					SimpleParticleType icon = iconOf(buff);
+					double y = mob.getY() + mob.getBbHeight() + 0.4 + ring * 0.32;
+					double radius = Math.max(0.4, mob.getBbWidth() * 0.6);
+					// Rings over one another turn opposite ways; the icons keep up with the creature as it moves.
+					double mx = mob.getX() - mob.xo;
+					double mz = mob.getZ() - mob.zo;
+					double turn = ring % 2 == 0 ? ICON_TURN : -ICON_TURN;
+					for (int i = 0; i < ICONS; i++) {
+						double angle = (ring % 2 == 0 ? spin : -spin) + i * Math.PI * 2.0 / ICONS;
+						double x = mob.getX() + Math.cos(angle) * radius;
+						double z = mob.getZ() + Math.sin(angle) * radius;
+						// Count 0: the "velocity" is the icon's step along the ring each tick.
+						level.sendParticles(icon, x, y, z, 0, mx - Math.sin(angle) * radius * turn, 0.0,
+								mz + Math.cos(angle) * radius * turn, 1.0);
 					}
 					ring++;
 				}
 			}
 		}
+	}
+
+	private static SimpleParticleType iconOf(Buff buff) {
+		return switch (buff) {
+			case ABSORPTION -> EamParticles.YAGA_ABSORPTION;
+			case SPEED -> EamParticles.YAGA_SPEED;
+			case STRENGTH -> EamParticles.YAGA_STRENGTH;
+		};
 	}
 
 	private static Holder<MobEffect> effectOf(Buff buff) {
@@ -1001,6 +1077,7 @@ public class BabaYaga extends Monster {
 		boolean harm = kind == Glyph.HARM;
 		HagGlyph glyph = HagGlyph.create(level, this, kind, harm ? glyphs.damageRadius() : glyphs.radius(),
 				harm ? glyphs.damageDelay() : glyphs.duration());
+		glyph.setInactiveTicks(glyphs.inactiveTicks());
 		glyph.setPos(at.x, at.y, at.z);
 		level.addFreshEntity(glyph);
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, harm ? 0.5F : 0.8F);
@@ -1081,6 +1158,7 @@ public class BabaYaga extends Monster {
 		bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		bossEvent.setProgress(1.0F);
 		spells.clear();
+		waveGroupsLeft = 0;
 		LivingEntity target = getTarget();
 		setAction(YagaAction.SHATTER);
 		actionTarget = target;
@@ -1561,6 +1639,7 @@ public class BabaYaga extends Monster {
 		bossEvent.setName(getDisplayName());
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
+		waveGroupsLeft = 0;
 	}
 
 	// ---- Sounds: a witch's voice, older ----
@@ -1595,6 +1674,9 @@ public class BabaYaga extends Monster {
 		final List<Mob> living = new ArrayList<>();
 		final Map<UUID, Float> lastHealth = new HashMap<>();
 		long lastHurt = Long.MIN_VALUE / 2;
+		/** Game time it rose, and whether it is part of a phase-one wave (those wither if they linger). */
+		long raisedAt;
+		boolean wave;
 
 		void add(Mob mob) {
 			members.add(mob.getUUID());

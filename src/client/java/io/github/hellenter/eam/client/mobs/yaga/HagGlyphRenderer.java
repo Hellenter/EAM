@@ -24,7 +24,8 @@ import net.minecraft.world.phys.AABB;
 /**
  * Baba Yaga's glyphs: a glowing circle with a pentagram laid flat on the ground, slowly turning, each kind in its own
  * colour (violet blinding, green draining, fiery orange harm) and the acid bolt's bubbling puddle. The glyph of harm
- * pulses faster and faster as it is about to strike, then flares. The small copy over her head faces the camera.
+ * pulses faster and faster as it is about to strike, then flares. A fresh glyph lies grey for its first moments and
+ * lights up into its colour when it wakes. The small copy over her head faces the camera.
  */
 public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.State> {
 	private static final RenderType[] TYPES = {
@@ -33,7 +34,17 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 			RenderTypes.entityTranslucentEmissive(Eam.id("textures/entity/baba_yaga/glyph_harm.png")),
 			RenderTypes.entityTranslucentEmissive(Eam.id("textures/entity/baba_yaga/glyph_acid.png")),
 	};
+	/** The same glyphs in grey, before they wake; the acid puddle has none. */
+	private static final RenderType[] INACTIVE_TYPES = {
+			RenderTypes.entityTranslucentEmissive(Eam.id("textures/entity/baba_yaga/glyph_blind_inactive.png")),
+			RenderTypes.entityTranslucentEmissive(Eam.id("textures/entity/baba_yaga/glyph_drain_inactive.png")),
+			RenderTypes.entityTranslucentEmissive(Eam.id("textures/entity/baba_yaga/glyph_harm_inactive.png")),
+	};
 	private static final int FADE = 10;
+	/** Ticks the grey glyph takes to light up into its colour. */
+	private static final float WAKE = 4.0F;
+	/** How bright the grey glyph shows, against a lit one. */
+	private static final float INACTIVE_ALPHA = 0.7F;
 	private static final int HARM_FLASH = 10;
 
 	public HagGlyphRenderer(EntityRendererProvider.Context context) {
@@ -52,6 +63,7 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 		state.radius = entity.radius();
 		state.lifetime = entity.lifetime();
 		state.preview = entity.isPreview();
+		state.inactiveTicks = entity.inactiveTicks();
 	}
 
 	@Override
@@ -88,12 +100,29 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 			return;
 		}
 		float r = state.radius * scale;
+		// Grey until it wakes, then its colour fades in over the grey.
+		float lit = state.preview || state.kind.ordinal() >= INACTIVE_TYPES.length ? 1.0F
+				: Mth.clamp((age - state.inactiveTicks) / WAKE, 0.0F, 1.0F);
+		if (lit < 1.0F) {
+			draw(poseStack, collector, INACTIVE_TYPES[state.kind.ordinal()], state, r, spin, alpha * INACTIVE_ALPHA * (1.0F - lit), camera);
+		}
+		if (lit > 0.0F) {
+			draw(poseStack, collector, TYPES[state.kind.ordinal()], state, r, spin, alpha * lit, camera);
+		}
+		super.submit(state, poseStack, collector, camera);
+	}
+
+	private static void draw(PoseStack poseStack, SubmitNodeCollector collector, RenderType type, State state, float r, float spin, float alpha,
+			CameraRenderState camera) {
+		if (alpha <= 0.01F) {
+			return;
+		}
 		int color = ARGB.color(Mth.floor(255.0F * Mth.clamp(alpha, 0.0F, 1.0F)), 255, 255, 255);
 		poseStack.pushPose();
 		if (state.preview) {
 			poseStack.rotate(camera.orientation);
 			poseStack.rotateDegrees(Axis.ZP, spin);
-			collector.submitCustomGeometry(poseStack, TYPES[state.kind.ordinal()], (pose, buffer) -> {
+			collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> {
 				vertex(buffer, pose, -r, -r, 0.0F, color, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F);
 				vertex(buffer, pose, r, -r, 0.0F, color, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F);
 				vertex(buffer, pose, r, r, 0.0F, color, 1.0F, 0.0F, 0.0F, 0.0F, 1.0F);
@@ -102,7 +131,7 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 		} else {
 			poseStack.translate(0.0F, 0.03F, 0.0F);
 			poseStack.rotateDegrees(Axis.YP, spin);
-			collector.submitCustomGeometry(poseStack, TYPES[state.kind.ordinal()], (pose, buffer) -> {
+			collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> {
 				vertex(buffer, pose, -r, 0.0F, -r, color, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F);
 				vertex(buffer, pose, -r, 0.0F, r, color, 0.0F, 1.0F, 0.0F, 1.0F, 0.0F);
 				vertex(buffer, pose, r, 0.0F, r, color, 1.0F, 1.0F, 0.0F, 1.0F, 0.0F);
@@ -110,7 +139,6 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 			});
 		}
 		poseStack.popPose();
-		super.submit(state, poseStack, collector, camera);
 	}
 
 	static void vertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, float z, int color, float u, float v, float nx, float ny,
@@ -128,5 +156,6 @@ public class HagGlyphRenderer extends EntityRenderer<HagGlyph, HagGlyphRenderer.
 		public float radius = 1.0F;
 		public int lifetime = 100;
 		public boolean preview;
+		public int inactiveTicks;
 	}
 }

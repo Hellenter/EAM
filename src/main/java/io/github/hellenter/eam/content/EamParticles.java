@@ -15,6 +15,13 @@ public final class EamParticles {
 	 * count 0 so the "velocity" carries its data: x and z are where he faces times the reach, y is the ticks it takes.
 	 */
 	public static final SimpleParticleType HEAVY_WAVE = register("heavy_wave");
+	/**
+	 * The icons circling over the head of a creature Baba Yaga strengthened: yellow swords for strength, red hearts for
+	 * absorption, pale blue bolts for speed. Sent with count 0 so the "velocity" is the icon's motion along the ring.
+	 */
+	public static final SimpleParticleType YAGA_STRENGTH = register("yaga_strength");
+	public static final SimpleParticleType YAGA_ABSORPTION = register("yaga_absorption");
+	public static final SimpleParticleType YAGA_SPEED = register("yaga_speed");
 
 	private EamParticles() {
 	}

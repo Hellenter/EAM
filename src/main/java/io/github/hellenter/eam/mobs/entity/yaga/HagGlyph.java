@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.yaga;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Glyph;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -12,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -28,20 +30,26 @@ import net.minecraft.world.phys.AABB;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A glowing glyph Baba Yaga lays on the ground, or the acid puddle her bolt leaves. Inside a glyph a player is cursed and
  * monsters are helped: the blinding glyph blinds and weakens the player and speeds monsters up; the draining glyph slows
  * the player and makes them hungry and heals monsters; the glyph of harm strikes once after a delay, through armor, and
- * heals every monster inside. The acid puddle burns the player through armor every second. A glyph can also be the small
- * copy she shows over her head as she casts it, which does nothing. Never saved: a reload clears them.
+ * heals every monster inside. A glyph lies grey and harmless for a moment after it appears, then lights up; its effects
+ * last only while one stands inside and are taken away the moment one steps out. The acid puddle burns the player through
+ * armor every second. A glyph can also be the small copy she shows over her head as she casts it, which does nothing.
+ * Never saved: a reload clears them.
  */
 public class HagGlyph extends Entity {
 	private static final EntityDataAccessor<Byte> DATA_KIND = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Float> DATA_RADIUS = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Integer> DATA_LIFETIME = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_FOLLOW = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Integer> DATA_INACTIVE = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.INT);
 	/** Effects are given out this often. */
 	private static final int PULSE = 10;
 	/** The glyph of harm flares this long after it strikes, then goes. */
@@ -50,6 +58,8 @@ public class HagGlyph extends Entity {
 	private static final double PREVIEW_HEIGHT = 0.9;
 
 	private @Nullable Entity owner;
+	/** Who was inside at the last tick, and so carries this glyph's effects. */
+	private final Set<LivingEntity> affected = new HashSet<>();
 
 	public HagGlyph(EntityType<? extends HagGlyph> type, Level level) {
 		super(type, level);
@@ -80,6 +90,21 @@ public class HagGlyph extends Entity {
 		builder.define(DATA_RADIUS, 1.0F);
 		builder.define(DATA_LIFETIME, 100);
 		builder.define(DATA_FOLLOW, -1);
+		builder.define(DATA_INACTIVE, 0);
+	}
+
+	/** Ticks it lies grey and does nothing after it appears. */
+	public void setInactiveTicks(int ticks) {
+		entityData.set(DATA_INACTIVE, ticks);
+	}
+
+	public int inactiveTicks() {
+		return entityData.get(DATA_INACTIVE);
+	}
+
+	/** Whether it has lit up yet. */
+	public boolean isActive() {
+		return tickCount >= inactiveTicks();
 	}
 
 	public Glyph kind() {
@@ -129,42 +154,98 @@ public class HagGlyph extends Entity {
 			return;
 		}
 		if (tickCount >= lifetime) {
+			release();
 			discard();
 			return;
 		}
 		if (kind == Glyph.ACID) {
 			tickAcid(level);
-		} else if (tickCount % PULSE == 0) {
-			pulse(level, kind);
+		} else if (isActive()) {
+			tickCurse(level, kind);
 		}
+	}
+
+	/**
+	 * The blinding and draining glyphs: whoever steps in is cursed (or helped) at once and again every pulse while they
+	 * stay; whoever steps out loses what the glyph gave them straight away.
+	 */
+	private void tickCurse(ServerLevel level, Glyph kind) {
+		List<LivingEntity> inside = inside(level);
+		for (Iterator<LivingEntity> it = affected.iterator(); it.hasNext(); ) {
+			LivingEntity living = it.next();
+			if (!inside.contains(living)) {
+				release(living, kind);
+				it.remove();
+			}
+		}
+		boolean pulse = tickCount % PULSE == 0;
+		for (LivingEntity living : inside) {
+			if ((affected.add(living) || pulse) && (living instanceof Player || helps(living))) {
+				apply(level, living, kind);
+			}
+		}
+		if (pulse) {
+			motes(level, kind);
+		}
+	}
+
+	/** Takes this glyph's effects off everyone still inside, as it fades. */
+	private void release() {
+		for (LivingEntity living : affected) {
+			release(living, kind());
+		}
+		affected.clear();
+	}
+
+	/**
+	 * Takes away the effects this glyph gave {@code living}: only an effect still as weak and as short as the glyph's own,
+	 * so a stronger or longer one from elsewhere (a flask's weakness) stays.
+	 */
+	private void release(LivingEntity living, Glyph kind) {
+		if (!living.isAlive()) {
+			return;
+		}
+		int ticks = settings().effectTicks();
+		for (Holder<MobEffect> effect : effectsOf(living, kind)) {
+			MobEffectInstance instance = living.getEffect(effect);
+			if (instance != null && instance.getAmplifier() == 0 && instance.getDuration() <= ticks) {
+				living.removeEffect(effect);
+			}
+		}
+	}
+
+	private static List<Holder<MobEffect>> effectsOf(LivingEntity living, Glyph kind) {
+		if (living instanceof Player) {
+			return kind == Glyph.BLIND ? List.of(MobEffects.BLINDNESS, MobEffects.WEAKNESS) : List.of(MobEffects.SLOWNESS, MobEffects.HUNGER);
+		}
+		return kind == Glyph.BLIND ? List.of(MobEffects.SPEED) : List.of(MobEffects.REGENERATION);
 	}
 
 	private BabaYagaSettings.Glyphs settings() {
 		return BabaYagaModule.settings().glyphs();
 	}
 
-	/** The blinding and draining glyphs: a curse on each player inside, a boon for each monster. */
-	private void pulse(ServerLevel level, Glyph kind) {
+	/** A curse on a player inside, a boon for a monster. */
+	private void apply(ServerLevel level, LivingEntity living, Glyph kind) {
 		BabaYagaSettings.Glyphs glyphs = settings();
 		int ticks = glyphs.effectTicks();
-		for (LivingEntity living : inside(level)) {
-			if (living instanceof Player) {
-				if (kind == Glyph.BLIND) {
-					living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, ticks, 0), owner);
-					living.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, ticks, 0), owner);
-				} else {
-					living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, ticks, 0), owner);
-					living.addEffect(new MobEffectInstance(MobEffects.HUNGER, ticks, 0), owner);
-				}
-			} else if (helps(living)) {
-				if (kind == Glyph.BLIND) {
-					living.addEffect(new MobEffectInstance(MobEffects.SPEED, ticks, 0), owner);
-				} else {
-					drain(level, living, glyphs);
-				}
+		if (living instanceof Player) {
+			if (kind == Glyph.BLIND) {
+				living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, ticks, 0), owner);
+				living.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, ticks, 0), owner);
+			} else {
+				living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, ticks, 0), owner);
+				living.addEffect(new MobEffectInstance(MobEffects.HUNGER, ticks, 0), owner);
 			}
+		} else if (kind == Glyph.BLIND) {
+			living.addEffect(new MobEffectInstance(MobEffects.SPEED, ticks, 0), owner);
+		} else {
+			drain(level, living, glyphs);
 		}
-		// Motes rising off the glyph, in its colour.
+	}
+
+	/** Motes rising off the glyph, in its colour. */
+	private void motes(ServerLevel level, Glyph kind) {
 		DustParticleOptions mote = new DustParticleOptions(YagaGlow.of(kind).color, 1.2F);
 		double r = radius();
 		for (int i = 0; i < 6; i++) {

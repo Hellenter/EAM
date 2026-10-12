@@ -47,6 +47,7 @@ import io.github.hellenter.eam.client.mobs.drowned.DrownedSoldierModel;
 import io.github.hellenter.eam.client.mobs.drowned.DrownedSoldierRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaModel;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaRenderer;
+import io.github.hellenter.eam.client.mobs.yaga.BuffIconParticle;
 import io.github.hellenter.eam.client.mobs.yaga.HagGlyphRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.HagThreadRenderer;
 import io.github.hellenter.eam.client.mobs.wight.WightModel;
@@ -93,6 +94,9 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordModel.LAYER, FallenLordModel::createLayer);
 		ParticleProviderRegistry.getInstance().register(EamParticles.HEAVY_WAVE, HeavyWaveParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_ABSORPTION, BuffIconParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_SPEED, BuffIconParticle.Provider::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
