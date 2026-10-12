@@ -21,7 +21,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  */
 public record EliteCrossbowmanSettings(Stats stats, float replaceChance, double minRange, double maxRange, int pauseMin, int pauseMax,
 		int aimTicks, Normal normal, Burst burst, Charged charged, Net net) {
-	public static final EliteCrossbowmanSettings DEFAULT = new EliteCrossbowmanSettings(Stats.DEFAULT, 0.15F, 5.0, 14.0, 15, 35, 6,
+	public static final EliteCrossbowmanSettings DEFAULT = new EliteCrossbowmanSettings(Stats.DEFAULT, 0.15F, 5.0, 24.0, 15, 35, 6,
 			Normal.DEFAULT, Burst.DEFAULT, Charged.DEFAULT, Net.DEFAULT);
 
 	/**
@@ -32,7 +32,7 @@ public record EliteCrossbowmanSettings(Stats stats, float replaceChance, double 
 	 * @param xp          experience he drops
 	 */
 	public record Stats(double health, double armor, double speed, double followRange, int xp) {
-		public static final Stats DEFAULT = new Stats(24.0, 6.0, 0.35, 32.0, 10);
+		public static final Stats DEFAULT = new Stats(24.0, 6.0, 0.35, 64.0, 10);
 
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(1.0, 1024.0).fieldOf("health").orElse(DEFAULT.health).forGetter(Stats::health),
@@ -51,7 +51,7 @@ public record EliteCrossbowmanSettings(Stats stats, float replaceChance, double 
 	 * @param inaccuracy spread of the shot, like a mob's bow (vanilla pillagers: 6 on hard, 14 on easy)
 	 */
 	public record Normal(int weight, int loadTicks, float damage, float speed, float inaccuracy) {
-		public static final Normal DEFAULT = new Normal(6, 22, 5.0F, 1.6F, 3.0F);
+		public static final Normal DEFAULT = new Normal(6, 22, 5.0F, 1.6F, 2.0F);
 
 		public static final Codec<Normal> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 100).fieldOf("weight").orElse(DEFAULT.weight).forGetter(Normal::weight),

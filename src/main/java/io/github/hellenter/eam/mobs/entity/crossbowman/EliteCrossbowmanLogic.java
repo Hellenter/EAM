@@ -8,6 +8,10 @@ public final class EliteCrossbowmanLogic {
 	public static final double ARROW_GRAVITY = 0.05;
 	/** Gravity of a thrown item such as the net. */
 	public static final double THROWN_GRAVITY = 0.03;
+	/** Share of its speed an arrow or a thrown item keeps each tick in the air. */
+	public static final double DRAG = 0.99;
+	private static final double MAX_ANGLE = Math.PI / 4.0;
+	private static final int MAX_FLIGHT_TICKS = 200;
 
 	private EliteCrossbowmanLogic() {
 	}
@@ -94,13 +98,49 @@ public final class EliteCrossbowmanLogic {
 	}
 
 	/**
-	 * How much higher than the target to aim per block of flat distance, so a projectile of this speed and gravity drops
-	 * onto it: vanilla aims an arrow at speed 1.6 by 0.2 per block, and the drop grows with gravity and the square of
-	 * the flight time.
+	 * How high above the line to the target to aim, in blocks over {@code flat} blocks of flat distance, so a
+	 * projectile of this speed and gravity comes down on a point {@code rise} blocks above the muzzle. It flies the shot
+	 * tick by tick like vanilla does (move, slow down by {@link #DRAG}, fall) and searches the flattest angle that
+	 * reaches the point; out of reach, it aims at 45 degrees.
 	 */
-	public static double dropCompensation(double speed, double gravity) {
-		double ratio = 1.6 / speed;
-		return 0.2 * (gravity / ARROW_GRAVITY) * ratio * ratio;
+	public static double aimHeight(double flat, double rise, double speed, double gravity) {
+		if (flat < 1.0E-3) {
+			return rise;
+		}
+		double low = -MAX_ANGLE;
+		double high = MAX_ANGLE;
+		if (heightAt(flat, high, speed, gravity) < rise) {
+			return flat * Math.tan(high);
+		}
+		for (int i = 0; i < 30; i++) {
+			double mid = (low + high) * 0.5;
+			if (heightAt(flat, mid, speed, gravity) < rise) {
+				low = mid;
+			} else {
+				high = mid;
+			}
+		}
+		return flat * Math.tan((low + high) * 0.5);
+	}
+
+	/** Height of the shot when it has flown {@code flat} blocks forward, or far below if it never gets there. */
+	static double heightAt(double flat, double angle, double speed, double gravity) {
+		double vx = speed * Math.cos(angle);
+		double vy = speed * Math.sin(angle);
+		double x = 0.0;
+		double y = 0.0;
+		for (int tick = 0; tick < MAX_FLIGHT_TICKS; tick++) {
+			double nx = x + vx;
+			double ny = y + vy;
+			if (nx >= flat) {
+				return y + (ny - y) * (flat - x) / (nx - x);
+			}
+			x = nx;
+			y = ny;
+			vx *= DRAG;
+			vy = vy * DRAG - gravity;
+		}
+		return Double.NEGATIVE_INFINITY;
 	}
 
 	/**

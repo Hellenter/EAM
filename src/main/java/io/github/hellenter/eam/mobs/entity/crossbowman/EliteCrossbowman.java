@@ -163,7 +163,7 @@ public class EliteCrossbowman extends Pillager {
 		double dx = target.getX() - getX();
 		double dz = target.getZ() - getZ();
 		double flat = Math.sqrt(dx * dx + dz * dz);
-		double dy = target.getY(1.0 / 3.0) - projectile.getY() + flat * EliteCrossbowmanLogic.dropCompensation(speed, gravity);
+		double dy = EliteCrossbowmanLogic.aimHeight(flat, target.getY(1.0 / 3.0) - projectile.getY(), speed, gravity);
 		projectile.shoot(dx, dy, dz, speed, inaccuracy);
 	}
 }

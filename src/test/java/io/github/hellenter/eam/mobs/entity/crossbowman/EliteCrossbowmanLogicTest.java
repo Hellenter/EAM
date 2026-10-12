@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.crossbowman;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanLogic.Move;
@@ -51,7 +52,7 @@ class EliteCrossbowmanLogicTest {
 	void keepsHisDistance() {
 		assertEquals(Move.RETREAT, EliteCrossbowmanLogic.move(3.0, true, S));
 		assertEquals(Move.HOLD, EliteCrossbowmanLogic.move(9.0, true, S));
-		assertEquals(Move.APPROACH, EliteCrossbowmanLogic.move(20.0, true, S));
+		assertEquals(Move.APPROACH, EliteCrossbowmanLogic.move(30.0, true, S));
 		assertEquals(Move.APPROACH, EliteCrossbowmanLogic.move(9.0, false, S));
 	}
 
@@ -62,10 +63,23 @@ class EliteCrossbowmanLogicTest {
 	}
 
 	@Test
+	void aimedShotLandsOnTheTargetNearAndFar() {
+		for (double flat : new double[] {5.0, 14.0, 24.0, 30.0}) {
+			double rise = -0.9;
+			double aim = EliteCrossbowmanLogic.aimHeight(flat, rise, 1.6, EliteCrossbowmanLogic.ARROW_GRAVITY);
+			double landed = EliteCrossbowmanLogic.heightAt(flat, Math.atan2(aim, flat), 1.6, EliteCrossbowmanLogic.ARROW_GRAVITY);
+			assertEquals(rise, landed, 0.01, "at " + flat + " blocks");
+		}
+	}
+
+	@Test
 	void aimsLowerForFasterShots() {
-		assertEquals(0.2, EliteCrossbowmanLogic.dropCompensation(1.6, EliteCrossbowmanLogic.ARROW_GRAVITY), 1.0E-9);
-		assertEquals(0.05, EliteCrossbowmanLogic.dropCompensation(3.2, EliteCrossbowmanLogic.ARROW_GRAVITY), 1.0E-9);
-		assertEquals(0.12, EliteCrossbowmanLogic.dropCompensation(1.6, EliteCrossbowmanLogic.THROWN_GRAVITY), 1.0E-9);
+		double slow = EliteCrossbowmanLogic.aimHeight(24.0, 0.0, 1.6, EliteCrossbowmanLogic.ARROW_GRAVITY);
+		double fast = EliteCrossbowmanLogic.aimHeight(24.0, 0.0, 3.2, EliteCrossbowmanLogic.ARROW_GRAVITY);
+		double net = EliteCrossbowmanLogic.aimHeight(24.0, 0.0, 1.6, EliteCrossbowmanLogic.THROWN_GRAVITY);
+		assertTrue(fast < slow);
+		assertTrue(net < slow);
+		assertTrue(fast > 0.0);
 	}
 
 	@Test
