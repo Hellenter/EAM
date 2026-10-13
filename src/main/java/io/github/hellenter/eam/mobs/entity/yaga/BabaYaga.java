@@ -789,7 +789,8 @@ public class BabaYaga extends Monster {
 	private void adoptMinions(ServerLevel level) {
 		Group group = new Group();
 		for (Mob mob : level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(BabaYagaModule.SUN_SHELTER_RADIUS),
-				mob -> mob.isAlive() && BabaYagaModule.isMinion(mob))) {
+				mob -> mob.isAlive() && BabaYagaModule.isMinion(mob)
+						&& groups.stream().noneMatch(known -> known.members.contains(mob.getUUID())))) {
 			group.add(mob);
 		}
 		if (group.members.isEmpty()) {
