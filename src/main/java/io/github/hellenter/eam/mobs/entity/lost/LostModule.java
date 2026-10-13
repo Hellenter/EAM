@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.EamEntities;
 
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
@@ -38,6 +39,8 @@ public final class LostModule {
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST_WALL_COMMANDER, Lost.createAttributes());
 		SpawnPlacements.register(EamEntities.LOST, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Lost::checkSpawnRules);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(LostSettingsLoader.ID, new LostSettingsLoader());
+		// Rests are game times of one world: a singleplayer game that opens another world starts afresh.
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> LostSpawnCooldowns.clear());
 	}
 
 	/** Natural spawning in the underworld; the mob itself exists whatever the config says. */

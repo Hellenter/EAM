@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.sieve;
 import io.github.hellenter.eam.content.EamBlockEntities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -10,6 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -51,6 +53,13 @@ public class SieveBlock extends BaseEntityBlock {
 	public SieveBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		registerDefaultState(stateDefinition.any().setValue(WEAR, 0).setValue(GRAVEL, 0));
+	}
+
+	/** A worn sieve placed again shows its wear at once. */
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		int damage = context.getItemInHand().getOrDefault(DataComponents.DAMAGE, 0);
+		return defaultBlockState().setValue(WEAR, SieveLogic.wear(damage));
 	}
 
 	@Override

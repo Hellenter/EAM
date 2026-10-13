@@ -4,6 +4,7 @@ import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +28,10 @@ final class SensePlayerGoal extends TargetGoal {
 	@Override
 	public boolean canUse() {
 		if (mob.getTarget() != null || mob.getRandom().nextInt(reducedTickDelay(CHECK_INTERVAL)) != 0) {
+			return false;
+		}
+		// A neutral mob (a zombified piglin) that is not angry leaves players be: a target would anger its whole group.
+		if (mob instanceof NeutralMob neutral && !neutral.isAngry()) {
 			return false;
 		}
 		// A blood moon sharpens their senses.

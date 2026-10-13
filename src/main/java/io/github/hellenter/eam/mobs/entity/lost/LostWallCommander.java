@@ -1,12 +1,12 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
-import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanLogic;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,6 +82,13 @@ public class LostWallCommander extends Lost {
 		}
 	}
 
+	/** Killed while aiming, he drops his crossbow empty: the bolt in it was only for show. */
+	@Override
+	protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+		setLoaded(false);
+		super.dropCustomDeathLoot(level, source, killedByPlayer);
+	}
+
 	/** One bolt at {@code target}, aimed to drop onto it; it passes through the Lost in its way. */
 	void shoot(ServerLevel level, LivingEntity target, ShieldWallSettings.Crossbow settings) {
 		ItemStack crossbow = crossbow();
@@ -109,7 +116,7 @@ public class LostWallCommander extends Lost {
 
 		@Override
 		protected boolean canHitEntity(Entity entity) {
-			return !(entity instanceof Lost) && !(entity instanceof LostCavalryman) && super.canHitEntity(entity);
+			return !LostCommander.isKin(entity) && super.canHitEntity(entity);
 		}
 	}
 }

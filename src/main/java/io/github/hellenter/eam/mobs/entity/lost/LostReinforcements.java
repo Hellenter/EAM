@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.lost;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,14 +61,21 @@ public final class LostReinforcements {
 			// Set before the spawn, so the followers he brings keep it too.
 			mob.setPersistenceRequired();
 		}
+		AABB arrival = new AABB(spot, spot).inflate(ARRIVED_RANGE);
+		// The Lost already standing about did not come with the wave.
+		List<Mob> before = level.getEntitiesOfClass(Mob.class, arrival, LostReinforcements::marches);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(spot)), EntitySpawnReason.MOB_SUMMONED, null);
 		level.addFreshEntityWithPassengers(mob);
-		List<Mob> arrived = level.getEntitiesOfClass(Mob.class, new AABB(spot, spot).inflate(ARRIVED_RANGE),
-				m -> (m instanceof Lost || m instanceof LostCavalryman) && m.isAlive() && m.getTarget() == null);
+		List<Mob> arrived = level.getEntitiesOfClass(Mob.class, arrival, m -> marches(m) && !before.contains(m));
 		if (persistent) {
 			arrived.forEach(Mob::setPersistenceRequired);
 		}
 		return arrived;
+	}
+
+	/** Those who march in a wave: the Lost, their riders and their warlock. */
+	private static boolean marches(Mob mob) {
+		return (mob instanceof Lost || mob instanceof LostCavalryman || mob instanceof UndeadWarlock) && mob.isAlive();
 	}
 
 	/**

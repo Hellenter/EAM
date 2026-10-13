@@ -9,8 +9,10 @@ import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightLogic;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
 import io.github.hellenter.eam.mobs.entity.lost.CommanderTargetGoal;
+import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lost.LostCommander;
 import io.github.hellenter.eam.mobs.entity.lost.LostGear;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -129,7 +131,7 @@ public class LostCavalryman extends SkeletonKnight {
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new CommanderTargetGoal(this));
-		targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class, UndeadWarlock.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 	}

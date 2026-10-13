@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
@@ -71,6 +72,10 @@ public final class CryptBoss {
 	}
 
 	private static void rise(ServerLevel level, Marker marker) {
+		if (level.getDifficulty() == Difficulty.PEACEFUL) {
+			// He would vanish at once and the marker with him: he sleeps on until the world is harder.
+			return;
+		}
 		BlockPos sarcophagus = marker.blockPosition();
 		marker.discard();
 		for (BlockPos lid : BlockPos.betweenClosed(sarcophagus.offset(-LID_REACH, 1, -LID_REACH), sarcophagus.offset(LID_REACH, 1, LID_REACH))) {

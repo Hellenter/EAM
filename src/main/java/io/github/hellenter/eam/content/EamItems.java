@@ -181,7 +181,7 @@ public final class EamItems {
 	/** Turns holy water into white honey. */
 	public static final Item HERBAL_HONEY = register("herbal_honey", Item::new, new Item.Properties());
 
-	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
+	/** Thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
 
 	/** From the pillager outpost's red chest: in hand, it turns into a map to the Pillager King's castle. */

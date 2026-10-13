@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import org.jspecify.annotations.Nullable;
 
@@ -31,9 +32,16 @@ public final class EnchantingClient {
 		return settings;
 	}
 
+	/** The picks for the table that is open, kept across a resize of its screen. */
+	private static @Nullable AbstractContainerMenu selectionMenu;
+	private static EnchantSelection selection = new EnchantSelection();
+
 	public static void register() {
 		ClientPlayNetworking.registerGlobalReceiver(EnchantingSettingsPayload.TYPE, (payload, context) -> settings = payload.settings());
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> settings = null);
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			settings = null;
+			selectionMenu = null;
+		});
 		ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
 			if (!(screen instanceof EnchantmentScreen enchanting) || settings == null) {
 				return;
@@ -43,7 +51,12 @@ public final class EnchantingClient {
 			int left = container.eam$getLeftPos();
 			int top = container.eam$getTopPos();
 			int panelWidth = Math.clamp((width - IMAGE_WIDTH) / 2 - 2 * GAP, MIN_WIDTH, MAX_WIDTH);
-			EnchantSelection selection = new EnchantSelection();
+			// A resize builds the screen's widgets again for the same table: the picks made so far stay.
+			if (selectionMenu != enchanting.getMenu()) {
+				selectionMenu = enchanting.getMenu();
+				selection = new EnchantSelection();
+			}
+			EnchantSelection selection = EnchantingClient.selection;
 			EnchantListPanel list = new EnchantListPanel(Math.max(0, left - GAP - panelWidth), top, panelWidth, enchanting.getMenu(), selection);
 			EnchantSummaryPanel summary = new EnchantSummaryPanel(Math.min(width - panelWidth, left + IMAGE_WIDTH + GAP), top, panelWidth,
 					enchanting.getMenu(), selection);

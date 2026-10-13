@@ -48,6 +48,8 @@ final class WightStalkGoal extends Goal {
 	private int repath;
 	private float offset;
 	private @Nullable BlockPos water;
+	/** Tick count at which a burning wight looks for water again. */
+	private int nextWaterSearch;
 	private boolean burning;
 
 	WightStalkGoal(Wight wight) {
@@ -101,6 +103,7 @@ final class WightStalkGoal extends Goal {
 			// The fire is out: away from the player before anything else.
 			burning = false;
 			water = null;
+			nextWaterSearch = 0;
 			setPhase(Phase.FLEE);
 		}
 		Player player = wight.stalked();
@@ -227,7 +230,9 @@ final class WightStalkGoal extends Goal {
 
 	/** On fire: to the nearest water if there is some, else about at random; slow enough to be caught. */
 	private void stagger(ServerLevel level) {
-		if (water == null || wight.tickCount % 20 == 0) {
+		// Once a second, whether water was found or not.
+		if (wight.tickCount >= nextWaterSearch) {
+			nextWaterSearch = wight.tickCount + 20;
 			water = findWater(level);
 		}
 		if (water != null) {

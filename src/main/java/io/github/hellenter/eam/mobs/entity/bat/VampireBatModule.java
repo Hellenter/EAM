@@ -62,7 +62,7 @@ public final class VampireBatModule {
 
 	private static void tick(ServerLevel level) {
 		VampireBatSettings current = settings;
-		if (level.getDifficulty() == Difficulty.PEACEFUL || level.getGameTime() % current.checkInterval() != 0) {
+		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.isSpawningMonsters() || level.getGameTime() % current.checkInterval() != 0) {
 			return;
 		}
 		for (ServerPlayer player : level.players()) {

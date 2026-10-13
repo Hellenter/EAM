@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.talisman;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mixin.content.talisman.PortalShapeAccessor;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -49,6 +50,8 @@ public final class TalismanModule {
 		PayloadTypeRegistry.clientboundPlay().register(TalismanLitPayload.TYPE, TalismanLitPayload.STREAM_CODEC);
 		// Before the levels tick, so the portal blocks go out to clients in the same tick as the flash and the glow.
 		ServerTickEvents.START_SERVER_TICK.register(server -> tick());
+		// Activations hold a level: a singleplayer game that quits and opens another world must not tick the old one.
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> ACTIVATIONS.clear());
 	}
 
 	/** Turns on the overworld rule: fire alone no longer lights a portal there. */

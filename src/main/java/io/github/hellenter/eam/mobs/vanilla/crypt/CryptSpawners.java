@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
  * <ul>
  * <li>swordsman (red wool): a skeleton with an ancient metal sword;</li>
  * <li>archer (yellow wool): a skeleton with a bow and ancient metal arrows;</li>
- * <li>knight (green wool): the {@code eam:skeleton_knight}, only 3 per spawner, 5 when ominous.</li>
+ * <li>knight (green wool): the {@code eam:skeleton_knight}, only 2 per spawner, 3 when ominous.</li>
  * </ul>
  * Swordsmen and archers wear a couple of armor pieces, always added in the order chestplate, helmet, boots, leggings,
  * nearly always ancient metal chainmail. An ominous spawner gives them more pieces, enchanted.
