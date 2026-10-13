@@ -1256,6 +1256,8 @@ public class BabaYaga extends Monster {
 		int strike = swoop.strikeTick();
 		if (t == 0) {
 			diveLanded = false;
+			// A shriek as the dive starts, well before the parry window: the staff is coming.
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.GHAST_WARN, getSoundSource(), 3.0F, 0.7F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 0.6F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.PHANTOM_SWOOP, getSoundSource(), 2.0F, 0.7F);
 		}
@@ -1473,6 +1475,8 @@ public class BabaYaga extends Monster {
 				return;
 			}
 			blink(level, spot);
+			// A screech from behind the player's back as she lands: the claws are coming, turn around.
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.FOX_SCREECH, getSoundSource(), 3.0F, 0.7F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 1.2F);
 		}
 		int lunge = claws.lunge();
