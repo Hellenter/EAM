@@ -20,7 +20,7 @@ public final class FeederLogic {
 
 	/** Whether an animal may eat today: one meal a day. A wild animal (no state yet) always may. */
 	public static boolean canEat(@Nullable LivestockState state, long today) {
-		return state == null || today > state.lastMealDay();
+		return state == null || today != state.lastMealDay();
 	}
 
 	/** Days the animal has gone without a meal since its last one, today not counted: it can still eat today. */
@@ -59,12 +59,16 @@ public final class FeederLogic {
 		return new boolean[] {joinBefore, joinAfter};
 	}
 
-	/** How many of {@code count} crops worth {@code points} each a farmer gives while keeping {@code keep} of his {@code total} points. */
-	public static int farmerGives(int count, int points, int total, int keep) {
-		if (points <= 0) return count;
+	/**
+	 * How many of {@code count} crops worth {@code points} each a farmer gives while keeping {@code keep} of his
+	 * {@code total} points and at least {@code keepItems} of these crops to plant.
+	 */
+	public static int farmerGives(int count, int points, int total, int keep, int keepItems) {
+		int spare = Math.max(0, count - keepItems);
+		if (points <= 0) return spare;
 		int surplus = total - keep;
 		if (surplus <= 0) return 0;
-		return Math.min(count, surplus / points);
+		return Math.min(spare, surplus / points);
 	}
 
 	/** Whether the animals around a trough of {@code length} feeders leave room for one more pair's young. */

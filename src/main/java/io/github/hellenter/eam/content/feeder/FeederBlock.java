@@ -18,6 +18,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -115,6 +117,34 @@ public class FeederBlock extends BaseEntityBlock {
 		BooleanProperty back = negative ? POSITIVE : NEGATIVE;
 		boolean joined = neighbourState.is(this) && neighbourState.getValue(AXIS) == state.getValue(AXIS) && neighbourState.getValue(back);
 		return state.setValue(side, joined);
+	}
+
+	/** Turning a quarter swaps the axis; a side ends up reversed when the turn sends it the other way along the new axis. */
+	@Override
+	protected BlockState rotate(BlockState state, Rotation rotation) {
+		boolean alongX = state.getValue(AXIS) == Direction.Axis.X;
+		return switch (rotation) {
+			case CLOCKWISE_90 -> turn(state, !alongX);
+			case COUNTERCLOCKWISE_90 -> turn(state, alongX);
+			case CLOCKWISE_180 -> swapSides(state);
+			default -> state;
+		};
+	}
+
+	private static BlockState turn(BlockState state, boolean swap) {
+		BlockState turned = state.setValue(AXIS, state.getValue(AXIS) == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
+		return swap ? swapSides(turned) : turned;
+	}
+
+	@Override
+	protected BlockState mirror(BlockState state, Mirror mirror) {
+		Direction.Axis axis = state.getValue(AXIS);
+		boolean flips = mirror == Mirror.LEFT_RIGHT && axis == Direction.Axis.Z || mirror == Mirror.FRONT_BACK && axis == Direction.Axis.X;
+		return flips ? swapSides(state) : state;
+	}
+
+	private static BlockState swapSides(BlockState state) {
+		return state.setValue(NEGATIVE, state.getValue(POSITIVE)).setValue(POSITIVE, state.getValue(NEGATIVE));
 	}
 
 	@Override

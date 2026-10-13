@@ -2,6 +2,7 @@
   "animal_radius": 16,
   "breeding": true,
   "farmer_keeps_points": 24,
+  "farmer_keeps_seeds": 16,
   "farmer_radius": 8,
   "food_capacity": 64,
   "heads_per_feeder": 10,

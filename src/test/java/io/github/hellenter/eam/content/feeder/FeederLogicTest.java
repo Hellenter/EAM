@@ -59,6 +59,7 @@ class FeederLogicTest {
 	void clockGoingBackDoesNotCount() {
 		LivestockState fed = FeederLogic.eat(null, 10, THIN_AFTER);
 		assertEquals(0, FeederLogic.missedDays(fed, 3));
+		assertTrue(FeederLogic.canEat(fed, 3));
 	}
 
 	@Test
@@ -82,9 +83,12 @@ class FeederLogicTest {
 
 	@Test
 	void farmerKeepsHisShare() {
-		assertEquals(0, FeederLogic.farmerGives(20, 1, 20, 24));
-		assertEquals(6, FeederLogic.farmerGives(30, 1, 30, 24));
-		assertEquals(10, FeederLogic.farmerGives(10, 1, 64, 24));
+		assertEquals(0, FeederLogic.farmerGives(20, 1, 20, 24, 0));
+		assertEquals(6, FeederLogic.farmerGives(30, 1, 30, 24, 0));
+		assertEquals(10, FeederLogic.farmerGives(10, 1, 64, 24, 0));
+		// Bread covers his food, but he keeps potatoes to plant.
+		assertEquals(4, FeederLogic.farmerGives(20, 1, 44, 24, 16));
+		assertEquals(0, FeederLogic.farmerGives(10, 1, 64, 24, 16));
 	}
 
 	@Test

@@ -12,6 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,6 +52,8 @@ public class FeederBlockEntity extends BlockEntity {
 	/** How close, in blocks past its own width, an animal has to be to eat from the trough. */
 	private static final double REACH = 0.9;
 	private static final double WALK_SPEED = 1.0;
+	/** Farthest apart, in blocks, a pair can be and still find each other. */
+	private static final double PARTNER_DISTANCE = 8.0;
 
 	private final Map<Item, Integer> food = new LinkedHashMap<>();
 	private long mealDay;
@@ -132,12 +136,13 @@ public class FeederBlockEntity extends BlockEntity {
 		int callers = left;
 		for (Animal animal : hungry) {
 			if (left <= 0 || callers <= 0 || food.isEmpty()) return;
-			callers--;
 			if (reaches(animal, trough)) {
 				eat(level, animal, today, settings);
 				left--;
-			} else if (!animal.isLeashed() && !animal.isPassenger()) {
-				walkTo(animal, pos);
+				callers--;
+			} else if (!animal.isLeashed() && !animal.isPassenger() && walkTo(animal, pos)) {
+				// Animals that cannot get here (behind a fence, leashed) don't take a meal from those that can.
+				callers--;
 			}
 		}
 	}
@@ -150,10 +155,12 @@ public class FeederBlockEntity extends BlockEntity {
 		return dx <= REACH && dz <= REACH && dy <= REACH;
 	}
 
-	private static void walkTo(Animal animal, BlockPos pos) {
-		if (!animal.getNavigation().isDone() && pos.equals(animal.getNavigation().getTargetPos())) return;
+	/** Sends the animal to the trough. False if it has no way there. */
+	private static boolean walkTo(Animal animal, BlockPos pos) {
+		if (!animal.getNavigation().isDone() && pos.equals(animal.getNavigation().getTargetPos())) return true;
 		Path path = animal.getNavigation().createPath(pos, 1);
-		if (path != null) animal.getNavigation().moveTo(path, WALK_SPEED);
+		if (path == null || !path.canReach()) return false;
+		return animal.getNavigation().moveTo(path, WALK_SPEED);
 	}
 
 	private void eat(ServerLevel level, Animal animal, long today, FeederSettings settings) {
@@ -200,7 +207,8 @@ public class FeederBlockEntity extends BlockEntity {
 			ItemStack stack = inventory.getItem(slot);
 			if (!stack.is(FeederModule.FEED)) continue;
 			int each = foodPoints(stack);
-			int count = FeederLogic.farmerGives(stack.getCount(), each, points, settings.farmerKeepsPoints());
+			int seeds = stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS) ? settings.farmerKeepsSeeds() : 0;
+			int count = FeederLogic.farmerGives(stack.getCount(), each, points, settings.farmerKeepsPoints(), seeds);
 			int added = add(stack.getItem(), count);
 			if (added <= 0) continue;
 			inventory.removeItem(slot, added);
@@ -223,18 +231,22 @@ public class FeederBlockEntity extends BlockEntity {
 	private void breed(ServerLevel level, BlockPos pos, BlockState state) {
 		FeederSettings settings = FeederModule.settings();
 		long today = FeederModule.today(level);
-		if (!settings.breeding() || breedDay >= today || !(state.getBlock() instanceof FeederBlock block)) return;
+		if (!settings.breeding() || breedDay == today || !(state.getBlock() instanceof FeederBlock block)) return;
 		List<Animal> animals = level.getEntitiesOfClass(Animal.class, new AABB(pos).inflate(settings.animalRadius()),
 				animal -> animal.isAlive() && FeederModule.isLivestock(animal));
 		if (!FeederLogic.roomToBreed(animals.size(), block.length(level, pos, state), settings.headsPerFeeder())) return;
-		Map<EntityType<?>, Animal> waiting = new HashMap<>();
+		Map<EntityType<?>, List<Animal>> waiting = new HashMap<>();
 		for (Animal animal : animals) {
 			LivestockState fed = animal.getAttached(FeederModule.LIVESTOCK_STATE);
 			if (fed == null || fed.lastMealDay() != today || FeederLogic.isThin(fed, today, settings.thinAfterDays())
 					|| animal.getAge() != 0 || !animal.canFallInLove()) {
 				continue;
 			}
-			Animal partner = waiting.putIfAbsent(animal.getType(), animal);
+			List<Animal> kind = waiting.computeIfAbsent(animal.getType(), type -> new ArrayList<>());
+			// Vanilla lovers only look for a partner this close.
+			Animal partner = kind.stream().filter(other -> other.distanceToSqr(animal) <= PARTNER_DISTANCE * PARTNER_DISTANCE)
+					.findFirst().orElse(null);
+			kind.add(animal);
 			if (partner != null) {
 				partner.setInLove(null);
 				animal.setInLove(null);
