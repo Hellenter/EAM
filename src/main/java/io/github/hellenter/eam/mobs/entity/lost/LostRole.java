@@ -11,7 +11,11 @@ public enum LostRole {
 	/** Bow; keeps away from the player and shoots. */
 	ARCHER,
 	/** The centurion ({@link LostCenturion}): long spear and shield, and a horn that calls up more of the Lost. */
-	CENTURION;
+	CENTURION,
+	/** Spear and shield in a shield wall: with his mates he locks shields in a row in front of their commander. */
+	WALL_SPEARMAN,
+	/** The shield wall's commander ({@link LostWallCommander}): a crossbow, from behind the row. */
+	WALL_COMMANDER;
 
 	public static LostRole byId(int id) {
 		LostRole[] values = values();
@@ -20,7 +24,12 @@ public enum LostRole {
 
 	/** Whether he carries a shield and stands in the way. */
 	public boolean shielded() {
-		return this != ARCHER;
+		return this != ARCHER && this != WALL_COMMANDER;
+	}
+
+	/** Whether he shoots and leaves sword and spear fighting to others. */
+	public boolean shooter() {
+		return this == ARCHER || this == WALL_COMMANDER;
 	}
 
 	/** Whether he takes a spot between the player and the squad's archers rather than pressing in. */
@@ -30,6 +39,6 @@ public enum LostRole {
 
 	/** Whether he fights with spear jabs. */
 	public boolean spear() {
-		return this == SPEARMAN || this == CENTURION;
+		return this == SPEARMAN || this == CENTURION || this == WALL_SPEARMAN;
 	}
 }

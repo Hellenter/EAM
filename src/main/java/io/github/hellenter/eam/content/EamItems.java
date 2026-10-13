@@ -280,6 +280,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.LOST));
 	public static final Item LOST_CENTURION_SPAWN_EGG = register("lost_centurion_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_CENTURION));
+	public static final Item LOST_WALL_COMMANDER_SPAWN_EGG = register("lost_wall_commander_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LOST_WALL_COMMANDER));
 	public static final Item LOST_CAVALRYMAN_SPAWN_EGG = register("lost_cavalryman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_CAVALRYMAN));
 	public static final Item UNDEAD_WARLOCK_SPAWN_EGG = register("undead_warlock_spawn_egg", SpawnEggItem::new,

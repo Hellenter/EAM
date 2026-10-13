@@ -42,8 +42,9 @@ public final class LostGear {
 
 	/** Dresses and arms one of the Lost for his role. */
 	static void equip(Mob mob, LostRole role, RandomSource random) {
-		int look = role == LostRole.LEADER ? 0 : 1 + random.nextInt(WORN.size() - 1);
-		boolean leader = role == LostRole.LEADER;
+		// The shield wall's commander is dressed like a squad's leader.
+		boolean leader = role == LostRole.LEADER || role == LostRole.WALL_COMMANDER;
+		int look = leader ? 0 : 1 + random.nextInt(WORN.size() - 1);
 		boolean archer = role == LostRole.ARCHER;
 		mob.setItemSlot(EquipmentSlot.CHEST, worn(EamItems.ANCIENT_METAL_CHESTPLATE, look));
 		if (leader || random.nextFloat() < (archer ? 0.85F : 0.95F)) {
@@ -57,8 +58,9 @@ public final class LostGear {
 		switch (role) {
 			case LEADER -> arm(mob, EamItems.ANCIENT_METAL_SWORD, Items.SHIELD);
 			case SWORDSMAN -> arm(mob, random.nextBoolean() ? EamItems.ANCIENT_METAL_SWORD : EamItems.RUSTY_IRON_SWORD, Items.SHIELD);
-			case SPEARMAN -> arm(mob, Items.IRON_SPEAR, Items.SHIELD);
+			case SPEARMAN, WALL_SPEARMAN -> arm(mob, Items.IRON_SPEAR, Items.SHIELD);
 			case ARCHER -> arm(mob, Items.BOW, null);
+			case WALL_COMMANDER -> arm(mob, Items.CROSSBOW, null);
 		}
 	}
 

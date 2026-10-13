@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
@@ -72,8 +73,8 @@ public final class LostLogic {
 	public static @Nullable Attack choose(LostRole role, double distance, boolean targetBlocking, int comboCooldown, int heavyCooldown,
 			SkeletonKnightSettings settings, double spearReach, double heavyRoll, double comboRoll) {
 		return switch (role) {
-			case ARCHER -> null;
-			case SPEARMAN, CENTURION -> distance <= spearReach ? Attack.POKE : null;
+			case ARCHER, WALL_COMMANDER -> null;
+			case SPEARMAN, CENTURION, WALL_SPEARMAN -> distance <= spearReach ? Attack.POKE : null;
 			default -> SkeletonKnightLogic.choose(distance, targetBlocking, comboCooldown, heavyCooldown, settings, heavyRoll, comboRoll);
 		};
 	}
@@ -95,6 +96,54 @@ public final class LostLogic {
 		// Never past the archers themselves.
 		double along = Math.min(distance, length);
 		return new double[] {targetX + dx * along - dz * side, targetZ + dz * along + dx * side};
+	}
+
+	/**
+	 * The spots of a shield wall: one row across the line from the commanders' centre to the enemy,
+	 * {@code frontDistance} in front of the centre (halfway to a closer enemy), neighbours {@code spacing} apart. Each
+	 * member, given as {@code {x, z}}, gets the spot on his own side of the row, so nobody crosses the others' way.
+	 * Returns a {@code {x, z}} spot for each member, in the members' order.
+	 */
+	public static double[][] wallSpots(double centreX, double centreZ, double targetX, double targetZ, double[][] members, double spacing,
+			double frontDistance) {
+		double dx = targetX - centreX;
+		double dz = targetZ - centreZ;
+		double length = Math.sqrt(dx * dx + dz * dz);
+		if (length < 1.0E-4) {
+			dx = 0.0;
+			dz = 1.0;
+		} else {
+			dx /= length;
+			dz /= length;
+		}
+		double along = Math.min(frontDistance, length * 0.5);
+		double rowX = centreX + dx * along;
+		double rowZ = centreZ + dz * along;
+		// Along the row: to the right of someone facing the enemy.
+		double sideX = -dz;
+		double sideZ = dx;
+		int count = members.length;
+		Integer[] order = new Integer[count];
+		double[] side = new double[count];
+		for (int i = 0; i < count; i++) {
+			order[i] = i;
+			side[i] = (members[i][0] - rowX) * sideX + (members[i][1] - rowZ) * sideZ;
+		}
+		Arrays.sort(order, (a, b) -> side[a] != side[b] ? Double.compare(side[a], side[b]) : Integer.compare(a, b));
+		double[][] spots = new double[count][];
+		for (int slot = 0; slot < count; slot++) {
+			double offset = (slot - (count - 1) * 0.5) * spacing;
+			spots[order[slot]] = new double[] {rowX + sideX * offset, rowZ + sideZ * offset};
+		}
+		return spots;
+	}
+
+	/** Where the shield wall's commander {@code distance} away from the enemy goes next; he holds still rather than strafe. */
+	public static ArcherMove commanderMove(double distance, boolean sees, ShieldWallSettings.Crossbow crossbow) {
+		if (distance < crossbow.minRange()) {
+			return ArcherMove.RETREAT;
+		}
+		return !sees || distance > crossbow.maxRange() ? ArcherMove.APPROACH : ArcherMove.HOLD;
 	}
 
 	/** Where an archer {@code distance} away from the player goes next. */

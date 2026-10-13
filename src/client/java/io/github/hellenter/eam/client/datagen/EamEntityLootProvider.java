@@ -85,7 +85,7 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(lordArmor(enchantments, EamItems.MITHRIL_BOOTS))));
 
 		// The Lost: half husk, half skeleton. Their worn gear drops by the mob's own drop chances; their centurion's too.
-		for (EntityType<?> lost : List.of(EamEntities.LOST, EamEntities.LOST_CENTURION)) {
+		for (EntityType<?> lost : List.of(EamEntities.LOST, EamEntities.LOST_CENTURION, EamEntities.LOST_WALL_COMMANDER)) {
 			output.accept(lost.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 					.withPool(LootPool.lootPool()
 							.setRolls(ContextIntProviders.exactly(1))

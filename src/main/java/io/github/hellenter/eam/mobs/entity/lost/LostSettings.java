@@ -18,9 +18,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param archer        how archers keep their distance and shoot
  * @param centurion     the centurion who comes with some squads
  * @param commanderHorn the commander's horn and the Lost who serve whoever carries it
+ * @param shieldWall    the shield wall: spearmen in a row in front of their crossbow commander
  */
 public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings follower, double spearReach, double guardDistance,
-		Squad squad, Archer archer, LostCenturionSettings centurion, CommanderHorn commanderHorn) {
+		Squad squad, Archer archer, LostCenturionSettings centurion, CommanderHorn commanderHorn, ShieldWallSettings shieldWall) {
 	public static final SkeletonKnightSettings LEADER_DEFAULT = new SkeletonKnightSettings(10, 2.7, 12.0, 1.0F,
 			0.45, 80, 0.6F, 0.2, 0.6,
 			160, 1.7F, 0.5, 0.5F, 4.0F,
@@ -30,7 +31,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			400, 1.5F, 0.5, 0.5F, 3.0F,
 			0.5, new SkeletonKnightSettings.Dash(300, 3, 0.8));
 	public static final LostSettings DEFAULT = new LostSettings(LEADER_DEFAULT, FOLLOWER_DEFAULT, 3.4, 2.6, Squad.DEFAULT, Archer.DEFAULT,
-			LostCenturionSettings.DEFAULT, CommanderHorn.DEFAULT);
+			LostCenturionSettings.DEFAULT, CommanderHorn.DEFAULT, ShieldWallSettings.DEFAULT);
 
 	/**
 	 * @param minFollowers    fewest followers a leader brings (a squad is one more)
@@ -109,6 +110,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			Squad.CODEC.fieldOf("squad").orElse(DEFAULT.squad).forGetter(LostSettings::squad),
 			Archer.CODEC.fieldOf("archer").orElse(DEFAULT.archer).forGetter(LostSettings::archer),
 			LostCenturionSettings.CODEC.fieldOf("centurion").orElse(DEFAULT.centurion).forGetter(LostSettings::centurion),
-			CommanderHorn.CODEC.fieldOf("commander_horn").orElse(DEFAULT.commanderHorn).forGetter(LostSettings::commanderHorn)
+			CommanderHorn.CODEC.fieldOf("commander_horn").orElse(DEFAULT.commanderHorn).forGetter(LostSettings::commanderHorn),
+			ShieldWallSettings.CODEC.fieldOf("shield_wall").orElse(DEFAULT.shieldWall).forGetter(LostSettings::shieldWall)
 	).apply(instance, LostSettings::new));
 }

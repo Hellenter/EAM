@@ -113,6 +113,7 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(LostModel.ARMOR.feet(), () -> LostModel.createArmorLayers().feet());
 		EntityRendererRegistry.register(EamEntities.LOST, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_CENTURION, LostCenturionRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LOST_WALL_COMMANDER, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_CAVALRYMAN, LostCavalrymanRenderer::new);
 		ModelLayerRegistry.registerModelLayer(LostWarhorseRenderer.BARDING, LostWarhorseRenderer::createBardingLayer);
 		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);

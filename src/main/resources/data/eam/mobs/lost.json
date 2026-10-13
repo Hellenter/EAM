@@ -115,5 +115,21 @@
     "guard_range": 32.0,
     "enemy_range": 16.0,
     "memory_ticks": 200
+  },
+  "shield_wall": {
+    "spearmen": 4,
+    "spacing": 0.85,
+    "front_distance": 3.0,
+    "join_range": 24.0,
+    "crossbow": {
+      "min_range": 8.0,
+      "max_range": 20.0,
+      "load_ticks": 25,
+      "aim_ticks": 8,
+      "cooldown": 30,
+      "damage": 5.0,
+      "speed": 2.0,
+      "inaccuracy": 2.0
+    }
   }
 }
