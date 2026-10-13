@@ -8,7 +8,7 @@
         "processors": "eam:duergar_village",
         "projection": "rigid"
       },
-      "weight": 6
+      "weight": 5
     },
     {
       "element": {
@@ -33,12 +33,72 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "eam:duergar_village/lake/crossing",
+        "location": "eam:duergar_village/lake/street/4",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:duergar_village",
         "projection": "rigid"
       },
       "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/street/5",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/ramp",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/corner",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/fork",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/crossing",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/lake/bridge",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
     }
   ],
   "fallback": "eam:duergar_village/lake/ends"

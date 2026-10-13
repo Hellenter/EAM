@@ -55,8 +55,9 @@ import java.util.function.Function;
 
 /**
  * Duergar villages ({@link DuergarVillage}): one jigsaw structure per style, each in its own biome, all in one structure
- * set so two villages never stand close. A village carves its own hall out of the rock between y 70 and 110 and fills
- * the cave floor under it. No monsters spawn inside. Also the duergar trades: what each role buys and sells.
+ * set so two villages never stand close. A village starts between y 70 and 110; its pieces clear only the room they
+ * need and the ground under them is filled in gently (beard_thin), so it follows its cave. No monsters spawn inside.
+ * Also the duergar trades: what each role buys and sells.
  */
 public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 	private static final String TEMPLATES = "eam:duergar_village/";
@@ -82,18 +83,34 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 			String dir = style.id() + "/";
 			context.register(style.pool("start"), new StructureTemplatePool(empty, List.of(
 					piece(dir + "plaza", processors, 1)), StructureTemplatePool.Projection.RIGID));
+			// Straight streets, turns, forks, ramps up or down and bridges, so a village follows its cave.
 			context.register(style.pool("streets"), new StructureTemplatePool(pools.getOrThrow(style.pool("ends")), List.of(
-					piece(dir + "street/1", processors, 6),
+					piece(dir + "street/1", processors, 5),
 					piece(dir + "street/2", processors, 2),
 					piece(dir + "street/3", processors, 2),
-					piece(dir + "crossing", processors, 3)), StructureTemplatePool.Projection.RIGID));
+					piece(dir + "street/4", processors, 3),
+					piece(dir + "street/5", processors, 3),
+					piece(dir + "ramp", processors, 3),
+					piece(dir + "corner", processors, 3),
+					piece(dir + "fork", processors, 2),
+					piece(dir + "crossing", processors, 1),
+					piece(dir + "bridge", processors, 1)), StructureTemplatePool.Projection.RIGID));
 			context.register(style.pool("ends"), new StructureTemplatePool(empty, List.of(
-					piece(dir + "end", processors, 1)), StructureTemplatePool.Projection.RIGID));
+					piece(dir + "end/1", processors, 2),
+					piece(dir + "end/2", processors, 1)), StructureTemplatePool.Projection.RIGID));
+			// Ten kinds of building and a yard; small homes most often, one drinking hall at most now and then.
 			context.register(style.pool("houses"), new StructureTemplatePool(empty, List.of(
-					piece(dir + "house/1", processors, 2),
+					piece(dir + "house/1", processors, 4),
 					piece(dir + "house/2", processors, 4),
-					piece(dir + "house/3", processors, 1),
-					piece(dir + "house/4", processors, 2)), StructureTemplatePool.Projection.RIGID));
+					piece(dir + "house/3", processors, 3),
+					piece(dir + "house/4", processors, 2),
+					piece(dir + "house/5", processors, 2),
+					piece(dir + "house/6", processors, 1),
+					piece(dir + "house/7", processors, 2),
+					piece(dir + "house/8", processors, 2),
+					piece(dir + "house/9", processors, 2),
+					piece(dir + "house/10", processors, 1),
+					piece(dir + "house/yard", processors, 2)), StructureTemplatePool.Projection.RIGID));
 		}
 	}
 
@@ -104,10 +121,10 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 		for (Style style : Style.values()) {
 			context.register(style.structure(), new JigsawStructure(
 					new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(style.biomes()), spawns,
-							GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.BEARD_BOX),
-					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), Optional.empty(), 5,
+							GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.BEARD_THIN),
+					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), Optional.empty(), 6,
 					UniformHeight.of(VerticalAnchor.absolute(70), VerticalAnchor.absolute(110)), false, Optional.empty(),
-					new JigsawStructure.MaxDistance(64, 24), List.of(), new DimensionPadding(56, 8), LiquidSettings.IGNORE_WATERLOGGING));
+					new JigsawStructure.MaxDistance(56, 16), List.of(), new DimensionPadding(56, 8), LiquidSettings.IGNORE_WATERLOGGING));
 		}
 	}
 
