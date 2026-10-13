@@ -29,8 +29,12 @@ final class MetalFeederModels {
 	private static final float LEAN = 22.5F;
 	private static final double RACK_BOTTOM = 8.0;
 	private static final double RACK_TOP = 16.0;
+	/** Thickness of a rack bar, halved. */
+	private static final double BAR_HALF = 0.3;
+	/** Thickness of the end fence rods. */
+	private static final double END_FENCE = 0.8;
 	/** Hay height per {@link FeederBlock#FILL} step, in pixels. */
-	private static final double FEED_STEP = 2.5;
+	private static final double FEED_STEP = 2.4;
 
 	private MetalFeederModels() {
 	}
@@ -59,24 +63,42 @@ final class MetalFeederModels {
 					turned(positiveEnd, axis));
 		}
 		for (int fill = 1; fill <= FeederLogic.MAX_FILL; fill++) {
-			int level = fill;
-			Identifier model = Eam.id("block/metal_feeder_feed_" + fill);
-			generators.modelOutput.accept(model, () -> {
-				JsonArray elements = new JsonArray();
-				// Layers of hay that widen with the rack as they rise.
-				for (int layer = 1; layer <= level; layer++) {
-					double halfWidth = 1.5 + layer;
-					elements.add(FeederModels.box(0, RACK_BOTTOM + (layer - 1) * FEED_STEP, 8 - halfWidth, 16,
-							RACK_BOTTOM + layer * FEED_STEP, 8 + halfWidth, "#feed"));
+			for (boolean negative : new boolean[] {false, true}) {
+				for (boolean positive : new boolean[] {false, true}) {
+					int level = fill;
+					// Inside an end fence the hay stops short of it; between joined feeders it runs on.
+					double from = negative ? 0 : END_FENCE + 0.5;
+					double to = positive ? 16 : 16 - END_FENCE - 0.5;
+					Identifier model = Eam.id("block/metal_feeder_feed_" + fill + (negative ? "_n" : "") + (positive ? "_p" : ""));
+					generators.modelOutput.accept(model, () -> model(hay(level, from, to)));
+					for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+						blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.FILL, fill)
+								.term(FeederBlock.NEGATIVE, negative).term(FeederBlock.POSITIVE, positive), turned(model, axis));
+					}
 				}
-				return model(elements);
-			});
-			for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-				blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.FILL, fill), turned(model, axis));
 			}
 		}
 		generators.blockStateOutput.accept(blockState);
 		generators.registerSimpleItemModel(EamItems.METAL_FEEDER, single);
+	}
+
+	/**
+	 * Layers of hay that widen with the rack as they rise, each as wide as the rack is at its bottom so no hay shows
+	 * through the bars.
+	 */
+	private static JsonArray hay(int level, double from, double to) {
+		JsonArray elements = new JsonArray();
+		for (int layer = 1; layer <= level; layer++) {
+			double bottom = RACK_BOTTOM + (layer - 1) * FEED_STEP;
+			double halfWidth = rackHalfWidth(bottom) - BAR_HALF - 0.2;
+			elements.add(FeederModels.box(from, bottom, 8 - halfWidth, to, bottom + FEED_STEP, 8 + halfWidth, "#feed"));
+		}
+		return elements;
+	}
+
+	/** Half the distance between the middles of the two rack sides at height {@code y}. */
+	private static double rackHalfWidth(double y) {
+		return 2 + (y - RACK_BOTTOM) * Math.tan(Math.toRadians(LEAN));
 	}
 
 	private static MultiVariant turned(Identifier model, Direction.Axis axis) {
@@ -112,6 +134,13 @@ final class MetalFeederModels {
 			elements.add(rotated(leg, legX + 0.5, 6.5, 8, angle));
 		}
 		elements.add(FeederModels.box(plateX, 4, 4, plateX + 1, 7, 12, "#trough"));
+		// The end fence: rods across the V from one side of the rack to the other, like the rack's own rails.
+		double fenceX = positive ? 16 - END_FENCE : 0;
+		for (double y = RACK_BOTTOM + 1.5; y < RACK_TOP; y += 2.5) {
+			double half = rackHalfWidth(y + 0.4);
+			elements.add(FeederModels.box(fenceX, y, 8 - half, fenceX + END_FENCE, y + 0.8, 8 + half, "#metal"));
+		}
+		elements.add(FeederModels.box(fenceX, RACK_BOTTOM - 1, 6, fenceX + END_FENCE, RACK_BOTTOM, 10, "#metal"));
 		return elements;
 	}
 
