@@ -5,8 +5,10 @@ import io.github.hellenter.eam.world.bloodmoon.BloodMoonPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FogType;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -35,6 +37,11 @@ public final class BloodMoonSky {
 
 	public static Vector3fc skyColor(Vector3fc color) {
 		return new Vector3f(color).lerp(SKY_RED, SKY_BLEND);
+	}
+
+	/** Whether the fog seen through {@code camera} turns red: the open air only, not water, lava or powder snow. */
+	public static boolean tintsFog(ClientLevel level, Camera camera) {
+		return activeIn(level) && camera.getFluidInCamera() == FogType.NONE;
 	}
 
 	public static void tintFog(Vector4f color) {
