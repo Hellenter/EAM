@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 20261013,
+    "separation": 4,
+    "spacing": 12
+  },
+  "structures": [
+    {
+      "structure": "eam:underworld_mine",
+      "weight": 1
+    }
+  ]
+}

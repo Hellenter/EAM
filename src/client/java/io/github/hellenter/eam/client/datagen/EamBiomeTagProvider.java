@@ -4,6 +4,7 @@ import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
+import io.github.hellenter.eam.world.structures.mine.UnderworldMine;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 
@@ -51,6 +52,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 						Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES);
 		builder(BiomeTags.IS_OVERWORLD).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(UnderworldWorldgen.IS_UNDERWORLD).addAll(UnderworldDimension.BIOMES);
+		// Not the ice caves: one huge hall would leave the mine hanging in the air.
+		builder(UnderworldMine.HAS_MINE).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
+				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES);
 		builder(UnderworldWorldgen.LAVA_LAKES).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.DEPTHS);
 		builder(UnderworldWorldgen.FROZEN_LAKES).add(UnderworldDimension.ICE_CAVES);
 		builder(BiomeTags.IS_FOREST).add(SwampyForestBiomes.SWAMPY_FOREST);

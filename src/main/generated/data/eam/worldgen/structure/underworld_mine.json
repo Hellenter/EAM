@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:jigsaw",
+  "biomes": "#eam:has_structure/underworld_mine",
+  "dimension_padding": {
+    "bottom": 56,
+    "top": 8
+  },
+  "liquid_settings": "ignore_waterlogging",
+  "max_distance_from_center": {
+    "horizontal": 80,
+    "vertical": 48
+  },
+  "size": 7,
+  "spawn_overrides": {},
+  "start_height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": {
+      "absolute": 120
+    },
+    "min_inclusive": {
+      "absolute": 60
+    }
+  },
+  "start_pool": "eam:underworld_mine/start",
+  "step": "underground_structures",
+  "use_expansion_hack": false
+}
