@@ -169,6 +169,38 @@ class BabaYagaLogicTest {
 	}
 
 	@Test
+	void reachingTheCapLocksSummoningUntilAlmostAllAreDead() {
+		BabaYagaSettings.PhaseTwo two = SETTINGS.phaseTwo();
+		assertTrue(BabaYagaLogic.maySummon(4, 0, two));
+		assertFalse(BabaYagaLogic.maySummon(5, 0, two));
+		int lockout = BabaYagaLogic.summonLockout(5, 0, two);
+		assertEquals(300, lockout);
+		// Still locked with fewer than five, counting down.
+		lockout = BabaYagaLogic.summonLockout(3, lockout, two);
+		assertEquals(299, lockout);
+		assertFalse(BabaYagaLogic.maySummon(3, lockout, two));
+		// One left: the lockout ends at once.
+		lockout = BabaYagaLogic.summonLockout(1, lockout, two);
+		assertEquals(0, lockout);
+		assertTrue(BabaYagaLogic.maySummon(1, lockout, two));
+		assertEquals(2, BabaYagaLogic.underCap(4, 3, two));
+		assertEquals(0, BabaYagaLogic.underCap(3, 6, two));
+	}
+
+	@Test
+	void dataFileMatchesTheDefaults() throws Exception {
+		try (var reader = new java.io.InputStreamReader(BabaYagaLogicTest.class.getResourceAsStream("/data/eam/mobs/baba_yaga.json"))) {
+			var json = com.google.gson.JsonParser.parseReader(reader);
+			BabaYagaSettings parsed = BabaYagaSettings.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json).getOrThrow();
+			assertEquals(SETTINGS.claws(), parsed.claws());
+			assertEquals(SETTINGS.beam(), parsed.beam());
+			assertEquals(SETTINGS.phaseTwo().summonCap(), parsed.phaseTwo().summonCap());
+			assertEquals(SETTINGS.phaseTwo().capLockout(), parsed.phaseTwo().capLockout());
+			assertEquals(SETTINGS.phaseTwo().lockoutResetBelow(), parsed.phaseTwo().lockoutResetBelow());
+		}
+	}
+
+	@Test
 	void dataFileHasTheGroupMixes() throws Exception {
 		try (var reader = new java.io.InputStreamReader(BabaYagaLogicTest.class.getResourceAsStream("/data/eam/mobs/baba_yaga.json"))) {
 			var json = com.google.gson.JsonParser.parseReader(reader);

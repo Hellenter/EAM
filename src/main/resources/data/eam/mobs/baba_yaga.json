@@ -92,7 +92,9 @@
     "max_distance": 18.0,
     "flee_distance": 7.0,
     "attack_pause": 30,
-    "summon_below": 2,
+    "summon_cap": 5,
+    "cap_lockout": 300,
+    "lockout_reset_below": 2,
     "summon_cooldown": 300,
     "lurker_group": {
       "min": 1,
@@ -146,11 +148,11 @@
     "turn": 3.0
   },
   "claws": {
-    "cooldown": 420,
+    "cooldown": 280,
     "blind_ticks": 30,
-    "distance": 6.0,
+    "distance": 10.0,
     "angle": 35.0,
-    "lunge": 14,
+    "lunge": 24,
     "parry_window": 11,
     "hits": 5,
     "gap": 4,
