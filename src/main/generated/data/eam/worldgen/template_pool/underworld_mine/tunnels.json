@@ -43,6 +43,46 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/corridor/5",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/corridor/6",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/corridor/7",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/corridor/8",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
         "location": "eam:underworld_mine/crossing/1",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:underworld_mine",
@@ -73,6 +113,26 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/crossing/4",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/crossing/5",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
         "location": "eam:underworld_mine/stairs/1",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:underworld_mine",
@@ -83,12 +143,52 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/stairs/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/stairs/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
         "location": "eam:underworld_mine/room/1",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:underworld_mine",
         "projection": "rigid"
       },
       "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/room/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/room/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 1
     }
   ],
   "fallback": "eam:underworld_mine/ends"

@@ -8,6 +8,26 @@
         "processors": "eam:underworld_mine",
         "projection": "rigid"
       },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/end/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/end/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
       "weight": 1
     }
   ],
