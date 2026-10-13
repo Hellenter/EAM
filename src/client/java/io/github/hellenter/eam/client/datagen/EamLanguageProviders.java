@@ -183,6 +183,8 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
+			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
+			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
 			builder.add(EamItems.VAMPIRE_HEART, "Vampire Heart");
 			builder.add(EamItems.HEART_IN_JAR, "Heart in a Jar");
 			builder.add("item.eam.black_talisman.desc", "Use on a portal frame to open the way");
@@ -722,6 +724,8 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
+			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
+			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
 			builder.add(EamItems.VAMPIRE_HEART, "Сердце вампира");
 			builder.add(EamItems.HEART_IN_JAR, "Сердце в банке");
 			builder.add("item.eam.black_talisman.desc", "Используйте на рамке портала, чтобы открыть путь");

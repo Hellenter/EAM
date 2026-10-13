@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.yaga;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
@@ -13,9 +14,11 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Buff;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Creature;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.Glyph;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaLogic.GroupKind;
+import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -138,6 +141,9 @@ public class BabaYaga extends Monster {
 	private final ParryStreak parryStreak = new ParryStreak();
 	/** Set while a parry's fixed damage goes through, so armor and effects don't change it. */
 	private boolean exactHit;
+	/** What killed her, kept until she has burnt to ash and drops her loot. */
+	private @Nullable DamageSource deathSource;
+	private int deathPlayerMemory;
 
 	// Phase one
 	private int potionCooldown;
@@ -1836,6 +1842,36 @@ public class BabaYaga extends Monster {
 			return;
 		}
 		super.die(source);
+		bossEvent.setProgress(0.0F);
+	}
+
+	/** Her long death ({@link YagaDeath}): burning, convulsions, then a heap of ash her loot drops from. */
+	@Override
+	protected void tickDeath() {
+		deathTime++;
+		if (level() instanceof ServerLevel level && !isRemoved()) {
+			YagaDeath.tick(this, level, deathTime);
+			if (deathTime >= YagaDeath.DEATH_TICKS) {
+				// Killed by a player counts as at the moment she died, however long she took to burn.
+				lastHurtByPlayerMemoryTime = Math.max(lastHurtByPlayerMemoryTime, deathPlayerMemory);
+				super.dropAllDeathLoot(level, deathSource != null ? deathSource : damageSources().generic());
+				level.broadcastEntityEvent(this, (byte) 60);
+				remove(RemovalReason.KILLED);
+			}
+		}
+	}
+
+	/** Her loot waits for her to burn to ash: {@link #tickDeath()} drops it. */
+	@Override
+	protected void dropAllDeathLoot(ServerLevel level, DamageSource source) {
+		deathSource = source;
+		deathPlayerMemory = lastHurtByPlayerMemoryTime;
+	}
+
+	/** Her map, remembering where she died; the Mending book and the ash come from the loot table. */
+	@Override
+	protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+		spawnAtLocation(level, YagaGraveMapItem.forDeathAt(new ItemStack(EamItems.YAGA_GRAVE_MAP), GlobalPos.of(level.dimension(), blockPosition())));
 	}
 
 	@Override

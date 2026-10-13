@@ -11,9 +11,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetEnchantmentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemDamageFunction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -167,8 +169,18 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(LootItem.lootTableItem(Items.CHAINMAIL_CHESTPLATE)
 								.apply(SetItemDamageFunction.setDamage(ContextFloatProviders.between(0.2F, 0.6F))))));
 
-		// Baba Yaga drops only her experience for now.
-		output.accept(EamEntities.BABA_YAGA.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		// Baba Yaga: always a Mending book, and the ash she burnt to. Her grave map is added in code, as it remembers
+		// where she died.
+		output.accept(EamEntities.BABA_YAGA.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.BOOK)
+								.apply(new SetEnchantmentsFunction.Builder().withEnchantment(enchantments.getOrThrow(Enchantments.MENDING),
+										ContextIntProviders.exactly(1)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.ASH)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(3, 5))))));
 
 		// The drowned soldier: rotten flesh, and bog weed.
 		output.accept(EamEntities.DROWNED_SOLDIER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
