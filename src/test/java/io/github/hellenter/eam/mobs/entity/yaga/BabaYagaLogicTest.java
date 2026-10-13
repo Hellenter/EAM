@@ -61,6 +61,13 @@ class BabaYagaLogicTest {
 	}
 
 	@Test
+	void noMoreLurkersThanTheLimit() {
+		assertEquals(Creature.LURKER, BabaYagaLogic.creature(4, 3, 4, 0, 1, 0, 1, () -> 0.0));
+		assertEquals(Creature.WIGHT, BabaYagaLogic.creature(4, 3, 4, 1, 1, 0, 1, () -> 0.0));
+		assertEquals(Creature.SOLDIER, BabaYagaLogic.creature(4, 3, 4, 1, 1, 1, 1, () -> 0.0));
+	}
+
+	@Test
 	void groupsHaveThreeToFive() {
 		assertEquals(3, BabaYagaLogic.groupSize(3, 5, () -> 0.0));
 		assertEquals(4, BabaYagaLogic.groupSize(3, 5, () -> 0.5));
@@ -114,7 +121,7 @@ class BabaYagaLogicTest {
 	void beamDealsItsWholeDamageOverItsLength() {
 		BabaYagaSettings.Beam beam = SETTINGS.beam();
 		int every = 5;
-		assertEquals(beam.damage(), BabaYagaLogic.beamTickDamage(beam, every) * (beam.ticks() / every), 1.0E-4);
+		assertEquals(beam.damage(), BabaYagaLogic.beamTickDamage(beam, every) * ((beam.ticks() + every - 1) / every), 1.0E-4);
 	}
 
 	@Test
@@ -171,11 +178,11 @@ class BabaYagaLogicTest {
 	@Test
 	void reachingTheCapLocksSummoningUntilAlmostAllAreDead() {
 		BabaYagaSettings.PhaseTwo two = SETTINGS.phaseTwo();
-		assertTrue(BabaYagaLogic.maySummon(4, 0, two));
-		assertFalse(BabaYagaLogic.maySummon(5, 0, two));
-		int lockout = BabaYagaLogic.summonLockout(5, 0, two);
+		assertTrue(BabaYagaLogic.maySummon(3, 0, two));
+		assertFalse(BabaYagaLogic.maySummon(4, 0, two));
+		int lockout = BabaYagaLogic.summonLockout(4, 0, two);
 		assertEquals(300, lockout);
-		// Still locked with fewer than five, counting down.
+		// Still locked with fewer than four, counting down.
 		lockout = BabaYagaLogic.summonLockout(3, lockout, two);
 		assertEquals(299, lockout);
 		assertFalse(BabaYagaLogic.maySummon(3, lockout, two));
@@ -183,7 +190,7 @@ class BabaYagaLogicTest {
 		lockout = BabaYagaLogic.summonLockout(1, lockout, two);
 		assertEquals(0, lockout);
 		assertTrue(BabaYagaLogic.maySummon(1, lockout, two));
-		assertEquals(2, BabaYagaLogic.underCap(4, 3, two));
+		assertEquals(1, BabaYagaLogic.underCap(4, 3, two));
 		assertEquals(0, BabaYagaLogic.underCap(3, 6, two));
 	}
 

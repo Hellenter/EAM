@@ -263,14 +263,16 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param summonCap     she raises nothing while this many of her creatures are alive, and a group never takes her past it
 	 * @param capLockout    once her creatures reach the cap she raises none for this many ticks, even with fewer left
 	 * @param lockoutResetBelow fewer creatures than this alive end that lockout at once
+	 * @param maxLurkers    she raises no lurker while this many of hers are alive
+	 * @param maxWights     nor a wight while this many are
 	 * @param summonCooldown ticks between two groups
 	 * @param minSize       creatures in her group, at least
 	 * @param maxSize       and at most
 	 * @param fleeSpeed     her speed while she runs from a player, times her walk
 	 */
 	public record PhaseTwo(double minDistance, double maxDistance, double fleeDistance, int attackPause, int summonCap,
-			int capLockout, int lockoutResetBelow, int summonCooldown, int minSize, int maxSize, double fleeSpeed) {
-		public static final PhaseTwo DEFAULT = new PhaseTwo(10.0, 18.0, 7.0, 30, 5, 300, 2, 300, 3, 5, 1.4);
+			int capLockout, int lockoutResetBelow, int maxLurkers, int maxWights, int summonCooldown, int minSize, int maxSize, double fleeSpeed) {
+		public static final PhaseTwo DEFAULT = new PhaseTwo(10.0, 18.0, 7.0, 30, 4, 300, 2, 1, 1, 300, 3, 5, 1.4);
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(2.0, 48.0).fieldOf("min_distance").orElse(DEFAULT.minDistance).forGetter(PhaseTwo::minDistance),
 				Codec.doubleRange(2.0, 64.0).fieldOf("max_distance").orElse(DEFAULT.maxDistance).forGetter(PhaseTwo::maxDistance),
@@ -279,6 +281,8 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.intRange(0, 32).fieldOf("summon_cap").orElse(DEFAULT.summonCap).forGetter(PhaseTwo::summonCap),
 				Codec.intRange(0, 12000).fieldOf("cap_lockout").orElse(DEFAULT.capLockout).forGetter(PhaseTwo::capLockout),
 				Codec.intRange(0, 32).fieldOf("lockout_reset_below").orElse(DEFAULT.lockoutResetBelow).forGetter(PhaseTwo::lockoutResetBelow),
+				Codec.intRange(0, 32).fieldOf("max_lurkers").orElse(DEFAULT.maxLurkers).forGetter(PhaseTwo::maxLurkers),
+				Codec.intRange(0, 32).fieldOf("max_wights").orElse(DEFAULT.maxWights).forGetter(PhaseTwo::maxWights),
 				Codec.intRange(20, 12000).fieldOf("summon_cooldown").orElse(DEFAULT.summonCooldown).forGetter(PhaseTwo::summonCooldown),
 				Codec.intRange(1, 16).fieldOf("min_size").orElse(DEFAULT.minSize).forGetter(PhaseTwo::minSize),
 				Codec.intRange(1, 16).fieldOf("max_size").orElse(DEFAULT.maxSize).forGetter(PhaseTwo::maxSize),
@@ -365,7 +369,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param turn       degrees per tick she can turn the beam after a dodging player
 	 */
 	public record Beam(int cooldown, double range, int windup, int ticks, float damage, int fireTicks, float turn) {
-		public static final Beam DEFAULT = new Beam(260, 22.0, 16, 40, 6.0F, 40, 3.0F);
+		public static final Beam DEFAULT = new Beam(260, 22.0, 16, 27, 4.5F, 40, 3.0F);
 		public static final Codec<Beam> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Beam::cooldown),
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Beam::range),
@@ -393,7 +397,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 */
 	public record Claws(int cooldown, int blindTicks, int glowTicks, double distance, float angle, int lunge, int parryWindow, int hits, int gap,
 			float damage, float shieldSeconds, float parryMultiplier) {
-		public static final Claws DEFAULT = new Claws(280, 30, 60, 10.0, 35.0F, 24, 11, 5, 4, 6.0F, 5.0F, 1.5F);
+		public static final Claws DEFAULT = new Claws(280, 30, 60, 10.0, 35.0F, 24, 14, 5, 4, 6.0F, 5.0F, 1.5F);
 		public static final Codec<Claws> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Claws::cooldown),
 				Codec.intRange(0, 1200).fieldOf("blind_ticks").orElse(DEFAULT.blindTicks).forGetter(Claws::blindTicks),
