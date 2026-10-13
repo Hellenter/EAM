@@ -73,6 +73,7 @@ public class HagThread extends Mob {
 			level.sendParticles(SHRED, thread.getX(), thread.getY() + 0.2, thread.getZ(), 8, 0.1, 0.2, 0.1, 0.0);
 		}
 		hold(target);
+		YagaFx.threadWind(level, target);
 		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SCULK_VEIN_PLACE, SoundSource.HOSTILE, 1.5F, 0.6F);
 		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.COBWEB_PLACE, SoundSource.HOSTILE, 1.0F, 0.6F);
 	}

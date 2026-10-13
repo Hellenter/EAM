@@ -52,6 +52,8 @@ public class HagGlyph extends Entity {
 	private static final EntityDataAccessor<Integer> DATA_INACTIVE = SynchedEntityData.defineId(HagGlyph.class, EntityDataSerializers.INT);
 	/** Effects are given out this often. */
 	private static final int PULSE = 10;
+	/** How often the curse shows over a player standing in it: an eye over the blinded, blood off the drained. */
+	private static final int EYE_EVERY = 40;
 	/** The glyph of harm flares this long after it strikes, then goes. */
 	private static final int HARM_FLASH = 10;
 	/** The small copy floats this high over her head. */
@@ -180,8 +182,12 @@ public class HagGlyph extends Entity {
 		}
 		boolean pulse = tickCount % PULSE == 0;
 		for (LivingEntity living : inside) {
-			if ((affected.add(living) || pulse) && (living instanceof Player || helps(living))) {
+			boolean entered = affected.add(living);
+			if ((entered || pulse) && (living instanceof Player || helps(living))) {
 				apply(level, living, kind);
+			}
+			if (living instanceof Player && (entered || tickCount % EYE_EVERY == 0)) {
+				YagaFx.curse(level, this, living, kind);
 			}
 		}
 		if (pulse) {

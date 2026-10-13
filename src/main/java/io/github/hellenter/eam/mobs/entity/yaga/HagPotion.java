@@ -95,6 +95,7 @@ public class HagPotion extends ThrowableItemProjectile {
 			level.sendParticles(mist, getX() + Math.cos(angle) * radius, getY() + 0.3, getZ() + Math.sin(angle) * radius, 1, 0.1, 0.2, 0.1, 0.0);
 		}
 		level.levelEvent(LevelEvent.SOUND_SPELL_POTION_SPLASH, blockPosition(), 0);
+		YagaFx.toxicBurst(level, position(), radius, random);
 		discard();
 	}
 }
