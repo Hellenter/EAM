@@ -32,6 +32,7 @@ import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
+import io.github.hellenter.eam.mobs.entity.warg.WargModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
@@ -108,6 +109,7 @@ public class Eam implements ModInitializer {
 		SpiderModule.register();
 		VampireBatModule.register();
 		UpyrModule.register();
+		WargModule.register();
 		BabaYagaModule.register();
 		BleedingModule.register();
 		EamWorldgen.init();
@@ -154,6 +156,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) PillagerGuardModule.init();
 		if (config.mobs()) VampireBatModule.init();
 		if (config.mobs()) UpyrModule.init();
+		if (config.mobs()) WargModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();

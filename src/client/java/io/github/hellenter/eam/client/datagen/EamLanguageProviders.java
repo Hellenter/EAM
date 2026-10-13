@@ -81,6 +81,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.burnt_cod", "Burnt Cod");
 			builder.add("item.eam.burnt_salmon", "Burnt Salmon");
 			builder.add("item.eam.burnt_potato", "Burnt Potato");
+			builder.add("item.eam.burnt_wolf_meat", "Burnt Wolf Meat");
 			builder.add("item.eam.ash", "Ash");
 			builder.add(EamItems.FLINT_HATCHET, "Flint Hatchet");
 			builder.add(EamItems.FLINT_AXE, "Flint Axe");
@@ -303,6 +304,12 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.bleeding", "Bleeding");
 			builder.add(EamEntities.UPYR, "Upyr");
 			builder.add(EamItems.UPYR_SPAWN_EGG, "Upyr Spawn Egg");
+			builder.add(EamEntities.WARG, "Warg");
+			builder.add(EamEntities.WARG_LEADER, "Warg Pack Leader");
+			builder.add(EamItems.WARG_SPAWN_EGG, "Warg Spawn Egg");
+			builder.add(EamItems.WARG_LEADER_SPAWN_EGG, "Warg Pack Leader Spawn Egg");
+			builder.add(EamItems.WOLF_MEAT, "Raw Wolf Meat");
+			builder.add(EamItems.COOKED_WOLF_MEAT, "Cooked Wolf Meat");
 			builder.add(EamEntities.BABA_YAGA, "Baba Yaga");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Baba Yaga Spawn Egg");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Drowned Soldier");
@@ -613,6 +620,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.burnt_cod", "Сгоревшая треска");
 			builder.add("item.eam.burnt_salmon", "Сгоревший лосось");
 			builder.add("item.eam.burnt_potato", "Сгоревший картофель");
+			builder.add("item.eam.burnt_wolf_meat", "Сгоревшая волчатина");
 			builder.add("item.eam.ash", "Пепел");
 			builder.add(EamItems.FLINT_HATCHET, "Кремнёвый топорик");
 			builder.add(EamItems.FLINT_AXE, "Кремнёвый топор");
@@ -842,6 +850,12 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.bleeding", "Кровотечение");
 			builder.add(EamEntities.UPYR, "Упырь");
 			builder.add(EamItems.UPYR_SPAWN_EGG, "Яйцо призыва упыря");
+			builder.add(EamEntities.WARG, "Варг");
+			builder.add(EamEntities.WARG_LEADER, "Вожак варгов");
+			builder.add(EamItems.WARG_SPAWN_EGG, "Яйцо призыва варга");
+			builder.add(EamItems.WARG_LEADER_SPAWN_EGG, "Яйцо призыва вожака варгов");
+			builder.add(EamItems.WOLF_MEAT, "Сырая волчатина");
+			builder.add(EamItems.COOKED_WOLF_MEAT, "Жареная волчатина");
 			builder.add(EamEntities.BABA_YAGA, "Баба Яга");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Яйцо призыва Бабы Яги");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Утопленный солдат");

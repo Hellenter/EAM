@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
+import io.github.hellenter.eam.mobs.entity.warg.WargModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 
 import net.minecraft.core.HolderLookup;
@@ -69,6 +70,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(EamWorldgen.HAS_WILD_GARLIC)
 				.forceAddTag(BiomeTags.IS_FOREST)
 				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW);
+		// Warg packs hunt the snowy taiga and the snowy groves above it.
+		builder(WargModule.SPAWNS_IN).add(Biomes.SNOWY_TAIGA, Biomes.GROVE);
 		builder(WightModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)

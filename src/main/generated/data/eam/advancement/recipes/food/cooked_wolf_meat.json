@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:cooked_wolf_meat"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_wolf_meat": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:wolf_meat"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_wolf_meat"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:cooked_wolf_meat"
+    ]
+  }
+}

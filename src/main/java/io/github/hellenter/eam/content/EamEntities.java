@@ -23,6 +23,7 @@ import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
 import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
+import io.github.hellenter.eam.mobs.entity.warg.Warg;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
@@ -150,6 +151,22 @@ public final class EamEntities {
 					.sized(0.6F, 1.95F)
 					.eyeHeight(1.74F)
 					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A warg: a big, shaggy grey wolf that hunts in packs in the snowy taiga at night. */
+	public static final EntityType<Warg> WARG = register("warg",
+			EntityType.Builder.of(Warg::new, MobCategory.MONSTER)
+					.sized(0.85F, 1.05F)
+					.eyeHeight(0.85F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** The leader of a warg pack: bigger and darker. Kill him and the pack runs. */
+	public static final EntityType<Warg> WARG_LEADER = register("warg_leader",
+			EntityType.Builder.of(Warg::new, MobCategory.MONSTER)
+					.sized(1.0F, 1.25F)
+					.eyeHeight(1.0F)
+					.clientTrackingRange(10)
 					.notInPeaceful());
 
 	/** Baba Yaga: a hunched old witch with a staff, flying in her mortar until it breaks. Fire does not touch her in it. */

@@ -303,6 +303,11 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.BLACK_WIDOW));
 	public static final Item VAMPIRE_BAT_SPAWN_EGG = register("vampire_bat_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.VAMPIRE_BAT));
+	public static final Item WARG_SPAWN_EGG = register("warg_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.WARG));
+	/** Brings the leader with his whole pack. */
+	public static final Item WARG_LEADER_SPAWN_EGG = register("warg_leader_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.WARG_LEADER));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);
@@ -494,6 +499,12 @@ public final class EamItems {
 	public static final Item CHOCOLATE = register("chocolate", Item::new, new Item.Properties()
 			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).build())
 			.component(HungerModule.NUTRIENTS, new Nutrients(1, 5, 6)));
+	/**
+	 * Meat of a warg: tough and lean, worth a little less than mutton. The hunger module sets its MITE values and
+	 * nutrients like the vanilla meats'; it also brews holy water into a light potion of strength.
+	 */
+	public static final Item WOLF_MEAT = register("wolf_meat", Item::new, new Item.Properties().food(Foods.MUTTON));
+	public static final Item COOKED_WOLF_MEAT = register("cooked_wolf_meat", Item::new, new Item.Properties().food(Foods.COOKED_MUTTON));
 	/** Made from a bucket of milk; mashed potato needs it. */
 	public static final Item CHEESE = register("cheese", Item::new, new Item.Properties()
 			.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.6F).build())
@@ -511,6 +522,7 @@ public final class EamItems {
 	public static final Item BURNT_COD = burntFood("burnt_cod", Foods.COOKED_COD);
 	public static final Item BURNT_SALMON = burntFood("burnt_salmon", Foods.COOKED_SALMON);
 	public static final Item BURNT_POTATO = burntFood("burnt_potato", Foods.BAKED_POTATO);
+	public static final Item BURNT_WOLF_MEAT = burntFood("burnt_wolf_meat", Foods.COOKED_MUTTON);
 	public static final Item ASH = register("ash", Item::new, new Item.Properties());
 
 	/** A bowl of plain or boiled water, for soup recipes. */

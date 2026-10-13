@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "ingredient": "eam:wolf_meat",
+  "result": {
+    "id": "eam:cooked_wolf_meat"
+  }
+}
