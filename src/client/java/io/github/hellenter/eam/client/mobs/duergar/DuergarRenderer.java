@@ -1,7 +1,7 @@
 package io.github.hellenter.eam.client.mobs.duergar;
 
 import io.github.hellenter.eam.Eam;
-import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarLook;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -14,26 +14,29 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Mob;
 
-/** The zombie duergar, in one of three rotten skins; his clouded eyes glow a dull yellow in the dark of the mines. */
-public class ZombieDuergarRenderer extends HumanoidMobRenderer<ZombieDuergar, DuergarRenderState, DuergarModel> {
-	private static final Identifier[] TEXTURES = new Identifier[ZombieDuergar.SKINS];
-	private static final RenderType EYES = RenderTypes.eyes(Eam.id("textures/entity/duergar/zombie_duergar_eyes.png"));
+/**
+ * Any kind of duergar: the shared model with the kind's own textures {@code textures/entity/duergar/<kind>_<skin>.png};
+ * the eyes ({@code <kind>_eyes.png}) glow whatever the light.
+ */
+public class DuergarRenderer<T extends Mob & DuergarLook> extends HumanoidMobRenderer<T, DuergarRenderState, DuergarModel> {
+	private final Identifier[] textures;
+	private final RenderType eyes;
 
-	static {
-		for (int i = 0; i < TEXTURES.length; i++) {
-			TEXTURES[i] = Eam.id("textures/entity/duergar/zombie_duergar_" + i + ".png");
-		}
-	}
-
-	public ZombieDuergarRenderer(EntityRendererProvider.Context context) {
+	public DuergarRenderer(EntityRendererProvider.Context context, String kind, int skins) {
 		super(context, new DuergarModel(context.bakeLayer(DuergarModel.LAYER)), 0.5F);
-		addLayer(new Eyes(this));
+		textures = new Identifier[skins];
+		for (int i = 0; i < skins; i++) {
+			textures[i] = Eam.id("textures/entity/duergar/" + kind + "_" + i + ".png");
+		}
+		eyes = RenderTypes.eyes(Eam.id("textures/entity/duergar/" + kind + "_eyes.png"));
+		addLayer(new Eyes(this, eyes));
 	}
 
 	@Override
 	public Identifier getTextureLocation(DuergarRenderState state) {
-		return TEXTURES[state.skin];
+		return textures[Math.floorMod(state.skin, textures.length)];
 	}
 
 	@Override
@@ -42,7 +45,7 @@ public class ZombieDuergarRenderer extends HumanoidMobRenderer<ZombieDuergar, Du
 	}
 
 	@Override
-	public void extractRenderState(ZombieDuergar duergar, DuergarRenderState state, float partialTicks) {
+	public void extractRenderState(T duergar, DuergarRenderState state, float partialTicks) {
 		super.extractRenderState(duergar, state, partialTicks);
 		state.gear = duergar.gear();
 		state.skin = duergar.skin();
@@ -50,14 +53,17 @@ public class ZombieDuergarRenderer extends HumanoidMobRenderer<ZombieDuergar, Du
 
 	/** The two eye points, lit whatever the light around. */
 	private static final class Eyes extends RenderLayer<DuergarRenderState, DuergarModel> {
-		Eyes(RenderLayerParent<DuergarRenderState, DuergarModel> renderer) {
+		private final RenderType type;
+
+		Eyes(RenderLayerParent<DuergarRenderState, DuergarModel> renderer, RenderType type) {
 			super(renderer);
+			this.type = type;
 		}
 
 		@Override
 		public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, DuergarRenderState state, float yRot,
 				float xRot) {
-			collector.order(1).submitModel(getParentModel(), state, poseStack, EYES, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+			collector.order(1).submitModel(getParentModel(), state, poseStack, type, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 	}
 }

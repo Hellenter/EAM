@@ -154,6 +154,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) SwampLurkerModule.init();
 		if (config.mobs()) WightModule.init();
 		if (config.mobs()) LostModule.init();
+		if (config.mobs()) DuergarModule.init();
 		if (config.mobs()) SpiderModule.init();
 		if (config.mobs()) PillagerFeudModule.init();
 		if (config.mobs()) EliteCrossbowmanModule.init();

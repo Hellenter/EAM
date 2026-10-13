@@ -45,7 +45,7 @@ import org.jspecify.annotations.Nullable;
  * Short, slow and not very strong, but rarely alone. His outfit, beard and hair are drawn by the model from one packed
  * int ({@link DuergarGear}); each worn piece adds a little armor. Three skins: grey, green-rotten and dried.
  */
-public class ZombieDuergar extends Monster {
+public class ZombieDuergar extends Monster implements DuergarLook {
 	private static final EntityDataAccessor<Integer> DATA_GEAR = SynchedEntityData.defineId(ZombieDuergar.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Byte> DATA_SKIN = SynchedEntityData.defineId(ZombieDuergar.class, EntityDataSerializers.BYTE);
 	/** How many skins the renderer has. */
@@ -130,6 +130,7 @@ public class ZombieDuergar extends Monster {
 		}
 	}
 
+	@Override
 	public int gear() {
 		return entityData.get(DATA_GEAR);
 	}
@@ -138,6 +139,7 @@ public class ZombieDuergar extends Monster {
 		entityData.set(DATA_GEAR, gear);
 	}
 
+	@Override
 	public int skin() {
 		return Math.floorMod(entityData.get(DATA_SKIN), SKINS);
 	}

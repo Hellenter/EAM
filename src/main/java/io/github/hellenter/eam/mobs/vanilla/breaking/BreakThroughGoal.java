@@ -38,6 +38,8 @@ final class BreakThroughGoal extends Goal {
 
 	private final Mob mob;
 	private final List<TargetGoal> targetGoals;
+	/** He also digs through stone ({@link BlockBreakingModule#STONE_BREAKERS}). */
+	private final boolean breaksStone;
 	/** Game time of the next check whether the target is walled in. */
 	private long nextCheck;
 	private int replanIn;
@@ -56,6 +58,7 @@ final class BreakThroughGoal extends Goal {
 	BreakThroughGoal(Mob mob, List<TargetGoal> targetGoals) {
 		this.mob = mob;
 		this.targetGoals = targetGoals;
+		this.breaksStone = mob.is(BlockBreakingModule.STONE_BREAKERS);
 		// Spread the checks of many mobs over different ticks.
 		this.nextCheck = mob.getRandom().nextInt(BlockBreakingModule.settings().replanTicks());
 		setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -217,7 +220,7 @@ final class BreakThroughGoal extends Goal {
 	}
 
 	/** How the planner sees one cell. */
-	private static int cell(ServerLevel level, BlockPos pos, BlockBreakingSettings settings) {
+	private int cell(ServerLevel level, BlockPos pos, BlockBreakingSettings settings) {
 		if (!level.isLoaded(pos)) {
 			return BreachPlanner.BLOCKED;
 		}
@@ -238,9 +241,13 @@ final class BreakThroughGoal extends Goal {
 		return Math.max(1, total - (int) BlockDamage.done(level, pos.asLong()));
 	}
 
-	private static int breakTicks(ServerLevel level, BlockPos pos, BlockState state) {
-		return BlockBreakingLogic.breakTicks(state.getDestroySpeed(level, pos), state.is(BlockBreakingModule.HAND_BREAKABLE),
-				BlockBreakingModule.settings().ticksPerHardness());
+	private int breakTicks(ServerLevel level, BlockPos pos, BlockState state) {
+		BlockBreakingSettings settings = BlockBreakingModule.settings();
+		float hardness = state.getDestroySpeed(level, pos);
+		if (breaksStone && state.is(BlockBreakingModule.STONE)) {
+			return BlockBreakingLogic.breakTicks(hardness, true, settings.stoneTicksPerHardness());
+		}
+		return BlockBreakingLogic.breakTicks(hardness, state.is(BlockBreakingModule.HAND_BREAKABLE), settings.ticksPerHardness());
 	}
 
 	private boolean validTarget(LivingEntity entity) {

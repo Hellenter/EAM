@@ -41,7 +41,10 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
 						EntityTypeIds.VINDICATOR)
 				.add(SKELETONS)
-				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key());
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
+						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
+		// Duergar renegades dig through stone with their picks.
+		builder(BlockBreakingModule.STONE_BREAKERS).add(EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
 		// The small spiders live in tree crowns and spot a player through the leaves.
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
 				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
@@ -103,7 +106,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.LOST_CENTURION.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
 						EamEntities.LOST_WALL_COMMANDER.builtInRegistryHolder().key(),
 						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
-						EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key());
+						EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
+						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());

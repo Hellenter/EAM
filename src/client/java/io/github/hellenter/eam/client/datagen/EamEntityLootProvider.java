@@ -261,6 +261,19 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(-2, 1)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
+		// The duergar renegade: iron nuggets knocked off his armor, now and then a bit of leather.
+		output.accept(EamEntities.DUERGAR_RENEGADE.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.IRON_NUGGET)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 4)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.LEATHER)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(-1, 1)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
 		// The draugr: rotten flesh and a bone or two.
 		output.accept(EamEntities.DRAUGR.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

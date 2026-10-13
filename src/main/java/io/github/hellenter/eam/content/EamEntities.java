@@ -28,6 +28,7 @@ import io.github.hellenter.eam.mobs.entity.warg.Warg;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
@@ -150,6 +151,14 @@ public final class EamEntities {
 	/** A zombie duergar: a dead grey dwarf miner in battered gear who haunts the underworld's old mines. */
 	public static final EntityType<ZombieDuergar> ZOMBIE_DUERGAR = register("zombie_duergar",
 			EntityType.Builder.of(ZombieDuergar::new, MobCategory.MONSTER)
+					.sized(0.8F, 1.4F)
+					.eyeHeight(1.15F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A duergar renegade: a living grey dwarf in heavy armor who roams the dark underworld with his squad. */
+	public static final EntityType<DuergarRenegade> DUERGAR_RENEGADE = register("duergar_renegade",
+			EntityType.Builder.of(DuergarRenegade::new, MobCategory.MONSTER)
 					.sized(0.8F, 1.4F)
 					.eyeHeight(1.15F)
 					.clientTrackingRange(8)
