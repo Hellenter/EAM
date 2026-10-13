@@ -29,6 +29,7 @@ import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
@@ -163,6 +164,13 @@ public final class EamEntities {
 					.eyeHeight(1.15F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
+
+	/** A duergar of a clan village: a smith, a miner or the elder, who trade mithril for jewels. */
+	public static final EntityType<DuergarVillager> DUERGAR_VILLAGER = register("duergar_villager",
+			EntityType.Builder.of(DuergarVillager::new, MobCategory.MISC)
+					.sized(0.8F, 1.4F)
+					.eyeHeight(1.15F)
+					.clientTrackingRange(10));
 
 	/** A gaunt, hunched stalker in rags that hunts players unseen in swamps and jungles. */
 	public static final EntityType<Wight> WIGHT = register("wight",

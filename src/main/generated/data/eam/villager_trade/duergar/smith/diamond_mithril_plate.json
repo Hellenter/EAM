@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "eam:mithril_plate"
+  },
+  "max_uses": 2,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 6,
+    "id": "minecraft:diamond"
+  },
+  "xp": 2
+}

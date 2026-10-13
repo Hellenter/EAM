@@ -121,6 +121,7 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 		// A squad mate's wild swing does not turn him on his own.
 		targetSelector.addGoal(1, new HurtByTargetGoal(this, DuergarRenegade.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, DuergarVillager.class, true));
 	}
 
 	// ---- Spawning and gear ----

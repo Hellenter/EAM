@@ -1,0 +1,45 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/street/1",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 6
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/street/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/street/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/crossing",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    }
+  ],
+  "fallback": "eam:duergar_village/mushroom/ends"
+}

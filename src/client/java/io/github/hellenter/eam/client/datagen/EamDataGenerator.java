@@ -29,6 +29,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamOutpostProvider::new);
 		pack.addProvider(EamUnderworldMineProvider::new);
 		pack.addProvider(EamUnderworldMineLootProvider::new);
+		pack.addProvider(EamDuergarVillageProvider::new);
+		pack.addProvider(EamDuergarVillageLootProvider::new);
 		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamYagaGraveLootProvider::new);
@@ -63,18 +65,28 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.MATERIAL_RULE, UnderworldWorldgen::bootstrapMaterialRules);
 		registryBuilder.add(Registries.NOISE_SETTINGS, UnderworldWorldgen::bootstrapNoiseSettings);
 		registryBuilder.add(Registries.DIMENSION_TYPE, UnderworldWorldgen::bootstrapDimensionTypes);
-		registryBuilder.add(Registries.PROCESSOR_LIST, EamUnderworldMineProvider::bootstrapProcessors);
-		registryBuilder.add(Registries.TEMPLATE_POOL, EamUnderworldMineProvider::bootstrapPools);
+		registryBuilder.add(Registries.PROCESSOR_LIST, context -> {
+			EamUnderworldMineProvider.bootstrapProcessors(context);
+			EamDuergarVillageProvider.bootstrapProcessors(context);
+		});
+		registryBuilder.add(Registries.TEMPLATE_POOL, context -> {
+			EamUnderworldMineProvider.bootstrapPools(context);
+			EamDuergarVillageProvider.bootstrapPools(context);
+		});
 		registryBuilder.add(Registries.STRUCTURE, context -> {
 			EamCryptProvider.bootstrap(context);
 			EamOutpostProvider.bootstrap(context);
 			EamUnderworldMineProvider.bootstrap(context);
+			EamDuergarVillageProvider.bootstrap(context);
 		});
 		registryBuilder.add(Registries.STRUCTURE_SET, context -> {
 			EamCryptProvider.bootstrapSets(context);
 			EamOutpostProvider.bootstrapSets(context);
 			EamUnderworldMineProvider.bootstrapSets(context);
+			EamDuergarVillageProvider.bootstrapSets(context);
 		});
+		registryBuilder.add(Registries.VILLAGER_TRADE, EamDuergarVillageProvider::bootstrapTrades);
+		registryBuilder.add(Registries.TRADE_SET, EamDuergarVillageProvider::bootstrapTradeSets);
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);
 	}
 }

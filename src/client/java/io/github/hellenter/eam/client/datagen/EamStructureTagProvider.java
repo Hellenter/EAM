@@ -4,6 +4,7 @@ import io.github.hellenter.eam.world.structures.StructureRemovalModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptLocator;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
+import io.github.hellenter.eam.world.structures.village.DuergarVillage;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -37,6 +38,13 @@ public class EamStructureTagProvider extends FabricTagsProvider<Structure> {
 
 		// The Pillager King's castle is not built yet; the outpost's map says so until it is.
 		builder(OutpostModule.KING_CASTLE);
+
+		// The duergar elder's map leads to the nearest boss's lair: the crypt for now, the castle once it is built.
+		builder(DuergarVillage.LAIR_MAPS)
+				.add(CryptModule.STRUCTURE)
+				.addTag(OutpostModule.KING_CASTLE);
+		builder(DuergarVillage.VILLAGES)
+				.add(DuergarVillage.Style.STONE.structure(), DuergarVillage.Style.MUSHROOM.structure(), DuergarVillage.Style.LAKE.structure());
 
 		builder(CryptLocator.LOCATED_BY_EYE)
 				.add(CryptModule.STRUCTURE);
