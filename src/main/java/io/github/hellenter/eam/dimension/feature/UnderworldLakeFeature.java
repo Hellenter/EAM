@@ -101,7 +101,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			if (above == null) {
 				break;
 			}
-			spill(level, above, below);
+			spill(level, above, below, minX, minZ);
 			below = above;
 		}
 		return true;
@@ -233,8 +233,11 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		return new Lake(surface, radius, fluid);
 	}
 
-	/** Opens the rim of {@code from} on the side facing {@code to}, so its water runs over the edge and down. */
-	private static void spill(WorldGenLevel level, Lake from, Lake to) {
+	/**
+	 * Opens the rim of {@code from} on the side facing {@code to}, so its water runs over the edge and down. The channel
+	 * stops where it would read or write outside the chunks around {@code minX}, {@code minZ} that a feature may touch.
+	 */
+	private static void spill(WorldGenLevel level, Lake from, Lake to, int minX, int minZ) {
 		int dx = to.centre.getX() - from.centre.getX();
 		int dz = to.centre.getZ() - from.centre.getZ();
 		double length = Math.sqrt(dx * dx + dz * dz);
@@ -246,6 +249,10 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		int channel = 0;
 		for (int step = 1; step <= from.radius + 2 * WALL + 4; step++) {
 			pos.set(from.centre.getX() + Math.round(dx / length * step), from.centre.getY(), from.centre.getZ() + Math.round(dz / length * step));
+			// The channel and the blocks beside it must stay in the chunk and its direct neighbours.
+			if (pos.getX() <= minX - 16 || pos.getX() >= minX + 31 || pos.getZ() <= minZ - 16 || pos.getZ() >= minZ + 31) {
+				return;
+			}
 			BlockState state = level.getBlockState(pos);
 			if (isFluid(state)) {
 				inWater = true;
