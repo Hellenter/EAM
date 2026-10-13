@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.feeder.FeederBlock;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
@@ -77,6 +78,15 @@ public final class EamBlocks {
 	public static final Block SIEVE = register("sieve", SieveBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.WOOD)
 			.strength(1.5F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava());
+
+	/** A trough under a hay rack that livestock eats from; see {@link FeederBlock}. Drops itself and its feed. */
+	public static final Block FEEDER = register("feeder", FeederBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS)
+			.strength(2.0F, 3.0F)
 			.sound(SoundType.WOOD)
 			.noOcclusion()
 			.ignitedByLava());

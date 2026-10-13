@@ -130,6 +130,9 @@ public final class EamItems {
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
 
+	/** The feeder block. */
+	public static final Item FEEDER = register("feeder", p -> new BlockItem(EamBlocks.FEEDER, p), new Item.Properties().useBlockDescriptionPrefix());
+
 	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
 	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", p -> new HotIronItem(Items.IRON_INGOT, p), new Item.Properties());
 

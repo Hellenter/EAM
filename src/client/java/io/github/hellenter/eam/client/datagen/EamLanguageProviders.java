@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -213,6 +214,9 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.camp_fire.needs_sticks", "Put at least %s sticks on the fire to light it");
 			builder.add("eam.mining.needs_axe", "You need an axe to chop this");
 			builder.add(EamBlocks.SIEVE, "Sieve");
+			builder.add(EamBlocks.FEEDER, "Feeder");
+			builder.add("block.eam.feeder.status", "Feed: %s/%s, fed today: %s/%s");
+			builder.add(FeederModule.FEED, "Livestock Feed");
 			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
 			builder.add(EamEntities.PEBBLE, "Pebble");
 			builder.add(EamEntities.FALLEN_LORD, "Fallen Lord");
@@ -756,6 +760,9 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.camp_fire.needs_sticks", "Чтобы разжечь костёр, положите в него не меньше %s палок");
 			builder.add("eam.mining.needs_axe", "Чтобы срубить это, нужен топор");
 			builder.add(EamBlocks.SIEVE, "Сито");
+			builder.add(EamBlocks.FEEDER, "Кормушка");
+			builder.add("block.eam.feeder.status", "Корм: %s/%s, сегодня поели: %s/%s");
+			builder.add(FeederModule.FEED, "Корм для скота");
 			builder.add(CampFireModule.IGNITERS, "Растопка для костра");
 			builder.add(EamEntities.PEBBLE, "Камушек");
 			builder.add(EamEntities.FALLEN_LORD, "Павший лорд");

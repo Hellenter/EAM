@@ -204,6 +204,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				// A trough of planks under a rack of sticks.
+				shaped(RecipeCategory.DECORATIONS, EamItems.FEEDER)
+						.define('P', ItemTags.PLANKS)
+						.define('S', Items.STICK)
+						.pattern("S S")
+						.pattern("P P")
+						.pattern("PPP")
+						.unlockedBy(getHasName(Items.WHEAT), has(Items.WHEAT))
+						.save(output);
+
 				bowlFoodRecipes();
 				ashRecipes();
 				silverRecipes();

@@ -1,0 +1,335 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "eam:block/feeder_body"
+      },
+      "when": {
+        "axis": "x"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_negative"
+      },
+      "when": {
+        "axis": "x",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_positive"
+      },
+      "when": {
+        "axis": "x",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_body",
+        "y": 90
+      },
+      "when": {
+        "axis": "z"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_negative",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_positive",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_1_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_2_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_feed_3_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "true",
+        "positive": "true"
+      }
+    }
+  ]
+}
