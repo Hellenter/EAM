@@ -1,10 +1,10 @@
 package io.github.hellenter.eam.mobs.entity.yaga;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -97,10 +97,12 @@ public class HagBolt extends Projectile {
 				double t = i / 4.0;
 				level().addParticle(trail, getX() - movement.x * t, getY() - movement.y * t, getZ() - movement.z * t, 0.0, 0.0, 0.0);
 			}
+			// Acid drips off the acid bolt; thread curls trail off the threads bolt.
 			if (kind() == Kind.ACID && random.nextInt(2) == 0) {
-				level().addParticle(ParticleTypes.ITEM_SLIME, getX(), getY(), getZ(), 0.0, 0.0, 0.0);
-			} else if (kind() == Kind.THREADS && random.nextInt(2) == 0) {
-				level().addParticle(ParticleTypes.WITCH, getX(), getY(), getZ(), 0.0, 0.0, 0.0);
+				level().addParticle(EamParticles.YAGA_ACID, getX(), getY(), getZ(), movement.x * 0.1, 0.0, movement.z * 0.1);
+			} else if (kind() == Kind.THREADS) {
+				level().addParticle(EamParticles.YAGA_THREAD, getX(), getY(), getZ(), (random.nextDouble() - 0.5) * 0.05, 0.0,
+						(random.nextDouble() - 0.5) * 0.05);
 			}
 		}
 	}
@@ -146,6 +148,11 @@ public class HagBolt extends Projectile {
 		super.onHit(hitResult);
 		if (level() instanceof ServerLevel level) {
 			level.sendParticles(new DustParticleOptions(color(), 1.4F), getX(), getY(), getZ(), 14, 0.25, 0.25, 0.25, 0.0);
+			if (kind() == Kind.ACID) {
+				YagaFx.acidSplash(level, position());
+			} else {
+				level.sendParticles(EamParticles.YAGA_THREAD, getX(), getY(), getZ(), 8, 0.2, 0.2, 0.2, 0.08);
+			}
 			level.playSound(null, getX(), getY(), getZ(), kind() == Kind.ACID ? SoundEvents.LAVA_EXTINGUISH : SoundEvents.AMETHYST_BLOCK_BREAK,
 					SoundSource.HOSTILE, 0.8F, 1.4F);
 		}

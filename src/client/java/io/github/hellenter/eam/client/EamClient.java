@@ -50,6 +50,7 @@ import io.github.hellenter.eam.client.mobs.drowned.DrownedSoldierRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaModel;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.BuffIconParticle;
+import io.github.hellenter.eam.client.mobs.yaga.YagaFxParticle;
 import io.github.hellenter.eam.client.mobs.yaga.HagGlyphRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.HagThreadRenderer;
 import io.github.hellenter.eam.client.mobs.wight.WightModel;
@@ -78,6 +79,8 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 
@@ -99,6 +102,16 @@ public class EamClient implements ClientModInitializer {
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_ABSORPTION, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_SPEED, BuffIconParticle.Provider::new);
+		registerYagaFx(EamParticles.YAGA_FEATHER, YagaFxParticle.Style.FEATHER);
+		registerYagaFx(EamParticles.YAGA_WISP, YagaFxParticle.Style.WISP);
+		registerYagaFx(EamParticles.YAGA_TOXIC, YagaFxParticle.Style.TOXIC);
+		registerYagaFx(EamParticles.YAGA_RUNE, YagaFxParticle.Style.RUNE);
+		registerYagaFx(EamParticles.YAGA_EYE, YagaFxParticle.Style.EYE);
+		registerYagaFx(EamParticles.YAGA_BLOOD, YagaFxParticle.Style.BLOOD);
+		registerYagaFx(EamParticles.YAGA_ACID, YagaFxParticle.Style.ACID);
+		registerYagaFx(EamParticles.YAGA_THREAD, YagaFxParticle.Style.THREAD);
+		registerYagaFx(EamParticles.YAGA_EMBER, YagaFxParticle.Style.EMBER);
+		registerYagaFx(EamParticles.YAGA_CLAW, YagaFxParticle.Style.CLAW);
 		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(FallenLordEyesModel.LAYER, FallenLordEyesModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.FALLEN_LORD, FallenLordRenderer::new);
@@ -171,5 +184,9 @@ public class EamClient implements ClientModInitializer {
 		BloodMoonSky.register();
 		HeartFlight.register();
 		TalismanActivation.register();
+	}
+
+	private static <T extends ParticleOptions> void registerYagaFx(ParticleType<T> type, YagaFxParticle.Style style) {
+		ParticleProviderRegistry.getInstance().register(type, sprites -> new YagaFxParticle.Provider<T>(sprites, style));
 	}
 }

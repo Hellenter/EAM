@@ -787,6 +787,7 @@ public class BabaYaga extends Monster {
 		if (t % 2 == 0) {
 			Vec3 tip = staffTip();
 			level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.2F), tip.x, tip.y, tip.z, 3, 0.15, 0.15, 0.15, 0.0);
+			YagaFx.summonCharge(level, tip);
 		}
 		if (t != YagaAction.SUMMON_RAISE || target == null) {
 			return;
@@ -968,6 +969,7 @@ public class BabaYaga extends Monster {
 				0.1, 0.4, 0.1);
 		level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.3F), at.x, at.y + 1.0, at.z, 12, 0.3, 0.6, 0.3, 0.0);
 		level.sendParticles(ParticleTypes.SOUL, at.x, at.y + 0.5, at.z, 4, 0.3, 0.4, 0.3, 0.02);
+		YagaFx.graveRise(level, at);
 		return mob;
 	}
 
@@ -1163,11 +1165,15 @@ public class BabaYaga extends Monster {
 		if (t == 0) {
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.ILLUSIONER_PREPARE_BLINDNESS, getSoundSource(), 1.5F, 0.8F);
 		}
+		if (t < YagaAction.SPELL_RELEASE && t % 2 == 0) {
+			YagaFx.runes(level, staffTip(), YagaGlow.of(buff).color, 1, 0.3);
+		}
 		if (t == YagaAction.SPELL_RELEASE) {
 			spells.add(new SpellBolt(staffTip(), group, buff, spell.flightTicks()));
 			spellCooldown = spell.cooldown();
 			castGap = CAST_GAP;
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 1.2F);
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, getSoundSource(), 2.0F, 0.6F);
 		}
 	}
 
@@ -1183,7 +1189,7 @@ public class BabaYaga extends Monster {
 			Vec3 at = bolt.from.lerp(to, s).add(0.0, BabaYagaLogic.arc(s, height), 0.0);
 			int color = YagaGlow.of(bolt.buff).color;
 			level.sendParticles(new DustParticleOptions(color, 1.6F), at.x, at.y, at.z, 3, 0.08, 0.08, 0.08, 0.0);
-			level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z, 1, 0.02, 0.02, 0.02, 0.0);
+			YagaFx.runes(level, at, color, 2, 0.12);
 			if (bolt.age < bolt.ticks) {
 				continue;
 			}
@@ -1195,7 +1201,7 @@ public class BabaYaga extends Monster {
 				}
 			}
 			level.sendParticles(new DustParticleOptions(color, 2.0F), to.x, to.y, to.z, 30, 1.2, 0.6, 1.2, 0.0);
-			level.sendParticles(ParticleTypes.WITCH, to.x, to.y, to.z, 10, 1.0, 0.5, 1.0, 0.0);
+			YagaFx.runeRing(level, to, color);
 			level.playSound(null, to.x, to.y, to.z, SoundEvents.BREWING_STAND_BREW, getSoundSource(), 1.5F, 0.8F);
 		}
 	}
@@ -1267,6 +1273,7 @@ public class BabaYaga extends Monster {
 		glyph.setPos(at.x, at.y, at.z);
 		level.addFreshEntity(glyph);
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, harm ? 0.5F : 0.8F);
+		level.playSound(null, at.x, at.y, at.z, SoundEvents.ENCHANTMENT_TABLE_USE, getSoundSource(), 2.0F, 0.5F);
 		lastGlyph = kind;
 		pendingGlyph = -1;
 		glyphCooldown = glyphs.cooldown();
@@ -1308,6 +1315,7 @@ public class BabaYaga extends Monster {
 			Vec3 to = aim.subtract(position());
 			double speed = BabaYagaLogic.closingSpeed(distance, strike - t, swoop.speed());
 			setDeltaMovement(distance > 1.0E-4 ? to.scale(speed / distance) : Vec3.ZERO);
+			YagaFx.diveTrail(level, this);
 			if (window && t % 2 == 0) {
 				level.sendParticles(new DustParticleOptions(YagaGlow.PARRY.color, 1.2F), getX(), getY(0.6), getZ(), 4, 0.4, 0.5, 0.4, 0.0);
 			}
@@ -1316,6 +1324,7 @@ public class BabaYaga extends Monster {
 		setDeltaMovement(getDeltaMovement().scale(0.5));
 		if (t == strike) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, getSoundSource(), 1.5F, 0.7F);
+			YagaFx.diveStrike(level, this);
 			if (position().subtract(0.0, swoop.strikeDrop(), 0.0).distanceTo(target.position()) <= swoop.reach() + target.getBbWidth() * 0.5 + 0.5) {
 				diveLanded = true;
 				target.damageCooldownTime = 0;
@@ -1396,6 +1405,11 @@ public class BabaYaga extends Monster {
 		if (t < YagaAction.BOLT_RELEASE && t % 2 == 0) {
 			Vec3 tip = staffTip();
 			level.sendParticles(new DustParticleOptions(glow().color, 1.0F), tip.x, tip.y, tip.z, 2, 0.1, 0.1, 0.1, 0.0);
+			if (acid) {
+				YagaFx.acidCharge(level, tip);
+			} else {
+				YagaFx.threadCharge(level, tip);
+			}
 		}
 		if (t != YagaAction.BOLT_RELEASE) {
 			return;
@@ -1407,6 +1421,9 @@ public class BabaYaga extends Monster {
 		level.addFreshEntity(new HagBolt(level, this, acid ? HagBolt.Kind.ACID : HagBolt.Kind.THREADS, from, velocity));
 		level.playSound(null, getX(), getEyeY(), getZ(), acid ? SoundEvents.BLAZE_SHOOT : SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F,
 				acid ? 1.6F : 0.7F);
+		if (!acid) {
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SPIDER_AMBIENT, getSoundSource(), 1.5F, 0.6F);
+		}
 	}
 
 	/**
@@ -1434,6 +1451,7 @@ public class BabaYaga extends Monster {
 		}
 		if (t < beam.windup()) {
 			level.sendParticles(ParticleTypes.FLAME, from.x, from.y, from.z, 2, 0.08, 0.08, 0.08, 0.01);
+			YagaFx.emberCharge(level, from, random);
 			return;
 		}
 		if (t == beam.windup()) {
@@ -1452,6 +1470,8 @@ public class BabaYaga extends Monster {
 			if (random.nextInt(4) == 0) {
 				Vec3 at = from.add(beamAim.scale(d));
 				level.sendParticles(ParticleTypes.FLAME, at.x, at.y, at.z, 1, 0.05, 0.05, 0.05, 0.005);
+			} else if (random.nextInt(3) == 0) {
+				YagaFx.emberAlong(level, from.add(beamAim.scale(d)));
 			}
 		}
 		// Where it hits: fire, embers and smoke.
@@ -1459,6 +1479,7 @@ public class BabaYaga extends Monster {
 		level.sendParticles(ParticleTypes.FLAME, back.x, back.y, back.z, 6, 0.2, 0.2, 0.2, 0.04);
 		level.sendParticles(ParticleTypes.SMALL_FLAME, back.x, back.y, back.z, 4, 0.25, 0.25, 0.25, 0.06);
 		level.sendParticles(ParticleTypes.LAVA, back.x, back.y, back.z, 2, 0.15, 0.15, 0.15, 0.0);
+		YagaFx.emberHit(level, back);
 		level.sendParticles(ParticleTypes.LARGE_SMOKE, back.x, back.y + 0.2, back.z, 2, 0.2, 0.2, 0.2, 0.02);
 		if (t % 3 == 0) {
 			level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, back.x, back.y + 0.3, back.z, 1, 0.1, 0.1, 0.1, 0.01);
@@ -1548,11 +1569,13 @@ public class BabaYaga extends Monster {
 		boolean first = since == 0;
 		playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 1.3F + since * 0.02F);
 		if (distance > CLAW_REACH + target.getBbWidth() * 0.5 || Math.abs(target.getY() - getY()) > 2.5) {
+			YagaFx.clawRake(level, this, target, false);
 			return;
 		}
 		ItemStack shield = target.getItemBlockingWith();
 		target.damageCooldownTime = 0;
-		target.hurtServer(level, damageSources().mobAttack(this), claws.damage());
+		boolean hurt = target.hurtServer(level, damageSources().mobAttack(this), claws.damage());
+		YagaFx.clawRake(level, this, target, hurt);
 		if (first && shield != null) {
 			BlocksAttacks blocks = shield.get(DataComponents.BLOCKS_ATTACKS);
 			if (blocks != null) {
@@ -1586,11 +1609,13 @@ public class BabaYaga extends Monster {
 	/** Gone in a puff of smoke, back in another. */
 	private void blink(ServerLevel level, Vec3 to) {
 		level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(0.5), getZ(), 20, 0.3, 0.6, 0.3, 0.02);
+		YagaFx.blink(level, this);
 		level.playSound(null, getX(), getY(), getZ(), SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.7F);
 		teleportTo(to.x, to.y, to.z);
 		getNavigation().stop();
 		level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(0.5), getZ(), 20, 0.3, 0.6, 0.3, 0.02);
 		level.sendParticles(ParticleTypes.WITCH, getX(), getY(0.5), getZ(), 12, 0.3, 0.6, 0.3, 0.0);
+		YagaFx.blink(level, this);
 		level.playSound(null, getX(), getY(), getZ(), SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.7F);
 	}
 
@@ -1632,6 +1657,7 @@ public class BabaYaga extends Monster {
 		if (t % 4 == 0) {
 			playSound(SoundEvents.GENERIC_EAT.value(), 1.2F, 0.6F + random.nextFloat() * 0.2F);
 			level.sendParticles(new DustParticleOptions(0x5C0F0F, 1.2F), meal.getX(), meal.getY(0.6), meal.getZ(), 6, 0.25, 0.3, 0.25, 0.0);
+			YagaFx.feed(level, meal);
 		}
 		if (t != eat.ticks()) {
 			return;

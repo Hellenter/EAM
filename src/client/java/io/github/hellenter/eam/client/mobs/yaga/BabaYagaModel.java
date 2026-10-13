@@ -16,13 +16,15 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * Baba Yaga: a hunched old crone in a red spotted kerchief tied under her chin, a hooked warty nose, grey hair hanging
- * at her cheeks, a shawl with a fringe over her humped back, a long patched skirt and apron, bast shoes, and long
- * black claws on thin hands. Her right hand holds a gnarled staff topped with a skull. In phase one she stands in a
- * flared, iron-hooped wooden mortar; the mortar is hidden once it has burst.
+ * Baba Yaga: a hunched, corpse-grey crone. Long matted hair hangs from a balding skull down her back and past her
+ * cheeks; deep black sockets hold two pinpoint green eyes over a long warty hooked nose; her lower jaw hangs loose and
+ * drops open on a mouth of crooked teeth. Moth-eaten black rags with knobs of her spine showing through, a necklace of
+ * finger bones, a torn skirt stiff with mud and old blood, one leg wrapped in filthy linen and a bast shoe, the other
+ * bare bone ("костяная нога"). Long black claws on thin veined hands; her right hand holds a gnarled staff topped with
+ * a skull. In phase one she stands in a flared, iron-hooped wooden mortar; the mortar is hidden once it has burst.
  * <p>
  * The whole rig turns about the ground point, so she leans into a dive mortar and all. Her staff is kept upright in the
- * world's frame whatever her arm does, then tilted for each action.
+ * world's frame whatever her arm does, then tilted for each action; her hair hangs down much the same way.
  */
 public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("baba_yaga"), "main");
@@ -36,6 +38,11 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 	private final ModelPart crone;
 	private final ModelPart torso;
 	private final ModelPart head;
+	private final ModelPart jaw;
+	private final ModelPart hair;
+	private final ModelPart rightLock;
+	private final ModelPart leftLock;
+	private final ModelPart beads;
 	private final ModelPart rightArm;
 	private final ModelPart leftArm;
 	private final ModelPart rightForearm;
@@ -54,6 +61,11 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		crone = rig.getChild("crone");
 		torso = crone.getChild("torso");
 		head = torso.getChild("head");
+		jaw = head.getChild("jaw");
+		hair = head.getChild("hair");
+		rightLock = head.getChild("right_lock");
+		leftLock = head.getChild("left_lock");
+		beads = torso.getChild("beads");
 		rightArm = torso.getChild("right_arm");
 		leftArm = torso.getChild("left_arm");
 		rightForearm = rightArm.getChild("right_forearm");
@@ -73,9 +85,9 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 
 		// The mortar: a narrow foot, then staves flaring out to the rim, fourteen pixels up.
 		rig.addOrReplaceChild("mortar", CubeListBuilder.create()
-				.texOffs(56, 0).addBox(-5.0F, -3.0F, -5.0F, 10.0F, 3.0F, 10.0F)
-				.texOffs(96, 0).addBox(-7.0F, -14.0F, -7.0F, 14.0F, 11.0F, 2.0F)
-				.texOffs(96, 0).addBox(-7.0F, -14.0F, 5.0F, 14.0F, 11.0F, 2.0F)
+				.texOffs(80, 0).addBox(-5.0F, -3.0F, -5.0F, 10.0F, 3.0F, 10.0F)
+				.texOffs(0, 29).addBox(-7.0F, -14.0F, -7.0F, 14.0F, 11.0F, 2.0F)
+				.texOffs(0, 29).addBox(-7.0F, -14.0F, 5.0F, 14.0F, 11.0F, 2.0F)
 				.texOffs(4, 0).addBox(-7.0F, -14.0F, -5.0F, 2.0F, 11.0F, 10.0F)
 				.texOffs(4, 0).mirror().addBox(5.0F, -14.0F, -5.0F, 2.0F, 11.0F, 10.0F), PartPose.ZERO);
 
@@ -83,33 +95,52 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		PartDefinition crone = rig.addOrReplaceChild("crone", CubeListBuilder.create(), PartPose.offset(0.0F, -24.0F, 0.0F));
 		PartDefinition skirt = crone.addOrReplaceChild("skirt", CubeListBuilder.create()
 				.texOffs(28, 0).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 10.0F, 6.0F)
-				.texOffs(20, 42).addBox(-4.0F, -1.0F, -3.0F, 8.0F, 1.0F, 6.0F, new CubeDeformation(0.2F)),
+				.texOffs(68, 42).addBox(-4.0F, -1.0F, -3.0F, 8.0F, 1.0F, 6.0F, new CubeDeformation(0.2F)),
 				PartPose.offset(0.0F, 11.0F, 0.0F));
-		skirt.addOrReplaceChild("apron", CubeListBuilder.create().texOffs(64, 42)
+		skirt.addOrReplaceChild("apron", CubeListBuilder.create().texOffs(16, 52)
 				.addBox(-2.5F, 0.0F, 0.0F, 5.0F, 7.0F, 0.0F), PartPose.offset(0.0F, 0.5F, -3.15F));
-		addLeg(crone, "right_leg", -1.6F, false);
-		addLeg(crone, "left_leg", 1.6F, true);
+		// The right leg is bare bone down to a bony foot; the left is wrapped in linen and shod in a bast shoe.
+		PartDefinition boneLeg = crone.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(52, 42)
+				.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 7.0F, 2.0F), PartPose.offset(-1.6F, 16.0F, 0.0F));
+		boneLeg.addOrReplaceChild("foot", CubeListBuilder.create().texOffs(56, 52)
+				.addBox(-1.0F, 0.0F, -3.0F, 2.0F, 1.0F, 4.0F), PartPose.offset(0.0F, 7.0F, 0.0F));
+		PartDefinition leg = crone.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(28, 42).mirror()
+				.addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F), PartPose.offset(1.6F, 16.0F, 0.0F));
+		leg.addOrReplaceChild("lapot", CubeListBuilder.create().texOffs(0, 52).mirror()
+				.addBox(-1.5F, 0.0F, -3.5F, 3.0F, 2.0F, 5.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
 
+		// Her back, with the knobs of her spine standing out above the shawl and through it.
 		PartDefinition torso = crone.addOrReplaceChild("torso", CubeListBuilder.create()
-				.texOffs(52, 29).addBox(-3.5F, -8.0F, -2.0F, 7.0F, 8.0F, 4.0F)
-				.texOffs(74, 42).addBox(-2.5F, -7.5F, 1.5F, 5.0F, 4.0F, 2.0F)
-				.texOffs(74, 29).addBox(-4.5F, -8.5F, -3.0F, 9.0F, 4.0F, 6.0F),
+				.texOffs(38, 29).addBox(-3.5F, -8.0F, -2.0F, 7.0F, 8.0F, 4.0F)
+				.texOffs(26, 52).addBox(-2.5F, -7.5F, 1.5F, 5.0F, 4.0F, 2.0F)
+				.texOffs(72, 29).addBox(-4.5F, -8.5F, -3.0F, 9.0F, 5.0F, 6.0F)
+				.texOffs(112, 52).addBox(-0.5F, -9.3F, 1.8F, 1.0F, 1.0F, 1.0F)
+				.texOffs(112, 52).addBox(-0.5F, -7.8F, 3.2F, 1.0F, 1.0F, 1.0F)
+				.texOffs(112, 52).addBox(-0.5F, -5.9F, 3.3F, 1.0F, 1.0F, 1.0F)
+				.texOffs(112, 52).addBox(-0.5F, -4.0F, 3.2F, 1.0F, 1.0F, 1.0F),
 				PartPose.offsetAndRotation(0.0F, 11.0F, 0.0F, HUNCH, 0.0F, 0.0F));
+		// A string of finger bones and teeth round her neck.
+		torso.addOrReplaceChild("beads", CubeListBuilder.create().texOffs(80, 52)
+				.addBox(-3.0F, 0.0F, 0.0F, 6.0F, 4.0F, 0.0F), PartPose.offset(0.0F, -7.0F, -3.2F));
 
 		PartDefinition head = torso.addOrReplaceChild("head", CubeListBuilder.create()
-				.texOffs(0, 29).addBox(-3.0F, -7.0F, -4.0F, 6.0F, 7.0F, 6.0F)
-				// A long hooked nose, warty, and a jutting chin.
-				.texOffs(0, 51).addBox(-0.5F, -3.5F, -7.0F, 1.0F, 1.0F, 3.0F)
-				.texOffs(32, 51).addBox(-0.5F, -2.5F, -7.0F, 1.0F, 2.0F, 1.0F)
-				.texOffs(20, 51).addBox(-1.0F, -1.0F, -4.8F, 2.0F, 2.0F, 1.0F)
-				// The kerchief over her head, its knot under her chin and its tail down the back.
-				.texOffs(24, 29).addBox(-3.5F, -7.5F, -4.5F, 7.0F, 5.0F, 7.0F)
-				.texOffs(26, 51).addBox(-1.0F, 0.0F, -3.5F, 2.0F, 2.0F, 1.0F)
-				.texOffs(104, 42).addBox(-2.0F, -3.0F, 2.5F, 4.0F, 4.0F, 1.0F)
-				// Grey hair hanging at her cheeks.
-				.texOffs(104, 29).addBox(-3.6F, -3.0F, -2.5F, 1.0F, 6.0F, 4.0F)
-				.texOffs(104, 29).mirror().addBox(2.6F, -3.0F, -2.5F, 1.0F, 6.0F, 4.0F),
+				.texOffs(56, 0).addBox(-3.0F, -8.0F, -4.0F, 6.0F, 8.0F, 6.0F)
+				// A long hooked nose, warty, its tip hanging down over her lip.
+				.texOffs(92, 52).addBox(-0.5F, -4.5F, -7.0F, 1.0F, 1.0F, 3.0F)
+				.texOffs(108, 52).addBox(-0.5F, -3.5F, -7.0F, 1.0F, 2.0F, 1.0F)
+				// Thin wild hair over the skull, bald in patches.
+				.texOffs(0, 42).addBox(-3.5F, -8.5F, -4.5F, 7.0F, 3.0F, 7.0F),
 				PartPose.offset(0.0F, -8.0F, -0.5F));
+		// The lower jaw, hinged at the back: it hangs loose and drops open.
+		head.addOrReplaceChild("jaw", CubeListBuilder.create().texOffs(96, 42)
+				.addBox(-2.5F, 0.0F, -5.2F, 5.0F, 2.0F, 5.0F), PartPose.offset(0.0F, 0.0F, 1.0F));
+		// Long hair down her back and a matted lock past each cheek.
+		head.addOrReplaceChild("hair", CubeListBuilder.create().texOffs(60, 29)
+				.addBox(-2.5F, 0.0F, 0.0F, 5.0F, 11.0F, 1.0F), PartPose.offset(0.0F, -7.0F, 1.6F));
+		head.addOrReplaceChild("right_lock", CubeListBuilder.create().texOffs(32, 29)
+				.addBox(-0.5F, 0.0F, -1.0F, 1.0F, 11.0F, 2.0F), PartPose.offset(-3.6F, -6.5F, 0.0F));
+		head.addOrReplaceChild("left_lock", CubeListBuilder.create().texOffs(32, 29).mirror()
+				.addBox(-0.5F, 0.0F, -1.0F, 1.0F, 11.0F, 2.0F), PartPose.offset(3.6F, -6.5F, 0.0F));
 
 		PartDefinition rightArm = addArm(torso, "right", -4.5F, false);
 		PartDefinition rightHand = rightArm.getChild("right_forearm").getChild("right_hand");
@@ -118,33 +149,27 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		// The staff, centred in her fist: a gnarled shaft, a burl near the top, a skull on it and two twigs.
 		PartDefinition staff = rightHand.addOrReplaceChild("staff", CubeListBuilder.create()
 				.texOffs(0, 0).addBox(-0.5F, -20.0F, -0.5F, 1.0F, 28.0F, 1.0F)
-				.texOffs(114, 42).addBox(-1.0F, -21.0F, -1.0F, 2.0F, 3.0F, 2.0F)
-				.texOffs(88, 42).addBox(-1.5F, -24.0F, -1.5F, 3.0F, 3.0F, 3.0F), PartPose.offset(0.0F, 1.0F, 0.0F));
-		staff.addOrReplaceChild("right_twig", CubeListBuilder.create().texOffs(100, 42)
+				.texOffs(68, 52).addBox(-1.0F, -21.0F, -1.0F, 2.0F, 3.0F, 2.0F)
+				.texOffs(40, 52).addBox(-1.5F, -24.0F, -1.5F, 3.0F, 3.0F, 3.0F), PartPose.offset(0.0F, 1.0F, 0.0F));
+		staff.addOrReplaceChild("right_twig", CubeListBuilder.create().texOffs(52, 52)
 				.addBox(-0.5F, -5.0F, -0.5F, 1.0F, 5.0F, 1.0F), PartPose.offsetAndRotation(-0.5F, -20.0F, 0.0F, 0.0F, 0.0F, -0.55F));
-		staff.addOrReplaceChild("left_twig", CubeListBuilder.create().texOffs(100, 42).mirror()
+		staff.addOrReplaceChild("left_twig", CubeListBuilder.create().texOffs(52, 52).mirror()
 				.addBox(-0.5F, -5.0F, -0.5F, 1.0F, 5.0F, 1.0F), PartPose.offsetAndRotation(0.5F, -19.0F, 0.0F, 0.2F, 0.0F, 0.6F));
 		return LayerDefinition.create(mesh, 128, 64);
 	}
 
-	private static void addLeg(PartDefinition crone, String name, float x, boolean mirror) {
-		PartDefinition leg = crone.addOrReplaceChild(name, CubeListBuilder.create().texOffs(114, 29).mirror(mirror)
-				.addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F), PartPose.offset(x, 16.0F, 0.0F));
-		leg.addOrReplaceChild("lapot", CubeListBuilder.create().texOffs(48, 42).mirror(mirror)
-				.addBox(-1.5F, 0.0F, -3.5F, 3.0F, 2.0F, 5.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
-	}
-
 	private static PartDefinition addArm(PartDefinition torso, String side, float x, boolean mirror) {
-		PartDefinition arm = torso.addOrReplaceChild(side + "_arm", CubeListBuilder.create().texOffs(0, 42).mirror(mirror)
+		PartDefinition arm = torso.addOrReplaceChild(side + "_arm", CubeListBuilder.create().texOffs(40, 42).mirror(mirror)
 				.addBox(-1.5F, -1.0F, -1.5F, 3.0F, 6.0F, 3.0F), PartPose.offset(x, -7.0F, 0.0F));
-		PartDefinition forearm = arm.addOrReplaceChild(side + "_forearm", CubeListBuilder.create().texOffs(12, 42).mirror(mirror)
+		PartDefinition forearm = arm.addOrReplaceChild(side + "_forearm", CubeListBuilder.create().texOffs(60, 42).mirror(mirror)
 				.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 6.0F, 2.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
-		// A bony hand and three long black claws.
+		// A bony hand, three long black claws and a hooked thumb claw.
 		forearm.addOrReplaceChild(side + "_hand", CubeListBuilder.create()
-				.texOffs(8, 51).mirror(mirror).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 2.0F, 2.0F)
-				.texOffs(16, 51).addBox(-1.0F, 1.5F, -1.1F, 1.0F, 3.0F, 1.0F)
-				.texOffs(16, 51).addBox(0.0F, 1.5F, -1.1F, 1.0F, 3.0F, 1.0F)
-				.texOffs(16, 51).addBox(-0.5F, 1.5F, 0.1F, 1.0F, 3.0F, 1.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
+				.texOffs(100, 52).mirror(mirror).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 2.0F, 2.0F)
+				.texOffs(76, 52).addBox(-1.0F, 1.5F, -1.1F, 1.0F, 4.0F, 1.0F)
+				.texOffs(76, 52).addBox(0.0F, 1.5F, -1.1F, 1.0F, 4.0F, 1.0F)
+				.texOffs(76, 52).addBox(-0.5F, 1.5F, 0.1F, 1.0F, 4.0F, 1.0F)
+				.texOffs(76, 52).addBox(mirror ? -1.6F : 0.6F, 0.5F, -0.5F, 1.0F, 4.0F, 1.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
 		return arm;
 	}
 
@@ -178,13 +203,13 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		} else {
 			// Hobbling about on foot; she runs bent low.
 			float walk = state.walkAnimationPos * 0.6662F;
-			float speed = Math.min(1.0F, state.walkAnimationSpeed);
-			rightLeg.xRot = Mth.cos(walk) * 1.1F * speed;
-			leftLeg.xRot = Mth.cos(walk + PI) * 1.1F * speed;
-			torso.xRot += speed * 0.3F;
-			leftX += Mth.cos(walk) * 0.6F * speed;
-			skirt.xRot = -Math.abs(Mth.cos(walk)) * 0.08F * speed;
-			rig.y -= Math.abs(Mth.sin(walk)) * 0.6F * speed;
+			float stride = Math.min(1.0F, state.walkAnimationSpeed);
+			rightLeg.xRot = Mth.cos(walk) * 1.1F * stride;
+			leftLeg.xRot = Mth.cos(walk + PI) * 1.1F * stride;
+			torso.xRot += stride * 0.3F;
+			leftX += Mth.cos(walk) * 0.6F * stride;
+			skirt.xRot = -Math.abs(Mth.cos(walk)) * 0.08F * stride;
+			rig.y -= Math.abs(Mth.sin(walk)) * 0.6F * stride;
 		}
 
 		YagaAction action = state.action;
@@ -374,6 +399,23 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 			rig.zScale = 1.0F + 0.5F * crumble;
 		}
 
+		// Her jaw: muttering, cackling, shrieking and chewing; her head now and then twitches to one side.
+		jaw.xRot = mouth(state, action, t, age);
+		if (state.dying < 0.0F) {
+			head.zRot = twitch(age);
+		}
+		// Her hair and her bone necklace hang down whatever her back does, swinging a little as she moves.
+		float speed = state.inMortar ? 0.0F : Math.min(1.0F, state.walkAnimationSpeed);
+		float sway = Mth.sin(age * 0.07F) * 0.05F + speed * 0.35F;
+		float hang = -(torso.xRot + head.xRot);
+		hair.xRot = hang + 0.05F + sway;
+		hair.zRot = -head.zRot * 0.8F;
+		rightLock.xRot = hang * 0.9F + sway * 0.5F;
+		leftLock.xRot = hang * 0.9F + sway * 0.5F;
+		rightLock.zRot = 0.06F - head.zRot * 0.8F;
+		leftLock.zRot = -0.06F - head.zRot * 0.8F;
+		beads.xRot = -torso.xRot * 0.85F + speed * 0.2F;
+
 		rig.xRot = lean;
 		rightArm.xRot = rightX;
 		rightArm.zRot = rightZ;
@@ -386,6 +428,49 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		// The staff stands upright in the world, whatever her arm and back do, then tilts with the action.
 		staff.xRot = -(torso.xRot + rightArm.xRot + rightForearm.xRot + rightHand.xRot) + staffTilt;
 		staff.zRot = -rightArm.zRot;
+	}
+
+	/** How far her jaw hangs open, in radians, for what she is doing. */
+	private static float mouth(BabaYagaRenderState state, YagaAction action, float t, float age) {
+		if (state.dying >= 0.0F) {
+			// Screaming as she burns, her jaw jerking with each fit.
+			return 0.35F + 0.5F * YagaDeath.convulsion(state.dying) * (0.6F + 0.4F * Mth.sin(state.dying * 1.9F));
+		}
+		// At rest she mutters to herself, in bursts.
+		float mutter = Mth.sin(age * 0.045F) > 0.2F ? 0.05F + 0.07F * Math.abs(Mth.sin(age * 0.6F)) : 0.03F;
+		return switch (action) {
+			// A howl as her creatures rise.
+			case SUMMON -> 0.75F * smooth(t / 6.0F) + Mth.sin(t * 2.3F) * 0.05F;
+			// A cackle, then her mouth hangs open as the flask flies.
+			case THROW -> t < YagaAction.THROW_RELEASE ? 0.25F + 0.2F * Math.abs(Mth.sin(t * 1.4F)) : 0.35F;
+			// Chanting under her breath, then a hiss as the spell leaves the staff.
+			case SPELL, ACID, THREADS -> {
+				int release = action == YagaAction.SPELL ? YagaAction.SPELL_RELEASE : YagaAction.BOLT_RELEASE;
+				yield t < release ? 0.12F + 0.12F * Math.abs(Mth.sin(t * 1.1F)) : 0.6F * Math.max(0.0F, 1.0F - (t - release) / 8.0F);
+			}
+			case GLYPH -> 0.2F + 0.18F * Math.abs(Mth.sin(t * 0.9F));
+			// The shriek of the dive, the jaw wide until the blow.
+			case SWOOP -> t < state.strikeTick ? 0.8F * smooth(t / 3.0F) : 0.45F;
+			case BEAM -> 0.25F + 0.4F * smooth((t - state.beamWindup + 6.0F) / 6.0F) + (t > state.beamWindup ? Mth.sin(t * 2.1F) * 0.06F : 0.0F);
+			// The screech behind the player's back, then snapping with every rake.
+			case CLAWS -> t < state.lunge ? 0.85F * smooth(t / 2.0F) : 0.3F + 0.3F * Math.abs(Mth.sin(t * 0.9F));
+			case EAT -> 0.1F + 0.55F * Math.abs(Mth.sin(t * 0.8F));
+			case EAT_RUN, ESCAPE, SHATTER -> 0.6F;
+			case STAGGER -> 0.65F * (1.0F - smooth(t / 20.0F));
+			default -> mutter;
+		};
+	}
+
+	/** Now and then her head jerks to one side and holds there a moment, then snaps back. */
+	private static float twitch(float age) {
+		float period = 43.0F;
+		int slot = Mth.floor(age / period);
+		if (noise(slot, 20) < 0.45F) {
+			return 0.0F;
+		}
+		float into = age - slot * period;
+		float hold = into < 1.5F ? into / 1.5F : into < 9.0F ? 1.0F : Math.max(0.0F, 1.0F - (into - 9.0F) / 2.0F);
+		return (noise(slot, 21) > 0.5F ? 1.0F : -1.0F) * (0.3F + 0.25F * noise(slot, 22)) * hold;
 	}
 
 	/** A fit's pose for one limb, -1 to 1: a new random one every step, snapped to from the last. */
