@@ -40,7 +40,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * A feeder: a wooden trough under a hay rack. Feeders placed in a row join into one trough up to
  * {@link FeederLogic#MAX_LENGTH} long. Each block holds its own feed and feeds {@link FeederSettings#headsPerFeeder()}
- * heads a day, see {@link FeederBlockEntity}. Feed goes in by hand or from farmer villagers nearby.
+ * heads a day, see {@link FeederBlockEntity}. Feed goes in by hand or from farmer villagers nearby. The metal feeder, a
+ * galvanized V-shaped hay rack over a trough, holds and feeds {@link FeederSettings#metalScale()} times as much; metal and
+ * wooden feeders do not join.
  */
 public class FeederBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
@@ -54,8 +56,11 @@ public class FeederBlock extends BaseEntityBlock {
 	private static final VoxelShape SHAPE_X = Block.box(0, 0, 1, 16, 14, 15);
 	private static final VoxelShape SHAPE_Z = Block.box(1, 0, 0, 15, 14, 16);
 
-	public FeederBlock(BlockBehaviour.Properties properties) {
+	private final boolean metal;
+
+	public FeederBlock(boolean metal, BlockBehaviour.Properties properties) {
 		super(properties);
+		this.metal = metal;
 		registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.X).setValue(NEGATIVE, false)
 				.setValue(POSITIVE, false).setValue(FILL, 0));
 	}
@@ -63,6 +68,16 @@ public class FeederBlock extends BaseEntityBlock {
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(AXIS, NEGATIVE, POSITIVE, FILL);
+	}
+
+	/** Meals one block of this feeder gives a day. */
+	public int heads(FeederSettings settings) {
+		return metal ? (int) Math.round(settings.headsPerFeeder() * settings.metalScale()) : settings.headsPerFeeder();
+	}
+
+	/** Feed one block of this feeder holds. */
+	public int capacity(FeederSettings settings) {
+		return metal ? (int) Math.round(settings.foodCapacity() * settings.metalScale()) : settings.foodCapacity();
 	}
 
 	/** Lies across the player's view, unless it can continue a trough beside it along the other axis. */
@@ -168,8 +183,8 @@ public class FeederBlock extends BaseEntityBlock {
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof FeederBlockEntity feeder) {
 			FeederSettings settings = FeederModule.settings();
-			player.sendOverlayMessage(Component.translatable("block.eam.feeder.status", feeder.food(), settings.foodCapacity(),
-					feeder.mealsToday(serverLevel), settings.headsPerFeeder()));
+			player.sendOverlayMessage(Component.translatable("block.eam.feeder.status", feeder.food(), capacity(settings),
+					feeder.mealsToday(serverLevel), heads(settings)));
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -182,7 +197,7 @@ public class FeederBlock extends BaseEntityBlock {
 	@Override
 	protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
 		if (!(level.getBlockEntity(pos) instanceof FeederBlockEntity feeder)) return 0;
-		return (int) Math.ceil(feeder.food() * 15.0 / FeederModule.settings().foodCapacity());
+		return (int) Math.ceil(feeder.food() * 15.0 / capacity(FeederModule.settings()));
 	}
 
 	@Override

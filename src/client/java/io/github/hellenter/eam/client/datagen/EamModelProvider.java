@@ -56,6 +56,7 @@ public class EamModelProvider extends FabricModelProvider {
 		CampFireModels.generate(generators);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
+		MetalFeederModels.generate(generators);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);

@@ -213,6 +213,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern("PPP")
 						.unlockedBy(getHasName(Items.WHEAT), has(Items.WHEAT))
 						.save(output);
+				// The wooden feeder rebuilt in metal: copper or iron ingots around it.
+				for (Item ingot : List.of(Items.COPPER_INGOT, Items.IRON_INGOT)) {
+					shaped(RecipeCategory.DECORATIONS, EamItems.METAL_FEEDER)
+							.define('I', ingot)
+							.define('F', EamItems.FEEDER)
+							.pattern("I I")
+							.pattern("IFI")
+							.unlockedBy(getHasName(EamItems.FEEDER), has(EamItems.FEEDER))
+							.save(output, "eam:metal_feeder_from_" + BuiltInRegistries.ITEM.getKey(ingot).getPath());
+				}
 
 				bowlFoodRecipes();
 				ashRecipes();

@@ -83,13 +83,21 @@ public final class EamBlocks {
 			.ignitedByLava());
 
 	/** A trough under a hay rack that livestock eats from; see {@link FeederBlock}. Drops itself and its feed. */
-	public static final Block FEEDER = register("feeder", FeederBlock::new, BlockBehaviour.Properties.of()
+	public static final Block FEEDER = register("feeder", p -> new FeederBlock(false, p), BlockBehaviour.Properties.of()
 			.mapColor(MapColor.WOOD)
 			.instrument(NoteBlockInstrument.BASS)
 			.strength(2.0F, 3.0F)
 			.sound(SoundType.WOOD)
 			.noOcclusion()
 			.ignitedByLava());
+
+	/** A galvanized hay rack over a trough: a feeder that holds and feeds more. */
+	public static final Block METAL_FEEDER = register("metal_feeder", p -> new FeederBlock(true, p), BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.requiresCorrectToolForDrops()
+			.strength(3.0F, 6.0F)
+			.sound(SoundType.METAL)
+			.noOcclusion());
 
 	/** Silver ore: like copper ore, a bit rarer and more common in the mountains. */
 	public static final Block SILVER_ORE = register("silver_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
