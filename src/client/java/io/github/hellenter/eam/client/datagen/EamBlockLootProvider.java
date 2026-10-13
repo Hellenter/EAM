@@ -99,6 +99,8 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		// Big shrubs: leaves only to shears or silk touch, the post drops itself; ripe ones drop their berries too.
 		add(EamBlocks.BIG_SHRUB_LEAVES, block -> createShearsOrSilkTouchOnlyDrop(block).withPool(berries(block, EamItems.WOLFBERRY, 2)));
 		dropSelf(EamBlocks.BIG_SHRUB_STEM);
+		// The feeder drops its feed from its block entity.
+		dropSelf(EamBlocks.FEEDER);
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))

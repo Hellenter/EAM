@@ -7,6 +7,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -52,6 +53,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		for (Map<BucketContent, Item> set : MetalBuckets.metalSets()) {
 			set.forEach((content, item) -> builder(bucketTags.get(content)).add(item.builtInRegistryHolder().key()));
 		}
+		builder(FeederModule.FEED).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
+				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key());
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

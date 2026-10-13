@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
@@ -45,6 +46,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
 				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		builder(BlockBreakingModule.TARGETS).add(EntityTypeIds.PLAYER);
+		// Farm animals that eat from feeders.
+		builder(FeederModule.LIVESTOCK).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.SHEEP, EntityTypeIds.PIG,
+				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT);
 		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)

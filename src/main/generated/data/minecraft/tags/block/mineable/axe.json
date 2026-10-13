@@ -1,6 +1,7 @@
 {
   "values": [
     "eam:sieve",
+    "eam:feeder",
     "eam:hollow_oak_log",
     "eam:hollow_spruce_log",
     "eam:hollow_birch_log",

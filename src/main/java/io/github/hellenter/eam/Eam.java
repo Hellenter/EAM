@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.bucket.BucketModule;
 import io.github.hellenter.eam.content.heart.HeartInJarModule;
 import io.github.hellenter.eam.content.talisman.TalismanModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamItems;
@@ -115,6 +116,7 @@ public class Eam implements ModInitializer {
 		EamWorldgen.init();
 		CampFireModule.register();
 		SieveModule.register();
+		FeederModule.register();
 		BlockBreakingModule.register();
 		RunningModule.register();
 		CowDefenseModule.register();
@@ -176,6 +178,7 @@ public class Eam implements ModInitializer {
 		if (config.silver()) BrewingModule.init();
 		if (config.slowCrops()) FarmingModule.initCrops();
 		if (config.slowAnimals()) FarmingModule.initAnimals();
+		if (config.livestockFeeding()) FeederModule.init();
 		if (config.mithril()) MithrilModule.init();
 		if (config.enchanting()) EnchantingModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
