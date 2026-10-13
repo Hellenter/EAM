@@ -64,7 +64,7 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 	}
 
 	/**
-	 * Floor markers (brown wool) bridge caves and lakes with dark oak planks and otherwise keep the rock; a few rails,
+	 * Floor markers (brown wool) bridge caves and lakes with poplar planks and otherwise keep the rock; a few rails,
 	 * torches and beams are missing, cobwebs hang here and there, and bedrock (the deep bedrock band too) stays whole.
 	 */
 	public static void bootstrapProcessors(BootstrapContext<StructureProcessorList> context) {
@@ -73,11 +73,11 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
 				new RuleProcessor(List.of(
 						new ProcessorRule(new BlockMatchTest(Blocks.WOOL.brown()), new TagMatchTest(BlockTags.REPLACEABLE),
-								Blocks.DARK_OAK_PLANKS.defaultBlockState()),
+								Blocks.POPLAR_PLANKS.defaultBlockState()),
 						new ProcessorRule(new RandomBlockMatchTest(Blocks.RAIL, 0.25F), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()),
 						new ProcessorRule(new RandomBlockMatchTest(Blocks.WALL_TORCH, 0.5F), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()),
 						new ProcessorRule(new RandomBlockMatchTest(Blocks.LANTERN, 0.3F), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()),
-						new ProcessorRule(new RandomBlockMatchTest(Blocks.DARK_OAK_PLANKS, 0.1F), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()),
+						new ProcessorRule(new RandomBlockMatchTest(Blocks.POPLAR_PLANKS, 0.1F), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()),
 						new ProcessorRule(new RandomBlockMatchTest(Blocks.AIR, 0.015F), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()))),
 				new BlockIgnoreProcessor(List.of(Blocks.WOOL.brown())))));
 	}
@@ -87,19 +87,32 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 		Holder<StructureProcessorList> processors = context.lookup(Registries.PROCESSOR_LIST).getOrThrow(UnderworldMine.PROCESSORS);
 		Holder<StructureTemplatePool> empty = pools.getOrThrow(Pools.EMPTY);
 		context.register(UnderworldMine.START_POOL, new StructureTemplatePool(empty, List.of(
-				piece("hub/1", processors, 1)), StructureTemplatePool.Projection.RIGID));
+				piece("hub/1", processors, 1),
+				piece("hub/2", processors, 1)), StructureTemplatePool.Projection.RIGID));
 		context.register(UnderworldMine.TUNNEL_POOL, new StructureTemplatePool(pools.getOrThrow(UnderworldMine.END_POOL), List.of(
 				piece("corridor/1", processors, 10),
 				piece("corridor/2", processors, 4),
 				piece("corridor/3", processors, 3),
 				piece("corridor/4", processors, 4),
+				piece("corridor/5", processors, 3),
+				piece("corridor/6", processors, 3),
+				piece("corridor/7", processors, 3),
+				piece("corridor/8", processors, 2),
 				piece("crossing/1", processors, 4),
 				piece("crossing/2", processors, 4),
 				piece("crossing/3", processors, 2),
+				piece("crossing/4", processors, 3),
+				piece("crossing/5", processors, 2),
 				piece("stairs/1", processors, 3),
-				piece("room/1", processors, 2)), StructureTemplatePool.Projection.RIGID));
+				piece("stairs/2", processors, 3),
+				piece("stairs/3", processors, 2),
+				piece("room/1", processors, 2),
+				piece("room/2", processors, 1),
+				piece("room/3", processors, 1)), StructureTemplatePool.Projection.RIGID));
 		context.register(UnderworldMine.END_POOL, new StructureTemplatePool(empty, List.of(
-				piece("end/1", processors, 1)), StructureTemplatePool.Projection.RIGID));
+				piece("end/1", processors, 2),
+				piece("end/2", processors, 1),
+				piece("end/3", processors, 1)), StructureTemplatePool.Projection.RIGID));
 	}
 
 	/** In the mine's tunnels and halls the only monsters that spawn are zombie duergar, one to three at a time. */

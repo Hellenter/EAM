@@ -15,8 +15,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 /**
  * Abandoned mines in the upper underworld, after vanilla mineshafts: a jigsaw structure built from the templates under
  * {@code eam:underworld_mine/}, which Maxim edits in his own world. It is pure data (datagen JSON and the templates), so
- * there is nothing to register at runtime. Brown wool in a template's floor stays the natural rock, or turns into a dark
- * oak plank where the tunnel crosses a cave or a lake.
+ * there is nothing to register at runtime. Brown wool in a template's floor stays the natural rock, or turns into a poplar
+ * plank where the tunnel crosses a cave or a lake.
  */
 public final class UnderworldMine {
 	public static final ResourceKey<Structure> STRUCTURE = ResourceKey.create(Registries.STRUCTURE, Eam.id("underworld_mine"));
