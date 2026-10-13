@@ -380,6 +380,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	/**
 	 * @param cooldown       ticks between two claw attacks
 	 * @param blindTicks     blindness she casts first
+	 * @param glowTicks      she glows (vanilla glowing) this long from the blink, so she can be found behind the player
 	 * @param distance       she blinks to this far behind the player
 	 * @param angle          at most this many degrees off straight behind them
 	 * @param lunge          ticks from the blink to her first rake; the parry window ends with them
@@ -390,12 +391,13 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param shieldSeconds  the first rake knocks a raised shield out for this long
 	 * @param parryMultiplier a parrying hit deals this many times its damage
 	 */
-	public record Claws(int cooldown, int blindTicks, double distance, float angle, int lunge, int parryWindow, int hits, int gap,
+	public record Claws(int cooldown, int blindTicks, int glowTicks, double distance, float angle, int lunge, int parryWindow, int hits, int gap,
 			float damage, float shieldSeconds, float parryMultiplier) {
-		public static final Claws DEFAULT = new Claws(280, 30, 10.0, 35.0F, 24, 11, 5, 4, 6.0F, 5.0F, 1.5F);
+		public static final Claws DEFAULT = new Claws(280, 30, 60, 10.0, 35.0F, 24, 11, 5, 4, 6.0F, 5.0F, 1.5F);
 		public static final Codec<Claws> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Claws::cooldown),
 				Codec.intRange(0, 1200).fieldOf("blind_ticks").orElse(DEFAULT.blindTicks).forGetter(Claws::blindTicks),
+				Codec.intRange(0, 1200).fieldOf("glow_ticks").orElse(DEFAULT.glowTicks).forGetter(Claws::glowTicks),
 				Codec.doubleRange(2.0, 24.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(Claws::distance),
 				Codec.floatRange(0.0F, 180.0F).fieldOf("angle").orElse(DEFAULT.angle).forGetter(Claws::angle),
 				Codec.intRange(4, 60).fieldOf("lunge").orElse(DEFAULT.lunge).forGetter(Claws::lunge),

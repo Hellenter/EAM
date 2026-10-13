@@ -150,6 +150,7 @@
   "claws": {
     "cooldown": 280,
     "blind_ticks": 30,
+    "glow_ticks": 60,
     "distance": 10.0,
     "angle": 35.0,
     "lunge": 24,

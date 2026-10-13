@@ -43,8 +43,8 @@ public class BabaYagaRenderer extends MobRenderer<BabaYaga, BabaYagaRenderState,
 	private static final RenderType BEAM_CORE = RenderTypes.beaconBeam(BeaconRenderer.BEAM_LOCATION, false);
 	private static final RenderType BEAM_GLOW = RenderTypes.beaconBeam(BeaconRenderer.BEAM_LOCATION, true);
 	private static final int BEAM_COLOR = 0xFFFF7A1E;
-	private static final float BEAM_CORE_RADIUS = 0.2F;
-	private static final float BEAM_GLOW_RADIUS = 0.3F;
+	private static final float BEAM_CORE_RADIUS = 0.1F;
+	private static final float BEAM_GLOW_RADIUS = 0.15F;
 
 	public BabaYagaRenderer(EntityRendererProvider.Context context) {
 		super(context, new BabaYagaModel(context.bakeLayer(BabaYagaModel.LAYER)), 0.6F);
