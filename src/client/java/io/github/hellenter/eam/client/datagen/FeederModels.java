@@ -128,7 +128,7 @@ final class FeederModels {
 		return elements;
 	}
 
-	private static JsonObject box(double x1, double y1, double z1, double x2, double y2, double z2, String texture) {
+	static JsonObject box(double x1, double y1, double z1, double x2, double y2, double z2, String texture) {
 		JsonObject faces = new JsonObject();
 		for (Direction direction : Direction.values()) {
 			JsonObject face = new JsonObject();
@@ -142,7 +142,7 @@ final class FeederModels {
 		return element;
 	}
 
-	private static JsonArray vector(double x, double y, double z) {
+	static JsonArray vector(double x, double y, double z) {
 		JsonArray vector = new JsonArray();
 		vector.add(x);
 		vector.add(y);

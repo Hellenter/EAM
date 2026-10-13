@@ -101,6 +101,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.BIG_SHRUB_STEM);
 		// The feeder drops its feed from its block entity.
 		dropSelf(EamBlocks.FEEDER);
+		dropSelf(EamBlocks.METAL_FEEDER);
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))

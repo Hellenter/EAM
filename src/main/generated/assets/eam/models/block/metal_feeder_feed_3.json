@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#feed"
+        },
+        "east": {
+          "texture": "#feed"
+        },
+        "north": {
+          "texture": "#feed"
+        },
+        "south": {
+          "texture": "#feed"
+        },
+        "up": {
+          "texture": "#feed"
+        },
+        "west": {
+          "texture": "#feed"
+        }
+      },
+      "from": [
+        0.0,
+        8.0,
+        6.5
+      ],
+      "to": [
+        16.0,
+        15.5,
+        9.5
+      ]
+    }
+  ],
+  "textures": {
+    "feed": "eam:block/feeder_feed",
+    "metal": "eam:block/metal_feeder_bars",
+    "particle": "eam:block/metal_feeder_bars",
+    "trough": "eam:block/metal_feeder_trough"
+  }
+}
