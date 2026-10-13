@@ -41,8 +41,9 @@ public final class BowlModule {
 
 			level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
 			level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-			return InteractionResult.SUCCESS.heldItemTransformedTo(
-					ItemUtils.createFilledResult(stack, player, new ItemStack(EamItems.WATER_BOWL)));
+			// The callback's result skips vanilla's hand swap, so the filled bowl goes in the hand here.
+			player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(EamItems.WATER_BOWL)));
+			return InteractionResult.SUCCESS;
 		});
 	}
 }
