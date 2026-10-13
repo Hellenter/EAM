@@ -85,8 +85,10 @@ public class OutpostPiece extends TemplateStructurePiece {
 		if (logs == null) {
 			logs = new HashSet<>();
 			for (Holder<Block> log : BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.LOGS)) {
-				for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, log.value())) {
-					logs.add(info.pos());
+				// Relative positions: placing the template narrows the settings' box to the chunk being placed, and the
+				// absolute lookup would then leave out every log outside that one chunk.
+				for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, log.value(), false)) {
+					logs.add(StructureTemplate.calculateRelativePosition(placeSettings, info.pos()).offset(templatePosition));
 				}
 			}
 			templateLogs = logs;
