@@ -928,15 +928,22 @@ public class BabaYaga extends Monster {
 		}
 	}
 
-	/** A group of {@code size} creatures mixed by the weights, as in phase two. */
+	/**
+	 * A group of {@code size} creatures mixed by the weights, as in phase two: no more lurkers or wights than her phase-two
+	 * limits, counting those of hers already alive.
+	 */
 	private void raiseGroup(ServerLevel level, LivingEntity target, Vec3 center, int size) {
 		BabaYagaSettings.Summon summon = settings().summon();
+		BabaYagaSettings.PhaseTwo two = settings().phaseTwo();
 		List<Creature> creatures = new ArrayList<>(size);
-		int wights = 0;
+		int lurkers = aliveMinions(EamEntities.SWAMP_LURKER);
+		int wights = aliveMinions(EamEntities.WIGHT);
 		for (int i = 0; i < size; i++) {
-			Creature creature = BabaYagaLogic.creature(summon.lurkerWeight(), summon.wightWeight(), summon.soldierWeight(), wights,
-					summon.maxWights(), random::nextDouble);
-			if (creature == Creature.WIGHT) {
+			Creature creature = BabaYagaLogic.creature(summon.lurkerWeight(), summon.wightWeight(), summon.soldierWeight(), lurkers,
+					two.maxLurkers(), wights, two.maxWights(), random::nextDouble);
+			if (creature == Creature.LURKER) {
+				lurkers++;
+			} else if (creature == Creature.WIGHT) {
 				wights++;
 			}
 			creatures.add(creature);
@@ -1074,6 +1081,18 @@ public class BabaYaga extends Monster {
 		int alive = 0;
 		for (Group group : groups) {
 			alive += group.living.size();
+		}
+		return alive;
+	}
+
+	private int aliveMinions(EntityType<?> type) {
+		int alive = 0;
+		for (Group group : groups) {
+			for (Mob mob : group.living) {
+				if (mob.getType() == type) {
+					alive++;
+				}
+			}
 		}
 		return alive;
 	}

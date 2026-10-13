@@ -63,16 +63,23 @@ public final class BabaYagaLogic {
 	/** One creature for a group, by the weights; a wight only while the group has fewer than {@code maxWights}. */
 	public static Creature creature(int lurkerWeight, int wightWeight, int soldierWeight, int wightsSoFar, int maxWights,
 			DoubleSupplier random) {
+		return creature(lurkerWeight, wightWeight, soldierWeight, 0, Integer.MAX_VALUE, wightsSoFar, maxWights, random);
+	}
+
+	/** One creature by the weights; a lurker only while fewer than {@code maxLurkers} are up, a wight likewise. */
+	public static Creature creature(int lurkerWeight, int wightWeight, int soldierWeight, int lurkersSoFar, int maxLurkers, int wightsSoFar,
+			int maxWights, DoubleSupplier random) {
+		int lurkers = lurkersSoFar < maxLurkers ? lurkerWeight : 0;
 		int wights = wightsSoFar < maxWights ? wightWeight : 0;
-		int total = lurkerWeight + wights + soldierWeight;
+		int total = lurkers + wights + soldierWeight;
 		if (total <= 0) {
 			return Creature.SOLDIER;
 		}
 		double roll = random.getAsDouble() * total;
-		if (roll < lurkerWeight) {
+		if (roll < lurkers) {
 			return Creature.LURKER;
 		}
-		if (roll < lurkerWeight + wights) {
+		if (roll < lurkers + wights) {
 			return Creature.WIGHT;
 		}
 		return Creature.SOLDIER;
@@ -186,7 +193,7 @@ public final class BabaYagaLogic {
 
 	/** Damage of one tick of the fire beam, so its whole length deals {@code beam.damage()}. */
 	public static float beamTickDamage(BabaYagaSettings.Beam beam, int every) {
-		return beam.damage() * every / beam.ticks();
+		return beam.damage() / ((beam.ticks() + every - 1) / every);
 	}
 
 	/**
