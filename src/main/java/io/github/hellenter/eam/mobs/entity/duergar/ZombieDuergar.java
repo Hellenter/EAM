@@ -86,6 +86,7 @@ public class ZombieDuergar extends Monster implements DuergarLook {
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new HurtByTargetGoal(this, ZombieDuergar.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, DuergarVillager.class, true));
 	}
 
 	// ---- Spawning and gear ----

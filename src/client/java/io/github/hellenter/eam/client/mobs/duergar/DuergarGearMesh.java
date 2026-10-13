@@ -25,13 +25,16 @@ final class DuergarGearMesh {
 				{{"head", "hd3_miner_0"}},
 				{{"head", "hd4_coif_0"}},
 				{{"head", "hd5_great_0"}},
-				{{"head", "hd6_horned_0"}}},
+				{{"head", "hd6_horned_0"}},
+				{{"head", "hd7_hood_0"}}},
 			// chest
 			{{{"body", "ch1_mail_0"}, {"right_arm", "ch1_mail_sleeve_1"}, {"left_arm", "ch1_mail_sleeve_2"}},
 				{{"body", "ch2_breastplate_0"}},
 				{{"body", "ch3_jerkin_0"}},
 				{{"body", "ch4_scale_0"}},
-				{{"body", "ch5_cuirass_0"}}},
+				{{"body", "ch5_cuirass_0"}},
+				{{"body", "ch6_apron_0"}},
+				{{"body", "ch7_robe_0"}, {"right_arm", "ch7_robe_sleeve_1"}, {"left_arm", "ch7_robe_sleeve_2"}}},
 			// shoulders
 			{{{"right_arm", "sh1_pauldron_0"}},
 				{{"right_arm", "sh2_spiked_pauldron_0"}, {"left_arm", "sh2_spiked_pauldron_1"}},
@@ -83,217 +86,238 @@ final class DuergarGearMesh {
 				.texOffs(48, 16).mirror().addBox(-2F, 0.0F, -2F, 4F, 5F, 4F), PartPose.offset(2.5F, 19.0F, 0.0F));
 		// head 1: dented_cap
 		head.addOrReplaceChild("hd1_cap_0", CubeListBuilder.create()
-				.texOffs(32, 49).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.55F))
-				.texOffs(136, 61).addBox(-4F, -5.5F, -4F, 8F, 1F, 8F, new CubeDeformation(0.75F)),
+				.texOffs(146, 52).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.55F))
+				.texOffs(0, 76).addBox(-4F, -5.5F, -4F, 8F, 1F, 8F, new CubeDeformation(0.75F)),
 				PartPose.ZERO);
 		// head 2: spiked_helm
 		head.addOrReplaceChild("hd2_spiked_0", CubeListBuilder.create()
-				.texOffs(224, 32).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.6F))
-				.texOffs(52, 89).addBox(-0.5F, -11.5F, -0.5F, 1F, 3F, 1F)
-				.texOffs(106, 89).addBox(-3.5F, -10F, -0.5F, 1F, 2F, 1F)
-				.texOffs(110, 89).addBox(2.5F, -10F, -0.5F, 1F, 2F, 1F)
-				.texOffs(56, 89).addBox(-0.5F, -5F, -4.9F, 1F, 3F, 1F, new CubeDeformation(0.1F)),
+				.texOffs(50, 52).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.6F))
+				.texOffs(210, 93).addBox(-0.5F, -11.5F, -0.5F, 1F, 3F, 1F)
+				.texOffs(8, 100).addBox(-3.5F, -10F, -0.5F, 1F, 2F, 1F)
+				.texOffs(12, 100).addBox(2.5F, -10F, -0.5F, 1F, 2F, 1F)
+				.texOffs(214, 93).addBox(-0.5F, -5F, -4.9F, 1F, 3F, 1F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		// head 3: miner_helm
 		head.addOrReplaceChild("hd3_miner_0", CubeListBuilder.create()
-				.texOffs(64, 49).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.5F))
-				.texOffs(96, 49).addBox(-5F, -5.5F, -5F, 10F, 1F, 10F, new CubeDeformation(0.2F))
-				.texOffs(114, 89).addBox(-1F, -7.5F, -5.6F, 2F, 2F, 1F),
+				.texOffs(178, 52).addBox(-4F, -8F, -4F, 8F, 3F, 8F, new CubeDeformation(0.5F))
+				.texOffs(210, 52).addBox(-5F, -5.5F, -5F, 10F, 1F, 10F, new CubeDeformation(0.2F))
+				.texOffs(16, 100).addBox(-1F, -7.5F, -5.6F, 2F, 2F, 1F),
 				PartPose.ZERO);
 		// head 4: mail_coif
 		head.addOrReplaceChild("hd4_coif_0", CubeListBuilder.create()
-				.texOffs(32, 32).addBox(-4F, -8F, -4F, 8F, 8F, 8F, new CubeDeformation(0.7F)),
+				.texOffs(64, 32).addBox(-4F, -8F, -4F, 8F, 8F, 8F, new CubeDeformation(0.7F)),
 				PartPose.ZERO);
 		// head 5: great_helm
 		head.addOrReplaceChild("hd5_great_0", CubeListBuilder.create()
-				.texOffs(160, 32).addBox(-4F, -8F, -4F, 8F, 6F, 8F, new CubeDeformation(0.6F))
-				.texOffs(54, 61).addBox(-0.5F, -10F, -4F, 1F, 2F, 8F, new CubeDeformation(0.1F)),
+				.texOffs(224, 32).addBox(-4F, -8F, -4F, 8F, 6F, 8F, new CubeDeformation(0.6F))
+				.texOffs(164, 65).addBox(-0.5F, -10F, -4F, 1F, 2F, 8F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		// head 6: horned_helm
 		PartDefinition hd6_0 = head.addOrReplaceChild("hd6_horned_0", CubeListBuilder.create()
-				.texOffs(0, 49).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.55F))
-				.texOffs(60, 89).addBox(-0.5F, -5F, -4.9F, 1F, 3F, 1F, new CubeDeformation(0.1F)),
+				.texOffs(82, 52).addBox(-4F, -8F, -4F, 8F, 4F, 8F, new CubeDeformation(0.55F))
+				.texOffs(218, 93).addBox(-0.5F, -5F, -4.9F, 1F, 3F, 1F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		PartDefinition hd6_0_0 = hd6_0.addOrReplaceChild("horn_0", CubeListBuilder.create()
-				.texOffs(64, 89).addBox(0F, -1F, -1F, 3F, 2F, 2F),
+				.texOffs(222, 93).addBox(0F, -1F, -1F, 3F, 2F, 2F),
 				PartPose.offsetAndRotation(4F, -6.5F, -1F, 0F, 0.5F, -0.4F));
 		hd6_0_0.addOrReplaceChild("tip_0", CubeListBuilder.create()
-				.texOffs(136, 89).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(38, 100).addBox(0F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(3F, 0F, 0F, 0F, 0.6F, -0.5F));
 		PartDefinition hd6_0_1 = hd6_0.addOrReplaceChild("horn_1", CubeListBuilder.create()
-				.texOffs(74, 89).addBox(-3F, -1F, -1F, 3F, 2F, 2F),
+				.texOffs(232, 93).addBox(-3F, -1F, -1F, 3F, 2F, 2F),
 				PartPose.offsetAndRotation(-4F, -6.5F, -1F, 0F, -0.5F, 0.4F));
 		hd6_0_1.addOrReplaceChild("tip_0", CubeListBuilder.create()
-				.texOffs(144, 89).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
+				.texOffs(46, 100).addBox(-3F, -0.5F, -0.5F, 3F, 1F, 1F),
 				PartPose.offsetAndRotation(-3F, 0F, 0F, 0F, -0.6F, 0.5F));
+		// head 7: hood
+		head.addOrReplaceChild("hd7_hood_0", CubeListBuilder.create()
+				.texOffs(96, 32).addBox(-4F, -8F, -4F, 8F, 8F, 8F, new CubeDeformation(0.6F))
+				.texOffs(144, 93).addBox(-1.5F, -9.4F, 1F, 3F, 2F, 4F, new CubeDeformation(0.3F)),
+				PartPose.ZERO);
 		// chest 1: torn_mail
 		body.addOrReplaceChild("ch1_mail_0", CubeListBuilder.create()
-				.texOffs(0, 32).addBox(-5F, 0F, -3F, 10F, 11F, 6F, new CubeDeformation(0.4F)),
+				.texOffs(32, 32).addBox(-5F, 0F, -3F, 10F, 11F, 6F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		rightArm.addOrReplaceChild("ch1_mail_sleeve_1", CubeListBuilder.create()
-				.texOffs(78, 72).addBox(-2F, -2F, -2F, 4F, 4F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(186, 76).addBox(-2F, -2F, -2F, 4F, 4F, 4F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ch1_mail_sleeve_2", CubeListBuilder.create()
-				.texOffs(94, 72).addBox(-2F, -2F, -2F, 4F, 4F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(202, 76).addBox(-2F, -2F, -2F, 4F, 4F, 4F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// chest 2: holed_breastplate
 		body.addOrReplaceChild("ch2_breastplate_0", CubeListBuilder.create()
-				.texOffs(192, 32).addBox(-5F, 0F, -3F, 10F, 7F, 6F, new CubeDeformation(0.6F))
-				.texOffs(168, 61).addBox(-5F, 7F, -3F, 10F, 3F, 6F, new CubeDeformation(0.65F)),
+				.texOffs(0, 52).addBox(-5F, 0F, -3F, 10F, 7F, 6F, new CubeDeformation(0.6F))
+				.texOffs(32, 76).addBox(-5F, 7F, -3F, 10F, 3F, 6F, new CubeDeformation(0.65F)),
 				PartPose.ZERO);
 		// chest 3: miner_jerkin
 		body.addOrReplaceChild("ch3_jerkin_0", CubeListBuilder.create()
-				.texOffs(64, 32).addBox(-5F, 0F, -3F, 10F, 10F, 6F, new CubeDeformation(0.3F)),
+				.texOffs(128, 32).addBox(-5F, 0F, -3F, 10F, 10F, 6F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// chest 4: scale_shirt
 		body.addOrReplaceChild("ch4_scale_0", CubeListBuilder.create()
-				.texOffs(96, 32).addBox(-5F, 0F, -3F, 10F, 10F, 6F, new CubeDeformation(0.45F)),
+				.texOffs(160, 32).addBox(-5F, 0F, -3F, 10F, 10F, 6F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// chest 5: heavy_cuirass
 		body.addOrReplaceChild("ch5_cuirass_0", CubeListBuilder.create()
-				.texOffs(128, 32).addBox(-5F, 0F, -3F, 10F, 9F, 6F, new CubeDeformation(0.7F))
-				.texOffs(110, 72).addBox(-4F, -1.5F, -3F, 8F, 2F, 6F, new CubeDeformation(0.5F)),
+				.texOffs(192, 32).addBox(-5F, 0F, -3F, 10F, 9F, 6F, new CubeDeformation(0.7F))
+				.texOffs(218, 76).addBox(-4F, -1.5F, -3F, 8F, 2F, 6F, new CubeDeformation(0.5F)),
+				PartPose.ZERO);
+		// chest 6: apron
+		body.addOrReplaceChild("ch6_apron_0", CubeListBuilder.create()
+				.texOffs(32, 52).addBox(-4F, 1F, -3.7F, 8F, 12F, 1F, new CubeDeformation(0.1F))
+				.texOffs(0, 85).addBox(-4.5F, 0F, -3F, 1F, 2F, 6F, new CubeDeformation(0.2F))
+				.texOffs(14, 85).addBox(3.5F, 0F, -3F, 1F, 2F, 6F, new CubeDeformation(0.2F)),
+				PartPose.ZERO);
+		// chest 7: robe
+		body.addOrReplaceChild("ch7_robe_0", CubeListBuilder.create()
+				.texOffs(0, 32).addBox(-5F, 0F, -3F, 10F, 14F, 6F, new CubeDeformation(0.5F)),
+				PartPose.ZERO);
+		rightArm.addOrReplaceChild("ch7_robe_sleeve_1", CubeListBuilder.create()
+				.texOffs(114, 52).addBox(-2F, -2F, -2F, 4F, 8F, 4F, new CubeDeformation(0.55F)),
+				PartPose.ZERO);
+		leftArm.addOrReplaceChild("ch7_robe_sleeve_2", CubeListBuilder.create()
+				.texOffs(130, 52).addBox(-2F, -2F, -2F, 4F, 8F, 4F, new CubeDeformation(0.55F)),
 				PartPose.ZERO);
 		// shoulders 1: pauldron
 		rightArm.addOrReplaceChild("sh1_pauldron_0", CubeListBuilder.create()
-				.texOffs(200, 61).addBox(-3F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
-				.texOffs(138, 72).addBox(-3F, 0F, -3F, 1F, 2F, 6F, new CubeDeformation(0.3F)),
+				.texOffs(64, 76).addBox(-3F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
+				.texOffs(28, 85).addBox(-3F, 0F, -3F, 1F, 2F, 6F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// shoulders 2: spiked_pauldrons
 		rightArm.addOrReplaceChild("sh2_spiked_pauldron_0", CubeListBuilder.create()
-				.texOffs(222, 61).addBox(-3F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
-				.texOffs(120, 89).addBox(-2F, -5F, -0.5F, 1F, 2F, 1F)
-				.texOffs(152, 89).addBox(-2F, -4.5F, -2.5F, 1F, 1F, 1F),
+				.texOffs(86, 76).addBox(-3F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
+				.texOffs(22, 100).addBox(-2F, -5F, -0.5F, 1F, 2F, 1F)
+				.texOffs(54, 100).addBox(-2F, -4.5F, -2.5F, 1F, 1F, 1F),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("sh2_spiked_pauldron_1", CubeListBuilder.create()
-				.texOffs(0, 72).addBox(-2F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
-				.texOffs(124, 89).addBox(1F, -5F, -0.5F, 1F, 2F, 1F)
-				.texOffs(156, 89).addBox(1F, -4.5F, -2.5F, 1F, 1F, 1F),
+				.texOffs(108, 76).addBox(-2F, -3F, -3F, 5F, 3F, 6F, new CubeDeformation(0.3F))
+				.texOffs(26, 100).addBox(1F, -5F, -0.5F, 1F, 2F, 1F)
+				.texOffs(58, 100).addBox(1F, -4.5F, -2.5F, 1F, 1F, 1F),
 				PartPose.ZERO);
 		// shoulders 3: mail_mantle
 		body.addOrReplaceChild("sh3_mantle_0", CubeListBuilder.create()
-				.texOffs(72, 61).addBox(-5F, -0.5F, -3F, 10F, 4F, 6F, new CubeDeformation(0.9F)),
+				.texOffs(182, 65).addBox(-5F, -0.5F, -3F, 10F, 4F, 6F, new CubeDeformation(0.9F)),
 				PartPose.ZERO);
 		// shoulders 4: leather_shoulders
 		rightArm.addOrReplaceChild("sh4_shoulder_0", CubeListBuilder.create()
-				.texOffs(52, 81).addBox(-3F, -2.5F, -2.5F, 5F, 2F, 5F, new CubeDeformation(0.2F)),
+				.texOffs(190, 85).addBox(-3F, -2.5F, -2.5F, 5F, 2F, 5F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("sh4_shoulder_1", CubeListBuilder.create()
-				.texOffs(72, 81).addBox(-2F, -2.5F, -2.5F, 5F, 2F, 5F, new CubeDeformation(0.2F)),
+				.texOffs(210, 85).addBox(-2F, -2.5F, -2.5F, 5F, 2F, 5F, new CubeDeformation(0.2F)),
 				PartPose.ZERO);
 		// arms 1: bracers
 		rightArm.addOrReplaceChild("ar1_bracer_0", CubeListBuilder.create()
-				.texOffs(152, 72).addBox(-2F, 3F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
+				.texOffs(42, 85).addBox(-2F, 3F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar1_bracer_1", CubeListBuilder.create()
-				.texOffs(168, 72).addBox(-2F, 3F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
+				.texOffs(58, 85).addBox(-2F, 3F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		// arms 2: mail_sleeves
 		rightArm.addOrReplaceChild("ar2_sleeve_0", CubeListBuilder.create()
-				.texOffs(136, 49).addBox(-2F, -2F, -2F, 4F, 7F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(0, 65).addBox(-2F, -2F, -2F, 4F, 7F, 4F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar2_sleeve_1", CubeListBuilder.create()
-				.texOffs(152, 49).addBox(-2F, -2F, -2F, 4F, 7F, 4F, new CubeDeformation(0.3F)),
+				.texOffs(16, 65).addBox(-2F, -2F, -2F, 4F, 7F, 4F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// arms 3: wraps
 		rightArm.addOrReplaceChild("ar3_wraps_0", CubeListBuilder.create()
-				.texOffs(104, 61).addBox(-2F, 2F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F)),
+				.texOffs(214, 65).addBox(-2F, 2F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar3_wraps_1", CubeListBuilder.create()
-				.texOffs(120, 61).addBox(-2F, 2F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F)),
+				.texOffs(230, 65).addBox(-2F, 2F, -2F, 4F, 6F, 4F, new CubeDeformation(0.25F)),
 				PartPose.ZERO);
 		// arms 4: gauntlets
 		rightArm.addOrReplaceChild("ar4_gauntlet_0", CubeListBuilder.create()
-				.texOffs(22, 72).addBox(-2F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(130, 76).addBox(-2F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		leftArm.addOrReplaceChild("ar4_gauntlet_1", CubeListBuilder.create()
-				.texOffs(38, 72).addBox(-2F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
+				.texOffs(146, 76).addBox(-2F, 4F, -2F, 4F, 5F, 4F, new CubeDeformation(0.45F)),
 				PartPose.ZERO);
 		// legs 1: mail_skirt
 		body.addOrReplaceChild("lg1_skirt_0", CubeListBuilder.create()
-				.texOffs(168, 49).addBox(-5F, 7F, -3F, 10F, 5F, 6F, new CubeDeformation(0.5F)),
+				.texOffs(32, 65).addBox(-5F, 7F, -3F, 10F, 5F, 6F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		// legs 2: greaves
 		rightLeg.addOrReplaceChild("lg2_greave_0", CubeListBuilder.create()
-				.texOffs(184, 72).addBox(-2F, 1F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
+				.texOffs(74, 85).addBox(-2F, 1F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg2_greave_1", CubeListBuilder.create()
-				.texOffs(200, 72).addBox(-2F, 1F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
+				.texOffs(90, 85).addBox(-2F, 1F, -2F, 4F, 4F, 4F, new CubeDeformation(0.4F)),
 				PartPose.ZERO);
 		// legs 3: boots
 		rightLeg.addOrReplaceChild("lg3_boot_0", CubeListBuilder.create()
-				.texOffs(92, 81).addBox(-2F, 2F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F))
-				.texOffs(160, 89).addBox(-2F, 4F, -3F, 4F, 1F, 1F, new CubeDeformation(0.3F)),
+				.texOffs(230, 85).addBox(-2F, 2F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F))
+				.texOffs(62, 100).addBox(-2F, 4F, -3F, 4F, 1F, 1F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg3_boot_1", CubeListBuilder.create()
-				.texOffs(108, 81).addBox(-2F, 2F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F))
-				.texOffs(170, 89).addBox(-2F, 4F, -3F, 4F, 1F, 1F, new CubeDeformation(0.3F)),
+				.texOffs(0, 93).addBox(-2F, 2F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F))
+				.texOffs(72, 100).addBox(-2F, 4F, -3F, 4F, 1F, 1F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// legs 4: tassets
 		rightLeg.addOrReplaceChild("lg4_tasset_0", CubeListBuilder.create()
-				.texOffs(124, 81).addBox(-2F, 0F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F)),
+				.texOffs(16, 93).addBox(-2F, 0F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		leftLeg.addOrReplaceChild("lg4_tasset_1", CubeListBuilder.create()
-				.texOffs(140, 81).addBox(-2F, 0F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F)),
+				.texOffs(32, 93).addBox(-2F, 0F, -2F, 4F, 3F, 4F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		// belt 1: tool_belt
 		body.addOrReplaceChild("bl1_tool_belt_0", CubeListBuilder.create()
-				.texOffs(216, 72).addBox(-5F, 7F, -3F, 10F, 2F, 6F, new CubeDeformation(0.55F))
-				.texOffs(84, 89).addBox(-4.5F, 7.5F, -4.2F, 3F, 3F, 1F)
-				.texOffs(92, 89).addBox(2F, 8F, -4.1F, 2F, 3F, 1F),
+				.texOffs(106, 85).addBox(-5F, 7F, -3F, 10F, 2F, 6F, new CubeDeformation(0.55F))
+				.texOffs(242, 93).addBox(-4.5F, 7.5F, -4.2F, 3F, 3F, 1F)
+				.texOffs(250, 93).addBox(2F, 8F, -4.1F, 2F, 3F, 1F),
 				PartPose.ZERO);
 		// belt 2: rope
 		body.addOrReplaceChild("bl2_rope_0", CubeListBuilder.create()
-				.texOffs(156, 81).addBox(-5F, 7.5F, -3F, 10F, 1F, 6F, new CubeDeformation(0.5F)),
+				.texOffs(48, 93).addBox(-5F, 7.5F, -3F, 10F, 1F, 6F, new CubeDeformation(0.5F)),
 				PartPose.ZERO);
 		// belt 3: buckle_belt
 		body.addOrReplaceChild("bl3_buckle_belt_0", CubeListBuilder.create()
-				.texOffs(0, 81).addBox(-5F, 7F, -3F, 10F, 2F, 6F, new CubeDeformation(0.55F))
-				.texOffs(98, 89).addBox(-1.5F, 6.5F, -4.1F, 3F, 3F, 1F),
+				.texOffs(138, 85).addBox(-5F, 7F, -3F, 10F, 2F, 6F, new CubeDeformation(0.55F))
+				.texOffs(0, 100).addBox(-1.5F, 6.5F, -4.1F, 3F, 3F, 1F),
 				PartPose.ZERO);
 		// belt 4: chain_belt
 		body.addOrReplaceChild("bl4_chain_belt_0", CubeListBuilder.create()
-				.texOffs(188, 81).addBox(-5F, 7.5F, -3F, 10F, 1F, 6F, new CubeDeformation(0.5F))
-				.texOffs(36, 89).addBox(-3F, 8.5F, -3.9F, 1F, 4F, 1F, new CubeDeformation(-0.2F)),
+				.texOffs(80, 93).addBox(-5F, 7.5F, -3F, 10F, 1F, 6F, new CubeDeformation(0.5F))
+				.texOffs(194, 93).addBox(-3F, 8.5F, -3.9F, 1F, 4F, 1F, new CubeDeformation(-0.2F)),
 				PartPose.ZERO);
 		// beard 1: long
 		head.addOrReplaceChild("bd1_long_0", CubeListBuilder.create()
-				.texOffs(200, 49).addBox(-4F, -3F, -4.6F, 8F, 9F, 2F)
-				.texOffs(32, 81).addBox(-4.6F, -5F, -3F, 1F, 4F, 4F)
-				.texOffs(42, 81).addBox(3.6F, -5F, -3F, 1F, 4F, 4F)
-				.texOffs(180, 89).addBox(-3F, -3.6F, -5F, 6F, 1F, 1F),
+				.texOffs(64, 65).addBox(-4F, -3F, -4.6F, 8F, 9F, 2F)
+				.texOffs(170, 85).addBox(-4.6F, -5F, -3F, 1F, 4F, 4F)
+				.texOffs(180, 85).addBox(3.6F, -5F, -3F, 1F, 4F, 4F)
+				.texOffs(82, 100).addBox(-3F, -3.6F, -5F, 6F, 1F, 1F),
 				PartPose.ZERO);
 		// beard 2: braided
 		head.addOrReplaceChild("bd2_braided_0", CubeListBuilder.create()
-				.texOffs(0, 89).addBox(-4F, -3F, -4.6F, 8F, 4F, 2F)
-				.texOffs(220, 81).addBox(-3F, 1F, -4.4F, 2F, 6F, 1F)
-				.texOffs(226, 81).addBox(1F, 1F, -4.4F, 2F, 6F, 1F)
-				.texOffs(194, 89).addBox(-3F, -3.6F, -5F, 6F, 1F, 1F),
+				.texOffs(158, 93).addBox(-4F, -3F, -4.6F, 8F, 4F, 2F)
+				.texOffs(112, 93).addBox(-3F, 1F, -4.4F, 2F, 6F, 1F)
+				.texOffs(118, 93).addBox(1F, 1F, -4.4F, 2F, 6F, 1F)
+				.texOffs(96, 100).addBox(-3F, -3.6F, -5F, 6F, 1F, 1F),
 				PartPose.ZERO);
 		// beard 3: short
 		head.addOrReplaceChild("bd3_short_0", CubeListBuilder.create()
-				.texOffs(232, 81).addBox(-4F, -3F, -4.6F, 8F, 5F, 2F)
-				.texOffs(20, 89).addBox(-4.6F, -4F, -3F, 1F, 3F, 3F)
-				.texOffs(28, 89).addBox(3.6F, -4F, -3F, 1F, 3F, 3F),
+				.texOffs(124, 93).addBox(-4F, -3F, -4.6F, 8F, 5F, 2F)
+				.texOffs(178, 93).addBox(-4.6F, -4F, -3F, 1F, 3F, 3F)
+				.texOffs(186, 93).addBox(3.6F, -4F, -3F, 1F, 3F, 3F),
 				PartPose.ZERO);
 		// beard 4: bushy
 		head.addOrReplaceChild("bd4_bushy_0", CubeListBuilder.create()
-				.texOffs(220, 49).addBox(-5F, -4F, -5F, 10F, 8F, 3F)
-				.texOffs(54, 72).addBox(-5F, -6F, -3F, 1F, 4F, 5F)
-				.texOffs(66, 72).addBox(4F, -6F, -3F, 1F, 4F, 5F),
+				.texOffs(84, 65).addBox(-5F, -4F, -5F, 10F, 8F, 3F)
+				.texOffs(162, 76).addBox(-5F, -6F, -3F, 1F, 4F, 5F)
+				.texOffs(174, 76).addBox(4F, -6F, -3F, 1F, 4F, 5F),
 				PartPose.ZERO);
 		// hair 1: topknot
 		head.addOrReplaceChild("hr1_topknot_0", CubeListBuilder.create()
-				.texOffs(40, 89).addBox(-1.5F, -10F, 0.5F, 3F, 2F, 3F)
-				.texOffs(128, 89).addBox(-1F, -8.5F, 1F, 2F, 1F, 2F, new CubeDeformation(0.1F)),
+				.texOffs(198, 93).addBox(-1.5F, -10F, 0.5F, 3F, 2F, 3F)
+				.texOffs(30, 100).addBox(-1F, -8.5F, 1F, 2F, 1F, 2F, new CubeDeformation(0.1F)),
 				PartPose.ZERO);
 		// hair 2: fringe
 		head.addOrReplaceChild("hr2_fringe_0", CubeListBuilder.create()
-				.texOffs(0, 61).addBox(-4F, -5F, -4F, 8F, 3F, 8F, new CubeDeformation(0.3F)),
+				.texOffs(110, 65).addBox(-4F, -5F, -4F, 8F, 3F, 8F, new CubeDeformation(0.3F)),
 				PartPose.ZERO);
 		// hair 3: crest
 		head.addOrReplaceChild("hr3_crest_0", CubeListBuilder.create()
-				.texOffs(32, 61).addBox(-1F, -9.5F, -4F, 2F, 2F, 9F),
+				.texOffs(142, 65).addBox(-1F, -9.5F, -4F, 2F, 2F, 9F),
 				PartPose.ZERO);
 	}
 }

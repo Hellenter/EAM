@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMine;
+import io.github.hellenter.eam.world.structures.village.DuergarVillage;
 
 import com.mojang.datafixers.util.Pair;
 
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Pools;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
@@ -128,10 +131,14 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				new JigsawStructure.MaxDistance(80, 48), List.of(), new DimensionPadding(56, 8), LiquidSettings.IGNORE_WATERLOGGING));
 	}
 
+	/** No mine starts within eight chunks of a duergar village, so its tunnels never cut through the village hall. */
 	public static void bootstrapSets(BootstrapContext<StructureSet> context) {
 		context.register(UnderworldMine.STRUCTURE_SET, new StructureSet(
 				context.lookup(Registries.STRUCTURE).getOrThrow(UnderworldMine.STRUCTURE),
-				new RandomSpreadStructurePlacement(12, 4, RandomSpreadType.LINEAR, 20261013)));
+				new RandomSpreadStructurePlacement(Vec3i.ZERO, AbstractSpreadingStructurePlacement.FrequencyReductionMethod.DEFAULT, 1.0F, 20261013,
+						Optional.of(new AbstractSpreadingStructurePlacement.ExclusionZone(
+								context.lookup(Registries.STRUCTURE_SET).getOrThrow(DuergarVillage.STRUCTURE_SET), 8)),
+						12, 4, RandomSpreadType.LINEAR)));
 	}
 
 	private static Pair<Function<StructureTemplatePool.Projection, ? extends StructurePoolElement>, Integer> piece(

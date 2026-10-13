@@ -1,0 +1,22 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 20261014,
+    "separation": 12,
+    "spacing": 32
+  },
+  "structures": [
+    {
+      "structure": "eam:duergar_village_stone",
+      "weight": 1
+    },
+    {
+      "structure": "eam:duergar_village_mushroom",
+      "weight": 1
+    },
+    {
+      "structure": "eam:duergar_village_lake",
+      "weight": 1
+    }
+  ]
+}

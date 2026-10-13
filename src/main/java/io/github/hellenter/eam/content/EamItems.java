@@ -37,6 +37,7 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 import io.github.hellenter.eam.world.structures.outpost.KingCastleMapItem;
+import io.github.hellenter.eam.world.structures.village.LairMapItem;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderSet;
@@ -188,6 +189,10 @@ public final class EamItems {
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
+	/** Sold by duergar elders: on the surface, in hand, it turns into a map to the nearest boss's lair. */
+	public static final Item LAIR_MAP = register("lair_map", LairMapItem::new,
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+
 	/** Baba Yaga's drop: read, it raises her grave in her swamp and turns into a map marking it. */
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
@@ -315,6 +320,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.ZOMBIE_DUERGAR));
 	public static final Item DUERGAR_RENEGADE_SPAWN_EGG = register("duergar_renegade_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.DUERGAR_RENEGADE));
+	public static final Item DUERGAR_VILLAGER_SPAWN_EGG = register("duergar_villager_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.DUERGAR_VILLAGER));
 	public static final Item WOOD_SPIDER_SPAWN_EGG = register("wood_spider_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WOOD_SPIDER));
 	public static final Item BLACK_WIDOW_SPAWN_EGG = register("black_widow_spawn_egg", SpawnEggItem::new,

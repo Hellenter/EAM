@@ -186,6 +186,9 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
+			builder.add(EamItems.LAIR_MAP, "Map to a Lair");
+			builder.add("item.eam.lair_map.surface", "The map shows the surface; take it up there");
+			builder.add("item.eam.lair_map.not_found", "No lair is near enough to mark");
 			builder.add(EamItems.VAMPIRE_HEART, "Vampire Heart");
 			builder.add(EamItems.HEART_IN_JAR, "Heart in a Jar");
 			builder.add("item.eam.black_talisman.desc", "Use on a portal frame to open the way");
@@ -301,6 +304,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, "Zombie Duergar Spawn Egg");
 			builder.add(EamEntities.DUERGAR_RENEGADE, "Duergar Renegade");
 			builder.add(EamItems.DUERGAR_RENEGADE_SPAWN_EGG, "Duergar Renegade Spawn Egg");
+			builder.add(EamEntities.DUERGAR_VILLAGER, "Duergar");
+			builder.add(EamItems.DUERGAR_VILLAGER_SPAWN_EGG, "Duergar Spawn Egg");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Wight Spawn Egg");
 			builder.add(EamEntities.WOOD_SPIDER, "Wood Spider");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Wood Spider Spawn Egg");
@@ -737,6 +742,9 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
+			builder.add(EamItems.LAIR_MAP, "Карта к логову");
+			builder.add("item.eam.lair_map.surface", "На карте поверхность: поднимитесь наверх");
+			builder.add("item.eam.lair_map.not_found", "Поблизости нет логова");
 			builder.add(EamItems.VAMPIRE_HEART, "Сердце вампира");
 			builder.add(EamItems.HEART_IN_JAR, "Сердце в банке");
 			builder.add("item.eam.black_talisman.desc", "Используйте на рамке портала, чтобы открыть путь");
@@ -859,6 +867,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, "Яйцо призыва зомби-двергара");
 			builder.add(EamEntities.DUERGAR_RENEGADE, "Двергар-отступник");
 			builder.add(EamItems.DUERGAR_RENEGADE_SPAWN_EGG, "Яйцо призыва двергара-отступника");
+			builder.add(EamEntities.DUERGAR_VILLAGER, "Двергар");
+			builder.add(EamItems.DUERGAR_VILLAGER_SPAWN_EGG, "Яйцо призыва двергара");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Яйцо призыва вихта");
 			builder.add(EamEntities.WOOD_SPIDER, "Лесной паук");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Яйцо призыва лесного паука");

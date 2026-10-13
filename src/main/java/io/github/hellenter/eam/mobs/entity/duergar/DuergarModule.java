@@ -23,7 +23,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
  * Duergar: grey dwarves of the underworld. Zombie duergar are the miners who died in the old mines and still haunt them;
  * they spawn only inside the mines ({@code spawn_overrides} of the structure {@code eam:underworld_mine}). Renegades roam
  * the dark caves in armored squads, where the biome tag {@code eam:has_duergar_renegades} lets them. Numbers are in
- * {@code data/eam/mobs/zombie_duergar.json} and {@code duergar_renegade.json}.
+ * {@code data/eam/mobs/zombie_duergar.json} and {@code duergar_renegade.json}. Village duergar live in the clan villages
+ * ({@code eam:duergar_village_*} structures) and trade; both other kinds hunt them.
  */
 public final class DuergarModule {
 	public static final TagKey<Biome> RENEGADES_SPAWN_IN = TagKey.create(Registries.BIOME, Eam.id("has_duergar_renegades"));
@@ -46,6 +47,7 @@ public final class DuergarModule {
 		SpawnPlacements.register(EamEntities.DUERGAR_RENEGADE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 				DuergarRenegade::checkSpawnRules);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(DuergarRenegadeSettingsLoader.ID, new DuergarRenegadeSettingsLoader());
+		FabricDefaultAttributeRegistry.register(EamEntities.DUERGAR_VILLAGER, DuergarVillager.createAttributes());
 	}
 
 	/** Natural spawning of renegade squads; the mobs themselves exist whatever the config says. */
