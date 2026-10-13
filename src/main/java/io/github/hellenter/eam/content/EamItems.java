@@ -313,6 +313,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.DRAUGR));
 	public static final Item ZOMBIE_DUERGAR_SPAWN_EGG = register("zombie_duergar_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.ZOMBIE_DUERGAR));
+	public static final Item DUERGAR_RENEGADE_SPAWN_EGG = register("duergar_renegade_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.DUERGAR_RENEGADE));
 	public static final Item WOOD_SPIDER_SPAWN_EGG = register("wood_spider_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WOOD_SPIDER));
 	public static final Item BLACK_WIDOW_SPAWN_EGG = register("black_widow_spawn_egg", SpawnEggItem::new,

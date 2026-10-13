@@ -24,12 +24,16 @@ import java.util.List;
 
 /**
  * Melee mobs in {@link #BREAKERS} break through blocks a player could break bare-handed ({@link #HAND_BREAKABLE}) to
- * reach a target that walled itself in. Respects the {@code mob_griefing} game rule. Numbers are in
+ * reach a target that walled itself in; {@link #STONE_BREAKERS} also break {@link #STONE}. Respects the {@code mob_griefing} game rule. Numbers are in
  * {@code data/eam/mobs/block_breaking.json}.
  */
 public final class BlockBreakingModule {
 	/** Mobs that break blocks to reach their target. */
 	public static final TagKey<EntityType<?>> BREAKERS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("breaks_blocks"));
+	/** Mobs that also dig through stone ({@link #STONE}), with their picks: the duergar renegades. */
+	public static final TagKey<EntityType<?>> STONE_BREAKERS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("breaks_stone"));
+	/** The rock {@link #STONE_BREAKERS} dig through. */
+	public static final TagKey<Block> STONE = TagKey.create(Registries.BLOCK, Eam.id("mob_breakable_stone"));
 	/** Targets mobs dig toward: players. A datapack can add villagers and other mobs. */
 	public static final TagKey<EntityType<?>> TARGETS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("block_breaking_targets"));
 	/** Mobs break the same blocks a player can break bare-handed. */

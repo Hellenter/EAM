@@ -103,6 +103,27 @@ public final class DuergarGear {
 		return withLooks(gear, random, baldChance);
 	}
 
+	/** Renegade pieces per armor slot, in {@link #ARMOR_SLOTS} order: the heavy, whole ones. */
+	private static final int[][] RENEGADE_PIECES = {{2, 5, 6}, {4, 5}, {1, 2, 3}, {1, 2, 4}, {2, 3, 4}};
+	private static final int[] RENEGADE_BELTS = {1, 3, 4};
+	/** The leader's own outfit: horned helm, heavy cuirass, spiked pauldrons, gauntlets, boots and a chain belt. */
+	private static final int[] LEADER_PIECES = {6, 5, 2, 4, 3};
+	private static final int LEADER_BELT = 4;
+
+	/**
+	 * A renegade's outfit: armor in every slot, heavy and whole, and a belt. The leader always wears the same set, so he
+	 * stands out from his squad.
+	 */
+	public static int armored(DoubleSupplier random, boolean leader, double baldChance) {
+		int gear = 0;
+		for (int i = 0; i < ARMOR_SLOTS.size(); i++) {
+			int[] pool = RENEGADE_PIECES[i];
+			gear = with(gear, ARMOR_SLOTS.get(i), leader ? LEADER_PIECES[i] : pool[index(random, pool.length)]);
+		}
+		gear = with(gear, Slot.BELT, leader ? LEADER_BELT : RENEGADE_BELTS[index(random, RENEGADE_BELTS.length)]);
+		return withLooks(gear, random, baldChance);
+	}
+
 	/** A beard always, and hair unless {@code baldChance} comes up. */
 	static int withLooks(int gear, DoubleSupplier random, double baldChance) {
 		gear = with(gear, Slot.BEARD, 1 + index(random, Slot.BEARD.variants));

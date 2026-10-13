@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
+import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
@@ -145,6 +146,12 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Swamp ground a swamp lurker digs itself into; the block turns to mud.
 		builder(SwampLurkerModule.BURROWS_IN).add(BlockItemIds.MUD, BlockItemIds.GRASS_BLOCK, BlockItemIds.DIRT, BlockItemIds.COARSE_DIRT,
 				BlockItemIds.CLAY);
+
+		// Rock duergar renegades dig through with their picks: natural stone and cobble, never bricks or other built blocks.
+		builder(BlockBreakingModule.STONE)
+				.add(BlockItemIds.COBBLESTONE, BlockItemIds.MOSSY_COBBLESTONE, BlockItemIds.COBBLED_DEEPSLATE, BlockItemIds.CALCITE,
+						BlockItemIds.SMOOTH_BASALT, BlockItemIds.PACKED_ICE, BlockItemIds.ICE)
+				.forceAddTag(BlockTags.BASE_STONE_OVERWORLD).forceAddTag(BlockTags.BASE_STONE_NETHER);
 
 		// Ice-cave floors draugr lie frozen in.
 		// Giant underworld mushrooms grow from the cave floor only, never from another mushroom's cap.

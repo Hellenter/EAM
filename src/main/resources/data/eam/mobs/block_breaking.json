@@ -6,5 +6,6 @@
   "decay_delay_ticks": 200,
   "decay_per_tick": 0.25,
   "target_memory_ticks": 200,
-  "sense_radius": 5
+  "sense_radius": 5,
+  "stone_ticks_per_hardness": 80
 }

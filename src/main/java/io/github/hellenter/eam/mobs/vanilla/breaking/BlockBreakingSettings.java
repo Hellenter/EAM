@@ -16,6 +16,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param targetMemoryTicks ticks a mob keeps chasing a target it cannot see (vanilla: 60); long enough to notice
  *                         the target walled itself in and start digging
  * @param senseRadius      mobs smell a player through walls within this many blocks (0 turns it off)
+ * @param stoneTicksPerHardness ticks a stone breaker needs per point of hardness of stone (stone has 1.5: 80 makes it
+ *                         6 seconds)
  */
 public record BlockBreakingSettings(
 		int ticksPerHardness,
@@ -25,9 +27,10 @@ public record BlockBreakingSettings(
 		int decayDelayTicks,
 		float decayPerTick,
 		int targetMemoryTicks,
-		int senseRadius
+		int senseRadius,
+		int stoneTicksPerHardness
 ) {
-	public static final BlockBreakingSettings DEFAULT = new BlockBreakingSettings(600, 40, 600, 16, 200, 0.25F, 200, 5);
+	public static final BlockBreakingSettings DEFAULT = new BlockBreakingSettings(600, 40, 600, 16, 200, 0.25F, 200, 5, 80);
 
 	public static final Codec<BlockBreakingSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("ticks_per_hardness").orElse(DEFAULT.ticksPerHardness).forGetter(BlockBreakingSettings::ticksPerHardness),
@@ -37,6 +40,8 @@ public record BlockBreakingSettings(
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("decay_delay_ticks").orElse(DEFAULT.decayDelayTicks).forGetter(BlockBreakingSettings::decayDelayTicks),
 			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("decay_per_tick").orElse(DEFAULT.decayPerTick).forGetter(BlockBreakingSettings::decayPerTick),
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("target_memory_ticks").orElse(DEFAULT.targetMemoryTicks).forGetter(BlockBreakingSettings::targetMemoryTicks),
-			Codec.intRange(0, 32).fieldOf("sense_radius").orElse(DEFAULT.senseRadius).forGetter(BlockBreakingSettings::senseRadius)
+			Codec.intRange(0, 32).fieldOf("sense_radius").orElse(DEFAULT.senseRadius).forGetter(BlockBreakingSettings::senseRadius),
+			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("stone_ticks_per_hardness").orElse(DEFAULT.stoneTicksPerHardness)
+					.forGetter(BlockBreakingSettings::stoneTicksPerHardness)
 	).apply(instance, BlockBreakingSettings::new));
 }

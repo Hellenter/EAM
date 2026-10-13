@@ -1,0 +1,13 @@
+{
+  "health": 26.0,
+  "leader_health": 36.0,
+  "speed": 0.19,
+  "attack_damage": 4.0,
+  "extra_armor": 4.0,
+  "armor_toughness": 4.0,
+  "min_followers": 3,
+  "max_followers": 4,
+  "spawn_spacing": 64.0,
+  "bald_chance": 0.5,
+  "weapon_drop_chance": 0.05
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "minecraft:cobblestone",
+    "minecraft:mossy_cobblestone",
+    "minecraft:cobbled_deepslate",
+    "minecraft:calcite",
+    "minecraft:smooth_basalt",
+    "minecraft:packed_ice",
+    "minecraft:ice",
+    "#minecraft:base_stone_overworld",
+    "#minecraft:base_stone_nether"
+  ]
+}
