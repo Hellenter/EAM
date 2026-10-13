@@ -8,7 +8,7 @@
         "processors": "eam:duergar_village",
         "projection": "rigid"
       },
-      "weight": 6
+      "weight": 5
     },
     {
       "element": {
@@ -33,12 +33,72 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "eam:duergar_village/mushroom/crossing",
+        "location": "eam:duergar_village/mushroom/street/4",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:duergar_village",
         "projection": "rigid"
       },
       "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/street/5",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/ramp",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/corner",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/fork",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/crossing",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/bridge",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
     }
   ],
   "fallback": "eam:duergar_village/mushroom/ends"

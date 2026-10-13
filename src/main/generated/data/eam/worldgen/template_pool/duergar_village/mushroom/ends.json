@@ -3,7 +3,17 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "eam:duergar_village/mushroom/end",
+        "location": "eam:duergar_village/mushroom/end/1",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/end/2",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:duergar_village",
         "projection": "rigid"
