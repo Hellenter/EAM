@@ -61,7 +61,9 @@
       },
       "when": {
         "axis": "x",
-        "fill": "1"
+        "fill": "1",
+        "negative": "false",
+        "positive": "false"
       }
     },
     {
@@ -71,7 +73,78 @@
       },
       "when": {
         "axis": "z",
-        "fill": "1"
+        "fill": "1",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1",
+        "negative": "true",
+        "positive": "true"
       }
     },
     {
@@ -80,7 +153,9 @@
       },
       "when": {
         "axis": "x",
-        "fill": "2"
+        "fill": "2",
+        "negative": "false",
+        "positive": "false"
       }
     },
     {
@@ -90,7 +165,78 @@
       },
       "when": {
         "axis": "z",
-        "fill": "2"
+        "fill": "2",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2",
+        "negative": "true",
+        "positive": "true"
       }
     },
     {
@@ -99,7 +245,9 @@
       },
       "when": {
         "axis": "x",
-        "fill": "3"
+        "fill": "3",
+        "negative": "false",
+        "positive": "false"
       }
     },
     {
@@ -109,7 +257,78 @@
       },
       "when": {
         "axis": "z",
-        "fill": "3"
+        "fill": "3",
+        "negative": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "false",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_n"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_n",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_n_p"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3",
+        "negative": "true",
+        "positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3_n_p",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3",
+        "negative": "true",
+        "positive": "true"
       }
     }
   ]

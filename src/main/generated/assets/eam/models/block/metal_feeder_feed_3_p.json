@@ -1,0 +1,107 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#feed"
+        },
+        "east": {
+          "texture": "#feed"
+        },
+        "north": {
+          "texture": "#feed"
+        },
+        "south": {
+          "texture": "#feed"
+        },
+        "up": {
+          "texture": "#feed"
+        },
+        "west": {
+          "texture": "#feed"
+        }
+      },
+      "from": [
+        1.3,
+        8.0,
+        6.5
+      ],
+      "to": [
+        16.0,
+        10.4,
+        9.5
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#feed"
+        },
+        "east": {
+          "texture": "#feed"
+        },
+        "north": {
+          "texture": "#feed"
+        },
+        "south": {
+          "texture": "#feed"
+        },
+        "up": {
+          "texture": "#feed"
+        },
+        "west": {
+          "texture": "#feed"
+        }
+      },
+      "from": [
+        1.3,
+        10.4,
+        5.505887450304572
+      ],
+      "to": [
+        16.0,
+        12.8,
+        10.494112549695428
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#feed"
+        },
+        "east": {
+          "texture": "#feed"
+        },
+        "north": {
+          "texture": "#feed"
+        },
+        "south": {
+          "texture": "#feed"
+        },
+        "up": {
+          "texture": "#feed"
+        },
+        "west": {
+          "texture": "#feed"
+        }
+      },
+      "from": [
+        1.3,
+        12.8,
+        4.511774900609144
+      ],
+      "to": [
+        16.0,
+        15.200000000000001,
+        11.488225099390856
+      ]
+    }
+  ],
+  "textures": {
+    "feed": "eam:block/feeder_feed",
+    "metal": "eam:block/metal_feeder_bars",
+    "particle": "eam:block/metal_feeder_bars",
+    "trough": "eam:block/metal_feeder_trough"
+  }
+}

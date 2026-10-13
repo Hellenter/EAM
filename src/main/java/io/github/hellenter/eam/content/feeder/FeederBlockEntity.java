@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import io.github.hellenter.eam.content.EamBlockEntities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -13,12 +14,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,6 +35,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,8 +48,12 @@ import java.util.Map;
  * The feed in one feeder block and the meals it gave today. Every second it calls hungry livestock around over and
  * feeds those that reached it, one meal a day each; every few seconds it takes spare crops from farmer villagers nearby
  * and lets a fed pair breed once a day while the trough has room for more heads.
+ *
+ * <p>It is also a one-slot container, so hoppers and droppers can fill it: feed put in the slot goes straight into the
+ * trough, and only what does not fit stays there until there is room. Nothing can be taken back out through it.
  */
-public class FeederBlockEntity extends BlockEntity {
+public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
+	private static final int[] SLOTS = {0};
 	private static final Codec<Map<Item, Integer>> FOOD_CODEC = Codec.unboundedMap(BuiltInRegistries.ITEM.byNameCodec(), Codec.INT);
 	/** Ticks between feeding rounds. */
 	private static final int FEED_INTERVAL = 20;
@@ -56,6 +66,8 @@ public class FeederBlockEntity extends BlockEntity {
 	private static final double PARTNER_DISTANCE = 8.0;
 
 	private final Map<Item, Integer> food = new LinkedHashMap<>();
+	/** Feed put in through the container slot that did not fit in the trough yet. */
+	private ItemStack slot = ItemStack.EMPTY;
 	private long mealDay;
 	private int meals;
 	private long breedDay = Long.MIN_VALUE;
@@ -114,8 +126,84 @@ public class FeederBlockEntity extends BlockEntity {
 	private Item takeOne() {
 		Item item = food.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow().getKey();
 		food.computeIfPresent(item, (key, count) -> count > 1 ? count - 1 : null);
+		absorbSlot();
 		changed();
 		return item;
+	}
+
+	/** Moves what fits from the container slot into the trough. */
+	private void absorbSlot() {
+		if (slot.isEmpty()) return;
+		int added = add(slot.getItem(), slot.getCount());
+		if (added > 0) slot.shrink(added);
+	}
+
+	// --- Container: hoppers and droppers put feed in ---
+
+	@Override
+	public int getContainerSize() {
+		return 1;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return slot.isEmpty();
+	}
+
+	@Override
+	public ItemStack getItem(int index) {
+		return slot;
+	}
+
+	@Override
+	public ItemStack removeItem(int index, int count) {
+		ItemStack taken = slot.split(count);
+		if (!taken.isEmpty()) setChanged();
+		return taken;
+	}
+
+	@Override
+	public ItemStack removeItemNoUpdate(int index) {
+		ItemStack taken = slot;
+		slot = ItemStack.EMPTY;
+		return taken;
+	}
+
+	@Override
+	public void setItem(int index, ItemStack stack) {
+		slot = stack;
+		absorbSlot();
+		setChanged();
+	}
+
+	@Override
+	public boolean canPlaceItem(int index, ItemStack stack) {
+		return stack.is(FeederModule.FEED);
+	}
+
+	@Override
+	public boolean stillValid(Player player) {
+		return Container.stillValidBlockEntity(this, player);
+	}
+
+	@Override
+	public void clearContent() {
+		slot = ItemStack.EMPTY;
+	}
+
+	@Override
+	public int[] getSlotsForFace(Direction direction) {
+		return SLOTS;
+	}
+
+	@Override
+	public boolean canPlaceItemThroughFace(int index, ItemStack stack, @Nullable Direction direction) {
+		return canPlaceItem(index, stack);
+	}
+
+	@Override
+	public boolean canTakeItemThroughFace(int index, ItemStack stack, Direction direction) {
+		return false;
 	}
 
 	private void changed() {
@@ -280,6 +368,8 @@ public class FeederBlockEntity extends BlockEntity {
 			}
 		});
 		food.clear();
+		if (!slot.isEmpty()) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), slot);
+		slot = ItemStack.EMPTY;
 	}
 
 	@Override
@@ -291,6 +381,7 @@ public class FeederBlockEntity extends BlockEntity {
 		mealDay = input.getLongOr("MealDay", 0L);
 		meals = input.getIntOr("Meals", 0);
 		breedDay = input.getLongOr("BreedDay", Long.MIN_VALUE);
+		slot = input.read("Slot", ItemStack.CODEC).orElse(ItemStack.EMPTY);
 	}
 
 	@Override
@@ -300,5 +391,6 @@ public class FeederBlockEntity extends BlockEntity {
 		output.putLong("MealDay", mealDay);
 		output.putInt("Meals", meals);
 		output.putLong("BreedDay", breedDay);
+		if (!slot.isEmpty()) output.store("Slot", ItemStack.CODEC, slot);
 	}
 }
