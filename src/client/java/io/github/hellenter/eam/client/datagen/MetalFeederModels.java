@@ -59,12 +59,16 @@ final class MetalFeederModels {
 					turned(positiveEnd, axis));
 		}
 		for (int fill = 1; fill <= FeederLogic.MAX_FILL; fill++) {
-			double height = fill * FEED_STEP;
+			int level = fill;
 			Identifier model = Eam.id("block/metal_feeder_feed_" + fill);
 			generators.modelOutput.accept(model, () -> {
 				JsonArray elements = new JsonArray();
-				// The hay heap widens with the rack as it rises.
-				elements.add(FeederModels.box(0, RACK_BOTTOM, 6.5, 16, RACK_BOTTOM + height, 9.5, "#feed"));
+				// Layers of hay that widen with the rack as they rise.
+				for (int layer = 1; layer <= level; layer++) {
+					double halfWidth = 1.5 + layer;
+					elements.add(FeederModels.box(0, RACK_BOTTOM + (layer - 1) * FEED_STEP, 8 - halfWidth, 16,
+							RACK_BOTTOM + layer * FEED_STEP, 8 + halfWidth, "#feed"));
+				}
 				return model(elements);
 			});
 			for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
@@ -88,7 +92,7 @@ final class MetalFeederModels {
 		elements.add(FeederModels.box(0, 4, 11, 16, 7, 12, "#trough"));
 		for (int side = 0; side < 2; side++) {
 			double z = side == 0 ? 6 : 10;
-			float angle = side == 0 ? LEAN : -LEAN;
+			float angle = side == 0 ? -LEAN : LEAN;
 			elements.add(leaning(FeederModels.box(0, RACK_BOTTOM - 1, z - 0.5, 16, RACK_BOTTOM, z + 0.5, "#metal"), z, angle));
 			elements.add(leaning(FeederModels.box(0, RACK_TOP - 1, z - 0.5, 16, RACK_TOP, z + 0.5, "#metal"), z, angle));
 			for (double x = 0.6; x < 16; x += 2) {
