@@ -21,7 +21,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -63,7 +62,7 @@ public final class VampireBatModule {
 
 	private static void tick(ServerLevel level) {
 		VampireBatSettings current = settings;
-		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getGameRules().get(GameRules.SPAWN_MONSTERS) || level.getGameTime() % current.checkInterval() != 0) {
+		if (level.getDifficulty() == Difficulty.PEACEFUL || !level.isSpawningMonsters() || level.getGameTime() % current.checkInterval() != 0) {
 			return;
 		}
 		for (ServerPlayer player : level.players()) {

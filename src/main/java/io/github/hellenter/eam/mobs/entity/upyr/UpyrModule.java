@@ -32,7 +32,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -127,7 +126,7 @@ public final class UpyrModule {
 	private static void tick(ServerLevel level) {
 		UpyrSettings current = settings;
 		if (level.dimension() != Level.OVERWORLD || level.getDifficulty() == Difficulty.PEACEFUL
-				|| !level.getGameRules().get(GameRules.SPAWN_MONSTERS) || level.getGameTime() % current.checkInterval() != 0 || !level.isDarkOutside()) {
+				|| !level.isSpawningMonsters() || level.getGameTime() % current.checkInterval() != 0 || !level.isDarkOutside()) {
 			return;
 		}
 		Optional<HolderSet.Named<Structure>> villages = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(StructureTags.VILLAGE);
