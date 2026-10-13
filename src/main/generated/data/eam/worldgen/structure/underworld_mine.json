@@ -38,5 +38,6 @@
   },
   "start_pool": "eam:underworld_mine/start",
   "step": "underground_structures",
+  "terrain_adaptation": "encapsulate",
   "use_expansion_hack": false
 }

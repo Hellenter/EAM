@@ -57,7 +57,8 @@ import java.util.function.Function;
 /**
  * The underworld mine ({@link UnderworldMine}): a jigsaw structure like vanilla's ancient city, built from Maxim-editable
  * templates. It starts from a hall between y 60 and 120 and grows up to seven pieces deep, never below y 56 (the deep
- * bedrock band is under it) nor into the bedrock roof.
+ * bedrock band is under it) nor into the bedrock roof. Terrain closes in around every piece (encapsulate), so the mine
+ * runs through rock instead of hanging in the open caves.
  */
 public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 	private static final String TEMPLATES = "eam:underworld_mine/";
@@ -125,7 +126,7 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				WeightedList.of(new MobSpawnSettings.SpawnerData(EamEntities.ZOMBIE_DUERGAR, UniformInt.of(1, 3)))));
 		context.register(UnderworldMine.STRUCTURE, new JigsawStructure(
 				new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(UnderworldMine.HAS_MINE), spawns,
-						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.NONE),
+						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
 				context.lookup(Registries.TEMPLATE_POOL).getOrThrow(UnderworldMine.START_POOL), Optional.empty(), 7,
 				UniformHeight.of(VerticalAnchor.absolute(60), VerticalAnchor.absolute(120)), false, Optional.empty(),
 				new JigsawStructure.MaxDistance(80, 48), List.of(), new DimensionPadding(56, 8), LiquidSettings.IGNORE_WATERLOGGING));
