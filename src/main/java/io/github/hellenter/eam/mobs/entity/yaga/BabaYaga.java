@@ -194,6 +194,8 @@ public class BabaYaga extends Monster {
 	private boolean weatherThundering;
 
 	private final List<Group> groups = new ArrayList<>();
+	/** Set on load: her creatures are saved with their chunks, but her groups are not, so she takes them back. */
+	private boolean adoptMinions;
 	private final List<SpellBolt> spells = new ArrayList<>();
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
@@ -425,6 +427,10 @@ public class BabaYaga extends Monster {
 			if (attackCooldowns[i] > 0) attackCooldowns[i]--;
 		}
 		setNoGravity(phase() == 1 && action != YagaAction.SHATTER);
+		if (adoptMinions) {
+			adoptMinions = false;
+			adoptMinions(level);
+		}
 		tickGroups(level);
 		tickSpells(level);
 		if (phase() == 2) {
@@ -432,7 +438,7 @@ public class BabaYaga extends Monster {
 		}
 
 		LivingEntity target = getTarget();
-		if (target != null && (!target.isAlive() || !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target))) {
+		if (target != null && (!target.isAlive() || target.level() != level || !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target))) {
 			setTarget(null);
 			target = null;
 		}
@@ -700,7 +706,7 @@ public class BabaYaga extends Monster {
 			return;
 		}
 		boolean needsTarget = action != YagaAction.SHATTER && action != YagaAction.STAGGER && action != YagaAction.RETREAT;
-		if (needsTarget && (target == null || !target.isAlive())) {
+		if (needsTarget && (target == null || !target.isAlive() || target.level() != level)) {
 			YagaAction ended = action;
 			endAction();
 			afterAction(ended);
@@ -773,6 +779,27 @@ public class BabaYaga extends Monster {
 			}
 			default -> {
 			}
+		}
+	}
+
+	/**
+	 * After a reload her creatures still stand about, but she has forgotten them: she gathers them into one group again,
+	 * so they glow, wither and count toward her cap, and a phase-one wave still out is not raised a second time.
+	 */
+	private void adoptMinions(ServerLevel level) {
+		Group group = new Group();
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(BabaYagaModule.SUN_SHELTER_RADIUS),
+				mob -> mob.isAlive() && BabaYagaModule.isMinion(mob))) {
+			group.add(mob);
+		}
+		if (group.members.isEmpty()) {
+			return;
+		}
+		group.raisedAt = level.getGameTime();
+		group.wave = phase() == 1;
+		groups.add(group);
+		if (phase() == 1) {
+			nextWave = -1;
 		}
 	}
 
@@ -1942,6 +1969,7 @@ public class BabaYaga extends Monster {
 		output.putByte("Phase", (byte) phase());
 		if (stormOwner) {
 			output.putBoolean("StormOwner", true);
+			output.putLong("StormSavedAt", level().getGameTime());
 			output.putInt("WeatherClear", weatherClear);
 			output.putInt("WeatherRain", weatherRain);
 			output.putInt("WeatherThunder", weatherThunder);
@@ -1963,8 +1991,10 @@ public class BabaYaga extends Monster {
 			bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		}
 		bossEvent.setName(getDisplayName());
-		// Her storm goes on after a reload; she still knows the weather to put back.
-		stormOwner = input.getBooleanOr("StormOwner", false);
+		// Her storm goes on after a reload; she still knows the weather to put back. Unloaded longer than her storm
+		// lasts, the fight was abandoned and the storm is long over: the old weather is stale and stays unused.
+		long stormSavedAt = input.getLongOr("StormSavedAt", level().getGameTime());
+		stormOwner = input.getBooleanOr("StormOwner", false) && level().getGameTime() - stormSavedAt <= STORM_TICKS;
 		stormRaised = stormOwner;
 		weatherClear = input.getIntOr("WeatherClear", 0);
 		weatherRain = input.getIntOr("WeatherRain", 0);
@@ -1974,6 +2004,7 @@ public class BabaYaga extends Monster {
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
 		laterHalves.clear();
+		adoptMinions = true;
 	}
 
 	// ---- Sounds: a witch's voice, older ----
