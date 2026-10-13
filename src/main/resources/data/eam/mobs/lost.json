@@ -65,7 +65,7 @@
   },
   "centurion": {
     "chance": 0.25,
-    "health": 45.0,
+    "health": 35.0,
     "extra_armor": 4.0,
     "spear_reach": 3.9,
     "drop_chance": 0.08,
