@@ -7,9 +7,12 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.ItemTags;
@@ -43,6 +46,10 @@ public final class FeederModule {
 	/** How an animal has been fed; only on animals that ate from a feeder. */
 	public static final AttachmentType<LivestockState> LIVESTOCK_STATE = AttachmentRegistry.create(Eam.id("livestock"),
 			builder -> builder.persistent(LivestockState.CODEC));
+
+	/** A trough's inventory. */
+	public static final ExtendedMenuType<FeederMenu, FeederMenu.Layout> MENU = Registry.register(BuiltInRegistries.MENU, Eam.id("feeder"),
+			new ExtendedMenuType<>(FeederMenu::new, FeederMenu.Layout.STREAM_CODEC));
 
 	/** Above random strolling, so a hungry animal on grass stops to eat it. */
 	private static final int GRAZE_PRIORITY = 4;

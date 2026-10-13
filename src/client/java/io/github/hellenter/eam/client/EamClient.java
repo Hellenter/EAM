@@ -4,6 +4,7 @@ import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
 import io.github.hellenter.eam.client.bucket.BucketMeltTooltip;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
 import io.github.hellenter.eam.client.content.arrows.NockedArrow;
+import io.github.hellenter.eam.client.content.feeder.FeederScreen;
 import io.github.hellenter.eam.client.content.heart.HeartFlight;
 import io.github.hellenter.eam.client.content.talisman.TalismanActivation;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
@@ -59,6 +60,7 @@ import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.client.hud.ThirstHud;
@@ -176,6 +178,7 @@ public class EamClient implements ClientModInitializer {
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));
 		// The silver stand's menu has the vanilla layout: the vanilla brewing screen draws it, plus a recipe book.
 		MenuScreens.<BrewingStandMenu, SilverBrewingStandScreen>register(BrewingModule.MENU, SilverBrewingStandScreen::new);
+		MenuScreens.register(FeederModule.MENU, FeederScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();
 		BucketMeltTooltip.register();

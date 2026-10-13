@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * them. Which animals are livestock and what they eat are the tags {@code eam:livestock} and {@code eam:livestock_feed}.
  *
  * @param headsPerFeeder    meals one feeder block gives a day: the heads it keeps fed. A trough of three feeds three times as many.
- * @param foodCapacity      feed items one feeder block holds
+ * @param slotsPerFeeder    inventory slots of one feeder block, up to 12 (the menu fits six chest rows); a trough of three has three times as many
  * @param thinAfterDays     days without a meal after which an animal gets thin and drops no meat. It takes as many days of
  *                          meals to fatten up again.
  * @param animalRadius      how far, in blocks, livestock comes to a feeder from
@@ -16,17 +16,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param farmerKeepsPoints villager food points of crops a farmer keeps for himself and other villagers; he gives the rest.
  *                          Vanilla villagers share food once they hold 24 points.
  * @param farmerKeepsSeeds  potatoes and carrots a farmer always keeps to plant his fields
- * @param metalScale        how many times more feed and heads a metal feeder block takes than a wooden one
+ * @param metalScale        how many times more slots and heads a metal feeder block has than a wooden one
  * @param breeding          whether fed livestock at a feeder breeds by itself, one pair per feeder block a day, until the
  *                          animals around reach the trough's heads
  */
-public record FeederSettings(int headsPerFeeder, int foodCapacity, int thinAfterDays, int animalRadius, int farmerRadius,
+public record FeederSettings(int headsPerFeeder, int slotsPerFeeder, int thinAfterDays, int animalRadius, int farmerRadius,
 		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding) {
-	public static final FeederSettings DEFAULT = new FeederSettings(10, 64, 7, 16, 8, 24, 16, 1.5, true);
+	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 24, 16, 1.5, true);
 
 	public static final Codec<FeederSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, 1000).fieldOf("heads_per_feeder").orElse(DEFAULT.headsPerFeeder).forGetter(FeederSettings::headsPerFeeder),
-			Codec.intRange(1, 10000).fieldOf("food_capacity").orElse(DEFAULT.foodCapacity).forGetter(FeederSettings::foodCapacity),
+			Codec.intRange(1, 12).fieldOf("slots_per_feeder").orElse(DEFAULT.slotsPerFeeder).forGetter(FeederSettings::slotsPerFeeder),
 			Codec.intRange(1, 1000).fieldOf("thin_after_days").orElse(DEFAULT.thinAfterDays).forGetter(FeederSettings::thinAfterDays),
 			Codec.intRange(1, 64).fieldOf("animal_radius").orElse(DEFAULT.animalRadius).forGetter(FeederSettings::animalRadius),
 			Codec.intRange(0, 64).fieldOf("farmer_radius").orElse(DEFAULT.farmerRadius).forGetter(FeederSettings::farmerRadius),
