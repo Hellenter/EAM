@@ -93,8 +93,10 @@ public class LostModel extends FallenLordModel {
 	@Override
 	public void setupAnim(FallenLordRenderState state) {
 		super.setupAnim(state);
-		// Drawing a bow he holds both arms out straight.
-		if (state.rightArmPose == HumanoidModel.ArmPose.BOW_AND_ARROW) {
+		// Drawing a bow or aiming a crossbow he holds both arms out straight.
+		HumanoidModel.ArmPose pose = state.rightArmPose;
+		if (pose == HumanoidModel.ArmPose.BOW_AND_ARROW || pose == HumanoidModel.ArmPose.CROSSBOW_HOLD
+				|| pose == HumanoidModel.ArmPose.CROSSBOW_CHARGE) {
 			rightForearm.xRot = 0.0F;
 			leftForearm.xRot = 0.0F;
 		}

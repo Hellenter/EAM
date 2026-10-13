@@ -35,6 +35,7 @@ public final class LostModule {
 	public static void register() {
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST, Lost.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST_CENTURION, LostCenturion.createAttributes());
+		FabricDefaultAttributeRegistry.register(EamEntities.LOST_WALL_COMMANDER, Lost.createAttributes());
 		SpawnPlacements.register(EamEntities.LOST, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Lost::checkSpawnRules);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(LostSettingsLoader.ID, new LostSettingsLoader());
 	}

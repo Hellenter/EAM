@@ -211,9 +211,11 @@ public class Lost extends SkeletonKnight {
 
 	private void spawnFollowers(ServerLevelAccessor level, DifficultyInstance difficulty, LostSettings settings, EntitySpawnReason reason) {
 		RandomSource random = getRandom();
-		int count = LostLogic.followerCount(settings.squad().minFollowers(), settings.squad().maxFollowers(), random.nextDouble());
-		for (LostRole followerRole : LostLogic.followerRoles(count, random::nextDouble)) {
+		for (LostRole followerRole : followerRoles(settings, random)) {
 			spawnMember(level, difficulty, EamEntities.LOST.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), followerRole);
+		}
+		if (!bringsCompanions()) {
+			return;
 		}
 		// A squad from the Lost egg never brings a centurion; his own egg is for that.
 		if (role == LostRole.LEADER && bringsCenturion && !fromEgg(reason)
@@ -221,6 +223,17 @@ public class Lost extends SkeletonKnight {
 			spawnMember(level, difficulty, EamEntities.LOST_CENTURION.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), LostRole.CENTURION);
 		}
 		UndeadWarlockModule.maybeJoinSquad(level, difficulty, this);
+	}
+
+	/** The roles of the followers he brings at the head of a squad. */
+	protected List<LostRole> followerRoles(LostSettings settings, RandomSource random) {
+		int count = LostLogic.followerCount(settings.squad().minFollowers(), settings.squad().maxFollowers(), random.nextDouble());
+		return LostLogic.followerRoles(count, random::nextDouble);
+	}
+
+	/** Whether his squad may bring a centurion or an undead warlock along. */
+	protected boolean bringsCompanions() {
+		return true;
 	}
 
 	private void spawnMember(ServerLevelAccessor level, DifficultyInstance difficulty, @Nullable Lost member, LostRole memberRole) {
