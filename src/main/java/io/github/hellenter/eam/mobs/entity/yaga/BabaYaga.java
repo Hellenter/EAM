@@ -1511,6 +1511,9 @@ public class BabaYaga extends Monster {
 				return;
 			}
 			blink(level, spot);
+			if (claws.glowTicks() > 0) {
+				addEffect(new MobEffectInstance(MobEffects.GLOWING, claws.glowTicks(), 0, false, false));
+			}
 			// A screech from behind the player's back as she lands: the claws are coming, turn around.
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.FOX_SCREECH, getSoundSource(), 3.0F, 0.7F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 1.2F);
