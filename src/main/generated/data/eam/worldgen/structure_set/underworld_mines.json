@@ -1,6 +1,10 @@
 {
   "placement": {
     "type": "minecraft:random_spread",
+    "exclusion_zone": {
+      "chunk_count": 8,
+      "other_set": "eam:duergar_villages"
+    },
     "salt": 20261013,
     "separation": 4,
     "spacing": 12
