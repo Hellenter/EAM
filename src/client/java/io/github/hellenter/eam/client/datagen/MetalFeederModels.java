@@ -109,7 +109,8 @@ final class MetalFeederModels {
 	/** The trough and the two leaning sides of the rack, each a row of bars between a bottom and a top rail. */
 	private static JsonArray bodyElements() {
 		JsonArray elements = new JsonArray();
-		elements.add(FeederModels.box(0, 4, 4, 16, 5, 12, "#trough"));
+		// The floor sits between the walls rather than under them, so no two boxes share a face and flicker.
+		elements.add(FeederModels.box(0, 4, 5, 16, 5, 11, "#trough"));
 		elements.add(FeederModels.box(0, 4, 4, 16, 7, 5, "#trough"));
 		elements.add(FeederModels.box(0, 4, 11, 16, 7, 12, "#trough"));
 		for (int side = 0; side < 2; side++) {
@@ -133,7 +134,8 @@ final class MetalFeederModels {
 			JsonObject leg = FeederModels.box(legX, -1, 7.5, legX + 1, 14, 8.5, "#metal");
 			elements.add(rotated(leg, legX + 0.5, 6.5, 8, angle));
 		}
-		elements.add(FeederModels.box(plateX, 4, 4, plateX + 1, 7, 12, "#trough"));
+		// Only the gap between the trough's walls above its floor, so the plate shares no face with them.
+		elements.add(FeederModels.box(plateX, 5, 5, plateX + 1, 7, 11, "#trough"));
 		// The end fence: rods across the V from one side of the rack to the other, like the rack's own rails.
 		double fenceX = positive ? 16 - END_FENCE : 0;
 		for (double y = RACK_BOTTOM + 1.5; y < RACK_TOP; y += 2.5) {
