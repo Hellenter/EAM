@@ -16,12 +16,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param farmerKeepsPoints villager food points of crops a farmer keeps for himself and other villagers; he gives the rest.
  *                          Vanilla villagers share food once they hold 24 points.
  * @param farmerKeepsSeeds  potatoes and carrots a farmer always keeps to plant his fields
+ * @param metalScale        how many times more feed and heads a metal feeder block takes than a wooden one
  * @param breeding          whether fed livestock at a feeder breeds by itself, one pair per feeder block a day, until the
  *                          animals around reach the trough's heads
  */
 public record FeederSettings(int headsPerFeeder, int foodCapacity, int thinAfterDays, int animalRadius, int farmerRadius,
-		int farmerKeepsPoints, int farmerKeepsSeeds, boolean breeding) {
-	public static final FeederSettings DEFAULT = new FeederSettings(10, 64, 7, 16, 8, 24, 16, true);
+		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding) {
+	public static final FeederSettings DEFAULT = new FeederSettings(10, 64, 7, 16, 8, 24, 16, 1.5, true);
 
 	public static final Codec<FeederSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, 1000).fieldOf("heads_per_feeder").orElse(DEFAULT.headsPerFeeder).forGetter(FeederSettings::headsPerFeeder),
@@ -31,6 +32,7 @@ public record FeederSettings(int headsPerFeeder, int foodCapacity, int thinAfter
 			Codec.intRange(0, 64).fieldOf("farmer_radius").orElse(DEFAULT.farmerRadius).forGetter(FeederSettings::farmerRadius),
 			Codec.intRange(0, 10000).fieldOf("farmer_keeps_points").orElse(DEFAULT.farmerKeepsPoints).forGetter(FeederSettings::farmerKeepsPoints),
 			Codec.intRange(0, 10000).fieldOf("farmer_keeps_seeds").orElse(DEFAULT.farmerKeepsSeeds).forGetter(FeederSettings::farmerKeepsSeeds),
+			Codec.doubleRange(0.1, 100.0).fieldOf("metal_scale").orElse(DEFAULT.metalScale).forGetter(FeederSettings::metalScale),
 			Codec.BOOL.fieldOf("breeding").orElse(DEFAULT.breeding).forGetter(FeederSettings::breeding)
 	).apply(instance, FeederSettings::new));
 }

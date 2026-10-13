@@ -215,6 +215,7 @@ public final class EamLanguageProviders {
 			builder.add("eam.mining.needs_axe", "You need an axe to chop this");
 			builder.add(EamBlocks.SIEVE, "Sieve");
 			builder.add(EamBlocks.FEEDER, "Feeder");
+			builder.add(EamBlocks.METAL_FEEDER, "Metal Feeder");
 			builder.add("block.eam.feeder.status", "Feed: %s/%s, fed today: %s/%s");
 			builder.add(FeederModule.FEED, "Livestock Feed");
 			builder.add(CampFireModule.IGNITERS, "Camp Fire Igniters");
@@ -761,6 +762,7 @@ public final class EamLanguageProviders {
 			builder.add("eam.mining.needs_axe", "Чтобы срубить это, нужен топор");
 			builder.add(EamBlocks.SIEVE, "Сито");
 			builder.add(EamBlocks.FEEDER, "Кормушка");
+			builder.add(EamBlocks.METAL_FEEDER, "Металлическая кормушка");
 			builder.add("block.eam.feeder.status", "Корм: %s/%s, сегодня поели: %s/%s");
 			builder.add(FeederModule.FEED, "Корм для скота");
 			builder.add(CampFireModule.IGNITERS, "Растопка для костра");

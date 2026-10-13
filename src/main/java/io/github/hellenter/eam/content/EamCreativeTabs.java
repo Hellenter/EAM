@@ -32,7 +32,7 @@ public final class EamCreativeTabs {
 			Items.TIPPED_ARROW);
 
 	public static final CreativeModeTab SURVIVAL = register("survival", () -> new ItemStack(EamItems.LEATHER_FLASK),
-			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE, EamItems.FEEDER,
+			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE, EamItems.FEEDER, EamItems.METAL_FEEDER,
 			EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_HATCHET, EamItems.FLINT_AXE, EamItems.FLINT_KNIFE,
 			EamItems.SLINGSHOT,
 			EamItems.COPPER_BUCKET, EamItems.COPPER_WATER_BUCKET, EamItems.COPPER_LAVA_BUCKET, EamItems.COPPER_POWDER_SNOW_BUCKET,

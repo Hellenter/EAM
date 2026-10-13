@@ -6,5 +6,6 @@
   "farmer_radius": 8,
   "food_capacity": 64,
   "heads_per_feeder": 10,
+  "metal_scale": 1.5,
   "thin_after_days": 7
 }

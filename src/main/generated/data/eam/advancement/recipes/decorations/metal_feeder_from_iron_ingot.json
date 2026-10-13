@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_feeder": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:feeder"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:metal_feeder_from_iron_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_feeder"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:metal_feeder_from_iron_ingot"
+    ]
+  }
+}

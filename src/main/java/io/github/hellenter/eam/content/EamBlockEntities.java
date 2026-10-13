@@ -29,7 +29,7 @@ public final class EamBlockEntities {
 			new BlockEntityType<>(ObsidianBlastFurnaceBlockEntity::new, Set.of(EamBlocks.OBSIDIAN_BLAST_FURNACE)));
 
 	public static final BlockEntityType<FeederBlockEntity> FEEDER = register("feeder",
-			new BlockEntityType<>(FeederBlockEntity::new, Set.of(EamBlocks.FEEDER)));
+			new BlockEntityType<>(FeederBlockEntity::new, Set.of(EamBlocks.FEEDER, EamBlocks.METAL_FEEDER)));
 
 	private EamBlockEntities() {
 	}

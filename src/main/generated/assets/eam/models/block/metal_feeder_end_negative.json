@@ -1,0 +1,125 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "north": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        }
+      },
+      "from": [
+        0.5,
+        -1.0,
+        7.5
+      ],
+      "rotation": {
+        "angle": 22.5,
+        "axis": "x",
+        "origin": [
+          1.0,
+          6.5,
+          8.0
+        ]
+      },
+      "to": [
+        1.5,
+        14.0,
+        8.5
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "north": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        }
+      },
+      "from": [
+        0.5,
+        -1.0,
+        7.5
+      ],
+      "rotation": {
+        "angle": -22.5,
+        "axis": "x",
+        "origin": [
+          1.0,
+          6.5,
+          8.0
+        ]
+      },
+      "to": [
+        1.5,
+        14.0,
+        8.5
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#trough"
+        },
+        "east": {
+          "texture": "#trough"
+        },
+        "north": {
+          "texture": "#trough"
+        },
+        "south": {
+          "texture": "#trough"
+        },
+        "up": {
+          "texture": "#trough"
+        },
+        "west": {
+          "texture": "#trough"
+        }
+      },
+      "from": [
+        0.0,
+        4.0,
+        4.0
+      ],
+      "to": [
+        1.0,
+        7.0,
+        12.0
+      ]
+    }
+  ],
+  "textures": {
+    "feed": "eam:block/feeder_feed",
+    "metal": "eam:block/metal_feeder_bars",
+    "particle": "eam:block/metal_feeder_bars",
+    "trough": "eam:block/metal_feeder_trough"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "F": "eam:feeder",
+    "I": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    "I I",
+    "IFI"
+  ],
+  "result": {
+    "id": "eam:metal_feeder"
+  }
+}

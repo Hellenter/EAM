@@ -1,0 +1,116 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_body"
+      },
+      "when": {
+        "axis": "x"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_negative"
+      },
+      "when": {
+        "axis": "x",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_positive"
+      },
+      "when": {
+        "axis": "x",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_body",
+        "y": 90
+      },
+      "when": {
+        "axis": "z"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_negative",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_positive",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_1",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_2",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3"
+      },
+      "when": {
+        "axis": "x",
+        "fill": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_feed_3",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "fill": "3"
+      }
+    }
+  ]
+}

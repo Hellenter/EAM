@@ -83,7 +83,17 @@ public class FeederBlockEntity extends BlockEntity {
 	}
 
 	public boolean isFull() {
-		return food() >= FeederModule.settings().foodCapacity();
+		return food() >= capacity();
+	}
+
+	private int capacity() {
+		FeederSettings settings = FeederModule.settings();
+		return getBlockState().getBlock() instanceof FeederBlock block ? block.capacity(settings) : settings.foodCapacity();
+	}
+
+	private int heads() {
+		FeederSettings settings = FeederModule.settings();
+		return getBlockState().getBlock() instanceof FeederBlock block ? block.heads(settings) : settings.headsPerFeeder();
 	}
 
 	/** Meals given today. */
@@ -93,7 +103,7 @@ public class FeederBlockEntity extends BlockEntity {
 
 	/** Puts up to {@code count} of {@code item} in, as much as fits. Returns how many went in. */
 	public int add(Item item, int count) {
-		int added = Math.min(count, FeederModule.settings().foodCapacity() - food());
+		int added = Math.min(count, capacity() - food());
 		if (added <= 0) return 0;
 		food.merge(item, added, Integer::sum);
 		changed();
@@ -112,7 +122,7 @@ public class FeederBlockEntity extends BlockEntity {
 		setChanged();
 		if (level == null) return;
 		BlockState state = getBlockState();
-		int fill = FeederLogic.fill(food(), FeederModule.settings().foodCapacity());
+		int fill = FeederLogic.fill(food(), capacity());
 		if (state.hasProperty(FeederBlock.FILL) && state.getValue(FeederBlock.FILL) != fill) {
 			level.setBlock(worldPosition, state.setValue(FeederBlock.FILL, fill), Block.UPDATE_CLIENTS);
 		}
@@ -124,7 +134,7 @@ public class FeederBlockEntity extends BlockEntity {
 		if (food.isEmpty()) return;
 		FeederSettings settings = FeederModule.settings();
 		long today = FeederModule.today(level);
-		int left = settings.headsPerFeeder() - mealsToday(level);
+		int left = heads() - mealsToday(level);
 		if (left <= 0) return;
 		AABB trough = new AABB(pos);
 		Vec3 center = Vec3.atCenterOf(pos);
@@ -234,7 +244,7 @@ public class FeederBlockEntity extends BlockEntity {
 		if (!settings.breeding() || breedDay == today || !(state.getBlock() instanceof FeederBlock block)) return;
 		List<Animal> animals = level.getEntitiesOfClass(Animal.class, new AABB(pos).inflate(settings.animalRadius()),
 				animal -> animal.isAlive() && FeederModule.isLivestock(animal));
-		if (!FeederLogic.roomToBreed(animals.size(), block.length(level, pos, state), settings.headsPerFeeder())) return;
+		if (!FeederLogic.roomToBreed(animals.size(), block.length(level, pos, state), block.heads(settings))) return;
 		Map<EntityType<?>, List<Animal>> waiting = new HashMap<>();
 		for (Animal animal : animals) {
 			LivestockState fed = animal.getAttached(FeederModule.LIVESTOCK_STATE);
