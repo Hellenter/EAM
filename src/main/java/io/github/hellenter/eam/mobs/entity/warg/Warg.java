@@ -204,10 +204,23 @@ public class Warg extends Monster {
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
-		goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Player.class, 24.0F, 1.3, 1.6) {
+		// Right after the leader dies: flat out, from any player in sight.
+		goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Player.class, 48.0F, 1.5, 1.8) {
 			@Override
 			public boolean canUse() {
-				return broken && super.canUse();
+				return broken && fleeTicks > 0 && super.canUse();
+			}
+
+			@Override
+			public boolean canContinueToUse() {
+				return fleeTicks > 0 && super.canContinueToUse();
+			}
+		});
+		// For good after that: it slinks off from players who come close.
+		goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Player.class, 16.0F, 1.0, 1.3) {
+			@Override
+			public boolean canUse() {
+				return broken && fleeTicks <= 0 && super.canUse();
 			}
 		});
 		goalSelector.addGoal(2, new WargPackGoal(this));
