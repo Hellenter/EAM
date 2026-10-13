@@ -73,6 +73,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -101,6 +103,8 @@ public class BabaYaga extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_PHASE = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Byte> DATA_GLOW = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
+	/** Where her fire beam hits, from her feet; zero while it is not burning. */
+	private static final EntityDataAccessor<Vector3fc> DATA_BEAM = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.VECTOR3);
 	private static final Identifier FOLLOW_MODIFIER = Eam.id("baba_yaga_minion_follow");
 	private static final Identifier HEALTH_MODIFIER = Eam.id("baba_yaga_minion_health");
 
@@ -158,6 +162,8 @@ public class BabaYaga extends Monster {
 	// Phase two
 	private final int[] attackCooldowns = new int[Attack.values().length];
 	private int summonCooldown;
+	/** Ticks she can't raise creatures for after reaching the cap of living ones. */
+	private int summonLockout;
 	private int escapeCooldown;
 	private int eatCooldown;
 	private int idleTicks;
@@ -216,6 +222,7 @@ public class BabaYaga extends Monster {
 		builder.define(DATA_PHASE, (byte) 1);
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_GLOW, (byte) 0);
+		builder.define(DATA_BEAM, new Vector3f());
 	}
 
 	@Override
@@ -272,6 +279,12 @@ public class BabaYaga extends Monster {
 
 	public YagaGlow glow() {
 		return YagaGlow.byId(entityData.get(DATA_GLOW));
+	}
+
+	/** Where her fire beam hits, from her feet, or null while it is not burning. */
+	public @Nullable Vec3 beamEnd() {
+		Vector3fc end = entityData.get(DATA_BEAM);
+		return end.lengthSquared() < 1.0E-6F ? null : new Vec3(end);
 	}
 
 	/** In her mortar, in the air. */
@@ -379,9 +392,14 @@ public class BabaYaga extends Monster {
 
 	/** Where her staff's head is, for spells and bolts. */
 	private Vec3 staffTip() {
-		Vec3 forward = Vec3.directionFromRotation(0.0F, yBodyRot);
-		Vec3 right = Vec3.directionFromRotation(0.0F, yBodyRot + 90.0F);
-		return position().add(0.0, getBbHeight() + (phase() == 1 ? 0.2 : 0.35), 0.0).add(forward.scale(0.5)).add(right.scale(-0.45));
+		return position().add(staffTipOffset(yBodyRot, getBbHeight(), phase() == 1));
+	}
+
+	/** Her staff's head from her feet, for her body turned {@code bodyRot}; the client draws the fire beam from it. */
+	public static Vec3 staffTipOffset(float bodyRot, float height, boolean inMortar) {
+		Vec3 forward = Vec3.directionFromRotation(0.0F, bodyRot);
+		Vec3 right = Vec3.directionFromRotation(0.0F, bodyRot + 90.0F);
+		return new Vec3(0.0, height + (inMortar ? 0.2 : 0.35), 0.0).add(forward.scale(0.5)).add(right.scale(-0.45));
 	}
 
 	// ---- Server tick ----
@@ -403,6 +421,9 @@ public class BabaYaga extends Monster {
 		setNoGravity(phase() == 1 && action != YagaAction.SHATTER);
 		tickGroups(level);
 		tickSpells(level);
+		if (phase() == 2) {
+			summonLockout = BabaYagaLogic.summonLockout(aliveMinions(), summonLockout, settings().phaseTwo());
+		}
 
 		LivingEntity target = getTarget();
 		if (target != null && (!target.isAlive() || !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target))) {
@@ -557,7 +578,7 @@ public class BabaYaga extends Monster {
 			startAction(YagaAction.EAT_RUN, target);
 			return;
 		}
-		if (summonCooldown <= 0 && aliveMinions() < settings.phaseTwo().summonBelow()) {
+		if (summonCooldown <= 0 && BabaYagaLogic.maySummon(aliveMinions(), summonLockout, settings.phaseTwo())) {
 			startAction(YagaAction.SUMMON, target);
 			return;
 		}
@@ -633,6 +654,9 @@ public class BabaYaga extends Monster {
 		}
 		if (next != YagaAction.ESCAPE) {
 			escapeAtOnce = false;
+		}
+		if (next != YagaAction.BEAM) {
+			entityData.set(DATA_BEAM, new Vector3f());
 		}
 		action = next;
 		actionTicks = 0;
@@ -847,11 +871,13 @@ public class BabaYaga extends Monster {
 		Vec3 toward = horizontal(target.position().subtract(position()));
 		Vec3 spot = position().add(toward.scale(Math.min(5.0, horizontalDistanceTo(target) * 0.5)));
 		Vec3 center = ground(level, spot.x, getY(), spot.z, EamEntities.DROWNED_SOLDIER);
-		if (center != null) {
-			raiseGroup(level, target, center, BabaYagaLogic.groupSize(settings.phaseTwo().minSize(), settings.phaseTwo().maxSize(),
-					random::nextDouble));
+		int size = BabaYagaLogic.underCap(BabaYagaLogic.groupSize(settings.phaseTwo().minSize(), settings.phaseTwo().maxSize(),
+				random::nextDouble), aliveMinions(), settings.phaseTwo());
+		if (center != null && size > 0) {
+			raiseGroup(level, target, center, size);
 		}
 		summonCooldown = settings.phaseTwo().summonCooldown();
+		summonLockout = BabaYagaLogic.summonLockout(aliveMinions(), summonLockout, settings.phaseTwo());
 	}
 
 	/** A few creatures right by the player, after her escape. */
@@ -1395,6 +1421,9 @@ public class BabaYaga extends Monster {
 			beamAim = turnTowards(beamAim, wanted, beam.turn());
 		}
 		if (t == 0) {
+			// A loud cue as she starts to aim: the beam is coming, get behind cover or raise a shield.
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.BEACON_ACTIVATE, getSoundSource(), 3.0F, 0.7F);
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_PREPARE_ATTACK, getSoundSource(), 3.0F, 0.6F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.BLAZE_AMBIENT, getSoundSource(), 1.5F, 0.6F);
 		}
 		if (t < beam.windup()) {
@@ -1410,17 +1439,24 @@ public class BabaYaga extends Monster {
 		Vec3 end = from.add(beamAim.scale(beam.range()));
 		var blockHit = level.clip(new ClipContext(from, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
 		end = blockHit.getLocation();
-		// The beam itself: a dense line of orange sparks with flames along it.
-		DustParticleOptions spark = new DustParticleOptions(YagaGlow.BEAM.color, 1.5F);
+		// The beam itself is drawn by the client like a beacon's; a few flames flicker along it.
+		entityData.set(DATA_BEAM, end.subtract(position()).toVector3f());
 		double length = from.distanceTo(end);
-		for (double d = 0.3; d < length; d += 0.45) {
-			Vec3 at = from.add(beamAim.scale(d));
-			level.sendParticles(spark, at.x, at.y, at.z, 1, 0.02, 0.02, 0.02, 0.0);
-			if (random.nextInt(6) == 0) {
-				level.sendParticles(ParticleTypes.FLAME, at.x, at.y, at.z, 1, 0.03, 0.03, 0.03, 0.005);
+		for (double d = 0.5; d < length; d += 1.5) {
+			if (random.nextInt(4) == 0) {
+				Vec3 at = from.add(beamAim.scale(d));
+				level.sendParticles(ParticleTypes.FLAME, at.x, at.y, at.z, 1, 0.05, 0.05, 0.05, 0.005);
 			}
 		}
-		level.sendParticles(ParticleTypes.LAVA, end.x, end.y, end.z, 1, 0.1, 0.1, 0.1, 0.0);
+		// Where it hits: fire, embers and smoke.
+		Vec3 back = end.subtract(beamAim.scale(0.15));
+		level.sendParticles(ParticleTypes.FLAME, back.x, back.y, back.z, 6, 0.2, 0.2, 0.2, 0.04);
+		level.sendParticles(ParticleTypes.SMALL_FLAME, back.x, back.y, back.z, 4, 0.25, 0.25, 0.25, 0.06);
+		level.sendParticles(ParticleTypes.LAVA, back.x, back.y, back.z, 2, 0.15, 0.15, 0.15, 0.0);
+		level.sendParticles(ParticleTypes.LARGE_SMOKE, back.x, back.y + 0.2, back.z, 2, 0.2, 0.2, 0.2, 0.02);
+		if (t % 3 == 0) {
+			level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, back.x, back.y + 0.3, back.z, 1, 0.1, 0.1, 0.1, 0.01);
+		}
 		if ((t - beam.windup()) % BEAM_EVERY != 0) {
 			return;
 		}
@@ -1635,7 +1671,12 @@ public class BabaYaga extends Monster {
 			blink(level, spot);
 		}
 		int count = escape.minSpawn() + (escape.maxSpawn() > escape.minSpawn() ? random.nextInt(escape.maxSpawn() - escape.minSpawn() + 1) : 0);
-		raiseNear(level, target, count);
+		// Her cap of living creatures holds here too.
+		BabaYagaSettings.PhaseTwo two = settings().phaseTwo();
+		groups.removeIf(group -> group.alive(level) == 0);
+		int alive = aliveMinions();
+		raiseNear(level, target, BabaYagaLogic.maySummon(alive, summonLockout, two) ? BabaYagaLogic.underCap(count, alive, two) : 0);
+		summonLockout = BabaYagaLogic.summonLockout(aliveMinions(), summonLockout, two);
 		escapeTo = null;
 		if (escapeAtOnce) {
 			escapeAtOnce = false;

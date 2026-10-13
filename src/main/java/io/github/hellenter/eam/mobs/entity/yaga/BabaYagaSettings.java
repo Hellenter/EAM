@@ -260,21 +260,25 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param maxDistance   and comes closer when further than this
 	 * @param fleeDistance  a player this close makes her run
 	 * @param attackPause   ticks between two of her attacks
-	 * @param summonBelow   she raises a new group when fewer of her creatures than this are alive
+	 * @param summonCap     she raises nothing while this many of her creatures are alive, and a group never takes her past it
+	 * @param capLockout    once her creatures reach the cap she raises none for this many ticks, even with fewer left
+	 * @param lockoutResetBelow fewer creatures than this alive end that lockout at once
 	 * @param summonCooldown ticks between two groups
 	 * @param minSize       creatures in her group, at least
 	 * @param maxSize       and at most
 	 * @param fleeSpeed     her speed while she runs from a player, times her walk
 	 */
-	public record PhaseTwo(double minDistance, double maxDistance, double fleeDistance, int attackPause, int summonBelow,
-			int summonCooldown, int minSize, int maxSize, double fleeSpeed) {
-		public static final PhaseTwo DEFAULT = new PhaseTwo(10.0, 18.0, 7.0, 30, 2, 300, 3, 5, 1.4);
+	public record PhaseTwo(double minDistance, double maxDistance, double fleeDistance, int attackPause, int summonCap,
+			int capLockout, int lockoutResetBelow, int summonCooldown, int minSize, int maxSize, double fleeSpeed) {
+		public static final PhaseTwo DEFAULT = new PhaseTwo(10.0, 18.0, 7.0, 30, 5, 300, 2, 300, 3, 5, 1.4);
 		public static final Codec<PhaseTwo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(2.0, 48.0).fieldOf("min_distance").orElse(DEFAULT.minDistance).forGetter(PhaseTwo::minDistance),
 				Codec.doubleRange(2.0, 64.0).fieldOf("max_distance").orElse(DEFAULT.maxDistance).forGetter(PhaseTwo::maxDistance),
 				Codec.doubleRange(1.0, 32.0).fieldOf("flee_distance").orElse(DEFAULT.fleeDistance).forGetter(PhaseTwo::fleeDistance),
 				Codec.intRange(0, 1200).fieldOf("attack_pause").orElse(DEFAULT.attackPause).forGetter(PhaseTwo::attackPause),
-				Codec.intRange(0, 32).fieldOf("summon_below").orElse(DEFAULT.summonBelow).forGetter(PhaseTwo::summonBelow),
+				Codec.intRange(0, 32).fieldOf("summon_cap").orElse(DEFAULT.summonCap).forGetter(PhaseTwo::summonCap),
+				Codec.intRange(0, 12000).fieldOf("cap_lockout").orElse(DEFAULT.capLockout).forGetter(PhaseTwo::capLockout),
+				Codec.intRange(0, 32).fieldOf("lockout_reset_below").orElse(DEFAULT.lockoutResetBelow).forGetter(PhaseTwo::lockoutResetBelow),
 				Codec.intRange(20, 12000).fieldOf("summon_cooldown").orElse(DEFAULT.summonCooldown).forGetter(PhaseTwo::summonCooldown),
 				Codec.intRange(1, 16).fieldOf("min_size").orElse(DEFAULT.minSize).forGetter(PhaseTwo::minSize),
 				Codec.intRange(1, 16).fieldOf("max_size").orElse(DEFAULT.maxSize).forGetter(PhaseTwo::maxSize),
@@ -388,7 +392,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 */
 	public record Claws(int cooldown, int blindTicks, double distance, float angle, int lunge, int parryWindow, int hits, int gap,
 			float damage, float shieldSeconds, float parryMultiplier) {
-		public static final Claws DEFAULT = new Claws(420, 30, 6.0, 35.0F, 14, 11, 5, 4, 6.0F, 5.0F, 1.5F);
+		public static final Claws DEFAULT = new Claws(280, 30, 10.0, 35.0F, 24, 11, 5, 4, 6.0F, 5.0F, 1.5F);
 		public static final Codec<Claws> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Claws::cooldown),
 				Codec.intRange(0, 1200).fieldOf("blind_ticks").orElse(DEFAULT.blindTicks).forGetter(Claws::blindTicks),

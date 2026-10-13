@@ -149,6 +149,31 @@ public final class BabaYagaLogic {
 		return new double[] {-Math.sin(angle) * distance, Math.cos(angle) * distance};
 	}
 
+	/**
+	 * Phase two: her summoning lockout after this tick. Reaching the cap of living creatures locks her summoning for
+	 * {@code capLockout} ticks, counted from when she drops below the cap again; fewer than {@code lockoutResetBelow} alive
+	 * ends the lockout at once.
+	 */
+	public static int summonLockout(int alive, int lockout, BabaYagaSettings.PhaseTwo two) {
+		if (alive < two.lockoutResetBelow()) {
+			return 0;
+		}
+		if (alive >= two.summonCap()) {
+			return two.capLockout();
+		}
+		return Math.max(0, lockout - 1);
+	}
+
+	/** Phase two: whether she may raise creatures now. */
+	public static boolean maySummon(int alive, int lockout, BabaYagaSettings.PhaseTwo two) {
+		return lockout <= 0 && alive < two.summonCap();
+	}
+
+	/** How many of {@code wanted} creatures she may raise with {@code alive} already up, so as not to pass the cap. */
+	public static int underCap(int wanted, int alive, BabaYagaSettings.PhaseTwo two) {
+		return Math.max(0, Math.min(wanted, two.summonCap() - alive));
+	}
+
 	/** Whether {@code hits} hits in the last {@code window} ticks make her escape. */
 	public static boolean escapes(int hitsInWindow, BabaYagaSettings.Escape escape, int cooldown) {
 		return cooldown <= 0 && hitsInWindow >= escape.hits();

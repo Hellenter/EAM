@@ -4,6 +4,9 @@ import io.github.hellenter.eam.mobs.entity.yaga.YagaAction;
 import io.github.hellenter.eam.mobs.entity.yaga.YagaGlow;
 
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.phys.Vec3;
+
+import org.jspecify.annotations.Nullable;
 
 public class BabaYagaRenderState extends LivingEntityRenderState {
 	/** Phase one: standing in her flying mortar. */
@@ -18,4 +21,7 @@ public class BabaYagaRenderState extends LivingEntityRenderState {
 	public int clawGap;
 	public int clawHits;
 	public int beamWindup;
+	/** Her fire beam, from her feet: the staff's head and where it hits; null while it is not burning. */
+	public @Nullable Vec3 beamFrom;
+	public @Nullable Vec3 beamTo;
 }
