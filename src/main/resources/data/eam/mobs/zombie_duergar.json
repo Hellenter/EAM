@@ -1,0 +1,10 @@
+{
+  "health": 16.0,
+  "speed": 0.21,
+  "attack_damage": 3.0,
+  "piece_weights": [1.0, 3.0, 3.0, 2.0, 1.0],
+  "belt_chance": 0.5,
+  "bald_chance": 0.4,
+  "weapon_weights": [40.0, 20.0, 15.0, 25.0],
+  "weapon_drop_chance": 0.04
+}

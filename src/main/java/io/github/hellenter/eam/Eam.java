@@ -36,6 +36,7 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
@@ -105,6 +106,7 @@ public class Eam implements ModInitializer {
 		WightModule.register();
 		LostModule.register();
 		DraugrModule.register();
+		DuergarModule.register();
 		UndeadWarlockModule.register();
 		LostCavalryModule.register();
 		SpiderModule.register();

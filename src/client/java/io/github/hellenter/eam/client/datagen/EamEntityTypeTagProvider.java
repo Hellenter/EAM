@@ -41,7 +41,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
 						EntityTypeIds.VINDICATOR)
 				.add(SKELETONS)
-				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key());
 		// The small spiders live in tree crowns and spot a player through the leaves.
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
 				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
@@ -76,7 +76,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				EamEntities.LOST_WALL_COMMANDER.builtInRegistryHolder().key(),
 				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
 				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
-				EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.DROWNED_SOLDIER.builtInRegistryHolder().key());
+				EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.DROWNED_SOLDIER.builtInRegistryHolder().key(),
+				EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key());
 		// Draugr walk on powder snow like a wearer of leather boots and never freeze.
 		builder(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS).add(EamEntities.DRAUGR.builtInRegistryHolder().key());
 		builder(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES).add(EamEntities.DRAUGR.builtInRegistryHolder().key());
@@ -102,7 +103,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.LOST_CENTURION.builtInRegistryHolder().key(), EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(),
 						EamEntities.LOST_WALL_COMMANDER.builtInRegistryHolder().key(),
 						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
-						EamEntities.DRAUGR.builtInRegistryHolder().key());
+						EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
