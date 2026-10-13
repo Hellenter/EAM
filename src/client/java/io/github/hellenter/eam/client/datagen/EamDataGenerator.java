@@ -29,6 +29,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamOutpostProvider::new);
 		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
+		pack.addProvider(EamYagaGraveLootProvider::new);
 		pack.addProvider(EamCryptSpawnerProvider::new);
 		pack.addProvider(EamCryptGearProvider::new);
 		pack.addProvider(EamEarlyLootProvider::new);

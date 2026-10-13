@@ -5,6 +5,7 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaSettings;
 import io.github.hellenter.eam.mobs.entity.yaga.YagaAction;
+import io.github.hellenter.eam.mobs.entity.yaga.YagaDeath;
 import io.github.hellenter.eam.mobs.entity.yaga.YagaGlow;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -78,6 +79,26 @@ public class BabaYagaRenderer extends MobRenderer<BabaYaga, BabaYagaRenderState,
 		boolean burning = beamEnd != null && state.action == YagaAction.BEAM && state.actionTime >= state.beamWindup;
 		state.beamFrom = burning ? BabaYaga.staffTipOffset(state.bodyRot, entity.getBbHeight(), state.inMortar) : null;
 		state.beamTo = burning ? beamEnd : null;
+		if (state.deathTime > 0.0F) {
+			// Her own death, burning and writhing where she stands, not the vanilla roll onto the side in red.
+			state.dying = state.deathTime;
+			state.deathTime = 0.0F;
+			state.hasRedOverlay = false;
+			state.action = YagaAction.NONE;
+			state.glow = YagaGlow.NONE;
+			state.walkAnimationSpeed = 0.0F;
+			state.displayFireAnimation = YagaDeath.burning(state.dying);
+			state.beamFrom = null;
+			state.beamTo = null;
+		} else {
+			state.dying = -1.0F;
+		}
+	}
+
+	/** Charring black as she burns, then ash grey. */
+	@Override
+	protected int getModelTint(BabaYagaRenderState state) {
+		return state.dying < 0.0F ? super.getModelTint(state) : ARGB.opaque(YagaDeath.tint(state.dying));
 	}
 
 	@Override
@@ -154,6 +175,10 @@ public class BabaYagaRenderer extends MobRenderer<BabaYaga, BabaYagaRenderState,
 
 		@Override
 		public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, BabaYagaRenderState state, float yRot, float xRot) {
+			if (state.dying >= YagaDeath.EYES_OUT) {
+				// Her eyes have burnt out.
+				return;
+			}
 			BabaYagaModel model = getParentModel();
 			collector.order(1).submitModel(model, state, poseStack, EYES, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 			YagaGlow glow = state.glow;

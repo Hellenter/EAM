@@ -24,4 +24,6 @@ public class BabaYagaRenderState extends LivingEntityRenderState {
 	/** Her fire beam, from her feet: the staff's head and where it hits; null while it is not burning. */
 	public @Nullable Vec3 beamFrom;
 	public @Nullable Vec3 beamTo;
+	/** Ticks into her death, with the partial tick; negative while she lives. */
+	public float dying = -1.0F;
 }

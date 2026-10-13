@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.mobs.yaga;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mobs.entity.yaga.YagaAction;
+import io.github.hellenter.eam.mobs.entity.yaga.YagaDeath;
 
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -344,6 +345,35 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 			}
 		}
 
+		if (state.dying >= 0.0F) {
+			// Dying: burning, she writhes in fits, arms thrashing and head thrown about, sinks to her knees and crumbles
+			// into a heap of ash.
+			float d = state.dying;
+			float fit = YagaDeath.convulsion(d);
+			float k = d * 0.55F;
+			int step = Mth.floor(k);
+			float snap = smooth((k - step) * 2.5F);
+			rightX = -1.3F + jerk(step, snap, 0) * 1.4F * fit;
+			leftX = -1.3F + jerk(step, snap, 1) * 1.4F * fit;
+			rightZ = 0.5F + jerk(step, snap, 2) * 0.7F * fit;
+			leftZ = -0.5F + jerk(step, snap, 3) * 0.7F * fit;
+			rightFore = -0.6F + jerk(step, snap, 4) * 0.5F * fit;
+			leftFore = -0.6F + jerk(step, snap, 5) * 0.5F * fit;
+			torso.xRot = -0.2F + jerk(step, snap, 6) * 0.4F * fit;
+			head.xRot = -0.6F + jerk(step, snap, 7) * 0.6F * fit;
+			head.yRot = jerk(step, snap, 8) * 0.8F * fit;
+			rightLeg.xRot = jerk(step, snap, 9) * 0.5F * fit;
+			leftLeg.xRot = jerk(step, snap, 10) * 0.5F * fit;
+			staffTilt = jerk(step, snap, 11) * 1.2F * fit;
+			lean = Mth.sin(d * 2.9F) * 0.06F * fit;
+			rig.zRot = Mth.sin(d * 3.7F) * 0.08F * fit;
+			rig.y += smooth((d - 20.0F) / 30.0F) * 3.0F;
+			float crumble = YagaDeath.crumble(d);
+			rig.yScale = 1.0F - 0.85F * crumble;
+			rig.xScale = 1.0F + 0.5F * crumble;
+			rig.zScale = 1.0F + 0.5F * crumble;
+		}
+
 		rig.xRot = lean;
 		rightArm.xRot = rightX;
 		rightArm.zRot = rightZ;
@@ -356,6 +386,15 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 		// The staff stands upright in the world, whatever her arm and back do, then tilts with the action.
 		staff.xRot = -(torso.xRot + rightArm.xRot + rightForearm.xRot + rightHand.xRot) + staffTilt;
 		staff.zRot = -rightArm.zRot;
+	}
+
+	/** A fit's pose for one limb, -1 to 1: a new random one every step, snapped to from the last. */
+	private static float jerk(int step, float snap, int limb) {
+		return Mth.lerp(snap, noise(step, limb), noise(step + 1, limb)) * 2.0F - 1.0F;
+	}
+
+	private static float noise(int step, int limb) {
+		return Mth.frac(Mth.sin(step * 12.9898F + limb * 78.233F) * 43758.547F);
 	}
 
 	private static float smooth(float x) {

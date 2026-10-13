@@ -25,6 +25,7 @@ import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
+import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
@@ -179,6 +180,10 @@ public final class EamItems {
 	/** From the pillager outpost's red chest: in hand, it turns into a map to the Pillager King's castle. */
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+
+	/** Baba Yaga's drop: read, it raises her grave in her swamp and turns into a map marking it. */
+	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
+			new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 
 	/** Vampire bat drop, 15%: the core of the heart in a jar. */
 	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
