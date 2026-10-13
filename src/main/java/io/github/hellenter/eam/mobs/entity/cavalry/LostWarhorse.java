@@ -121,10 +121,13 @@ public class LostWarhorse extends AbstractHorse {
 		return null;
 	}
 
-	/** With its rider it stays while he does; riderless it despawns like any horse. */
+	/**
+	 * It despawns like any monster, rider or not: a rider never despawns while he rides, so the pair goes with the horse
+	 * (like a chicken jockey). One called by the commander's horn keeps the persistence copied from its rider.
+	 */
 	@Override
 	public boolean removeWhenFarAway(double distSqr) {
-		return !isVehicle();
+		return true;
 	}
 
 	/** The barding takes most of a weapon's or an arrow's force. */

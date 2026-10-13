@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
+import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 
 import net.minecraft.core.BlockPos;
@@ -139,7 +140,7 @@ public class Lost extends SkeletonKnight {
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new CommanderTargetGoal(this));
 		// A squad mate's stray arrow or swing does not turn him on his own side.
-		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class).setAlertOthers());
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class, UndeadWarlock.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 	}

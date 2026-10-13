@@ -2,7 +2,7 @@ package io.github.hellenter.eam.mobs.entity.warlock;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
-import io.github.hellenter.eam.mobs.entity.lost.Lost;
+import io.github.hellenter.eam.mobs.entity.lost.LostCommander;
 
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -115,7 +115,7 @@ public class MagicMissile extends Projectile {
 	@Override
 	protected boolean canHitEntity(Entity entity) {
 		// The dead do not hurt their own.
-		return super.canHitEntity(entity) && !(entity instanceof UndeadWarlock) && !(entity instanceof Lost) && !(entity instanceof VampireBat)
+		return super.canHitEntity(entity) && !LostCommander.isKin(entity) && !(entity instanceof VampireBat)
 				&& !(entity instanceof MagicMissile);
 	}
 

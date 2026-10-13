@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.warlock;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
+import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.lost.CommanderTargetGoal;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lost.LostCommander;
@@ -101,7 +102,7 @@ public class UndeadWarlock extends Monster {
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
 		targetSelector.addGoal(1, new CommanderTargetGoal(this));
-		targetSelector.addGoal(1, new HurtByTargetGoal(this));
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, Lost.class, LostCavalryman.class, UndeadWarlock.class));
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
 	}
