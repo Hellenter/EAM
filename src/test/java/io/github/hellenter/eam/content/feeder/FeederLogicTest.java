@@ -97,4 +97,34 @@ class FeederLogicTest {
 		assertFalse(FeederLogic.roomToBreed(10, 1, 10));
 		assertTrue(FeederLogic.roomToBreed(29, 3, 10));
 	}
+
+	@Test
+	void twoGrassBitesMakeAMeal() {
+		LivestockState state = FeederLogic.bite(null, 5, THIN_AFTER);
+		assertTrue(FeederLogic.canEat(state, 5));
+		assertEquals(1, state.bites());
+		state = FeederLogic.bite(state, 5, THIN_AFTER);
+		assertFalse(FeederLogic.canEat(state, 5));
+		assertEquals(5, state.lastMealDay());
+		assertEquals(0, state.bites());
+		// Fed for today: more grass changes nothing.
+		assertEquals(state, FeederLogic.bite(state, 5, THIN_AFTER));
+	}
+
+	@Test
+	void yesterdaysBiteIsLost() {
+		LivestockState state = FeederLogic.eat(null, 0, THIN_AFTER);
+		state = FeederLogic.bite(state, 1, THIN_AFTER);
+		state = FeederLogic.bite(state, 2, THIN_AFTER);
+		assertTrue(FeederLogic.canEat(state, 2));
+		assertEquals(1, state.bites());
+	}
+
+	@Test
+	void aBiteThenTheFeederMakesAMeal() {
+		LivestockState state = FeederLogic.bite(FeederLogic.eat(null, 0, THIN_AFTER), 1, THIN_AFTER);
+		state = FeederLogic.eat(state, 1, THIN_AFTER);
+		assertEquals(0, state.bites());
+		assertFalse(FeederLogic.canEat(state, 1));
+	}
 }

@@ -1,9 +1,11 @@
 package io.github.hellenter.eam.content.feeder;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
@@ -14,6 +16,9 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -25,9 +30,9 @@ import java.util.List;
 
 /**
  * Livestock feeding. Animals in {@link #LIVESTOCK} eat one {@link #FEED} item a day from a feeder nearby; farmer
- * villagers top feeders up. Once an animal has eaten from a feeder it is kept livestock: after more than
- * {@link FeederSettings#thinAfterDays()} days without a meal it gets thin and drops no meat until it has made up the
- * missed days. Wild animals that never ate from a feeder graze on their own. The block is registered in {@code EamBlocks}.
+ * villagers top feeders up. Livestock also grazes: a bite of grass or of a grass block is half a meal. From its first
+ * meal on, an animal that goes more than {@link FeederSettings#thinAfterDays()} days without one gets thin and drops no
+ * meat until it has made up the missed days. The block is registered in {@code EamBlocks}.
  */
 public final class FeederModule {
 	/** Animals that eat from feeders. */
@@ -38,6 +43,9 @@ public final class FeederModule {
 	/** How an animal has been fed; only on animals that ate from a feeder. */
 	public static final AttachmentType<LivestockState> LIVESTOCK_STATE = AttachmentRegistry.create(Eam.id("livestock"),
 			builder -> builder.persistent(LivestockState.CODEC));
+
+	/** Above random strolling, so a hungry animal on grass stops to eat it. */
+	private static final int GRAZE_PRIORITY = 4;
 
 	private static volatile FeederSettings settings = FeederSettings.DEFAULT;
 	private static boolean enabled;
@@ -54,6 +62,22 @@ public final class FeederModule {
 	public static void init() {
 		enabled = true;
 		LootTableEvents.MODIFY_DROPS.register(FeederModule::dropNoMeatWhenThin);
+		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+			if (entity instanceof Animal animal && isLivestock(animal)) addGrazeGoal(animal);
+		});
+	}
+
+	private static void addGrazeGoal(Animal animal) {
+		GoalSelector goals = ((MobAccessor) animal).eam$goalSelector();
+		for (WrappedGoal wrapped : goals.getAvailableGoals()) {
+			if (wrapped.getGoal() instanceof GrazeGoal) return; // Already added: the same entity loaded again.
+		}
+		goals.addGoal(GRAZE_PRIORITY, new GrazeGoal(animal));
+	}
+
+	/** A grass bite: half a meal. */
+	static void bite(Animal animal) {
+		animal.setAttached(LIVESTOCK_STATE, FeederLogic.bite(animal.getAttached(LIVESTOCK_STATE), today(animal.level()), settings.thinAfterDays()));
 	}
 
 	public static boolean enabled() {
