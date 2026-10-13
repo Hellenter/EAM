@@ -43,6 +43,21 @@ public final class FeederLogic {
 		return new LivestockState(today, hunger, thin && hunger > 0);
 	}
 
+	/** Grass bites that make one meal. */
+	public static final int BITES_PER_MEAL = 2;
+
+	/**
+	 * The state after a grass bite today: half a meal. The second bite of the day counts as the day's meal; a bite left
+	 * over from an earlier day is lost.
+	 */
+	public static LivestockState bite(@Nullable LivestockState state, long today, int thinAfterDays) {
+		if (state != null && !canEat(state, today)) return state;
+		int bites = (state != null && state.biteDay() == today ? state.bites() : 0) + 1;
+		if (bites >= BITES_PER_MEAL) return eat(state, today, thinAfterDays);
+		if (state == null) return new LivestockState(today - 1, 0, false, today, bites);
+		return new LivestockState(state.lastMealDay(), state.hunger(), state.thin(), today, bites);
+	}
+
 	/** Food heap step for the model: 0 when empty, otherwise 1 to {@link #MAX_FILL}. */
 	public static int fill(int food, int capacity) {
 		if (food <= 0) return 0;
