@@ -178,11 +178,11 @@ class BabaYagaLogicTest {
 	@Test
 	void reachingTheCapLocksSummoningUntilAlmostAllAreDead() {
 		BabaYagaSettings.PhaseTwo two = SETTINGS.phaseTwo();
-		assertTrue(BabaYagaLogic.maySummon(4, 0, two));
-		assertFalse(BabaYagaLogic.maySummon(5, 0, two));
-		int lockout = BabaYagaLogic.summonLockout(5, 0, two);
+		assertTrue(BabaYagaLogic.maySummon(3, 0, two));
+		assertFalse(BabaYagaLogic.maySummon(4, 0, two));
+		int lockout = BabaYagaLogic.summonLockout(4, 0, two);
 		assertEquals(300, lockout);
-		// Still locked with fewer than five, counting down.
+		// Still locked with fewer than four, counting down.
 		lockout = BabaYagaLogic.summonLockout(3, lockout, two);
 		assertEquals(299, lockout);
 		assertFalse(BabaYagaLogic.maySummon(3, lockout, two));
@@ -190,7 +190,7 @@ class BabaYagaLogicTest {
 		lockout = BabaYagaLogic.summonLockout(1, lockout, two);
 		assertEquals(0, lockout);
 		assertTrue(BabaYagaLogic.maySummon(1, lockout, two));
-		assertEquals(2, BabaYagaLogic.underCap(4, 3, two));
+		assertEquals(1, BabaYagaLogic.underCap(4, 3, two));
 		assertEquals(0, BabaYagaLogic.underCap(3, 6, two));
 	}
 
