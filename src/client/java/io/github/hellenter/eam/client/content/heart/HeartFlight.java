@@ -65,7 +65,12 @@ public final class HeartFlight {
 
 	public static void register() {
 		ClientPlayNetworking.registerGlobalReceiver(HeartFlightPayload.TYPE, (payload, context) -> start(context.client(), payload));
-		ClientTickEvents.END_CLIENT_TICK.register(client -> tick());
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			// The client still ticks behind the pause menu; the flight waits like the world does.
+			if (!client.isPaused()) {
+				tick();
+			}
+		});
 	}
 
 	private static void start(Minecraft client, HeartFlightPayload payload) {
