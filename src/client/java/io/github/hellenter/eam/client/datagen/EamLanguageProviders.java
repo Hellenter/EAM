@@ -321,6 +321,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.GARLIC_ORCHID_MIX, "Garlic and Orchid Mix");
 			builder.add("effect.eam.garlic", "Garlic Breath");
 			builder.add("effect.eam.black_blood", "Black Blood");
+			builder.add(EamItems.HERBAL_HONEY, "Herbal Honey");
+			builder.add("effect.eam.white_honey", "White Honey");
+			potion(builder, "white_honey", "White Honey", "Splash White Honey", "Lingering White Honey", "Arrow of White Honey");
 			potion(builder, "black_blood", "Potion of Black Blood", "Splash Potion of Black Blood", "Lingering Potion of Black Blood",
 					"Arrow of Black Blood");
 			builder.add("death.attack.eam.bleeding", "%1$s bled out");
@@ -857,6 +860,9 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.GARLIC_ORCHID_MIX, "Смесь чеснока и орхидеи");
 			builder.add("effect.eam.garlic", "Чесночный дух");
 			builder.add("effect.eam.black_blood", "Чёрная кровь");
+			builder.add(EamItems.HERBAL_HONEY, "Травяной мёд");
+			builder.add("effect.eam.white_honey", "Белый мёд");
+			potion(builder, "white_honey", "Белый мёд", "Взрывной белый мёд", "Оседающий белый мёд", "Стрела белого мёда");
 			potion(builder, "black_blood", "Зелье «Чёрная кровь»", "Взрывное зелье «Чёрная кровь»", "Оседающее зелье «Чёрная кровь»",
 					"Стрела «Чёрная кровь»");
 			builder.add("death.attack.eam.bleeding", "%1$s истёк кровью");

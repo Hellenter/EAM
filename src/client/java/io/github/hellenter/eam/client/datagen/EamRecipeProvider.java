@@ -439,6 +439,13 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.requires(Items.BLUE_ORCHID)
 						.unlockedBy(getHasName(EamItems.GARLIC), has(EamItems.GARLIC))
 						.save(output);
+				// Any tulip goes; lily of the valley is the only vanilla lily.
+				shapeless(RecipeCategory.BREWING, EamItems.HERBAL_HONEY)
+						.requires(Items.HONEY_BOTTLE)
+						.requires(Items.LILY_OF_THE_VALLEY)
+						.requires(Ingredient.of(Items.RED_TULIP, Items.ORANGE_TULIP, Items.WHITE_TULIP, Items.PINK_TULIP))
+						.unlockedBy(getHasName(Items.HONEY_BOTTLE), has(Items.HONEY_BOTTLE))
+						.save(output);
 				shapeless(RecipeCategory.BREWING, EamItems.FERMENTED_ENDER_EYE)
 						.requires(Items.ENDER_EYE)
 						.requires(EamItems.SILVER_NUGGET, 2)
@@ -454,6 +461,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silverBrewing(BrewingModule.HOLY_WATER, Items.FERMENTED_SPIDER_EYE, BrewingModule.LIGHT_WEAKNESS);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FERMENTED_ENDER_EYE, BrewingModule.LIGHT_STRENGTH);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.GARLIC_ORCHID_MIX, BrewingModule.BLACK_BLOOD);
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.HERBAL_HONEY, BrewingModule.WHITE_HONEY);
 				// Gunpowder makes a splash potion of the same light potion, as in the vanilla stand.
 				for (Holder<Potion> potion : BrewingModule.LIGHT_POTIONS) {
 					silverBrewing(Items.POTION, potion, Items.GUNPOWDER, Items.SPLASH_POTION, potion,

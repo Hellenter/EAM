@@ -170,6 +170,9 @@ public final class EamItems {
 	/** Turns holy water into black blood. */
 	public static final Item GARLIC_ORCHID_MIX = register("garlic_orchid_mix", Item::new, new Item.Properties());
 
+	/** Turns holy water into white honey. */
+	public static final Item HERBAL_HONEY = register("herbal_honey", Item::new, new Item.Properties());
+
 	/** Turns holy water into a light strength potion; thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
 

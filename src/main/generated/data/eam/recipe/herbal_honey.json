@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:honey_bottle",
+    "minecraft:lily_of_the_valley",
+    [
+      "minecraft:red_tulip",
+      "minecraft:orange_tulip",
+      "minecraft:white_tulip",
+      "minecraft:pink_tulip"
+    ]
+  ],
+  "result": {
+    "id": "eam:herbal_honey"
+  }
+}

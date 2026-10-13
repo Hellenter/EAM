@@ -117,6 +117,7 @@ public final class EamCreativeTabs {
 						output.accept(EamItems.FLOWER_MIX);
 						output.accept(EamItems.FERMENTED_ENDER_EYE);
 						output.accept(EamItems.GARLIC_ORCHID_MIX);
+						output.accept(EamItems.HERBAL_HONEY);
 						output.acceptAll(potionStacks());
 					})
 					.build());

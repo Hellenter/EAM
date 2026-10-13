@@ -9,6 +9,7 @@
 		"content.campfire.PotionItemMixin",
 		"content.heart.DisplayInvoker",
 		"content.heart.ItemDisplayInvoker",
+		"content.brewing.LivingEntityWhiteHoneyMixin",
 		"content.brewing.StructureTemplateMixin",
 		"content.silver.ServerPlayerMixin",
 		"content.talisman.BaseFireBlockPortalMixin",

@@ -69,6 +69,12 @@ public final class BrewingModule {
 	public static final Holder<MobEffect> LIGHT_HEALING = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Eam.id("light_healing"),
 			new LightHealingEffect(MobEffectCategory.BENEFICIAL, LIGHT_HEALING_COLOR));
 
+	/** Milky white, so the bottle of white honey looks like milk with honey in it. */
+	private static final int WHITE_HONEY_COLOR = 0xF3EEDC;
+
+	public static final Holder<MobEffect> WHITE_HONEY_EFFECT = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Eam.id("white_honey"),
+			new WhiteHoneyEffect(WHITE_HONEY_COLOR));
+
 	/** Brewed from water with silver-redstone dust; the base of every light potion. No effect of its own. */
 	public static final Holder<Potion> HOLY_WATER = potion("holy_water");
 
@@ -88,9 +94,12 @@ public final class BrewingModule {
 	/** Holy water with garlic and blue orchid: for 10 minutes upyrs and vampire bats that hurt the drinker are hurt back. */
 	public static final Holder<Potion> BLACK_BLOOD = potion("black_blood", new MobEffectInstance(UpyrModule.BLACK_BLOOD, 12000));
 
+	/** Holy water with herbal honey: for 5 minutes no poison, slowness or weakness, and half the wither damage. */
+	public static final Holder<Potion> WHITE_HONEY = potion("white_honey", new MobEffectInstance(WHITE_HONEY_EFFECT, 6000));
+
 	/** Potions with an effect; gunpowder turns each into its splash version, and they get the silver stopper. */
 	public static final List<Holder<Potion>> LIGHT_POTIONS = List.of(LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS,
-			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, BLACK_BLOOD);
+			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, BLACK_BLOOD, WHITE_HONEY);
 
 	private static boolean replaceInStructures;
 

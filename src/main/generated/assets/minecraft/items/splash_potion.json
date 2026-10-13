@@ -49,6 +49,9 @@
           },
           {
             "potion": "eam:black_blood"
+          },
+          {
+            "potion": "eam:white_honey"
           }
         ]
       }
