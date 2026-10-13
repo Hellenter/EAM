@@ -31,6 +31,8 @@ final class FeederModels {
 	private static final double RAIL_TOP = 14.0;
 	/** Feed heap height per {@link FeederBlock#FILL} step, in pixels. */
 	private static final double FEED_STEP = 1.5;
+	/** Length of each end of the trough: the end posts there, or the joint to the next feeder. */
+	private static final double END = 2.0;
 
 	private FeederModels() {
 	}
@@ -38,14 +40,18 @@ final class FeederModels {
 	static void generate(BlockModelGenerators generators) {
 		MultiPartGenerator blockState = MultiPartGenerator.multiPart(EamBlocks.FEEDER);
 		Identifier body = Eam.id("block/feeder_body");
+		Identifier negativeJoint = Eam.id("block/feeder_joint_negative");
+		Identifier positiveJoint = Eam.id("block/feeder_joint_positive");
 		Identifier negativeEnd = Eam.id("block/feeder_end_negative");
 		Identifier positiveEnd = Eam.id("block/feeder_end_positive");
-		generators.modelOutput.accept(body, () -> model(WOOD, bodyElements()));
+		generators.modelOutput.accept(body, () -> model(WOOD, bodyElements(END, 16 - END)));
+		generators.modelOutput.accept(negativeJoint, () -> model(WOOD, bodyElements(0, END)));
+		generators.modelOutput.accept(positiveJoint, () -> model(WOOD, bodyElements(16 - END, 16)));
 		generators.modelOutput.accept(negativeEnd, () -> model(POST, endElements(false)));
 		generators.modelOutput.accept(positiveEnd, () -> model(POST, endElements(true)));
 		Identifier single = Eam.id("block/feeder");
 		generators.modelOutput.accept(single, () -> {
-			JsonArray elements = bodyElements();
+			JsonArray elements = bodyElements(END, 16 - END);
 			elements.addAll(endElements(false));
 			elements.addAll(endElements(true));
 			return model(WOOD, elements);
@@ -53,6 +59,10 @@ final class FeederModels {
 
 		for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
 			blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis), turned(body, axis));
+			blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.NEGATIVE, true),
+					turned(negativeJoint, axis));
+			blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.POSITIVE, true),
+					turned(positiveJoint, axis));
 			blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.NEGATIVE, false),
 					turned(negativeEnd, axis));
 			blockState.with(BlockModelGenerators.condition().term(FeederBlock.AXIS, axis).term(FeederBlock.POSITIVE, false),
@@ -83,29 +93,42 @@ final class FeederModels {
 		return axis == Direction.Axis.Z ? variant.with(BlockModelGenerators.Y_ROT_90) : variant;
 	}
 
-	/** Floor, the two long walls, slats above them and the top rails. */
-	private static JsonArray bodyElements() {
+	/**
+	 * Floor, the two long walls, slats above them and the top rails, cut to {@code from}..{@code to} along the trough.
+	 * The middle is always drawn and each end only when joined, so no part overlaps the end posts: overlapping boxes
+	 * share face planes, and those faces flicker.
+	 */
+	private static JsonArray bodyElements(double from, double to) {
 		JsonArray elements = new JsonArray();
-		elements.add(box(0, FLOOR, 3, 16, FLOOR_TOP, 13, "#wood"));
-		elements.add(box(0, FLOOR, 2, 16, WALL_TOP, 3, "#wood"));
-		elements.add(box(0, FLOOR, 13, 16, WALL_TOP, 14, "#wood"));
+		elements.add(box(from, FLOOR, 3, to, FLOOR_TOP, 13, "#wood"));
+		elements.add(box(from, FLOOR, 2, to, WALL_TOP, 3, "#wood"));
+		elements.add(box(from, FLOOR, 13, to, WALL_TOP, 14, "#wood"));
 		for (double x : new double[] {1.5, 5.5, 9.5, 13.5}) {
-			elements.add(box(x, WALL_TOP, 2, x + 1, RAIL_TOP - 1, 3, "#wood"));
-			elements.add(box(x, WALL_TOP, 13, x + 1, RAIL_TOP - 1, 14, "#wood"));
+			double slatFrom = Math.max(x, from);
+			double slatTo = Math.min(x + 1, to);
+			if (slatFrom < slatTo) {
+				elements.add(box(slatFrom, WALL_TOP, 2, slatTo, RAIL_TOP - 1, 3, "#wood"));
+				elements.add(box(slatFrom, WALL_TOP, 13, slatTo, RAIL_TOP - 1, 14, "#wood"));
+			}
 		}
-		elements.add(box(0, RAIL_TOP - 1, 2, 16, RAIL_TOP, 3, "#wood"));
-		elements.add(box(0, RAIL_TOP - 1, 13, 16, RAIL_TOP, 14, "#wood"));
+		elements.add(box(from, RAIL_TOP - 1, 2, to, RAIL_TOP, 3, "#wood"));
+		elements.add(box(from, RAIL_TOP - 1, 13, to, RAIL_TOP, 14, "#wood"));
 		return elements;
 	}
 
-	/** Two posts and the end wall at the west ({@code positive} false) or east end. */
+	/**
+	 * Two posts, the end wall and the floor between them at the west ({@code positive} false) or east end. The posts
+	 * stand where the long walls and rails end.
+	 */
 	private static JsonArray endElements(boolean positive) {
-		double postFrom = positive ? 14 : 0;
+		double postFrom = positive ? 16 - END : 0;
 		double wallFrom = positive ? 15 : 0;
+		double floorFrom = positive ? 16 - END : 1;
 		JsonArray elements = new JsonArray();
-		elements.add(box(postFrom, 0, 1, postFrom + 2, RAIL_TOP, 3, "#post"));
-		elements.add(box(postFrom, 0, 13, postFrom + 2, RAIL_TOP, 15, "#post"));
+		elements.add(box(postFrom, 0, 1, postFrom + END, RAIL_TOP, 3, "#post"));
+		elements.add(box(postFrom, 0, 13, postFrom + END, RAIL_TOP, 15, "#post"));
 		elements.add(box(wallFrom, FLOOR, 3, wallFrom + 1, WALL_TOP, 13, "#wood"));
+		elements.add(box(floorFrom, FLOOR, 3, floorFrom + 1, FLOOR_TOP, 13, "#wood"));
 		return elements;
 	}
 
