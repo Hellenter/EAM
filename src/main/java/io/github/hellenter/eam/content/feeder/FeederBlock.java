@@ -4,13 +4,11 @@ import io.github.hellenter.eam.content.EamBlockEntities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -37,11 +35,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A feeder: a wooden trough under a hay rack. Feeders placed in a row join into one trough up to
  * {@link FeederLogic#MAX_LENGTH} long. Each block holds its own feed and feeds {@link FeederSettings#headsPerFeeder()}
- * heads a day, see {@link FeederBlockEntity}. Feed goes in by hand or from farmer villagers nearby. The metal feeder, a
- * galvanized V-shaped hay rack over a trough, holds and feeds {@link FeederSettings#metalScale()} times as much; metal and
+ * heads a day, see {@link FeederBlockEntity}. Feed goes in through the trough's inventory, from hoppers or from farmer
+ * villagers nearby; each block adds {@link FeederSettings#slotsPerFeeder()} slots. The metal feeder, a
+ * galvanized V-shaped hay rack over a trough, has {@link FeederSettings#metalScale()} times as many slots and heads; metal and
  * wooden feeders do not join.
  */
 public class FeederBlock extends BaseEntityBlock {
@@ -75,9 +77,9 @@ public class FeederBlock extends BaseEntityBlock {
 		return metal ? (int) Math.round(settings.headsPerFeeder() * settings.metalScale()) : settings.headsPerFeeder();
 	}
 
-	/** Feed one block of this feeder holds. */
-	public int capacity(FeederSettings settings) {
-		return metal ? (int) Math.round(settings.foodCapacity() * settings.metalScale()) : settings.foodCapacity();
+	/** Inventory slots of one block of this feeder. */
+	public int slots(FeederSettings settings) {
+		return metal ? (int) Math.round(settings.slotsPerFeeder() * settings.metalScale()) : settings.slotsPerFeeder();
 	}
 
 	/** Lies across the player's view, unless it can continue a trough beside it along the other axis. */
@@ -122,6 +124,16 @@ public class FeederBlock extends BaseEntityBlock {
 		return length;
 	}
 
+	/** The blocks of the trough this feeder belongs to, from its negative end. */
+	public List<BlockPos> trough(BlockGetter level, BlockPos pos, BlockState state) {
+		Direction.Axis axis = state.getValue(AXIS);
+		Direction back = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE);
+		BlockPos start = pos.relative(back, state.getValue(NEGATIVE) ? run(level, pos, axis, Direction.AxisDirection.NEGATIVE) : 0);
+		List<BlockPos> blocks = new ArrayList<>();
+		for (int i = 0; i < length(level, pos, state); i++) blocks.add(start.relative(back.getOpposite(), i));
+		return blocks;
+	}
+
 	/** A side stays joined while the feeder there lies the same way and is joined back. */
 	@Override
 	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos,
@@ -162,29 +174,15 @@ public class FeederBlock extends BaseEntityBlock {
 		return state.setValue(NEGATIVE, state.getValue(POSITIVE)).setValue(POSITIVE, state.getValue(NEGATIVE));
 	}
 
-	@Override
-	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
-			InteractionHand hand, BlockHitResult hitResult) {
-		if (!stack.is(FeederModule.FEED)) {
-			return InteractionResult.TRY_WITH_EMPTY_HAND;
-		}
-		if (!(level.getBlockEntity(pos) instanceof FeederBlockEntity feeder) || feeder.isFull()) {
-			return InteractionResult.FAIL;
-		}
-		if (!level.isClientSide()) {
-			int added = feeder.add(stack.getItem(), stack.getCount());
-			stack.consume(added, player);
-		}
-		return InteractionResult.SUCCESS;
-	}
-
-	/** With an empty hand: how much feed is in it and how many have eaten today. */
+	/** Opens the whole trough's inventory, like a chest. */
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof FeederBlockEntity feeder) {
-			FeederSettings settings = FeederModule.settings();
-			player.sendOverlayMessage(Component.translatable("block.eam.feeder.status", feeder.food(), capacity(settings),
-					feeder.mealsToday(serverLevel), heads(settings)));
+		if (level instanceof ServerLevel serverLevel) {
+			List<FeederBlockEntity> feeders = new ArrayList<>();
+			for (BlockPos block : trough(level, pos, state)) {
+				if (level.getBlockEntity(block) instanceof FeederBlockEntity feeder) feeders.add(feeder);
+			}
+			if (!feeders.isEmpty()) player.openMenu(new FeederMenu.Provider(getName(), serverLevel, feeders));
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -196,8 +194,8 @@ public class FeederBlock extends BaseEntityBlock {
 
 	@Override
 	protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
-		if (!(level.getBlockEntity(pos) instanceof FeederBlockEntity feeder)) return 0;
-		return (int) Math.ceil(feeder.food() * 15.0 / capacity(FeederModule.settings()));
+		return level.getBlockEntity(pos) instanceof FeederBlockEntity feeder
+				? AbstractContainerMenu.getRedstoneSignalFromContainer(feeder) : 0;
 	}
 
 	@Override
