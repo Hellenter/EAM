@@ -27,6 +27,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamWorldgenProvider::new);
 		pack.addProvider(EamCryptProvider::new);
 		pack.addProvider(EamOutpostProvider::new);
+		pack.addProvider(EamUnderworldMineProvider::new);
+		pack.addProvider(EamUnderworldMineLootProvider::new);
 		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamYagaGraveLootProvider::new);
@@ -61,13 +63,17 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.MATERIAL_RULE, UnderworldWorldgen::bootstrapMaterialRules);
 		registryBuilder.add(Registries.NOISE_SETTINGS, UnderworldWorldgen::bootstrapNoiseSettings);
 		registryBuilder.add(Registries.DIMENSION_TYPE, UnderworldWorldgen::bootstrapDimensionTypes);
+		registryBuilder.add(Registries.PROCESSOR_LIST, EamUnderworldMineProvider::bootstrapProcessors);
+		registryBuilder.add(Registries.TEMPLATE_POOL, EamUnderworldMineProvider::bootstrapPools);
 		registryBuilder.add(Registries.STRUCTURE, context -> {
 			EamCryptProvider.bootstrap(context);
 			EamOutpostProvider.bootstrap(context);
+			EamUnderworldMineProvider.bootstrap(context);
 		});
 		registryBuilder.add(Registries.STRUCTURE_SET, context -> {
 			EamCryptProvider.bootstrapSets(context);
 			EamOutpostProvider.bootstrapSets(context);
+			EamUnderworldMineProvider.bootstrapSets(context);
 		});
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);
 	}
