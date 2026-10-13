@@ -11,7 +11,22 @@
     "vertical": 48
   },
   "size": 7,
-  "spawn_overrides": {},
+  "spawn_overrides": {
+    "monster": {
+      "bounding_box": "piece",
+      "spawns": [
+        {
+          "type": "eam:zombie_duergar",
+          "count": {
+            "type": "minecraft:uniform",
+            "max_inclusive": 3,
+            "min_inclusive": 1
+          },
+          "weight": 1
+        }
+      ]
+    }
+  },
   "start_height": {
     "type": "minecraft:uniform",
     "max_inclusive": {

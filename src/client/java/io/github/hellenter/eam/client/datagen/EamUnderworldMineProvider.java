@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMine;
 
 import com.mojang.datafixers.util.Pair;
@@ -14,6 +15,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -21,6 +26,7 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
@@ -109,9 +115,13 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				piece("end/3", processors, 1)), StructureTemplatePool.Projection.RIGID));
 	}
 
+	/** In the mine's tunnels and halls the only monsters that spawn are zombie duergar, one to three at a time. */
 	public static void bootstrap(BootstrapContext<Structure> context) {
+		Map<MobCategory, StructureSpawnOverride> spawns = Map.of(MobCategory.MONSTER, new StructureSpawnOverride(
+				StructureSpawnOverride.BoundingBoxType.PIECE,
+				WeightedList.of(new MobSpawnSettings.SpawnerData(EamEntities.ZOMBIE_DUERGAR, UniformInt.of(1, 3)))));
 		context.register(UnderworldMine.STRUCTURE, new JigsawStructure(
-				new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(UnderworldMine.HAS_MINE), Map.of(),
+				new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(UnderworldMine.HAS_MINE), spawns,
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.NONE),
 				context.lookup(Registries.TEMPLATE_POOL).getOrThrow(UnderworldMine.START_POOL), Optional.empty(), 7,
 				UniformHeight.of(VerticalAnchor.absolute(60), VerticalAnchor.absolute(120)), false, Optional.empty(),

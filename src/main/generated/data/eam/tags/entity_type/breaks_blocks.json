@@ -13,6 +13,7 @@
     "minecraft:bogged",
     "minecraft:parched",
     "minecraft:wither_skeleton",
-    "eam:pillager_guard"
+    "eam:pillager_guard",
+    "eam:zombie_duergar"
   ]
 }

@@ -297,6 +297,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.WIGHT, "Wight");
 			builder.add(EamEntities.DRAUGR, "Draugr");
 			builder.add(EamItems.DRAUGR_SPAWN_EGG, "Draugr Spawn Egg");
+			builder.add(EamEntities.ZOMBIE_DUERGAR, "Zombie Duergar");
+			builder.add(EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, "Zombie Duergar Spawn Egg");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Wight Spawn Egg");
 			builder.add(EamEntities.WOOD_SPIDER, "Wood Spider");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Wood Spider Spawn Egg");
@@ -851,6 +853,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.WIGHT, "Вихт");
 			builder.add(EamEntities.DRAUGR, "Драугр");
 			builder.add(EamItems.DRAUGR_SPAWN_EGG, "Яйцо призыва драугра");
+			builder.add(EamEntities.ZOMBIE_DUERGAR, "Зомби-двергар");
+			builder.add(EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, "Яйцо призыва зомби-двергара");
 			builder.add(EamItems.WIGHT_SPAWN_EGG, "Яйцо призыва вихта");
 			builder.add(EamEntities.WOOD_SPIDER, "Лесной паук");
 			builder.add(EamItems.WOOD_SPIDER_SPAWN_EGG, "Яйцо призыва лесного паука");

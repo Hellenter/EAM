@@ -42,6 +42,8 @@ import io.github.hellenter.eam.client.mobs.centurion.LostCenturionGearModel;
 import io.github.hellenter.eam.client.mobs.centurion.LostCenturionRenderer;
 import io.github.hellenter.eam.client.mobs.draugr.DraugrModel;
 import io.github.hellenter.eam.client.mobs.draugr.DraugrRenderer;
+import io.github.hellenter.eam.client.mobs.duergar.DuergarModel;
+import io.github.hellenter.eam.client.mobs.duergar.ZombieDuergarRenderer;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrRenderer;
 import io.github.hellenter.eam.client.mobs.warg.WargModel;
@@ -155,6 +157,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.WIGHT, WightRenderer::new);
 		ModelLayerRegistry.registerModelLayer(DraugrModel.LAYER, DraugrModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.DRAUGR, DraugrRenderer::new);
+		ModelLayerRegistry.registerModelLayer(DuergarModel.LAYER, DuergarModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.ZOMBIE_DUERGAR, ZombieDuergarRenderer::new);
 		ModelLayerRegistry.registerModelLayer(SmallSpiderRenderer.WOOD_SPIDER, SmallSpiderRenderer::createLayer);
 		ModelLayerRegistry.registerModelLayer(SmallSpiderRenderer.BLACK_WIDOW, SmallSpiderRenderer::createLayer);
 		EntityRendererRegistry.register(EamEntities.WOOD_SPIDER, SmallSpiderRenderer::woodSpider);
