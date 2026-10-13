@@ -9,7 +9,7 @@ public enum YagaAction {
 	/** Staff raised, glowing green: her creatures rise on {@link #SUMMON_RAISE}. */
 	SUMMON(30),
 	/** A flask thrown on {@link #THROW_RELEASE}. */
-	THROW(16),
+	THROW(24),
 	/** A spell sent from her staff on {@link #SPELL_RELEASE}. */
 	SPELL(20),
 	/** A small glyph over her head from the start; the real one appears under the player on {@link #GLYPH_PLACE}. */
@@ -38,7 +38,7 @@ public enum YagaAction {
 	ESCAPE(0);
 
 	public static final int SUMMON_RAISE = 20;
-	public static final int THROW_RELEASE = 8;
+	public static final int THROW_RELEASE = 14;
 	public static final int SPELL_RELEASE = 10;
 	public static final int GLYPH_PLACE = 10;
 	public static final int BOLT_RELEASE = 12;

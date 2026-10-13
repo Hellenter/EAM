@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.upyr;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -181,7 +182,7 @@ public final class UpyrModule {
 				return;
 			}
 			upyr.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
-			if (!level.noCollision(upyr) || level.containsAnyLiquid(upyr.getBoundingBox())) {
+			if (!level.noCollision(upyr) || level.containsAnyLiquid(upyr.getBoundingBox()) || BabaYagaModule.keepsAway(upyr)) {
 				upyr.discard();
 				continue;
 			}

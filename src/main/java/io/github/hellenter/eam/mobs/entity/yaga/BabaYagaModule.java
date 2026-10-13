@@ -14,6 +14,11 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Enemy;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Baba Yaga, the swamp witch boss. In phase one she circles in her mortar, out of reach of anything but a parry, and
@@ -30,6 +35,10 @@ public final class BabaYagaModule {
 	public static final String MINION_TAG = "eam.baba_yaga_minion";
 	/** Her creatures this close to her never burn in daylight. */
 	public static final double SUN_SHELTER_RADIUS = 100.0;
+	/** No other hostile mob spawns naturally this close to her. */
+	public static final double SPAWN_CLEAR_RADIUS = 100.0;
+	/** Every Baba Yaga ticking on the server; dropped once unloaded or dead. */
+	private static final Set<BabaYaga> ACTIVE = Collections.newSetFromMap(new WeakHashMap<>());
 
 	private static volatile BabaYagaSettings settings = BabaYagaSettings.DEFAULT;
 
@@ -61,5 +70,24 @@ public final class BabaYagaModule {
 	public static boolean shelteredFromSun(Mob mob) {
 		return isMinion(mob) && !mob.level().getEntitiesOfClass(BabaYaga.class, mob.getBoundingBox().inflate(SUN_SHELTER_RADIUS),
 				yaga -> yaga.isAlive() && yaga.distanceToSqr(mob) <= SUN_SHELTER_RADIUS * SUN_SHELTER_RADIUS).isEmpty();
+	}
+
+	/** She is about: called each server tick she is alive. */
+	static void track(BabaYaga yaga) {
+		ACTIVE.add(yaga);
+	}
+
+	/** Whether {@code mob}, spawning naturally, is a hostile one too close to a Baba Yaga to be allowed. */
+	public static boolean keepsAway(Mob mob) {
+		if (!(mob instanceof Enemy) || mob instanceof BabaYaga || ACTIVE.isEmpty()) {
+			return false;
+		}
+		ACTIVE.removeIf(yaga -> yaga.isRemoved() || !yaga.isAlive());
+		for (BabaYaga yaga : ACTIVE) {
+			if (yaga.level() == mob.level() && yaga.distanceToSqr(mob) <= SPAWN_CLEAR_RADIUS * SPAWN_CLEAR_RADIUS) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -91,10 +91,11 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param reach        how far her staff reaches, from her centre to the player's
 	 * @param speed        top speed of the dive, blocks per tick
 	 * @param retreatTicks after the dive she flies back up for this long before she raises the next wave
+	 * @param strikeDrop   her staff reaches this far below her feet, and the dive aims her this much lower
 	 */
 	public record Swoop(int delay, int strikeTick, int parryWindow, float damage, float parryDamage, double reach,
-			double speed, int retreatTicks) {
-		public static final Swoop DEFAULT = new Swoop(40, 30, 12, 5.0F, 10.0F, 3.0, 1.0, 40);
+			double speed, int retreatTicks, double strikeDrop) {
+		public static final Swoop DEFAULT = new Swoop(40, 30, 7, 5.0F, 10.0F, 3.0, 1.0, 40, 1.0);
 		public static final Codec<Swoop> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 1200).fieldOf("delay").orElse(DEFAULT.delay).forGetter(Swoop::delay),
 				Codec.intRange(10, 200).fieldOf("strike_tick").orElse(DEFAULT.strikeTick).forGetter(Swoop::strikeTick),
@@ -103,7 +104,8 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("parry_damage").orElse(DEFAULT.parryDamage).forGetter(Swoop::parryDamage),
 				Codec.doubleRange(1.0, 8.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(Swoop::reach),
 				Codec.doubleRange(0.1, 4.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Swoop::speed),
-				Codec.intRange(0, 400).fieldOf("retreat_ticks").orElse(DEFAULT.retreatTicks).forGetter(Swoop::retreatTicks)
+				Codec.intRange(0, 400).fieldOf("retreat_ticks").orElse(DEFAULT.retreatTicks).forGetter(Swoop::retreatTicks),
+				Codec.doubleRange(0.0, 3.0).fieldOf("strike_drop").orElse(DEFAULT.strikeDrop).forGetter(Swoop::strikeDrop)
 		).apply(instance, Swoop::new));
 	}
 
@@ -123,11 +125,13 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param glowAfter     a phase-one group still alive this long after it rose starts to glow
 	 * @param fadeAfter     and this long after it rose it starts to die
 	 * @param fadeTicks     dying takes this long: each creature loses its full health over it, then falls
+	 * @param healthMultiplier every creature she raises has this share of its usual health
 	 */
 	public record Summon(int groups, int halfDelay, Mix lurkerGroup, Mix wightGroup, int maxWights, double minRadius, double maxRadius,
 			int firstDelay, int lurkerWeight, int wightWeight, int soldierWeight, double followRange,
-			int glowAfter, int fadeAfter, int fadeTicks) {
-		public static final Summon DEFAULT = new Summon(2, 400, new Mix(1, 2, 1, 3), new Mix(1, 1, 2, 3), 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200);
+			int glowAfter, int fadeAfter, int fadeTicks, double healthMultiplier) {
+		public static final Summon DEFAULT = new Summon(2, 400, new Mix(1, 2, 1, 3), new Mix(1, 1, 2, 3), 3, 16.0, 35.0, 40, 4, 3, 4, 64.0, 1800, 3000, 200,
+				0.7);
 		public static final Codec<Summon> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 8).fieldOf("groups").orElse(DEFAULT.groups).forGetter(Summon::groups),
 				Codec.intRange(0, 2400).fieldOf("half_delay").orElse(DEFAULT.halfDelay).forGetter(Summon::halfDelay),
@@ -143,7 +147,8 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.doubleRange(16.0, 128.0).fieldOf("follow_range").orElse(DEFAULT.followRange).forGetter(Summon::followRange),
 				Codec.intRange(0, 72000).fieldOf("glow_after").orElse(DEFAULT.glowAfter).forGetter(Summon::glowAfter),
 				Codec.intRange(0, 72000).fieldOf("fade_after").orElse(DEFAULT.fadeAfter).forGetter(Summon::fadeAfter),
-				Codec.intRange(20, 2400).fieldOf("fade_ticks").orElse(DEFAULT.fadeTicks).forGetter(Summon::fadeTicks)
+				Codec.intRange(20, 2400).fieldOf("fade_ticks").orElse(DEFAULT.fadeTicks).forGetter(Summon::fadeTicks),
+				Codec.doubleRange(0.05, 4.0).fieldOf("health_multiplier").orElse(DEFAULT.healthMultiplier).forGetter(Summon::healthMultiplier)
 		).apply(instance, Summon::new));
 
 		/**
@@ -173,10 +178,11 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param nauseaLevel   nausea's level
 	 * @param weaknessTicks weakness (none by default)
 	 * @param weaknessLevel weakness's level
+	 * @param flightTicks   the flask is in the air at least this long, so a player can step out from under it
 	 */
 	public record Potion(int cooldown, double range, double radius, int poisonTicks, int nauseaTicks, int nauseaLevel, int weaknessTicks,
-			int weaknessLevel) {
-		public static final Potion DEFAULT = new Potion(150, 28.0, 6.0, 200, 50, 0, 0, 0);
+			int weaknessLevel, int flightTicks) {
+		public static final Potion DEFAULT = new Potion(300, 28.0, 4.0, 200, 50, 0, 0, 0, 24);
 		public static final Codec<Potion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Potion::cooldown),
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Potion::range),
@@ -185,7 +191,8 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.intRange(0, 12000).fieldOf("nausea_ticks").orElse(DEFAULT.nauseaTicks).forGetter(Potion::nauseaTicks),
 				Codec.intRange(0, 9).fieldOf("nausea_level").orElse(DEFAULT.nauseaLevel).forGetter(Potion::nauseaLevel),
 				Codec.intRange(0, 12000).fieldOf("weakness_ticks").orElse(DEFAULT.weaknessTicks).forGetter(Potion::weaknessTicks),
-				Codec.intRange(0, 9).fieldOf("weakness_level").orElse(DEFAULT.weaknessLevel).forGetter(Potion::weaknessLevel)
+				Codec.intRange(0, 9).fieldOf("weakness_level").orElse(DEFAULT.weaknessLevel).forGetter(Potion::weaknessLevel),
+				Codec.intRange(5, 100).fieldOf("flight_ticks").orElse(DEFAULT.flightTicks).forGetter(Potion::flightTicks)
 		).apply(instance, Potion::new));
 	}
 

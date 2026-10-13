@@ -18,6 +18,7 @@
 		"dimension.PortalForcerMixin",
 		"mobs.entity.PlayerArmorPiercingMixin",
 		"mobs.entity.crossbowman.NaturalSpawnerEliteMixin",
+		"mobs.entity.yaga.NaturalSpawnerYagaMixin",
 		"mobs.entity.crossbowman.PatrolSpawnerEliteMixin",
 		"mobs.entity.crossbowman.RaidEliteMixin",
 		"mobs.guard.GuardNaturalSpawnerMixin",

@@ -239,14 +239,15 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 				head.xRot -= up * 0.3F;
 			}
 			case SWOOP -> {
-				// Leaning into the dive, the staff raised back like a club, brought down on the strike.
-				lean = 0.35F;
+				// Leaning into the dive, the staff raised back like a club, brought down low on the strike: she bends over
+				// her mortar's rim so it reaches below her feet, at a player on the ground.
 				float strike = state.strikeTick;
 				float raise = smooth(t / 8.0F);
 				float swing = smooth((t - strike + 3.0F) / 3.0F);
-				rightX = Mth.lerp(swing, Mth.lerp(raise, rightX, -2.8F), -0.8F);
+				lean = 0.35F + swing * 0.2F;
+				rightX = Mth.lerp(swing, Mth.lerp(raise, rightX, -2.8F), -0.6F);
 				rightFore = Mth.lerp(raise, rightFore, -0.5F);
-				staffTilt = Mth.lerp(swing, raise * 0.9F, -1.6F);
+				staffTilt = Mth.lerp(swing, raise * 0.9F, -2.1F);
 				leftX = -HUNCH - 0.9F;
 				leftZ = -0.4F;
 			}

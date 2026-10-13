@@ -16,12 +16,13 @@
   "swoop": {
     "delay": 40,
     "strike_tick": 30,
-    "parry_window": 12,
+    "parry_window": 7,
     "damage": 5.0,
     "parry_damage": 10.0,
     "reach": 3.0,
     "speed": 1.0,
-    "retreat_ticks": 40
+    "retreat_ticks": 40,
+    "strike_drop": 1.0
   },
   "summon": {
     "groups": 2,
@@ -48,17 +49,19 @@
     "follow_range": 64.0,
     "glow_after": 1800,
     "fade_after": 3000,
-    "fade_ticks": 200
+    "fade_ticks": 200,
+    "health_multiplier": 0.7
   },
   "potion": {
-    "cooldown": 150,
+    "cooldown": 300,
     "range": 28.0,
-    "radius": 6.0,
+    "radius": 4.0,
     "poison_ticks": 200,
     "nausea_ticks": 50,
     "nausea_level": 0,
     "weakness_ticks": 0,
-    "weakness_level": 0
+    "weakness_level": 0,
+    "flight_ticks": 24
   },
   "spell": {
     "cooldown": 120,

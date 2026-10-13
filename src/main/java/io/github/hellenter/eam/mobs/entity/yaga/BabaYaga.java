@@ -102,6 +102,7 @@ public class BabaYaga extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Byte> DATA_GLOW = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	private static final Identifier FOLLOW_MODIFIER = Eam.id("baba_yaga_minion_follow");
+	private static final Identifier HEALTH_MODIFIER = Eam.id("baba_yaga_minion_health");
 
 	private static final EntityDimensions IN_MORTAR = EntityDimensions.scalable(0.95F, 2.1F).withEyeHeight(1.85F);
 	private static final EntityDimensions ON_FOOT = EntityDimensions.scalable(0.6F, 1.75F).withEyeHeight(1.5F);
@@ -388,6 +389,7 @@ public class BabaYaga extends Monster {
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
+		BabaYagaModule.track(this);
 		if (potionCooldown > 0) potionCooldown--;
 		if (spellCooldown > 0) spellCooldown--;
 		if (glyphCooldown > 0) glyphCooldown--;
@@ -689,6 +691,11 @@ public class BabaYaga extends Monster {
 		switch (action) {
 			case SUMMON -> tickSummon(level, t, target);
 			case THROW -> {
+				if (t == 0) {
+					// A loud cackle and the clink of glass: a flask is coming.
+					level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_AMBIENT, getSoundSource(), 3.0F, 0.6F);
+					level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.BOTTLE_FILL, getSoundSource(), 3.0F, 0.7F);
+				}
 				if (t == YagaAction.THROW_RELEASE && target != null) {
 					throwFlask(level, target);
 				}
@@ -911,6 +918,13 @@ public class BabaYaga extends Monster {
 		// Tagged first: a wight raised by her never cloaks, a lurker never hides.
 		mob.addTag(BabaYagaModule.MINION_TAG);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(at)), EntitySpawnReason.MOB_SUMMONED, null);
+		// Her creatures are weaker than their wild kin, but rise at full health.
+		AttributeInstance health = mob.getAttribute(Attributes.MAX_HEALTH);
+		if (health != null) {
+			health.addOrReplacePermanentModifier(new AttributeModifier(HEALTH_MODIFIER, settings().summon().healthMultiplier() - 1.0,
+					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			mob.setHealth(mob.getMaxHealth());
+		}
 		AttributeInstance follow = mob.getAttribute(Attributes.FOLLOW_RANGE);
 		if (follow != null) {
 			follow.addOrReplacePermanentModifier(new AttributeModifier(FOLLOW_MODIFIER,
@@ -1161,11 +1175,10 @@ public class BabaYaga extends Monster {
 		HagPotion flask = new HagPotion(level, this);
 		Vec3 from = position().add(0.0, getBbHeight() * 0.85, 0.0);
 		flask.setPos(from);
-		// Where the player will be about when it lands, if they keep moving the way they are.
-		Vec3 motion = target.position().subtract(target.xo, target.yo, target.zo);
+		// At where the player stands now, in a slow arc: whoever moves off in time is not caught.
 		double flat = horizontalDistanceTo(target);
-		int ticks = Mth.clamp((int) (flat / 0.7), 12, 40);
-		Vec3 aim = target.position().add(motion.scale(ticks * 0.6));
+		int ticks = Mth.clamp((int) (flat / 0.5), potion.flightTicks(), potion.flightTicks() + 20);
+		Vec3 aim = target.position();
 		double dx = aim.x - from.x;
 		double dy = aim.y - from.y;
 		double dz = aim.z - from.z;
@@ -1174,7 +1187,14 @@ public class BabaYaga extends Monster {
 		double drag = Math.pow(0.99, ticks * 0.5);
 		flask.setDeltaMovement(dx / ticks / drag, (dy + 0.5 * g * ticks * ticks) / ticks / drag, dz / ticks / drag);
 		level.addFreshEntity(flask);
-		level.playSound(null, getX(), getY(), getZ(), SoundEvents.WITCH_THROW, getSoundSource(), 1.5F, 0.8F);
+		level.playSound(null, getX(), getY(), getZ(), SoundEvents.WITCH_THROW, getSoundSource(), 3.0F, 0.8F);
+		// The spot it will burst on shows as a ring of green mist on the ground.
+		DustParticleOptions mist = new DustParticleOptions(HagPotion.COLOR, 1.2F);
+		for (int i = 0; i < 24; i++) {
+			double angle = i * Math.PI * 2.0 / 24.0;
+			level.sendParticles(mist, aim.x + Math.cos(angle) * potion.radius(), aim.y + 0.1, aim.z + Math.sin(angle) * potion.radius(), 1, 0.05,
+					0.05, 0.05, 0.0);
+		}
 		potionCooldown = potion.cooldown();
 		castGap = CAST_GAP;
 	}
@@ -1225,7 +1245,8 @@ public class BabaYaga extends Monster {
 
 	/**
 	 * She dives at the player, timed to reach them on the strike tick. The parry window is the last few ticks before it:
-	 * she glows, and a bell rings as it opens.
+	 * she glows exactly while a hit parries (a repeat parry's shorter window included), and a bell rings as it opens. The
+	 * dive aims her low, and her staff reaches below her feet, so it strikes a player standing on the ground.
 	 */
 	private void tickSwoop(ServerLevel level, int t, @Nullable LivingEntity target) {
 		if (target == null) {
@@ -1238,15 +1259,17 @@ public class BabaYaga extends Monster {
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 0.6F);
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.PHANTOM_SWOOP, getSoundSource(), 2.0F, 0.7F);
 		}
-		boolean window = BabaYagaLogic.parries(t, strike, swoop.parryWindow());
+		int parryWindow = parryWindow(level, swoop.parryWindow(), target);
+		boolean window = BabaYagaLogic.parries(t, strike, parryWindow);
 		setGlow(window ? YagaGlow.PARRY : YagaGlow.NONE);
-		if (t == strike - swoop.parryWindow()) {
+		if (t == strike - parryWindow) {
 			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 2.0F, 1.1F);
 		}
 		if (t < strike) {
 			// Aimed so her staff, not her mortar, meets the player: at their chest, a little short of them.
 			Vec3 away = horizontal(position().subtract(target.position()));
-			Vec3 aim = target.position().add(away.scale(swoop.reach() * 0.6)).add(0.0, target.getBbHeight() * 0.6 - getBbHeight() * 0.7, 0.0);
+			Vec3 aim = target.position().add(away.scale(swoop.reach() * 0.6))
+					.add(0.0, target.getBbHeight() * 0.6 - getBbHeight() * 0.7 - swoop.strikeDrop(), 0.0);
 			double distance = aim.distanceTo(position());
 			Vec3 to = aim.subtract(position());
 			double speed = BabaYagaLogic.closingSpeed(distance, strike - t, swoop.speed());
@@ -1259,7 +1282,7 @@ public class BabaYaga extends Monster {
 		setDeltaMovement(getDeltaMovement().scale(0.5));
 		if (t == strike) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, getSoundSource(), 1.5F, 0.7F);
-			if (distanceTo(target) <= swoop.reach() + target.getBbWidth() * 0.5 + 0.5) {
+			if (position().subtract(0.0, swoop.strikeDrop(), 0.0).distanceTo(target.position()) <= swoop.reach() + target.getBbWidth() * 0.5 + 0.5) {
 				diveLanded = true;
 				target.damageCooldownTime = 0;
 				if (target.hurtServer(level, damageSources().mobAttack(this), swoop.damage())) {
@@ -1453,9 +1476,10 @@ public class BabaYaga extends Monster {
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 2.0F, 1.2F);
 		}
 		int lunge = claws.lunge();
-		boolean window = BabaYagaLogic.parries(t, lunge, claws.parryWindow());
+		int parryWindow = parryWindow(level, claws.parryWindow(), target);
+		boolean window = BabaYagaLogic.parries(t, lunge, parryWindow);
 		setGlow(window ? YagaGlow.PARRY : YagaGlow.NONE);
-		if (t == lunge - claws.parryWindow()) {
+		if (t == lunge - parryWindow) {
 			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 2.0F, 1.2F);
 		}
 		double distance = horizontalDistanceTo(target);
@@ -1646,10 +1670,12 @@ public class BabaYaga extends Monster {
 		ParryPenalty penalty = BossParry.penalty();
 		Player player = source.getEntity() instanceof Player p && source.getDirectEntity() == p ? p : null;
 		boolean penalized = player != null && parryStreak.penalized(player.getUUID(), level.getGameTime(), penalty);
+		// A hit between ticks answers the tick just run, the one whose glow the player sees.
+		int shownTick = actionTicks - 1;
 		if (phase() == 1) {
 			BabaYagaSettings.Swoop swoop = settings().swoop();
 			if (player != null && action == YagaAction.SWOOP
-					&& BabaYagaLogic.parries(actionTicks, swoop.strikeTick(), penalty.window(swoop.parryWindow(), penalized))) {
+					&& BabaYagaLogic.parries(shownTick, swoop.strikeTick(), penalty.window(swoop.parryWindow(), penalized))) {
 				return parryInAir(level, player, source, swoop);
 			}
 			// Nothing gets through to her in her mortar.
@@ -1659,7 +1685,7 @@ public class BabaYaga extends Monster {
 		}
 		BabaYagaSettings.Claws claws = settings().claws();
 		boolean parry = player != null && action == YagaAction.CLAWS
-				&& BabaYagaLogic.parries(actionTicks, claws.lunge(), penalty.window(claws.parryWindow(), penalized));
+				&& BabaYagaLogic.parries(shownTick, claws.lunge(), penalty.window(claws.parryWindow(), penalized));
 		if (parry) {
 			damage *= penalty.multiplier(claws.parryMultiplier(), penalized);
 		}
@@ -1675,6 +1701,13 @@ public class BabaYaga extends Monster {
 			noteHit(level);
 		}
 		return true;
+	}
+
+	/** The parry window against {@code target}: shorter for a player who parried her a moment ago, as in hurtServer. */
+	private int parryWindow(ServerLevel level, int base, @Nullable LivingEntity target) {
+		ParryPenalty penalty = BossParry.penalty();
+		boolean penalized = target instanceof Player player && parryStreak.penalized(player.getUUID(), level.getGameTime(), penalty);
+		return penalty.window(base, penalized);
 	}
 
 	/** A parry in phase one: a fixed share of her health, whatever the weapon; the last one breaks her mortar. */
