@@ -15,6 +15,6 @@
     "id": "minecraft:potion"
   },
   "reagent": {
-    "item": "eam:fermented_ender_eye"
+    "item": "eam:wolf_meat"
   }
 }

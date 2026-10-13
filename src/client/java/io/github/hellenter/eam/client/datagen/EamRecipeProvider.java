@@ -459,7 +459,8 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silverBrewing(BrewingModule.HOLY_WATER, Items.SUGAR, BrewingModule.LIGHT_SWIFTNESS);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.GLISTERING_MELON_SLICE, BrewingModule.LIGHT_HEALING_POTION);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.FERMENTED_SPIDER_EYE, BrewingModule.LIGHT_WEAKNESS);
-				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FERMENTED_ENDER_EYE, BrewingModule.LIGHT_STRENGTH);
+				// A warg's strength, in its meat.
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.WOLF_MEAT, BrewingModule.LIGHT_STRENGTH);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.GARLIC_ORCHID_MIX, BrewingModule.BLACK_BLOOD);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.HERBAL_HONEY, BrewingModule.WHITE_HONEY);
 				// Gunpowder makes a splash potion of the same light potion, as in the vanilla stand.
@@ -666,6 +667,18 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				SimpleCookingRecipeBuilder.campfireCooking(water, RecipeCategory.FOOD, EamItems.BOILED_WATER_BOWL, 0.0F, 600)
 						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
 						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
+
+				// Warg meat cooks like mutton.
+				Ingredient wolfMeat = Ingredient.of(EamItems.WOLF_MEAT);
+				SimpleCookingRecipeBuilder.smelting(wolfMeat, RecipeCategory.FOOD, CookingBookCategory.FOOD, EamItems.COOKED_WOLF_MEAT, 0.35F, 200)
+						.unlockedBy(getHasName(EamItems.WOLF_MEAT), has(EamItems.WOLF_MEAT))
+						.save(output);
+				SimpleCookingRecipeBuilder.smoking(wolfMeat, RecipeCategory.FOOD, EamItems.COOKED_WOLF_MEAT, 0.35F, 100)
+						.unlockedBy(getHasName(EamItems.WOLF_MEAT), has(EamItems.WOLF_MEAT))
+						.save(output, "eam:cooked_wolf_meat_from_smoking");
+				SimpleCookingRecipeBuilder.campfireCooking(wolfMeat, RecipeCategory.FOOD, EamItems.COOKED_WOLF_MEAT, 0.35F, 600)
+						.unlockedBy(getHasName(EamItems.WOLF_MEAT), has(EamItems.WOLF_MEAT))
+						.save(output, "eam:cooked_wolf_meat_from_campfire_cooking");
 
 				shapeless(RecipeCategory.FOOD, EamItems.CHEESE)
 						.requires(ConventionalItemTags.MILK_BUCKETS)

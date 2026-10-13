@@ -26,7 +26,8 @@ public final class Overcooking {
 			Items.COOKED_RABBIT, EamItems.BURNT_RABBIT,
 			Items.COOKED_COD, EamItems.BURNT_COD,
 			Items.COOKED_SALMON, EamItems.BURNT_SALMON,
-			Items.BAKED_POTATO, EamItems.BURNT_POTATO
+			Items.BAKED_POTATO, EamItems.BURNT_POTATO,
+			EamItems.COOKED_WOLF_MEAT, EamItems.BURNT_WOLF_MEAT
 	);
 
 	private Overcooking() {

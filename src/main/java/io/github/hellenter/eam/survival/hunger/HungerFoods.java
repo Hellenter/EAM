@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.survival.hunger;
 
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireLogic;
 import io.github.hellenter.eam.content.campfire.Overcooking;
 
@@ -61,6 +62,9 @@ final class HungerFoods {
 			Map.entry(Items.COOKED_CHICKEN, food(4, 0.5F, 12, 3, 0)),
 			Map.entry(Items.RABBIT, food(2, 0.2F, 5, 1, 0)),
 			Map.entry(Items.COOKED_RABBIT, food(3, 0.5F, 9, 2, 0)),
+			// Warg meat: lean and tough, a bit less than mutton but more protein.
+			Map.entry(EamItems.WOLF_MEAT, food(1, 0.2F, 4, 2, 0)),
+			Map.entry(EamItems.COOKED_WOLF_MEAT, food(4, 0.6F, 10, 5, 0)),
 			Map.entry(Items.COD, food(1, 0.1F, 3, 1, 0)),
 			Map.entry(Items.COOKED_COD, food(3, 0.5F, 9, 2, 0)),
 			Map.entry(Items.SALMON, food(1, 0.1F, 3, 2, 0)),

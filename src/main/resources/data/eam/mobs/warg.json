@@ -1,0 +1,15 @@
+{
+  "seen_angle": 60.0,
+  "ring_radius": 6.0,
+  "leader_ring": 2.5,
+  "ring_spin": 8.0,
+  "strike_interval": 40,
+  "strike_timeout": 80,
+  "abort_distance": 3.5,
+  "aggro_range": 20.0,
+  "flee_ticks": 400,
+  "pack_min": 3,
+  "pack_max": 5,
+  "spawn_chance": 0.3,
+  "pack_spacing": 96.0
+}
