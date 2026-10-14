@@ -1,6 +1,5 @@
 package io.github.hellenter.eam.dimension.feature;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
