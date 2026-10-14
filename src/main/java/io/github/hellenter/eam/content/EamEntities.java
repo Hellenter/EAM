@@ -28,6 +28,7 @@ import io.github.hellenter.eam.mobs.entity.warg.Warg;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarBomb;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
@@ -164,6 +165,14 @@ public final class EamEntities {
 					.eyeHeight(1.15F)
 					.clientTrackingRange(8)
 					.notInPeaceful());
+
+	/** A duergar renegade's lit bomb, lobbed at the player. */
+	public static final EntityType<DuergarBomb> DUERGAR_BOMB = register("duergar_bomb",
+			EntityType.Builder.<DuergarBomb>of(DuergarBomb::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.35F, 0.35F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
 
 	/** A duergar of a clan village: a smith, a miner or the elder, who trade mithril for jewels. */
 	public static final EntityType<DuergarVillager> DUERGAR_VILLAGER = register("duergar_villager",
