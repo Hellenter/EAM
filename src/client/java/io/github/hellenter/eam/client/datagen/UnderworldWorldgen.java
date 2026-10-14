@@ -285,7 +285,7 @@ final class UnderworldWorldgen {
 	// ---- Noise and density functions ----
 
 	static void bootstrapNoises(BootstrapContext<NormalNoise> context) {
-		// Big regions: every band of temperature is two or three hundred blocks across or more, the ice caves widest.
+		// Regions: most bands of temperature are one or two hundred blocks across, the ice caves widest.
 		context.register(TEMPERATURE_NOISE, NormalNoise.createParity(-8, 1.0, 1.0, 0.5));
 		// Smaller patches: which of the lake and river caves a stretch of that band is.
 		context.register(HUMIDITY_NOISE, NormalNoise.createParity(-7, 1.0, 1.0));
@@ -296,10 +296,10 @@ final class UnderworldWorldgen {
 		HolderGetter<NormalNoise> noises = context.lookup(Registries.NOISE);
 		context.register(TEMPERATURE, DensityFunctions.shiftedNoise2d(
 				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
-				0.065, noises.getOrThrow(TEMPERATURE_NOISE)));
+				0.13, noises.getOrThrow(TEMPERATURE_NOISE)));
 		context.register(HUMIDITY, DensityFunctions.shiftedNoise2d(
 				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
-				0.1, noises.getOrThrow(HUMIDITY_NOISE)));
+				0.2, noises.getOrThrow(HUMIDITY_NOISE)));
 	}
 
 	static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
