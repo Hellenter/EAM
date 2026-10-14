@@ -170,6 +170,16 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_ORE_SILVER = placed("underworld/ore_silver", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_MITHRIL = placed("underworld/ore_mithril", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_MITHRIL_DEPTHS = placed("underworld/ore_mithril_depths", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_DIAMOND = placed("underworld/ore_diamond", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_REDSTONE = placed("underworld/ore_redstone", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_LAPIS = placed("underworld/ore_lapis", GenerationStep.Decoration.UNDERGROUND_ORES);
+	// Biome extras on top of the common ores: gold and redstone in the hot biomes, the rare ores and lapis in the ice caves.
+	static final ResourceKey<PlacedFeature> P_ORE_GOLD_HOT = placed("underworld/ore_gold_hot", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_REDSTONE_HOT = placed("underworld/ore_redstone_hot", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_DIAMOND_ICE = placed("underworld/ore_diamond_ice", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_SILVER_ICE = placed("underworld/ore_silver_ice", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_MITHRIL_ICE = placed("underworld/ore_mithril_ice", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_LAPIS_ICE = placed("underworld/ore_lapis_ice", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_GRAVEL = placed("underworld/ore_gravel", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_MAGMA = placed("underworld/ore_magma", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_SPRING_WATER = placed("underworld/spring_water", GenerationStep.Decoration.FLUID_SPRINGS);
@@ -456,15 +466,25 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, P_LAVA_LAKES, features.getOrThrow(LAVA_LAKE), List.of(RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
-		// Ores: MITE's underworld is richer than the overworld. Iron and gold everywhere, copper and silver in the upper
-		// level, mithril rare above the deep bedrock and common under it.
-		ore(context, P_ORE_IRON, features.getOrThrow(OreFeatures.ORE_IRON), 14, all);
-		ore(context, P_ORE_GOLD, features.getOrThrow(OreFeatures.ORE_GOLD), 6, all);
-		ore(context, P_ORE_COPPER, features.getOrThrow(EamWorldgen.ORE_COPPER), 10, upper);
-		ore(context, P_ORE_SILVER, features.getOrThrow(EamWorldgen.ORE_SILVER), 5, upper);
-		PlacementUtils.register(context, P_ORE_MITHRIL, features.getOrThrow(EamWorldgen.ORE_MITHRIL),
-				List.of(RarityFilter.onAverageOnceEvery(2), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
-		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 4, lower);
+		// Ores: the underworld is where the rare ores are. Diamond, silver and mithril are richer than in the overworld,
+		// the common ores (iron, gold, copper, redstone, lapis) scarcer. Copper, silver, redstone and lapis only in the
+		// upper level; mithril is most common under the deep bedrock. The hot biomes (lava caves, mushroom forest) add
+		// gold and redstone; the ice caves add diamond, silver, mithril and lapis.
+		ore(context, P_ORE_IRON, features.getOrThrow(OreFeatures.ORE_IRON), 9, all);
+		ore(context, P_ORE_GOLD, features.getOrThrow(OreFeatures.ORE_GOLD), 3, all);
+		ore(context, P_ORE_COPPER, features.getOrThrow(EamWorldgen.ORE_COPPER), 6, upper);
+		ore(context, P_ORE_REDSTONE, features.getOrThrow(OreFeatures.ORE_REDSTONE), 2, upper);
+		ore(context, P_ORE_LAPIS, features.getOrThrow(OreFeatures.ORE_LAPIS), 1, upper);
+		ore(context, P_ORE_DIAMOND, features.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL), 4, all);
+		ore(context, P_ORE_SILVER, features.getOrThrow(EamWorldgen.ORE_SILVER), 9, upper);
+		ore(context, P_ORE_MITHRIL, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
+		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 6, lower);
+		ore(context, P_ORE_GOLD_HOT, features.getOrThrow(OreFeatures.ORE_GOLD), 7, upper);
+		ore(context, P_ORE_REDSTONE_HOT, features.getOrThrow(OreFeatures.ORE_REDSTONE), 6, upper);
+		ore(context, P_ORE_DIAMOND_ICE, features.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL), 4, upper);
+		ore(context, P_ORE_SILVER_ICE, features.getOrThrow(EamWorldgen.ORE_SILVER), 8, upper);
+		ore(context, P_ORE_MITHRIL_ICE, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
+		ore(context, P_ORE_LAPIS_ICE, features.getOrThrow(OreFeatures.ORE_LAPIS), 4, upper);
 		ore(context, P_ORE_GRAVEL, features.getOrThrow(OreFeatures.ORE_GRAVEL), 10, upper);
 		ore(context, P_ORE_MAGMA, features.getOrThrow(OreFeatures.ORE_MAGMA), 6, all);
 
@@ -540,7 +560,8 @@ final class UnderworldWorldgen {
 	static void bootstrapBiomes(BootstrapContext<Biome> context) {
 		HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
 		HolderGetter<WorldCarver> carvers = context.lookup(Registries.CARVER);
-		List<ResourceKey<PlacedFeature>> common = List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_COPPER, P_ORE_SILVER, P_ORE_MITHRIL);
+		List<ResourceKey<PlacedFeature>> common = List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_COPPER, P_ORE_REDSTONE, P_ORE_LAPIS,
+				P_ORE_DIAMOND, P_ORE_SILVER, P_ORE_MITHRIL);
 
 		context.register(UnderworldDimension.STONE_WASTES, biome(placed, carvers, 0.5F, 0x2E2E2E, 0x3F4A55,
 				SoundEvents.MUSIC_BIOME_DRIPSTONE_CAVES, List.of(),
@@ -548,7 +569,7 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x2D2433, 0x3D57D6,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.MYCELIUM, 0.02F),
-				features(common, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
+				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
 						P_HUGE_RED, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
 				spawns()));
@@ -558,15 +579,15 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
-				features(common, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
+				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
 				spawns()));
 		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.004F),
-				features(common, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN, P_DRAUGR_PACK),
+				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN, P_DRAUGR_PACK),
 				spawns()));
 		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),
-				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD), P_ORE_MITHRIL_DEPTHS, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
+				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_DIAMOND), P_ORE_MITHRIL_DEPTHS, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
 						P_GLOW_LICHEN),
 				spawns()));
 	}
