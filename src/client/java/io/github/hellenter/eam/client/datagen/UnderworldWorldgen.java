@@ -138,12 +138,12 @@ final class UnderworldWorldgen {
 	 * the boss monument will stand there. The stone wastes have two bands, one on each side of the lake and river caves.
 	 */
 	static final float LAVA_EDGE = 0.36F;
-	static final float BURNT_EDGE = 0.26F;
-	static final float MUSHROOM_EDGE = 0.16F;
-	static final float WARM_STONE_EDGE = 0.12F;
+	static final float BURNT_EDGE = 0.28F;
+	static final float MUSHROOM_EDGE = 0.19F;
+	static final float WARM_STONE_EDGE = 0.11F;
 	static final float FOREST_EDGE = 0.03F;
-	static final float LAKE_EDGE = -0.06F;
-	static final float STONE_EDGE = -0.12F;
+	static final float LAKE_EDGE = -0.055F;
+	static final float STONE_EDGE = -0.13F;
 	static final float FROZEN_EDGE = -0.2F;
 	static final float ICE_EDGE = FROZEN_EDGE;
 	/** Temperature at the middle of each biome's band. */
@@ -285,7 +285,7 @@ final class UnderworldWorldgen {
 	// ---- Noise and density functions ----
 
 	static void bootstrapNoises(BootstrapContext<NormalNoise> context) {
-		// Big regions: one band of temperature is many hundreds of blocks across, the narrow transitional ones a hundred or two.
+		// Big regions: every band of temperature is two or three hundred blocks across or more, the ice caves widest.
 		context.register(TEMPERATURE_NOISE, NormalNoise.createParity(-8, 1.0, 1.0, 0.5));
 		// Smaller patches: which of the lake and river caves a stretch of that band is.
 		context.register(HUMIDITY_NOISE, NormalNoise.createParity(-7, 1.0, 1.0));
@@ -296,10 +296,10 @@ final class UnderworldWorldgen {
 		HolderGetter<NormalNoise> noises = context.lookup(Registries.NOISE);
 		context.register(TEMPERATURE, DensityFunctions.shiftedNoise2d(
 				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
-				0.2, noises.getOrThrow(TEMPERATURE_NOISE)));
+				0.065, noises.getOrThrow(TEMPERATURE_NOISE)));
 		context.register(HUMIDITY, DensityFunctions.shiftedNoise2d(
 				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
-				0.25, noises.getOrThrow(HUMIDITY_NOISE)));
+				0.1, noises.getOrThrow(HUMIDITY_NOISE)));
 	}
 
 	static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
