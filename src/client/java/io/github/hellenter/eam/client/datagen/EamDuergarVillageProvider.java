@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage.Style;
+import io.github.hellenter.eam.world.structures.village.DuergarVillageStructure;
 
 import com.mojang.datafixers.util.Pair;
 
@@ -29,18 +30,14 @@ import net.minecraft.world.item.trading.TradeCost;
 import net.minecraft.world.item.trading.TradeSet;
 import net.minecraft.world.item.trading.VillagerTrade;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
-import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.ProtectedBlockProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
@@ -55,8 +52,9 @@ import java.util.function.Function;
 
 /**
  * Duergar villages ({@link DuergarVillage}): one jigsaw structure per style, each in its own biome, all in one structure
- * set so two villages never stand close. A village starts between y 70 and 110; its pieces clear only the room they
- * need and the ground under them is filled in gently (beard_thin), so it follows its cave. No monsters spawn inside.
+ * set so two villages never stand close. A village stands on a wide cave floor between y 58 and 150, each piece set down
+ * onto the floor under it ({@link DuergarVillageStructure}); its pieces clear only the room they need and the ground
+ * under them is filled in gently (beard_thin), so it follows its cave. No monsters spawn inside.
  * Also the duergar trades: what each role buys and sells.
  */
 public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
@@ -119,12 +117,10 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 		Map<MobCategory, StructureSpawnOverride> spawns = Map.of(MobCategory.MONSTER, new StructureSpawnOverride(
 				StructureSpawnOverride.BoundingBoxType.STRUCTURE, WeightedList.of()));
 		for (Style style : Style.values()) {
-			context.register(style.structure(), new JigsawStructure(
+			context.register(style.structure(), new DuergarVillageStructure(
 					new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(style.biomes()), spawns,
 							GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.BEARD_THIN),
-					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), Optional.empty(), 6,
-					UniformHeight.of(VerticalAnchor.absolute(70), VerticalAnchor.absolute(110)), false, Optional.empty(),
-					new JigsawStructure.MaxDistance(56, 16), List.of(), new DimensionPadding(56, 8), LiquidSettings.IGNORE_WATERLOGGING));
+					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), 6, 58, 150, 56, 1, 14, 0.15F));
 		}
 	}
 
