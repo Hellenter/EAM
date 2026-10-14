@@ -111,26 +111,6 @@
                         "points": [
                           {
                             "derivative": 0.0,
-                            "location": -0.19,
-                            "value": 0.0
-                          },
-                          {
-                            "derivative": 0.0,
-                            "location": -0.16,
-                            "value": 1.0
-                          },
-                          {
-                            "derivative": 0.0,
-                            "location": -0.14999999,
-                            "value": 1.0
-                          },
-                          {
-                            "derivative": 0.0,
-                            "location": -0.11,
-                            "value": 0.0
-                          },
-                          {
-                            "derivative": 0.0,
                             "location": 0.0,
                             "value": 0.0
                           },
@@ -153,6 +133,350 @@
                       }
                     },
                     "first": {
+                      "type": "minecraft:lerp",
+                      "alpha": {
+                        "type": "minecraft:spline",
+                        "spline": {
+                          "coordinate": "eam:underworld/temperature",
+                          "points": [
+                            {
+                              "derivative": 0.0,
+                              "location": -0.19,
+                              "value": 0.0
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": -0.16,
+                              "value": 1.0
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": -0.14999999,
+                              "value": 1.0
+                            },
+                            {
+                              "derivative": 0.0,
+                              "location": -0.11,
+                              "value": 0.0
+                            }
+                          ]
+                        }
+                      },
+                      "first": {
+                        "type": "minecraft:add",
+                        "left": {
+                          "type": "minecraft:lerp",
+                          "alpha": {
+                            "type": "minecraft:gradient",
+                            "axis": "y",
+                            "from_coordinate": 53,
+                            "from_value": 0.0,
+                            "to_coordinate": 66,
+                            "to_value": 1.0
+                          },
+                          "first": 2.5,
+                          "second": {
+                            "type": "minecraft:lerp",
+                            "alpha": {
+                              "type": "minecraft:gradient",
+                              "axis": "y",
+                              "from_coordinate": 170,
+                              "from_value": 1.0,
+                              "to_coordinate": 187,
+                              "to_value": 0.0
+                            },
+                            "first": 0.9375,
+                            "second": {
+                              "type": "minecraft:add",
+                              "left": "minecraft:nether/base_3d_noise",
+                              "right": {
+                                "type": "minecraft:spline",
+                                "spline": {
+                                  "coordinate": "eam:underworld/temperature",
+                                  "points": [
+                                    {
+                                      "derivative": 0.0,
+                                      "location": -1.0,
+                                      "value": -0.12
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": -0.6,
+                                      "value": -0.12
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": -0.16499999,
+                                      "value": 0.0
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": -0.0925,
+                                      "value": 0.0
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": -0.0125,
+                                      "value": -0.12
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 0.07,
+                                      "value": -0.04
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 0.15,
+                                      "value": 0.0
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 0.235,
+                                      "value": -0.34
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 0.32,
+                                      "value": -0.24
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 0.68,
+                                      "value": -0.08
+                                    },
+                                    {
+                                      "derivative": 0.0,
+                                      "location": 1.0,
+                                      "value": -0.08
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "minecraft:mul",
+                          "left": {
+                            "type": "minecraft:spline",
+                            "spline": {
+                              "coordinate": "eam:underworld/temperature",
+                              "points": [
+                                {
+                                  "derivative": 0.0,
+                                  "location": 0.33,
+                                  "value": 0.0
+                                },
+                                {
+                                  "derivative": 0.0,
+                                  "location": 0.38000003,
+                                  "value": 1.0
+                                }
+                              ]
+                            }
+                          },
+                          "right": {
+                            "type": "minecraft:gradient",
+                            "axis": "y",
+                            "from_coordinate": 100,
+                            "from_value": 0.0,
+                            "to_coordinate": 128,
+                            "to_value": 1.5
+                          }
+                        }
+                      },
+                      "second": {
+                        "type": "minecraft:lerp",
+                        "alpha": {
+                          "type": "minecraft:gradient",
+                          "axis": "y",
+                          "from_coordinate": 53,
+                          "from_value": 0.0,
+                          "to_coordinate": 66,
+                          "to_value": 1.0
+                        },
+                        "first": 2.5,
+                        "second": {
+                          "type": "minecraft:lerp",
+                          "alpha": {
+                            "type": "minecraft:gradient",
+                            "axis": "y",
+                            "from_coordinate": 170,
+                            "from_value": 1.0,
+                            "to_coordinate": 187,
+                            "to_value": 0.0
+                          },
+                          "first": 0.9375,
+                          "second": {
+                            "type": "minecraft:add",
+                            "left": {
+                              "type": "minecraft:spline",
+                              "spline": {
+                                "coordinate": {
+                                  "type": "minecraft:add",
+                                  "left": {
+                                    "type": "minecraft:gradient",
+                                    "axis": "y",
+                                    "from_coordinate": 0,
+                                    "from_value": 0.0,
+                                    "to_coordinate": 192,
+                                    "to_value": 192.0
+                                  },
+                                  "right": {
+                                    "type": "minecraft:mul",
+                                    "left": 10.0,
+                                    "right": {
+                                      "type": "minecraft:noise",
+                                      "noise": "minecraft:cave_layer",
+                                      "xz_scale": 4.0,
+                                      "y_scale": 0.0
+                                    }
+                                  }
+                                },
+                                "points": [
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 40.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 46.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 53.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 59.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 66.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 72.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 79.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 85.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 92.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 98.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 105.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 111.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 118.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 124.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 131.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 137.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 144.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 150.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 157.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 163.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 170.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 176.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 183.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 189.5,
+                                    "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 196.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 202.5,
+                                    "value": -0.5
+                                  }
+                                ]
+                              }
+                            },
+                            "right": {
+                              "type": "minecraft:mul",
+                              "left": 0.45,
+                              "right": "minecraft:nether/base_3d_noise"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "second": {
                       "type": "minecraft:add",
                       "left": {
                         "type": "minecraft:lerp",
@@ -178,291 +502,159 @@
                           "first": 0.9375,
                           "second": {
                             "type": "minecraft:add",
-                            "left": "minecraft:nether/base_3d_noise",
-                            "right": {
+                            "left": {
                               "type": "minecraft:spline",
                               "spline": {
-                                "coordinate": "eam:underworld/temperature",
+                                "coordinate": {
+                                  "type": "minecraft:add",
+                                  "left": {
+                                    "type": "minecraft:gradient",
+                                    "axis": "y",
+                                    "from_coordinate": 0,
+                                    "from_value": 0.0,
+                                    "to_coordinate": 192,
+                                    "to_value": 192.0
+                                  },
+                                  "right": {
+                                    "type": "minecraft:mul",
+                                    "left": 10.0,
+                                    "right": {
+                                      "type": "minecraft:noise",
+                                      "noise": "minecraft:cave_layer",
+                                      "xz_scale": 4.0,
+                                      "y_scale": 0.0
+                                    }
+                                  }
+                                },
                                 "points": [
                                   {
                                     "derivative": 0.0,
-                                    "location": -1.0,
-                                    "value": -0.12
+                                    "location": 36.0,
+                                    "value": 0.5
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": -0.6,
-                                    "value": -0.12
+                                    "location": 44.5,
+                                    "value": -1.0
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": -0.16499999,
-                                    "value": 0.0
+                                    "location": 53.0,
+                                    "value": 0.5
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": -0.0925,
-                                    "value": 0.0
+                                    "location": 61.5,
+                                    "value": -1.0
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": -0.0125,
-                                    "value": -0.12
+                                    "location": 70.0,
+                                    "value": 0.5
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 0.07,
-                                    "value": -0.04
+                                    "location": 78.5,
+                                    "value": -1.0
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 0.15,
-                                    "value": 0.0
+                                    "location": 87.0,
+                                    "value": 0.5
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 0.235,
-                                    "value": -0.34
+                                    "location": 95.5,
+                                    "value": -1.0
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 0.32,
-                                    "value": -0.24
+                                    "location": 104.0,
+                                    "value": 0.5
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 0.68,
-                                    "value": -0.08
+                                    "location": 112.5,
+                                    "value": -1.0
                                   },
                                   {
                                     "derivative": 0.0,
-                                    "location": 1.0,
-                                    "value": -0.08
+                                    "location": 121.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 129.5,
+                                    "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 138.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 146.5,
+                                    "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 155.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 163.5,
+                                    "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 172.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 180.5,
+                                    "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 189.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 197.5,
+                                    "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 206.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 214.5,
+                                    "value": -1.0
                                   }
                                 ]
                               }
+                            },
+                            "right": {
+                              "type": "minecraft:mul",
+                              "left": 0.45,
+                              "right": "minecraft:nether/base_3d_noise"
                             }
                           }
                         }
                       },
                       "right": {
-                        "type": "minecraft:mul",
-                        "left": {
-                          "type": "minecraft:spline",
-                          "spline": {
-                            "coordinate": "eam:underworld/temperature",
-                            "points": [
-                              {
-                                "derivative": 0.0,
-                                "location": 0.33,
-                                "value": 0.0
-                              },
-                              {
-                                "derivative": 0.0,
-                                "location": 0.38000003,
-                                "value": 1.0
-                              }
-                            ]
-                          }
-                        },
-                        "right": {
-                          "type": "minecraft:gradient",
-                          "axis": "y",
-                          "from_coordinate": 100,
-                          "from_value": 0.0,
-                          "to_coordinate": 128,
-                          "to_value": 1.5
-                        }
-                      }
-                    },
-                    "second": {
-                      "type": "minecraft:lerp",
-                      "alpha": {
                         "type": "minecraft:gradient",
                         "axis": "y",
-                        "from_coordinate": 53,
+                        "from_coordinate": 112,
                         "from_value": 0.0,
-                        "to_coordinate": 66,
-                        "to_value": 1.0
-                      },
-                      "first": 2.5,
-                      "second": {
-                        "type": "minecraft:lerp",
-                        "alpha": {
-                          "type": "minecraft:gradient",
-                          "axis": "y",
-                          "from_coordinate": 170,
-                          "from_value": 1.0,
-                          "to_coordinate": 187,
-                          "to_value": 0.0
-                        },
-                        "first": 0.9375,
-                        "second": {
-                          "type": "minecraft:add",
-                          "left": {
-                            "type": "minecraft:spline",
-                            "spline": {
-                              "coordinate": {
-                                "type": "minecraft:add",
-                                "left": {
-                                  "type": "minecraft:gradient",
-                                  "axis": "y",
-                                  "from_coordinate": 0,
-                                  "from_value": 0.0,
-                                  "to_coordinate": 192,
-                                  "to_value": 192.0
-                                },
-                                "right": {
-                                  "type": "minecraft:mul",
-                                  "left": 10.0,
-                                  "right": {
-                                    "type": "minecraft:noise",
-                                    "noise": "minecraft:cave_layer",
-                                    "xz_scale": 4.0,
-                                    "y_scale": 0.0
-                                  }
-                                }
-                              },
-                              "points": [
-                                {
-                                  "derivative": 0.0,
-                                  "location": 40.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 46.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 53.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 59.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 66.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 72.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 79.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 85.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 92.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 98.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 105.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 111.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 118.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 124.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 131.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 137.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 144.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 150.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 157.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 163.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 170.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 176.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 183.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 189.5,
-                                  "value": -0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 196.0,
-                                  "value": 0.5
-                                },
-                                {
-                                  "derivative": 0.0,
-                                  "location": 202.5,
-                                  "value": -0.5
-                                }
-                              ]
-                            }
-                          },
-                          "right": {
-                            "type": "minecraft:mul",
-                            "left": 0.45,
-                            "right": "minecraft:nether/base_3d_noise"
-                          }
-                        }
+                        "to_coordinate": 124,
+                        "to_value": 1.5
                       }
                     }
                   },

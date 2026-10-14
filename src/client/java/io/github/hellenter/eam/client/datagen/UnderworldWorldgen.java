@@ -170,6 +170,10 @@ final class UnderworldWorldgen {
 	 * LAYER_ROUGHNESS times the nether noise.
 	 */
 	private static final int LAYER_PERIOD = 13;
+	/** The underground forest has fewer, taller and more open levels than the frozen caves, solid rock from FOREST_ROOF up. */
+	private static final int FOREST_LAYER_PERIOD = 17;
+	private static final float FOREST_LAYER_OPEN = -1.0F;
+	private static final int FOREST_ROOF = 124;
 	private static final float LAYER_SLAB = 0.5F;
 	private static final float LAYER_OPEN = -0.5F;
 	private static final float LAYER_WAVE = 10.0F;
@@ -302,6 +306,21 @@ final class UnderworldWorldgen {
 				0.2, noises.getOrThrow(HUMIDITY_NOISE)));
 	}
 
+	/**
+	 * Layered caves: rock slabs and open floors (density {@code open} in their middle) taking turns every {@code period}
+	 * blocks of the wavy {@code height}, roughened by LAYER_ROUGHNESS times the nether noise, rock below the upper level.
+	 */
+	private static DensityFunction layered(SplineFunction.Coordinate height, int period, float open, DensityFunction base) {
+		CubicSpline.Builder<SplineFunction.Coordinate> levels = CubicSpline.builder(height);
+		for (int y = UPPER_BOTTOM - period; y < UnderworldLogic.HEIGHT + period; y += period) {
+			levels.addPoint(y, LAYER_SLAB);
+			levels.addPoint(y + period / 2.0F, open);
+		}
+		DensityFunction layers = DensityFunctions.add(DensityFunctions.spline(levels.build()),
+				DensityFunctions.mul(DensityFunctions.constant(LAYER_ROUGHNESS), base));
+		return NoiseRouterData.slide(layers, 0, UnderworldLogic.HEIGHT, 22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
+	}
+
 	static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
 		HolderGetter<DensityFunction> functions = context.lookup(Registries.DENSITY_FUNCTION);
 		HolderGetter<NormalNoise> noises = context.lookup(Registries.NOISE);
@@ -353,25 +372,23 @@ final class UnderworldWorldgen {
 				DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 4.0, 0.0));
 		SplineFunction.Coordinate height = new SplineFunction.Coordinate(DensityFunctions.add(
 				DensityFunctions.yClampedGradient(0, UnderworldLogic.HEIGHT, 0.0F, UnderworldLogic.HEIGHT), wave));
-		CubicSpline.Builder<SplineFunction.Coordinate> levels = CubicSpline.builder(height);
-		for (int y = UPPER_BOTTOM - LAYER_PERIOD; y < UnderworldLogic.HEIGHT + LAYER_PERIOD; y += LAYER_PERIOD) {
-			levels.addPoint(y, LAYER_SLAB);
-			levels.addPoint(y + LAYER_PERIOD / 2.0F, LAYER_OPEN);
-		}
-		DensityFunction layers = DensityFunctions.add(DensityFunctions.spline(levels.build()),
-				DensityFunctions.mul(DensityFunctions.constant(LAYER_ROUGHNESS), base));
-		DensityFunction layered = NoiseRouterData.slide(layers, 0, UnderworldLogic.HEIGHT, 22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
-		DensityFunction layerWeight = DensityFunctions.spline(CubicSpline.builder(t)
+		DensityFunction frozenWeight = DensityFunctions.spline(CubicSpline.builder(t)
 				.addPoint(ICE_EDGE + 0.01F, 0.0F)
 				.addPoint(ICE_EDGE + 0.04F, 1.0F)
 				.addPoint(STONE_EDGE - 0.02F, 1.0F)
 				.addPoint(STONE_EDGE + 0.02F, 0.0F)
+				.build());
+		caves = DensityFunctions.lerp(frozenWeight, caves, layered(height, LAYER_PERIOD, LAYER_OPEN, base));
+		// The forest's levels are taller and stop lower: solid rock closes in over the top one.
+		DensityFunction forestWeight = DensityFunctions.spline(CubicSpline.builder(t)
 				.addPoint(FOREST_EDGE - 0.03F, 0.0F)
 				.addPoint(FOREST_EDGE + 0.01F, 1.0F)
 				.addPoint(WARM_STONE_EDGE - 0.02F, 1.0F)
 				.addPoint(WARM_STONE_EDGE + 0.02F, 0.0F)
 				.build());
-		caves = DensityFunctions.lerp(layerWeight, caves, layered);
+		DensityFunction forest = DensityFunctions.add(layered(height, FOREST_LAYER_PERIOD, FOREST_LAYER_OPEN, base),
+				DensityFunctions.yClampedGradient(FOREST_ROOF - 12, FOREST_ROOF, 0.0F, 1.5F));
+		caves = DensityFunctions.lerp(forestWeight, caves, forest);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
 		// Lower level: wide, lower halls between the floor bedrock and the band.
 		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.HEIGHT,
