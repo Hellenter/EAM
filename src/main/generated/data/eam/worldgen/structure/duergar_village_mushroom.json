@@ -1,15 +1,8 @@
 {
-  "type": "minecraft:jigsaw",
+  "type": "eam:duergar_village",
   "biomes": "#eam:has_structure/duergar_village_mushroom",
-  "dimension_padding": {
-    "bottom": 56,
-    "top": 8
-  },
-  "liquid_settings": "ignore_waterlogging",
-  "max_distance_from_center": {
-    "horizontal": 56,
-    "vertical": 16
-  },
+  "floor_max_y": 150,
+  "floor_min_y": 58,
   "size": 6,
   "spawn_overrides": {
     "monster": {
@@ -17,17 +10,7 @@
       "spawns": []
     }
   },
-  "start_height": {
-    "type": "minecraft:uniform",
-    "max_inclusive": {
-      "absolute": 110
-    },
-    "min_inclusive": {
-      "absolute": 70
-    }
-  },
   "start_pool": "eam:duergar_village/mushroom/start",
   "step": "underground_structures",
-  "terrain_adaptation": "beard_thin",
-  "use_expansion_hack": false
+  "terrain_adaptation": "beard_thin"
 }
