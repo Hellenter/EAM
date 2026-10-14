@@ -55,10 +55,12 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(BiomeTags.IS_OVERWORLD).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(UnderworldWorldgen.IS_UNDERWORLD).addAll(UnderworldDimension.BIOMES);
 		// Not the ice caves: one huge hall would leave the mine hanging in the air.
-		builder(UnderworldMine.HAS_MINE).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
-				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES);
-		builder(UnderworldWorldgen.LAVA_LAKES).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.DEPTHS);
-		builder(UnderworldWorldgen.FROZEN_LAKES).add(UnderworldDimension.ICE_CAVES);
+		builder(UnderworldMine.HAS_MINE).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.BURNT_MUSHROOM_FOREST,
+				UnderworldDimension.MUSHROOM_FOREST, UnderworldDimension.STONE_WASTES, UnderworldDimension.UNDERGROUND_FOREST,
+				UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES, UnderworldDimension.FROZEN_CAVES);
+		builder(UnderworldWorldgen.LAVA_LAKES).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.BURNT_MUSHROOM_FOREST,
+				UnderworldDimension.DEPTHS);
+		builder(UnderworldWorldgen.FROZEN_LAKES).add(UnderworldDimension.ICE_CAVES, UnderworldDimension.FROZEN_CAVES);
 		builder(BiomeTags.IS_FOREST).add(SwampyForestBiomes.SWAMPY_FOREST);
 		builder(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(BiomeTags.WATER_ON_MAP_OUTLINES).addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
@@ -70,15 +72,13 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		// Renegade duergar squads roam every part of the upper underworld.
-		builder(DuergarModule.RENEGADES_SPAWN_IN).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
-				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
+		builder(DuergarModule.RENEGADES_SPAWN_IN).addAll(UnderworldDimension.UPPER_BIOMES);
 		// Each duergar village style stands in its own biome; none in the lava or ice caves.
 		builder(DuergarVillage.Style.STONE.biomes()).add(UnderworldDimension.STONE_WASTES);
 		builder(DuergarVillage.Style.MUSHROOM.biomes()).add(UnderworldDimension.MUSHROOM_FOREST);
-		builder(DuergarVillage.Style.LAKE.biomes()).add(UnderworldDimension.LAKE_CAVES);
+		builder(DuergarVillage.Style.LAKE.biomes()).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES);
 		// Squads of the Lost roam the underworld's upper level, not its depths.
-		builder(LostModule.SPAWNS_IN).add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST,
-				UnderworldDimension.STONE_WASTES, UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
+		builder(LostModule.SPAWNS_IN).addAll(UnderworldDimension.UPPER_BIOMES);
 		// Wild garlic grows in the plains, meadows and every forest.
 		builder(EamWorldgen.HAS_WILD_GARLIC)
 				.forceAddTag(BiomeTags.IS_FOREST)
@@ -97,9 +97,7 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		// Vampire bat flocks hunt the whole upper underworld, not the depths below the deep bedrock.
-		builder(VampireBatModule.SPAWNS_IN)
-				.add(UnderworldDimension.LAVA_CAVES, UnderworldDimension.MUSHROOM_FOREST, UnderworldDimension.STONE_WASTES,
-						UnderworldDimension.LAKE_CAVES, UnderworldDimension.ICE_CAVES);
+		builder(VampireBatModule.SPAWNS_IN).addAll(UnderworldDimension.UPPER_BIOMES);
 		builder(SpiderModule.BLACK_WIDOWS_SPAWN_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.DARK_FOREST, Biomes.PALE_GARDEN);

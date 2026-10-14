@@ -19,15 +19,27 @@ public final class UnderworldDimension {
 	public static final ResourceKey<DimensionType> TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, Eam.id("underworld"));
 	public static final ResourceKey<NoiseGeneratorSettings> NOISE_SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS, Eam.id("underworld"));
 
-	/** Warmest to coldest, the order the biomes border each other in. */
+	/**
+	 * Warmest to coldest, the order the biomes border each other in: lava caves, burnt mushroom forest, mushroom forest,
+	 * stone wastes, underground forest, lake or river caves (side by side at the same warmth), stone wastes again, frozen
+	 * caves, ice caves.
+	 */
 	public static final ResourceKey<Biome> LAVA_CAVES = biome("lava_caves");
+	public static final ResourceKey<Biome> BURNT_MUSHROOM_FOREST = biome("burnt_mushroom_forest");
 	public static final ResourceKey<Biome> MUSHROOM_FOREST = biome("mushroom_forest");
 	public static final ResourceKey<Biome> STONE_WASTES = biome("stone_wastes");
+	public static final ResourceKey<Biome> UNDERGROUND_FOREST = biome("underground_forest");
 	public static final ResourceKey<Biome> LAKE_CAVES = biome("lake_caves");
+	public static final ResourceKey<Biome> RIVER_CAVES = biome("river_caves");
+	public static final ResourceKey<Biome> FROZEN_CAVES = biome("frozen_caves");
 	public static final ResourceKey<Biome> ICE_CAVES = biome("ice_caves");
 	/** The lower level, under the deep bedrock. */
 	public static final ResourceKey<Biome> DEPTHS = biome("underworld_depths");
-	public static final List<ResourceKey<Biome>> BIOMES = List.of(LAVA_CAVES, MUSHROOM_FOREST, STONE_WASTES, LAKE_CAVES, ICE_CAVES, DEPTHS);
+	/** Every biome of the upper level, above the deep bedrock. */
+	public static final List<ResourceKey<Biome>> UPPER_BIOMES = List.of(LAVA_CAVES, BURNT_MUSHROOM_FOREST, MUSHROOM_FOREST, STONE_WASTES,
+			UNDERGROUND_FOREST, LAKE_CAVES, RIVER_CAVES, FROZEN_CAVES, ICE_CAVES);
+	public static final List<ResourceKey<Biome>> BIOMES = List.of(LAVA_CAVES, BURNT_MUSHROOM_FOREST, MUSHROOM_FOREST, STONE_WASTES,
+			UNDERGROUND_FOREST, LAKE_CAVES, RIVER_CAVES, FROZEN_CAVES, ICE_CAVES, DEPTHS);
 
 	/** Items that break deep bedrock. */
 	public static final TagKey<Item> BREAKS_DEEP_BEDROCK = TagKey.create(Registries.ITEM, Eam.id("breaks_deep_bedrock"));

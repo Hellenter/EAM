@@ -68,7 +68,17 @@
     ],
     [
       "eam:underworld/cave_vines",
-      "eam:underworld/glow_lichen_many"
+      "eam:underworld/glow_lichen_many",
+      "eam:underworld/moss_patch",
+      "eam:underworld/dripleaf_clay",
+      "eam:underworld/orchids",
+      "eam:underworld/ferns",
+      "eam:underworld/shore_plants",
+      "eam:underworld/sugar_cane",
+      "eam:underworld/spore_blossom",
+      "eam:underworld/kelp",
+      "eam:underworld/seagrass",
+      "eam:underworld/lily_pads"
     ]
   ],
   "has_precipitation": false,

@@ -1,0 +1,79 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "max_delay": 24000,
+        "min_delay": 12000,
+        "sound": "minecraft:music.overworld.old_growth_taiga"
+      }
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "minecraft:glow"
+        },
+        "probability": 0.004
+      }
+    ],
+    "minecraft:visual/fog_color": "#10262a"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#2e8e80"
+  },
+  "features": [
+    [],
+    [
+      "eam:underworld/streams",
+      "eam:underworld/fluids"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "eam:underworld/ore_iron",
+      "eam:underworld/ore_gold",
+      "eam:underworld/ore_copper",
+      "eam:underworld/ore_silver",
+      "eam:underworld/ore_mithril"
+    ],
+    [],
+    [],
+    [
+      "eam:underworld/brown_mushrooms_few",
+      "eam:underworld/glow_lichen",
+      "eam:underworld/spruce",
+      "eam:underworld/small_spruce",
+      "eam:underworld/forest_moss",
+      "eam:underworld/forest_plants",
+      "eam:underworld/glowshroom_vines"
+    ]
+  ],
+  "has_precipitation": false,
+  "temperature": 0.3
+}

@@ -1,8 +1,12 @@
 {
   "values": [
     "eam:lava_caves",
+    "eam:burnt_mushroom_forest",
     "eam:mushroom_forest",
     "eam:stone_wastes",
-    "eam:lake_caves"
+    "eam:underground_forest",
+    "eam:lake_caves",
+    "eam:river_caves",
+    "eam:frozen_caves"
   ]
 }

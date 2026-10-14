@@ -2,6 +2,7 @@ package io.github.hellenter.eam.dimension;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.dimension.feature.CavePillarFeature;
+import io.github.hellenter.eam.dimension.feature.CaveStreamFeature;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.dimension.feature.IceSpikeCaveFeature;
 import io.github.hellenter.eam.dimension.feature.IceSpireFeature;
@@ -29,6 +30,7 @@ public final class UnderworldModule {
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("underworld_lake"), UnderworldLakeFeature.CODEC);
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("cave_pillar"), CavePillarFeature.CODEC);
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("ice_spire"), IceSpireFeature.CODEC);
+		Registry.register(BuiltInRegistries.FEATURE_TYPE, Eam.id("cave_stream"), CaveStreamFeature.CODEC);
 	}
 
 	public static void init() {

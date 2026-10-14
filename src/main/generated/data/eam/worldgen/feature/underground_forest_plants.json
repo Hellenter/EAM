@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:simple_block",
+  "to_place": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "minecraft:fern",
+        "weight": 8
+      },
+      {
+        "data": "minecraft:short_grass",
+        "weight": 5
+      },
+      {
+        "data": "minecraft:large_fern",
+        "weight": 2
+      },
+      {
+        "data": "minecraft:moss_carpet",
+        "weight": 4
+      },
+      {
+        "data": "minecraft:sweet_berry_bush",
+        "weight": 1
+      },
+      {
+        "data": "minecraft:brown_mushroom",
+        "weight": 1
+      }
+    ]
+  }
+}

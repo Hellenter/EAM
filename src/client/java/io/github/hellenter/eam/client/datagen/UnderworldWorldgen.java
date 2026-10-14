@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.dimension.UnderworldLogic;
 import io.github.hellenter.eam.dimension.feature.CavePillarFeature;
+import io.github.hellenter.eam.dimension.feature.CaveStreamFeature;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature.Shape;
 import io.github.hellenter.eam.dimension.feature.IceSpikeCaveFeature;
@@ -23,7 +24,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BlockStateProviders;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.features.AquaticFeatures;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.MiscOverworldFeatures;
 import net.minecraft.data.worldgen.features.OreFeatures;
@@ -38,8 +41,11 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CubicSpline;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.util.valueproviders.WeightedListInt;
 import net.minecraft.world.attribute.AmbientMoodSettings;
 import net.minecraft.world.attribute.AmbientParticle;
 import net.minecraft.world.attribute.AmbientSounds;
@@ -71,7 +77,13 @@ import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.op.SplineFunction;
+import net.minecraft.world.level.levelgen.feature.BlockColumnFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.TreeFeature;
+import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.feature.SimpleBlockFeature;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.material.MaterialRules;
@@ -97,19 +109,23 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * The underworld's datagen: its dimension type, terrain (noise settings, density functions, material rules), the six
+ * The underworld's datagen: its dimension type, terrain (noise settings, density functions, material rules), its
  * biomes and their features. The level stem itself is the hand-written {@code data/eam/dimension/underworld.json}, which
  * lists the biomes by temperature.
  * <p>
  * Terrain: the nether's 3D noise in both levels, each with its own floor and ceiling slides, and solid rock between
  * them where the material rules lay the deep bedrock. The temperature that picks the biome also opens the caves up (the
- * mushroom forest most); the ice caves are one huge hall instead, floor to roof. The aquifer floods only the lower
+ * mushroom forest most); the ice caves are one huge hall instead, floor to roof, and the frozen caves and the underground
+ * forest are low caves stacked in many levels. A second noise, the humidity, splits the band between the stone wastes and
+ * the underground forest into lake caves and river caves. The aquifer floods only the lower
  * level (a lava sea); upper lakes are dug by {@link UnderworldLakeFeature}, lowest floor first, and
  * {@link UnderworldFluidsFeature} turns them to lava in the hot biomes and freezes them in the ice caves.
  */
 final class UnderworldWorldgen {
 	static final ResourceKey<NormalNoise> TEMPERATURE_NOISE = ResourceKey.create(Registries.NOISE, Eam.id("underworld/temperature"));
 	static final ResourceKey<DensityFunction> TEMPERATURE = ResourceKey.create(Registries.DENSITY_FUNCTION, Eam.id("underworld/temperature"));
+	static final ResourceKey<NormalNoise> HUMIDITY_NOISE = ResourceKey.create(Registries.NOISE, Eam.id("underworld/humidity"));
+	static final ResourceKey<DensityFunction> HUMIDITY = ResourceKey.create(Registries.DENSITY_FUNCTION, Eam.id("underworld/humidity"));
 	static final ResourceKey<MaterialRule> MATERIAL_RULE = ResourceKey.create(Registries.MATERIAL_RULE, Eam.id("underworld"));
 	/** Hot biomes whose lakes are lava, and cold ones whose lakes freeze. */
 	static final TagKey<Biome> LAVA_LAKES = TagKey.create(Registries.BIOME, Eam.id("underworld_lava_lakes"));
@@ -117,18 +133,28 @@ final class UnderworldWorldgen {
 	static final TagKey<Biome> IS_UNDERWORLD = TagKey.create(Registries.BIOME, Eam.id("is_underworld"));
 
 	/**
-	 * Temperature edges between the biomes' bands, warm to cold. Keep in step with the hand-written bands in
-	 * data/eam/dimension/underworld.json. The ice caves take the widest share: the boss monument will stand there.
+	 * Temperature edges between the biomes' bands, warm to cold: each is the cold edge of the biome it is named after.
+	 * Keep in step with the hand-written bands in data/eam/dimension/underworld.json. The ice caves take the widest share:
+	 * the boss monument will stand there. The stone wastes have two bands, one on each side of the lake and river caves.
 	 */
-	static final float LAVA_EDGE = 0.32F;
-	static final float MUSHROOM_EDGE = 0.13F;
-	static final float LAKE_EDGE = -0.04F;
-	static final float ICE_EDGE = -0.2F;
+	static final float LAVA_EDGE = 0.36F;
+	static final float BURNT_EDGE = 0.26F;
+	static final float MUSHROOM_EDGE = 0.16F;
+	static final float WARM_STONE_EDGE = 0.12F;
+	static final float FOREST_EDGE = 0.03F;
+	static final float LAKE_EDGE = -0.06F;
+	static final float STONE_EDGE = -0.12F;
+	static final float FROZEN_EDGE = -0.2F;
+	static final float ICE_EDGE = FROZEN_EDGE;
 	/** Temperature at the middle of each biome's band. */
 	static final float LAVA_T = (LAVA_EDGE + 1.0F) / 2.0F;
-	static final float MUSHROOM_T = (MUSHROOM_EDGE + LAVA_EDGE) / 2.0F;
-	static final float STONE_T = (LAKE_EDGE + MUSHROOM_EDGE) / 2.0F;
-	static final float LAKE_T = (ICE_EDGE + LAKE_EDGE) / 2.0F;
+	static final float BURNT_T = (BURNT_EDGE + LAVA_EDGE) / 2.0F;
+	static final float MUSHROOM_T = (MUSHROOM_EDGE + BURNT_EDGE) / 2.0F;
+	static final float WARM_STONE_T = (WARM_STONE_EDGE + MUSHROOM_EDGE) / 2.0F;
+	static final float FOREST_T = (FOREST_EDGE + WARM_STONE_EDGE) / 2.0F;
+	static final float LAKE_T = (LAKE_EDGE + FOREST_EDGE) / 2.0F;
+	static final float STONE_T = (STONE_EDGE + LAKE_EDGE) / 2.0F;
+	static final float FROZEN_T = (FROZEN_EDGE + STONE_EDGE) / 2.0F;
 	static final float ICE_T = (ICE_EDGE - 1.0F) / 2.0F;
 
 	private static final int UPPER_BOTTOM = UnderworldLogic.BAND_TOP + 2;
@@ -138,6 +164,16 @@ final class UnderworldWorldgen {
 	private static final int ICE_ROOF = 172;
 	/** The lava caves turn to solid rock above this height, so they are lower than the other biomes' halls. */
 	private static final int LAVA_ROOF = 128;
+	/**
+	 * The layered caves: a level every LAYER_PERIOD blocks of height, its density from LAYER_SLAB in the rock between
+	 * levels to LAYER_OPEN in the middle of one, rising and falling by up to about LAYER_WAVE / 2 blocks, and roughened by
+	 * LAYER_ROUGHNESS times the nether noise.
+	 */
+	private static final int LAYER_PERIOD = 13;
+	private static final float LAYER_SLAB = 0.5F;
+	private static final float LAYER_OPEN = -0.5F;
+	private static final float LAYER_WAVE = 10.0F;
+	private static final float LAYER_ROUGHNESS = 0.45F;
 
 	static final ResourceKey<Feature> FLUIDS = feature("underworld_fluids");
 	static final ResourceKey<Feature> GIANT_BROWN_MUSHROOM = feature("giant_brown_mushroom");
@@ -151,8 +187,20 @@ final class UnderworldWorldgen {
 	static final ResourceKey<Feature> GIANT_CHANTERELLE = feature("giant_chanterelle");
 	static final ResourceKey<Feature> GIANT_CHAMPIGNON = feature("giant_champignon");
 	static final ResourceKey<Feature> DRAUGR_PACK = feature("underworld_draugr_pack");
+	static final ResourceKey<Feature> STREAM = feature("underworld_stream");
+	static final ResourceKey<Feature> RIVER = feature("underworld_river");
+	static final ResourceKey<Feature> SMALL_ICE_SPIRE = feature("underworld_small_ice_spire");
+	static final ResourceKey<Feature> SMALL_ICE_SPIKE = feature("underworld_small_ice_spike");
+	static final ResourceKey<Feature> SMALL_SPRUCE = feature("underworld_small_spruce");
+	static final ResourceKey<Feature> FOREST_PLANTS = feature("underground_forest_plants");
+	static final ResourceKey<Feature> GLOWSHROOM_VINES = feature("glowshroom_vines");
+	static final ResourceKey<Feature> SHORE_PLANTS = feature("underworld_shore_plants");
+	static final ResourceKey<Feature> BURNT_BROWN_MUSHROOM = feature("burnt_brown_mushroom");
+	static final ResourceKey<Feature> BURNT_RED_MUSHROOM = feature("burnt_red_mushroom");
+	static final ResourceKey<Feature> SMOLDERING_MUSHROOM = feature("smoldering_mushroom");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(FLUIDS, GIANT_BROWN_MUSHROOM, GIANT_RED_MUSHROOM, ICE_SPIKE, COBWEB, LAKE, LAVA_LAKE,
-			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON, DRAUGR_PACK);
+			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON, DRAUGR_PACK, STREAM, RIVER, SMALL_ICE_SPIRE, SMALL_ICE_SPIKE, SMALL_SPRUCE,
+			FOREST_PLANTS, GLOWSHROOM_VINES, SHORE_PLANTS, BURNT_BROWN_MUSHROOM, BURNT_RED_MUSHROOM, SMOLDERING_MUSHROOM);
 
 	/**
 	 * Every placed feature of the underworld, in the one order all its biomes share (a biome takes a subset), so
@@ -163,6 +211,9 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_LAKES = placed("underworld/lakes", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_LAKES_MANY = placed("underworld/lakes_many", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_LAVA_LAKES = placed("underworld/lava_lakes", GenerationStep.Decoration.LAKES);
+	/** Streams and rivers before the fluids, which would freeze or burn them in the cold and hot biomes. */
+	static final ResourceKey<PlacedFeature> P_STREAMS = placed("underworld/streams", GenerationStep.Decoration.LAKES);
+	static final ResourceKey<PlacedFeature> P_RIVERS = placed("underworld/rivers", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_FLUIDS = placed("underworld/fluids", GenerationStep.Decoration.LAKES);
 	static final ResourceKey<PlacedFeature> P_ORE_IRON = placed("underworld/ore_iron", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_GOLD = placed("underworld/ore_gold", GenerationStep.Decoration.UNDERGROUND_ORES);
@@ -193,6 +244,28 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_COBWEB = placed("underworld/cobweb", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_GLOW_LICHEN = placed("underworld/glow_lichen", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_GLOW_LICHEN_MANY = placed("underworld/glow_lichen_many", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SMALL_ICE_SPIRE = placed("underworld/small_ice_spire", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SMALL_ICE_SPIKE = placed("underworld/small_ice_spike", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_BURNT_BROWN = placed("underworld/burnt_brown_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_BURNT_RED = placed("underworld/burnt_red_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SMOLDERING = placed("underworld/smoldering_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_DEAD_BUSHES = placed("underworld/dead_bushes", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SPRUCE = placed("underworld/spruce", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SMALL_SPRUCE = placed("underworld/small_spruce", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FOREST_MOSS = placed("underworld/forest_moss", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FOREST_PLANTS = placed("underworld/forest_plants", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_GLOWSHROOM_VINES = placed("underworld/glowshroom_vines", GenerationStep.Decoration.VEGETAL_DECORATION);
+	/** The lake and river caves' small plants: moss with azaleas, orchids, ferns, dripleaves, cane by the water. */
+	static final ResourceKey<PlacedFeature> P_MOSS_PATCH = placed("underworld/moss_patch", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_DRIPLEAF_CLAY = placed("underworld/dripleaf_clay", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_ORCHIDS = placed("underworld/orchids", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FERNS = placed("underworld/ferns", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SHORE_PLANTS = placed("underworld/shore_plants", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SUGAR_CANE = placed("underworld/sugar_cane", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SPORE_BLOSSOM = placed("underworld/spore_blossom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_KELP = placed("underworld/kelp", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SEAGRASS = placed("underworld/seagrass", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_LILY_PADS = placed("underworld/lily_pads", GenerationStep.Decoration.VEGETAL_DECORATION);
 	/** Last, so the draugr lie in a floor that has its ice spires already. */
 	static final ResourceKey<PlacedFeature> P_DRAUGR_PACK = placed("underworld/draugr_pack", GenerationStep.Decoration.VEGETAL_DECORATION);
 
@@ -202,8 +275,10 @@ final class UnderworldWorldgen {
 	// ---- Noise and density functions ----
 
 	static void bootstrapNoises(BootstrapContext<NormalNoise> context) {
-		// Big regions: one band of temperature is many hundreds of blocks across.
+		// Big regions: one band of temperature is many hundreds of blocks across, the narrow transitional ones a hundred or two.
 		context.register(TEMPERATURE_NOISE, NormalNoise.createParity(-8, 1.0, 1.0, 0.5));
+		// Smaller patches: which of the lake and river caves a stretch of that band is.
+		context.register(HUMIDITY_NOISE, NormalNoise.createParity(-7, 1.0, 1.0));
 	}
 
 	static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
@@ -211,7 +286,10 @@ final class UnderworldWorldgen {
 		HolderGetter<NormalNoise> noises = context.lookup(Registries.NOISE);
 		context.register(TEMPERATURE, DensityFunctions.shiftedNoise2d(
 				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
-				0.25, noises.getOrThrow(TEMPERATURE_NOISE)));
+				0.2, noises.getOrThrow(TEMPERATURE_NOISE)));
+		context.register(HUMIDITY, DensityFunctions.shiftedNoise2d(
+				NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_X), NoiseRouterData.getFunction(functions, NoiseRouterData.SHIFT_Z),
+				0.25, noises.getOrThrow(HUMIDITY_NOISE)));
 	}
 
 	static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
@@ -225,9 +303,13 @@ final class UnderworldWorldgen {
 		DensityFunction openness = DensityFunctions.spline(CubicSpline.builder(t)
 				.addPoint(-1.0F, -0.12F)
 				.addPoint(ICE_T, -0.12F)
-				.addPoint(LAKE_T, -0.12F)
+				.addPoint(FROZEN_T, 0.0F)
 				.addPoint(STONE_T, 0.0F)
+				.addPoint(LAKE_T, -0.12F)
+				.addPoint(FOREST_T, -0.04F)
+				.addPoint(WARM_STONE_T, 0.0F)
 				.addPoint(MUSHROOM_T, -0.34F)
+				.addPoint(BURNT_T, -0.24F)
 				.addPoint(LAVA_T, -0.08F)
 				.addPoint(1.0F, -0.08F)
 				.build());
@@ -254,6 +336,32 @@ final class UnderworldWorldgen {
 				.build());
 		DensityFunction lavaRoof = DensityFunctions.mul(lavaWeight, DensityFunctions.yClampedGradient(LAVA_ROOF - 28, LAVA_ROOF, 0.0F, 1.5F));
 		caves = DensityFunctions.add(caves, lavaRoof);
+		// The frozen caves and the underground forest are low caves in many levels: rock slabs and open floors take turns
+		// every LAYER_PERIOD blocks of height, the levels rise and fall with a broad noise, and the nether noise breaks
+		// through the slabs here and there so the levels run into each other.
+		DensityFunction wave = DensityFunctions.mul(DensityFunctions.constant(LAYER_WAVE),
+				DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 4.0, 0.0));
+		SplineFunction.Coordinate height = new SplineFunction.Coordinate(DensityFunctions.add(
+				DensityFunctions.yClampedGradient(0, UnderworldLogic.HEIGHT, 0.0F, UnderworldLogic.HEIGHT), wave));
+		CubicSpline.Builder<SplineFunction.Coordinate> levels = CubicSpline.builder(height);
+		for (int y = UPPER_BOTTOM - LAYER_PERIOD; y < UnderworldLogic.HEIGHT + LAYER_PERIOD; y += LAYER_PERIOD) {
+			levels.addPoint(y, LAYER_SLAB);
+			levels.addPoint(y + LAYER_PERIOD / 2.0F, LAYER_OPEN);
+		}
+		DensityFunction layers = DensityFunctions.add(DensityFunctions.spline(levels.build()),
+				DensityFunctions.mul(DensityFunctions.constant(LAYER_ROUGHNESS), base));
+		DensityFunction layered = NoiseRouterData.slide(layers, 0, UnderworldLogic.HEIGHT, 22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
+		DensityFunction layerWeight = DensityFunctions.spline(CubicSpline.builder(t)
+				.addPoint(ICE_EDGE + 0.01F, 0.0F)
+				.addPoint(ICE_EDGE + 0.04F, 1.0F)
+				.addPoint(STONE_EDGE - 0.02F, 1.0F)
+				.addPoint(STONE_EDGE + 0.02F, 0.0F)
+				.addPoint(FOREST_EDGE - 0.03F, 0.0F)
+				.addPoint(FOREST_EDGE + 0.01F, 1.0F)
+				.addPoint(WARM_STONE_EDGE - 0.02F, 1.0F)
+				.addPoint(WARM_STONE_EDGE + 0.02F, 0.0F)
+				.build());
+		caves = DensityFunctions.lerp(layerWeight, caves, layered);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
 		// Lower level: wide, lower halls between the floor bedrock and the band.
 		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.HEIGHT,
@@ -263,7 +371,8 @@ final class UnderworldWorldgen {
 
 		// Depth is 1 in the lower level and 0 in the upper one, so the lower level is always the depths biome.
 		DensityFunction depth = DensityFunctions.yClampedGradient(UnderworldLogic.LEVEL_SPLIT - 2, UnderworldLogic.LEVEL_SPLIT + 2, 1.0F, 0.0F);
-		NoiseRouter router = new NoiseRouter(temperature, DensityFunctions.zero(), DensityFunctions.zero(), DensityFunctions.zero(), depth,
+		NoiseRouter router = new NoiseRouter(temperature, NoiseRouterData.getFunction(functions, HUMIDITY), DensityFunctions.zero(),
+				DensityFunctions.zero(), depth,
 				DensityFunctions.zero(), DensityFunctions.zero(), finalDensity);
 
 		DensityFunction floodNoise = DensityFunctions.mul(DensityFunctions.constant(0.3F),
@@ -352,6 +461,38 @@ final class UnderworldWorldgen {
 		// Moss on the floors of the lake caves; the lake beds are clay and stone, laid by the lake feature.
 		MaterialRule lakes = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.LAKE_CAVES),
 				MaterialRules.ifTrue(onFloor, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, 0.05), state(Blocks.MOSS_BLOCK))));
+		// Frozen caves: floors of packed ice and snow with stone between, ice patches on the ceilings.
+		MaterialRule frozen = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.FROZEN_CAVES), MaterialRules.sequence(
+				MaterialRules.ifTrue(onFloor, MaterialRules.ifTrue(dry, MaterialRules.sequence(
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PACKED_ICE, -0.1, 0.3), state(Blocks.PACKED_ICE)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.POWDER_SNOW, -0.25, 0.25), state(Blocks.SNOW_BLOCK)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.ICE, 0.55), state(Blocks.BLUE_ICE))))),
+				MaterialRules.ifTrue(onCeiling, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PACKED_ICE, -0.2, 0.2),
+						state(Blocks.PACKED_ICE)))));
+		// River caves: moss like the lake caves, gravel and clay where it is wetter.
+		MaterialRule rivers = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.RIVER_CAVES),
+				MaterialRules.ifTrue(onFloor, MaterialRules.sequence(
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, 0.0), state(Blocks.MOSS_BLOCK)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.GRAVEL, 0.35), state(Blocks.GRAVEL)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.CLAY_BANDS_OFFSET, 0.4), state(Blocks.CLAY)))));
+		// Underground forest: grass, moss and podzol over dirt, moss hanging on the ceilings.
+		MaterialRule forest = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.UNDERGROUND_FOREST), MaterialRules.sequence(
+				MaterialRules.ifTrue(onFloor, MaterialRules.ifTrue(dry, MaterialRules.sequence(
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, 0.1), state(Blocks.MOSS_BLOCK)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, -1.0, -0.3), state(Blocks.PODZOL)),
+						state(Blocks.GRASS_BLOCK)))),
+				MaterialRules.ifTrue(underFloor, state(Blocks.DIRT)),
+				MaterialRules.ifTrue(onCeiling, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, 0.15), state(Blocks.MOSS_BLOCK)))));
+		// Burnt mushroom forest: scorched ground, coarse dirt with basalt and blackstone, embers of magma.
+		MaterialRule burnt = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.BURNT_MUSHROOM_FOREST), MaterialRules.sequence(
+				MaterialRules.ifTrue(onFloor, MaterialRules.ifTrue(dry, MaterialRules.sequence(
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.NETHER_STATE_SELECTOR, 0.5), state(Blocks.MAGMA_BLOCK)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, 0.3), state(Blocks.BASALT)),
+						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.PATCH, -1.0, -0.35), state(Blocks.BLACKSTONE)),
+						state(Blocks.COARSE_DIRT)))),
+				MaterialRules.ifTrue(underFloor, state(Blocks.COARSE_DIRT)),
+				MaterialRules.ifTrue(onCeiling, MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.NETHER_STATE_SELECTOR, 0.1),
+						state(Blocks.BASALT)))));
 		MaterialRule wastes = MaterialRules.ifTrue(MaterialRules.isBiome(biomes, UnderworldDimension.STONE_WASTES),
 				MaterialRules.ifTrue(onFloor, MaterialRules.sequence(
 						MaterialRules.ifTrue(MaterialRules.noiseCondition3d(Noises.GRAVEL, 0.3), state(Blocks.GRAVEL)),
@@ -366,6 +507,10 @@ final class UnderworldWorldgen {
 				lava,
 				ice,
 				lakes,
+				frozen,
+				rivers,
+				forest,
+				burnt,
 				wastes));
 	}
 
@@ -437,6 +582,52 @@ final class UnderworldWorldgen {
 		context.register(COBWEB, new SimpleBlockFeature(BlockStateProvider.of(Blocks.COBWEB)));
 		// About thirty draugr frozen into the floor, two to four of them waiting.
 		context.register(DRAUGR_PACK, new DraugrPackFeature(UniformInt.of(24, 34), UniformInt.of(2, 4), 20, 0.25F));
+		// Streams in the underground forest, wider and deeper rivers in the river caves.
+		context.register(STREAM, new CaveStreamFeature(UniformInt.of(0, 1), ConstantInt.of(1), UniformInt.of(12, 28), Blocks.CLAY.defaultBlockState()));
+		context.register(RIVER, new CaveStreamFeature(UniformInt.of(1, 2), UniformInt.of(1, 2), UniformInt.of(20, 40), Blocks.CLAY.defaultBlockState()));
+		// The frozen caves have now and then a small ice spike and a short icicle.
+		context.register(SMALL_ICE_SPIRE, new IceSpireFeature(UniformInt.of(3, 8), UniformInt.of(1, 2), UniformInt.of(9, 14), UniformInt.of(2, 3),
+				0.08F));
+		context.register(SMALL_ICE_SPIKE, new IceSpikeCaveFeature(UniformInt.of(2, 7), UniformInt.of(1, 2), 0.3F, 24));
+		// Spruces low enough for the forest's caves; vanilla's taller ones stand where a cave is high enough.
+		HolderGetter<BlockStateProvider> providers = context.lookup(Registries.BLOCK_STATE_PROVIDER);
+		context.register(SMALL_SPRUCE, new TreeFeature.Builder(BlockStateProvider.of(Blocks.SPRUCE_LOG), new StraightTrunkPlacer(3, 2, 0),
+				BlockStateProvider.of(Blocks.SPRUCE_LEAVES), new SpruceFoliagePlacer(UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2)),
+				new TwoLayersFeatureSize(2, 0, 2), providers.getOrThrow(BlockStateProviders.SOIL_BENEATH_TREE)).ignoreVines().build());
+		context.register(FOREST_PLANTS, new SimpleBlockFeature(new WeightedStateProvider(WeightedList.<BlockState>builder()
+				.add(Blocks.FERN.defaultBlockState(), 8)
+				.add(Blocks.SHORT_GRASS.defaultBlockState(), 5)
+				.add(Blocks.LARGE_FERN.defaultBlockState(), 2)
+				.add(Blocks.MOSS_CARPET.defaultBlockState(), 4)
+				.add(Blocks.SWEET_BERRY_BUSH.defaultBlockState(), 1)
+				.add(Blocks.BROWN_MUSHROOM.defaultBlockState(), 1))));
+		// Glowing fungus threads from the ceilings: mostly short, some long enough to reach far down.
+		context.register(GLOWSHROOM_VINES, new BlockColumnFeature(List.of(
+				BlockColumnFeature.layer(new WeightedListInt(WeightedList.<IntProvider>builder()
+						.add(UniformInt.of(0, 3), 6).add(UniformInt.of(2, 7), 3).add(UniformInt.of(5, 12), 1).build()),
+						BlockStateProvider.of(EamBlocks.GLOWSHROOM_VINES_PLANT)),
+				BlockColumnFeature.layer(ConstantInt.of(1), BlockStateProvider.of(EamBlocks.GLOWSHROOM_VINES))),
+				Direction.DOWN, BlockPredicate.ONLY_IN_AIR_PREDICATE, true));
+		// Plants on the banks of the lake and river caves.
+		context.register(SHORE_PLANTS, new SimpleBlockFeature(new WeightedStateProvider(WeightedList.<BlockState>builder()
+				.add(Blocks.BLUE_ORCHID.defaultBlockState(), 5)
+				.add(Blocks.FERN.defaultBlockState(), 4)
+				.add(Blocks.SHORT_GRASS.defaultBlockState(), 4)
+				.add(Blocks.TALL_GRASS.defaultBlockState(), 2)
+				.add(Blocks.AZALEA.defaultBlockState(), 2)
+				.add(Blocks.FLOWERING_AZALEA.defaultBlockState(), 1)
+				.add(Blocks.MOSS_CARPET.defaultBlockState(), 3))));
+		// Giant mushrooms burnt black: some hang a smouldering cap block under the cap, the champignon-like ones smoulder in
+		// patches of the cap itself.
+		BlockState burntCap = EamBlocks.BURNT_MUSHROOM_CAP.defaultBlockState();
+		BlockState burntStem = EamBlocks.BURNT_MUSHROOM_STEM.defaultBlockState();
+		BlockState smoldering = EamBlocks.SMOLDERING_MUSHROOM_CAP.defaultBlockState();
+		context.register(BURNT_BROWN_MUSHROOM, new GiantMushroomFeature(burntCap, burntStem, smoldering, Shape.BROWN, UniformInt.of(4, 9),
+				UniformInt.of(3, 5), 9, 0.05F));
+		context.register(BURNT_RED_MUSHROOM, new GiantMushroomFeature(burntCap, burntStem, smoldering, Shape.RED, UniformInt.of(4, 8),
+				UniformInt.of(2, 3), 64, 0.05F));
+		context.register(SMOLDERING_MUSHROOM, new GiantMushroomFeature(burntCap, burntStem, smoldering, Shape.CHAMPIGNON, UniformInt.of(4, 7),
+				UniformInt.of(3, 5), 7, 0.18F));
 	}
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -455,6 +646,8 @@ final class UnderworldWorldgen {
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_LAVA_LAKES, features.getOrThrow(LAVA_LAKE), List.of(RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
+		onFloor(context, P_STREAMS, features.getOrThrow(STREAM), CountPlacement.of(UniformInt.of(1, 3)));
+		onFloor(context, P_RIVERS, features.getOrThrow(RIVER), CountPlacement.of(UniformInt.of(2, 4)));
 		PlacementUtils.register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
 		// Ores: MITE's underworld is richer than the overworld. Iron and gold everywhere, copper and silver in the upper
 		// level, mithril rare above the deep bedrock and common under it.
@@ -509,6 +702,48 @@ final class UnderworldWorldgen {
 				List.of(CountPlacement.of(UniformInt.of(30, 50)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_GLOW_LICHEN_MANY, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
 				List.of(CountPlacement.of(UniformInt.of(90, 130)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
+
+		// Frozen caves: a small ice spike every other chunk or so, a few short icicles.
+		PlacementUtils.register(context, P_SMALL_ICE_SPIRE, features.getOrThrow(SMALL_ICE_SPIRE), List.of(RarityFilter.onAverageOnceEvery(2),
+				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(),
+						BlockPredicate.ONLY_IN_AIR_PREDICATE, 32), OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
+		PlacementUtils.register(context, P_SMALL_ICE_SPIKE, features.getOrThrow(SMALL_ICE_SPIKE),
+				List.of(CountPlacement.of(UniformInt.of(1, 3)), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
+
+		// Burnt mushroom forest.
+		onFloor(context, P_BURNT_BROWN, features.getOrThrow(BURNT_BROWN_MUSHROOM), CountPlacement.of(UniformInt.of(3, 6)));
+		onFloor(context, P_BURNT_RED, features.getOrThrow(BURNT_RED_MUSHROOM), CountPlacement.of(UniformInt.of(2, 4)));
+		onFloor(context, P_SMOLDERING, features.getOrThrow(SMOLDERING_MUSHROOM), CountPlacement.of(UniformInt.of(2, 3)));
+		patch(context, P_DEAD_BUSHES, features.getOrThrow(VegetationFeatures.DEAD_BUSH), 3, Blocks.DEAD_BUSH);
+
+		// Underground forest: spruces wherever a cave is high enough, ferns and grass, streams, and glowing vines.
+		onFloor(context, P_SPRUCE, features.getOrThrow(TreeFeatures.SPRUCE), CountPlacement.of(UniformInt.of(4, 7)),
+				PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
+		onFloor(context, P_SMALL_SPRUCE, features.getOrThrow(SMALL_SPRUCE), CountPlacement.of(UniformInt.of(8, 12)),
+				PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
+		onFloor(context, P_FOREST_MOSS, features.getOrThrow(CaveFeatures.MOSS_PATCH), CountPlacement.of(UniformInt.of(2, 4)));
+		patch(context, P_FOREST_PLANTS, features.getOrThrow(FOREST_PLANTS), 10, Blocks.FERN);
+		PlacementUtils.register(context, P_GLOWSHROOM_VINES, features.getOrThrow(GLOWSHROOM_VINES), List.of(CountPlacement.of(90),
+				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.hasSturdyFace(Direction.DOWN),
+						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
+
+		// Lake and river caves: moss with azaleas, clay pools with dripleaves, orchids and ferns, cane and lily pads by
+		// the water, kelp and seagrass in it, spore blossoms on the ceilings.
+		onFloor(context, P_MOSS_PATCH, features.getOrThrow(CaveFeatures.MOSS_PATCH), CountPlacement.of(UniformInt.of(4, 8)));
+		onFloor(context, P_DRIPLEAF_CLAY, features.getOrThrow(CaveFeatures.LUSH_CAVES_CLAY), CountPlacement.of(UniformInt.of(1, 3)));
+		patch(context, P_ORCHIDS, features.getOrThrow(VegetationFeatures.FLOWER_SWAMP), 3, Blocks.BLUE_ORCHID);
+		patch(context, P_FERNS, features.getOrThrow(VegetationFeatures.TAIGA_GRASS), 3, Blocks.FERN);
+		patch(context, P_SHORE_PLANTS, features.getOrThrow(SHORE_PLANTS), 4, Blocks.FERN);
+		patch(context, P_SUGAR_CANE, features.getOrThrow(VegetationFeatures.SUGAR_CANE), 8, Blocks.SUGAR_CANE);
+		PlacementUtils.register(context, P_SPORE_BLOSSOM, features.getOrThrow(CaveFeatures.SPORE_BLOSSOM), List.of(CountPlacement.of(6),
+				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.solid(),
+						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
+		inWater(context, P_KELP, features.getOrThrow(AquaticFeatures.KELP), 80);
+		inWater(context, P_SEAGRASS, features.getOrThrow(AquaticFeatures.SEAGRASS_MID), 50);
+		PlacementUtils.register(context, P_LILY_PADS, features.getOrThrow(VegetationFeatures.WATERLILY), List.of(CountPlacement.of(30),
+				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.DOWN,
+						BlockPredicate.matchesBlocks(Direction.DOWN, Blocks.WATER), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
+				BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.LILY_PAD)), BiomeFilter.biome()));
 	}
 
 	private static void ore(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count,
@@ -516,13 +751,28 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(), height, BiomeFilter.biome()));
 	}
 
+	/**
+	 * At the bottom of a cave lake in the upper level: down from a random spot through the air to the water, then down
+	 * through it to the bed, one block above it.
+	 */
+	private static void inWater(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count) {
+		PlacementUtils.register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(),
+				HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM), VerticalAnchor.absolute(UPPER_TOP)),
+				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.matchesBlocks(Blocks.WATER), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
+				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.matchesBlocks(Blocks.WATER), 8),
+				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
+	}
+
 	/** On the floor of a cave in the upper level: down from a random spot onto solid ground, one block above it. */
 	private static void onFloor(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature,
-			PlacementModifier count) {
-		PlacementUtils.register(context, key, feature, List.of(count, InSquarePlacement.spread(),
+			PlacementModifier count, PlacementModifier... filters) {
+		List<PlacementModifier> modifiers = new ArrayList<>(List.of(count, InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM), VerticalAnchor.absolute(UPPER_TOP)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
-				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
+				OffsetPlacement.vertical(ConstantInt.of(1))));
+		modifiers.addAll(List.of(filters));
+		modifiers.add(BiomeFilter.biome());
+		PlacementUtils.register(context, key, feature, modifiers);
 	}
 
 	/** {@code count} patches of a small plant on cave floors, 12 tries around each. */
@@ -552,9 +802,28 @@ final class UnderworldWorldgen {
 						P_HUGE_RED, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
 				spawns()));
+		List<ResourceKey<PlacedFeature>> lakePlants = List.of(P_MOSS_PATCH, P_DRIPLEAF_CLAY, P_ORCHIDS, P_FERNS, P_SHORE_PLANTS, P_SUGAR_CANE,
+				P_SPORE_BLOSSOM, P_KELP, P_SEAGRASS, P_LILY_PADS);
 		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E6E8E,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
-				features(common, P_LAKES_MANY, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY),
+				features(features(common, P_LAKES_MANY, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY), lakePlants),
+				spawns()));
+		context.register(UnderworldDimension.RIVER_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E7A8E,
+				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
+				features(features(common, P_LAKES_FEW, P_RIVERS, P_ORE_GRAVEL, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY), lakePlants),
+				spawns()));
+		context.register(UnderworldDimension.FROZEN_CAVES, biome(placed, carvers, -0.5F, 0x2A3644, 0x3938C9,
+				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.002F),
+				features(common, P_LAKES_MANY, P_ORE_GRAVEL, P_SMALL_ICE_SPIRE, P_SMALL_ICE_SPIKE, P_COBWEB, P_GLOW_LICHEN),
+				spawns()));
+		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x10262A, 0x2E8E80,
+				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
+				features(common, P_STREAMS, P_SPRUCE, P_SMALL_SPRUCE, P_FOREST_MOSS, P_FOREST_PLANTS, P_BROWN_MUSHROOMS_FEW,
+						P_GLOWSHROOM_VINES, P_GLOW_LICHEN),
+				spawns()));
+		context.register(UnderworldDimension.BURNT_MUSHROOM_FOREST, biome(placed, carvers, 1.5F, 0x2A1C18, 0x3F76E4,
+				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.02F),
+				features(common, P_LAKES_FEW, P_ORE_MAGMA, P_SPRING_LAVA, P_BURNT_BROWN, P_BURNT_RED, P_SMOLDERING, P_DEAD_BUSHES),
 				spawns()));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
@@ -573,8 +842,12 @@ final class UnderworldWorldgen {
 
 	@SafeVarargs
 	private static List<ResourceKey<PlacedFeature>> features(List<ResourceKey<PlacedFeature>> common, ResourceKey<PlacedFeature>... more) {
+		return features(common, List.of(more));
+	}
+
+	private static List<ResourceKey<PlacedFeature>> features(List<ResourceKey<PlacedFeature>> common, List<ResourceKey<PlacedFeature>> more) {
 		List<ResourceKey<PlacedFeature>> list = new ArrayList<>(common);
-		list.addAll(List.of(more));
+		list.addAll(more);
 		return list;
 	}
 
@@ -620,6 +893,8 @@ final class UnderworldWorldgen {
 	static void configure(HolderLookup.Provider registries, FabricDynamicRegistryProvider.Entries entries) {
 		entries.add(registries.lookupOrThrow(Registries.NOISE), TEMPERATURE_NOISE);
 		entries.add(registries.lookupOrThrow(Registries.DENSITY_FUNCTION), TEMPERATURE);
+		entries.add(registries.lookupOrThrow(Registries.NOISE), HUMIDITY_NOISE);
+		entries.add(registries.lookupOrThrow(Registries.DENSITY_FUNCTION), HUMIDITY);
 		entries.add(registries.lookupOrThrow(Registries.MATERIAL_RULE), MATERIAL_RULE);
 		entries.add(registries.lookupOrThrow(Registries.NOISE_SETTINGS), UnderworldDimension.NOISE_SETTINGS);
 		entries.add(registries.lookupOrThrow(Registries.DIMENSION_TYPE), UnderworldDimension.TYPE);
