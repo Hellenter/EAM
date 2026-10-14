@@ -835,7 +835,8 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.FROZEN_CAVES, biome(placed, carvers, -0.5F, 0x2A3644, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.002F),
-				features(common, P_LAKES_MANY, P_ORE_GRAVEL, P_SMALL_ICE_SPIRE, P_SMALL_ICE_SPIKE, P_COBWEB, P_GLOW_LICHEN),
+				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_MANY, P_ORE_GRAVEL, P_SMALL_ICE_SPIRE,
+						P_SMALL_ICE_SPIKE, P_COBWEB, P_GLOW_LICHEN),
 				spawns()));
 		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x10262A, 0x2E8E80,
 				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
@@ -844,7 +845,8 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.BURNT_MUSHROOM_FOREST, biome(placed, carvers, 1.5F, 0x2A1C18, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.02F),
-				features(common, P_LAKES_FEW, P_ORE_MAGMA, P_SPRING_LAVA, P_BURNT_BROWN, P_BURNT_RED, P_SMOLDERING, P_DEAD_BUSHES),
+				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_ORE_MAGMA, P_SPRING_LAVA, P_BURNT_BROWN, P_BURNT_RED,
+						P_SMOLDERING, P_DEAD_BUSHES),
 				spawns()));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),

@@ -61,6 +61,11 @@
       "eam:underworld/ore_copper",
       "eam:underworld/ore_silver",
       "eam:underworld/ore_mithril",
+      "eam:underworld/ore_diamond",
+      "eam:underworld/ore_redstone",
+      "eam:underworld/ore_lapis",
+      "eam:underworld/ore_gold_hot",
+      "eam:underworld/ore_redstone_hot",
       "eam:underworld/ore_magma"
     ],
     [],
