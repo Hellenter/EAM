@@ -1,7 +1,10 @@
 package io.github.hellenter.eam.client.mobs.duergar;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarLook;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
+import io.github.hellenter.eam.mobs.entity.duergar.RenegadeAction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -15,6 +18,9 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Any kind of duergar: the shared model with the kind's own textures {@code textures/entity/duergar/<kind>_<skin>.png};
@@ -23,6 +29,8 @@ import net.minecraft.world.entity.Mob;
 public class DuergarRenderer<T extends Mob & DuergarLook> extends HumanoidMobRenderer<T, DuergarRenderState, DuergarModel> {
 	private final Identifier[] textures;
 	private final RenderType eyes;
+	private final ItemStack bomb = new ItemStack(EamItems.DUERGAR_BOMB);
+	private final ItemStack flintAndSteel = new ItemStack(Items.FLINT_AND_STEEL);
 
 	public DuergarRenderer(EntityRendererProvider.Context context, String kind, int skins) {
 		super(context, new DuergarModel(context.bakeLayer(DuergarModel.LAYER)), 0.5F);
@@ -49,6 +57,23 @@ public class DuergarRenderer<T extends Mob & DuergarLook> extends HumanoidMobRen
 		super.extractRenderState(duergar, state, partialTicks);
 		state.gear = duergar.gear();
 		state.skin = duergar.skin();
+		state.action = RenegadeAction.NONE;
+		if (duergar instanceof DuergarRenegade renegade) {
+			state.action = renegade.action();
+			state.actionTime = renegade.actionTime(partialTicks);
+			if (state.action == RenegadeAction.BOMB && state.actionTime < RenegadeAction.BOMB_THROW) {
+				// The bomb in his right hand, the flint and steel in his left until the fuse catches.
+				ItemStack flint = state.actionTime < RenegadeAction.BOMB_LIT + 2 ? flintAndSteel : ItemStack.EMPTY;
+				itemModelResolver.updateForLiving(state.rightHandItemState, bomb, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, duergar);
+				itemModelResolver.updateForLiving(state.leftHandItemState, flint, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, duergar);
+				state.rightHandItemStack = bomb;
+				state.leftHandItemStack = flint;
+			} else if (state.action == RenegadeAction.ALLY_THROW && state.actionTime < RenegadeAction.ALLY_THROW_RELEASE) {
+				// Both hands under his mate: the weapon goes on his belt.
+				itemModelResolver.updateForLiving(state.rightHandItemState, ItemStack.EMPTY, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, duergar);
+				state.rightHandItemStack = ItemStack.EMPTY;
+			}
+		}
 	}
 
 	/** The two eye points, lit whatever the light around. */

@@ -23,6 +23,7 @@ import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
@@ -192,6 +193,9 @@ public final class EamItems {
 	/** Sold by duergar elders: on the surface, in hand, it turns into a map to the nearest boss's lair. */
 	public static final Item LAIR_MAP = register("lair_map", LairMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+
+	/** A duergar renegade's iron bomb: lit and thrown, it bursts a moment after it lands. */
+	public static final Item DUERGAR_BOMB = register("duergar_bomb", DuergarBombItem::new, new Item.Properties().stacksTo(16));
 
 	/** Baba Yaga's drop: read, it raises her grave in her swamp and turns into a map marking it. */
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,

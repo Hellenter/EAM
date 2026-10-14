@@ -9,5 +9,34 @@
   "max_followers": 4,
   "spawn_spacing": 64.0,
   "bald_chance": 0.5,
-  "weapon_drop_chance": 0.05
+  "weapon_drop_chance": 0.05,
+  "attacks": {
+    "charge": {
+      "chance": 0.3,
+      "cooldown_ticks": 120,
+      "damage_multiplier": 1.5,
+      "reach": 2.6,
+      "shield_seconds": 5.0
+    },
+    "bomb": {
+      "chance": 0.08,
+      "cooldown_ticks": 400,
+      "squad_cooldown_ticks": 300,
+      "min_distance": 4.0,
+      "max_distance": 14.0,
+      "damage": 12.0,
+      "radius": 4.5,
+      "fuse_ticks": 40
+    },
+    "ally_throw": {
+      "chance": 0.04,
+      "cooldown_ticks": 900,
+      "squad_cooldown_ticks": 500,
+      "min_distance": 5.0,
+      "max_distance": 14.0,
+      "grab_range": 3.0,
+      "hit_multiplier": 1.0,
+      "knockback": 1.0
+    }
+  }
 }

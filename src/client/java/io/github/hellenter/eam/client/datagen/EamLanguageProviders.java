@@ -187,6 +187,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
 			builder.add(EamItems.LAIR_MAP, "Map to a Lair");
+			builder.add(EamItems.DUERGAR_BOMB, "Duergar Bomb");
+			builder.add(EamEntities.DUERGAR_BOMB, "Duergar Bomb");
 			builder.add("item.eam.lair_map.surface", "The map shows the surface; take it up there");
 			builder.add("item.eam.lair_map.not_found", "No lair is near enough to mark");
 			builder.add(EamItems.VAMPIRE_HEART, "Vampire Heart");
@@ -752,6 +754,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
 			builder.add(EamItems.LAIR_MAP, "Карта к логову");
+			builder.add(EamItems.DUERGAR_BOMB, "Бомба двергаров");
+			builder.add(EamEntities.DUERGAR_BOMB, "Бомба двергаров");
 			builder.add("item.eam.lair_map.surface", "На карте поверхность: поднимитесь наверх");
 			builder.add("item.eam.lair_map.not_found", "Поблизости нет логова");
 			builder.add(EamItems.VAMPIRE_HEART, "Сердце вампира");

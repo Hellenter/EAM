@@ -20,11 +20,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param spawnSpacing     no squad spawns within this many blocks of another renegade
  * @param baldChance       chance he is bald
  * @param weaponDropChance chance his weapon drops
+ * @param attacks          his special attacks: the charged blow, the bomb and the thrown squad mate
  */
 public record DuergarRenegadeSettings(double health, double leaderHealth, double speed, double attackDamage, double extraArmor,
-		double armorToughness, int minFollowers, int maxFollowers, double spawnSpacing, double baldChance, float weaponDropChance) {
+		double armorToughness, int minFollowers, int maxFollowers, double spawnSpacing, double baldChance, float weaponDropChance,
+		DuergarRenegadeAttacks attacks) {
 	public static final DuergarRenegadeSettings DEFAULT = new DuergarRenegadeSettings(26.0, 36.0, 0.19, 4.0, 4.0, 4.0, 3, 4, 64.0, 0.5,
-			0.05F);
+			0.05F, DuergarRenegadeAttacks.DEFAULT);
 
 	public static final Codec<DuergarRenegadeSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.doubleRange(1.0, 1024.0).fieldOf("health").orElse(DEFAULT.health).forGetter(DuergarRenegadeSettings::health),
@@ -38,6 +40,7 @@ public record DuergarRenegadeSettings(double health, double leaderHealth, double
 			Codec.doubleRange(0.0, 256.0).fieldOf("spawn_spacing").orElse(DEFAULT.spawnSpacing).forGetter(DuergarRenegadeSettings::spawnSpacing),
 			Codec.doubleRange(0.0, 1.0).fieldOf("bald_chance").orElse(DEFAULT.baldChance).forGetter(DuergarRenegadeSettings::baldChance),
 			Codec.floatRange(0.0F, 1.0F).fieldOf("weapon_drop_chance").orElse(DEFAULT.weaponDropChance)
-					.forGetter(DuergarRenegadeSettings::weaponDropChance)
+					.forGetter(DuergarRenegadeSettings::weaponDropChance),
+			DuergarRenegadeAttacks.CODEC.fieldOf("attacks").orElse(DEFAULT.attacks).forGetter(DuergarRenegadeSettings::attacks)
 	).apply(instance, DuergarRenegadeSettings::new));
 }

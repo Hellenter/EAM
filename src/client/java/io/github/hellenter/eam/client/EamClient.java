@@ -149,6 +149,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.ELITE_CROSSBOWMAN, EliteCrossbowmanRenderer::new);
 		EntityRendererRegistry.register(EamEntities.RED_BOLT, RedBoltRenderer::new);
 		EntityRendererRegistry.register(EamEntities.NET_SHOT, ThrownItemRenderer::new);
+		EntityRendererRegistry.register(EamEntities.DUERGAR_BOMB, ThrownItemRenderer::new);
 		ModelLayerRegistry.registerModelLayer(PillagerGuardModel.LAYER, PillagerGuardModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.PILLAGER_GUARD, PillagerGuardRenderer::new);
 		EntityRendererRegistry.register(EamEntities.GUARD_AXE, KingAxeRenderer::guard);
