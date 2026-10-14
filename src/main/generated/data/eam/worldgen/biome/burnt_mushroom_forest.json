@@ -1,0 +1,84 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "max_delay": 24000,
+        "min_delay": 12000,
+        "sound": "minecraft:music.nether.basalt_deltas"
+      }
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [
+            {
+              "type": "minecraft:bat",
+              "count": 8,
+              "weight": 10
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "minecraft:white_ash"
+        },
+        "probability": 0.02
+      }
+    ],
+    "minecraft:visual/fog_color": "#2a1c18"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#3f76e4"
+  },
+  "features": [
+    [],
+    [
+      "eam:underworld/lakes_few",
+      "eam:underworld/fluids"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "eam:underworld/ore_iron",
+      "eam:underworld/ore_gold",
+      "eam:underworld/ore_copper",
+      "eam:underworld/ore_silver",
+      "eam:underworld/ore_mithril",
+      "eam:underworld/ore_diamond",
+      "eam:underworld/ore_redstone",
+      "eam:underworld/ore_lapis",
+      "eam:underworld/ore_gold_hot",
+      "eam:underworld/ore_redstone_hot",
+      "eam:underworld/ore_magma"
+    ],
+    [],
+    [
+      "eam:underworld/spring_lava"
+    ],
+    [
+      "eam:underworld/burnt_brown_mushroom",
+      "eam:underworld/burnt_red_mushroom",
+      "eam:underworld/smoldering_mushroom",
+      "eam:underworld/dead_bushes"
+    ]
+  ],
+  "has_precipitation": false,
+  "temperature": 1.5
+}

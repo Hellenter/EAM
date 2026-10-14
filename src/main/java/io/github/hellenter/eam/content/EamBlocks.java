@@ -22,6 +22,8 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
 
@@ -159,6 +161,26 @@ public final class EamBlocks {
 	public static final Block CHANTERELLE_STEM = mushroomBlock("chanterelle_stem", MapColor.TERRACOTTA_YELLOW, 0);
 	public static final Block CHAMPIGNON_CAP = mushroomBlock("champignon_cap", MapColor.QUARTZ, 0);
 	public static final Block GLOWING_CHAMPIGNON_CAP = mushroomBlock("glowing_champignon_cap", MapColor.COLOR_LIGHT_BLUE, 12);
+	/** Giant mushrooms of the burnt mushroom forest: charred caps and stems, some caps still smouldering. */
+	public static final Block BURNT_MUSHROOM_CAP = mushroomBlock("burnt_mushroom_cap", MapColor.COLOR_BLACK, 0);
+	public static final Block BURNT_MUSHROOM_STEM = mushroomBlock("burnt_mushroom_stem", MapColor.COLOR_GRAY, 0);
+	public static final Block SMOLDERING_MUSHROOM_CAP = mushroomBlock("smoldering_mushroom_cap", MapColor.COLOR_ORANGE, 7);
+	/** Glowing fungus threads hanging from the ceilings of the underground forest: a dim strand ending in a bright tip. */
+	public static final Block GLOWSHROOM_VINES = register("glowshroom_vines", GlowshroomVinesBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.randomTicks()
+			.noCollision()
+			.instabreak()
+			.sound(SoundType.WEEPING_VINES)
+			.lightLevel(state -> 10)
+			.pushReaction(PushReaction.POPPED));
+	public static final Block GLOWSHROOM_VINES_PLANT = register("glowshroom_vines_plant", GlowshroomVinesPlantBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.noCollision()
+			.instabreak()
+			.sound(SoundType.WEEPING_VINES)
+			.lightLevel(state -> 5)
+			.pushReaction(PushReaction.POPPED));
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),

@@ -18,6 +18,9 @@
     "eam:chanterelle_stem",
     "eam:champignon_cap",
     "eam:glowing_champignon_cap",
+    "eam:burnt_mushroom_cap",
+    "eam:burnt_mushroom_stem",
+    "eam:smoldering_mushroom_cap",
     "eam:big_shrub_stem"
   ]
 }

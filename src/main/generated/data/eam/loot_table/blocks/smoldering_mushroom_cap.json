@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "condition": "minecraft:tool/can_silk_touch",
+              "name": "eam:smoldering_mushroom_cap"
+            },
+            {
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:all_of",
+                "terms": [
+                  {
+                    "type": "minecraft:random_chance",
+                    "chance": 0.3
+                  },
+                  {
+                    "type": "minecraft:survives_explosion"
+                  }
+                ]
+              },
+              "name": "eam:ash"
+            }
+          ]
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

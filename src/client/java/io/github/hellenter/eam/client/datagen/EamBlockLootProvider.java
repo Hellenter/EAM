@@ -31,6 +31,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
 
 import java.util.List;
@@ -91,6 +92,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropWhenSilkTouch(EamBlocks.CHANTERELLE_STEM);
 		dropWhenSilkTouch(EamBlocks.CHAMPIGNON_CAP);
 		dropWhenSilkTouch(EamBlocks.GLOWING_CHAMPIGNON_CAP);
+		// Burnt mushroom blocks crumble to ash now and then, unless taken whole with silk touch.
+		for (Block burnt : List.of(EamBlocks.BURNT_MUSHROOM_CAP, EamBlocks.BURNT_MUSHROOM_STEM, EamBlocks.SMOLDERING_MUSHROOM_CAP)) {
+			add(burnt, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
+					LootItem.lootTableItem(EamItems.ASH).when(LootItemRandomChanceCondition.randomChance(0.3F)))));
+		}
+		addNetherVinesDropTable(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT);
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
 		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,

@@ -226,6 +226,10 @@ public final class EamItems {
 	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);
 	public static final Item CHAMPIGNON_CAP = blockItem("champignon_cap", EamBlocks.CHAMPIGNON_CAP);
 	public static final Item GLOWING_CHAMPIGNON_CAP = blockItem("glowing_champignon_cap", EamBlocks.GLOWING_CHAMPIGNON_CAP);
+	public static final Item BURNT_MUSHROOM_CAP = blockItem("burnt_mushroom_cap", EamBlocks.BURNT_MUSHROOM_CAP);
+	public static final Item BURNT_MUSHROOM_STEM = blockItem("burnt_mushroom_stem", EamBlocks.BURNT_MUSHROOM_STEM);
+	public static final Item SMOLDERING_MUSHROOM_CAP = blockItem("smoldering_mushroom_cap", EamBlocks.SMOLDERING_MUSHROOM_CAP);
+	public static final Item GLOWSHROOM_VINES = blockItem("glowshroom_vines", EamBlocks.GLOWSHROOM_VINES);
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);

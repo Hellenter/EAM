@@ -1,0 +1,15 @@
+{
+  "type": "eam:cave_stream",
+  "bed": "minecraft:clay",
+  "depth": 1,
+  "length": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 28,
+    "min_inclusive": 12
+  },
+  "width": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 1,
+    "min_inclusive": 0
+  }
+}

@@ -71,6 +71,11 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_STEM);
 		generators.createMushroomBlock(EamBlocks.CHAMPIGNON_CAP);
 		generators.createMushroomBlock(EamBlocks.GLOWING_CHAMPIGNON_CAP);
+		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_CAP);
+		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_STEM);
+		generators.createMushroomBlock(EamBlocks.SMOLDERING_MUSHROOM_CAP);
+		generators.createGrowingPlant(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);
