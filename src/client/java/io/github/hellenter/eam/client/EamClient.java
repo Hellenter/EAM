@@ -55,6 +55,7 @@ import io.github.hellenter.eam.client.mobs.drowned.DrownedSoldierModel;
 import io.github.hellenter.eam.client.mobs.drowned.DrownedSoldierRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaModel;
 import io.github.hellenter.eam.client.mobs.yaga.BabaYagaRenderer;
+import io.github.hellenter.eam.client.mobs.yaga.YagaStormClient;
 import io.github.hellenter.eam.client.mobs.yaga.BuffIconParticle;
 import io.github.hellenter.eam.client.mobs.yaga.YagaFxParticle;
 import io.github.hellenter.eam.client.mobs.yaga.HagGlyphRenderer;
@@ -197,6 +198,7 @@ public class EamClient implements ClientModInitializer {
 		AnvilProgress.register();
 		EnchantingClient.register();
 		BloodMoonSky.register();
+		YagaStormClient.register();
 		HeartFlight.register();
 		TalismanActivation.register();
 	}

@@ -22,12 +22,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param beam     phase two: a fire beam a shield blocks
  * @param claws    phase two: she blinks behind the player and rakes them with her claws
  * @param eat      phase two: she eats one of her creatures to heal
+ * @param storm    her own thunderstorm around her while she fights, and her way home once nobody is left to fight
  */
 public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon summon, Potion potion, Spell spell, Glyphs glyphs,
-		PhaseTwo phaseTwo, Escape escape, Acid acid, Threads threads, Beam beam, Claws claws, Eat eat) {
+		PhaseTwo phaseTwo, Escape escape, Acid acid, Threads threads, Beam beam, Claws claws, Eat eat, Storm storm) {
 	public static final BabaYagaSettings DEFAULT = new BabaYagaSettings(Stats.DEFAULT, Flight.DEFAULT, Swoop.DEFAULT, Summon.DEFAULT,
 			Potion.DEFAULT, Spell.DEFAULT, Glyphs.DEFAULT, PhaseTwo.DEFAULT, Escape.DEFAULT, Acid.DEFAULT, Threads.DEFAULT, Beam.DEFAULT,
-			Claws.DEFAULT, Eat.DEFAULT);
+			Claws.DEFAULT, Eat.DEFAULT, Storm.DEFAULT);
 
 	public static final Codec<BabaYagaSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(Stats.DEFAULT).forGetter(BabaYagaSettings::stats),
@@ -43,7 +44,8 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 			Threads.CODEC.fieldOf("threads").orElse(Threads.DEFAULT).forGetter(BabaYagaSettings::threads),
 			Beam.CODEC.fieldOf("beam").orElse(Beam.DEFAULT).forGetter(BabaYagaSettings::beam),
 			Claws.CODEC.fieldOf("claws").orElse(Claws.DEFAULT).forGetter(BabaYagaSettings::claws),
-			Eat.CODEC.fieldOf("eat").orElse(Eat.DEFAULT).forGetter(BabaYagaSettings::eat)
+			Eat.CODEC.fieldOf("eat").orElse(Eat.DEFAULT).forGetter(BabaYagaSettings::eat),
+			Storm.CODEC.fieldOf("storm").orElse(Storm.DEFAULT).forGetter(BabaYagaSettings::storm)
 	).apply(instance, BabaYagaSettings::new));
 
 	/**
@@ -430,5 +432,21 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Eat::range),
 				Codec.intRange(5, 200).fieldOf("ticks").orElse(DEFAULT.ticks).forGetter(Eat::ticks)
 		).apply(instance, Eat::new));
+	}
+
+	/**
+	 * @param radius        rain and thunder are only within this many blocks of her, and only players there see them
+	 * @param lightningOdds while the storm lasts, a lightning flash strikes near her on average once in this many ticks
+	 * @param lightningReach the flashes strike at most this far from her
+	 * @param lostTicks     once she has seen no player for this long, her storm ends and she goes back where she started
+	 */
+	public record Storm(double radius, int lightningOdds, double lightningReach, int lostTicks) {
+		public static final Storm DEFAULT = new Storm(100.0, 120, 60.0, 3600);
+		public static final Codec<Storm> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(8.0, 512.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Storm::radius),
+				Codec.intRange(1, 72000).fieldOf("lightning_odds").orElse(DEFAULT.lightningOdds).forGetter(Storm::lightningOdds),
+				Codec.doubleRange(0.0, 512.0).fieldOf("lightning_reach").orElse(DEFAULT.lightningReach).forGetter(Storm::lightningReach),
+				Codec.intRange(20, 720000).fieldOf("lost_ticks").orElse(DEFAULT.lostTicks).forGetter(Storm::lostTicks)
+		).apply(instance, Storm::new));
 	}
 }
