@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/brewer/level_3",
+  "trades": [
+    "eam:duergar/brewer/3/emerald_nether_wart",
+    "eam:duergar/brewer/3/emerald_blaze_powder",
+    "eam:duergar/brewer/3/emerald_magma_cream"
+  ]
+}

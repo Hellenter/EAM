@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/brewer/level_4",
+  "trades": [
+    "eam:duergar/brewer/4/emerald_ghast_tear",
+    "eam:duergar/brewer/4/emerald_rabbit_foot",
+    "eam:duergar/brewer/4/emerald_glistering_melon_slice"
+  ]
+}

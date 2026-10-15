@@ -1,12 +1,9 @@
 package io.github.hellenter.eam.mobs.entity.duergar;
 
-import io.github.hellenter.eam.Eam;
-
-import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -24,6 +21,8 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -37,43 +36,44 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.trading.TradeSet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /**
- * A duergar of a clan village in the underworld: a smith, a miner or the elder. They trade with players (the trade sets
- * {@code eam:duergar/<role>}, datapack data): mithril for jewels, and the elder sells a map to the nearest lair of a
- * boss. They keep near home, run from undead duergar and renegades, and their stock comes back every morning.
+ * A duergar of a clan village in the underworld. Like a villager he has a profession ({@link DuergarProfession}) and
+ * levels up from novice to master as players trade with him, each level adding new offers (datapack trade sets); only
+ * a duergar runecarver sells the Mending book. The village templates place a smith, a miner or the elder; each takes
+ * a profession of his role on spawning. They keep near home, run from undead duergar and renegades, and their stock
+ * comes back every morning.
  */
 public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	private static final EntityDataAccessor<Integer> DATA_GEAR = SynchedEntityData.defineId(DuergarVillager.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Byte> DATA_SKIN = SynchedEntityData.defineId(DuergarVillager.class, EntityDataSerializers.BYTE);
+	private static final EntityDataAccessor<Byte> DATA_PROFESSION =
+			SynchedEntityData.defineId(DuergarVillager.class, EntityDataSerializers.BYTE);
 	/** How many skins the renderer has: one per clan colour of their clothes. */
 	public static final int SKINS = 4;
 	/** How far from where he was placed or spawned he wanders. */
 	private static final int HOME_RADIUS = 24;
 	private static final long DAY = 24000L;
 
-	/** What he does in the village, and so what he trades. */
+	/** His place in the village: the house templates name it, and it decides his clothes and his professions. */
 	public enum Role implements StringRepresentable {
 		SMITH("smith"),
 		MINER("miner"),
 		ELDER("elder");
 
 		private final String name;
-		private final ResourceKey<TradeSet> trades;
 
 		Role(String name) {
 			this.name = name;
-			this.trades = ResourceKey.create(Registries.TRADE_SET, Eam.id("duergar/" + name));
-		}
-
-		public ResourceKey<TradeSet> trades() {
-			return trades;
 		}
 
 		@Override
@@ -92,6 +92,10 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	}
 
 	private Role role = Role.MINER;
+	private DuergarProfession profession = DuergarProfession.MINER;
+	/** From 1 (novice) to 5 (master), as a villager's. */
+	private int tradeLevel = 1;
+	private int tradeXp;
 	/** The day his stock was last refilled. */
 	private long restockDay = -1L;
 
@@ -112,6 +116,7 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 		super.defineSynchedData(builder);
 		builder.define(DATA_GEAR, 0);
 		builder.define(DATA_SKIN, (byte) 0);
+		builder.define(DATA_PROFESSION, (byte) 0);
 	}
 
 	@Override
@@ -132,10 +137,18 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason reason,
 			@Nullable SpawnGroupData groupData) {
 		RandomSource random = getRandom();
-		if (reason != EntitySpawnReason.STRUCTURE && reason != EntitySpawnReason.LOAD) {
-			// A village places each duergar with his role; one from an egg gets a random one.
-			role = Role.values()[random.nextInt(Role.values().length)];
+		if (reason == EntitySpawnReason.STRUCTURE || reason == EntitySpawnReason.LOAD) {
+			// A village places each duergar with his role; he takes one of its professions.
+			setProfession(DuergarProfession.pick(role, random.nextDouble()));
+		} else {
+			// One from an egg gets any profession but the elder's.
+			List<DuergarProfession> professions = new ArrayList<>(List.of(DuergarProfession.values()));
+			professions.remove(DuergarProfession.ELDER);
+			setProfession(professions.get(random.nextInt(professions.size())));
 		}
+		offers = null;
+		tradeLevel = 1;
+		tradeXp = 0;
 		dress();
 		entityData.set(DATA_SKIN, (byte) random.nextInt(SKINS));
 		setHomeTo(blockPosition(), HOME_RADIUS);
@@ -150,6 +163,22 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 
 	public Role role() {
 		return role;
+	}
+
+	public DuergarProfession profession() {
+		return DuergarProfession.values()[Math.floorMod(entityData.get(DATA_PROFESSION), DuergarProfession.values().length)];
+	}
+
+	private void setProfession(DuergarProfession value) {
+		profession = value;
+		role = value.role();
+		entityData.set(DATA_PROFESSION, (byte) value.ordinal());
+	}
+
+	/** "Duergar Runecarver" and the like, as a villager is named by his profession. */
+	@Override
+	protected Component getTypeName() {
+		return Component.translatable(getType().getDescriptionId() + "." + profession().getSerializedName());
 	}
 
 	@Override
@@ -177,14 +206,14 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 				return InteractionResult.CONSUME;
 			}
 			setTradingPlayer(player);
-			openTradingScreen(player, getDisplayName(), 1);
+			openTradingScreen(player, getDisplayName(), tradeLevel);
 		}
 		return InteractionResult.SUCCESS_SERVER;
 	}
 
 	@Override
 	protected void updateTrades(ServerLevel level) {
-		addOffersFromTradeSet(level, getOffers(), role.trades());
+		addOffersFromTradeSet(level, getOffers(), profession.trades(tradeLevel));
 	}
 
 	@Override
@@ -202,14 +231,28 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	}
 
 	@Override
-	public boolean showProgressBar() {
-		return false;
+	public int getVillagerXp() {
+		return tradeXp;
 	}
 
 	@Override
+	public boolean showProgressBar() {
+		return profession.maxLevel() > 1;
+	}
+
+	/** As a villager: each trade adds to his experience, and a new level brings new offers. */
+	@Override
 	protected void rewardTradeXp(MerchantOffer offer) {
+		int orbXp = 3 + random.nextInt(4);
+		tradeXp += offer.getXp();
+		if (DuergarLogic.levelsUp(tradeLevel, profession.maxLevel(), tradeXp) && level() instanceof ServerLevel serverLevel) {
+			tradeLevel++;
+			updateTrades(serverLevel);
+			addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200, 0));
+			orbXp += 5;
+		}
 		if (offer.shouldRewardExp()) {
-			level().addFreshEntity(new ExperienceOrb(level(), getX(), getY() + 0.5, getZ(), 3 + random.nextInt(4)));
+			level().addFreshEntity(new ExperienceOrb(level(), getX(), getY() + 0.5, getZ(), orbXp));
 		}
 	}
 
@@ -261,6 +304,9 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putString("Role", role.getSerializedName());
+		output.putString("Profession", profession.getSerializedName());
+		output.putInt("TradeLevel", tradeLevel);
+		output.putInt("TradeXp", tradeXp);
 		output.putInt("Gear", gear());
 		output.putInt("Skin", skin());
 		output.putLong("RestockDay", restockDay);
@@ -270,6 +316,19 @@ public class DuergarVillager extends AbstractVillager implements DuergarLook {
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
 		role = Role.byName(input.getStringOr("Role", Role.MINER.getSerializedName()));
+		Optional<String> saved = input.getString("Profession");
+		if (saved.isPresent()) {
+			setProfession(DuergarProfession.byName(saved.get()));
+			tradeLevel = Math.clamp(input.getIntOr("TradeLevel", 1), 1, profession.maxLevel());
+			tradeXp = input.getIntOr("TradeXp", 0);
+		} else {
+			// Placed by a template (only his role is written there), or saved before duergar had professions:
+			// he takes a profession of his role, and his old offers make way for its trades.
+			setProfession(DuergarProfession.pick(role, getRandom().nextDouble()));
+			offers = null;
+			tradeLevel = 1;
+			tradeXp = 0;
+		}
 		entityData.set(DATA_GEAR, input.getIntOr("Gear", 0));
 		entityData.set(DATA_SKIN, (byte) input.getIntOr("Skin", 0));
 		restockDay = input.getLongOr("RestockDay", -1L);

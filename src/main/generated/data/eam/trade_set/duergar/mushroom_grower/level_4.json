@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mushroom_grower/level_4",
+  "trades": [
+    "eam:duergar/mushroom_grower/4/emerald_cooked_porkchop",
+    "eam:duergar/mushroom_grower/4/emerald_cheese",
+    "eam:duergar/mushroom_grower/4/emerald_mycelium"
+  ]
+}

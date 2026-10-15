@@ -55,4 +55,26 @@ class DuergarLogicTest {
 		}
 		assertEquals(6, DuergarGear.piece(first, Slot.HEAD));
 	}
+
+	@Test
+	void levelsUpAtVillagerThresholds() {
+		assertFalse(DuergarLogic.levelsUp(1, 5, 9));
+		assertTrue(DuergarLogic.levelsUp(1, 5, 10));
+		assertTrue(DuergarLogic.levelsUp(4, 5, 250));
+		assertFalse(DuergarLogic.levelsUp(5, 5, 10_000));
+		assertFalse(DuergarLogic.levelsUp(1, 1, 10_000), "the elder never levels");
+	}
+
+	@Test
+	void templateRolesTakeOneOfTheirProfessions() {
+		for (DuergarVillager.Role role : DuergarVillager.Role.values()) {
+			for (double roll = 0.0; roll < 1.0; roll += 0.01) {
+				assertEquals(role, DuergarProfession.pick(role, roll).role());
+			}
+		}
+		assertEquals(DuergarProfession.ELDER, DuergarProfession.pick(DuergarVillager.Role.ELDER, 0.99));
+		assertEquals(DuergarProfession.MINER, DuergarProfession.pick(DuergarVillager.Role.MINER, 0.0));
+		assertEquals(DuergarProfession.RUNECARVER, DuergarProfession.pick(DuergarVillager.Role.MINER, 0.999));
+		assertEquals(DuergarProfession.TOOLSMITH, DuergarProfession.pick(DuergarVillager.Role.SMITH, 0.999));
+	}
 }

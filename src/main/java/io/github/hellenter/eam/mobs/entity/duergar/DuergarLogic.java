@@ -2,7 +2,15 @@ package io.github.hellenter.eam.mobs.entity.duergar;
 
 /** Pure rules for the duergar, unit tested. */
 public final class DuergarLogic {
+	/** Trade experience a duergar needs to reach the next level, as a villager: index = his current level. */
+	private static final int[] NEXT_LEVEL_XP = {0, 10, 70, 150, 250};
+
 	private DuergarLogic() {
+	}
+
+	/** Whether a duergar at {@code level} with {@code xp} trade experience moves up a level. */
+	public static boolean levelsUp(int level, int maxLevel, int xp) {
+		return level >= 1 && level < Math.min(maxLevel, NEXT_LEVEL_XP.length) && xp >= NEXT_LEVEL_XP[level];
 	}
 
 	/** Renegades spawn only where no light at all falls: no torch, lava or glowing mushroom near, no sky. */

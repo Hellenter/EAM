@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mushroom_grower/level_2",
+  "trades": [
+    "eam:duergar/mushroom_grower/2/potato_emerald",
+    "eam:duergar/mushroom_grower/2/emerald_baked_potato",
+    "eam:duergar/mushroom_grower/2/emerald_glow_berries"
+  ]
+}

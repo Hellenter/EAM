@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/toolsmith/level_3",
+  "trades": [
+    "eam:duergar/toolsmith/3/flint_emerald",
+    "eam:duergar/toolsmith/3/emerald_iron_pickaxe",
+    "eam:duergar/toolsmith/3/emerald_iron_saw"
+  ]
+}

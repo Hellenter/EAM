@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "id": "eam:mithril_ingot"
+  },
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 4,
+    "id": "minecraft:diamond"
+  },
+  "xp": 15
+}

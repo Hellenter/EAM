@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "id": "eam:herbal_honey"
+  },
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 6,
+    "id": "minecraft:emerald"
+  },
+  "xp": 30
+}

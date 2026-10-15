@@ -1,0 +1,10 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/armorer/level_3",
+  "trades": [
+    "eam:duergar/armorer/3/emerald_silver_chestplate",
+    "eam:duergar/armorer/3/emerald_silver_leggings",
+    "eam:duergar/armorer/3/emerald_iron_helmet",
+    "eam:duergar/armorer/3/emerald_chainmail_chestplate"
+  ]
+}

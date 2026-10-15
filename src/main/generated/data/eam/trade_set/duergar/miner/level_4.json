@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/miner/level_4",
+  "trades": [
+    "eam:duergar/miner/4/diamond_raw_mithril",
+    "eam:duergar/miner/4/emerald_raw_mithril"
+  ]
+}
