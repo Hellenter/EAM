@@ -1,0 +1,9 @@
+{
+  "first_min_day": 8,
+  "first_max_day": 14,
+  "interval_min_days": 8,
+  "interval_max_days": 15,
+  "start_time": 12000,
+  "growth_multiplier": 2.0,
+  "harvest_multiplier": 1.5
+}
