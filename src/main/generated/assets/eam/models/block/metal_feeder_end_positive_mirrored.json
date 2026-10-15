@@ -1,0 +1,139 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        15.0,
+        5.0,
+        8.0
+      ],
+      "to": [
+        16.0,
+        13.0,
+        14.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        15.0,
+        5.0,
+        2.0
+      ],
+      "to": [
+        16.0,
+        10.0,
+        8.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#legs"
+        },
+        "east": {
+          "texture": "#legs"
+        },
+        "north": {
+          "texture": "#legs"
+        },
+        "south": {
+          "texture": "#legs"
+        },
+        "up": {
+          "texture": "#legs"
+        },
+        "west": {
+          "texture": "#legs"
+        }
+      },
+      "from": [
+        14.0,
+        0.0,
+        1.0
+      ],
+      "to": [
+        15.0,
+        4.0,
+        2.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#legs"
+        },
+        "east": {
+          "texture": "#legs"
+        },
+        "north": {
+          "texture": "#legs"
+        },
+        "south": {
+          "texture": "#legs"
+        },
+        "up": {
+          "texture": "#legs"
+        },
+        "west": {
+          "texture": "#legs"
+        }
+      },
+      "from": [
+        14.0,
+        0.0,
+        14.0
+      ],
+      "to": [
+        15.0,
+        4.0,
+        15.0
+      ]
+    }
+  ],
+  "textures": {
+    "body": "eam:block/metal_feeder_trough",
+    "feed": "eam:block/feeder_feed",
+    "legs": "eam:block/metal_feeder_bars",
+    "particle": "eam:block/metal_feeder_trough"
+  }
+}

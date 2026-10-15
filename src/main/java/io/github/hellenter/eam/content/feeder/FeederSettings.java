@@ -19,10 +19,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param metalScale        how many times more slots and heads a metal feeder block has than a wooden one
  * @param breeding          whether fed livestock at a feeder breeds by itself, one pair per feeder block a day, until the
  *                          animals around reach the trough's heads
+ * @param fedGrowthBoost    how many times faster animals kept at a feeder (fed from one within the last day) grow up,
+ *                          get ready to breed again, and how many times as often a feeder pairs them
  */
 public record FeederSettings(int headsPerFeeder, int slotsPerFeeder, int thinAfterDays, int animalRadius, int farmerRadius,
-		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding) {
-	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 12, 8, 1.5, true);
+		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding,
+		double fedGrowthBoost) {
+	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 12, 8, 1.5, true, 1.5);
 
 	public static final Codec<FeederSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, 1000).fieldOf("heads_per_feeder").orElse(DEFAULT.headsPerFeeder).forGetter(FeederSettings::headsPerFeeder),
@@ -33,6 +36,7 @@ public record FeederSettings(int headsPerFeeder, int slotsPerFeeder, int thinAft
 			Codec.intRange(0, 10000).fieldOf("farmer_keeps_points").orElse(DEFAULT.farmerKeepsPoints).forGetter(FeederSettings::farmerKeepsPoints),
 			Codec.intRange(0, 10000).fieldOf("farmer_keeps_seeds").orElse(DEFAULT.farmerKeepsSeeds).forGetter(FeederSettings::farmerKeepsSeeds),
 			Codec.doubleRange(0.1, 100.0).fieldOf("metal_scale").orElse(DEFAULT.metalScale).forGetter(FeederSettings::metalScale),
-			Codec.BOOL.fieldOf("breeding").orElse(DEFAULT.breeding).forGetter(FeederSettings::breeding)
+			Codec.BOOL.fieldOf("breeding").orElse(DEFAULT.breeding).forGetter(FeederSettings::breeding),
+			Codec.doubleRange(1.0, 10.0).fieldOf("fed_growth_boost").orElse(DEFAULT.fedGrowthBoost).forGetter(FeederSettings::fedGrowthBoost)
 	).apply(instance, FeederSettings::new));
 }
