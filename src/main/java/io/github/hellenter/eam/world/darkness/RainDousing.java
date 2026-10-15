@@ -6,10 +6,8 @@ import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.block.TorchBlock;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,9 +35,12 @@ public final class RainDousing {
 		settings = value;
 	}
 
-	/** Blocks that need random ticks so the rain can reach them. Called once per block state while blocks load. */
+	/**
+	 * Blocks that need random ticks so the rain can reach them. Called once per block state while blocks load, at the
+	 * end of {@code Blocks}' static init for vanilla blocks, so the vanilla fields are set and EamBlocks is not touched.
+	 */
 	public static boolean isDousable(BlockBehaviour block) {
-		return block instanceof TorchBlock || block instanceof CampfireBlock || block instanceof CampFireBlock;
+		return block == Blocks.TORCH || block == Blocks.WALL_TORCH || block == Blocks.CAMPFIRE || block instanceof CampFireBlock;
 	}
 
 	public static void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
