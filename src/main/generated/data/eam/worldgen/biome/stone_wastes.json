@@ -64,6 +64,8 @@
       "eam:underworld/spring_lava"
     ],
     [
+      "eam:underworld/old_bones",
+      "eam:underworld/rock_pile",
       "eam:underworld/brown_mushrooms_few",
       "eam:underworld/cobweb",
       "eam:underworld/glow_lichen"

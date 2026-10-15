@@ -74,6 +74,9 @@
     [],
     [
       "eam:underworld/spring_lava_many"
+    ],
+    [
+      "eam:underworld/basalt_boulder"
     ]
   ],
   "has_precipitation": false,
