@@ -1,0 +1,37 @@
+{
+  "type": "eam:cave_boulder",
+  "lumps": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 4,
+    "min_inclusive": 3
+  },
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
+  "stone": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "minecraft:packed_ice",
+        "weight": 5
+      },
+      {
+        "data": "minecraft:blue_ice",
+        "weight": 2
+      },
+      {
+        "data": "minecraft:snow_block",
+        "weight": 1
+      }
+    ]
+  },
+  "top": {
+    "id": "minecraft:snow",
+    "properties": {
+      "layers": "1"
+    }
+  },
+  "top_chance": 0.6
+}

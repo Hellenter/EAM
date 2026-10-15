@@ -74,7 +74,8 @@
       "eam:underworld/spring_lava_many"
     ],
     [
-      "eam:underworld/lava_pillar"
+      "eam:underworld/lava_pillar",
+      "eam:underworld/basalt_boulder"
     ]
   ],
   "has_precipitation": false,

@@ -1,0 +1,30 @@
+{
+  "type": "eam:cave_boulder",
+  "lumps": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
+  "radius": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 2,
+    "min_inclusive": 1
+  },
+  "stone": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "minecraft:basalt",
+        "weight": 4
+      },
+      {
+        "data": "minecraft:blackstone",
+        "weight": 3
+      },
+      {
+        "data": "minecraft:magma_block",
+        "weight": 1
+      }
+    ]
+  }
+}
