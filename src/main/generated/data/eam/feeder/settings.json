@@ -1,8 +1,8 @@
 {
   "animal_radius": 16,
   "breeding": true,
-  "farmer_keeps_points": 24,
-  "farmer_keeps_seeds": 16,
+  "farmer_keeps_points": 12,
+  "farmer_keeps_seeds": 8,
   "farmer_radius": 8,
   "heads_per_feeder": 10,
   "metal_scale": 1.5,

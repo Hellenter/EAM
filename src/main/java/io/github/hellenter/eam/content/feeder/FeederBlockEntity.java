@@ -43,6 +43,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -303,19 +304,21 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 	private int giveFromFarmer(Villager farmer, FeederSettings settings) {
 		SimpleContainer inventory = farmer.getInventory();
 		int points = 0;
+		// Crops are counted over all slots: with food stacks of 8 a farmer's carrots lie in several stacks.
+		Map<Item, Integer> crops = new LinkedHashMap<>();
 		for (ItemStack stack : inventory.getItems()) {
 			points += stack.getCount() * foodPoints(stack);
+			if (stack.is(FeederModule.FEED)) crops.merge(stack.getItem(), stack.getCount(), Integer::sum);
 		}
 		int given = 0;
-		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-			ItemStack stack = inventory.getItem(slot);
-			if (!stack.is(FeederModule.FEED)) continue;
-			int each = foodPoints(stack);
-			int seeds = stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS) ? settings.farmerKeepsSeeds() : 0;
-			int count = FeederLogic.farmerGives(stack.getCount(), each, points, settings.farmerKeepsPoints(), seeds);
-			int added = add(stack.getItem(), count);
+		for (Map.Entry<Item, Integer> crop : crops.entrySet()) {
+			ItemStack sample = new ItemStack(crop.getKey());
+			int each = foodPoints(sample);
+			int seeds = sample.is(ItemTags.VILLAGER_PLANTABLE_SEEDS) ? settings.farmerKeepsSeeds() : 0;
+			int count = FeederLogic.farmerGives(crop.getValue(), each, points, settings.farmerKeepsPoints(), seeds);
+			int added = count > 0 ? add(crop.getKey(), count) : 0;
 			if (added <= 0) continue;
-			inventory.removeItem(slot, added);
+			inventory.removeItemType(crop.getKey(), added);
 			points -= added * each;
 			given += added;
 		}

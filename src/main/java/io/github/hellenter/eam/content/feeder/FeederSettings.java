@@ -14,15 +14,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param animalRadius      how far, in blocks, livestock comes to a feeder from
  * @param farmerRadius      how far, in blocks, a farmer villager can be and still put crops in a feeder
  * @param farmerKeepsPoints villager food points of crops a farmer keeps for himself and other villagers; he gives the rest.
- *                          Vanilla villagers share food once they hold 24 points.
- * @param farmerKeepsSeeds  potatoes and carrots a farmer always keeps to plant his fields
+ *                          Vanilla villagers need 12 points to breed.
+ * @param farmerKeepsSeeds  potatoes and carrots of each kind a farmer always keeps to plant his fields, over all his stacks
  * @param metalScale        how many times more slots and heads a metal feeder block has than a wooden one
  * @param breeding          whether fed livestock at a feeder breeds by itself, one pair per feeder block a day, until the
  *                          animals around reach the trough's heads
  */
 public record FeederSettings(int headsPerFeeder, int slotsPerFeeder, int thinAfterDays, int animalRadius, int farmerRadius,
 		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding) {
-	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 24, 16, 1.5, true);
+	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 12, 8, 1.5, true);
 
 	public static final Codec<FeederSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, 1000).fieldOf("heads_per_feeder").orElse(DEFAULT.headsPerFeeder).forGetter(FeederSettings::headsPerFeeder),
