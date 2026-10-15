@@ -1,8 +1,6 @@
 package io.github.hellenter.eam.world.farming;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,16 +23,32 @@ class FarmingLogicTest {
 
 	@Test
 	void animalsAgeOneTickInFour() {
-		int aged = 0;
-		for (int tick = 0; tick < 400; tick++) {
-			if (FarmingLogic.agesThisTick(tick, 4)) aged++;
-		}
-		assertEquals(100, aged);
+		assertEquals(100, aged(4, 1.0));
+	}
+
+	@Test
+	void animalsAtAFeederAgeHalfAsFastAgain() {
+		assertEquals(150, aged(4, 1.5));
+		assertEquals(600, aged(1, 1.5));
 	}
 
 	@Test
 	void slowdownOfOneIsVanilla() {
-		assertTrue(FarmingLogic.agesThisTick(7, 1));
-		assertFalse(FarmingLogic.agesThisTick(7, 4));
+		assertEquals(1, FarmingLogic.ageSteps(7, 1, 1.0));
+		assertEquals(400, aged(1, 1.0));
+	}
+
+	@Test
+	void ageStopsAtZero() {
+		assertEquals(-1, FarmingLogic.stepAge(-3, 2));
+		assertEquals(0, FarmingLogic.stepAge(-1, 2));
+		assertEquals(0, FarmingLogic.stepAge(1, 2));
+		assertEquals(4, FarmingLogic.stepAge(5, 1));
+	}
+
+	private static int aged(int slowdown, double speed) {
+		int aged = 0;
+		for (int tick = 0; tick < 400; tick++) aged += FarmingLogic.ageSteps(tick, slowdown, speed);
+		return aged;
 	}
 }
