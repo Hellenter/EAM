@@ -62,6 +62,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 	public void generate() {
 		dropSelf(EamBlocks.PEBBLE);
 		dropSelf(EamBlocks.FLINT_SHARD);
+		dropSelf(EamBlocks.UNLIT_TORCH);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);
 		// Swampy forest plants drop like their vanilla look-alikes.
 		add(EamBlocks.DUCKWEED, this::createSegmentedBlockDrops);

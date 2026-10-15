@@ -44,6 +44,9 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamEquipmentAssetProvider::new);
 		pack.addProvider(EamThirstSettingsProvider::new);
 		pack.addProvider(EamCampFireSettingsProvider::new);
+		pack.addProvider(EamRainDousingSettingsProvider::new);
+		pack.addProvider(EamTimelineProvider::new);
+		pack.addProvider(EamTimelineTagProvider::new);
 		pack.addProvider(EamSieveSettingsProvider::new);
 		pack.addProvider(EamSieveLootProvider::new);
 		pack.addProvider(EamFeederSettingsProvider::new);
@@ -68,6 +71,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.MATERIAL_RULE, UnderworldWorldgen::bootstrapMaterialRules);
 		registryBuilder.add(Registries.NOISE_SETTINGS, UnderworldWorldgen::bootstrapNoiseSettings);
 		registryBuilder.add(Registries.DIMENSION_TYPE, UnderworldWorldgen::bootstrapDimensionTypes);
+		registryBuilder.add(Registries.TIMELINE, EamTimelineProvider::bootstrap);
 		registryBuilder.add(Registries.PROCESSOR_LIST, context -> {
 			EamUnderworldMineProvider.bootstrapProcessors(context);
 			EamDuergarVillageProvider.bootstrapProcessors(context);

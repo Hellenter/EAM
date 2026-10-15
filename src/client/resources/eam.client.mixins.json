@@ -11,6 +11,7 @@
 		"world.bloodmoon.SkyRendererMixin",
 		"world.bluemoon.FogRendererMixin",
 		"world.bluemoon.SkyRendererMixin",
+		"world.darkness.LightmapRenderStateExtractorMixin",
 		"mobs.yaga.YagaStormLevelMixin",
 		"world.forging.AnvilScreenMixin"
 	],

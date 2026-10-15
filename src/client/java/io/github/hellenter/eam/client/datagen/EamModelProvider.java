@@ -54,6 +54,7 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD));
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
+		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);

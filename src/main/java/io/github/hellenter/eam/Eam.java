@@ -55,6 +55,7 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
+import io.github.hellenter.eam.world.darkness.DarknessModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
 import io.github.hellenter.eam.world.forging.AnvilRepair;
@@ -158,6 +159,7 @@ public class Eam implements ModInitializer {
 		TalismanModule.register();
 		HeartInJarModule.register();
 		UnderworldModule.register();
+		DarknessModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
 		if (config.progression()) ProgressionModule.init();
@@ -209,6 +211,7 @@ public class Eam implements ModInitializer {
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();
 		if (config.underworld()) UnderworldModule.init();
+		if (config.rainDousesFires()) DarknessModule.init();
 	}
 
 	public static EamConfig config() {

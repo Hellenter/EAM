@@ -55,6 +55,7 @@
 		"world.crafting.CraftingTableBlockMixin",
 		"world.crafting.ResultSlotAccessor",
 		"world.crafting.ResultSlotMixin",
+		"world.darkness.BlockBehaviourRainMixin",
 		"world.enchanting.EnchantmentMenuAccessor",
 		"world.enchanting.EnchantmentMenuShelvesMixin",
 		"world.farming.AgeableMobMixin",

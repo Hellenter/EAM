@@ -41,6 +41,7 @@ import io.github.hellenter.eam.world.structures.outpost.KingCastleMapItem;
 import io.github.hellenter.eam.world.structures.village.LairMapItem;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -59,6 +60,7 @@ import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
@@ -111,6 +113,10 @@ public final class EamItems {
 			new Item.Properties().useBlockDescriptionPrefix());
 
 	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
+			new Item.Properties().useBlockDescriptionPrefix());
+
+	public static final Item UNLIT_TORCH = register("unlit_torch",
+			p -> new StandingAndWallBlockItem(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH, Direction.DOWN, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
 	public static final Item FLINT_HATCHET = register("flint_hatchet", Item::new, new Item.Properties()
