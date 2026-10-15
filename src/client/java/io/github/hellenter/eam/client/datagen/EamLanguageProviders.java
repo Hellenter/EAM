@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
@@ -610,6 +611,8 @@ public final class EamLanguageProviders {
 			builder.add(BloodMoonModule.ARMORED, "Armored Under a Blood Moon");
 			builder.add(BloodMoonModule.ARMED, "Armed Under a Blood Moon");
 			builder.add(BloodMoonModule.HUNTERS, "Hunt Animals Under a Blood Moon");
+			builder.add(PredatorModule.HUNTERS, "Hunt Livestock at Night");
+			builder.add(PredatorModule.RAIDERS, "Raid Open Pens at Night");
 			builder.add("itemGroup.eam.survival", "EAM: Survival");
 			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
 			builder.add("itemGroup.eam.tools", "EAM: Tools");
@@ -1196,6 +1199,8 @@ public final class EamLanguageProviders {
 			builder.add(BloodMoonModule.ARMORED, "В броне под кровавой луной");
 			builder.add(BloodMoonModule.ARMED, "С оружием под кровавой луной");
 			builder.add(BloodMoonModule.HUNTERS, "Охотятся на животных под кровавой луной");
+			builder.add(PredatorModule.HUNTERS, "Охотятся на скот ночью");
+			builder.add(PredatorModule.RAIDERS, "Нападают ночью на открытые загоны");
 			builder.add("itemGroup.eam.survival", "EAM: Выживание");
 			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
 			builder.add("itemGroup.eam.tools", "EAM: Инструменты");
