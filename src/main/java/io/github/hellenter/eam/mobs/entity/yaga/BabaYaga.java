@@ -47,7 +47,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
@@ -70,6 +72,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -94,8 +97,9 @@ import java.util.UUID;
  * spells that strengthen one group (absorption, speed or strength, picked by what the group needs) and glyphs on the
  * ground that curse the player and help her creatures. Only once a wave is dead does she dive at the player with her
  * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. A dive that
- * misses the player is flown again: no new wave rises until one reaches them. While she fights, a thunderstorm keeps the
- * sun off her creatures. The fifth
+ * misses the player is flown again: no new wave rises until one reaches them. While she fights, a thunderstorm of her own
+ * rages within a hundred blocks of her; once she has seen no player for three minutes it ends and she goes back where
+ * she started. The fifth
  * parry bursts her mortar and she drops to the ground: phase two. On foot she keeps behind one group raised in front of
  * her and casts on it, runs from a player who comes close, escapes into the dark after a couple of hits to come back
  * behind them with more creatures, shoots acid bolts (through a shield), purple bolts that tie the player down with
@@ -126,10 +130,8 @@ public class BabaYaga extends Monster {
 	/** Icons over a strengthened creature: how many go round in each ring, and how fast (radians a tick). */
 	private static final int ICONS = 3;
 	private static final double ICON_TURN = 0.08;
-	/** With nobody to fight for this long the fight is over, and the weather goes back to what it was before her storm. */
-	private static final int STORM_CALM_TICKS = 200;
-	/** While she fights, the thunderstorm is kept booked this far ahead. */
-	private static final int STORM_TICKS = 1200;
+	/** A save from before her storm was her own kept the world's weather this long at most; older ones are stale. */
+	private static final int LEGACY_STORM_TICKS = 1200;
 	private static final DustParticleOptions MORTAR_DUST = new DustParticleOptions(0x5A4632, 1.4F);
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
@@ -182,16 +184,18 @@ public class BabaYaga extends Monster {
 	private Vec3 beamAim = Vec3.ZERO;
 	private @Nullable Vec3 escapeTo;
 
-	// Her thunderstorm: daylight would burn her creatures
-	private boolean stormRaised;
-	/** Whether she keeps the weather from before the storm, to put back when the fight is over. */
-	private boolean stormOwner;
-	private int stormCalm;
-	private int weatherClear;
-	private int weatherRain;
-	private int weatherThunder;
-	private boolean weatherRaining;
-	private boolean weatherThundering;
+	// Her thunderstorm, around her alone: from her first fight until she has lost the players for good
+	private boolean stormActive;
+	/** Ticks since she last saw a player. */
+	private int unseenTicks;
+	/** Where she started; she goes back there once she has lost the players. */
+	private @Nullable BlockPos home;
+	private boolean returningHome;
+	/** Loaded from a save made while her storm was still the whole world's weather: that weather goes back once. */
+	private @Nullable LegacyWeather legacyWeather;
+
+	private record LegacyWeather(int clear, int rain, int thunder, boolean raining, boolean thundering) {
+	}
 
 	private final List<Group> groups = new ArrayList<>();
 	/** Set on load: her creatures are saved with their chunks, but her groups are not, so she takes them back. */
@@ -448,7 +452,9 @@ public class BabaYaga extends Monster {
 			tickAction(level);
 		} else if (target == null) {
 			setGlow(YagaGlow.NONE);
-			if (phase() == 1) {
+			if (returningHome && home != null) {
+				tickReturn();
+			} else if (phase() == 1) {
 				// Nobody to fight: she hangs in the air, bobbing.
 				setDeltaMovement(0.0, Mth.sin(tickCount * 0.1F) * 0.02, 0.0);
 			} else {
@@ -465,69 +471,111 @@ public class BabaYaga extends Monster {
 	// ---- The storm ----
 
 	/**
-	 * While she fights, a thunderstorm: the rain keeps the sun off her creatures. Weather is the whole world's, so the
-	 * first Baba Yaga to call a storm keeps the weather from before it and puts it back once the fight is over.
+	 * Her thunderstorm: it starts with her first fight and lasts until she has seen no player for
+	 * {@link BabaYagaSettings.Storm#lostTicks()}; then she lets her target go and goes back where she started. Only players
+	 * within {@link BabaYagaSettings.Storm#radius()} of her see its rain (the module tells them), and lightning flashes
+	 * strike around her. The world's own weather is left alone.
 	 */
 	private void tickStorm(ServerLevel level, @Nullable LivingEntity target) {
-		if (!level.canHaveWeather()) {
-			return;
+		if (home == null) {
+			home = blockPosition();
 		}
-		if (target == null) {
-			if (stormRaised && ++stormCalm >= STORM_CALM_TICKS) {
-				endStorm(level);
+		if (legacyWeather != null) {
+			restoreLegacyWeather(level, legacyWeather);
+			legacyWeather = null;
+		}
+		BabaYagaSettings.Storm storm = settings().storm();
+		if (tickCount % 20 == 0) {
+			unseenTicks = seesPlayer(level) ? 0 : unseenTicks + 20;
+		}
+		if (unseenTicks >= storm.lostTicks()) {
+			if (stormActive) {
+				stormActive = false;
+				returningHome = !atHome(2.0);
 			}
-			return;
-		}
-		stormCalm = 0;
-		WeatherData weather = level.getServer().getWeatherData();
-		if (!stormRaised) {
-			stormRaised = true;
-			if (level.getEntities(EamEntities.BABA_YAGA, other -> other != this && other.stormOwner).isEmpty()) {
-				stormOwner = true;
-				weatherClear = weather.getClearWeatherTime();
-				weatherRain = weather.getRainTime();
-				weatherThunder = weather.getThunderTime();
-				weatherRaining = weather.isRaining();
-				weatherThundering = weather.isThundering();
+			// Players she does not see are no longer hers to chase.
+			if (target != null && !hasLineOfSight(target)) {
+				setTarget(null);
+				target = null;
 			}
 		}
-		if (tickCount % 20 == 0 || !weather.isThundering() || !weather.isRaining()) {
-			level.getServer().setWeatherParameters(0, STORM_TICKS, true, true);
+		if (target != null) {
+			stormActive = true;
+			returningHome = false;
+		}
+		if (stormActive && level.canHaveWeather() && random.nextInt(storm.lightningOdds()) == 0) {
+			strikeLightning(level, storm.lightningReach());
 		}
 	}
 
-	/** The fight is over: the weather from before goes back, unless another Baba Yaga still fights and takes it over. */
-	private void endStorm(ServerLevel level) {
-		boolean owner = stormOwner;
-		stormRaised = false;
-		stormOwner = false;
-		stormCalm = 0;
-		if (!owner) {
-			return;
+	/** Whether she sees a player she could fight, within her follow range. */
+	private boolean seesPlayer(ServerLevel level) {
+		double range = getAttributeValue(Attributes.FOLLOW_RANGE);
+		for (Player player : level.players()) {
+			if (player.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && distanceToSqr(player) <= range * range
+					&& hasLineOfSight(player)) {
+				return true;
+			}
 		}
-		for (BabaYaga other : level.getEntities(EamEntities.BABA_YAGA, other -> other != this && other.isAlive() && other.stormRaised)) {
-			other.stormOwner = true;
-			other.weatherClear = weatherClear;
-			other.weatherRain = weatherRain;
-			other.weatherThunder = weatherThunder;
-			other.weatherRaining = weatherRaining;
-			other.weatherThundering = weatherThundering;
-			return;
-		}
-		WeatherData weather = level.getServer().getWeatherData();
-		weather.setClearWeatherTime(weatherClear);
-		weather.setRainTime(weatherRain);
-		weather.setThunderTime(weatherThunder);
-		weather.setRaining(weatherRaining);
-		weather.setThundering(weatherThundering);
+		return false;
 	}
 
-	@Override
-	public void remove(RemovalReason reason) {
-		if (reason.shouldDestroy() && stormRaised && level() instanceof ServerLevel level) {
-			endStorm(level);
+	/** A lightning flash and thunderclap somewhere around her; it neither burns nor hurts. */
+	private void strikeLightning(ServerLevel level, double reach) {
+		double angle = random.nextDouble() * Math.PI * 2.0;
+		double distance = Math.sqrt(random.nextDouble()) * reach;
+		int x = Mth.floor(getX() + Math.cos(angle) * distance);
+		int z = Mth.floor(getZ() + Math.sin(angle) * distance);
+		if (!level.hasChunkAt(new BlockPos(x, 0, z))) {
+			return;
 		}
-		super.remove(reason);
+		int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+		LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.EVENT);
+		if (bolt != null) {
+			bolt.setVisualOnly(true);
+			bolt.snapTo(x + 0.5, y, z + 0.5);
+			level.addFreshEntity(bolt);
+		}
+	}
+
+	/** Whether her storm is up: the module shows its rain to the players near her. */
+	public boolean stormActive() {
+		return stormActive && isAlive() && !isRemoved();
+	}
+
+	private boolean atHome(double within) {
+		return home == null || position().distanceToSqr(Vec3.atBottomCenterOf(home)) <= within * within;
+	}
+
+	/** Nobody to fight and she lost the players: back to where she started, flying or on foot. */
+	private void tickReturn() {
+		Vec3 to = Vec3.atBottomCenterOf(home);
+		if (atHome(phase() == 1 ? 0.75 : 1.5)) {
+			returningHome = false;
+			getNavigation().stop();
+			setDeltaMovement(Vec3.ZERO);
+			return;
+		}
+		if (phase() == 1) {
+			flyTowards(to, settings().flight().speed());
+			Vec3 delta = to.subtract(position());
+			float yaw = (float) (Mth.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
+			setYRot(Mth.rotateIfNecessary(getYRot(), yaw, 30.0F));
+			setYBodyRot(getYRot());
+			setYHeadRot(getYRot());
+		} else if (tickCount % 20 == 0 || getNavigation().isDone()) {
+			getNavigation().moveTo(to.x, to.y, to.z, 1.0);
+		}
+	}
+
+	/** A save from before her storm was her own may have left the world thundering: the weather from before goes back. */
+	private static void restoreLegacyWeather(ServerLevel level, LegacyWeather saved) {
+		WeatherData weather = level.getServer().getWeatherData();
+		weather.setClearWeatherTime(saved.clear());
+		weather.setRainTime(saved.rain());
+		weather.setThunderTime(saved.thunder());
+		weather.setRaining(saved.raining());
+		weather.setThundering(saved.thundering());
 	}
 
 	// ---- Phase one ----
@@ -1987,14 +2035,11 @@ public class BabaYaga extends Monster {
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putByte("Phase", (byte) phase());
-		if (stormOwner) {
-			output.putBoolean("StormOwner", true);
-			output.putLong("StormSavedAt", level().getGameTime());
-			output.putInt("WeatherClear", weatherClear);
-			output.putInt("WeatherRain", weatherRain);
-			output.putInt("WeatherThunder", weatherThunder);
-			output.putBoolean("WeatherRaining", weatherRaining);
-			output.putBoolean("WeatherThundering", weatherThundering);
+		output.putBoolean("Storm", stormActive);
+		output.putInt("Unseen", unseenTicks);
+		output.putBoolean("ReturningHome", returningHome);
+		if (home != null) {
+			output.putLong("Home", home.asLong());
 		}
 	}
 
@@ -2011,16 +2056,17 @@ public class BabaYaga extends Monster {
 			bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		}
 		bossEvent.setName(getDisplayName());
-		// Her storm goes on after a reload; she still knows the weather to put back. Unloaded longer than her storm
-		// lasts, the fight was abandoned and the storm is long over: the old weather is stale and stays unused.
+		stormActive = input.getBooleanOr("Storm", false);
+		unseenTicks = input.getIntOr("Unseen", 0);
+		returningHome = input.getBooleanOr("ReturningHome", false);
+		home = input.getLong("Home").map(BlockPos::of).orElse(null);
+		// Saved while her storm was the whole world's weather, recently enough that it still thunders: put the old back.
 		long stormSavedAt = input.getLongOr("StormSavedAt", level().getGameTime());
-		stormOwner = input.getBooleanOr("StormOwner", false) && level().getGameTime() - stormSavedAt <= STORM_TICKS;
-		stormRaised = stormOwner;
-		weatherClear = input.getIntOr("WeatherClear", 0);
-		weatherRain = input.getIntOr("WeatherRain", 0);
-		weatherThunder = input.getIntOr("WeatherThunder", 0);
-		weatherRaining = input.getBooleanOr("WeatherRaining", false);
-		weatherThundering = input.getBooleanOr("WeatherThundering", false);
+		if (input.getBooleanOr("StormOwner", false) && level().getGameTime() - stormSavedAt <= LEGACY_STORM_TICKS) {
+			legacyWeather = new LegacyWeather(input.getIntOr("WeatherClear", 0), input.getIntOr("WeatherRain", 0),
+					input.getIntOr("WeatherThunder", 0), input.getBooleanOr("WeatherRaining", false),
+					input.getBooleanOr("WeatherThundering", false));
+		}
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
 		laterHalves.clear();

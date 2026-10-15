@@ -169,5 +169,11 @@
     "cooldown": 800,
     "range": 20.0,
     "ticks": 30
+  },
+  "storm": {
+    "radius": 100.0,
+    "lightning_odds": 120,
+    "lightning_reach": 60.0,
+    "lost_ticks": 3600
   }
 }

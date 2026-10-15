@@ -5,11 +5,17 @@ import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
@@ -17,8 +23,12 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Enemy;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Baba Yaga, the swamp witch boss. In phase one she circles in her mortar, out of reach of anything but a parry, and
@@ -41,6 +51,11 @@ public final class BabaYagaModule {
 	/** Every Baba Yaga ticking on the server; dropped once unloaded or dead. */
 	private static final Set<BabaYaga> ACTIVE = Collections.newSetFromMap(new WeakHashMap<>());
 
+	/** Players last told they stand in a storm; the others were told they do not. */
+	private static final Map<UUID, Boolean> IN_STORM = new ConcurrentHashMap<>();
+	/** How often players are checked against the storms. */
+	private static final int STORM_CHECK = 10;
+
 	private static volatile BabaYagaSettings settings = BabaYagaSettings.DEFAULT;
 
 	private BabaYagaModule() {
@@ -52,6 +67,35 @@ public final class BabaYagaModule {
 		FabricDefaultAttributeRegistry.register(EamEntities.HAG_THREAD, HagThread.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.DROWNED_SOLDIER, DrownedSoldier.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(BabaYagaSettingsLoader.ID, new BabaYagaSettingsLoader());
+		PayloadTypeRegistry.clientboundPlay().register(YagaStormPayload.TYPE, YagaStormPayload.STREAM_CODEC);
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			if (server.getTickCount() % STORM_CHECK == 0) {
+				syncStorms(server);
+			}
+		});
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> IN_STORM.remove(handler.player.getUUID()));
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> IN_STORM.remove(handler.player.getUUID()));
+	}
+
+	/** Tells each player whose storm state changed whether they now stand within a Baba Yaga's storm. */
+	private static void syncStorms(MinecraftServer server) {
+		List<BabaYaga> storms = ACTIVE.stream().filter(BabaYaga::stormActive).toList();
+		double radius = settings.storm().radius();
+		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+			boolean inStorm = false;
+			for (BabaYaga yaga : storms) {
+				if (yaga.level() == player.level() && yaga.distanceToSqr(player) <= radius * radius) {
+					inStorm = true;
+					break;
+				}
+			}
+			Boolean told = IN_STORM.get(player.getUUID());
+			if ((told == null ? !inStorm : told == inStorm) || !ServerPlayNetworking.canSend(player, YagaStormPayload.TYPE)) {
+				continue;
+			}
+			IN_STORM.put(player.getUUID(), inStorm);
+			ServerPlayNetworking.send(player, new YagaStormPayload(inStorm));
+		}
 	}
 
 	public static BabaYagaSettings settings() {
