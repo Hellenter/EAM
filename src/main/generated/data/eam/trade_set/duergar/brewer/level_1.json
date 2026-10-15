@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/brewer/level_1",
+  "trades": [
+    "eam:duergar/brewer/1/sugar_emerald",
+    "eam:duergar/brewer/1/emerald_glass_bottle"
+  ]
+}

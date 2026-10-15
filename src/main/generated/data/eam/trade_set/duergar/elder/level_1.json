@@ -1,0 +1,9 @@
+{
+  "amount": 3,
+  "random_sequence": "eam:trade_set/duergar/elder/level_1",
+  "trades": [
+    "eam:duergar/elder/1/lair_map",
+    "eam:duergar/elder/1/diamond_block_mithril_ingots",
+    "eam:duergar/elder/1/emerald_block_mithril_ingots"
+  ]
+}

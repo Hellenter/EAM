@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "id": "eam:fermented_ender_eye"
+  },
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 5,
+    "id": "minecraft:emerald"
+  },
+  "xp": 30
+}

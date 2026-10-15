@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/runecarver/level_1",
+  "trades": [
+    "eam:duergar/runecarver/1/paper_emerald",
+    "eam:duergar/runecarver/1/emerald_and_book_enchanted_book"
+  ]
+}

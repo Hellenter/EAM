@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mason/level_5",
+  "trades": [
+    "eam:duergar/mason/5/emerald_quartz_pillar",
+    "eam:duergar/mason/5/emerald_chiseled_deepslate"
+  ]
+}

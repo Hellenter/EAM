@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/brewer/level_2",
+  "trades": [
+    "eam:duergar/brewer/2/emerald_fermented_spider_eye",
+    "eam:duergar/brewer/2/emerald_glowstone_dust",
+    "eam:duergar/brewer/2/emerald_redstone"
+  ]
+}
