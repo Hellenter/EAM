@@ -30,6 +30,7 @@
 		"mobs.vanilla.LivingEntityDeathDropsMixin",
 		"mobs.vanilla.MobAccessor",
 		"mobs.vanilla.MobSunBurnMixin",
+		"mobs.vanilla.ServerLevelEvolutionMixin",
 		"mobs.vanilla.TargetGoalAccessor",
 		"mobs.vanilla.TrialSpawnerMixin",
 		"survival.bleeding.PlayerBleedingMixin",

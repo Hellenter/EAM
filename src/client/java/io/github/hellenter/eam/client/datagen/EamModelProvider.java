@@ -57,7 +57,6 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
-		MetalFeederModels.generate(generators);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);
@@ -716,6 +715,7 @@ public class EamModelProvider extends FabricModelProvider {
 		PotionModels.generate(generators);
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
+		WornGearItemModels.generate(generators);
 		PillagerKingItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COMMANDER_HORN, ModelTemplates.FLAT_ITEM);

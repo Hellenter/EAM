@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(AgeableMob.class)
 abstract class AgeableMobMixin {
 	@WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/AgeableMob;setAge(I)V"))
-	private void eam$slowAging(AgeableMob mob, int age, Operation<Void> original) {
-		if (FarmingModule.agesThisTick(mob)) original.call(mob, age);
+	private void eam$ageSpeed(AgeableMob mob, int age, Operation<Void> original) {
+		int next = FarmingModule.nextAge(mob, age);
+		if (next != mob.getAge()) original.call(mob, next);
 	}
 }
