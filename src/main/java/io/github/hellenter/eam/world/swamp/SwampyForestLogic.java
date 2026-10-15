@@ -113,16 +113,68 @@ public final class SwampyForestLogic {
 	}
 
 	/**
+	 * The middle of the swamp in a cell, where Baba Yaga's hut stands: the column of full swamp (weight at least
+	 * {@link #HUT_WEIGHT}) nearest the middle of the swamp's shape, searched on a {@link #HUT_STEP}-block grid out to
+	 * {@link #HUT_SEARCH} blocks. Returns {x, z}, or {@code null} when the cell has no swamp or no such column near its middle.
+	 */
+	public static int @Nullable [] hutSpot(Climate climate, int cellX, int cellZ) {
+		int[] centre = centre(climate, cellX, cellZ);
+		// The outline is pushed about by a broad noise; the shape's middle sits about that far the other way.
+		int middleX = centre[0] - Math.round(RADIUS * SHAPE_WARP * valueNoise(centre[0] / SHAPE_SCALE, centre[1] / SHAPE_SCALE, 5));
+		int middleZ = centre[1] - Math.round(RADIUS * SHAPE_WARP * valueNoise(centre[0] / SHAPE_SCALE, centre[1] / SHAPE_SCALE, 6));
+		int steps = HUT_SEARCH / HUT_STEP;
+		for (int ring = 0; ring <= steps; ring++) {
+			int[] best = null;
+			long bestDistance = Long.MAX_VALUE;
+			for (int i = -ring; i <= ring; i++) {
+				for (int j = -ring; j <= ring; j++) {
+					if (Math.max(Math.abs(i), Math.abs(j)) != ring) continue;
+					int x = middleX + i * HUT_STEP;
+					int z = middleZ + j * HUT_STEP;
+					long distance = (long) i * i + (long) j * j;
+					if (distance >= bestDistance || Math.floorDiv(x, CELL) != cellX || Math.floorDiv(z, CELL) != cellZ) continue;
+					if (weight(climate, x, z) >= HUT_WEIGHT) {
+						best = new int[] {x, z};
+						bestDistance = distance;
+					}
+				}
+			}
+			if (best != null) {
+				return best;
+			}
+		}
+		return null;
+	}
+
+	/** The hut stands where the swamp is full: none of the terrain blending toward the rim. */
+	static final float HUT_WEIGHT = 0.95F;
+	static final int HUT_STEP = 16;
+	static final int HUT_SEARCH = 320;
+
+	/** The point a cell's swamp is laid around, before its outline is warped. */
+	private static int[] centre(Climate climate, int cellX, int cellZ) {
+		// The world's own temperature at the cell corner seeds the swamp's spot, so it moves with the world seed.
+		long hash = mix(cellX * 341873128712L + cellZ * 132897987541L + Float.floatToIntBits(climate.temperature(cellX * CELL, cellZ * CELL)));
+		int centreX = cellX * CELL + CELL / 2 + (int) ((hash & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
+		int centreZ = cellZ * CELL + CELL / 2 + (int) (((hash >>> 16) & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
+		return new int[] {centreX, centreZ};
+	}
+
+	/** Side of the cells swamps are laid out in, in blocks. */
+	public static int cellSize() {
+		return CELL;
+	}
+
+	/**
 	 * The swamp's shape, 0 to 1, grown outward by {@code extra} blocks and limited to land vanilla keeps below
 	 * {@code lowFrom}..{@code lowTo}. The cell's centre always has to suit a swamp, so a rim never comes without one.
 	 */
 	private static float region(Climate climate, int x, int z, int extra, float lowFrom, float lowTo) {
 		int cellX = Math.floorDiv(x, CELL);
 		int cellZ = Math.floorDiv(z, CELL);
-		// The world's own temperature at the cell corner seeds the swamp's spot, so it moves with the world seed.
-		long hash = mix(cellX * 341873128712L + cellZ * 132897987541L + Float.floatToIntBits(climate.temperature(cellX * CELL, cellZ * CELL)));
-		int centreX = cellX * CELL + CELL / 2 + (int) ((hash & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
-		int centreZ = cellZ * CELL + CELL / 2 + (int) (((hash >>> 16) & 0xFFFF) / 65535.0F * 2 * JITTER) - JITTER;
+		int[] centre = centre(climate, cellX, cellZ);
+		int centreX = centre[0];
+		int centreZ = centre[1];
 		float dx = x - centreX + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 5);
 		float dz = z - centreZ + RADIUS * SHAPE_WARP * valueNoise(x / SHAPE_SCALE, z / SHAPE_SCALE, 6);
 		float reach = RADIUS * (1.0F + EDGE_WOBBLE) * (1.0F + EDGE_WIDTH / 2) + extra;
