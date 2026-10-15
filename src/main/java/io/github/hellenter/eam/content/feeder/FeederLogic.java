@@ -40,7 +40,7 @@ public final class FeederLogic {
 		int hunger = state.hunger() + missedDays(state, today);
 		boolean thin = state.thin() || hunger > thinAfterDays;
 		hunger = Math.max(0, hunger - 1);
-		return new LivestockState(today, hunger, thin && hunger > 0, 0L, 0, state.feederTime());
+		return new LivestockState(today, hunger, thin && hunger > 0).withNeedsOf(state);
 	}
 
 	/** Whether the animal ate from a feeder within the last day of clock time {@code now}: it is kept at a feeder. */
@@ -64,9 +64,29 @@ public final class FeederLogic {
 		return fed.withFeederTime(now);
 	}
 
-	/** How fast an animal grows up and gets ready to breed again: {@code boost} times as fast while kept at a feeder. */
+	/**
+	 * How fast an animal grows up and gets ready to breed again: {@code boost} times as fast while kept at a feeder and
+	 * not sick.
+	 */
 	public static double growthSpeed(@Nullable LivestockState state, long now, double boost) {
-		return fedAtFeeder(state, now) ? boost : 1.0;
+		return fedAtFeeder(state, now) && !state.sick() ? boost : 1.0;
+	}
+
+	/** Whether an animal has too little space: more than {@code limit} other heads close around it. */
+	public static boolean crowded(int neighbours, int limit) {
+		return neighbours > limit;
+	}
+
+	/**
+	 * The state after today's check of water and space, once a day: a bad day (no water near the feeder or too little
+	 * space) adds one, a good day takes one off. After {@code sickAfterDays} bad days the animal falls sick and stays sick
+	 * until good days have made all of them up.
+	 */
+	public static LivestockState checkNeeds(LivestockState state, long today, boolean bad, int sickAfterDays) {
+		if (state.needsDay() == today) return state;
+		int badDays = bad ? Math.min(state.badDays() + 1, sickAfterDays) : Math.max(0, state.badDays() - 1);
+		boolean sick = bad ? state.sick() || badDays >= sickAfterDays : state.sick() && badDays > 0;
+		return state.withNeeds(today, badDays, sick);
 	}
 
 	/** Whether a feeder that last paired animals at {@code breedTime} may pair again: once a day, {@code boost} times as often. */
@@ -88,7 +108,7 @@ public final class FeederLogic {
 		int bites = (state != null && state.biteDay() == today ? state.bites() : 0) + 1;
 		if (bites >= BITES_PER_MEAL) return eat(state, today, thinAfterDays);
 		if (state == null) return new LivestockState(today - 1, 0, false, today, bites);
-		return new LivestockState(state.lastMealDay(), state.hunger(), state.thin(), today, bites, state.feederTime());
+		return new LivestockState(state.lastMealDay(), state.hunger(), state.thin(), today, bites).withNeedsOf(state);
 	}
 
 	/** Food heap step for the model: 0 when empty, otherwise 1 to {@link #MAX_FILL}. */
