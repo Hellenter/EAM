@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
+import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
@@ -63,6 +64,12 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(BloodMoonModule.ARMORED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER)
 				.add(SKELETONS);
+		// Monster evolution: zombies and skeletons of the overworld put on armor as the world ages; zombies take up weapons.
+		builder(MonsterEvolutionModule.ARMORED)
+				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
+						EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
+		builder(MonsterEvolutionModule.ARMED)
+				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(BloodMoonModule.ARMED).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(BloodMoonModule.HUNTERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,

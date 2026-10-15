@@ -56,10 +56,11 @@ public record EamConfig(
 		boolean talismanPortal,
 		boolean arrowRecovery,
 		boolean underworld,
-		boolean livestockFeeding
+		boolean livestockFeeding,
+		boolean monsterEvolution
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -96,16 +97,19 @@ public record EamConfig(
 	}
 
 	/** The third map codec, for flags after {@code swampy_forest}: {@link LaterFlags} is full too. */
-	private record LastFlags(boolean talismanPortal, boolean arrowRecovery, boolean underworld, boolean livestockFeeding) {
+	private record LastFlags(boolean talismanPortal, boolean arrowRecovery, boolean underworld, boolean livestockFeeding,
+			boolean monsterEvolution) {
 		private static final MapCodec<LastFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal),
 				Codec.BOOL.optionalFieldOf("arrow_recovery", DEFAULT.arrowRecovery).forGetter(LastFlags::arrowRecovery),
 				Codec.BOOL.optionalFieldOf("underworld", DEFAULT.underworld).forGetter(LastFlags::underworld),
-				Codec.BOOL.optionalFieldOf("livestock_feeding", DEFAULT.livestockFeeding).forGetter(LastFlags::livestockFeeding)
+				Codec.BOOL.optionalFieldOf("livestock_feeding", DEFAULT.livestockFeeding).forGetter(LastFlags::livestockFeeding),
+				Codec.BOOL.optionalFieldOf("monster_evolution", DEFAULT.monsterEvolution).forGetter(LastFlags::monsterEvolution)
 		).apply(instance, LastFlags::new));
 
 		private static LastFlags of(EamConfig config) {
-			return new LastFlags(config.talismanPortal, config.arrowRecovery, config.underworld, config.livestockFeeding);
+			return new LastFlags(config.talismanPortal, config.arrowRecovery, config.underworld, config.livestockFeeding,
+					config.monsterEvolution);
 		}
 	}
 
@@ -132,7 +136,7 @@ public record EamConfig(
 			later.defensiveCows, later.blastFurnaceIron, later.silver, later.lockedVillages, later.removeStructures,
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
-			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding)));
+			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding, last.monsterEvolution)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

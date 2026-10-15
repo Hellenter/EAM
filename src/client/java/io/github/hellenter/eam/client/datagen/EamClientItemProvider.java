@@ -25,6 +25,7 @@ public class EamClientItemProvider extends FabricCodecDataProvider<ClientItem> {
 	protected void configure(BiConsumer<Identifier, ClientItem> provider, HolderLookup.Provider registries) {
 		FallenLordItemModels.clientItems().forEach(provider);
 		PillagerKingItemModels.clientItems().forEach(provider);
+		WornGearItemModels.clientItems().forEach(provider);
 		// The elite crossbowman's loaded crossbow, red before his charged shot.
 		provider.accept(EliteCrossbowmanRenderer.RED_CROSSBOW, new ClientItem(ItemModelUtils.tintedModel(
 				Identifier.withDefaultNamespace("item/crossbow_arrow"), ItemModelUtils.constantTint(0xFFFF3A22)), ClientItem.Properties.DEFAULT));
