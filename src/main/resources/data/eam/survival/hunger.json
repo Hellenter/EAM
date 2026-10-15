@@ -11,5 +11,13 @@
 	"balance_threshold": 70,
 	"balanced_hunger_factor": 2.0,
 	"balanced_regen_factor": 1.5,
-	"malnourished_regen_factor": 1.5
+	"malnourished_regen_factor": 1.5,
+	"deficiency": {
+		"threshold": 0,
+		"protein_attack_penalty": 0.15,
+		"protein_mining_penalty": 0.2,
+		"fat_hunger_factor": 1.2,
+		"carbs_sprint_ticks": 500,
+		"carbs_rest_ticks": 100
+	}
 }
