@@ -35,13 +35,14 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
-		// Mobs that chase the player on foot. Creepers have no reason to dig.
+		// Mobs that chase the player on foot, and every pillager kind. Creepers have no reason to dig.
 		builder(BlockBreakingModule.BREAKERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER,
-						EntityTypeIds.VINDICATOR)
+						EntityTypeIds.VINDICATOR, EntityTypeIds.PILLAGER, EntityTypeIds.EVOKER, EntityTypeIds.ILLUSIONER)
 				.add(SKELETONS)
-				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key(),
+						EamEntities.PILLAGER_KING.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
 						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
 		// Duergar renegades dig through stone with their picks.
 		builder(BlockBreakingModule.STONE_BREAKERS).add(EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
@@ -49,6 +50,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(ThroughLeavesModule.SEE_THROUGH).add(SKELETONS)
 				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		builder(BlockBreakingModule.TARGETS).add(EntityTypeIds.PLAYER);
+		// Raiders break into houses after the villagers hiding there.
+		builder(BlockBreakingModule.RAID_TARGETS).add(EntityTypeIds.VILLAGER, EntityTypeIds.WANDERING_TRADER);
 		// Farm animals that eat from feeders.
 		builder(FeederModule.LIVESTOCK).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.SHEEP, EntityTypeIds.PIG,
 				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT);

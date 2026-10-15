@@ -55,6 +55,7 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
 		SieveModels.generate(generators);
+		KingTrophyModels.generate(generators);
 		FeederModels.generate(generators);
 		MetalFeederModels.generate(generators);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
@@ -587,6 +588,7 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateItemModels(ItemModelGenerators generators) {
 		generators.generateFlatItem(EamItems.LEATHER_THREAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PILLAGER_KING_TROPHY, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BOILED_WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.MILK_BOWL, ModelTemplates.FLAT_ITEM);

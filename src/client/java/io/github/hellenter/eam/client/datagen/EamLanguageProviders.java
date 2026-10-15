@@ -183,6 +183,8 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Heavy cavalry");
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
+			builder.add(EamBlocks.PILLAGER_KING_TROPHY, "Pillager King's Trophy");
+			builder.add("block.eam.pillager_king_trophy.desc", "Set up in a village, it keeps raids away");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
@@ -591,6 +593,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "The room needs lighting");
 			builder.add("block.eam.bed.blood_moon", "You can't sleep under a blood moon");
 			builder.add("event.eam.blood_moon.title", "Blood Moon");
+			builder.add("event.eam.random_raid", "Pillagers are coming for the village!");
 			builder.add("event.eam.blood_moon.start", "The blood moon is rising. Monsters are coming out in armor and won't let you sleep.");
 			builder.add("event.eam.blood_moon.end", "The blood moon has set.");
 			builder.add("commands.eam.blood_moon.active", "Day %s: the blood moon is up");
@@ -750,6 +753,8 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Тяжёлая кавалерия");
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
+			builder.add(EamBlocks.PILLAGER_KING_TROPHY, "Трофей Короля разбойников");
+			builder.add("block.eam.pillager_king_trophy.desc", "Поставь в деревне, и рейды обойдут её стороной");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
@@ -1165,6 +1170,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "Требуется освещение");
 			builder.add("block.eam.bed.blood_moon", "Под кровавой луной не уснуть");
 			builder.add("event.eam.blood_moon.title", "Кровавая луна");
+			builder.add("event.eam.random_raid", "Разбойники идут на деревню!");
 			builder.add("event.eam.blood_moon.start", "Восходит кровавая луна. Монстры выходят в броне и не дадут уснуть.");
 			builder.add("event.eam.blood_moon.end", "Кровавая луна зашла.");
 			builder.add("commands.eam.blood_moon.active", "День %s: сейчас кровавая луна");

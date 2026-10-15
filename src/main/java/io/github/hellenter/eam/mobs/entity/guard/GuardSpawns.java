@@ -10,9 +10,9 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Swaps a share of freshly made pillagers for guards, right where vanilla makes them for a patrol, an outpost or a raid
- * wave (the spawn mixins in {@code mixin.mobs.guard}). The guard then goes through the same spawn steps the pillager
- * would have.
+ * Swaps a share of freshly made pillagers for guards, right where vanilla makes them for a patrol or an outpost (the
+ * spawn mixins in {@code mixin.mobs.guard}). The guard then goes through the same spawn steps the pillager would have.
+ * Raid waves keep their pillagers and get guards on top ({@code mobs.vanilla.raid.VillageRaidsModule}).
  */
 public final class GuardSpawns {
 	private static volatile boolean enabled;

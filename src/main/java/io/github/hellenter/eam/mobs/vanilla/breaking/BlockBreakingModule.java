@@ -36,6 +36,8 @@ public final class BlockBreakingModule {
 	public static final TagKey<Block> STONE = TagKey.create(Registries.BLOCK, Eam.id("mob_breakable_stone"));
 	/** Targets mobs dig toward: players. A datapack can add villagers and other mobs. */
 	public static final TagKey<EntityType<?>> TARGETS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("block_breaking_targets"));
+	/** Raiders of a raid also dig toward these, villagers hiding in their houses. */
+	public static final TagKey<EntityType<?>> RAID_TARGETS = TagKey.create(Registries.ENTITY_TYPE, Eam.id("raid_breaking_targets"));
 	/** Mobs break the same blocks a player can break bare-handed. */
 	public static final TagKey<Block> HAND_BREAKABLE = HandBreakingModule.HAND_BREAKABLE;
 

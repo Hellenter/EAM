@@ -190,6 +190,12 @@ public final class EamItems {
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
+	/** Dropped by the Pillager King: his helm on a pike. Set up in a village, it keeps raids away. */
+	public static final Item PILLAGER_KING_TROPHY = register("pillager_king_trophy", p -> new BlockItem(EamBlocks.PILLAGER_KING_TROPHY, p),
+			new Item.Properties().useBlockDescriptionPrefix().stacksTo(1).rarity(Rarity.RARE).fireResistant()
+					.component(DataComponents.LORE, new ItemLore(List.of(
+							Component.translatable("block.eam.pillager_king_trophy.desc").withStyle(ChatFormatting.GRAY)))));
+
 	/** Sold by duergar elders: on the surface, in hand, it turns into a map to the nearest boss's lair. */
 	public static final Item LAIR_MAP = register("lair_map", LairMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));

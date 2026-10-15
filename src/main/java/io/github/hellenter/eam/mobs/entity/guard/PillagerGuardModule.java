@@ -13,7 +13,7 @@ import net.minecraft.world.damagesource.DamageType;
 
 /**
  * Pillager guards: pillagers in a helmet and cuirass with an axe, the king's onslaught (weakened) and a thrown axe. A
- * share of the pillagers in patrols, outposts and raids comes as guards ({@link GuardSpawns}). Numbers are in
+ * share of the pillagers in patrols and outposts comes as guards ({@link GuardSpawns}); raid waves get them on top. Numbers are in
  * {@code data/eam/mobs/pillager_guard.json}.
  */
 public final class PillagerGuardModule {
@@ -30,7 +30,7 @@ public final class PillagerGuardModule {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(PillagerGuardSettingsLoader.ID, new PillagerGuardSettingsLoader());
 	}
 
-	/** Guards start replacing pillagers in patrols, outposts and raids. */
+	/** Guards start replacing pillagers in patrols and outposts. */
 	public static void init() {
 		GuardSpawns.enable();
 	}
