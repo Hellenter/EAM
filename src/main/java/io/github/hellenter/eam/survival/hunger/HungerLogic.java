@@ -19,7 +19,28 @@ public final class HungerLogic {
 	 * creative or spectator) hunger does not drain: all exhaustion is dropped.
 	 */
 	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean paused,
-			boolean malnourished) {
+			Deficiencies deficiencies) {
+	}
+
+	/** Which nutrients are at or below the deficiency threshold. */
+	public record Deficiencies(boolean protein, boolean fat, boolean carbs) {
+		public static final Deficiencies NONE = new Deficiencies(false, false, false);
+
+		public boolean any() {
+			return protein || fat || carbs;
+		}
+	}
+
+	/**
+	 * Sprint endurance without carbs: ticks run so far and ticks left to rest. While resting the player is winded and
+	 * cannot sprint. Server-only, not saved.
+	 */
+	public record Stamina(int sprintTicks, int restTicks) {
+		public static final Stamina FRESH = new Stamina(0, 0);
+
+		public boolean winded() {
+			return restTicks > 0;
+		}
 	}
 
 	/**
@@ -49,11 +70,14 @@ public final class HungerLogic {
 		float exhaustion = context.paused() ? 0.0F : in.exhaustion() + rules.passiveExhaustion();
 		int timer = in.tickTimer();
 		float perPoint = rules.exhaustionPerPoint() * (context.balanced() ? rules.balancedHungerFactor() : 1.0F);
+		if (context.deficiencies().fat()) {
+			perPoint /= rules.deficiency().fatHungerFactor();
+		}
 		float regenFactor = 1.0F;
 		if (context.balanced()) {
 			regenFactor /= rules.balancedRegenFactor();
 		}
-		if (context.malnourished()) {
+		if (context.deficiencies().any()) {
 			regenFactor *= rules.malnourishedRegenFactor();
 		}
 		int regenInterval = Math.max(1, Math.round(rules.regenIntervalTicks() * regenFactor));
@@ -109,9 +133,27 @@ public final class HungerLogic {
 		return nutrition.protein() >= threshold && nutrition.fat() >= threshold && nutrition.carbs() >= threshold;
 	}
 
-	/** Malnourished: any nutrient has run out. */
-	public static boolean malnourished(Nutrition nutrition) {
-		return nutrition.protein() <= 0.0F || nutrition.fat() <= 0.0F || nutrition.carbs() <= 0.0F;
+	/** A nutrient at or below {@code threshold} is deficient. */
+	public static Deficiencies deficiencies(Nutrition nutrition, int threshold) {
+		return new Deficiencies(nutrition.protein() <= threshold, nutrition.fat() <= threshold, nutrition.carbs() <= threshold);
+	}
+
+	/**
+	 * Advances sprint endurance by one tick. Without carbs, sprinting gives out after {@code carbsSprintTicks} of running
+	 * and needs {@code carbsRestTicks} of rest; walking slowly recovers the run counter. With carbs nothing is tracked.
+	 */
+	public static Stamina stamina(Stamina in, boolean carbsDeficient, boolean sprinting, DeficiencyRules rules) {
+		if (!carbsDeficient) {
+			return Stamina.FRESH;
+		}
+		if (in.restTicks() > 0) {
+			return new Stamina(0, in.restTicks() - 1);
+		}
+		if (sprinting) {
+			int ran = in.sprintTicks() + 1;
+			return ran >= rules.carbsSprintTicks() ? new Stamina(0, rules.carbsRestTicks()) : new Stamina(ran, 0);
+		}
+		return new Stamina(Math.max(in.sprintTicks() - 1, 0), 0);
 	}
 
 	private static float clamp(float value) {

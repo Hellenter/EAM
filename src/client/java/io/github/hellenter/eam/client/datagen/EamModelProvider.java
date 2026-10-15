@@ -77,6 +77,8 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createGrowingPlant(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
+		generators.createHorizontallyRotatedBlock(EamBlocks.SMALL_FRIDGE, TexturedModel.ORIENTABLE);
+		generators.createHorizontallyRotatedBlock(EamBlocks.LARGE_FRIDGE, TexturedModel.ORIENTABLE);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);
 		}
@@ -608,7 +610,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,
-				EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT)) {
+				EamItems.ROTTEN_FOOD, EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		generators.generateFlatItem(EamItems.FALLEN_LORD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);

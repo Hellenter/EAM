@@ -11,6 +11,7 @@ import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.swamp.SwampPondFeature;
 
@@ -90,9 +91,11 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.FLINT_SHARD.builtInRegistryHolder().key(),
 				EamBlocks.GROUND_STICK.builtInRegistryHolder().key(),
 				EamBlocks.SIEVE.builtInRegistryHolder().key());
-		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
+				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key());
 
-		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(),
+				EamBlocks.LARGE_FRIDGE.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
 		// Like copper ore and the iron block: a copper pickaxe or better.
@@ -170,6 +173,11 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Garlic is a crop like carrots: bees tend it and it keeps its farmland moist.
 		builder(BlockTags.CROPS).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
 		builder(BlockTags.MAINTAINS_FARMLAND).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
+		// Plants whose harvest grows under a blue moon; a placed pumpkin is left out so it cannot be broken over and over.
+		BlockItemTagAppender<Block> harvest = builder(BlueMoonModule.HARVEST_BLOCKS);
+		harvest.forceAddTag(BlockTags.CROPS);
+		harvest.forceAddTag(BlockTags.CAVE_VINES);
+		harvest.add(BlockItemIds.MELON, BlockItemIds.SWEET_BERRY_CROP, BlockItemIds.COCOA_CROP);
 		builder(BlockTags.REPLACEABLE_BY_TREES).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
