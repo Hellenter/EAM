@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.feeder;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,31 @@ class FeederLogicTest {
 		assertTrue(FeederLogic.canBreedAgain(LivestockState.NEVER, 0, 1.5));
 		assertFalse(FeederLogic.canBreedAgain(1000, 1000 + 15999, 1.5));
 		assertTrue(FeederLogic.canBreedAgain(1000, 1000 + 16000, 1.5));
+	}
+
+	@Test
+	void fallsSickAfterTwoBadDaysAndRecoversAfterTwoGood() {
+		LivestockState state = FeederLogic.feederMeal(null, 1, FeederLogic.DAY, THIN_AFTER);
+		state = FeederLogic.checkNeeds(state, 1, true, 2);
+		assertFalse(state.sick());
+		// Checked once a day.
+		assertSame(state, FeederLogic.checkNeeds(state, 1, true, 2));
+		state = FeederLogic.checkNeeds(state, 2, true, 2);
+		assertTrue(state.sick());
+		assertEquals(1.0, FeederLogic.growthSpeed(state, 2 * FeederLogic.DAY + 10, 1.5));
+		state = FeederLogic.checkNeeds(state, 3, false, 2);
+		assertTrue(state.sick());
+		state = FeederLogic.checkNeeds(state, 4, false, 2);
+		assertFalse(state.sick());
+		// Feeding keeps the sickness.
+		LivestockState sick = FeederLogic.checkNeeds(FeederLogic.checkNeeds(state, 5, true, 2), 6, true, 2);
+		assertTrue(FeederLogic.eat(sick, 7, THIN_AFTER).sick());
+	}
+
+	@Test
+	void crowdedPastTheLimit() {
+		assertFalse(FeederLogic.crowded(6, 6));
+		assertTrue(FeederLogic.crowded(7, 6));
 	}
 
 	@Test
