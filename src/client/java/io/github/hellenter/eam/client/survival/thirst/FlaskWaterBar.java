@@ -19,17 +19,18 @@ public final class FlaskWaterBar {
 	}
 
 	public static void extract(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
-		if (!(stack.getItem() instanceof FlaskItem)) {
+		if (!(stack.getItem() instanceof FlaskItem flask)) {
 			return;
 		}
 		FlaskWater water = stack.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY);
 		if (water.isEmpty()) {
 			return;
 		}
+		int capacity = flask.type().capacity();
 		int left = x + 2;
 		int top = y + 1;
 		graphics.fill(RenderPipelines.GUI, left, top, left + 13, top + 2, 0xFF000000);
-		graphics.fill(RenderPipelines.GUI, left, top, left + FlaskLogic.barWidth(water.amount()), top + 1,
-				ARGB.opaque(FlaskLogic.barColor(water.amount())));
+		graphics.fill(RenderPipelines.GUI, left, top, left + FlaskLogic.barWidth(water.amount(), capacity), top + 1,
+				ARGB.opaque(FlaskLogic.barColor(water.amount(), capacity)));
 	}
 }

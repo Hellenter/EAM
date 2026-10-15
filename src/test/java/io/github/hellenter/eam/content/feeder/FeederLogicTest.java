@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.feeder;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,64 @@ class FeederLogicTest {
 		LivestockState fed = FeederLogic.eat(null, 5, THIN_AFTER);
 		assertFalse(FeederLogic.canEat(fed, 5));
 		assertTrue(FeederLogic.canEat(fed, 6));
+	}
+
+	@Test
+	void grassFedAnimalComesForOneFeederMealADay() {
+		long now = 5 * FeederLogic.DAY + 1000;
+		LivestockState grazed = FeederLogic.bite(FeederLogic.bite(null, 5, THIN_AFTER), 5, THIN_AFTER);
+		assertFalse(FeederLogic.canEat(grazed, 5));
+		assertTrue(FeederLogic.wantsFeeder(grazed, 5, now));
+		LivestockState kept = FeederLogic.feederMeal(grazed, 5, now, THIN_AFTER);
+		// The extra meal is not a second day's meal: hunger and the meal day stay.
+		assertEquals(grazed.lastMealDay(), kept.lastMealDay());
+		assertEquals(grazed.hunger(), kept.hunger());
+		assertFalse(FeederLogic.wantsFeeder(kept, 5, now + 10));
+		assertTrue(FeederLogic.wantsFeeder(kept, 5, now + FeederLogic.DAY));
+	}
+
+	@Test
+	void growsFasterForADayAfterAFeederMeal() {
+		long now = 3 * FeederLogic.DAY;
+		assertEquals(1.0, FeederLogic.growthSpeed(null, now, 1.5));
+		LivestockState kept = FeederLogic.feederMeal(null, 3, now, THIN_AFTER);
+		assertEquals(1.5, FeederLogic.growthSpeed(kept, now + FeederLogic.DAY - 1, 1.5));
+		assertEquals(1.0, FeederLogic.growthSpeed(kept, now + FeederLogic.DAY, 1.5));
+		// Eating and grazing keep the feeder time.
+		assertEquals(now, FeederLogic.eat(kept, 4, THIN_AFTER).feederTime());
+		assertEquals(now, FeederLogic.bite(kept, 4, THIN_AFTER).feederTime());
+	}
+
+	@Test
+	void feederPairsAnimalsHalfAsOftenAgain() {
+		assertTrue(FeederLogic.canBreedAgain(LivestockState.NEVER, 0, 1.5));
+		assertFalse(FeederLogic.canBreedAgain(1000, 1000 + 15999, 1.5));
+		assertTrue(FeederLogic.canBreedAgain(1000, 1000 + 16000, 1.5));
+	}
+
+	@Test
+	void fallsSickAfterTwoBadDaysAndRecoversAfterTwoGood() {
+		LivestockState state = FeederLogic.feederMeal(null, 1, FeederLogic.DAY, THIN_AFTER);
+		state = FeederLogic.checkNeeds(state, 1, true, 2);
+		assertFalse(state.sick());
+		// Checked once a day.
+		assertSame(state, FeederLogic.checkNeeds(state, 1, true, 2));
+		state = FeederLogic.checkNeeds(state, 2, true, 2);
+		assertTrue(state.sick());
+		assertEquals(1.0, FeederLogic.growthSpeed(state, 2 * FeederLogic.DAY + 10, 1.5));
+		state = FeederLogic.checkNeeds(state, 3, false, 2);
+		assertTrue(state.sick());
+		state = FeederLogic.checkNeeds(state, 4, false, 2);
+		assertFalse(state.sick());
+		// Feeding keeps the sickness.
+		LivestockState sick = FeederLogic.checkNeeds(FeederLogic.checkNeeds(state, 5, true, 2), 6, true, 2);
+		assertTrue(FeederLogic.eat(sick, 7, THIN_AFTER).sick());
+	}
+
+	@Test
+	void crowdedPastTheLimit() {
+		assertFalse(FeederLogic.crowded(6, 6));
+		assertTrue(FeederLogic.crowded(7, 6));
 	}
 
 	@Test

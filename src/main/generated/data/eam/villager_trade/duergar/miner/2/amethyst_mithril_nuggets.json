@@ -1,0 +1,13 @@
+{
+  "gives": {
+    "count": 2,
+    "id": "eam:mithril_nugget"
+  },
+  "max_uses": 6,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 16,
+    "id": "minecraft:amethyst_shard"
+  },
+  "xp": 5
+}

@@ -190,9 +190,14 @@ public class CampFireBlockEntity extends BlockEntity {
 		return items;
 	}
 
+	/** Whether the item has a recipe on a fire, components included. */
+	public static boolean cooks(ServerLevel level, ItemStack stack) {
+		return level.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), level).isPresent();
+	}
+
 	/** Puts one item from {@code stack} on a free slot; false when the fire is full or the item does not cook. */
 	public boolean placeFood(ServerLevel level, @Nullable LivingEntity source, ItemStack stack) {
-		if (level.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), level).isEmpty()) {
+		if (!cooks(level, stack)) {
 			return false;
 		}
 		for (int slot = 0; slot < SLOTS; slot++) {

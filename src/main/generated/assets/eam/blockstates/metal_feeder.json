@@ -5,7 +5,8 @@
         "model": "eam:block/metal_feeder_body"
       },
       "when": {
-        "axis": "x"
+        "axis": "x",
+        "back_positive": "false"
       }
     },
     {
@@ -14,6 +15,7 @@
       },
       "when": {
         "axis": "x",
+        "back_positive": "false",
         "negative": "false"
       }
     },
@@ -23,6 +25,68 @@
       },
       "when": {
         "axis": "x",
+        "back_positive": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_body_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_negative_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_positive_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_body_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_negative_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/metal_feeder_end_positive_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false",
         "positive": "false"
       }
     },
@@ -32,7 +96,8 @@
         "y": 90
       },
       "when": {
-        "axis": "z"
+        "axis": "z",
+        "back_positive": "true"
       }
     },
     {
@@ -42,6 +107,7 @@
       },
       "when": {
         "axis": "z",
+        "back_positive": "true",
         "negative": "false"
       }
     },
@@ -52,6 +118,7 @@
       },
       "when": {
         "axis": "z",
+        "back_positive": "true",
         "positive": "false"
       }
     },

@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mason/level_2",
+  "trades": [
+    "eam:duergar/mason/2/stone_emerald",
+    "eam:duergar/mason/2/cobbled_deepslate_emerald",
+    "eam:duergar/mason/2/emerald_chiseled_stone_bricks"
+  ]
+}

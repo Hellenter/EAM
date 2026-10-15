@@ -56,7 +56,6 @@ public class EamModelProvider extends FabricModelProvider {
 		CampFireModels.generate(generators);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
-		MetalFeederModels.generate(generators);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);
@@ -639,6 +638,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.BLACK_WIDOW_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FILTERED_LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.FILTERED_GLASS_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_HATCHET, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.BEDROCK_BREAKER, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -716,6 +716,7 @@ public class EamModelProvider extends FabricModelProvider {
 		PotionModels.generate(generators);
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
+		WornGearItemModels.generate(generators);
 		PillagerKingItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COMMANDER_HORN, ModelTemplates.FLAT_ITEM);

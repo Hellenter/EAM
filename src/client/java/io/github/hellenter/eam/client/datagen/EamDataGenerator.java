@@ -31,6 +31,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamUnderworldMineProvider::new);
 		pack.addProvider(EamUnderworldMineLootProvider::new);
 		pack.addProvider(EamDuergarVillageProvider::new);
+		pack.addProvider(EamDuergarTradeProvider::new);
 		pack.addProvider(EamDuergarVillageLootProvider::new);
 		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
@@ -89,8 +90,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 			EamUnderworldMineProvider.bootstrapSets(context);
 			EamDuergarVillageProvider.bootstrapSets(context);
 		});
-		registryBuilder.add(Registries.VILLAGER_TRADE, EamDuergarVillageProvider::bootstrapTrades);
-		registryBuilder.add(Registries.TRADE_SET, EamDuergarVillageProvider::bootstrapTradeSets);
+		registryBuilder.add(Registries.VILLAGER_TRADE, EamDuergarTradeProvider::bootstrapTrades);
+		registryBuilder.add(Registries.TRADE_SET, EamDuergarTradeProvider::bootstrapTradeSets);
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);
 	}
 }

@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingRecipe;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
@@ -32,7 +33,9 @@ import net.minecraft.world.item.crafting.PotionIngredient;
 import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
@@ -42,9 +45,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.SmokingRecipe;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -92,6 +100,20 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 								List.of(Ingredient.of(EamItems.LEATHER_FLASK), tag(ItemTags.COALS), tag(EamItems.FLASK_THREADS))))
 						.unlockedBy(getHasName(EamItems.LEATHER_FLASK), has(EamItems.LEATHER_FLASK))
 						.save(output, "eam:filtered_leather_flask_from_flask");
+
+				shapeless(RecipeCategory.TOOLS, EamItems.FILTERED_GLASS_FLASK)
+						.requires(Items.GLASS, 3)
+						.requires(ItemTags.COALS)
+						.requires(EamItems.SILVER_NUGGET, 3)
+						.unlockedBy(getHasName(EamItems.SILVER_NUGGET), has(EamItems.SILVER_NUGGET))
+						.save(output);
+				// A spent charcoal-silver filter is replaced with the same coal and silver; the water stays.
+				CustomCraftingRecipeBuilder.customCrafting(RecipeCategory.TOOLS, (common, book) -> new FilterFlaskRecipe(common, book,
+								new ItemStackTemplate(EamItems.FILTERED_GLASS_FLASK),
+								List.of(Ingredient.of(EamItems.FILTERED_GLASS_FLASK), tag(ItemTags.COALS), Ingredient.of(EamItems.SILVER_NUGGET),
+										Ingredient.of(EamItems.SILVER_NUGGET), Ingredient.of(EamItems.SILVER_NUGGET))))
+						.unlockedBy(getHasName(EamItems.FILTERED_GLASS_FLASK), has(EamItems.FILTERED_GLASS_FLASK))
+						.save(output, "eam:filtered_glass_flask_new_filter");
 
 				shapeless(RecipeCategory.MISC, Items.FLINT)
 						.requires(EamItems.FLINT_SHARD, 4)
@@ -707,6 +729,8 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
 						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
 
+				boiledWaterBottleRecipes();
+
 				// Warg meat cooks like mutton.
 				Ingredient wolfMeat = Ingredient.of(EamItems.WOLF_MEAT);
 				SimpleCookingRecipeBuilder.smelting(wolfMeat, RecipeCategory.FOOD, CookingBookCategory.FOOD, EamItems.COOKED_WOLF_MEAT, 0.35F, 200)
@@ -744,10 +768,41 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				emptyBowlDish(EamItems.SORBET, Items.APPLE, Items.SUGAR, Items.SNOWBALL);
 			}
 
+			/**
+			 * A water bottle must be boiled before it is safe to drink: 5 seconds in a furnace, smoker or blast furnace,
+			 * 30 on a campfire like a bowl of water. Boiled water is still water, named by its potion {@code custom_name}.
+			 */
+			private void boiledWaterBottleRecipes() {
+				Ingredient raw = rawWaterBottle();
+				ItemStackTemplate boiled = new ItemStackTemplate(Items.POTION,
+						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, RawWater.boiledWater()).build());
+				cooking(raw, boiled, 100, SmeltingRecipe::new, "eam:boiled_water_bottle");
+				cooking(raw, boiled, 100, SmokingRecipe::new, "eam:boiled_water_bottle_from_smoking");
+				cooking(raw, boiled, 100, BlastingRecipe::new, "eam:boiled_water_bottle_from_blasting");
+				cooking(raw, boiled, 600, CampfireCookingRecipe::new, "eam:boiled_water_bottle_from_campfire_cooking");
+			}
+
+			/** A plain water bottle; a boiled one has another potion {@code custom_name}, so it does not match. */
+			private Ingredient rawWaterBottle() {
+				return DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
+						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER)).build());
+			}
+
+			/** A cooking recipe whose result carries components, which {@link SimpleCookingRecipeBuilder} cannot make. */
+			private void cooking(Ingredient ingredient, ItemStackTemplate result, int ticks, AbstractCookingRecipe.Factory<?> factory, String id) {
+				ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, Identifier.parse(id));
+				RecipeUnlockAdvancementBuilder advancement = new RecipeUnlockAdvancementBuilder();
+				advancement.unlockedBy("has_potion", has(Items.POTION));
+				output.accept(key, factory.create(RecipeBuilder.createCraftingCommonInfo(true),
+								new AbstractCookingRecipe.CookingBookInfo(CookingBookCategory.FOOD, ""), ingredient, result, 0.0F, ticks),
+						advancement.build(output, key, RecipeCategory.FOOD));
+			}
+
 			/** Ash from overcooked food and a water bottle make black dye; the bottle comes back empty. */
 			private void ashRecipes() {
-				Ingredient waterBottle = DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
-						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER)).build());
+				Ingredient waterBottle = DefaultCustomIngredients.any(rawWaterBottle(),
+						DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
+								DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, RawWater.boiledWater()).build()));
 				shapeless(RecipeCategory.MISC, Items.DYE.pick(DyeColor.BLACK))
 						.requires(EamItems.ASH)
 						.requires(waterBottle)

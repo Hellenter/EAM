@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mason/level_4",
+  "trades": [
+    "eam:duergar/mason/4/quartz_emerald",
+    "eam:duergar/mason/4/emerald_tuff_bricks",
+    "eam:duergar/mason/4/emerald_mud_bricks"
+  ]
+}

@@ -13,8 +13,17 @@ public final class FarmingLogic {
 		return Math.max(1, (int) Math.round(vanillaBound * slowdown / boost));
 	}
 
-	/** Whether an animal ages on this tick: one tick in {@code slowdown}, so growing up and breeding cooldowns stretch. */
-	public static boolean agesThisTick(int tickCount, int slowdown) {
-		return slowdown <= 1 || tickCount % slowdown == 0;
+	/**
+	 * How many steps an animal ages on this tick when it ages {@code speed} steps in {@code slowdown} ticks: 0 or 1 while
+	 * slower than vanilla, more when faster.
+	 */
+	public static int ageSteps(int tickCount, int slowdown, double speed) {
+		double rate = speed / Math.max(1, slowdown);
+		return (int) (Math.floor((tickCount + 1L) * rate) - Math.floor(tickCount * rate));
+	}
+
+	/** {@code age} moved {@code steps} towards 0, where a baby is grown up and a parent can breed again. */
+	public static int stepAge(int age, int steps) {
+		return age < 0 ? Math.min(0, age + steps) : Math.max(0, age - steps);
 	}
 }

@@ -86,14 +86,22 @@ public final class EamItems {
 
 	public static final Item LEATHER_THREAD = register("leather_thread", Item::new, new Item.Properties());
 
-	public static final Item LEATHER_FLASK = register("leather_flask", FlaskItem::new, new Item.Properties()
+	public static final Item LEATHER_FLASK = register("leather_flask", p -> new FlaskItem(FlaskLogic.LEATHER, p), new Item.Properties()
 			.stacksTo(1)
 			.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY));
 
-	public static final Item FILTERED_LEATHER_FLASK = register("filtered_leather_flask", FlaskItem::new, new Item.Properties()
-			.stacksTo(1)
-			.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
-			.component(ThirstModule.FILTER, FlaskLogic.FILTER_USES));
+	public static final Item FILTERED_LEATHER_FLASK = register("filtered_leather_flask", p -> new FlaskItem(FlaskLogic.LEATHER, p),
+			new Item.Properties()
+					.stacksTo(1)
+					.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
+					.component(ThirstModule.FILTER, FlaskLogic.LEATHER.filterUses()));
+
+	/** Glass flask with a charcoal-silver filter: holds and pours half as much again as the leather one. */
+	public static final Item FILTERED_GLASS_FLASK = register("filtered_glass_flask", p -> new FlaskItem(FlaskLogic.GLASS, p),
+			new Item.Properties()
+					.stacksTo(1)
+					.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
+					.component(ThirstModule.FILTER, FlaskLogic.GLASS.filterUses()));
 
 	/** Thrown like a snowball; sneak-use lays it on the ground. */
 	public static final Item PEBBLE = register("pebble", p -> new PebbleItem(EamBlocks.PEBBLE, p),

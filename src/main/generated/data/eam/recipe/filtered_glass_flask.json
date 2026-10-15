@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:glass",
+    "minecraft:glass",
+    "minecraft:glass",
+    "#minecraft:coals",
+    "eam:silver_nugget",
+    "eam:silver_nugget",
+    "eam:silver_nugget"
+  ],
+  "result": {
+    "id": "eam:filtered_glass_flask"
+  }
+}
