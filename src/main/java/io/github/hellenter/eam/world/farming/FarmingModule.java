@@ -2,6 +2,7 @@ package io.github.hellenter.eam.world.farming;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -53,12 +54,16 @@ public final class FarmingModule {
 		animals = true;
 	}
 
-	/** Bound of a crop's vanilla growth roll at {@code pos}, stretched by the slowdown and the bone meal boost. */
+	/**
+	 * Bound of a crop's vanilla growth roll at {@code pos}, stretched by the slowdown and shortened by the bone meal boost
+	 * and a blue moon.
+	 */
 	public static int growthBound(LevelReader level, BlockPos pos, int vanillaBound) {
-		if (!crops) return vanillaBound;
+		double moon = BlueMoonModule.growthMultiplier(level);
+		if (!crops) return moon == 1.0 ? vanillaBound : FarmingLogic.growthBound(vanillaBound, 1.0, moon);
 		FarmingSettings current = settings;
 		double boost = isBoosted(level, pos) ? current.boneMealBoost() : 1.0;
-		return FarmingLogic.growthBound(vanillaBound, current.cropSlowdown(), boost);
+		return FarmingLogic.growthBound(vanillaBound, current.cropSlowdown(), boost * moon);
 	}
 
 	/** Whether bone meal can be used on the crop at {@code pos}: a crop takes the boost once. */

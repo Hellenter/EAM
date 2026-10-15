@@ -51,6 +51,7 @@ import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
@@ -148,6 +149,7 @@ public class Eam implements ModInitializer {
 		EnchantingModule.register();
 		SafeRoomModule.register();
 		BloodMoonModule.register();
+		BlueMoonModule.register();
 		BucketModule.register();
 		TalismanModule.register();
 		HeartInJarModule.register();
@@ -198,6 +200,7 @@ public class Eam implements ModInitializer {
 		if (config.enchanting()) EnchantingModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
+		if (config.blueMoon()) BlueMoonModule.init();
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();
 		if (config.underworld()) UnderworldModule.init();

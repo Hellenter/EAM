@@ -72,6 +72,7 @@ import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.client.hud.ThirstHud;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
 import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
+import io.github.hellenter.eam.client.world.bluemoon.BlueMoonSky;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
@@ -198,6 +199,7 @@ public class EamClient implements ClientModInitializer {
 		AnvilProgress.register();
 		EnchantingClient.register();
 		BloodMoonSky.register();
+		BlueMoonSky.register();
 		YagaStormClient.register();
 		HeartFlight.register();
 		TalismanActivation.register();

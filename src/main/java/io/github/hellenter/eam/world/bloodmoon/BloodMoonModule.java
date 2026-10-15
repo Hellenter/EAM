@@ -180,6 +180,11 @@ public final class BloodMoonModule {
 		}
 	}
 
+	/** The day of the next scheduled blood moon, 0 before the first is rolled; the blue moon keeps off it. */
+	public static int scheduledDay(ServerLevel overworld) {
+		return overworld.getAttachedOrElse(STATE, State.NONE).nextDay();
+	}
+
 	/** True while a blood moon is up over {@code level}: only the overworld has one. */
 	public static boolean activeIn(Level level) {
 		return enabled && active && level.dimension() == Level.OVERWORLD;

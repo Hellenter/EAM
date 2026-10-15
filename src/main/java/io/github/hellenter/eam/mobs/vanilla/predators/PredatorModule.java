@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.vanilla.predators;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -71,9 +72,10 @@ public final class PredatorModule {
 		return raider ? settings.raiders() : settings.hunters();
 	}
 
-	/** Whether {@code mob} is out hunting now: at night, and a tame wolf never. */
+	/** Whether {@code mob} is out hunting now: at night but not under a blue moon, and a tame wolf never. */
 	public static boolean huntsNow(Mob mob) {
-		return enabled && mob.level().isDarkOutside() && !(mob instanceof TamableAnimal tame && tame.isTame());
+		return enabled && mob.level().isDarkOutside() && !BlueMoonModule.activeIn(mob.level())
+				&& !(mob instanceof TamableAnimal tame && tame.isTame());
 	}
 
 	/** Whether {@code target} is livestock a predator of this kind would go for where it stands now. */

@@ -42,6 +42,7 @@
 		"survival.thirst.PlayerThirstMixin",
 		"world.bloodmoon.LivingEntityMixin",
 		"world.bloodmoon.ServerLevelMixin",
+		"world.bluemoon.ServerChunkCacheMixin",
 		"world.crafting.AbstractContainerMenuAccessor",
 		"world.crafting.AbstractContainerMenuMixin",
 		"world.crafting.AbstractCraftingMenuMixin",
