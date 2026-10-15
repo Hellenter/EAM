@@ -54,6 +54,16 @@ public record RawWater() implements ConsumableListener, TooltipProvider {
 		return potion == null || potion.is(Potions.WATER) && !potion.customName().equals(Optional.of(BOILED_NAME));
 	}
 
+	/**
+	 * A brewing stand boils everything in its bottles when it brews: raw water bottles left unchanged by the recipe
+	 * come out boiled. Brewed potions are never raw anyway.
+	 */
+	public static void boilAfterBrewing(ItemStack bottle) {
+		if (bottle.has(DataComponents.POTION_CONTENTS) && isRaw(bottle)) {
+			bottle.set(DataComponents.POTION_CONTENTS, boiledWater());
+		}
+	}
+
 	@Override
 	public void onConsume(Level level, LivingEntity user, ItemStack stack, Consumable consumable) {
 		if (user instanceof ServerPlayer player && isRaw(stack)) {

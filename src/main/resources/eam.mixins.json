@@ -37,6 +37,7 @@
 		"survival.hunger.FoodDataMixin",
 		"survival.hunger.PlayerMixin",
 		"survival.sleep.ServerPlayerSleepMixin",
+		"survival.thirst.BrewingStandBoilMixin",
 		"survival.thirst.PlayerThirstMixin",
 		"world.bloodmoon.LivingEntityMixin",
 		"world.bloodmoon.ServerLevelMixin",

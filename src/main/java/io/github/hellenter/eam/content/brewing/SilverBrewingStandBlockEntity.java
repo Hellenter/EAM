@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content.brewing;
 
 import io.github.hellenter.eam.content.EamBlockEntities;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -155,6 +156,7 @@ public class SilverBrewingStandBlockEntity extends BaseContainerBlockEntity impl
 			if (recipe.isPresent()) {
 				items.set(i, recipe.get().value().assemble(input));
 			}
+			RawWater.boilAfterBrewing(items.get(i));
 		}
 		ItemStackTemplate remainder = reagent.getItem().getCraftingRemainder();
 		reagent.shrink(1);
