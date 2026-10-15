@@ -33,6 +33,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
+import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
 import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
 import io.github.hellenter.eam.mobs.entity.yaga.HagPotion;
@@ -218,6 +219,13 @@ public final class EamEntities {
 			EntityType.Builder.of(BabaYaga::new, MobCategory.MONSTER)
 					.sized(0.95F, 2.1F)
 					.eyeHeight(1.85F)
+					.clientTrackingRange(10));
+
+	/** Koschei the Deathless: a gaunt old man in a spiked crown and dark armor, two and a half blocks tall, with a long sword. */
+	public static final EntityType<Koschei> KOSCHEI = register("koschei",
+			EntityType.Builder.of(Koschei::new, MobCategory.MONSTER)
+					.sized(0.8F, 2.5F)
+					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
 
 	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */

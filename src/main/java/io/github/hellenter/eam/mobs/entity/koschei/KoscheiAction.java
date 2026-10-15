@@ -1,0 +1,95 @@
+package io.github.hellenter.eam.mobs.entity.koschei;
+
+/**
+ * What Koschei is doing right now. Synced to clients, which play the matching animation; the length is the same on both
+ * sides so the animation ends with the action.
+ */
+public enum KoscheiAction {
+	NONE(0),
+	/** One diagonal cut, landing on {@link #STRIKE_HIT}. */
+	STRIKE(14),
+	/** Two quick cuts, forehand and backhand, on {@link #DOUBLE_HITS}. */
+	DOUBLE(20),
+	/**
+	 * The orange blow: the blade glows orange from the start, a wide sweep lands on {@link #ORANGE_HIT}. A raised shield
+	 * takes it and is knocked out; anything else takes the full blow.
+	 */
+	ORANGE(26),
+	/** The red blow: the blade glows red, a low sweep lands on {@link #RED_HIT}. A shield only halves it. */
+	RED(24),
+	/**
+	 * The sword raised over the head with a red glow, held, then brought down from {@link #OVERHEAD_DESCENT} to
+	 * {@link #OVERHEAD_HIT}. A shield halves it; a hit as the sword starts down parries him.
+	 */
+	OVERHEAD(34),
+	/**
+	 * The lunge: drawn back until {@link #LUNGE_PUSH}, a rush in until {@link #LUNGE_RUSH_END}, the stab on
+	 * {@link #LUNGE_STAB}, then a hop back. A hit just before the stab parries him.
+	 */
+	LUNGE(24),
+	/** The right hand thrust out: a blue burst of force on {@link #FORCE_RELEASE} throws whoever is in front far back. */
+	FORCE(16),
+	/**
+	 * The sword levelled at the target like a spear, sparks gathering at its point, the bolt loosed on {@link #BOLT_RELEASE}
+	 * and held on the target until {@link #BOLT_END}.
+	 */
+	BOLT(52),
+	/** His eyes flicker purple and blue; at the end he vanishes and stands behind the target. */
+	TELEPORT(12),
+	/** A short hop to one side or back. */
+	HOP(9),
+	/** A flick of the sword that knocks an arrow aside. */
+	PARRY_ARROW(6),
+	/** The sword turns a player's blow aside. */
+	BLOCK(8),
+	/** Parried: thrown off balance and open to hits; then the burst of force. */
+	STAGGER(24);
+
+	public static final int STRIKE_HIT = 7;
+	public static final int[] DOUBLE_HITS = {6, 12};
+	public static final int ORANGE_HIT = 16;
+	public static final int RED_HIT = 14;
+	/** The sword starts down on this tick (the parry window opens) and lands on the hit. */
+	public static final int OVERHEAD_DESCENT = 19;
+	public static final int OVERHEAD_HIT = 26;
+	public static final int LUNGE_PUSH = 6;
+	public static final int LUNGE_RUSH_END = 11;
+	public static final int LUNGE_STAB = 12;
+	public static final int FORCE_RELEASE = 8;
+	public static final int BOLT_RELEASE = 18;
+	public static final int BOLT_END = 48;
+
+	private final int length;
+
+	KoscheiAction(int length) {
+		this.length = length;
+	}
+
+	/** Length in ticks. */
+	public int length() {
+		return length;
+	}
+
+	/** The tick a parryable action can be parried from, for a window of {@code window} ticks; -1 when it can't be. */
+	public int parryStart(int window) {
+		return switch (this) {
+			case LUNGE -> LUNGE_STAB - window;
+			case OVERHEAD -> OVERHEAD_HIT - window;
+			default -> -1;
+		};
+	}
+
+	/** The tick its parry window closes, exclusive: the blow lands. */
+	public int parryEnd() {
+		return switch (this) {
+			case LUNGE -> LUNGE_STAB;
+			case OVERHEAD -> OVERHEAD_HIT;
+			default -> -1;
+		};
+	}
+
+	public static KoscheiAction byId(int id) {
+		KoscheiAction[] values = values();
+		return id >= 0 && id < values.length ? values[id] : NONE;
+	}
+}

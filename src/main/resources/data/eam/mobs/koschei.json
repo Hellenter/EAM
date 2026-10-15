@@ -1,0 +1,91 @@
+{
+  "stats": {
+    "health": 100.0,
+    "armor": 6,
+    "speed": 0.32,
+    "follow_range": 32.0,
+    "xp": 300,
+    "regen": 1.0,
+    "armor_piercing": 0.15,
+    "physical_resist": 0.2,
+    "attack_speed": 1.75
+  },
+  "phase_one": {
+    "reach": 3.2,
+    "strike": {
+      "damage": 8.0,
+      "weight": 4.0,
+      "cooldown": 0
+    },
+    "double_strike": {
+      "damage": 6.0,
+      "weight": 2.0,
+      "cooldown": 50
+    },
+    "orange": {
+      "damage": 10.0,
+      "shield_seconds": 5.0,
+      "weight": 1.5,
+      "cooldown": 100
+    },
+    "red": {
+      "damage": 12.0,
+      "shield_reduction": 0.5,
+      "weight": 1.5,
+      "cooldown": 100,
+      "parry_window": 0
+    },
+    "overhead": {
+      "damage": 12.0,
+      "shield_reduction": 0.5,
+      "weight": 1.5,
+      "cooldown": 120,
+      "parry_window": 7
+    },
+    "lunge": {
+      "damage": 10.0,
+      "min_range": 3.5,
+      "max_range": 5.0,
+      "chance": 0.7,
+      "cooldown": 60,
+      "parry_window": 7,
+      "max_fails": 2
+    },
+    "force": {
+      "push": 10.0,
+      "shield_push": 6.0,
+      "range": 5.0,
+      "lift": 0.45,
+      "air_ticks": 13,
+      "chance": 0.1,
+      "cooldown": 160
+    },
+    "bolt": {
+      "damage_per_second": 8.0,
+      "pulse": 5,
+      "min_range": 6.0,
+      "max_range": 18.0,
+      "chance": 0.03,
+      "cooldown": 400
+    },
+    "parry": {
+      "multiplier": 1.5
+    },
+    "arrow_parry_chance": 1.0
+  },
+  "teleport": {
+    "cooldown": 240,
+    "chance": 0.05,
+    "distance": 6.0,
+    "max_angle": 70.0
+  },
+  "hop": {
+    "cooldown": 50,
+    "chance": 0.15,
+    "speed": 0.6,
+    "burst_share": 0.25,
+    "burst_window": 100,
+    "burst_speed": 1.1
+  },
+  "mob_damage_multiplier": 4.0
+}
