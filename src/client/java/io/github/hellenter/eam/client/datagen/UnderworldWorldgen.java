@@ -260,7 +260,7 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_SPRING_WATER_MANY = placed("underworld/spring_water_many", GenerationStep.Decoration.FLUID_SPRINGS);
 	static final ResourceKey<PlacedFeature> P_SPRING_LAVA = placed("underworld/spring_lava", GenerationStep.Decoration.FLUID_SPRINGS);
 	static final ResourceKey<PlacedFeature> P_SPRING_LAVA_MANY = placed("underworld/spring_lava_many", GenerationStep.Decoration.FLUID_SPRINGS);
-	static final ResourceKey<PlacedFeature> P_LAVA_PILLAR = placed("underworld/lava_pillar", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_LAVA_PILLAR = placed("underworld/lava_pillar", GenerationStep.Decoration.LOCAL_MODIFICATIONS);
 	static final ResourceKey<PlacedFeature> P_LAVA_PILLAR_DEPTHS = placed("underworld/lava_pillar_depths", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_ICE_SPIRE = placed("underworld/ice_spire", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_ICE_SPIKE = placed("underworld/ice_spike", GenerationStep.Decoration.VEGETAL_DECORATION);
@@ -788,7 +788,8 @@ final class UnderworldWorldgen {
 		ore(context, P_SPRING_LAVA, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 6, all);
 		ore(context, P_SPRING_LAVA_MANY, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 40, all);
 
-		// Pillars stand anywhere in the open and reach from floor (or lava bed) to ceiling.
+		// Pillars stand anywhere in the open and reach from floor (or lava bed) to ceiling. In the upper caves they rise
+		// before the mines are dug, so a mine tunnel or its adit cuts through a pillar instead of being walled up by one.
 		PlacementUtils.register(context, P_LAVA_PILLAR, features.getOrThrow(LAVA_PILLAR),
 				List.of(RarityFilter.onAverageOnceEvery(2), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
 		PlacementUtils.register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
