@@ -1,0 +1,6 @@
+{
+  "type": "eam:yaga_hut",
+  "biomes": "#eam:is_swampy_forest",
+  "spawn_overrides": {},
+  "step": "top_layer_modification"
+}

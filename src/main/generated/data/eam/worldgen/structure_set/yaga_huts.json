@@ -1,0 +1,11 @@
+{
+  "placement": {
+    "type": "eam:swamp_middle"
+  },
+  "structures": [
+    {
+      "structure": "eam:yaga_hut",
+      "weight": 1
+    }
+  ]
+}

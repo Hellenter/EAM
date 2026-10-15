@@ -273,4 +273,22 @@ class SwampyForestLogicTest {
 			assertTrue(stage >= 0 && stage <= 4);
 		}
 	}
+
+	@Test
+	void hutStandsInFullSwampNearTheMiddle() {
+		int[] spot = SwampyForestLogic.hutSpot(TEMPERATE, 2, -3);
+		assertTrue(spot != null);
+		assertEquals(2, Math.floorDiv(spot[0], SwampyForestLogic.CELL));
+		assertEquals(-3, Math.floorDiv(spot[1], SwampyForestLogic.CELL));
+		assertTrue(SwampyForestLogic.weight(TEMPERATE, spot[0], spot[1]) >= SwampyForestLogic.HUT_WEIGHT);
+		int middleX = 2 * SwampyForestLogic.CELL + SwampyForestLogic.CELL / 2;
+		int middleZ = -3 * SwampyForestLogic.CELL + SwampyForestLogic.CELL / 2;
+		int reach = SwampyForestLogic.JITTER + (int) (SwampyForestLogic.RADIUS * SwampyForestLogic.SHAPE_WARP) + 1;
+		assertTrue(Math.abs(spot[0] - middleX) <= reach && Math.abs(spot[1] - middleZ) <= reach);
+	}
+
+	@Test
+	void noHutWithoutSwamp() {
+		assertEquals(null, SwampyForestLogic.hutSpot(new FlatClimate(0.9F, 0.0F, 0.3F), 0, 0));
+	}
 }

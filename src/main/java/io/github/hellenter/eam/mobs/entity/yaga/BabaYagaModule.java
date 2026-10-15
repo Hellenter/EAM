@@ -23,7 +23,8 @@ import java.util.WeakHashMap;
 /**
  * Baba Yaga, the swamp witch boss. In phase one she circles in her mortar, out of reach of anything but a parry, and
  * fights with waves of swamp creatures, poison flasks, spells and glyphs; in phase two, on foot, she keeps behind one
- * group of creatures and fights with bolts, a fire beam and her claws. Not placed in the world yet: spawn her with the
+ * group of creatures and fights with bolts, a fire beam and her claws. She waits in front of her hut in the middle of every swampy forest
+ * ({@link io.github.hellenter.eam.world.structures.yagahut.YagaHutModule}); also the
  * spawn egg or {@code /summon eam:baba_yaga}. Numbers are in {@code data/eam/mobs/baba_yaga.json}.
  */
 public final class BabaYagaModule {
