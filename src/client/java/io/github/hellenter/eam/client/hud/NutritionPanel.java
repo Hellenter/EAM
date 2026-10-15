@@ -17,9 +17,13 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/** Protein, fat and carbs bars drawn just above the survival inventory. Hover a bar for details. */
+/**
+ * Protein, fat and carbs bars drawn just above the survival inventory. A deficient nutrient has a red label.
+ * Hover a bar for details.
+ */
 public final class NutritionPanel {
 	private static final int CELL_WIDTH = 59;
 	private static final int LABEL_WIDTH = 9;
@@ -30,6 +34,7 @@ public final class NutritionPanel {
 	private static final int MARKER = 0xFFFFFFFF;
 	private static final int LABEL = 0xFFFFFFFF;
 	private static final int LABEL_BALANCED = 0xFF55FF55;
+	private static final int LABEL_DEFICIENT = 0xFFFF5555;
 
 	private record Bar(String key, int color) {
 	}
@@ -68,6 +73,11 @@ public final class NutritionPanel {
 		int threshold = stats.balanceThreshold();
 		boolean balanced = HungerLogic.balanced(nutrition, threshold);
 		float[] values = {nutrition.protein(), nutrition.fat(), nutrition.carbs()};
+		boolean[] deficient = {
+				player.hasEffect(HungerModule.PROTEIN_DEFICIENCY),
+				player.hasEffect(HungerModule.FAT_DEFICIENCY),
+				player.hasEffect(HungerModule.CARBS_DEFICIENCY)
+		};
 
 		for (int i = 0; i < BARS.size(); i++) {
 			Bar bar = BARS.get(i);
@@ -76,7 +86,7 @@ public final class NutritionPanel {
 			int value = Math.round(values[i]);
 
 			graphics.text(font, Component.translatable("gui.eam.nutrient." + bar.key() + ".short"), left, top + 1,
-					balanced ? LABEL_BALANCED : LABEL, true);
+					deficient[i] ? LABEL_DEFICIENT : balanced ? LABEL_BALANCED : LABEL, true);
 			graphics.fill(barLeft - 1, top + 1, barLeft + BAR_WIDTH + 1, top + 8, BORDER);
 			graphics.fill(barLeft, top + 2, barLeft + BAR_WIDTH, top + 7, EMPTY);
 			graphics.fill(barLeft, top + 2, barLeft + BAR_WIDTH * value / Nutrition.MAX, top + 7, bar.color());
@@ -84,13 +94,16 @@ public final class NutritionPanel {
 			graphics.fill(marker, top + 1, marker + 1, top + 8, MARKER);
 
 			if (mouseX >= left && mouseX < barLeft + BAR_WIDTH + 1 && mouseY >= top && mouseY < top + HEIGHT) {
-				graphics.setComponentTooltipForNextFrame(font, List.of(
-						Component.translatable("gui.eam.nutrient.value",
-								Component.translatable("gui.eam.nutrient." + bar.key()), value, Nutrition.MAX),
-						balanced
-								? Component.translatable("gui.eam.nutrition.balanced").withStyle(ChatFormatting.GREEN)
-								: Component.translatable("gui.eam.nutrition.unbalanced", threshold).withStyle(ChatFormatting.GRAY)
-				), mouseX, mouseY);
+				List<Component> lines = new ArrayList<>();
+				lines.add(Component.translatable("gui.eam.nutrient.value",
+						Component.translatable("gui.eam.nutrient." + bar.key()), value, Nutrition.MAX));
+				if (deficient[i]) {
+					lines.add(Component.translatable("eam.hunger.deficiency." + bar.key()).withStyle(ChatFormatting.RED));
+				}
+				lines.add(balanced
+						? Component.translatable("gui.eam.nutrition.balanced").withStyle(ChatFormatting.GREEN)
+						: Component.translatable("gui.eam.nutrition.unbalanced", threshold).withStyle(ChatFormatting.GRAY));
+				graphics.setComponentTooltipForNextFrame(font, lines, mouseX, mouseY);
 			}
 		}
 	}
