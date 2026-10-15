@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:fallen_tree",
+  "log_decorators": [],
+  "log_length": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 7,
+    "min_inclusive": 4
+  },
+  "stump_decorators": [],
+  "trunk_provider": {
+    "type": "minecraft:weighted",
+    "entries": [
+      {
+        "data": "eam:burnt_mushroom_stem",
+        "weight": 8
+      },
+      {
+        "data": "eam:smoldering_mushroom_cap",
+        "weight": 1
+      }
+    ]
+  }
+}

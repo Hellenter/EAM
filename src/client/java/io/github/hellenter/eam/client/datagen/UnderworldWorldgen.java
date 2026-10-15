@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.dimension.UnderworldLogic;
+import io.github.hellenter.eam.dimension.feature.CaveBoulderFeature;
 import io.github.hellenter.eam.dimension.feature.CavePillarFeature;
 import io.github.hellenter.eam.dimension.feature.CaveStreamFeature;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
@@ -78,10 +79,13 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.op.SplineFunction;
 import net.minecraft.world.level.levelgen.feature.BlockColumnFeature;
+import net.minecraft.world.level.levelgen.feature.FallenTreeFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.treedecorators.AttachedToLogsDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.ShelfMushroomDecorator;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.feature.SimpleBlockFeature;
@@ -202,9 +206,24 @@ final class UnderworldWorldgen {
 	static final ResourceKey<Feature> BURNT_BROWN_MUSHROOM = feature("burnt_brown_mushroom");
 	static final ResourceKey<Feature> BURNT_RED_MUSHROOM = feature("burnt_red_mushroom");
 	static final ResourceKey<Feature> SMOLDERING_MUSHROOM = feature("smoldering_mushroom");
+	// Small decorations, each rare so they dot a biome without cluttering it.
+	static final ResourceKey<Feature> FALLEN_SPRUCE = feature("underworld_fallen_spruce");
+	static final ResourceKey<Feature> FALLEN_POPLAR = feature("underworld_fallen_poplar");
+	static final ResourceKey<Feature> FALLEN_FROZEN_SPRUCE = feature("underworld_fallen_frozen_spruce");
+	static final ResourceKey<Feature> FALLEN_MUSHROOM_STEM = feature("underworld_fallen_mushroom_stem");
+	static final ResourceKey<Feature> FALLEN_BURNT_STEM = feature("underworld_fallen_burnt_stem");
+	static final ResourceKey<Feature> OLD_BONES = feature("underworld_old_bones");
+	static final ResourceKey<Feature> MOSSY_BOULDER = feature("underworld_mossy_boulder");
+	static final ResourceKey<Feature> ROCK_PILE = feature("underworld_rock_pile");
+	static final ResourceKey<Feature> ICE_BOULDER = feature("underworld_ice_boulder");
+	static final ResourceKey<Feature> BIG_ICE_BOULDER = feature("underworld_big_ice_boulder");
+	static final ResourceKey<Feature> SCORCHED_BOULDER = feature("underworld_scorched_boulder");
+	static final ResourceKey<Feature> BASALT_BOULDER = feature("underworld_basalt_boulder");
 	static final List<ResourceKey<Feature>> FEATURES = List.of(FLUIDS, GIANT_BROWN_MUSHROOM, GIANT_RED_MUSHROOM, ICE_SPIKE, COBWEB, LAKE, LAVA_LAKE,
 			LAVA_PILLAR, ICE_SPIRE, GIANT_CHANTERELLE, GIANT_CHAMPIGNON, DRAUGR_PACK, STREAM, RIVER, SMALL_ICE_SPIRE, SMALL_ICE_SPIKE, SMALL_SPRUCE,
-			FOREST_PLANTS, GLOWSHROOM_VINES, SHORE_PLANTS, BURNT_BROWN_MUSHROOM, BURNT_RED_MUSHROOM, SMOLDERING_MUSHROOM);
+			FOREST_PLANTS, GLOWSHROOM_VINES, SHORE_PLANTS, BURNT_BROWN_MUSHROOM, BURNT_RED_MUSHROOM, SMOLDERING_MUSHROOM, FALLEN_SPRUCE, FALLEN_POPLAR,
+			FALLEN_FROZEN_SPRUCE, FALLEN_MUSHROOM_STEM, FALLEN_BURNT_STEM, OLD_BONES, MOSSY_BOULDER, ROCK_PILE, ICE_BOULDER, BIG_ICE_BOULDER,
+			SCORCHED_BOULDER, BASALT_BOULDER);
 
 	/**
 	 * Every placed feature of the underworld, in the one order all its biomes share (a biome takes a subset), so
@@ -251,6 +270,24 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_GIANT_CHAMPIGNON = placed("underworld/giant_champignon", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_HUGE_BROWN = placed("underworld/huge_brown_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_HUGE_RED = placed("underworld/huge_red_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	/**
+	 * Decorations after the big mushrooms and before the small plants, which then grow around them: fallen trunks with
+	 * mushrooms, boulders, old bones. Each on its biome's own floor blocks only, so never on a mushroom cap or a frozen lake.
+	 */
+	static final ResourceKey<PlacedFeature> P_FALLEN_SPRUCE = placed("underworld/fallen_spruce", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FALLEN_POPLAR = placed("underworld/fallen_poplar", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FALLEN_FROZEN_SPRUCE = placed("underworld/fallen_frozen_spruce", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FALLEN_MUSHROOM_STEM = placed("underworld/fallen_mushroom_stem", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_FALLEN_BURNT_STEM = placed("underworld/fallen_burnt_stem", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_OLD_BONES = placed("underworld/old_bones", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_MOSSY_BOULDER_FOREST = placed("underworld/mossy_boulder_forest", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_MOSSY_BOULDER_MUSHROOM = placed("underworld/mossy_boulder_mushroom", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_MOSSY_BOULDER_LAKE = placed("underworld/mossy_boulder_lake", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_ROCK_PILE = placed("underworld/rock_pile", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_ICE_BOULDER = placed("underworld/ice_boulder", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_BIG_ICE_BOULDER = placed("underworld/big_ice_boulder", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_SCORCHED_BOULDER = placed("underworld/scorched_boulder", GenerationStep.Decoration.VEGETAL_DECORATION);
+	static final ResourceKey<PlacedFeature> P_BASALT_BOULDER = placed("underworld/basalt_boulder", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_BROWN_MUSHROOMS = placed("underworld/brown_mushrooms", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_RED_MUSHROOMS = placed("underworld/red_mushrooms", GenerationStep.Decoration.VEGETAL_DECORATION);
 	static final ResourceKey<PlacedFeature> P_BROWN_MUSHROOMS_FEW = placed("underworld/brown_mushrooms_few", GenerationStep.Decoration.VEGETAL_DECORATION);
@@ -655,6 +692,53 @@ final class UnderworldWorldgen {
 				UniformInt.of(2, 3), 64, 0.05F));
 		context.register(SMOLDERING_MUSHROOM, new GiantMushroomFeature(burntCap, burntStem, smoldering, Shape.CHAMPIGNON, UniformInt.of(4, 7),
 				UniformInt.of(3, 5), 7, 0.18F));
+
+		// Fallen trunks: vanilla's fallen trees (a stump, a gap, the trunk lying along the floor) in cave woods and stones.
+		Holder<BlockStateProvider> smallMushrooms = Holder.direct(weighted(Blocks.BROWN_MUSHROOM, 2, Blocks.RED_MUSHROOM, 1));
+		Holder<BlockStateProvider> mossCarpet = BlockStateProvider.holderOf(Blocks.MOSS_CARPET);
+		Holder<BlockStateProvider> snow = BlockStateProvider.holderOf(Blocks.SNOW);
+		context.register(FALLEN_SPRUCE, FallenTreeFeature.builder(BlockStateProvider.of(Blocks.SPRUCE_LOG), UniformInt.of(5, 8))
+				.logDecorator(new ShelfMushroomDecorator(0.8F))
+				.logDecorator(new AttachedToLogsDecorator(0.15F, smallMushrooms, List.of(Direction.UP)))
+				.logDecorator(new AttachedToLogsDecorator(0.3F, mossCarpet, List.of(Direction.UP)))
+				.stumpDecorator(new AttachedToLogsDecorator(0.5F, mossCarpet, List.of(Direction.UP)))
+				.build());
+		context.register(FALLEN_POPLAR, FallenTreeFeature.builder(BlockStateProvider.of(Blocks.POPLAR_LOG), UniformInt.of(4, 7))
+				.logDecorator(new ShelfMushroomDecorator(0.6F))
+				.logDecorator(new AttachedToLogsDecorator(0.35F, mossCarpet, List.of(Direction.UP)))
+				.build());
+		context.register(FALLEN_FROZEN_SPRUCE, FallenTreeFeature.builder(weighted(Blocks.SPRUCE_LOG, 2, Blocks.STRIPPED_SPRUCE_LOG, 1), UniformInt.of(4, 7))
+				.logDecorator(new AttachedToLogsDecorator(0.6F, snow, List.of(Direction.UP)))
+				.stumpDecorator(new AttachedToLogsDecorator(1.0F, snow, List.of(Direction.UP)))
+				.build());
+		// A giant mushroom's stem that fell over, little mushrooms and shelf fungus growing on it.
+		context.register(FALLEN_MUSHROOM_STEM, FallenTreeFeature.builder(BlockStateProvider.of(Blocks.MUSHROOM_STEM), UniformInt.of(5, 8))
+				.logDecorator(new ShelfMushroomDecorator(0.7F))
+				.logDecorator(new AttachedToLogsDecorator(0.3F, smallMushrooms, List.of(Direction.UP)))
+				.build());
+		// A charred stem of the burnt forest, here and there still smouldering.
+		context.register(FALLEN_BURNT_STEM, FallenTreeFeature.builder(weighted(EamBlocks.BURNT_MUSHROOM_STEM, 8, EamBlocks.SMOLDERING_MUSHROOM_CAP, 1),
+				UniformInt.of(4, 7)).build());
+		// Bones of something big that died in the wastes long ago: a rib standing up and the spine lying beside it.
+		context.register(OLD_BONES, FallenTreeFeature.builder(BlockStateProvider.of(Blocks.BONE_BLOCK), UniformInt.of(4, 6)).build());
+
+		// Boulders, each block picked on its own, so the stones mix.
+		context.register(MOSSY_BOULDER, new CaveBoulderFeature(Holder.direct(weighted(Blocks.MOSSY_COBBLESTONE, 3, Blocks.COBBLESTONE, 2)),
+				UniformInt.of(2, 3), UniformInt.of(1, 2), Optional.of(mossCarpet), 0.25F));
+		context.register(ROCK_PILE, new CaveBoulderFeature(Holder.direct(new WeightedStateProvider(WeightedList.<BlockState>builder()
+				.add(Blocks.COBBLESTONE.defaultBlockState(), 4)
+				.add(Blocks.STONE.defaultBlockState(), 3)
+				.add(Blocks.ANDESITE.defaultBlockState(), 2)
+				.add(Blocks.TUFF.defaultBlockState(), 2)
+				.add(Blocks.GRAVEL.defaultBlockState(), 1))), UniformInt.of(1, 3), ConstantInt.of(1), Optional.empty(), 0.0F));
+		context.register(ICE_BOULDER, new CaveBoulderFeature(Holder.direct(weighted(Blocks.PACKED_ICE, 4, Blocks.SNOW_BLOCK, 2, Blocks.BLUE_ICE, 1)),
+				UniformInt.of(2, 3), UniformInt.of(1, 2), Optional.of(snow), 0.6F));
+		context.register(BIG_ICE_BOULDER, new CaveBoulderFeature(Holder.direct(weighted(Blocks.PACKED_ICE, 5, Blocks.BLUE_ICE, 2, Blocks.SNOW_BLOCK, 1)),
+				UniformInt.of(3, 4), UniformInt.of(2, 3), Optional.of(snow), 0.6F));
+		context.register(SCORCHED_BOULDER, new CaveBoulderFeature(Holder.direct(weighted(Blocks.BLACKSTONE, 5, Blocks.COBBLESTONE, 3, Blocks.COAL_ORE, 1)),
+				UniformInt.of(2, 3), UniformInt.of(1, 2), Optional.empty(), 0.0F));
+		context.register(BASALT_BOULDER, new CaveBoulderFeature(Holder.direct(weighted(Blocks.BASALT, 4, Blocks.BLACKSTONE, 3, Blocks.MAGMA_BLOCK, 1)),
+				UniformInt.of(2, 3), UniformInt.of(1, 2), Optional.empty(), 0.0F));
 	}
 
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
@@ -726,6 +810,37 @@ final class UnderworldWorldgen {
 		onFloor(context, P_GIANT_CHAMPIGNON, features.getOrThrow(GIANT_CHAMPIGNON), CountPlacement.of(UniformInt.of(1, 3)));
 		onFloor(context, P_HUGE_BROWN, features.getOrThrow(TreeFeatures.HUGE_BROWN_MUSHROOM), CountPlacement.of(3));
 		onFloor(context, P_HUGE_RED, features.getOrThrow(TreeFeatures.HUGE_RED_MUSHROOM), CountPlacement.of(2));
+		// Decorations: rare on purpose, a few per biome band, each only on the floor its biome is made of. The many-level
+		// biomes (the forest, the frozen caves) get more tries for trunks: most land in rock or on a floor too uneven for one.
+		decoration(context, P_FALLEN_SPRUCE, features.getOrThrow(FALLEN_SPRUCE), 2, 1, Blocks.GRASS_BLOCK, Blocks.PODZOL, Blocks.MOSS_BLOCK,
+				Blocks.DIRT);
+		decoration(context, P_MOSSY_BOULDER_FOREST, features.getOrThrow(MOSSY_BOULDER), 1, 6, Blocks.GRASS_BLOCK, Blocks.PODZOL,
+				Blocks.MOSS_BLOCK, Blocks.STONE);
+		decoration(context, P_FALLEN_FROZEN_SPRUCE, features.getOrThrow(FALLEN_FROZEN_SPRUCE), 1, 1, Blocks.SNOW_BLOCK, Blocks.PACKED_ICE,
+				Blocks.STONE);
+		decoration(context, P_ICE_BOULDER, features.getOrThrow(ICE_BOULDER), 1, 2, Blocks.SNOW_BLOCK, Blocks.PACKED_ICE,
+				Blocks.BLUE_ICE, Blocks.STONE);
+		decoration(context, P_FALLEN_POPLAR, features.getOrThrow(FALLEN_POPLAR), 1, 2, Blocks.MOSS_BLOCK, Blocks.CLAY,
+				Blocks.GRAVEL, Blocks.STONE);
+		decoration(context, P_MOSSY_BOULDER_LAKE, features.getOrThrow(MOSSY_BOULDER), 1, 4, Blocks.MOSS_BLOCK, Blocks.STONE,
+				Blocks.GRAVEL);
+		decoration(context, P_FALLEN_MUSHROOM_STEM, features.getOrThrow(FALLEN_MUSHROOM_STEM), 1, 5, Blocks.MYCELIUM,
+				Blocks.DIRT, Blocks.STONE);
+		decoration(context, P_MOSSY_BOULDER_MUSHROOM, features.getOrThrow(MOSSY_BOULDER), 1, 3, Blocks.MYCELIUM, Blocks.DIRT,
+				Blocks.STONE);
+		decoration(context, P_FALLEN_BURNT_STEM, features.getOrThrow(FALLEN_BURNT_STEM), 1, 4, Blocks.COARSE_DIRT,
+				Blocks.BASALT, Blocks.BLACKSTONE);
+		decoration(context, P_SCORCHED_BOULDER, features.getOrThrow(SCORCHED_BOULDER), 1, 5, Blocks.COARSE_DIRT,
+				Blocks.BASALT, Blocks.BLACKSTONE);
+		decoration(context, P_BASALT_BOULDER, features.getOrThrow(BASALT_BOULDER), 1, 4, Blocks.BASALT, Blocks.BLACKSTONE,
+				Blocks.STONE);
+		decoration(context, P_ROCK_PILE, features.getOrThrow(ROCK_PILE), 1, 4, Blocks.STONE, Blocks.GRAVEL, Blocks.TUFF);
+		decoration(context, P_OLD_BONES, features.getOrThrow(OLD_BONES), 1, 3, Blocks.STONE, Blocks.GRAVEL, Blocks.TUFF);
+		// The ice caves' hall is far taller than the scan: look for its floor from just above it, like the spires do.
+		PlacementUtils.register(context, P_BIG_ICE_BOULDER, features.getOrThrow(BIG_ICE_BOULDER), List.of(RarityFilter.onAverageOnceEvery(3),
+				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
+				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
+				OffsetPlacement.vertical(ConstantInt.of(1)), floorOf(Blocks.SNOW_BLOCK, Blocks.PACKED_ICE), BiomeFilter.biome()));
 		patch(context, P_BROWN_MUSHROOMS, features.getOrThrow(VegetationFeatures.BROWN_MUSHROOM), 8, Blocks.BROWN_MUSHROOM);
 		patch(context, P_RED_MUSHROOMS, features.getOrThrow(VegetationFeatures.RED_MUSHROOM), 5, Blocks.RED_MUSHROOM);
 		patch(context, P_BROWN_MUSHROOMS_FEW, features.getOrThrow(VegetationFeatures.BROWN_MUSHROOM), 2, Blocks.BROWN_MUSHROOM);
@@ -812,6 +927,28 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, key, feature, modifiers);
 	}
 
+	/**
+	 * {@code tries} of a decoration per chunk, each kept once in {@code rarity}, on a cave floor made of one of
+	 * {@code floor}. The rarity is drawn after the spot: drawn first, the same random numbers would pick from fewer heights.
+	 */
+	private static void decoration(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int tries,
+			int rarity, Block... floor) {
+		onFloor(context, key, feature, CountPlacement.of(tries), floorOf(floor), RarityFilter.onAverageOnceEvery(rarity));
+	}
+
+	private static PlacementModifier floorOf(Block... floor) {
+		return BlockPredicateFilter.forPredicate(BlockPredicate.matchesBlocks(Direction.DOWN, floor));
+	}
+
+	private static WeightedStateProvider weighted(Block a, int weightA, Block b, int weightB) {
+		return new WeightedStateProvider(WeightedList.<BlockState>builder().add(a.defaultBlockState(), weightA).add(b.defaultBlockState(), weightB));
+	}
+
+	private static WeightedStateProvider weighted(Block a, int weightA, Block b, int weightB, Block c, int weightC) {
+		return new WeightedStateProvider(WeightedList.<BlockState>builder().add(a.defaultBlockState(), weightA).add(b.defaultBlockState(), weightB)
+				.add(c.defaultBlockState(), weightC));
+	}
+
 	/** {@code count} patches of a small plant on cave floors, 12 tries around each. */
 	private static void patch(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count,
 			Block plant) {
@@ -832,15 +969,16 @@ final class UnderworldWorldgen {
 
 		context.register(UnderworldDimension.STONE_WASTES, biome(placed, carvers, 0.5F, 0x2E2E2E, 0x3F4A55,
 				SoundEvents.MUSIC_BIOME_DRIPSTONE_CAVES, List.of(),
-				features(common, P_LAKES_FEW, P_ORE_GRAVEL, P_SPRING_WATER, P_SPRING_LAVA, P_BROWN_MUSHROOMS_FEW, P_COBWEB, P_GLOW_LICHEN),
+				features(common, P_LAKES_FEW, P_ORE_GRAVEL, P_SPRING_WATER, P_SPRING_LAVA, P_ROCK_PILE, P_OLD_BONES, P_BROWN_MUSHROOMS_FEW,
+						P_COBWEB, P_GLOW_LICHEN),
 				spawns()));
 		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x2D2433, 0x3D57D6,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.MYCELIUM, 0.02F),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
-						P_HUGE_RED, P_BROWN_MUSHROOMS,
+						P_HUGE_RED, P_FALLEN_MUSHROOM_STEM, P_MOSSY_BOULDER_MUSHROOM, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
 				spawns()));
-		List<ResourceKey<PlacedFeature>> lakePlants = List.of(P_MOSS_PATCH, P_DRIPLEAF_CLAY, P_ORCHIDS, P_FERNS, P_SHORE_PLANTS, P_SUGAR_CANE,
+		List<ResourceKey<PlacedFeature>> lakePlants = List.of(P_FALLEN_POPLAR, P_MOSSY_BOULDER_LAKE, P_MOSS_PATCH, P_DRIPLEAF_CLAY, P_ORCHIDS, P_FERNS, P_SHORE_PLANTS, P_SUGAR_CANE,
 				P_SPORE_BLOSSOM, P_KELP, P_SEAGRASS, P_LILY_PADS);
 		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E6E8E,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
@@ -853,25 +991,26 @@ final class UnderworldWorldgen {
 		context.register(UnderworldDimension.FROZEN_CAVES, biome(placed, carvers, -0.5F, 0x2A3644, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.002F),
 				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_MANY, P_ORE_GRAVEL, P_SMALL_ICE_SPIRE,
-						P_SMALL_ICE_SPIKE, P_COBWEB, P_GLOW_LICHEN),
+						P_SMALL_ICE_SPIKE, P_FALLEN_FROZEN_SPRUCE, P_ICE_BOULDER, P_COBWEB, P_GLOW_LICHEN),
 				spawns()));
 		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x10262A, 0x2E8E80,
 				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
-				features(common, P_STREAMS, P_SPRUCE, P_SMALL_SPRUCE, P_FOREST_MOSS, P_FOREST_PLANTS, P_BROWN_MUSHROOMS_FEW,
+				features(common, P_STREAMS, P_FALLEN_SPRUCE, P_MOSSY_BOULDER_FOREST, P_SPRUCE, P_SMALL_SPRUCE, P_FOREST_MOSS, P_FOREST_PLANTS, P_BROWN_MUSHROOMS_FEW,
 						P_GLOWSHROOM_VINES, P_GLOW_LICHEN),
 				spawns()));
 		context.register(UnderworldDimension.BURNT_MUSHROOM_FOREST, biome(placed, carvers, 1.5F, 0x2A1C18, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.02F),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_ORE_MAGMA, P_SPRING_LAVA, P_BURNT_BROWN, P_BURNT_RED,
-						P_SMOLDERING, P_DEAD_BUSHES),
+						P_SMOLDERING, P_FALLEN_BURNT_STEM, P_SCORCHED_BOULDER, P_DEAD_BUSHES),
 				spawns()));
 		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
-				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR),
+				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR, P_BASALT_BOULDER),
 				spawns()));
 		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,
 				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.004F),
-				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_GLOW_LICHEN, P_DRAUGR_PACK),
+				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_BIG_ICE_BOULDER,
+						P_GLOW_LICHEN, P_DRAUGR_PACK),
 				spawns()));
 		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),
