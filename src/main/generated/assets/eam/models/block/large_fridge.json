@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "eam:block/large_fridge_bottom",
+    "front": "eam:block/large_fridge_front",
+    "side": "eam:block/large_fridge_side",
+    "top": "eam:block/large_fridge_top"
+  }
+}

@@ -33,6 +33,7 @@ public final class EamCreativeTabs {
 
 	public static final CreativeModeTab SURVIVAL = register("survival", () -> new ItemStack(EamItems.LEATHER_FLASK),
 			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE, EamItems.FEEDER, EamItems.METAL_FEEDER,
+			EamItems.SMALL_FRIDGE, EamItems.LARGE_FRIDGE,
 			EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_HATCHET, EamItems.FLINT_AXE, EamItems.FLINT_KNIFE,
 			EamItems.SLINGSHOT,
 			EamItems.COPPER_BUCKET, EamItems.COPPER_WATER_BUCKET, EamItems.COPPER_LAVA_BUCKET, EamItems.COPPER_POWDER_SNOW_BUCKET,
@@ -48,7 +49,7 @@ public final class EamCreativeTabs {
 			EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM, EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL,
 			EamItems.CHOCOLATE, EamItems.CHEESE, EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT,
 			EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN, EamItems.BURNT_RABBIT,
-			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,
+			EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH, EamItems.ROTTEN_FOOD,
 			EamItems.DUCKWEED, EamItems.CATTAIL, EamItems.SWAMP_GRASS, EamItems.TALL_SWAMP_GRASS, EamItems.SWAMP_SHRUB, EamItems.DENSE_SHRUB, EamItems.BIG_SHRUB_STEM, EamItems.BIG_SHRUB_LEAVES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.FIREWEED,
 			EamItems.MARSH_MARIGOLD, EamItems.SHELF_MUSHROOM, EamItems.GARLIC, EamItems.WILD_GARLIC, EamItems.HOLLOW_LOGS,
 			EamItems.CHANTERELLE_CAP, EamItems.CHANTERELLE_STEM, EamItems.CHAMPIGNON_CAP, EamItems.GLOWING_CHAMPIGNON_CAP,

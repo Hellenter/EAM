@@ -139,6 +139,9 @@ public final class EamItems {
 	public static final Item METAL_FEEDER = register("metal_feeder", p -> new BlockItem(EamBlocks.METAL_FEEDER, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
+	public static final Item SMALL_FRIDGE = blockItem("small_fridge", EamBlocks.SMALL_FRIDGE);
+	public static final Item LARGE_FRIDGE = blockItem("large_fridge", EamBlocks.LARGE_FRIDGE);
+
 	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
 	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", p -> new HotIronItem(Items.IRON_INGOT, p), new Item.Properties());
 
@@ -557,6 +560,8 @@ public final class EamItems {
 	public static final Item BURNT_POTATO = burntFood("burnt_potato", Foods.BAKED_POTATO);
 	public static final Item BURNT_WOLF_MEAT = burntFood("burnt_wolf_meat", Foods.COOKED_MUTTON);
 	public static final Item ASH = register("ash", Item::new, new Item.Properties());
+	/** What spoiled fruit, vegetables and cooked food turn into: not food any more, but good compost. */
+	public static final Item ROTTEN_FOOD = register("rotten_food", Item::new, new Item.Properties().compostable(ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH));
 
 	/** A bowl of plain or boiled water, for soup recipes. */
 	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));

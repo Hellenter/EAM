@@ -8,6 +8,8 @@ import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.content.fridge.FridgeModule;
+import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -55,6 +57,19 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		}
 		builder(FeederModule.FEED).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
 				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key());
+		// Food spoilage: raw meat and fish keep five days; fruit, vegetables and cooked food ten.
+		builder(SpoilageSettings.SPOILS_FAST).addAll(keys(Items.BEEF, Items.PORKCHOP, Items.MUTTON, Items.CHICKEN, Items.RABBIT,
+				EamItems.WOLF_MEAT, Items.COD, Items.SALMON, Items.TROPICAL_FISH, Items.PUFFERFISH));
+		builder(SpoilageSettings.SPOILS).addAll(keys(Items.APPLE, Items.CARROT, Items.POTATO, Items.POISONOUS_POTATO, Items.BEETROOT,
+				Items.MELON_SLICE, Items.SWEET_BERRIES, Items.GLOW_BERRIES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.GARLIC,
+				Items.BAKED_POTATO, Items.BREAD, Items.COOKIE, Items.PUMPKIN_PIE,
+				Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_MUTTON, Items.COOKED_CHICKEN, Items.COOKED_RABBIT,
+				EamItems.COOKED_WOLF_MEAT, Items.COOKED_COD, Items.COOKED_SALMON,
+				Items.MUSHROOM_STEW, Items.BEETROOT_SOUP, Items.RABBIT_STEW, Items.SUSPICIOUS_STEW,
+				EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP, EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP,
+				EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP, EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM,
+				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL, EamItems.MILK_BOWL));
+		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

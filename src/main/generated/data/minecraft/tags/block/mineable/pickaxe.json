@@ -1,6 +1,7 @@
 {
   "values": [
     "eam:metal_feeder",
+    "eam:large_fridge",
     "eam:silver_ore",
     "eam:deepslate_silver_ore",
     "eam:silver_block",
