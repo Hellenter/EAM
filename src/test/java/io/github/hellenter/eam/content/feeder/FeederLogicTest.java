@@ -19,6 +19,39 @@ class FeederLogicTest {
 	}
 
 	@Test
+	void grassFedAnimalComesForOneFeederMealADay() {
+		long now = 5 * FeederLogic.DAY + 1000;
+		LivestockState grazed = FeederLogic.bite(FeederLogic.bite(null, 5, THIN_AFTER), 5, THIN_AFTER);
+		assertFalse(FeederLogic.canEat(grazed, 5));
+		assertTrue(FeederLogic.wantsFeeder(grazed, 5, now));
+		LivestockState kept = FeederLogic.feederMeal(grazed, 5, now, THIN_AFTER);
+		// The extra meal is not a second day's meal: hunger and the meal day stay.
+		assertEquals(grazed.lastMealDay(), kept.lastMealDay());
+		assertEquals(grazed.hunger(), kept.hunger());
+		assertFalse(FeederLogic.wantsFeeder(kept, 5, now + 10));
+		assertTrue(FeederLogic.wantsFeeder(kept, 5, now + FeederLogic.DAY));
+	}
+
+	@Test
+	void growsFasterForADayAfterAFeederMeal() {
+		long now = 3 * FeederLogic.DAY;
+		assertEquals(1.0, FeederLogic.growthSpeed(null, now, 1.5));
+		LivestockState kept = FeederLogic.feederMeal(null, 3, now, THIN_AFTER);
+		assertEquals(1.5, FeederLogic.growthSpeed(kept, now + FeederLogic.DAY - 1, 1.5));
+		assertEquals(1.0, FeederLogic.growthSpeed(kept, now + FeederLogic.DAY, 1.5));
+		// Eating and grazing keep the feeder time.
+		assertEquals(now, FeederLogic.eat(kept, 4, THIN_AFTER).feederTime());
+		assertEquals(now, FeederLogic.bite(kept, 4, THIN_AFTER).feederTime());
+	}
+
+	@Test
+	void feederPairsAnimalsHalfAsOftenAgain() {
+		assertTrue(FeederLogic.canBreedAgain(LivestockState.NEVER, 0, 1.5));
+		assertFalse(FeederLogic.canBreedAgain(1000, 1000 + 15999, 1.5));
+		assertTrue(FeederLogic.canBreedAgain(1000, 1000 + 16000, 1.5));
+	}
+
+	@Test
 	void wildAnimalsAreNeverThin() {
 		assertFalse(FeederLogic.isThin(null, 1000, THIN_AFTER));
 	}
