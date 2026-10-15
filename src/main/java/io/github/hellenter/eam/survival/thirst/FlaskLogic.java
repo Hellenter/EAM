@@ -1,16 +1,26 @@
 package io.github.hellenter.eam.survival.thirst;
 
 /**
- * Pure flask rules. Capacity, sip size and filter durability are item properties, so they are constants;
- * the contamination chance and poisoning length are data ({@link FlaskSettings}).
+ * Pure flask rules. Capacity, sip size and filter durability are item properties ({@link Type}), so they are
+ * constants; the contamination chance and poisoning length are data ({@link FlaskSettings}).
  */
 public final class FlaskLogic {
-	/** Half droplets a flask holds. */
-	public static final int CAPACITY = 12;
-	/** Half droplets one drink restores. */
-	public static final int SIP = 2;
-	/** Half droplets a charcoal filter cleans before it is spent. */
-	public static final int FILTER_USES = 64;
+	/**
+	 * What a kind of flask can do.
+	 *
+	 * @param capacity   half droplets the flask holds
+	 * @param sip        half droplets one drink restores
+	 * @param filterUses half droplets a fresh filter cleans before it is spent
+	 */
+	public record Type(int capacity, int sip, int filterUses) {
+	}
+
+	/** Leather flask with or without a charcoal filter. */
+	public static final Type LEATHER = new Type(12, 2, 64);
+	/** Glass flask with a charcoal-silver filter: holds and pours half as much again, the filter lasts as many refills. */
+	public static final Type GLASS = new Type(18, 3, 96);
+	/** The most any flask holds; bounds the saved water. */
+	public static final int MAX_CAPACITY = GLASS.capacity();
 	/** Water bar colour of a full flask (light blue). */
 	public static final int BAR_COLOR_FULL = 0x33B0FF;
 	/** Water bar colour of a nearly empty flask (dark blue). */
@@ -25,8 +35,8 @@ public final class FlaskLogic {
 	 *
 	 * @param roll a uniform random number in [0, 1)
 	 */
-	public static FlaskWater fill(FlaskWater current, FlaskSettings settings, float roll) {
-		return new FlaskWater(CAPACITY, current.contaminated() || roll < settings.contaminationChance());
+	public static FlaskWater fill(FlaskWater current, Type type, FlaskSettings settings, float roll) {
+		return new FlaskWater(type.capacity(), current.contaminated() || roll < settings.contaminationChance());
 	}
 
 	/**
@@ -44,8 +54,8 @@ public final class FlaskLogic {
 	 *
 	 * @param filter filter uses left, or -1 for a flask without a filter
 	 */
-	public static Drink drink(FlaskWater current, int filter) {
-		int water = Math.min(SIP, current.amount());
+	public static Drink drink(FlaskWater current, Type type, int filter) {
+		int water = Math.min(type.sip(), current.amount());
 		boolean filtered = filter > 0;
 		int filterAfter = filter < 0 ? -1 : Math.max(filter - water, 0);
 		FlaskWater remaining = new FlaskWater(current.amount() - water, current.contaminated());
@@ -53,13 +63,13 @@ public final class FlaskLogic {
 	}
 
 	/** Water bar length (0..13) for the item slot. */
-	public static int barWidth(int amount) {
-		return Math.clamp(Math.round(13.0F * amount / CAPACITY), 0, 13);
+	public static int barWidth(int amount, int capacity) {
+		return Math.clamp(Math.round(13.0F * amount / capacity), 0, 13);
 	}
 
 	/** Water bar colour: light blue when full, darkening towards dark blue as the flask empties. */
-	public static int barColor(int amount) {
-		float t = Math.clamp((float) (amount - 1) / (CAPACITY - 1), 0.0F, 1.0F);
+	public static int barColor(int amount, int capacity) {
+		float t = Math.clamp((float) (amount - 1) / (capacity - 1), 0.0F, 1.0F);
 		int color = 0;
 		for (int shift = 0; shift <= 16; shift += 8) {
 			int low = BAR_COLOR_LOW >> shift & 0xFF;

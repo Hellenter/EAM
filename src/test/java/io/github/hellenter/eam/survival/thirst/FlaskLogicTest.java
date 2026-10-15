@@ -9,71 +9,84 @@ import org.junit.jupiter.api.Test;
 class FlaskLogicTest {
 	private static final FlaskSettings SETTINGS = FlaskSettings.DEFAULT;
 	private static final int NO_FILTER = -1;
+	private static final int CAPACITY = FlaskLogic.LEATHER.capacity();
 
 	@Test
 	void fillTopsUpAndRollsContamination() {
-		FlaskWater clean = FlaskLogic.fill(FlaskWater.EMPTY, SETTINGS, SETTINGS.contaminationChance());
-		assertEquals(FlaskLogic.CAPACITY, clean.amount());
+		FlaskWater clean = FlaskLogic.fill(FlaskWater.EMPTY, FlaskLogic.LEATHER, SETTINGS, SETTINGS.contaminationChance());
+		assertEquals(FlaskLogic.LEATHER.capacity(), clean.amount());
 		assertFalse(clean.contaminated());
-		assertTrue(FlaskLogic.fill(FlaskWater.EMPTY, SETTINGS, 0.0F).contaminated());
+		assertTrue(FlaskLogic.fill(FlaskWater.EMPTY, FlaskLogic.LEATHER, SETTINGS, 0.0F).contaminated());
 	}
 
 	@Test
 	void dirtyWaterStaysDirtyWhenToppedUp() {
 		FlaskWater dirty = new FlaskWater(4, true);
-		assertTrue(FlaskLogic.fill(dirty, SETTINGS, 0.99F).contaminated());
+		assertTrue(FlaskLogic.fill(dirty, FlaskLogic.LEATHER, SETTINGS, 0.99F).contaminated());
 	}
 
 	@Test
 	void fullFlaskGivesSixDrinksOfTwoHalves() {
-		FlaskWater water = new FlaskWater(FlaskLogic.CAPACITY, false);
+		FlaskWater water = new FlaskWater(FlaskLogic.LEATHER.capacity(), false);
 		int drinks = 0;
 		int total = 0;
 		while (!water.isEmpty()) {
-			FlaskLogic.Drink drink = FlaskLogic.drink(water, NO_FILTER);
+			FlaskLogic.Drink drink = FlaskLogic.drink(water, FlaskLogic.LEATHER, NO_FILTER);
 			total += drink.water();
 			water = drink.remaining();
 			drinks++;
 		}
 		assertEquals(6, drinks);
-		assertEquals(FlaskLogic.CAPACITY, total);
+		assertEquals(FlaskLogic.LEATHER.capacity(), total);
+	}
+
+	@Test
+	void glassFlaskHoldsAndPoursHalfAsMuchAgain() {
+		assertEquals(FlaskLogic.LEATHER.capacity() * 3 / 2, FlaskLogic.GLASS.capacity());
+		assertEquals(FlaskLogic.LEATHER.sip() * 3 / 2, FlaskLogic.GLASS.sip());
+		FlaskWater full = FlaskLogic.fill(FlaskWater.EMPTY, FlaskLogic.GLASS, SETTINGS, 0.99F);
+		assertEquals(FlaskLogic.GLASS.capacity(), full.amount());
+		assertTrue(full.isFull(FlaskLogic.GLASS.capacity()));
+		FlaskLogic.Drink drink = FlaskLogic.drink(full, FlaskLogic.GLASS, FlaskLogic.GLASS.filterUses());
+		assertEquals(FlaskLogic.GLASS.sip(), drink.water());
+		assertEquals(FlaskLogic.GLASS.filterUses() - FlaskLogic.GLASS.sip(), drink.filter());
 	}
 
 	@Test
 	void dirtyWaterPoisonsWithoutFilter() {
-		assertTrue(FlaskLogic.drink(new FlaskWater(6, true), NO_FILTER).poisons());
-		assertFalse(FlaskLogic.drink(new FlaskWater(6, false), NO_FILTER).poisons());
+		assertTrue(FlaskLogic.drink(new FlaskWater(6, true), FlaskLogic.LEATHER, NO_FILTER).poisons());
+		assertFalse(FlaskLogic.drink(new FlaskWater(6, false), FlaskLogic.LEATHER, NO_FILTER).poisons());
 	}
 
 	@Test
 	void filterCleansAndWearsOnePerHalf() {
-		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(6, true), FlaskLogic.FILTER_USES);
+		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(6, true), FlaskLogic.LEATHER, FlaskLogic.LEATHER.filterUses());
 		assertFalse(drink.poisons());
-		assertEquals(FlaskLogic.FILTER_USES - FlaskLogic.SIP, drink.filter());
+		assertEquals(FlaskLogic.LEATHER.filterUses() - FlaskLogic.LEATHER.sip(), drink.filter());
 	}
 
 	@Test
 	void spentFilterStopsCleaningButFlaskStillWorks() {
-		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(6, true), 0);
+		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(6, true), FlaskLogic.LEATHER, 0);
 		assertTrue(drink.poisons());
 		assertEquals(0, drink.filter());
-		assertEquals(FlaskLogic.SIP, drink.water());
+		assertEquals(FlaskLogic.LEATHER.sip(), drink.water());
 	}
 
 	@Test
 	void emptyFlaskForgetsContamination() {
-		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(2, true), NO_FILTER);
+		FlaskLogic.Drink drink = FlaskLogic.drink(new FlaskWater(2, true), FlaskLogic.LEATHER, NO_FILTER);
 		assertTrue(drink.remaining().isEmpty());
 		assertFalse(drink.remaining().contaminated());
 	}
 
 	@Test
 	void barIsLightBlueWhenFullAndDarkensAsWaterRunsOut() {
-		assertEquals(13, FlaskLogic.barWidth(FlaskLogic.CAPACITY));
-		assertEquals(FlaskLogic.BAR_COLOR_FULL, FlaskLogic.barColor(FlaskLogic.CAPACITY));
-		assertEquals(FlaskLogic.BAR_COLOR_LOW, FlaskLogic.barColor(1));
-		for (int amount = 2; amount <= FlaskLogic.CAPACITY; amount++) {
-			assertTrue(brightness(FlaskLogic.barColor(amount)) > brightness(FlaskLogic.barColor(amount - 1)));
+		assertEquals(13, FlaskLogic.barWidth(FlaskLogic.LEATHER.capacity(), FlaskLogic.LEATHER.capacity()));
+		assertEquals(FlaskLogic.BAR_COLOR_FULL, FlaskLogic.barColor(FlaskLogic.LEATHER.capacity(), CAPACITY));
+		assertEquals(FlaskLogic.BAR_COLOR_LOW, FlaskLogic.barColor(1, CAPACITY));
+		for (int amount = 2; amount <= FlaskLogic.LEATHER.capacity(); amount++) {
+			assertTrue(brightness(FlaskLogic.barColor(amount, CAPACITY)) > brightness(FlaskLogic.barColor(amount - 1, CAPACITY)));
 		}
 	}
 
