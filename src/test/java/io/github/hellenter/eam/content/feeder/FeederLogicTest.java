@@ -89,6 +89,9 @@ class FeederLogicTest {
 		// Bread covers his food, but he keeps potatoes to plant.
 		assertEquals(4, FeederLogic.farmerGives(20, 1, 44, 24, 16));
 		assertEquals(0, FeederLogic.farmerGives(10, 1, 64, 24, 16));
+		// Default reserve: one stack of carrots to plant and 12 points to breed.
+		assertEquals(4, FeederLogic.farmerGives(16, 1, 16, 12, 8));
+		assertEquals(8, FeederLogic.farmerGives(16, 1, 20, 12, 8));
 	}
 
 	@Test
