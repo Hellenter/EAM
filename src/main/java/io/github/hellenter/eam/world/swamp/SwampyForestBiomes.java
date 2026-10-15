@@ -129,7 +129,8 @@ public final class SwampyForestBiomes {
 		};
 	}
 
-	private static SwampyForestLogic.Climate climate(Climate.Sampler sampler) {
+	/** The swamp's climate read from the overworld's own noises. */
+	public static SwampyForestLogic.Climate climate(Climate.Sampler sampler) {
 		return new SwampyForestLogic.Climate() {
 			@Override
 			public float temperature(int x, int z) {
