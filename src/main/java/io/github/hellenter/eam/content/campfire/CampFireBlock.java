@@ -98,9 +98,12 @@ public class CampFireBlock extends BaseEntityBlock {
 		if (stack.is(CampFireModule.IGNITERS)) {
 			return state.getValue(LIT) ? InteractionResult.PASS : light(stack, state, level, pos, player, hand);
 		}
+		// The property set is item-based: every potion is in it because water bottles boil, so a healing potion must
+		// still be drinkable while looking at the fire.
 		if (level.recipeAccess().propertySet(RecipePropertySet.CAMPFIRE_INPUT).test(stack)
-				&& level.getBlockEntity(pos) instanceof CampFireBlockEntity fire) {
-			if (level instanceof ServerLevel serverLevel && fire.placeFood(serverLevel, player, stack)) {
+				&& level.getBlockEntity(pos) instanceof CampFireBlockEntity fire
+				&& (!(level instanceof ServerLevel serverLevel) || CampFireBlockEntity.cooks(serverLevel, stack))) {
+			if (level instanceof ServerLevel server && fire.placeFood(server, player, stack)) {
 				player.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
 				return InteractionResult.SUCCESS_SERVER;
 			}

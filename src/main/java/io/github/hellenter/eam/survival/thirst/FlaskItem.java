@@ -25,14 +25,21 @@ import net.minecraft.world.phys.HitResult;
 import java.util.function.Consumer;
 
 /**
- * Leather flask: use on a water source to fill it, use elsewhere to drink. A filtered flask carries the
- * {@link ThirstModule#FILTER} component; the rules are in {@link FlaskLogic}.
+ * Flask: use on a water source to fill it, use elsewhere to drink. A filtered flask carries the
+ * {@link ThirstModule#FILTER} component; the rules are in {@link FlaskLogic}, the size in {@link FlaskLogic.Type}.
  */
 public class FlaskItem extends Item {
 	private static final int DRINK_TICKS = 24;
 
-	public FlaskItem(Properties properties) {
+	private final FlaskLogic.Type type;
+
+	public FlaskItem(FlaskLogic.Type type, Properties properties) {
 		super(properties);
+		this.type = type;
+	}
+
+	public FlaskLogic.Type type() {
+		return type;
 	}
 
 	@Override
@@ -43,11 +50,11 @@ public class FlaskItem extends Item {
 		BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
 		if (hit.getType() == HitResult.Type.BLOCK && level.mayInteract(player, hit.getBlockPos())
 				&& level.getFluidState(hit.getBlockPos()).is(FluidTags.WATER)) {
-			if (water.isFull()) {
+			if (water.isFull(type.capacity())) {
 				return InteractionResult.PASS;
 			}
 			if (player instanceof ServerPlayer serverPlayer) {
-				ThirstModule.fillFlask(serverPlayer, flask);
+				ThirstModule.fillFlask(serverPlayer, flask, type);
 			}
 			level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
 			level.gameEvent(player, GameEvent.FLUID_PICKUP, hit.getBlockPos());
@@ -64,7 +71,7 @@ public class FlaskItem extends Item {
 	@Override
 	public ItemStack finishUsingItem(ItemStack flask, Level level, LivingEntity entity) {
 		if (entity instanceof ServerPlayer player) {
-			ThirstModule.drinkFromFlask(player, flask);
+			ThirstModule.drinkFromFlask(player, flask, type);
 		}
 		level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS,
 				0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
@@ -97,28 +104,28 @@ public class FlaskItem extends Item {
 	@Override
 	public boolean isBarVisible(ItemStack flask) {
 		Integer filter = flask.get(ThirstModule.FILTER);
-		return filter != null && filter < FlaskLogic.FILTER_USES;
+		return filter != null && filter < type.filterUses();
 	}
 
 	@Override
 	public int getBarWidth(ItemStack flask) {
-		return Mth.clamp(Math.round(13.0F * flask.getOrDefault(ThirstModule.FILTER, 0) / FlaskLogic.FILTER_USES), 0, 13);
+		return Mth.clamp(Math.round(13.0F * flask.getOrDefault(ThirstModule.FILTER, 0) / type.filterUses()), 0, 13);
 	}
 
 	@Override
 	public int getBarColor(ItemStack flask) {
-		return Mth.hsvToRgb(Math.max(0.0F, (float) flask.getOrDefault(ThirstModule.FILTER, 0) / FlaskLogic.FILTER_USES) / 3.0F, 1.0F, 1.0F);
+		return Mth.hsvToRgb(Math.max(0.0F, (float) flask.getOrDefault(ThirstModule.FILTER, 0) / type.filterUses()) / 3.0F, 1.0F, 1.0F);
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
 	public void appendHoverText(ItemStack flask, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
 		FlaskWater water = flask.getOrDefault(ThirstModule.FLASK_WATER, FlaskWater.EMPTY);
-		builder.accept(Component.translatable("item.eam.flask.water", water.amount(), FlaskLogic.CAPACITY).withStyle(ChatFormatting.BLUE));
+		builder.accept(Component.translatable("item.eam.flask.water", water.amount(), type.capacity()).withStyle(ChatFormatting.BLUE));
 
 		Integer filter = flask.get(ThirstModule.FILTER);
 		if (filter != null && filter > 0) {
-			builder.accept(Component.translatable("item.eam.flask.filter", filter, FlaskLogic.FILTER_USES).withStyle(ChatFormatting.GRAY));
+			builder.accept(Component.translatable("item.eam.flask.filter", filter, type.filterUses()).withStyle(ChatFormatting.GRAY));
 		} else if (filter != null) {
 			builder.accept(Component.translatable("item.eam.flask.filter_spent").withStyle(ChatFormatting.RED));
 		}

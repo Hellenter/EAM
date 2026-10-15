@@ -3,8 +3,6 @@ package io.github.hellenter.eam.survival.thirst;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import io.github.hellenter.eam.content.EamItems;
-
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,8 +19,9 @@ import net.minecraft.world.item.crafting.TransmuteRecipe;
 import java.util.List;
 
 /**
- * Shapeless recipe that turns a plain flask into a filtered one and keeps what the flask held (its water), the way
- * vanilla transmute recipes keep components. Transmute itself allows only one kind of material.
+ * Shapeless recipe that turns a plain flask into a filtered one, or puts a fresh filter into a filtered flask, and
+ * keeps what the flask held (its water), the way vanilla transmute recipes keep components. Transmute itself allows
+ * only one kind of material.
  */
 public class FilterFlaskRecipe extends ShapelessRecipe {
 	public static final MapCodec<FilterFlaskRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -58,8 +57,11 @@ public class FilterFlaskRecipe extends ShapelessRecipe {
 	@Override
 	public ItemStack assemble(CraftingInput input) {
 		for (ItemStack stack : input.items()) {
-			if (stack.is(EamItems.LEATHER_FLASK)) {
-				return TransmuteRecipe.createWithOriginalComponents(result, stack);
+			if (stack.getItem() instanceof FlaskItem) {
+				ItemStack flask = TransmuteRecipe.createWithOriginalComponents(result, stack);
+				// The filter is new, whatever was left of the old one.
+				flask.set(ThirstModule.FILTER, flask.getPrototype().get(ThirstModule.FILTER));
+				return flask;
 			}
 		}
 		return super.assemble(input);

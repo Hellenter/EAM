@@ -144,6 +144,9 @@ public final class EamLanguageProviders {
 			builder.add(CraftingTags.FIVE_SECONDS, "Crafted in 5 Seconds");
 			builder.add(CraftingTags.ARMOR, "Crafted in 5 Seconds per Material");
 			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
+			builder.add("item.eam.filtered_glass_flask", "Glass Flask with Charcoal-Silver Filter");
+			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Bottle of Boiled Water");
+			builder.add("item.eam.raw_water", "Raw water: boil it before drinking");
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Filter is spent");
@@ -711,6 +714,9 @@ public final class EamLanguageProviders {
 			builder.add(CraftingTags.FIVE_SECONDS, "Крафт 5 секунд");
 			builder.add(CraftingTags.ARMOR, "Крафт 5 секунд за материал");
 			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
+			builder.add("item.eam.filtered_glass_flask", "Стеклянная фляга с угольно-серебряным фильтром");
+			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Бутылка кипячёной воды");
+			builder.add("item.eam.raw_water", "Сырая вода: вскипятите перед питьём");
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
 			builder.add("item.eam.flask.filter_spent", "Фильтр забит");
