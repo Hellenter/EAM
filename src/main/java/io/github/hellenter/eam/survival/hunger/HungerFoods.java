@@ -51,20 +51,20 @@ final class HungerFoods {
 
 	//                                                        nutrition, saturation, protein, fat, carbs
 	private static final Map<Item, Values> COMMON = Map.ofEntries(
-			// Meat and fish: raw is a last resort, cooking roughly doubles the value.
-			Map.entry(Items.BEEF, food(2, 0.2F, 5, 3, 0)),
-			Map.entry(Items.COOKED_BEEF, food(5, 0.6F, 13, 8, 0)),
-			Map.entry(Items.PORKCHOP, food(2, 0.2F, 4, 4, 0)),
-			Map.entry(Items.COOKED_PORKCHOP, food(5, 0.6F, 10, 10, 0)),
-			Map.entry(Items.MUTTON, food(1, 0.2F, 3, 3, 0)),
-			Map.entry(Items.COOKED_MUTTON, food(4, 0.6F, 8, 8, 0)),
-			Map.entry(Items.CHICKEN, food(1, 0.2F, 3, 1, 0)),
-			Map.entry(Items.COOKED_CHICKEN, food(4, 0.5F, 12, 3, 0)),
-			Map.entry(Items.RABBIT, food(2, 0.2F, 5, 1, 0)),
-			Map.entry(Items.COOKED_RABBIT, food(3, 0.5F, 9, 2, 0)),
+			// Meat and fish: raw is a last resort, cooking roughly doubles the value. Meat saturates a bit more than fish.
+			Map.entry(Items.BEEF, food(2, 0.25F, 5, 3, 0)),
+			Map.entry(Items.COOKED_BEEF, food(5, 0.75F, 13, 8, 0)),
+			Map.entry(Items.PORKCHOP, food(2, 0.25F, 4, 4, 0)),
+			Map.entry(Items.COOKED_PORKCHOP, food(5, 0.75F, 10, 10, 0)),
+			Map.entry(Items.MUTTON, food(1, 0.25F, 3, 3, 0)),
+			Map.entry(Items.COOKED_MUTTON, food(4, 0.75F, 8, 8, 0)),
+			Map.entry(Items.CHICKEN, food(1, 0.25F, 3, 1, 0)),
+			Map.entry(Items.COOKED_CHICKEN, food(4, 0.6F, 12, 3, 0)),
+			Map.entry(Items.RABBIT, food(2, 0.25F, 5, 1, 0)),
+			Map.entry(Items.COOKED_RABBIT, food(3, 0.6F, 9, 2, 0)),
 			// Warg meat: lean and tough, a bit less than mutton but more protein.
-			Map.entry(EamItems.WOLF_MEAT, food(1, 0.2F, 4, 2, 0)),
-			Map.entry(EamItems.COOKED_WOLF_MEAT, food(4, 0.6F, 10, 5, 0)),
+			Map.entry(EamItems.WOLF_MEAT, food(1, 0.25F, 4, 2, 0)),
+			Map.entry(EamItems.COOKED_WOLF_MEAT, food(4, 0.75F, 10, 5, 0)),
 			Map.entry(Items.COD, food(1, 0.1F, 3, 1, 0)),
 			Map.entry(Items.COOKED_COD, food(3, 0.5F, 9, 2, 0)),
 			Map.entry(Items.SALMON, food(1, 0.1F, 3, 2, 0)),
