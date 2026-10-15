@@ -42,6 +42,7 @@
 		"world.bloodmoon.LivingEntityMixin",
 		"world.bloodmoon.ServerLevelMixin",
 		"world.crafting.AbstractContainerMenuAccessor",
+		"world.darkness.BlockBehaviourRainMixin",
 		"world.crafting.AbstractContainerMenuMixin",
 		"world.crafting.AbstractCraftingMenuMixin",
 		"world.crafting.BlockStateBaseCraftingMixin",

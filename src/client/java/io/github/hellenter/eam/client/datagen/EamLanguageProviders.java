@@ -219,6 +219,7 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.FLINT_SHARD, "Flint Shard");
 			builder.add(EamBlocks.GROUND_STICK, "Stick");
 			builder.add(EamBlocks.CAMP_FIRE, "Camp Fire");
+			builder.add(EamBlocks.UNLIT_TORCH, "Unlit Torch");
 			builder.add("block.eam.camp_fire.needs_sticks", "Put at least %s sticks on the fire to light it");
 			builder.add("eam.mining.needs_axe", "You need an axe to chop this");
 			builder.add(EamBlocks.SIEVE, "Sieve");
@@ -798,6 +799,7 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.FLINT_SHARD, "Осколок кремня");
 			builder.add(EamBlocks.GROUND_STICK, "Палка");
 			builder.add(EamBlocks.CAMP_FIRE, "Походный костёр");
+			builder.add(EamBlocks.UNLIT_TORCH, "Потухший факел");
 			builder.add("block.eam.camp_fire.needs_sticks", "Чтобы разжечь костёр, положите в него не меньше %s палок");
 			builder.add("eam.mining.needs_axe", "Чтобы срубить это, нужен топор");
 			builder.add(EamBlocks.SIEVE, "Сито");

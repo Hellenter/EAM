@@ -4,6 +4,8 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.torch.UnlitTorchBlock;
+import io.github.hellenter.eam.content.torch.UnlitWallTorchBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
@@ -75,6 +77,15 @@ public final class EamBlocks {
 			.noOcclusion()
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
+
+	/** A torch the rain has put out; see {@link UnlitTorchBlock}. */
+	public static final Block UNLIT_TORCH = register("unlit_torch", UnlitTorchBlock::new, BlockBehaviour.Properties.of()
+			.noCollision().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.POPPED));
+
+	/** The wall variant of {@link #UNLIT_TORCH}; drops and names itself as the standing one, like vanilla's wall torch. */
+	public static final Block UNLIT_WALL_TORCH = register("unlit_wall_torch", UnlitWallTorchBlock::new, BlockBehaviour.Properties.of()
+			.overrideLootTable(UNLIT_TORCH.getLootTable()).overrideDescription(UNLIT_TORCH.getDescriptionId())
+			.noCollision().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.POPPED));
 
 	/** Sifts gravel; see {@link SieveBlock}. Drops itself with its wear as item damage. */
 	public static final Block SIEVE = register("sieve", SieveBlock::new, BlockBehaviour.Properties.of()

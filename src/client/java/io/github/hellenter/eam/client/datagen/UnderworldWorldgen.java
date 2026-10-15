@@ -15,6 +15,8 @@ import io.github.hellenter.eam.dimension.feature.IceSpireFeature;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrPackFeature;
 import io.github.hellenter.eam.dimension.feature.UnderworldFluidsFeature;
 import io.github.hellenter.eam.dimension.feature.UnderworldLakeFeature;
+import io.github.hellenter.eam.world.darkness.DarknessLogic;
+import io.github.hellenter.eam.world.darkness.DarknessModule;
 
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 
@@ -608,7 +610,9 @@ final class UnderworldWorldgen {
 						.set(EnvironmentAttributes.FOG_COLOR, ARGB.vector3fFromRGB24(0x2B2B2B))
 						.set(EnvironmentAttributes.SKY_LIGHT_LEVEL, 0.0F)
 						.set(EnvironmentAttributes.SKY_LIGHT_FACTOR, 0.0F)
-						.set(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, ARGB.vector3fFromRGB24(0x1A1A1E))
+						// Dark: a third of what it was, and the brightness setting capped like the overworld's (see DarknessLogic).
+						.set(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, ARGB.vector3fFromRGB24(0x08080A))
+						.set(DarknessModule.MAX_BRIGHTNESS, DarknessLogic.MAX_BRIGHTNESS)
 						.set(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
 						.set(EnvironmentAttributes.BED_RULE, noSleep)
 						.set(EnvironmentAttributes.STRAW_BED_RULE, noSleep)
