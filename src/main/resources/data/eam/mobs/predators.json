@@ -1,0 +1,11 @@
+{
+  "hunters": {
+    "range": 24.0,
+    "max_block_light": 15
+  },
+  "raiders": {
+    "range": 16.0,
+    "max_block_light": 7
+  },
+  "recheck_ticks": 40
+}
