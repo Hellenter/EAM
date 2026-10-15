@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.world.farming;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.feeder.FeederModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -78,9 +79,14 @@ public final class FarmingModule {
 		return state.getValueOrElse(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER) == DoubleBlockHalf.LOWER ? pos : pos.below();
 	}
 
-	/** Whether {@code mob} ages on this tick. Only animals are slowed, villagers grow up as in vanilla. */
-	public static boolean agesThisTick(AgeableMob mob) {
-		return !animals || !(mob instanceof Animal) || FarmingLogic.agesThisTick(mob.tickCount, settings.animalSlowdown());
+	/**
+	 * The age {@code mob} has after this tick, given the age vanilla would set. Only animals are slowed, villagers grow up as in vanilla; livestock kept at a
+	 * feeder ages faster.
+	 */
+	public static int nextAge(AgeableMob mob, int vanillaAge) {
+		if (!(mob instanceof Animal)) return vanillaAge;
+		int steps = FarmingLogic.ageSteps(mob.tickCount, animals ? settings.animalSlowdown() : 1, FeederModule.growthSpeed(mob));
+		return FarmingLogic.stepAge(mob.getAge(), steps);
 	}
 
 	private static boolean isBoosted(LevelReader level, BlockPos pos) {

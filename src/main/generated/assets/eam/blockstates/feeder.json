@@ -5,25 +5,8 @@
         "model": "eam:block/feeder_body"
       },
       "when": {
-        "axis": "x"
-      }
-    },
-    {
-      "apply": {
-        "model": "eam:block/feeder_joint_negative"
-      },
-      "when": {
         "axis": "x",
-        "negative": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "eam:block/feeder_joint_positive"
-      },
-      "when": {
-        "axis": "x",
-        "positive": "true"
+        "back_positive": "false"
       }
     },
     {
@@ -32,6 +15,7 @@
       },
       "when": {
         "axis": "x",
+        "back_positive": "false",
         "negative": "false"
       }
     },
@@ -41,6 +25,68 @@
       },
       "when": {
         "axis": "x",
+        "back_positive": "false",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_body_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_negative_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_positive_mirrored"
+      },
+      "when": {
+        "axis": "x",
+        "back_positive": "true",
+        "positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_body_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_negative_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false",
+        "negative": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "eam:block/feeder_end_positive_mirrored",
+        "y": 90
+      },
+      "when": {
+        "axis": "z",
+        "back_positive": "false",
         "positive": "false"
       }
     },
@@ -50,27 +96,8 @@
         "y": 90
       },
       "when": {
-        "axis": "z"
-      }
-    },
-    {
-      "apply": {
-        "model": "eam:block/feeder_joint_negative",
-        "y": 90
-      },
-      "when": {
         "axis": "z",
-        "negative": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "eam:block/feeder_joint_positive",
-        "y": 90
-      },
-      "when": {
-        "axis": "z",
-        "positive": "true"
+        "back_positive": "true"
       }
     },
     {
@@ -80,6 +107,7 @@
       },
       "when": {
         "axis": "z",
+        "back_positive": "true",
         "negative": "false"
       }
     },
@@ -90,6 +118,7 @@
       },
       "when": {
         "axis": "z",
+        "back_positive": "true",
         "positive": "false"
       }
     },

@@ -1,0 +1,171 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        0.0,
+        4.0,
+        3.0
+      ],
+      "to": [
+        16.0,
+        6.0,
+        13.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        0.0,
+        4.0,
+        13.0
+      ],
+      "to": [
+        16.0,
+        15.0,
+        15.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        0.0,
+        4.0,
+        1.0
+      ],
+      "to": [
+        16.0,
+        9.0,
+        3.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#legs"
+        },
+        "east": {
+          "texture": "#legs"
+        },
+        "north": {
+          "texture": "#legs"
+        },
+        "south": {
+          "texture": "#legs"
+        },
+        "up": {
+          "texture": "#legs"
+        },
+        "west": {
+          "texture": "#legs"
+        }
+      },
+      "from": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "to": [
+        3.0,
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#legs"
+        },
+        "east": {
+          "texture": "#legs"
+        },
+        "north": {
+          "texture": "#legs"
+        },
+        "south": {
+          "texture": "#legs"
+        },
+        "up": {
+          "texture": "#legs"
+        },
+        "west": {
+          "texture": "#legs"
+        }
+      },
+      "from": [
+        1.0,
+        0.0,
+        13.0
+      ],
+      "to": [
+        3.0,
+        4.0,
+        15.0
+      ]
+    }
+  ],
+  "textures": {
+    "body": "eam:block/feeder_planks",
+    "feed": "eam:block/feeder_feed",
+    "legs": "eam:block/feeder_post",
+    "particle": "eam:block/feeder_planks"
+  }
+}

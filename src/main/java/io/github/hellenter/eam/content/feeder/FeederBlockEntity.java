@@ -14,12 +14,15 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -30,6 +33,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
@@ -40,18 +44,26 @@ import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
 
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
  * The feed in one feeder block and the meals it gave today. Every second it calls hungry livestock around over and
- * feeds those that reached it, one meal a day each; every few seconds it takes spare crops from farmer villagers nearby
- * and lets a fed pair breed once a day while the trough has room for more heads.
+ * feeds those that reached it, one meal a day each; an animal that ate grass today still comes for one meal when it has
+ * not eaten from a feeder for a day, as eating from one makes it grow up and breed faster. Every few seconds it takes
+ * spare crops from farmer villagers nearby and lets a fed pair breed, once a day or faster with
+ * {@link FeederSettings#fedGrowthBoost()}, while the trough has room for more heads, and once a day checks that its
+ * animals have water near and space: days without them make an animal sick. An animal with no way to the trough is not
+ * searched a path for again for a while.
  *
  * <p>The feed lies in the block's inventory, {@link FeederBlock#slots} slots that take only feed. Players fill it
  * through the trough's menu, hoppers and droppers from any side; hoppers cannot take feed back out.
@@ -64,6 +76,12 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 	/** How close, in blocks past its own width, an animal has to be to eat from the trough. */
 	private static final double REACH = 0.9;
 	private static final double WALK_SPEED = 1.0;
+	/** Ticks a found or missing water source is trusted before the feeder looks again. */
+	private static final int WATER_RECHECK = 1200;
+	/** Ticks of slowness a sick animal gets at each check, a little more than the checks are apart. */
+	private static final int SICK_SLOWNESS = SLOW_INTERVAL + 40;
+	/** Ticks before the trough tries again to find a way for an animal that had none. */
+	private static final int UNREACHABLE_RETRY = 200;
 	/** Farthest apart, in blocks, a pair can be and still find each other. */
 	private static final double PARTNER_DISTANCE = 8.0;
 	/** Feeders saved before they had an inventory kept their feed as item counts. */
@@ -73,7 +91,15 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 	private final int[] slots;
 	private long mealDay;
 	private int meals;
-	private long breedDay = Long.MIN_VALUE;
+	private long breedTime = LivestockState.NEVER;
+	/**
+	 * Animals, by entity id, that had no way to the trough, with the game time to look for one again. Path searches are
+	 * the costly part of calling animals over; not saved.
+	 */
+	private final Int2LongOpenHashMap unreachable = new Int2LongOpenHashMap();
+	/** Whether there was water near at the last look, and the game time to look again. Not saved. */
+	private boolean water;
+	private long waterRecheck = Long.MIN_VALUE;
 
 	public FeederBlockEntity(BlockPos pos, BlockState state) {
 		super(EamBlockEntities.FEEDER, pos, state);
@@ -91,7 +117,11 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		if (tick % FEED_INTERVAL == 0) feeder.feedAnimals(serverLevel, pos);
 		if (tick % SLOW_INTERVAL == 0) {
 			feeder.takeFromFarmers(serverLevel, pos);
-			feeder.breed(serverLevel, pos, state);
+			FeederSettings settings = FeederModule.settings();
+			List<Animal> animals = level.getEntitiesOfClass(Animal.class, new AABB(pos).inflate(settings.animalRadius()),
+					animal -> animal.isAlive() && FeederModule.isLivestock(animal));
+			Set<Animal> unwell = feeder.checkNeeds(serverLevel, pos, animals, settings);
+			feeder.breed(serverLevel, pos, state, animals, unwell);
 		}
 	}
 
@@ -229,26 +259,34 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 	private void feedAnimals(ServerLevel level, BlockPos pos) {
 		if (!hasFood()) return;
 		FeederSettings settings = FeederModule.settings();
-		long today = FeederModule.today(level);
+		long now = FeederModule.now(level);
+		long today = FeederLogic.day(now);
 		int left = heads() - mealsToday(level);
 		if (left <= 0) return;
+		long gameTime = level.getGameTime();
+		unreachable.int2LongEntrySet().removeIf(entry -> entry.getLongValue() <= gameTime);
 		AABB trough = new AABB(pos);
 		Vec3 center = Vec3.atCenterOf(pos);
 		List<Animal> hungry = level.getEntitiesOfClass(Animal.class, trough.inflate(settings.animalRadius()),
 				animal -> animal.isAlive() && FeederModule.isLivestock(animal)
-						&& FeederLogic.canEat(animal.getAttached(FeederModule.LIVESTOCK_STATE), today));
+						&& FeederLogic.wantsFeeder(animal.getAttached(FeederModule.LIVESTOCK_STATE), today, now));
 		hungry.sort(Comparator.comparingDouble(animal -> animal.distanceToSqr(center)));
 		// Only as many come over as there are meals left today, nearest first.
 		int callers = left;
 		for (Animal animal : hungry) {
 			if (left <= 0 || callers <= 0 || !hasFood()) return;
 			if (reaches(animal, trough)) {
-				eat(level, animal, today, settings);
+				eat(level, animal, today, now, settings);
+				unreachable.remove(animal.getId());
 				left--;
 				callers--;
-			} else if (!animal.isLeashed() && !animal.isPassenger() && walkTo(animal, pos)) {
+			} else if (animal.isLeashed() || animal.isPassenger() || unreachable.containsKey(animal.getId())) {
 				// Animals that cannot get here (behind a fence, leashed) don't take a meal from those that can.
+				continue;
+			} else if (walkTo(animal, pos)) {
 				callers--;
+			} else {
+				unreachable.put(animal.getId(), gameTime + UNREACHABLE_RETRY);
 			}
 		}
 	}
@@ -269,14 +307,15 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		return animal.getNavigation().moveTo(path, WALK_SPEED);
 	}
 
-	private void eat(ServerLevel level, Animal animal, long today, FeederSettings settings) {
+	private void eat(ServerLevel level, Animal animal, long today, long now, FeederSettings settings) {
 		Item item = takeOne();
 		if (mealDay != today) {
 			mealDay = today;
 			meals = 0;
 		}
 		meals++;
-		animal.setAttached(FeederModule.LIVESTOCK_STATE, FeederLogic.eat(animal.getAttached(FeederModule.LIVESTOCK_STATE), today, settings.thinAfterDays()));
+		animal.setAttached(FeederModule.LIVESTOCK_STATE,
+				FeederLogic.feederMeal(animal.getAttached(FeederModule.LIVESTOCK_STATE), today, now, settings.thinAfterDays()));
 		animal.getNavigation().stop();
 		animal.getLookControl().setLookAt(Vec3.atCenterOf(worldPosition));
 		level.playSound(null, animal.getX(), animal.getY(), animal.getZ(), SoundEvents.GENERIC_EAT.value(), SoundSource.NEUTRAL, 0.6F,
@@ -332,21 +371,82 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		return stack.is(FeederModule.FEED) ? 1 : 0;
 	}
 
+	// --- Water and space ---
+
+	/**
+	 * Once a day checks each animal kept at this feeder for water near the feeder and space around it, and keeps sick
+	 * ones slow. Returns the animals that lack water or space now or are sick: they are not paired. Neighbours are
+	 * counted among the animals already found around, so this costs no more entity searches; water is looked for once a
+	 * minute.
+	 */
+	private Set<Animal> checkNeeds(ServerLevel level, BlockPos pos, List<Animal> animals, FeederSettings settings) {
+		long now = FeederModule.now(level);
+		long today = FeederLogic.day(now);
+		boolean hasWater = hasWater(level, pos, settings.waterRadius());
+		Set<Animal> unwell = new HashSet<>();
+		for (Animal animal : animals) {
+			LivestockState fed = animal.getAttached(FeederModule.LIVESTOCK_STATE);
+			if (!FeederLogic.fedAtFeeder(fed, now)) continue;
+			boolean crowded = FeederLogic.crowded(neighbours(animal, animals, settings.crowdRadius()), settings.crowdLimit());
+			boolean bad = crowded || !hasWater;
+			LivestockState checked = FeederLogic.checkNeeds(fed, today, bad, settings.sickAfterDays());
+			if (checked != fed) animal.setAttached(FeederModule.LIVESTOCK_STATE, checked);
+			if (checked.sick()) animal.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, SICK_SLOWNESS, 0));
+			if (bad || checked.sick()) unwell.add(animal);
+		}
+		return unwell;
+	}
+
+	/** Other livestock standing within {@code radius} blocks across and two up or down of {@code animal}. */
+	private static int neighbours(Animal animal, List<Animal> animals, int radius) {
+		int count = 0;
+		for (Animal other : animals) {
+			if (other != animal && Math.abs(other.getX() - animal.getX()) <= radius && Math.abs(other.getZ() - animal.getZ()) <= radius
+					&& Math.abs(other.getY() - animal.getY()) <= 2) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/** Whether there is a water block or a water cauldron within {@code radius} across, from two below to one above. */
+	private boolean hasWater(ServerLevel level, BlockPos pos, int radius) {
+		if (radius <= 0) return true;
+		long gameTime = level.getGameTime();
+		if (gameTime < waterRecheck) return water;
+		waterRecheck = gameTime + WATER_RECHECK;
+		water = false;
+		for (BlockPos at : BlockPos.betweenClosed(pos.offset(-radius, -2, -radius), pos.offset(radius, 1, radius))) {
+			if (!level.hasChunkAt(at)) continue;
+			BlockState state = level.getBlockState(at);
+			if (state.getFluidState().is(FluidTags.WATER) || state.is(Blocks.WATER_CAULDRON)) {
+				water = true;
+				break;
+			}
+		}
+		return water;
+	}
+
 	// --- Breeding ---
 
-	/** Once a day a pair of fed adults of one kind falls in love, while the animals around fit the trough. */
-	private void breed(ServerLevel level, BlockPos pos, BlockState state) {
+	/**
+	 * Once a day, or {@link FeederSettings#fedGrowthBoost()} times as often, a pair of adults of one kind kept at a feeder
+	 * and fed today falls in love, while the animals around fit the trough.
+	 */
+	private void breed(ServerLevel level, BlockPos pos, BlockState state, List<Animal> animals, Set<Animal> unwell) {
 		FeederSettings settings = FeederModule.settings();
-		long today = FeederModule.today(level);
-		if (!settings.breeding() || breedDay == today || !(state.getBlock() instanceof FeederBlock block)) return;
-		List<Animal> animals = level.getEntitiesOfClass(Animal.class, new AABB(pos).inflate(settings.animalRadius()),
-				animal -> animal.isAlive() && FeederModule.isLivestock(animal));
+		long now = FeederModule.now(level);
+		long today = FeederLogic.day(now);
+		if (!settings.breeding() || !FeederLogic.canBreedAgain(breedTime, now, settings.fedGrowthBoost())
+				|| !(state.getBlock() instanceof FeederBlock block)) {
+			return;
+		}
 		if (!FeederLogic.roomToBreed(animals.size(), block.length(level, pos, state), block.heads(settings))) return;
 		Map<EntityType<?>, List<Animal>> waiting = new HashMap<>();
 		for (Animal animal : animals) {
 			LivestockState fed = animal.getAttached(FeederModule.LIVESTOCK_STATE);
-			if (fed == null || fed.lastMealDay() != today || FeederLogic.isThin(fed, today, settings.thinAfterDays())
-					|| animal.getAge() != 0 || !animal.canFallInLove()) {
+			if (fed == null || fed.lastMealDay() != today || !FeederLogic.fedAtFeeder(fed, now) || FeederLogic.isThin(fed, today, settings.thinAfterDays())
+					|| unwell.contains(animal) || animal.getAge() != 0 || !animal.canFallInLove()) {
 				continue;
 			}
 			List<Animal> kind = waiting.computeIfAbsent(animal.getType(), type -> new ArrayList<>());
@@ -357,7 +457,7 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 			if (partner != null) {
 				partner.setInLove(null);
 				animal.setInLove(null);
-				breedDay = today;
+				breedTime = now;
 				setChanged();
 				return;
 			}
@@ -380,7 +480,7 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		input.read("Slot", ItemStack.CODEC).ifPresent(stack -> add(stack.getItem(), stack.getCount()));
 		mealDay = input.getLongOr("MealDay", 0L);
 		meals = input.getIntOr("Meals", 0);
-		breedDay = input.getLongOr("BreedDay", Long.MIN_VALUE);
+		breedTime = input.getLongOr("BreedTime", LivestockState.NEVER);
 	}
 
 	@Override
@@ -389,6 +489,6 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		ContainerHelper.saveAllItems(output, items);
 		output.putLong("MealDay", mealDay);
 		output.putInt("Meals", meals);
-		output.putLong("BreedDay", breedDay);
+		output.putLong("BreedTime", breedTime);
 	}
 }

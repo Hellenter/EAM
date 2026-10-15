@@ -1,0 +1,75 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        0.0,
+        5.0,
+        8.0
+      ],
+      "to": [
+        1.0,
+        13.0,
+        14.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        }
+      },
+      "from": [
+        0.0,
+        5.0,
+        2.0
+      ],
+      "to": [
+        1.0,
+        10.0,
+        8.0
+      ]
+    }
+  ],
+  "textures": {
+    "body": "eam:block/metal_feeder_trough",
+    "feed": "eam:block/feeder_feed",
+    "legs": "eam:block/metal_feeder_bars",
+    "particle": "eam:block/metal_feeder_trough"
+  }
+}
