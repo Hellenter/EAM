@@ -44,6 +44,8 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 	private static final int INTERVAL = 20;
 	/** No check yet: the first one only starts the clock. */
 	private static final long UNSET = Long.MIN_VALUE;
+	/** Cold, in ticks, saved up before it is put on the food. */
+	private static final long APPLY_COLD = 1200;
 
 	private final FridgeMenu.Size size;
 	private NonNullList<ItemStack> items;
@@ -51,6 +53,8 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 	private long charge;
 	/** Overworld clock time of the last check. */
 	private long checkedAt = UNSET;
+	/** Cold since the food's times were last put off. */
+	private long pendingCold;
 
 	/** Hours of cold left, for the menu. */
 	private final ContainerData data = new ContainerData() {
@@ -76,11 +80,15 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 	}
 
 	public static void serverTick(Level level, BlockPos pos, BlockState state, FridgeBlockEntity fridge) {
-		if (level instanceof ServerLevel serverLevel && (level.getGameTime() + pos.asLong()) % INTERVAL == 0) fridge.refresh(serverLevel);
+		if (level instanceof ServerLevel serverLevel && (level.getGameTime() + pos.asLong()) % INTERVAL == 0) fridge.refresh(serverLevel, false);
 	}
 
-	/** Melts the ice the time since the last check took and keeps the food that long. */
-	void refresh(ServerLevel level) {
+	/**
+	 * Melts the ice the time since the last check took. The cold builds up and is put on the food's times once a minute,
+	 * or when someone opens the fridge, so the fridge is not saved and resent every second; food is checked for spoiling
+	 * against the clock minus the cold not yet put on it.
+	 */
+	void refresh(ServerLevel level, boolean opened) {
 		long now = SpoilageModule.now(level);
 		if (!SpoilageModule.enabled() || checkedAt == UNSET || now < checkedAt) {
 			checkedAt = now;
@@ -90,11 +98,17 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 		SpoilageLogic.Cooling cooling = SpoilageLogic.cool(now - checkedAt, charge, ice(), settings.ticksPerIce());
 		checkedAt = now;
 		charge = cooling.charge();
+		pendingCold += cooling.cooled();
+		boolean changed = cooling.melted() > 0;
 		melt(cooling.melted());
-		for (int i = size.ice(); i < items.size(); i++) SpoilageModule.delay(items.get(i), cooling.cooled());
-		SpoilageModule.updateContainer(this, now, rotten -> Containers.dropItemStack(level, worldPosition.getX() + 0.5,
-				worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5, rotten));
-		if (cooling.cooled() > 0) setChanged();
+		if (pendingCold >= APPLY_COLD || opened && pendingCold > 0) {
+			for (int i = size.ice(); i < items.size(); i++) SpoilageModule.delay(items.get(i), pendingCold);
+			pendingCold = 0;
+			changed = true;
+		}
+		SpoilageModule.updateContainer(this, now - pendingCold, true, rotten -> Containers.dropItemStack(level,
+				worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5, rotten));
+		if (changed) setChanged();
 	}
 
 	private int ice() {
@@ -193,6 +207,7 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 		ContainerHelper.loadAllItems(input, items);
 		charge = input.getLongOr("Charge", 0L);
 		checkedAt = input.getLongOr("CheckedAt", UNSET);
+		pendingCold = input.getLongOr("PendingCold", 0L);
 	}
 
 	@Override
@@ -201,5 +216,6 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 		ContainerHelper.saveAllItems(output, items);
 		output.putLong("Charge", charge);
 		output.putLong("CheckedAt", checkedAt);
+		output.putLong("PendingCold", pendingCold);
 	}
 }

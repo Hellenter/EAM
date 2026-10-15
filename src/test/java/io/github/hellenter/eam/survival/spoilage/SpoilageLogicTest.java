@@ -75,4 +75,12 @@ class SpoilageLogicTest {
 		List<SpoilageLogic.Batch> batches = SpoilageLogic.batches(List.of(DAY, DAY, 3 * DAY), 0);
 		assertEquals(List.of(new SpoilageLogic.Batch(2, DAY), new SpoilageLogic.Batch(1, 3 * DAY)), batches);
 	}
+
+	@Test
+	void unknownItemsAreUnstampedAndStampedFresh() {
+		List<Long> taken = SpoilageLogic.take(List.of(5L), 3);
+		assertEquals(List.of(5L, SpoilageLogic.UNSTAMPED, SpoilageLogic.UNSTAMPED), taken);
+		assertEquals(0, SpoilageLogic.spoiled(List.of(SpoilageLogic.UNSTAMPED), Long.MAX_VALUE - 1));
+		assertEquals(List.of(5L, 100L, 100L), SpoilageLogic.stamp(taken, 100L));
+	}
 }

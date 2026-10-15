@@ -15,10 +15,14 @@ import java.util.function.Supplier;
  * Keeps each item's spoil time with it as stacks split and merge. Stacks that differ only in their {@link Freshness}
  * stack together. Taking items from a stack takes its oldest; vanilla then grows the stack they go to, and that stack
  * picks up the times just taken. Where vanilla grows the target before it shrinks the source, the mixins hand both
- * stacks over instead. A merge nothing tracked copies the target's oldest time, so food never gets fresher by stacking.
+ * stacks over instead. Items whose times are not known are {@link SpoilageLogic#UNSTAMPED}: fresh food the server
+ * stamps on its next look.
  */
 public final class SpoilageStacks {
-	/** Set once the component is registered; until then every hook does nothing. */
+	/** Taken times only count for a grow right after the shrink, in the same vanilla method. */
+	private static final long TAKEN_NANOS = 2_000_000L;
+
+	/** Set once spoilage is on; until then every hook does nothing. */
 	private static volatile boolean active;
 
 	/** The times last taken off a stack on this thread, for the stack they go to. */
@@ -26,7 +30,7 @@ public final class SpoilageStacks {
 	/** Above zero while a hook sets times itself, so count changes inside it leave them alone. */
 	private static final ThreadLocal<int[]> QUIET = ThreadLocal.withInitial(() -> new int[1]);
 
-	private record Taken(Item item, List<Long> times) {
+	private record Taken(Item item, List<Long> times, long at) {
 	}
 
 	private SpoilageStacks() {
@@ -34,11 +38,6 @@ public final class SpoilageStacks {
 
 	static void activate() {
 		active = true;
-	}
-
-	/** Forgets times nobody picked up, once a tick, so they never land on an unrelated stack. */
-	static void forgetTaken() {
-		TAKEN.remove();
 	}
 
 	private static @Nullable Freshness freshness(ItemStack stack) {
@@ -49,6 +48,11 @@ public final class SpoilageStacks {
 	static List<Long> times(ItemStack stack, Freshness freshness) {
 		List<Long> times = freshness.spoilsAt();
 		return times.isEmpty() ? times : SpoilageLogic.fit(times, stack.getCount(), times.getFirst());
+	}
+
+	private static List<Long> times(ItemStack stack) {
+		Freshness freshness = freshness(stack);
+		return freshness == null ? List.of() : times(stack, freshness);
 	}
 
 	/** {@link ItemStack#isSameItemSameComponents}: perishable stacks that differ only in freshness still stack. */
@@ -69,28 +73,24 @@ public final class SpoilageStacks {
 
 	/** {@link ItemStack#setCount}, before the count changes. */
 	public static void onSetCount(ItemStack stack, int count) {
-		if (QUIET.get()[0] > 0) return;
-		Freshness freshness = freshness(stack);
-		if (freshness == null) return;
+		if (!active || QUIET.get()[0] > 0) return;
+		Freshness freshness = stack.get(SpoilageModule.FRESHNESS);
+		Taken taken = TAKEN.get();
+		TAKEN.remove();
 		int before = stack.getCount();
-		if (count == before) return;
-		List<Long> times = times(stack, freshness);
+		boolean fromShrink = taken != null && taken.item == stack.getItem() && System.nanoTime() - taken.at < TAKEN_NANOS;
+		// An unstamped stack takes on times only when stamped items join it.
+		if (count == before || freshness == null && (count < before || !fromShrink)) return;
+		List<Long> times = freshness == null ? SpoilageLogic.take(List.of(), before) : times(stack, freshness);
 		if (count < before) {
 			int removed = before - Math.max(0, count);
-			TAKEN.set(new Taken(stack.getItem(), SpoilageLogic.oldest(times, removed)));
+			TAKEN.set(new Taken(stack.getItem(), SpoilageLogic.take(times, removed), System.nanoTime()));
 			stack.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.withoutOldest(times, removed)));
 			return;
 		}
 		int added = count - before;
-		Taken taken = TAKEN.get();
-		if (taken != null && taken.item == stack.getItem()) {
-			List<Long> moved = SpoilageLogic.oldest(taken.times, added);
-			List<Long> rest = SpoilageLogic.withoutOldest(taken.times, added);
-			TAKEN.set(rest.isEmpty() ? null : new Taken(taken.item, rest));
-			times = SpoilageLogic.merge(times, moved);
-		}
-		// Whatever the taken times did not cover copies the oldest time when the stack is next fitted.
-		stack.set(SpoilageModule.FRESHNESS, new Freshness(times));
+		List<Long> moved = SpoilageLogic.take(fromShrink ? taken.times : List.of(), added);
+		stack.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.merge(times, moved)));
 	}
 
 	/** {@link ItemStack#copyWithCount}: the copy gets the source's oldest times, as the source loses them when it shrinks. */
@@ -98,8 +98,7 @@ public final class SpoilageStacks {
 		Freshness freshness = freshness(source);
 		ItemStack result = quietly(copy);
 		if (freshness != null && !result.isEmpty()) {
-			List<Long> times = times(source, freshness);
-			result.set(SpoilageModule.FRESHNESS, new Freshness(count <= times.size() ? SpoilageLogic.oldest(times, count) : times));
+			result.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.take(times(source, freshness), count)));
 		}
 		return result;
 	}
@@ -109,14 +108,12 @@ public final class SpoilageStacks {
 	 * shrinks the source after: the source then loses the same oldest times.
 	 */
 	public static void growFrom(ItemStack target, int amount, ItemStack source, Operation<Void> grow) {
-		Freshness from = freshness(source);
-		Freshness to = freshness(target);
-		if (from == null) {
+		if (!active || freshness(source) == null && freshness(target) == null) {
 			grow.call(target, amount);
 			return;
 		}
-		List<Long> moved = SpoilageLogic.oldest(times(source, from), amount);
-		List<Long> kept = to == null ? List.of() : times(target, to);
+		List<Long> kept = times(target);
+		List<Long> moved = SpoilageLogic.take(times(source), amount);
 		quietly(() -> {
 			grow.call(target, amount);
 			return null;
@@ -126,31 +123,32 @@ public final class SpoilageStacks {
 
 	/**
 	 * A drag over slots puts a copy of the carried stack, grown by what the slot held, in each slot. The slot keeps its
-	 * own items' times and gets the carried stack's oldest for the rest.
+	 * own items' times and gets the carried stack's oldest for the rest; those leave the carried stack, so the next slot
+	 * gets the next ones.
 	 */
 	public static ItemStack dragCopy(ItemStack source, int count, ItemStack existing, Supplier<ItemStack> copy) {
 		ItemStack result = copy.get();
 		Freshness from = freshness(source);
 		Freshness there = existing.isEmpty() ? null : freshness(existing);
-		if (result.isEmpty() || existing.isEmpty() || from == null && there == null) return result;
-		List<Long> kept = there == null ? List.of() : times(existing, there);
-		List<Long> added = from == null ? List.of() : SpoilageLogic.oldest(times(source, from), count - existing.getCount());
-		result.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.merge(kept, added)));
+		if (result.isEmpty() || from == null && there == null) return result;
+		int added = count - existing.getCount();
+		List<Long> carried = times(source);
+		result.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.merge(times(existing), SpoilageLogic.take(carried, added))));
+		if (from != null) source.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.withoutOldest(carried, added)));
 		return result;
 	}
 
 	/** {@code ItemEntity.merge}: the merged stack is a copy of the target grown by the source's oldest items. */
 	public static ItemStack mergeItemEntities(ItemStack to, ItemStack from, Supplier<ItemStack> merge) {
-		Freshness fromFreshness = freshness(from);
-		Freshness toFreshness = freshness(to);
-		List<Long> fromTimes = fromFreshness == null ? List.of() : times(from, fromFreshness);
-		List<Long> toTimes = toFreshness == null ? List.of() : times(to, toFreshness);
+		boolean tracked = freshness(from) != null || freshness(to) != null;
+		List<Long> fromTimes = times(from);
+		List<Long> toTimes = times(to);
 		int before = to.getCount();
 		ItemStack merged = merge.get();
 		TAKEN.remove();
-		if (fromFreshness != null || toFreshness != null) {
+		if (tracked) {
 			int moved = merged.getCount() - before;
-			merged.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.merge(toTimes, SpoilageLogic.oldest(fromTimes, moved))));
+			merged.set(SpoilageModule.FRESHNESS, new Freshness(SpoilageLogic.merge(toTimes, SpoilageLogic.take(fromTimes, moved))));
 		}
 		return merged;
 	}

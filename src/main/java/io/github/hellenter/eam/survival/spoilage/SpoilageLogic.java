@@ -13,6 +13,11 @@ public final class SpoilageLogic {
 	public static final long DAY = 24000L;
 	/** Ticks in an in-game hour. */
 	public static final long HOUR = DAY / 24;
+	/**
+	 * The time of an item that joined a stack before the server stamped it: fresh food just dropped, crafted or cooked.
+	 * The server turns it into a real time on its next look; until then it sorts last and never spoils.
+	 */
+	public static final long UNSTAMPED = Long.MAX_VALUE;
 
 	private SpoilageLogic() {
 	}
@@ -40,6 +45,25 @@ public final class SpoilageLogic {
 	/** The {@code n} oldest times. */
 	public static List<Long> oldest(List<Long> times, int n) {
 		return List.copyOf(times.subList(0, Math.min(n, times.size())));
+	}
+
+	/**
+	 * The times of {@code n} items moved out of a stack: its oldest, and {@link #UNSTAMPED} for items it has no time for
+	 * yet, as a stack the server has not stamped is fresh.
+	 */
+	public static List<Long> take(List<Long> times, int n) {
+		List<Long> taken = new ArrayList<>(oldest(times, n));
+		while (taken.size() < n) taken.add(UNSTAMPED);
+		return List.copyOf(taken);
+	}
+
+	/** Unstamped items get {@code fresh}, the time of food stamped now. */
+	public static List<Long> stamp(List<Long> times, long fresh) {
+		if (times.isEmpty() || times.getLast() != UNSTAMPED) return times;
+		List<Long> stamped = new ArrayList<>(times.size());
+		for (long time : times) stamped.add(time == UNSTAMPED ? fresh : time);
+		stamped.sort(null);
+		return List.copyOf(stamped);
 	}
 
 	/** The times left once the {@code n} oldest are gone: eaten, moved away or spoiled. */
@@ -70,7 +94,7 @@ public final class SpoilageLogic {
 	public static List<Long> delay(List<Long> times, long ticks) {
 		if (ticks <= 0) return times;
 		List<Long> delayed = new ArrayList<>(times.size());
-		for (long time : times) delayed.add(time + ticks);
+		for (long time : times) delayed.add(time == UNSTAMPED ? time : time + ticks);
 		return List.copyOf(delayed);
 	}
 
@@ -82,6 +106,7 @@ public final class SpoilageLogic {
 	public static List<Batch> batches(List<Long> times, long now) {
 		List<Batch> batches = new ArrayList<>();
 		for (long time : times) {
+			if (time == UNSTAMPED) continue;
 			long left = Math.max(0L, time - now);
 			if (!batches.isEmpty() && tenths(batches.getLast().ticksLeft()) == tenths(left)) {
 				Batch last = batches.removeLast();

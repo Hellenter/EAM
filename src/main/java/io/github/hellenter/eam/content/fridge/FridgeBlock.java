@@ -69,7 +69,7 @@ public class FridgeBlock extends BaseEntityBlock {
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof FridgeBlockEntity fridge) {
-			fridge.refresh(serverLevel);
+			fridge.refresh(serverLevel, true);
 			player.openMenu(fridge);
 		}
 		return InteractionResult.SUCCESS;

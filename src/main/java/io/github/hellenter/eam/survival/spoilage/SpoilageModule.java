@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -18,8 +19,10 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.UseRemainder;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -55,13 +58,12 @@ public final class SpoilageModule {
 	public static void registerTypes() {
 		FRESHNESS = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Eam.id("freshness"),
 				DataComponentType.<Freshness>builder().persistent(Freshness.CODEC).networkSynchronized(Freshness.STREAM_CODEC).build());
-		SpoilageStacks.activate();
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(SpoilageSettingsLoader.ID, new SpoilageSettingsLoader());
 	}
 
 	public static void init() {
 		enabled = true;
-		ServerTickEvents.START_SERVER_TICK.register(server -> SpoilageStacks.forgetTaken());
+		SpoilageStacks.activate();
 		ServerTickEvents.END_SERVER_TICK.register(SpoilageModule::tickPlayers);
 	}
 
@@ -82,14 +84,17 @@ public final class SpoilageModule {
 		return level.getOverworldClockTime();
 	}
 
-	/** What spoiled in a stack and whether its times changed. */
-	public record Update(ItemStack spoiled, boolean changed) {
-		static final Update NONE = new Update(ItemStack.EMPTY, false);
+	/**
+	 * What spoiled in a stack, with what its items leave behind (a soup's bowl), and whether its times changed.
+	 */
+	public record Update(List<ItemStack> spoiled, boolean changed) {
+		static final Update NONE = new Update(List.of(), false);
+		static final Update CHANGED = new Update(List.of(), true);
 	}
 
 	/**
 	 * Stamps a perishable stack and takes out what has spoiled by {@code now}. The stack shrinks by the spoiled items,
-	 * possibly to empty; they come back as what they turn into.
+	 * possibly to empty; they come back as what they turn into, first, then what they leave behind.
 	 */
 	public static Update update(ItemStack stack, long now) {
 		if (!enabled || stack.isEmpty()) return Update.NONE;
@@ -98,22 +103,31 @@ public final class SpoilageModule {
 		if (rule == null) {
 			if (freshness == null) return Update.NONE;
 			stack.remove(FRESHNESS);
-			return new Update(ItemStack.EMPTY, true);
+			return Update.CHANGED;
 		}
 		List<Long> times = freshness == null ? List.of() : freshness.spoilsAt();
-		List<Long> fitted = SpoilageLogic.fit(times, stack.getCount(), now + rule.lifetime());
+		long fresh = now + rule.lifetime();
+		List<Long> fitted = SpoilageLogic.stamp(SpoilageLogic.fit(times, stack.getCount(), fresh), fresh);
 		boolean changed = freshness == null || !fitted.equals(times);
 		int spoiled = SpoilageLogic.spoiled(fitted, now);
 		if (spoiled == 0) {
 			if (changed) stack.set(FRESHNESS, new Freshness(fitted));
-			return changed ? new Update(ItemStack.EMPTY, true) : Update.NONE;
+			return changed ? Update.CHANGED : Update.NONE;
 		}
+		UseRemainder remainder = stack.get(DataComponents.USE_REMAINDER);
 		stack.set(FRESHNESS, new Freshness(SpoilageLogic.withoutOldest(fitted, spoiled)));
 		SpoilageStacks.quietly(() -> {
 			stack.shrink(spoiled);
 			return null;
 		});
-		return new Update(new ItemStack(rule.becomes(), spoiled), true);
+		List<ItemStack> out = new ArrayList<>();
+		out.add(new ItemStack(rule.becomes(), spoiled));
+		if (remainder != null) {
+			ItemStack left = remainder.convertInto().create();
+			left.setCount(left.getCount() * spoiled);
+			out.add(left);
+		}
+		return new Update(out, true);
 	}
 
 	/** Puts a perishable stack's spoil times off by {@code ticks}: it spent them cold. */
@@ -123,10 +137,11 @@ public final class SpoilageModule {
 	}
 
 	/**
-	 * Updates every stack in a container. A stack that spoiled whole is swapped in its slot; partly spoiled food goes to
-	 * a free or matching slot, or to {@code overflow} when there is none.
+	 * Updates every stack in a container. A stack that spoiled whole is swapped in its slot. The rest goes to a free or
+	 * matching slot when {@code storage} is set, else, or when there is no room, to {@code overflow}: a crafting grid or a
+	 * furnace never gets rotten food put in another slot.
 	 */
-	public static void updateContainer(Container container, long now, Consumer<ItemStack> overflow) {
+	public static void updateContainer(Container container, long now, boolean storage, Consumer<ItemStack> overflow) {
 		boolean changed = false;
 		List<ItemStack> leftovers = new ArrayList<>();
 		for (int i = 0; i < container.getContainerSize(); i++) {
@@ -134,14 +149,15 @@ public final class SpoilageModule {
 			Update update = update(stack, now);
 			changed |= update.changed;
 			if (update.spoiled.isEmpty()) continue;
+			List<ItemStack> spoiled = update.spoiled;
 			if (stack.isEmpty()) {
-				container.setItem(i, update.spoiled);
-			} else {
-				leftovers.add(update.spoiled);
+				container.setItem(i, spoiled.getFirst());
+				spoiled = spoiled.subList(1, spoiled.size());
 			}
+			leftovers.addAll(spoiled);
 		}
 		for (ItemStack leftover : leftovers) {
-			insert(container, leftover);
+			if (storage) insert(container, leftover);
 			if (!leftover.isEmpty()) overflow.accept(leftover);
 		}
 		if (changed) container.setChanged();
@@ -179,51 +195,56 @@ public final class SpoilageModule {
 		Consumer<ItemStack> give = spoiled -> inventory.placeItemBackInInventory(spoiled, Prediction.SERVER_ONLY);
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack stack = inventory.getItem(i);
-			Update update = update(stack, now);
-			if (update.spoiled.isEmpty()) continue;
+			List<ItemStack> spoiled = update(stack, now).spoiled;
+			if (spoiled.isEmpty()) continue;
 			if (stack.isEmpty()) {
-				inventory.setItem(i, update.spoiled);
-			} else {
-				give.accept(update.spoiled);
+				inventory.setItem(i, spoiled.getFirst());
+				spoiled = spoiled.subList(1, spoiled.size());
 			}
+			spoiled.forEach(give);
 		}
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
-		Update update = update(carried, now);
-		if (!update.spoiled.isEmpty()) {
+		List<ItemStack> spoiled = update(carried, now).spoiled;
+		if (!spoiled.isEmpty()) {
 			if (carried.isEmpty()) {
-				menu.setCarried(update.spoiled);
-			} else {
-				give.accept(update.spoiled);
+				menu.setCarried(spoiled.getFirst());
+				spoiled = spoiled.subList(1, spoiled.size());
 			}
+			spoiled.forEach(give);
 		}
 		if (menu == player.inventoryMenu) return;
 		Set<Container> containers = Collections.newSetFromMap(new IdentityHashMap<>());
 		for (Slot slot : menu.slots) {
 			Container container = slot.container;
-			// A fridge keeps its own food, putting its times off first.
-			if (container != inventory && !(container instanceof FridgeBlockEntity) && containers.add(container)) {
-				updateContainer(container, now, give);
+			// A fridge keeps its own food, putting its times off first; a crafting result is not real food yet.
+			if (container != inventory && !(container instanceof FridgeBlockEntity) && !(container instanceof ResultContainer)
+					&& containers.add(container)) {
+				updateContainer(container, now, false, give);
 			}
 		}
 	}
 
-	/** Food on the ground spoils too; what spoiled drops beside it. */
+	/** Food on the ground spoils too; what spoiled drops beside it. New drops are stamped on their first tick. */
 	public static void tickItemEntity(ItemEntity entity) {
-		if (!enabled || entity.tickCount % GROUND_INTERVAL != 0 || !(entity.level() instanceof ServerLevel level)) return;
-		ItemStack stack = entity.getItem();
-		Update update = update(stack, now(level));
-		if (update.spoiled.isEmpty()) {
-			if (update.changed) entity.setItem(stack.copy());
+		if (!enabled || entity.isRemoved() || entity.tickCount % GROUND_INTERVAL != 0 && entity.tickCount > 1
+				|| !(entity.level() instanceof ServerLevel level)) {
 			return;
 		}
-		if (stack.isEmpty()) {
-			entity.setItem(update.spoiled);
+		ItemStack stack = entity.getItem();
+		Update update = update(stack, now(level));
+		if (!update.changed) return;
+		List<ItemStack> spoiled = update.spoiled;
+		if (stack.isEmpty() && !spoiled.isEmpty()) {
+			entity.setItem(spoiled.getFirst());
+			spoiled = spoiled.subList(1, spoiled.size());
 		} else {
 			entity.setItem(stack.copy());
-			ItemEntity spoiled = new ItemEntity(level, entity.getX(), entity.getY(), entity.getZ(), update.spoiled);
-			spoiled.setDefaultPickUpDelay();
-			level.addFreshEntity(spoiled);
+		}
+		for (ItemStack left : spoiled) {
+			ItemEntity drop = new ItemEntity(level, entity.getX(), entity.getY(), entity.getZ(), left);
+			drop.setDefaultPickUpDelay();
+			level.addFreshEntity(drop);
 		}
 	}
 }
