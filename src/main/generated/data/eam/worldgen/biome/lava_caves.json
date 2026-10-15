@@ -52,7 +52,9 @@
       "eam:underworld/lava_lakes",
       "eam:underworld/fluids"
     ],
-    [],
+    [
+      "eam:underworld/lava_pillar"
+    ],
     [],
     [],
     [],
@@ -72,9 +74,6 @@
     [],
     [
       "eam:underworld/spring_lava_many"
-    ],
-    [
-      "eam:underworld/lava_pillar"
     ]
   ],
   "has_precipitation": false,
