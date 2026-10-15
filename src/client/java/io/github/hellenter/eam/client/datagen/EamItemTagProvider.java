@@ -14,6 +14,7 @@ import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
@@ -70,6 +71,12 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP, EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM,
 				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL, EamItems.MILK_BOWL));
 		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
+		// Produce that drops more under a blue moon; seeds stay as they are.
+		builder(BlueMoonModule.HARVEST_ITEMS).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
+				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key(),
+				Items.MELON_SLICE.builtInRegistryHolder().key(), Items.SWEET_BERRIES.builtInRegistryHolder().key(),
+				Items.GLOW_BERRIES.builtInRegistryHolder().key(), Items.COCOA_BEANS.builtInRegistryHolder().key(),
+				EamItems.GARLIC.builtInRegistryHolder().key());
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

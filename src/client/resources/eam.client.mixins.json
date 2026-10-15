@@ -9,6 +9,8 @@
 		"survival.thirst.GuiGraphicsExtractorMixin",
 		"world.bloodmoon.FogRendererMixin",
 		"world.bloodmoon.SkyRendererMixin",
+		"world.bluemoon.FogRendererMixin",
+		"world.bluemoon.SkyRendererMixin",
 		"mobs.yaga.YagaStormLevelMixin",
 		"world.forging.AnvilScreenMixin"
 	],
