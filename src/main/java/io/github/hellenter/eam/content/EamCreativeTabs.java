@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
@@ -32,7 +33,7 @@ public final class EamCreativeTabs {
 			Items.TIPPED_ARROW);
 
 	public static final CreativeModeTab SURVIVAL = register("survival", () -> new ItemStack(EamItems.LEATHER_FLASK),
-			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE, EamItems.FEEDER, EamItems.METAL_FEEDER,
+			EamItems.LEATHER_THREAD, EamItems.LEATHER_FLASK, EamItems.FILTERED_LEATHER_FLASK, EamItems.FILTERED_GLASS_FLASK, EamItems.CAMP_FIRE, EamItems.SIEVE, EamItems.FEEDER, EamItems.METAL_FEEDER,
 			EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_HATCHET, EamItems.FLINT_AXE, EamItems.FLINT_KNIFE,
 			EamItems.SLINGSHOT,
 			EamItems.COPPER_BUCKET, EamItems.COPPER_WATER_BUCKET, EamItems.COPPER_LAVA_BUCKET, EamItems.COPPER_POWDER_SNOW_BUCKET,
@@ -43,7 +44,7 @@ public final class EamCreativeTabs {
 			EamItems.GOLDEN_MILK_BUCKET,
 			EamItems.MITHRIL_BUCKET, EamItems.MITHRIL_WATER_BUCKET, EamItems.MITHRIL_LAVA_BUCKET, EamItems.MITHRIL_POWDER_SNOW_BUCKET,
 			EamItems.MITHRIL_MILK_BUCKET,
-			EamItems.WATER_BOWL, EamItems.BOILED_WATER_BOWL, EamItems.MILK_BOWL, EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP,
+			EamItems.WATER_BOWL, EamItems.BOILED_WATER_BOWL, (Supplier<ItemStack>) EamCreativeTabs::boiledWaterBottle, EamItems.MILK_BOWL, EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP,
 			EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP, EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP,
 			EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM, EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL,
 			EamItems.CHOCOLATE, EamItems.CHEESE, EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT,
@@ -166,15 +167,23 @@ public final class EamCreativeTabs {
 				.icon(icon)
 				.displayItems((parameters, output) -> {
 					for (Object item : items) {
-						// An entry is an item or a list of items, such as all hollow logs.
+						// An entry is an item, a list of items, such as all hollow logs, or a stack with components.
 						if (item instanceof List<?> list) {
 							list.forEach(each -> output.accept((ItemLike) each));
+						} else if (item instanceof Supplier<?> stack) {
+							output.accept((ItemStack) stack.get());
 						} else {
 							output.accept((ItemLike) item);
 						}
 					}
 				})
 				.build());
+	}
+
+	private static ItemStack boiledWaterBottle() {
+		ItemStack bottle = new ItemStack(Items.POTION);
+		bottle.set(DataComponents.POTION_CONTENTS, RawWater.boiledWater());
+		return bottle;
 	}
 
 	private static ResourceKey<CreativeModeTab> key(String name) {

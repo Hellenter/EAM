@@ -39,5 +39,9 @@ public class EamEnchantmentTagProvider extends FabricTagsProvider<Enchantment> {
 				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE, ArrowRecoveryModule.ARROW_RECOVERY);
 		// Arrow Recovery is an ordinary enchantment: on the table, on books, in loot and trades.
 		builder(EnchantmentTags.NON_TREASURE).add(ArrowRecoveryModule.ARROW_RECOVERY);
+		// Villagers trade every book vanilla lets them but Mending: only a duergar runecarver sells that one.
+		builder(EnchantmentTags.TRADEABLE).setReplace(true)
+				.forceAddTag(EnchantmentTags.NON_TREASURE)
+				.add(Enchantments.BINDING_CURSE, Enchantments.VANISHING_CURSE, Enchantments.FROST_WALKER);
 	}
 }

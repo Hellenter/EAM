@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/toolsmith/level_4",
+  "trades": [
+    "eam:duergar/toolsmith/4/gold_mithril_ingot",
+    "eam:duergar/toolsmith/4/emerald_iron_hammer",
+    "eam:duergar/toolsmith/4/emerald_iron_axe"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/toolsmith/level_1",
+  "trades": [
+    "eam:duergar/toolsmith/1/coal_emerald",
+    "eam:duergar/toolsmith/1/emerald_copper_pickaxe",
+    "eam:duergar/toolsmith/1/emerald_copper_shovel"
+  ]
+}

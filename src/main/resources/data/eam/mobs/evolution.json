@@ -1,0 +1,58 @@
+{
+	"piece_chance": 0.6,
+	"phases": [
+		{
+			"day": 10,
+			"armor": [{"tier": "leather", "chance": 0.2}],
+			"weapons": [{"tier": "wood", "chance": 0.2}]
+		},
+		{
+			"day": 20,
+			"armor": [{"tier": "leather", "chance": 0.2}, {"tier": "copper_chainmail", "chance": 0.125}],
+			"weapons": [{"tier": "wood", "chance": 0.2}, {"tier": "copper", "chance": 0.125}]
+		},
+		{
+			"day": 40,
+			"armor": [{"tier": "leather", "chance": 0.35}, {"tier": "copper", "chance": 0.2}],
+			"weapons": [{"tier": "wood", "chance": 0.35}, {"tier": "copper", "chance": 0.2}],
+			"enchanted_bow_chance": 0.25
+		},
+		{
+			"day": 60,
+			"armor": [{"tier": "leather", "chance": 0.35}, {"tier": "copper", "chance": 0.2}, {"tier": "rusty_iron", "chance": 0.1}],
+			"weapons": [{"tier": "wood", "chance": 0.35}, {"tier": "copper", "chance": 0.2}, {"tier": "rusty_iron", "chance": 0.1}],
+			"enchanted_bow_chance": 0.25
+		}
+	],
+	"tiers": {
+		"leather": {
+			"head": ["minecraft:leather_helmet"],
+			"chest": ["minecraft:leather_chestplate"],
+			"legs": ["minecraft:leather_leggings"],
+			"feet": ["minecraft:leather_boots"]
+		},
+		"wood": {
+			"weapons": ["minecraft:wooden_sword", "minecraft:wooden_axe", "minecraft:wooden_shovel"]
+		},
+		"copper_chainmail": {
+			"head": ["eam:copper_chainmail_helmet"],
+			"chest": ["eam:copper_chainmail_chestplate"],
+			"legs": ["eam:copper_chainmail_leggings"],
+			"feet": ["eam:copper_chainmail_boots"]
+		},
+		"copper": {
+			"head": ["minecraft:copper_helmet", "eam:copper_chainmail_helmet"],
+			"chest": ["minecraft:copper_chestplate", "eam:copper_chainmail_chestplate"],
+			"legs": ["minecraft:copper_leggings", "eam:copper_chainmail_leggings"],
+			"feet": ["minecraft:copper_boots", "eam:copper_chainmail_boots"],
+			"weapons": ["minecraft:copper_sword", "minecraft:copper_axe", "minecraft:copper_shovel"]
+		},
+		"rusty_iron": {
+			"head": ["eam:rusty_iron_helmet", "eam:rusty_chainmail_helmet"],
+			"chest": ["eam:rusty_iron_chestplate", "eam:rusty_chainmail_chestplate"],
+			"legs": ["eam:rusty_iron_leggings", "eam:rusty_chainmail_leggings"],
+			"feet": ["eam:rusty_iron_boots", "eam:rusty_chainmail_boots"],
+			"weapons": ["eam:rusty_iron_sword", "eam:rusty_iron_axe", "eam:rusty_iron_shovel"]
+		}
+	}
+}

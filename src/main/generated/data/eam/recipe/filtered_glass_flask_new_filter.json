@@ -1,0 +1,14 @@
+{
+  "type": "eam:filter_flask",
+  "category": "equipment",
+  "ingredients": [
+    "eam:filtered_glass_flask",
+    "#minecraft:coals",
+    "eam:silver_nugget",
+    "eam:silver_nugget",
+    "eam:silver_nugget"
+  ],
+  "result": {
+    "id": "eam:filtered_glass_flask"
+  }
+}

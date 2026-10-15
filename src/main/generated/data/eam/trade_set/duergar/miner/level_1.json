@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/miner/level_1",
+  "trades": [
+    "eam:duergar/miner/1/coal_emerald",
+    "eam:duergar/miner/1/raw_copper_emerald",
+    "eam:duergar/miner/1/emerald_torches"
+  ]
+}

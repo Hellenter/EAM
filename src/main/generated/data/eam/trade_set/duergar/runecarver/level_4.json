@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/runecarver/level_4",
+  "trades": [
+    "eam:duergar/runecarver/4/emerald_and_book_enchanted_book",
+    "eam:duergar/runecarver/4/emerald_experience_bottles"
+  ]
+}
