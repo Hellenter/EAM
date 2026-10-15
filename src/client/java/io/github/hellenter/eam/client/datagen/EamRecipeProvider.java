@@ -246,6 +246,25 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 							.save(output, "eam:metal_feeder_from_" + BuiltInRegistries.ITEM.getKey(ingot).getPath());
 				}
 
+				// A wooden box lined with wool, and a bigger iron one with a bucket to catch the melt water.
+				shaped(RecipeCategory.DECORATIONS, EamItems.SMALL_FRIDGE)
+						.define('P', ItemTags.PLANKS)
+						.define('W', ItemTags.WOOL)
+						.pattern("PPP")
+						.pattern("W W")
+						.pattern("PPP")
+						.unlockedBy(getHasName(Items.ICE), has(Items.ICE))
+						.save(output);
+				shaped(RecipeCategory.DECORATIONS, EamItems.LARGE_FRIDGE)
+						.define('I', EamItems.IRON_PLATE)
+						.define('W', ItemTags.WOOL)
+						.define('B', ConventionalItemTags.EMPTY_BUCKETS)
+						.pattern("IWI")
+						.pattern("WBW")
+						.pattern("IWI")
+						.unlockedBy(getHasName(EamItems.IRON_PLATE), has(EamItems.IRON_PLATE))
+						.save(output);
+
 				bowlFoodRecipes();
 				ashRecipes();
 				silverRecipes();

@@ -5,6 +5,8 @@ import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
+import io.github.hellenter.eam.content.fridge.FridgeBlock;
+import io.github.hellenter.eam.content.fridge.FridgeMenu;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
@@ -100,6 +102,21 @@ public final class EamBlocks {
 			.strength(3.0F, 6.0F)
 			.sound(SoundType.METAL)
 			.noOcclusion());
+
+	/** A wooden fridge lined with wool: two ice slots and two rows of food; see {@link FridgeBlock}. */
+	public static final Block SMALL_FRIDGE = register("small_fridge", p -> new FridgeBlock(FridgeMenu.Size.SMALL, p), BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS)
+			.strength(2.5F)
+			.sound(SoundType.WOOD)
+			.ignitedByLava());
+
+	/** An iron fridge lined with wool: four ice slots and four rows of food. */
+	public static final Block LARGE_FRIDGE = register("large_fridge", p -> new FridgeBlock(FridgeMenu.Size.LARGE, p), BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.requiresCorrectToolForDrops()
+			.strength(3.0F, 6.0F)
+			.sound(SoundType.METAL));
 
 	/** Silver ore: like copper ore, a bit rarer and more common in the mountains. */
 	public static final Block SILVER_ORE = register("silver_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
