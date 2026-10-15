@@ -16,6 +16,9 @@ public final class EamSounds {
 	/** A bright double ping, like a flicked coin: the Fallen Lord can be parried now. */
 	public static final SoundEvent FALLEN_LORD_PARRY_WINDOW = register("entity.fallen_lord.parry_window");
 
+	/** A rising, ringing hum with a crackle of embers as Koschei's blade glows orange: only a raised shield stops this blow. */
+	public static final SoundEvent KOSCHEI_ORANGE_CUE = register("entity.koschei.orange_cue");
+
 	/** The wight's rare rasping breath while it stalks unseen. */
 	public static final SoundEvent WIGHT_AMBIENT = register("entity.wight.ambient");
 	/** The hiss of its blow. */

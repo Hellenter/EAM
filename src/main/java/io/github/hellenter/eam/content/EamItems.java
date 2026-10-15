@@ -331,6 +331,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_GUARD));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SWAMP_LURKER));
+	public static final Item KOSCHEI_SPAWN_EGG = register("koschei_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.KOSCHEI));
 	public static final Item BABA_YAGA_SPAWN_EGG = register("baba_yaga_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.BABA_YAGA));
 	public static final Item DROWNED_SOLDIER_SPAWN_EGG = register("drowned_soldier_spawn_egg", SpawnEggItem::new,

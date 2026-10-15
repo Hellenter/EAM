@@ -26,6 +26,15 @@
     ],
     "subtitle": "subtitles.eam.entity.fallen_lord.parry_window"
   },
+  "entity.koschei.orange_cue": {
+    "sounds": [
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/koschei/orange_cue"
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.koschei.orange_cue"
+  },
   "entity.vampire_bat.swarm": {
     "sounds": [
       {

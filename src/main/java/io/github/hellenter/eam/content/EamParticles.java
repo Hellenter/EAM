@@ -46,6 +46,13 @@ public final class EamParticles {
 	/** Claw rakes torn across the air, one per rake. */
 	public static final SimpleParticleType YAGA_CLAW = register("yaga_claw");
 
+	/** Orange embers streaming off Koschei's blade before his orange blow. */
+	public static final SimpleParticleType KOSCHEI_SPARK = register("koschei_spark");
+	/** Purple and blue motes left hanging where Koschei vanished, and gathering where he appears. */
+	public static final SimpleParticleType KOSCHEI_WARP = register("koschei_warp");
+	/** Blue motes of Koschei's burst of force, rushing out from his palm. */
+	public static final SimpleParticleType KOSCHEI_FORCE = register("koschei_force");
+
 	private EamParticles() {
 	}
 
