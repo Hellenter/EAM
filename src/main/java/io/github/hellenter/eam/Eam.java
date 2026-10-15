@@ -42,6 +42,7 @@ import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
+import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
@@ -128,6 +129,7 @@ public class Eam implements ModInitializer {
 		RunningModule.register();
 		MonsterEvolutionModule.register();
 		CowDefenseModule.register();
+		PredatorModule.register();
 		EarlyToolsModule.register();
 		DiamondGearModule.register();
 		CraftingModule.register();
@@ -167,6 +169,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) DuergarModule.init();
 		if (config.mobs()) SpiderModule.init();
 		if (config.mobs()) PillagerFeudModule.init();
+		if (config.mobs()) PredatorModule.init();
 		if (config.mobs()) EliteCrossbowmanModule.init();
 		if (config.mobs()) PillagerGuardModule.init();
 		if (config.mobs()) VampireBatModule.init();

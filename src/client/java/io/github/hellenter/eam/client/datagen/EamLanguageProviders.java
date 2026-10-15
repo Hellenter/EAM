@@ -10,6 +10,7 @@ import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
@@ -618,6 +619,8 @@ public final class EamLanguageProviders {
 			builder.add("commands.eam.blue_moon.next", "Day %s: the next blue moon is on day %s");
 			builder.add(BlueMoonModule.HARVEST_BLOCKS, "Richer Harvest Under a Blue Moon");
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Richer Harvest Under a Blue Moon");
+			builder.add(PredatorModule.HUNTERS, "Hunt Livestock at Night");
+			builder.add(PredatorModule.RAIDERS, "Raid Open Pens at Night");
 			builder.add("itemGroup.eam.survival", "EAM: Survival");
 			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
 			builder.add("itemGroup.eam.tools", "EAM: Tools");
@@ -1211,6 +1214,8 @@ public final class EamLanguageProviders {
 			builder.add("commands.eam.blue_moon.next", "День %s: следующая голубая луна в день %s");
 			builder.add(BlueMoonModule.HARVEST_BLOCKS, "Богатый урожай под голубой луной");
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Богатый урожай под голубой луной");
+			builder.add(PredatorModule.HUNTERS, "Охотятся на скот ночью");
+			builder.add(PredatorModule.RAIDERS, "Нападают ночью на открытые загоны");
 			builder.add("itemGroup.eam.survival", "EAM: Выживание");
 			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
 			builder.add("itemGroup.eam.tools", "EAM: Инструменты");

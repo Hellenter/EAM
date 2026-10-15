@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.mobs.entity.warg;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.vanilla.predators.LivestockHuntGoal;
+import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,6 +34,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.wolf.WolfSoundVariant;
 import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
 import net.minecraft.world.entity.monster.Monster;
@@ -70,6 +73,8 @@ public class Warg extends Monster {
 	private static final double PACK_RANGE = 32.0;
 	/** Without a hunt, a member keeps within this of its leader. */
 	private static final double FOLLOW_DISTANCE = 8.0;
+	/** A leader without a hunt looks for livestock this often at night, and checks the pack can still reach it. */
+	private static final int PREY_SEARCH_INTERVAL = 40;
 
 	/** A member's leader; {@code null} for a leader himself and for a lone warg. */
 	private @Nullable UUID leader;
@@ -247,6 +252,18 @@ public class Warg extends Monster {
 			}
 		});
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true) {
+			@Override
+			public boolean canUse() {
+				return fightsAlone() && super.canUse();
+			}
+
+			@Override
+			public boolean canContinueToUse() {
+				return fightsAlone() && super.canContinueToUse();
+			}
+		});
+		// At night a lone warg goes for livestock it can reach, like a wolf; a pack hunts it through its leader.
+		targetSelector.addGoal(3, new LivestockHuntGoal(this, false) {
 			@Override
 			public boolean canUse() {
 				return fightsAlone() && super.canUse();
@@ -444,11 +461,18 @@ public class Warg extends Monster {
 				|| packTarget.distanceToSqr(this) > drop * drop)) {
 			packTarget = null;
 		}
-		if (packTarget == null && (tickCount + getId()) % 10 == 0) {
+		if (packTarget != null && !(packTarget instanceof Player) && !stillPrey(packTarget)) {
+			packTarget = null;
+		}
+		// A player in sight comes first, even over livestock the pack is already after.
+		if (!(packTarget instanceof Player) && (tickCount + getId()) % 10 == 0) {
 			Player nearest = level.getNearestPlayer(getX(), getY(), getZ(), settings.aggroRange(), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
 			if (nearest != null && hasLineOfSight(nearest)) {
 				packTarget = nearest;
 			}
+		}
+		if (packTarget == null && !pack.isEmpty() && (tickCount + getId()) % PREY_SEARCH_INTERVAL == 0) {
+			packTarget = findPrey(level);
 		}
 		ringAngle += Math.toRadians(settings.ringSpin()) / 20.0;
 		if (striker != null) {
@@ -464,6 +488,26 @@ public class Warg extends Monster {
 		if (striker == null && strikeCooldown <= 0 && packTarget != null && !pack.isEmpty()) {
 			pickStriker(packTarget, settings);
 		}
+	}
+
+	/** At night: the nearest livestock around that the pack can walk up to, or {@code null}. */
+	private @Nullable LivingEntity findPrey(ServerLevel level) {
+		if (!PredatorModule.huntsNow(this)) {
+			return null;
+		}
+		double range = PredatorModule.hunterRange();
+		Animal prey = level.getNearestEntity(level.getEntitiesOfClass(Animal.class, getBoundingBox().inflate(range),
+						animal -> PredatorModule.isPrey(animal, false)),
+				TargetingConditions.forCombat().range(range), this, getX(), getEyeY(), getZ());
+		return prey != null && PredatorModule.reachable(this, prey) ? prey : null;
+	}
+
+	/** Livestock the pack is after stays its prey while the night lasts and nothing shuts it off from the pack. */
+	private boolean stillPrey(LivingEntity prey) {
+		if (!PredatorModule.huntsNow(this) || !PredatorModule.isPrey(prey, false)) {
+			return false;
+		}
+		return (tickCount + getId()) % PREY_SEARCH_INTERVAL != 0 || PredatorModule.reachable(this, prey);
 	}
 
 	/** Of the wargs already circling, the one furthest behind the target's back gets to strike, if the target is not watching it. */
@@ -496,7 +540,7 @@ public class Warg extends Monster {
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (hurt && !broken && source.getEntity() instanceof LivingEntity attacker) {
 			Warg head = packLeader();
-			if (head != null && head.packTarget == null) {
+			if (head != null && !(head.packTarget instanceof Player)) {
 				head.alert(attacker);
 			}
 		}
