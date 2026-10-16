@@ -114,6 +114,7 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Anvil Hammers: Tier 3");
 			builder.add("gui.eam.anvil.too_weak", "This anvil is too weak for it");
 			builder.add("enchantment.eam.arrow_recovery", "Arrow Recovery");
+			builder.add("enchantment.eam.light_as_a_feather", "Light as a Feather");
 			builder.add("gui.eam.enchanting.title", "Choose Enchantments");
 			builder.add("gui.eam.enchanting.empty", "Put an item or a book in the table to choose its enchantments");
 			builder.add("gui.eam.enchanting.none", "No enchantments can be added to this item");
@@ -731,6 +732,7 @@ public final class EamLanguageProviders {
 			builder.add(ForgingTags.HAMMER_TIERS.get(2), "Молотки для наковальни: тир 3");
 			builder.add("gui.eam.anvil.too_weak", "Эта наковальня слишком слабая");
 			builder.add("enchantment.eam.arrow_recovery", "Возврат стрел");
+			builder.add("enchantment.eam.light_as_a_feather", "Лёгкий как пух");
 			builder.add("gui.eam.enchanting.title", "Выбор чар");
 			builder.add("gui.eam.enchanting.empty", "Положите предмет или книгу на стол, чтобы выбрать чары");
 			builder.add("gui.eam.enchanting.none", "На этот предмет больше нельзя наложить чары");

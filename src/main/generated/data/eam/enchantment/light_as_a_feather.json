@@ -1,0 +1,30 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.eam.light_as_a_feather"
+  },
+  "effects": {
+    "eam:shield_disable_time": {
+      "type": "minecraft:multiply",
+      "factor": {
+        "type": "minecraft:linear",
+        "base": 0.9,
+        "per_level_above_first": -0.1
+      }
+    }
+  },
+  "max_cost": {
+    "base": 55,
+    "per_level_above_first": 8
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 8
+  },
+  "slots": [
+    "hand"
+  ],
+  "supported_items": "#eam:enchantable/shield",
+  "weight": 5
+}
