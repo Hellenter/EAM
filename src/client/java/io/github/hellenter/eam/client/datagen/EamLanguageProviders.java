@@ -1072,7 +1072,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.baba_yaga_beam.player", "%2$s сожгла %1$s дотла");
 			builder.add(EamItems.GARLIC, "Чеснок");
 			builder.add(EamBlocks.GARLIC_CROP, "Чеснок");
-			builder.add(EamBlocks.WILD_GARLIC, "Черемша");
+			builder.add(EamBlocks.WILD_GARLIC, "Дикий чеснок");
 			builder.add(EamItems.GARLIC_ORCHID_MIX, "Смесь чеснока и орхидеи");
 			builder.add("effect.eam.garlic", "Чесночный дух");
 			builder.add("effect.eam.black_blood", "Чёрная кровь");

@@ -79,10 +79,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(DuergarVillage.Style.LAKE.biomes()).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES);
 		// Squads of the Lost roam the underworld's upper level, not its depths.
 		builder(LostModule.SPAWNS_IN).addAll(UnderworldDimension.UPPER_BIOMES);
-		// Wild garlic grows in the plains, meadows and every forest.
-		builder(EamWorldgen.HAS_WILD_GARLIC)
-				.forceAddTag(BiomeTags.IS_FOREST)
-				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW);
+		// Wild garlic grows only in forests.
+		builder(EamWorldgen.HAS_WILD_GARLIC).forceAddTag(BiomeTags.IS_FOREST);
 		// Warg packs hunt the snowy taiga and the snowy groves above it.
 		builder(WargModule.SPAWNS_IN).add(Biomes.SNOWY_TAIGA, Biomes.GROVE);
 		builder(WightModule.SPAWNS_IN)
