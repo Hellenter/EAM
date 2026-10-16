@@ -50,6 +50,8 @@ public final class EamParticles {
 	public static final SimpleParticleType KOSCHEI_SPARK = register("koschei_spark");
 	/** Purple and blue motes left hanging where Koschei vanished, and gathering where he appears. */
 	public static final SimpleParticleType KOSCHEI_WARP = register("koschei_warp");
+	/** The ravens that scatter, beating their wings, from where Koschei vanishes; sent with count 0 so the "velocity" is their flight. */
+	public static final SimpleParticleType KOSCHEI_RAVEN = register("koschei_raven");
 	/** Blue motes of Koschei's burst of force, rushing out from his palm. */
 	public static final SimpleParticleType KOSCHEI_FORCE = register("koschei_force");
 

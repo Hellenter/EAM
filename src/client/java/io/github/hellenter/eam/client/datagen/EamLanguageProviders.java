@@ -385,6 +385,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_lightning", "%1$s was struck by %2$s's lightning");
 			builder.add("death.attack.eam.koschei_lightning.player", "%1$s was struck by %2$s's lightning");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Koschei's blade glows orange");
+			builder.add("subtitles.eam.entity.koschei.ravens", "Ravens scatter");
 			builder.add(EamEntities.BABA_YAGA, "Baba Yaga");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Baba Yaga Spawn Egg");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Drowned Soldier");
@@ -1010,6 +1011,7 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_lightning", "%2$s испепелил %1$s молнией");
 			builder.add("death.attack.eam.koschei_lightning.player", "%2$s испепелил %1$s молнией");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Меч Кощея раскаляется");
+			builder.add("subtitles.eam.entity.koschei.ravens", "Разлетаются вороны");
 			builder.add(EamEntities.BABA_YAGA, "Баба Яга");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Яйцо призыва Бабы Яги");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Утопленный солдат");
