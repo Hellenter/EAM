@@ -41,7 +41,7 @@ public final class EamWorldgen {
 	/** Sticks on the ground next to trees, in any biome that has them. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_NEAR_TREES = placed("ground_stick_near_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
-	/** Small patches of wild garlic in plains and forests. */
+	/** Rare groups of one to three wild garlic bushes in forests. */
 	public static final ResourceKey<PlacedFeature> WILD_GARLIC_PATCH = placed("wild_garlic_patch");
 	/** Silver veins in every overworld biome, 2.5 times fewer than copper. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_PLACED = placed("ore_silver");
