@@ -392,11 +392,24 @@ public class BabaYagaModel extends EntityModel<BabaYagaRenderState> {
 			staffTilt = jerk(step, snap, 11) * 1.2F * fit;
 			lean = Mth.sin(d * 2.9F) * 0.06F * fit;
 			rig.zRot = Mth.sin(d * 3.7F) * 0.08F * fit;
-			rig.y += smooth((d - 20.0F) / 30.0F) * 3.0F;
+			// Crumbling, her limbs fold in and she shrinks into the ash at her feet. The same scale on all three axes: an
+			// uneven one shears every limb turned against it, stretching and squashing her thrashing arms and legs.
 			float crumble = YagaDeath.crumble(d);
-			rig.yScale = 1.0F - 0.85F * crumble;
-			rig.xScale = 1.0F + 0.5F * crumble;
-			rig.zScale = 1.0F + 0.5F * crumble;
+			float fold = 1.0F - smooth(crumble * 1.5F);
+			rightX *= fold;
+			leftX *= fold;
+			rightZ *= fold;
+			leftZ *= fold;
+			rightFore *= fold;
+			leftFore *= fold;
+			head.yRot *= fold;
+			rightLeg.xRot *= fold;
+			leftLeg.xRot *= fold;
+			float shrink = 1.0F - 0.8F * crumble;
+			rig.y += smooth((d - 20.0F) / 30.0F) * 3.0F;
+			rig.xScale = shrink;
+			rig.yScale = shrink;
+			rig.zScale = shrink;
 		}
 
 		// Her jaw: muttering, cackling, shrieking and chewing; her head now and then twitches to one side.
