@@ -12,7 +12,11 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public KoscheiAction action = KoscheiAction.NONE;
 	/** Ticks into it. */
 	public float actionTime;
-	public Eyes eyes = Eyes.NONE;
+	public Eyes eyes = Eyes.GLOW;
+	/** How high the blow he turns aside comes, 0 at his feet to 1 at the top of his head. */
+	public float guardHeight = 0.6F;
+	/** Which side it comes from, -1 his right to 1 his left. */
+	public float guardSide;
 	public Blade blade = Blade.NONE;
 	/** Degrees per tick his body turns as he walks round. */
 	public float turnRate;
@@ -30,7 +34,8 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public float boltGrowth;
 
 	public enum Eyes {
-		NONE,
+		/** His eyes always glow a cold pale blue. */
+		GLOW,
 		/** He can be parried now. */
 		YELLOW,
 		/** About to vanish: purple and blue in turn. */

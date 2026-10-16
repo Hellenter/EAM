@@ -63,7 +63,11 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	public static LayerDefinition createLayer() {
 		MeshDefinition mesh = new MeshDefinition();
 		PartDefinition root = mesh.getRoot();
-		CubeDeformation snug = new CubeDeformation(0.2F);
+		// He is thin: the torso, legs and the gear on them are drawn narrower than their texture boxes.
+		CubeDeformation thinTorso = new CubeDeformation(-1.0F, 0.0F, -0.45F);
+		CubeDeformation thinPlate = new CubeDeformation(-0.8F, 0.0F, 0.0F);
+		CubeDeformation thinLeg = new CubeDeformation(-0.6F, 0.0F, -0.5F);
+		CubeDeformation thinCuff = new CubeDeformation(-0.6F, 0.0F, -0.6F);
 		// A long bald skull, a hooked nose, a heavy brow over sunken eyes, thin ears. The crown: a ring of four plates round
 		// the head and spikes rising from it, tallest in front.
 		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
@@ -88,40 +92,40 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		// Dark plate over a narrow chest, its breastplate worked with filigree; the fur mantle and its collar up behind the
 		// neck; a belt with a heavy buckle.
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
-				.texOffs(0, 20).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F)
-				.texOffs(24, 20).addBox(-3.5F, 0.5F, -2.8F, 7.0F, 6.0F, 1.0F)
-				.texOffs(0, 40).addBox(-6.0F, -1.5F, -3.5F, 12.0F, 4.0F, 7.0F)
-				.texOffs(40, 40).addBox(-5.0F, -4.0F, 1.5F, 10.0F, 3.0F, 2.0F)
-				.texOffs(64, 40).addBox(-4.5F, 9.0F, -2.5F, 9.0F, 2.0F, 5.0F)
-				.texOffs(92, 40).addBox(-1.5F, 8.5F, -3.0F, 3.0F, 3.0F, 1.0F), PartPose.ZERO);
+				.texOffs(0, 20).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, thinTorso)
+				.texOffs(24, 20).addBox(-3.5F, 0.5F, -2.35F, 7.0F, 6.0F, 1.0F, thinPlate)
+				.texOffs(0, 40).addBox(-6.0F, -1.5F, -3.5F, 12.0F, 4.0F, 7.0F, new CubeDeformation(-1.2F, 0.0F, -0.6F))
+				.texOffs(40, 40).addBox(-5.0F, -4.0F, 1.2F, 10.0F, 3.0F, 2.0F, new CubeDeformation(-1.0F, 0.0F, 0.0F))
+				.texOffs(64, 40).addBox(-4.5F, 9.0F, -2.5F, 9.0F, 2.0F, 5.0F, new CubeDeformation(-1.1F, 0.0F, -0.4F))
+				.texOffs(92, 40).addBox(-1.5F, 8.5F, -2.6F, 3.0F, 3.0F, 1.0F), PartPose.ZERO);
 		// The mail skirt from under the belt to the knees, split in front, and the long cloak behind.
-		body.addOrReplaceChild("mail_front_right", CubeListBuilder.create().texOffs(0, 52).addBox(-2.5F, 0.0F, -0.5F, 5.0F, 8.0F, 1.0F),
-				PartPose.offset(-2.2F, MAIL_TOP, -2.4F));
-		body.addOrReplaceChild("mail_front_left", CubeListBuilder.create().texOffs(12, 52).addBox(-2.5F, 0.0F, -0.5F, 5.0F, 8.0F, 1.0F),
-				PartPose.offset(2.2F, MAIL_TOP, -2.4F));
-		body.addOrReplaceChild("mail_back", CubeListBuilder.create().texOffs(24, 52).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 8.0F, 1.0F),
-				PartPose.offset(0.0F, MAIL_TOP, 2.4F));
-		body.addOrReplaceChild("mail_right", CubeListBuilder.create().texOffs(46, 52).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 8.0F, 6.0F),
-				PartPose.offset(-4.6F, MAIL_TOP, 0.0F));
-		body.addOrReplaceChild("mail_left", CubeListBuilder.create().texOffs(60, 52).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 8.0F, 6.0F),
-				PartPose.offset(4.6F, MAIL_TOP, 0.0F));
-		body.addOrReplaceChild("cape", CubeListBuilder.create().texOffs(74, 52).addBox(-5.5F, 0.0F, 0.0F, 11.0F, CAPE_UPPER, 1.0F),
-				PartPose.offset(0.0F, 0.5F, 3.0F))
-				.addOrReplaceChild("lower", CubeListBuilder.create().texOffs(74, 64).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 11.0F, 1.0F),
+		body.addOrReplaceChild("mail_front_right", CubeListBuilder.create().texOffs(0, 52).addBox(-2.5F, 0.0F, -0.5F, 5.0F, 8.0F, 1.0F, new CubeDeformation(-0.4F, 0.0F, 0.0F)),
+				PartPose.offset(-1.8F, MAIL_TOP, -2.0F));
+		body.addOrReplaceChild("mail_front_left", CubeListBuilder.create().texOffs(12, 52).addBox(-2.5F, 0.0F, -0.5F, 5.0F, 8.0F, 1.0F, new CubeDeformation(-0.4F, 0.0F, 0.0F)),
+				PartPose.offset(1.8F, MAIL_TOP, -2.0F));
+		body.addOrReplaceChild("mail_back", CubeListBuilder.create().texOffs(24, 52).addBox(-5.0F, 0.0F, -0.5F, 10.0F, 8.0F, 1.0F, new CubeDeformation(-1.0F, 0.0F, 0.0F)),
+				PartPose.offset(0.0F, MAIL_TOP, 2.0F));
+		body.addOrReplaceChild("mail_right", CubeListBuilder.create().texOffs(46, 52).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 8.0F, 6.0F, new CubeDeformation(0.0F, 0.0F, -0.6F)),
+				PartPose.offset(-3.6F, MAIL_TOP, 0.0F));
+		body.addOrReplaceChild("mail_left", CubeListBuilder.create().texOffs(60, 52).addBox(-0.5F, 0.0F, -3.0F, 1.0F, 8.0F, 6.0F, new CubeDeformation(0.0F, 0.0F, -0.6F)),
+				PartPose.offset(3.6F, MAIL_TOP, 0.0F));
+		body.addOrReplaceChild("cape", CubeListBuilder.create().texOffs(74, 52).addBox(-5.5F, 0.0F, 0.0F, 11.0F, CAPE_UPPER, 1.0F, thinPlate),
+				PartPose.offset(0.0F, 0.5F, 2.6F))
+				.addOrReplaceChild("lower", CubeListBuilder.create().texOffs(74, 64).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 11.0F, 1.0F, thinPlate),
 						PartPose.offset(0.0F, CAPE_UPPER, 0.0F));
 		// Thin arms under spiked pauldrons, vambraces over the forearms; they bend at the elbow.
 		root.addOrReplaceChild("right_arm", CubeListBuilder.create()
-				.texOffs(0, 80).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, snug)
-				.texOffs(12, 80).addBox(-3.5F, -3.0F, -2.5F, 5.0F, 3.0F, 5.0F), PartPose.offset(-5.5F, 2.0F, 0.0F))
+				.texOffs(0, 80).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, new CubeDeformation(-0.25F, 0.0F, -0.25F))
+				.texOffs(12, 80).addBox(-3.5F, -3.0F, -2.5F, 5.0F, 3.0F, 5.0F, new CubeDeformation(-0.4F)), PartPose.offset(-4.4F, 2.0F, 0.0F))
 				.addOrReplaceChild("right_forearm", CubeListBuilder.create()
-						.texOffs(32, 80).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, snug)
-						.texOffs(44, 80).addBox(-2.5F, 0.5F, -2.0F, 4.0F, 4.0F, 4.0F), PartPose.offset(0.0F, ELBOW, 0.0F));
+						.texOffs(32, 80).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, new CubeDeformation(-0.25F, 0.0F, -0.25F))
+						.texOffs(44, 80).addBox(-2.5F, 0.5F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(-0.4F, 0.0F, -0.4F)), PartPose.offset(0.0F, ELBOW, 0.0F));
 		PartDefinition leftForearm = root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror()
-				.texOffs(0, 80).addBox(-1.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, snug)
-				.texOffs(12, 80).addBox(-1.5F, -3.0F, -2.5F, 5.0F, 3.0F, 5.0F), PartPose.offset(5.5F, 2.0F, 0.0F))
+				.texOffs(0, 80).addBox(-1.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, new CubeDeformation(-0.25F, 0.0F, -0.25F))
+				.texOffs(12, 80).addBox(-1.5F, -3.0F, -2.5F, 5.0F, 3.0F, 5.0F, new CubeDeformation(-0.4F)), PartPose.offset(4.4F, 2.0F, 0.0F))
 				.addOrReplaceChild("left_forearm", CubeListBuilder.create().mirror()
-						.texOffs(32, 80).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, snug)
-						.texOffs(44, 80).addBox(-1.5F, 0.5F, -2.0F, 4.0F, 4.0F, 4.0F), PartPose.offset(0.0F, ELBOW, 0.0F));
+						.texOffs(32, 80).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, new CubeDeformation(-0.25F, 0.0F, -0.25F))
+						.texOffs(44, 80).addBox(-1.5F, 0.5F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(-0.4F, 0.0F, -0.4F)), PartPose.offset(0.0F, ELBOW, 0.0F));
 		// The sword in his fist, its blade along -Z: the grip, the pommel behind, the cross-guard, a long narrow blade and
 		// its point.
 		leftForearm.addOrReplaceChild("sword", CubeListBuilder.create()
@@ -133,17 +137,17 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				PartPose.offset(0.5F, HAND, 0.0F));
 		// Legs bending at the knee, tall boots with a cuff and a toe.
 		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
-				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(-2.0F, HIP, 0.0F))
+				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg), PartPose.offset(-1.7F, HIP, 0.0F))
 				.addOrReplaceChild("right_shin", CubeListBuilder.create()
-						.texOffs(16, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F)
-						.texOffs(32, 92).addBox(-2.5F, -0.5F, -2.5F, 5.0F, 3.0F, 5.0F)
-						.texOffs(52, 92).addBox(-2.0F, 5.0F, -3.0F, 4.0F, 1.0F, 1.0F), PartPose.offset(0.0F, KNEE, 0.0F));
+						.texOffs(16, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg)
+						.texOffs(32, 92).addBox(-2.5F, -0.5F, -2.5F, 5.0F, 3.0F, 5.0F, thinCuff)
+						.texOffs(52, 92).addBox(-2.0F, 5.0F, -2.6F, 4.0F, 1.0F, 1.0F, new CubeDeformation(-0.6F, 0.0F, 0.0F)), PartPose.offset(0.0F, KNEE, 0.0F));
 		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror()
-				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(2.0F, HIP, 0.0F))
+				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg), PartPose.offset(1.7F, HIP, 0.0F))
 				.addOrReplaceChild("left_shin", CubeListBuilder.create().mirror()
-						.texOffs(16, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F)
-						.texOffs(32, 92).addBox(-2.5F, -0.5F, -2.5F, 5.0F, 3.0F, 5.0F)
-						.texOffs(52, 92).addBox(-2.0F, 5.0F, -3.0F, 4.0F, 1.0F, 1.0F), PartPose.offset(0.0F, KNEE, 0.0F));
+						.texOffs(16, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg)
+						.texOffs(32, 92).addBox(-2.5F, -0.5F, -2.5F, 5.0F, 3.0F, 5.0F, thinCuff)
+						.texOffs(52, 92).addBox(-2.0F, 5.0F, -2.6F, 4.0F, 1.0F, 1.0F, new CubeDeformation(-0.6F, 0.0F, 0.0F)), PartPose.offset(0.0F, KNEE, 0.0F));
 		return LayerDefinition.create(mesh, 128, 128);
 	}
 
@@ -193,8 +197,9 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				step(keys(t, times, 0.0F, 0.2F, 0.9F, 0.6F, 0.9F, 0.5F, 0.0F), false);
 			}
 			case ORANGE -> {
-				// Swung far out behind him to the left, crouched, then one wide flat sweep across the front.
-				float[] times = {0, 10, 15, 16, 19, 26};
+				// Swung far out behind him to the left as he runs in, then one wide flat sweep across the front.
+				float hit = KoscheiAction.ORANGE_HIT;
+				float[] times = {0, hit - 4, hit - 1, hit, hit + 3, KoscheiAction.ORANGE.length()};
 				leftArm.xRot = keys(t, times, restL, -1.3F, -1.35F, -1.4F, -1.3F, restL);
 				leftArm.yRot = keys(t, times, 0.0F, 1.25F, 1.35F, -0.9F, -1.1F, 0.0F);
 				leftArm.zRot = keys(t, times, restLz, -0.5F, -0.55F, -0.2F, -0.2F, restLz);
@@ -260,7 +265,35 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				rightArm.zRot = Mth.lerp(tuck, restRz, 0.6F);
 				leftArm.zRot = Mth.lerp(tuck, restLz, -0.4F);
 			}
-			case PARRY_ARROW, BLOCK -> {
+			case BLOCK -> {
+				// The sword held across where the blow comes: high or low, to his left or right; a jolt as it lands.
+				float length = state.action.length();
+				float out = keys(t, new float[] {0, 1.0F, length - 3, length}, 0.0F, 1.0F, 1.0F, 0.0F);
+				float jolt = keys(t, new float[] {0, 1.0F, 2.5F, 4.0F}, 0.0F, 0.0F, 1.0F, 0.0F);
+				float h = Math.clamp((state.guardHeight - 0.25F) / 0.7F, 0.0F, 1.0F);
+				float side = state.guardSide;
+				leftArm.xRot = Mth.lerp(out, restL, Mth.lerp(h, -0.7F, -2.3F) + 0.08F * jolt);
+				leftArm.yRot = Mth.lerp(out, 0.0F, 0.15F + 0.55F * side);
+				leftArm.zRot = Mth.lerp(out, restLz, -0.1F);
+				leftForearm.xRot = Mth.lerp(out, restFl, Mth.lerp(h, -0.9F, -0.4F));
+				// Upright before his chest, tipped flat over his head, point down to cover his legs.
+				sword.xRot = Mth.lerp(out, restS, Mth.lerp(h, -0.3F, 0.5F));
+				sword.zRot = out * (h > 0.75F ? 1.3F : 0.35F) * (side >= 0.0F ? 1.0F : -1.0F) + 0.06F * jolt;
+				body.yRot = 0.25F * side * out;
+				step(0.4F * out, false);
+			}
+			case KICK -> {
+				// A step in, the knee drawn up, the boot driven out at the shield, leaning back; then the foot down again.
+				float hit = KoscheiAction.KICK_HIT;
+				float[] times = {0, hit - 3, hit, hit + 2, KoscheiAction.KICK.length()};
+				rightLeg.xRot = keys(t, times, rightLeg.xRot, -1.1F, -1.5F, -1.4F, 0.0F);
+				rightShin.xRot = keys(t, times, rightShin.xRot, 1.5F, 0.05F, 0.1F, 0.0F);
+				body.xRot += keys(t, times, 0.0F, -0.1F, -0.25F, -0.2F, 0.0F);
+				rightArm.zRot = keys(t, times, restRz, 0.5F, 0.7F, 0.6F, restRz);
+				leftArm.yRot = keys(t, times, 0.0F, 0.3F, 0.4F, 0.4F, 0.0F);
+				leftArm.zRot = keys(t, times, restLz, -0.3F, -0.4F, -0.35F, restLz);
+			}
+			case PARRY_ARROW -> {
 				// A flick of the blade across the body.
 				float length = state.action.length();
 				float out = keys(t, new float[] {0, 1.5F, length - 3, length}, 0.0F, 1.0F, 1.0F, 0.0F);
