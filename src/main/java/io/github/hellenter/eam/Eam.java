@@ -47,6 +47,7 @@ import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerFoodModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerRepairModule;
@@ -162,6 +163,7 @@ public class Eam implements ModInitializer {
 		VillagerGearModule.register();
 		VillagerGuardModule.register();
 		VillagerRepairModule.register();
+		VillagerFoodModule.register();
 		EnchantingModule.register();
 		ShieldModule.register();
 		SafeRoomModule.register();
@@ -221,6 +223,7 @@ public class Eam implements ModInitializer {
 		if (config.villagerGear()) VillagerGearModule.init();
 		if (config.villagerGear() && config.villagerGuards()) VillagerGuardModule.init();
 		if (config.villagerGear() && config.villagerRepair()) VillagerRepairModule.init();
+		if (config.villagerGear() && config.villagerFood()) VillagerFoodModule.init();
 		if (config.enchanting()) ShieldModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
