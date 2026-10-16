@@ -506,6 +506,14 @@ public final class FallenLordLogic {
 	}
 
 	/**
+	 * Whether he climbs a ledge that rises {@code rise} blocks above his feet while backing away from the player: a
+	 * real step up, no higher than {@code max}.
+	 */
+	public static boolean canClimbBack(double rise, double max) {
+		return rise > 0.05 && rise <= max + 1.0E-4;
+	}
+
+	/**
 	 * Upward speed a jump needs to rise {@code height} blocks, under mob gravity and air drag: at least the plain
 	 * jump's.
 	 */

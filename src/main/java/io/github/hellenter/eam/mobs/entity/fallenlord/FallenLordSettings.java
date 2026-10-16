@@ -189,10 +189,11 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 	 * @param firstSecondHeal  health the first second of a drink restores; then {@code healPerSecond} takes over
 	 * @param minGap           ticks from the start of one drink to the next, at least; unlike {@code cooldown} nothing
 	 *                         resets it, not even a burst of damage
+	 * @param climbBack        backing away into a ledge or wall at most this high (in blocks), he climbs onto it
 	 */
 	public record Regen(double healthBelow, float healPerSecond, float maxHeal, int usesPerPhase, int cooldown, float counterDamage,
-			float counterKnockback, double retreat, double keepAway, float firstSecondHeal, int minGap) {
-		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F, 8.5, 9.0, 12.5F, 250);
+			float counterKnockback, double retreat, double keepAway, float firstSecondHeal, int minGap, double climbBack) {
+		public static final Regen DEFAULT = new Regen(0.5, 7.5F, 45.0F, 2, 800, 4.0F, 2.5F, 8.5, 9.0, 12.5F, 250, 1.5);
 
 		public static final Codec<Regen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.0, 1.0).fieldOf("health_below").orElse(DEFAULT.healthBelow).forGetter(Regen::healthBelow),
@@ -206,7 +207,8 @@ public record FallenLordSettings(int armor, double physicalResistance, double re
 				Codec.doubleRange(0.0, 32.0).fieldOf("keep_away").orElse(DEFAULT.keepAway).forGetter(Regen::keepAway),
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("first_second_heal").orElse(DEFAULT.firstSecondHeal)
 						.forGetter(Regen::firstSecondHeal),
-				ticks().fieldOf("min_gap").orElse(DEFAULT.minGap).forGetter(Regen::minGap)
+				ticks().fieldOf("min_gap").orElse(DEFAULT.minGap).forGetter(Regen::minGap),
+				Codec.doubleRange(0.0, 3.0).fieldOf("climb_back").orElse(DEFAULT.climbBack).forGetter(Regen::climbBack)
 		).apply(instance, Regen::new));
 	}
 
