@@ -159,4 +159,19 @@ public final class KoscheiLogic {
 	public static float damageTo(float damage, boolean player, float mobMultiplier) {
 		return player ? damage : damage * mobMultiplier;
 	}
+
+	/** He never lands a hop in closer than this to the target. */
+	public static final double HOP_IN_GAP = 2.0;
+
+	/**
+	 * How far a hop in at a target {@code distance} away goes: a random length between {@code min} and {@code max}, cut so it
+	 * lands {@link #HOP_IN_GAP} short of the target; 0 when that leaves less than {@code min}.
+	 *
+	 * @param roll uniform random in [0, 1)
+	 */
+	public static double hopInLength(double distance, double min, double max, double roll) {
+		double low = Math.min(min, max);
+		double length = Math.min(low + roll * (Math.max(min, max) - low), distance - HOP_IN_GAP);
+		return length >= low ? length : 0.0;
+	}
 }

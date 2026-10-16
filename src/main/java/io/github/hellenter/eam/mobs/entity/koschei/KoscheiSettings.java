@@ -283,9 +283,14 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param burstShare  losing more than this share of his health within {@code burstWindow} makes him leap back
 	 * @param burstWindow ticks the lost health is counted over
 	 * @param burstSpeed  speed of that leap
+	 * @param inChance    chance each tick he hops in at a target he is walking up to, as the Fallen Lord does
+	 * @param inFrom      he hops in only at a target at least this far away
+	 * @param inMin       shortest hop in, blocks
+	 * @param inMax       longest hop in, blocks; it never lands closer than a couple of blocks to the target
 	 */
-	public record Hop(int cooldown, float chance, double speed, float burstShare, int burstWindow, double burstSpeed) {
-		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1);
+	public record Hop(int cooldown, float chance, double speed, float burstShare, int burstWindow, double burstSpeed, float inChance, double inFrom,
+			double inMin, double inMax) {
+		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1, 0.06F, 4.5, 2.0, 3.5);
 
 		public static final Codec<Hop> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Hop::cooldown),
@@ -293,7 +298,11 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Codec.doubleRange(0.0, 4.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Hop::speed),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("burst_share").orElse(DEFAULT.burstShare).forGetter(Hop::burstShare),
 				Codec.intRange(1, 24000).fieldOf("burst_window").orElse(DEFAULT.burstWindow).forGetter(Hop::burstWindow),
-				Codec.doubleRange(0.0, 4.0).fieldOf("burst_speed").orElse(DEFAULT.burstSpeed).forGetter(Hop::burstSpeed)
+				Codec.doubleRange(0.0, 4.0).fieldOf("burst_speed").orElse(DEFAULT.burstSpeed).forGetter(Hop::burstSpeed),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("in_chance").orElse(DEFAULT.inChance).forGetter(Hop::inChance),
+				Codec.doubleRange(0.0, 64.0).fieldOf("in_from").orElse(DEFAULT.inFrom).forGetter(Hop::inFrom),
+				Codec.doubleRange(0.0, 16.0).fieldOf("in_min").orElse(DEFAULT.inMin).forGetter(Hop::inMin),
+				Codec.doubleRange(0.0, 16.0).fieldOf("in_max").orElse(DEFAULT.inMax).forGetter(Hop::inMax)
 		).apply(instance, Hop::new));
 	}
 }

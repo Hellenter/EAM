@@ -137,6 +137,8 @@ public class Koschei extends Monster {
 	/** Times in a row the target stood too close for a lunge he wanted. */
 	private int lungeFails;
 	private int hopCooldown;
+	/** Speed of the hop under way, blocks per tick. */
+	private double hopSpeed;
 	private int teleportCooldown;
 	/** Damage he took lately: when and how much, oldest first. */
 	private final ArrayDeque<Hit> recentHits = new ArrayDeque<>();
@@ -552,8 +554,7 @@ public class Koschei extends Monster {
 			}
 			case HOP -> {
 				if (t < HOP_PUSH_TICKS && !horizontalCollision) {
-					double speed = settings().hop().speed();
-					setDeltaMovement(rushDirection.x * speed, t == 0 ? HOP_LIFT : getDeltaMovement().y, rushDirection.z * speed);
+					setDeltaMovement(rushDirection.x * hopSpeed, t == 0 ? HOP_LIFT : getDeltaMovement().y, rushDirection.z * hopSpeed);
 				}
 			}
 			default -> {
@@ -793,12 +794,12 @@ public class Koschei extends Monster {
 			clearBolt();
 			return;
 		}
-		// Each one it loses (out of range, out of sight, dead) is let go.
-		if (boltTargets.removeIf(struck -> !struck.isAlive() || !holdsBolt(struck, bolt))) {
+		// Each one it loses (out of range, out of sight, dead) is let go, and so is each one who raises a shield to it.
+		Vec3 tip = swordTip();
+		if (boltTargets.removeIf(struck -> !struck.isAlive() || !holdsBolt(struck, bolt) || shieldsBolt(level, struck, tip))) {
 			syncBolt();
 		}
 		boolean pulse = (t - KoscheiAction.BOLT_RELEASE) % bolt.pulse() == 0;
-		Vec3 tip = swordTip();
 		for (LivingEntity struck : boltTargets) {
 			if (t % 4 == 0) {
 				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 0.5F,
@@ -808,11 +809,6 @@ public class Koschei extends Monster {
 				continue;
 			}
 			level.sendParticles(ParticleTypes.ELECTRIC_SPARK, struck.getX(), struck.getY(0.6), struck.getZ(), 8, 0.3, 0.4, 0.3, 0.2);
-			if (blockingShieldFrom(struck, tip) != null) {
-				// The shield takes the lightning.
-				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 0.8F, 1.5F);
-				continue;
-			}
 			struck.damageCooldownTime = 0;
 			strike(level, struck, damageSources().source(KoscheiModule.LIGHTNING_DAMAGE, this),
 					KoscheiLogic.boltPulse(bolt.damagePerSecond(), bolt.pulse()), 0.0F);
@@ -820,6 +816,26 @@ public class Koschei extends Monster {
 				struck.addEffect(new MobEffectInstance(KoscheiModule.CONVULSIONS, KoscheiAction.BOLT_END - t, 0, false, true, true), this);
 			}
 		}
+	}
+
+	/**
+	 * Whether {@code struck} holds a shield up to the lightning: then it breaks off them for the rest of the bolt and the
+	 * convulsions stop. Any shield turned his way counts, since the convulsions keep jerking the view about.
+	 */
+	private boolean shieldsBolt(ServerLevel level, LivingEntity struck, Vec3 tip) {
+		ItemStack shield = struck.getItemBlockingWith();
+		if (shield == null || !shield.has(DataComponents.BLOCKS_ATTACKS)) {
+			return false;
+		}
+		Vec3 look = horizontal(struck.getLookAngle());
+		if (look.dot(horizontal(tip.subtract(struck.position()))) < 0.0) {
+			return false;
+		}
+		struck.removeEffect(KoscheiModule.CONVULSIONS);
+		level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 1.5F);
+		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, struck.getX() + look.x * 0.6, struck.getY(0.6), struck.getZ() + look.z * 0.6, 14, 0.2, 0.3,
+				0.2, 0.25);
+		return true;
 	}
 
 	/** Whether his lightning reaches {@code entity}: in range and in sight. */
@@ -908,10 +924,15 @@ public class Koschei extends Monster {
 
 	/** A short hop the given way, flat. */
 	void hop(Vec3 direction, @Nullable LivingEntity target) {
+		hop(direction, target, settings().hop().speed());
+	}
+
+	private void hop(Vec3 direction, @Nullable LivingEntity target, double speed) {
 		if (!onGround() || direction.lengthSqr() < 1.0E-6) {
 			return;
 		}
 		hopCooldown = settings().hop().cooldown();
+		hopSpeed = speed;
 		rushDirection = direction.normalize();
 		actionTarget = target;
 		setAction(KoscheiAction.HOP);
@@ -925,6 +946,16 @@ public class Koschei extends Monster {
 		double roll = random.nextDouble();
 		Vec3 direction = roll < 0.35 ? side : roll < 0.7 ? side.scale(-1.0) : away;
 		hop(direction.add(away.scale(0.3)), target);
+	}
+
+	/** A short hop in at the target he walks up to, as the Fallen Lord's, landing a couple of blocks short of it. */
+	void hopIn(LivingEntity target) {
+		KoscheiSettings.Hop hop = settings().hop();
+		double length = KoscheiLogic.hopInLength(horizontalDistanceTo(target), hop.inMin(), hop.inMax(), random.nextDouble());
+		if (length > 0.0) {
+			getNavigation().stop();
+			hop(horizontal(target.position().subtract(position())), target, length / HOP_PUSH_TICKS);
+		}
 	}
 
 	private void leapBack(Vec3 from) {
