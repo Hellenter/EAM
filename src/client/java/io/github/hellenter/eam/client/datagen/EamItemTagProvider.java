@@ -15,6 +15,7 @@ import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
@@ -36,6 +37,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.Items;
 
 import java.util.Arrays;
@@ -84,6 +86,19 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key(),
 				Items.MELON_SLICE.builtInRegistryHolder().key(), Items.SWEET_BERRIES.builtInRegistryHolder().key(),
 				Items.COCOA_BEANS.builtInRegistryHolder().key(), EamItems.GARLIC.builtInRegistryHolder().key());
+		builder(VillagerGearModule.WEAPONS).forceAddTag(ItemTags.SWORDS).forceAddTag(ItemTags.AXES).forceAddTag(ItemTags.SPEARS)
+				.add(Items.MACE.builtInRegistryHolder().key(), Items.TRIDENT.builtInRegistryHolder().key(),
+						Items.BOW.builtInRegistryHolder().key(), Items.CROSSBOW.builtInRegistryHolder().key());
+		builder(VillagerGearModule.OFF_HAND).add(Items.SHIELD.builtInRegistryHolder().key());
+		builder(VillagerGearModule.toolsTag(VillagerProfession.FARMER)).forceAddTag(ItemTags.HOES);
+		builder(VillagerGearModule.toolsTag(VillagerProfession.MASON)).forceAddTag(ItemTags.PICKAXES);
+		builder(VillagerGearModule.toolsTag(VillagerProfession.FISHERMAN)).add(Items.FISHING_ROD.builtInRegistryHolder().key());
+		builder(VillagerGearModule.toolsTag(VillagerProfession.SHEPHERD)).add(Items.SHEARS.builtInRegistryHolder().key());
+		var butcherTools = builder(VillagerGearModule.toolsTag(VillagerProfession.BUTCHER));
+		CraftingTags.KNIFE_TIERS.forEach(butcherTools::forceAddTag);
+		builder(VillagerGearModule.toolsTag(VillagerProfession.ARMORER)).forceAddTag(ForgingTags.HAMMERS);
+		builder(VillagerGearModule.toolsTag(VillagerProfession.TOOLSMITH)).forceAddTag(ForgingTags.HAMMERS);
+		builder(VillagerGearModule.toolsTag(VillagerProfession.WEAPONSMITH)).forceAddTag(ForgingTags.HAMMERS);
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

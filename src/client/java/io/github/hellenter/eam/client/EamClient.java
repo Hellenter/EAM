@@ -71,7 +71,11 @@ import io.github.hellenter.eam.client.mobs.fallenlord.LordShieldRenderer;
 import io.github.hellenter.eam.client.mobs.fallenlord.LordSpearRenderer;
 import io.github.hellenter.eam.content.EamBlockEntities;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.client.mobs.villager.VillagerFigureModel;
+import io.github.hellenter.eam.client.mobs.villager.VillagerFigureRenderer;
+import io.github.hellenter.eam.client.mobs.villager.VillagerGearScreen;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
@@ -97,6 +101,7 @@ import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 
@@ -113,6 +118,11 @@ public class EamClient implements ClientModInitializer {
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.LAYER, VillagerFigureModel::createLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.NO_HAT_LAYER, VillagerFigureModel::createNoHatLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_LAYER, VillagerFigureModel::createBabyLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_NO_HAT_LAYER, VillagerFigureModel::createBabyNoHatLayer);
+		EntityRendererRegistry.register(EntityTypes.VILLAGER, VillagerFigureRenderer::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordModel.LAYER, FallenLordModel::createLayer);
 		ParticleProviderRegistry.getInstance().register(EamParticles.HEAVY_WAVE, HeavyWaveParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
@@ -207,6 +217,7 @@ public class EamClient implements ClientModInitializer {
 		// The silver stand's menu has the vanilla layout: the vanilla brewing screen draws it, plus a recipe book.
 		MenuScreens.<BrewingStandMenu, SilverBrewingStandScreen>register(BrewingModule.MENU, SilverBrewingStandScreen::new);
 		MenuScreens.register(FeederModule.MENU, FeederScreen::new);
+		MenuScreens.register(VillagerGearModule.MENU, VillagerGearScreen::new);
 		MenuScreens.register(FridgeModule.MENU, FridgeScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();
