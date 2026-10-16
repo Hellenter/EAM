@@ -558,4 +558,15 @@ class FallenLordLogicTest {
 		assertEquals(regen.maxHeal(), healed, 1.0E-3);
 		assertEquals(0.0F, FallenLordLogic.drinkHeal(tick, healed, regen), 1.0E-6);
 	}
+
+	@Test
+	void climbsBackOntoLedgesUpToTheLimit() {
+		double max = SETTINGS.regen().climbBack();
+		assertEquals(1.5, max);
+		assertTrue(FallenLordLogic.canClimbBack(0.5, max));
+		assertTrue(FallenLordLogic.canClimbBack(1.0, max));
+		assertTrue(FallenLordLogic.canClimbBack(1.5, max));
+		assertFalse(FallenLordLogic.canClimbBack(2.0, max));
+		assertFalse(FallenLordLogic.canClimbBack(0.0, max));
+	}
 }
