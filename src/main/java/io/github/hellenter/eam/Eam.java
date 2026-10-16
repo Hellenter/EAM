@@ -73,6 +73,7 @@ import io.github.hellenter.eam.world.structures.mine.UnderworldMineModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageModule;
+import io.github.hellenter.eam.world.shield.ShieldModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.tools.EarlyToolsModule;
@@ -154,6 +155,7 @@ public class Eam implements ModInitializer {
 		BrewingModule.register();
 		FarmingModule.register();
 		EnchantingModule.register();
+		ShieldModule.register();
 		SafeRoomModule.register();
 		BloodMoonModule.register();
 		BlueMoonModule.register();
@@ -207,6 +209,7 @@ public class Eam implements ModInitializer {
 		if (config.foodSpoilage()) SpoilageModule.init();
 		if (config.mithril()) MithrilModule.init();
 		if (config.enchanting()) EnchantingModule.init();
+		if (config.enchanting()) ShieldModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
 		if (config.blueMoon()) BlueMoonModule.init();
