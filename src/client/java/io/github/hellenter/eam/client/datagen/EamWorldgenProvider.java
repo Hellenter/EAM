@@ -82,8 +82,9 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int ADAMANTIUM_VEIN_SIZE = 4;
 	/** Most adamantium touching air is gone: it is found by digging, not by looking at cave walls. */
 	private static final float ADAMANTIUM_DISCARD_ON_AIR = 0.7F;
-	private static final int WILD_GARLIC_RARITY = 12;
-	private static final int WILD_GARLIC_TRIES = 16;
+	private static final int WILD_GARLIC_RARITY = 8;
+	private static final int WILD_GARLIC_MIN_BUSHES = 1;
+	private static final int WILD_GARLIC_MAX_BUSHES = 3;
 
 	public EamWorldgenProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -161,14 +162,14 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				InSquarePlacement.spread(),
 				HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)),
 				BiomeFilter.biome()));
-		// A patch of up to a dozen plants once in 12 chunks on average, wherever the plant can root.
+		// A small group of one to three bushes once in 8 chunks on average, wherever the plant can root.
 		PlacementUtils.register(context, EamWorldgen.WILD_GARLIC_PATCH, features.getOrThrow(EamWorldgen.WILD_GARLIC), List.of(
 				RarityFilter.onAverageOnceEvery(WILD_GARLIC_RARITY),
 				InSquarePlacement.spread(),
 				PlacementUtils.HEIGHTMAP_NO_LEAVES,
 				BiomeFilter.biome(),
-				CountPlacement.of(WILD_GARLIC_TRIES),
-				OffsetPlacement.ofTriangle(4, 2),
+				CountPlacement.of(UniformInt.of(WILD_GARLIC_MIN_BUSHES, WILD_GARLIC_MAX_BUSHES)),
+				OffsetPlacement.ofTriangle(2, 1),
 				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.wouldSurvive(EamBlocks.WILD_GARLIC)))));
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_PLACED, silver, silverOre());

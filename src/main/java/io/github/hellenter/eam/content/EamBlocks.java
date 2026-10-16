@@ -312,7 +312,7 @@ public final class EamBlocks {
 	/** Garlic growing on farmland, planted from a garlic bulb. */
 	public static final Block GARLIC_CROP = register("garlic_crop", GarlicCropBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.PLANT).noCollision().randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.POPPED));
-	/** Wild garlic (ramsons) in plains and forests: the only source of garlic bulbs before the first harvest. */
+	/** Wild garlic bush in forests: the only source of garlic bulbs before the first harvest. */
 	public static final Block WILD_GARLIC = register("wild_garlic", p -> new BushBlock(p, 10), plant().replaceable()
 			.offsetType(BlockBehaviour.OffsetType.XZ));
 
