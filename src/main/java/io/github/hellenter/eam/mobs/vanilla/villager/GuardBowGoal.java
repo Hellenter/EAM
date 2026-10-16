@@ -87,5 +87,6 @@ final class GuardBowGoal extends Goal {
 		double distance = Math.sqrt(dx * dx + dz * dz);
 		Projectile.spawnProjectileUsingShoot(arrow, level, projectile, dx, dy + distance * 0.2, dz, 1.6F, 6.0F);
 		villager.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (villager.getRandom().nextFloat() * 0.4F + 0.8F));
+		VillagerRepairModule.afterShot(villager);
 	}
 }

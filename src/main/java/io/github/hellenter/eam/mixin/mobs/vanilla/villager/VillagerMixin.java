@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerRepairModule;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +19,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** A villager who takes up a trade gets its work item; a guard's brain waits while he fights. */
+/**
+ * A villager who takes up a trade gets its work item; his gear gets mended now and then; a guard's brain waits while
+ * he fights.
+ */
 @Mixin(Villager.class)
 abstract class VillagerMixin {
 	@Inject(method = "setVillagerData", at = @At("TAIL"))
@@ -30,5 +34,10 @@ abstract class VillagerMixin {
 			target = "Lnet/minecraft/world/entity/ai/Brain;tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;)V"))
 	private void eam$waitWhileFighting(Brain<?> brain, ServerLevel level, LivingEntity body, Operation<Void> original) {
 		if (VillagerGuardModule.thinks((Villager) (Object) this)) original.call(brain, level, body);
+	}
+
+	@Inject(method = "customServerAiStep", at = @At("HEAD"))
+	private void eam$mendGear(ServerLevel level, CallbackInfo ci) {
+		VillagerRepairModule.tick((Villager) (Object) this, level);
 	}
 }
