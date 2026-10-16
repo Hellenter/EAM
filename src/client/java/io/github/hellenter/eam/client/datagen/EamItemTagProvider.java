@@ -104,6 +104,14 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		var clericGoods = builder(VillagerGearModule.goodsTag(VillagerProfession.CLERIC));
 		ClericSettings.DEFAULT.potions().keySet().stream().map(item -> item.builtInRegistryHolder().key())
 				.sorted(Comparator.comparing(key -> key.identifier().toString())).forEach(clericGoods::add);
+		var elderGoods = builder(VillagerGearModule.goodsTag(VillagerProfession.CARTOGRAPHER))
+				.forceAddTag(ItemTags.HEAD_ARMOR).forceAddTag(ItemTags.CHEST_ARMOR).forceAddTag(ItemTags.LEG_ARMOR).forceAddTag(ItemTags.FOOT_ARMOR)
+				.forceAddTag(VillagerGearModule.WEAPONS).forceAddTag(VillagerGearModule.OFF_HAND)
+				.forceAddTag(VillagerGearModule.goodsTag(VillagerProfession.CLERIC));
+		for (var profession : List.of(VillagerProfession.FARMER, VillagerProfession.MASON, VillagerProfession.FISHERMAN, VillagerProfession.SHEPHERD,
+				VillagerProfession.BUTCHER, VillagerProfession.ARMORER, VillagerProfession.TOOLSMITH, VillagerProfession.WEAPONSMITH)) {
+			elderGoods.forceAddTag(VillagerGearModule.toolsTag(profession));
+		}
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

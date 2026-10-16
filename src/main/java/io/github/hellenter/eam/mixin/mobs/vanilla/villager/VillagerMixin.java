@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerButcherModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerClericModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerElderModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerFoodModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
@@ -45,5 +46,6 @@ abstract class VillagerMixin {
 		VillagerFoodModule.tick((Villager) (Object) this, level);
 		VillagerButcherModule.tick((Villager) (Object) this, level);
 		VillagerClericModule.tick((Villager) (Object) this, level);
+		VillagerElderModule.tick((Villager) (Object) this, level);
 	}
 }

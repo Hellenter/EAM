@@ -41,7 +41,8 @@ public class EamVillagerWorkProvider extends FabricCodecDataProvider<VillagerWor
 		only(provider, VillagerProfession.LIBRARIAN, Items.BOOK);
 		provider.accept(VillagerProfession.CLERIC.identifier(), new VillagerWork(Items.GLASS_BOTTLE, Optional.empty(),
 				Optional.of(VillagerGearModule.goodsTag(VillagerProfession.CLERIC))));
-		only(provider, VillagerProfession.CARTOGRAPHER, Items.MAP);
+		provider.accept(VillagerProfession.CARTOGRAPHER.identifier(), new VillagerWork(Items.MAP, Optional.empty(),
+				Optional.of(VillagerGearModule.goodsTag(VillagerProfession.CARTOGRAPHER))));
 		only(provider, VillagerProfession.LEATHERWORKER, Items.LEATHER);
 		only(provider, VillagerProfession.FLETCHER, Items.ARROW);
 	}
