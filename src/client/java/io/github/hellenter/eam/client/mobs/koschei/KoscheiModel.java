@@ -68,10 +68,12 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		CubeDeformation thinPlate = new CubeDeformation(-0.8F, 0.0F, 0.0F);
 		CubeDeformation thinLeg = new CubeDeformation(-0.6F, 0.0F, -0.5F);
 		CubeDeformation thinCuff = new CubeDeformation(-0.6F, 0.0F, -0.6F);
-		// A long bald skull, a hooked nose, a heavy brow over sunken eyes, thin ears. The crown: a ring of four plates round
+		// A long bald skull, a hooked nose, a heavy brow over sunken eyes, thin ears; under the cheekbones a narrow jaw with
+		// hollow cheeks, so the face is gaunt. The crown: a ring of four plates round
 		// the head and spikes rising from it, tallest in front.
 		PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create()
-				.texOffs(0, 0).addBox(-4.0F, -9.0F, -4.0F, 8.0F, 9.0F, 8.0F)
+				.texOffs(0, 0).addBox(-4.0F, -9.0F, -4.0F, 8.0F, 6.0F, 8.0F)
+				.texOffs(76, 0).addBox(-3.0F, -3.0F, -4.0F, 6.0F, 4.0F, 6.0F)
 				.texOffs(32, 0).addBox(-0.5F, -5.5F, -5.0F, 1.0F, 2.0F, 1.0F)
 				.texOffs(36, 0).addBox(-3.5F, -6.0F, -4.6F, 7.0F, 1.0F, 1.0F)
 				.texOffs(32, 4).addBox(-4.6F, -6.0F, -0.5F, 1.0F, 2.0F, 1.0F)
