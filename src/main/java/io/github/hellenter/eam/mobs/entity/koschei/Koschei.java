@@ -66,7 +66,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -85,7 +89,14 @@ public class Koschei extends Monster {
 	/** The phase he fights in, from 1. */
 	private static final EntityDataAccessor<Byte> DATA_PHASE = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
 	/** Id of the entity his lightning holds on, or -1. */
-	private static final EntityDataAccessor<Integer> DATA_BOLT_TARGET = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT);
+	/** Ids of the entities his lightning holds on, -1 for an empty slot: every player in his sight when he looses it. */
+	@SuppressWarnings("unchecked")
+	private static final EntityDataAccessor<Integer>[] DATA_BOLT_TARGETS = new EntityDataAccessor[] {
+			SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT),
+			SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT),
+			SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT),
+			SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT)
+	};
 	/** His lunge just knocked a shield out: a hit now parries him. The client lights his eyes yellow. */
 	private static final EntityDataAccessor<Boolean> DATA_PARRY_OPEN = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
 	/** Where the blow he turns aside comes at him, packed by {@link #packGuard}; the client holds the sword there. */
@@ -104,6 +115,8 @@ public class Koschei extends Monster {
 	/** He runs at the target this fast while he winds up the orange blow, and it reaches this much further. */
 	private static final double ORANGE_CHASE_SPEED = 0.42;
 	private static final double ORANGE_REACH_BONUS = 0.6;
+	/** The burst still catches the one he casts at this much further than its range. */
+	private static final double FORCE_AIMED_SLACK = 3.0;
 	/** He walks in this fast while the sword is raised over his head. */
 	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
@@ -131,7 +144,9 @@ public class Koschei extends Monster {
 	private Vec3 rushDirection = Vec3.ZERO;
 	private boolean actionHit;
 	/** The bolt has burnt the target already: the convulsions are on. */
-	private boolean boltLanded;
+	private final List<LivingEntity> boltTargets = new ArrayList<>();
+	/** Ids of those the bolt has burnt already: their convulsions are on. */
+	private final Set<Integer> boltLanded = new HashSet<>();
 	/** The player whose shield his lunge just knocked out, and the game time until which their hit parries him. */
 	private @Nullable UUID parryPlayer;
 	private long parryUntil;
@@ -173,7 +188,9 @@ public class Koschei extends Monster {
 		super.defineSynchedData(builder);
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_PHASE, (byte) 1);
-		builder.define(DATA_BOLT_TARGET, -1);
+		for (EntityDataAccessor<Integer> slot : DATA_BOLT_TARGETS) {
+			builder.define(slot, -1);
+		}
 		builder.define(DATA_PARRY_OPEN, false);
 		builder.define(DATA_GUARD, packGuard(0.6F, 0.0F));
 	}
@@ -236,9 +253,16 @@ public class Koschei extends Monster {
 	}
 
 	/** Client: what his lightning holds on, or null. */
-	public @Nullable Entity boltTarget() {
-		int id = entityData.get(DATA_BOLT_TARGET);
-		return id < 0 ? null : level().getEntity(id);
+	public List<Entity> boltTargets() {
+		List<Entity> targets = new ArrayList<>();
+		for (EntityDataAccessor<Integer> slot : DATA_BOLT_TARGETS) {
+			int id = entityData.get(slot);
+			Entity entity = id < 0 ? null : level().getEntity(id);
+			if (entity != null) {
+				targets.add(entity);
+			}
+		}
+		return targets;
 	}
 
 	/** Client: whether a hit now parries him, after his lunge knocked a shield out. */
@@ -407,7 +431,8 @@ public class Koschei extends Monster {
 			}
 			case BOLT -> {
 				cooldowns[attack.ordinal()] = one.bolt().cooldown();
-				boltLanded = false;
+				boltLanded.clear();
+				clearBolt();
 				setAction(KoscheiAction.BOLT);
 			}
 			case MAKE_ROOM -> {
@@ -433,7 +458,7 @@ public class Koschei extends Monster {
 		setAction(KoscheiAction.NONE);
 		actionTarget = null;
 		idleTicks = 0;
-		entityData.set(DATA_BOLT_TARGET, -1);
+		clearBolt();
 	}
 
 	private void tickAction(ServerLevel level) {
@@ -512,7 +537,7 @@ public class Koschei extends Monster {
 				if (t == 0) {
 					playSound(SoundEvents.EVOKER_PREPARE_ATTACK, 1.5F, 0.7F);
 				} else if (t == KoscheiAction.FORCE_RELEASE) {
-					burst(level, one.force());
+					burst(level, target, one.force());
 				}
 			}
 			case BOLT -> tickBolt(level, t, target, one.bolt());
@@ -679,7 +704,14 @@ public class Koschei extends Monster {
 	}
 
 	/** The burst of force from his right hand: everyone in front of him is thrown back, less far behind a shield. */
-	private void burst(ServerLevel level, KoscheiSettings.Force force) {
+	private void burst(ServerLevel level, @Nullable LivingEntity target, KoscheiSettings.Force force) {
+		if (target != null) {
+			// Turned square on the one he casts at, so the burst does not go past them.
+			float yaw = (float) (Mth.atan2(target.getZ() - getZ(), target.getX() - getX()) * Mth.RAD_TO_DEG) - 90.0F;
+			setYRot(yaw);
+			setYBodyRot(yaw);
+			setYHeadRot(yaw);
+		}
 		Vec3 facing = Vec3.directionFromRotation(0.0F, getYRot());
 		Vec3 hand = rightHand();
 		level.playSound(null, getX(), getY(), getZ(), SoundEvents.BREEZE_WIND_CHARGE_BURST.value(), getSoundSource(), 2.0F, 0.5F);
@@ -691,11 +723,17 @@ public class Koschei extends Monster {
 					.normalize().scale(0.6 + random.nextDouble() * 0.5);
 			level.sendParticles(EamParticles.KOSCHEI_FORCE, hand.x, hand.y, hand.z, 0, dir.x, dir.y, dir.z, 1.0);
 		}
-		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(force.range(), 1.5, force.range()),
+		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(force.range() + FORCE_AIMED_SLACK, 2.5, force.range() + FORCE_AIMED_SLACK),
 				e -> e != this && e.isAlive() && !(e instanceof ArmorStand) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e))) {
 			Vec3 to = victim.position().subtract(position());
 			Vec3 flat = horizontal(to);
-			if (horizontalDistanceTo(victim) > force.range() + victim.getBbWidth() * 0.5 || flat.dot(facing) < 0.4 || !hasLineOfSight(victim)) {
+			if (flat == Vec3.ZERO) {
+				flat = facing;
+			}
+			// The one he casts at is caught unless a wall is between them, even a few steps out of range; others in front of him too.
+			boolean aimed = victim == target && horizontalDistanceTo(victim) <= force.range() + FORCE_AIMED_SLACK;
+			boolean inCone = horizontalDistanceTo(victim) <= force.range() + victim.getBbWidth() * 0.5 && flat.dot(facing) >= 0.4;
+			if (!(aimed || inCone) || !hasLineOfSight(victim)) {
 				continue;
 			}
 			boolean shield = blockingShield(victim) != null;
@@ -721,43 +759,81 @@ public class Koschei extends Monster {
 		if (t < KoscheiAction.BOLT_RELEASE) {
 			return;
 		}
-		boolean inRange = horizontalDistanceTo(target) <= bolt.maxRange() + BOLT_SLACK && hasLineOfSight(target);
 		if (t == KoscheiAction.BOLT_RELEASE) {
-			if (!inRange) {
+			// It leaps to every player in his sight at once, the target first.
+			if (holdsBolt(target, bolt)) {
+				boltTargets.add(target);
+			}
+			Vec3 facing = Vec3.directionFromRotation(0.0F, yBodyRot);
+			for (Player player : level.getEntitiesOfClass(Player.class, getBoundingBox().inflate(bolt.maxRange(), 6.0, bolt.maxRange()),
+					p -> p != target && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(p))) {
+				if (boltTargets.size() >= DATA_BOLT_TARGETS.length) {
+					break;
+				}
+				if (horizontalDistanceTo(player) <= bolt.maxRange() && horizontal(player.position().subtract(position())).dot(facing) >= 0.0
+						&& hasLineOfSight(player)) {
+					boltTargets.add(player);
+				}
+			}
+			if (boltTargets.isEmpty()) {
 				return;
 			}
-			entityData.set(DATA_BOLT_TARGET, target.getId());
-			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 1.5F, 1.4F);
+			syncBolt();
+			for (LivingEntity struck : boltTargets) {
+				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 1.5F, 1.4F);
+			}
 			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.TRIDENT_THUNDER.value(), getSoundSource(), 0.8F, 1.6F);
 		}
-		if (entityData.get(DATA_BOLT_TARGET) < 0) {
+		if (boltTargets.isEmpty()) {
 			return;
 		}
-		if (!inRange || t >= KoscheiAction.BOLT_END) {
-			entityData.set(DATA_BOLT_TARGET, -1);
+		if (t >= KoscheiAction.BOLT_END) {
+			clearBolt();
 			return;
 		}
-		if (t % 4 == 0) {
-			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 0.5F,
-					1.8F + random.nextFloat() * 0.2F);
+		// Each one it loses (out of range, out of sight, dead) is let go.
+		if (boltTargets.removeIf(struck -> !struck.isAlive() || !holdsBolt(struck, bolt))) {
+			syncBolt();
 		}
-		if ((t - KoscheiAction.BOLT_RELEASE) % bolt.pulse() != 0) {
-			return;
-		}
+		boolean pulse = (t - KoscheiAction.BOLT_RELEASE) % bolt.pulse() == 0;
 		Vec3 tip = swordTip();
-		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, target.getX(), target.getY(0.6), target.getZ(), 8, 0.3, 0.4, 0.3, 0.2);
-		if (blockingShieldFrom(target, tip) != null) {
-			// The shield takes the lightning.
-			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 0.8F, 1.5F);
-			return;
+		for (LivingEntity struck : boltTargets) {
+			if (t % 4 == 0) {
+				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 0.5F,
+						1.8F + random.nextFloat() * 0.2F);
+			}
+			if (!pulse) {
+				continue;
+			}
+			level.sendParticles(ParticleTypes.ELECTRIC_SPARK, struck.getX(), struck.getY(0.6), struck.getZ(), 8, 0.3, 0.4, 0.3, 0.2);
+			if (blockingShieldFrom(struck, tip) != null) {
+				// The shield takes the lightning.
+				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 0.8F, 1.5F);
+				continue;
+			}
+			struck.damageCooldownTime = 0;
+			strike(level, struck, damageSources().source(KoscheiModule.LIGHTNING_DAMAGE, this),
+					KoscheiLogic.boltPulse(bolt.damagePerSecond(), bolt.pulse()), 0.0F);
+			if (boltLanded.add(struck.getId())) {
+				struck.addEffect(new MobEffectInstance(KoscheiModule.CONVULSIONS, KoscheiAction.BOLT_END - t, 0, false, true, true), this);
+			}
 		}
-		target.damageCooldownTime = 0;
-		strike(level, target, damageSources().source(KoscheiModule.LIGHTNING_DAMAGE, this),
-				KoscheiLogic.boltPulse(bolt.damagePerSecond(), bolt.pulse()), 0.0F);
-		if (!boltLanded) {
-			boltLanded = true;
-			target.addEffect(new MobEffectInstance(KoscheiModule.CONVULSIONS, KoscheiAction.BOLT_END - t, 0, false, true, true), this);
+	}
+
+	/** Whether his lightning reaches {@code entity}: in range and in sight. */
+	private boolean holdsBolt(LivingEntity entity, KoscheiSettings.Bolt bolt) {
+		return horizontalDistanceTo(entity) <= bolt.maxRange() + BOLT_SLACK && hasLineOfSight(entity);
+	}
+
+	private void syncBolt() {
+		for (int i = 0; i < DATA_BOLT_TARGETS.length; i++) {
+			entityData.set(DATA_BOLT_TARGETS[i], i < boltTargets.size() ? boltTargets.get(i).getId() : -1);
 		}
+	}
+
+	private void clearBolt() {
+		boltTargets.clear();
+		syncBolt();
 	}
 
 	// ---- Teleport and hops ----
@@ -1017,7 +1093,7 @@ public class Koschei extends Monster {
 		}
 		setAction(KoscheiAction.STAGGER);
 		actionTarget = player;
-		entityData.set(DATA_BOLT_TARGET, -1);
+		clearBolt();
 		Vec3 away = horizontal(position().subtract(player.position()));
 		setDeltaMovement(away.x * 0.3, 0.1, away.z * 0.3);
 		level.playSound(null, getX(), getY(0.6), getZ(), EamSounds.FALLEN_LORD_PARRY, getSoundSource(), 2.0F, 0.9F);
