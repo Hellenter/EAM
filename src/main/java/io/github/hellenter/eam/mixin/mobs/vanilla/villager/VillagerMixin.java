@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mixin.mobs.vanilla.villager;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerFoodModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerRepairModule;
@@ -20,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * A villager who takes up a trade gets its work item; his gear gets mended now and then; a guard's brain waits while
- * he fights.
+ * A villager who takes up a trade gets its work item; now and then his gear gets mended and a fisherman catches fish;
+ * a guard's brain waits while he fights.
  */
 @Mixin(Villager.class)
 abstract class VillagerMixin {
@@ -37,7 +38,8 @@ abstract class VillagerMixin {
 	}
 
 	@Inject(method = "customServerAiStep", at = @At("HEAD"))
-	private void eam$mendGear(ServerLevel level, CallbackInfo ci) {
+	private void eam$tendGearAndFood(ServerLevel level, CallbackInfo ci) {
 		VillagerRepairModule.tick((Villager) (Object) this, level);
+		VillagerFoodModule.tick((Villager) (Object) this, level);
 	}
 }

@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.feeder;
 import com.mojang.serialization.Codec;
 
 import io.github.hellenter.eam.content.EamBlockEntities;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerFoodModule;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -349,12 +350,13 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 			points += stack.getCount() * foodPoints(stack);
 			if (stack.is(FeederModule.FEED)) crops.merge(stack.getItem(), stack.getCount(), Integer::sum);
 		}
+		int keep = settings.farmerKeepsPoints() + VillagerFoodModule.farmerKeeps(farmer, points);
 		int given = 0;
 		for (Map.Entry<Item, Integer> crop : crops.entrySet()) {
 			ItemStack sample = new ItemStack(crop.getKey());
 			int each = foodPoints(sample);
 			int seeds = sample.is(ItemTags.VILLAGER_PLANTABLE_SEEDS) ? settings.farmerKeepsSeeds() : 0;
-			int count = FeederLogic.farmerGives(crop.getValue(), each, points, settings.farmerKeepsPoints(), seeds);
+			int count = FeederLogic.farmerGives(crop.getValue(), each, points, keep, seeds);
 			int added = count > 0 ? add(crop.getKey(), count) : 0;
 			if (added <= 0) continue;
 			inventory.removeItemType(crop.getKey(), added);

@@ -23,6 +23,7 @@ import net.minecraft.world.item.equipment.Equippable;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,6 +47,8 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 	private final Container gear;
 	private final OpenData data;
 	private final @Nullable Villager villager;
+	private final Map<Item, Integer> feedBefore;
+	private final int pointsBefore;
 
 	/** Client side: an empty copy the server fills. */
 	public VillagerGearMenu(int containerId, Inventory inventory, OpenData data) {
@@ -57,6 +60,8 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 		this.gear = gear;
 		this.data = data;
 		this.villager = villager;
+		this.feedBefore = villager != null ? VillagerFoodModule.feed(villager) : Map.of();
+		this.pointsBefore = villager != null ? VillagerFoodModule.points(villager) : 0;
 		checkContainerSize(gear, VillagerGearContainer.SIZE);
 		for (int i = 0; i < VillagerGearContainer.ARMOR.length; i++) {
 			addSlot(new ArmorSlot(gear, i, VillagerGearContainer.ARMOR[i], ARMOR_ICONS[i]));
@@ -103,6 +108,12 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 	/** The villager, on the server only. */
 	@Nullable Villager villager() {
 		return villager;
+	}
+
+	@Override
+	public void removed(Player player) {
+		super.removed(player);
+		if (villager != null) VillagerFoodModule.afterGiving(villager, feedBefore, pointsBefore);
 	}
 
 	@Override
