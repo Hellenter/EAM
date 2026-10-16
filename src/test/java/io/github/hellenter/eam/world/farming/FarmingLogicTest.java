@@ -51,4 +51,16 @@ class FarmingLogicTest {
 		for (int tick = 0; tick < 400; tick++) aged += FarmingLogic.ageSteps(tick, slowdown, speed);
 		return aged;
 	}
+
+	@Test
+	void harvestAddsUpToItsBonus() {
+		// The random returns the highest value it may: bound - 1.
+		assertEquals(2, FarmingLogic.harvestExtra(2, bound -> bound - 1));
+		assertEquals(0, FarmingLogic.harvestExtra(2, bound -> 0));
+	}
+
+	@Test
+	void noHarvestBonusAddsNothing() {
+		assertEquals(0, FarmingLogic.harvestExtra(0, bound -> { throw new AssertionError("not rolled"); }));
+	}
 }

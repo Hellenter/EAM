@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import java.util.EnumSet;
 
 /**
- * Walks Koschei up to his target, sidesteps while in reach, hops aside now and then, vanishes to stand behind it and starts
+ * Walks Koschei up to his target, sidesteps while in reach, hops aside now and then and in at it from a few blocks off, vanishes to stand behind it and starts
  * his attacks.
  */
 final class KoscheiFightGoal extends Goal {
@@ -92,6 +92,13 @@ final class KoscheiFightGoal extends Goal {
 		}
 
 		if (distance > one.reach() - 0.4 || !sees) {
+			KoscheiSettings.Hop hop = settings.hop();
+			if (sees && distance >= hop.inFrom() && koschei.hopCooldown() <= 0 && Math.abs(target.getY() - koschei.getY()) < 1.5
+					&& koschei.getRandom().nextFloat() < hop.inChance()) {
+				// Closing in as the Fallen Lord does: a short hop at the target.
+				koschei.hopIn(target);
+				return;
+			}
 			if (koschei.tickCount % REPATH_INTERVAL == 0 || koschei.getNavigation().isDone()) {
 				koschei.getNavigation().moveTo(target, 1.0);
 			}

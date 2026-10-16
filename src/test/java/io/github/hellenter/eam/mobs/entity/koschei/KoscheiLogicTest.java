@@ -137,4 +137,12 @@ class KoscheiLogicTest {
 	void attackPauseFollowsTheAttackSpeed() {
 		assertEquals(11, KoscheiSettings.Stats.DEFAULT.attackPause());
 	}
+
+	@Test
+	void hopInLandsShortOfTheTarget() {
+		assertEquals(2.0, KoscheiLogic.hopInLength(8.0, 2.0, 3.5, 0.0), 1.0E-9);
+		assertEquals(3.5, KoscheiLogic.hopInLength(8.0, 2.0, 3.5, 1.0), 1.0E-9);
+		assertEquals(2.5, KoscheiLogic.hopInLength(4.5, 2.0, 3.5, 1.0), 1.0E-9);
+		assertEquals(0.0, KoscheiLogic.hopInLength(3.5, 2.0, 3.5, 0.5), 1.0E-9);
+	}
 }

@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.world.farming;
 
-/** Pure growth math, unit tested. */
+import java.util.function.IntUnaryOperator;
+
+/** Pure growth and harvest math, unit tested. */
 public final class FarmingLogic {
 	private FarmingLogic() {
 	}
@@ -25,5 +27,10 @@ public final class FarmingLogic {
 	/** {@code age} moved {@code steps} towards 0, where a baby is grown up and a parent can breed again. */
 	public static int stepAge(int age, int steps) {
 		return age < 0 ? Math.min(0, age + steps) : Math.max(0, age - steps);
+	}
+
+	/** Extra produce for one stack broken with a Harvest tool: 0 to {@code maxBonus} items, evenly, like Fortune's bonus count. */
+	public static int harvestExtra(int maxBonus, IntUnaryOperator random) {
+		return maxBonus <= 0 ? 0 : random.applyAsInt(maxBonus + 1);
 	}
 }
