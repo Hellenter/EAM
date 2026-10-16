@@ -1,0 +1,19 @@
+{
+  "values": [
+    "#minecraft:head_armor",
+    "#minecraft:chest_armor",
+    "#minecraft:leg_armor",
+    "#minecraft:foot_armor",
+    "#eam:villager_weapons",
+    "#eam:villager_off_hand",
+    "#eam:villager_goods/cleric",
+    "#eam:villager_tools/farmer",
+    "#eam:villager_tools/mason",
+    "#eam:villager_tools/fisherman",
+    "#eam:villager_tools/shepherd",
+    "#eam:villager_tools/butcher",
+    "#eam:villager_tools/armorer",
+    "#eam:villager_tools/toolsmith",
+    "#eam:villager_tools/weaponsmith"
+  ]
+}
