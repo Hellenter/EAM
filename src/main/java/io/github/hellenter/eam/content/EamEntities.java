@@ -225,6 +225,7 @@ public final class EamEntities {
 	public static final EntityType<Koschei> KOSCHEI = register("koschei",
 			EntityType.Builder.of(Koschei::new, MobCategory.MONSTER)
 					.sized(0.8F, 2.5F)
+					.fireImmune()
 					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
 

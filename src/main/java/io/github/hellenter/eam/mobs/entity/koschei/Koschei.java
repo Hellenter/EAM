@@ -104,6 +104,8 @@ public class Koschei extends Monster {
 	/** He runs at the target this fast while he winds up the orange blow, and it reaches this much further. */
 	private static final double ORANGE_CHASE_SPEED = 0.42;
 	private static final double ORANGE_REACH_BONUS = 0.6;
+	/** He walks in this fast while the sword is raised over his head. */
+	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
 	private static final double KICK_STOP = 1.4;
 
@@ -496,6 +498,10 @@ public class Koschei extends Monster {
 				if (t == 0) {
 					redCue(level);
 				}
+				if (t < KoscheiAction.OVERHEAD_HIT && target != null) {
+					// He keeps walking in with the sword raised, so stepping back does not take the target out of reach.
+					walkIn(target, OVERHEAD_WALK_SPEED);
+				}
 				if (t == KoscheiAction.OVERHEAD_HIT) {
 					cleave(level, target, one.overhead());
 				}
@@ -558,12 +564,7 @@ public class Koschei extends Monster {
 		}
 		if (t < KoscheiAction.ORANGE_HIT) {
 			// He runs the target down as he winds up: stepping back does not get away from it, only a shield stops it.
-			if (horizontalDistanceTo(target) > phaseOne().reach() - 0.8 && onGround()) {
-				Vec3 to = horizontal(target.position().subtract(position()));
-				setDeltaMovement(to.x * ORANGE_CHASE_SPEED, getDeltaMovement().y, to.z * ORANGE_CHASE_SPEED);
-			} else {
-				setDeltaMovement(getDeltaMovement().multiply(0.3, 1.0, 0.3));
-			}
+			walkIn(target, ORANGE_CHASE_SPEED);
 			return;
 		}
 		if (t != KoscheiAction.ORANGE_HIT) {
@@ -582,6 +583,16 @@ public class Koschei extends Monster {
 		}
 		target.damageCooldownTime = 0;
 		strike(level, target, damageSources().mobAttack(this), orange.damage(), 0.6F);
+	}
+
+	/** Closes in on the target during a blow's windup, stopping once it is well within his reach. */
+	private void walkIn(LivingEntity target, double speed) {
+		if (horizontalDistanceTo(target) > phaseOne().reach() - 0.8 && onGround()) {
+			Vec3 to = horizontal(target.position().subtract(position()));
+			setDeltaMovement(to.x * speed, getDeltaMovement().y, to.z * speed);
+		} else {
+			setDeltaMovement(getDeltaMovement().multiply(0.3, 1.0, 0.3));
+		}
 	}
 
 	private void redCue(ServerLevel level) {
@@ -971,9 +982,9 @@ public class Koschei extends Monster {
 		entityData.set(DATA_GUARD, packGuard(height, side));
 		Vec3 spot = position().add(facing.scale(0.75)).add(left.scale(side * 0.35)).add(0.0, getBbHeight() * height, 0.0);
 		level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.ANVIL_LAND, getSoundSource(), 0.5F, 1.5F + random.nextFloat() * 0.2F);
-		level.sendParticles(EamParticles.KOSCHEI_SPARK, spot.x, spot.y, spot.z, 12, 0.08, 0.08, 0.08, 0.25);
-		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, spot.x, spot.y, spot.z, 5, 0.05, 0.05, 0.05, 0.3);
-		level.sendParticles(ParticleTypes.CRIT, spot.x, spot.y, spot.z, 6, 0.1, 0.1, 0.1, 0.25);
+		// Orange sparks off the steel.
+		level.sendParticles(EamParticles.KOSCHEI_SPARK, spot.x, spot.y, spot.z, 18, 0.06, 0.06, 0.06, 0.3);
+		level.sendParticles(ParticleTypes.SMALL_FLAME, spot.x, spot.y, spot.z, 4, 0.05, 0.05, 0.05, 0.08);
 		if (action == KoscheiAction.NONE || action == KoscheiAction.BLOCK) {
 			actionTarget = getTarget();
 			setAction(KoscheiAction.BLOCK);
@@ -998,6 +1009,12 @@ public class Koschei extends Monster {
 	/** A player hit him just before his lunge or overhead blow landed: it breaks off and he staggers, open to hits. */
 	private void parried(ServerLevel level, Player player) {
 		parryStreak.parried(player.getUUID(), level.getGameTime());
+		// As with the Fallen Lord: a shield he knocked out is ready again at once.
+		for (ItemStack held : new ItemStack[] {player.getMainHandItem(), player.getOffhandItem()}) {
+			if (held.has(DataComponents.BLOCKS_ATTACKS)) {
+				player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(held));
+			}
+		}
 		setAction(KoscheiAction.STAGGER);
 		actionTarget = player;
 		entityData.set(DATA_BOLT_TARGET, -1);

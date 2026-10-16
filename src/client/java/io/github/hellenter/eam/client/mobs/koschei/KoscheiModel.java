@@ -29,7 +29,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private static final float HIP = 12.0F;
 	/** The sword's grip sits this far down the forearm, in the fist. */
 	private static final float HAND = 6.0F;
-	private static final float HEAD_SCALE = 0.85F;
+	private static final float HEAD_SCALE = 0.765F;
 	private static final float MAIL_TOP = 10.0F;
 	private static final float CAPE_UPPER = 11.0F;
 	/** A right angle: the blade lies along the forearm. */
@@ -266,21 +266,19 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				leftArm.zRot = Mth.lerp(tuck, restLz, -0.4F);
 			}
 			case BLOCK -> {
-				// The sword held across where the blow comes: high or low, to his left or right; a jolt as it lands.
+				// The sword held across where the blow comes, tipped toward it; a jolt as it lands.
 				float length = state.action.length();
 				float out = keys(t, new float[] {0, 1.0F, length - 3, length}, 0.0F, 1.0F, 1.0F, 0.0F);
 				float jolt = keys(t, new float[] {0, 1.0F, 2.5F, 4.0F}, 0.0F, 0.0F, 1.0F, 0.0F);
-				float h = Math.clamp((state.guardHeight - 0.25F) / 0.7F, 0.0F, 1.0F);
-				float side = state.guardSide;
-				leftArm.xRot = Mth.lerp(out, restL, Mth.lerp(h, -0.7F, -2.3F) + 0.08F * jolt);
-				leftArm.yRot = Mth.lerp(out, 0.0F, 0.15F + 0.55F * side);
-				leftArm.zRot = Mth.lerp(out, restLz, -0.1F);
-				leftForearm.xRot = Mth.lerp(out, restFl, Mth.lerp(h, -0.9F, -0.4F));
-				// Upright before his chest, tipped flat over his head, point down to cover his legs.
-				sword.xRot = Mth.lerp(out, restS, Mth.lerp(h, -0.3F, 0.5F));
-				sword.zRot = out * (h > 0.75F ? 1.3F : 0.35F) * (side >= 0.0F ? 1.0F : -1.0F) + 0.06F * jolt;
-				body.yRot = 0.25F * side * out;
-				step(0.4F * out, false);
+				float[] guard = guardPose(state.guardHeight, state.guardSide);
+				leftArm.xRot = Mth.lerp(out, restL, guard[0] + 0.06F * jolt);
+				leftArm.yRot = Mth.lerp(out, 0.0F, guard[1]);
+				leftArm.zRot = Mth.lerp(out, restLz, guard[2]);
+				leftForearm.xRot = Mth.lerp(out, restFl, guard[3]);
+				sword.xRot = Mth.lerp(out, restS, guard[4]);
+				sword.yRot = out * guard[5];
+				sword.zRot = out * guard[6] + 0.05F * jolt;
+				step(0.3F * out, false);
 			}
 			case KICK -> {
 				// A step in, the knee drawn up, the boot driven out at the shield, leaning back; then the foot down again.
@@ -342,6 +340,47 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		sword.xRot = keys(t, times, restS, ALONG, ALONG, ALONG, 1.45F, 1.4F, restS);
 		body.xRot += keys(t, times, 0.0F, -0.15F, -0.18F, -0.1F, 0.35F, 0.3F, 0.0F);
 		step(keys(t, times, 0.0F, 0.0F, 0.0F, 0.3F, 1.0F, 0.9F, 0.0F), false);
+	}
+
+	/** Heights of the guard poses, as a share of his height: legs, chest, head. */
+	private static final float[] GUARD_HEIGHTS = {0.3F, 0.6F, 0.88F};
+	/**
+	 * The guard against a blow at each height (legs, chest, head) and side (his right, the middle, his left): left arm x, y
+	 * and z, forearm x, sword x, y and z. Worked out so the blade crosses the spot hit and leans toward it: point down
+	 * before the legs, point up before the chest, flat across the face.
+	 */
+	private static final float[][][] GUARD_POSES = {
+			{
+					{-0.35F, 0.66F, 0.5F, 0.0F, 1.76F, 0.14F, -0.26F},
+					{-0.3F, 0.08F, 0.5F, -0.01F, 1.53F, 0.0F, -0.49F},
+					{-0.17F, -0.45F, 0.47F, -0.37F, 1.37F, -0.27F, -0.47F}
+			},
+			{
+					{-0.36F, 0.75F, 0.5F, -0.18F, -0.31F, 0.36F, -0.16F},
+					{-0.08F, 0.55F, 0.33F, -0.53F, -0.62F, 0.11F, -0.14F},
+					{-0.18F, -0.05F, 0.37F, -0.26F, -0.93F, 0.22F, 0.06F}
+			},
+			{
+					{-1.02F, -1.02F, -0.95F, -1.27F, 0.27F, 0.35F, 0.32F},
+					{-0.76F, -0.85F, -0.82F, -1.64F, 0.37F, 0.46F, 0.0F},
+					{-0.72F, -0.8F, -0.75F, -1.71F, 0.54F, 0.44F, -0.08F}
+			}
+	};
+
+	/** The guard pose for a blow at {@code height} (share of his height) and {@code side} (-1 his right to 1 his left). */
+	private static float[] guardPose(float height, float side) {
+		int row = height < GUARD_HEIGHTS[1] ? 0 : 1;
+		float across = Math.clamp((height - GUARD_HEIGHTS[row]) / (GUARD_HEIGHTS[row + 1] - GUARD_HEIGHTS[row]), 0.0F, 1.0F);
+		float s = Math.clamp(side, -1.0F, 1.0F) + 1.0F;
+		int col = Math.min((int) s, 1);
+		float along = s - col;
+		float[] pose = new float[7];
+		for (int i = 0; i < pose.length; i++) {
+			float near = Mth.lerp(along, GUARD_POSES[row][col][i], GUARD_POSES[row][col + 1][i]);
+			float far = Mth.lerp(along, GUARD_POSES[row + 1][col][i], GUARD_POSES[row + 1][col + 1][i]);
+			pose[i] = Mth.lerp(across, near, far);
+		}
+		return pose;
 	}
 
 	/** Drawn back with the point at the target, a run in, the stab at full stretch, and a hop back. */

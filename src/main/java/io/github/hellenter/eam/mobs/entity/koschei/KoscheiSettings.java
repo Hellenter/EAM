@@ -163,7 +163,7 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 */
 	public record Lunge(float damage, double minRange, double maxRange, float chance, int cooldown, int parryWindow, int maxFails,
 			float shieldSeconds, int shieldParryWindow) {
-		public static final Lunge DEFAULT = new Lunge(10.0F, 3.5, 5.0, 0.7F, 60, 7, 2, 5.0F, 11);
+		public static final Lunge DEFAULT = new Lunge(10.0F, 3.5, 5.0, 0.3F, 140, 7, 2, 5.0F, 11);
 
 		public static final Codec<Lunge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Lunge::damage),
