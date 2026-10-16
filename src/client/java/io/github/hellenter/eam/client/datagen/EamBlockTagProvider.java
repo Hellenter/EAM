@@ -12,6 +12,7 @@ import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
+import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.swamp.SwampPondFeature;
 
@@ -178,6 +179,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		harvest.forceAddTag(BlockTags.CROPS);
 		harvest.forceAddTag(BlockTags.CAVE_VINES);
 		harvest.add(BlockItemIds.MELON, BlockItemIds.SWEET_BERRY_CROP, BlockItemIds.COCOA_CROP);
+		BlockItemTagAppender<Block> harvestCrops = builder(HarvestModule.CROPS);
+		harvestCrops.forceAddTag(BlockTags.CROPS);
+		harvestCrops.add(BlockItemIds.MELON, BlockItemIds.SWEET_BERRY_CROP, BlockItemIds.COCOA_CROP);
 		builder(BlockTags.REPLACEABLE_BY_TREES).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
