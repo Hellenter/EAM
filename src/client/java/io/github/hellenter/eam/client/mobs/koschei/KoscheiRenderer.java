@@ -24,6 +24,9 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
@@ -82,9 +85,13 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		// The bolt: sparks at the point while he aims, then the lightning to the target.
 		boolean aiming = state.action == KoscheiAction.BOLT && t >= 8.0F && t < KoscheiAction.BOLT_END;
 		state.boltFrom = aiming ? Koschei.swordTipOffset(state.bodyRot, koschei.getBbHeight()) : null;
-		Entity target = aiming ? koschei.boltTarget() : null;
-		state.boltTo = target == null ? null
-				: target.getPosition(partialTicks).add(0.0, target.getBbHeight() * 0.55, 0.0).subtract(koschei.getPosition(partialTicks));
+		List<Vec3> to = new ArrayList<>();
+		if (aiming) {
+			for (Entity target : koschei.boltTargets()) {
+				to.add(target.getPosition(partialTicks).add(0.0, target.getBbHeight() * 0.55, 0.0).subtract(koschei.getPosition(partialTicks)));
+			}
+		}
+		state.boltTo = to;
 		state.boltSeed = koschei.getId() * 341873128712L + (long) Math.floor(state.ageInTicks / 2.0F);
 		state.boltGrowth = (t - KoscheiAction.BOLT_RELEASE) / 3.0F;
 	}
@@ -100,8 +107,10 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 	@Override
 	protected AABB getBoundingBoxForCulling(Koschei koschei, float partialTicks) {
 		AABB box = super.getBoundingBoxForCulling(koschei, partialTicks);
-		Entity target = koschei.boltTarget();
-		return target == null ? box : box.minmax(target.getBoundingBox());
+		for (Entity target : koschei.boltTargets()) {
+			box = box.minmax(target.getBoundingBox());
+		}
+		return box;
 	}
 
 	@Override
@@ -110,8 +119,11 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		if (state.boltFrom == null) {
 			return;
 		}
-		if (state.boltTo != null) {
-			KoscheiBolt.submit(poseStack, collector, state.boltFrom, state.boltTo, state.boltSeed, state.boltGrowth);
+		if (!state.boltTo.isEmpty()) {
+			for (int i = 0; i < state.boltTo.size(); i++) {
+				// Each bolt its own shape.
+				KoscheiBolt.submit(poseStack, collector, state.boltFrom, state.boltTo.get(i), state.boltSeed + i * 7919L, state.boltGrowth);
+			}
 		} else if (state.actionTime < KoscheiAction.BOLT_RELEASE) {
 			KoscheiBolt.submitSparks(poseStack, collector, state.boltFrom, state.boltSeed);
 		}
