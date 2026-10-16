@@ -79,6 +79,9 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int MITHRIL_RICH_VEIN_RARITY = 20;
 	private static final int MITHRIL_TOP = -32;
 	private static final float MITHRIL_DISCARD_ON_AIR = 0.5F;
+	private static final int ADAMANTIUM_VEIN_SIZE = 4;
+	/** Most adamantium touching air is gone: it is found by digging, not by looking at cave walls. */
+	private static final float ADAMANTIUM_DISCARD_ON_AIR = 0.7F;
 	private static final int WILD_GARLIC_RARITY = 12;
 	private static final int WILD_GARLIC_TRIES = 16;
 
@@ -115,6 +118,10 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.MITHRIL_ORE.defaultBlockState()),
 				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_MITHRIL_ORE.defaultBlockState())
 		), MITHRIL_VEIN_SIZE, MITHRIL_DISCARD_ON_AIR));
+		context.register(EamWorldgen.ORE_ADAMANTIUM, new OreFeature(List.of(
+				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.ADAMANTIUM_ORE.defaultBlockState()),
+				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.defaultBlockState())
+		), ADAMANTIUM_VEIN_SIZE, ADAMANTIUM_DISCARD_ON_AIR));
 	}
 
 	/** Every EAM biome: the swampy forest and the underworld. */
@@ -265,6 +272,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(features, EamWorldgen.ORE_COPPER);
 		entries.add(features, EamWorldgen.ORE_SILVER);
 		entries.add(features, EamWorldgen.ORE_MITHRIL);
+		entries.add(features, EamWorldgen.ORE_ADAMANTIUM);
 		entries.add(features, EamWorldgen.WILD_GARLIC);
 		var placedFeatures = registries.lookupOrThrow(Registries.PLACED_FEATURE);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_FOREST);

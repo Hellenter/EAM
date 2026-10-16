@@ -1,0 +1,33 @@
+{
+  "parent": "eam:mithril",
+  "criteria": {
+    "adamantium_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:adamantium_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.eam.adamantium.description"
+    },
+    "icon": {
+      "id": "eam:adamantium_ingot"
+    },
+    "title": {
+      "translate": "advancements.eam.adamantium.title"
+    }
+  },
+  "requirements": [
+    [
+      "adamantium_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

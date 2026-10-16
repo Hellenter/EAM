@@ -4,6 +4,9 @@
     "minecraft:crying_obsidian",
     "minecraft:netherite_block",
     "minecraft:respawn_anchor",
-    "minecraft:ancient_debris"
+    "minecraft:ancient_debris",
+    "eam:adamantium_ore",
+    "eam:deepslate_adamantium_ore",
+    "eam:adamantium_block"
   ]
 }

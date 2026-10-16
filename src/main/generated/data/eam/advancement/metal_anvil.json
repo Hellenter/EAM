@@ -1,6 +1,16 @@
 {
   "parent": "eam:copper_pickaxe",
   "criteria": {
+    "adamantium_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:adamantium_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "anvil": {
       "conditions": {
         "items": [
@@ -59,7 +69,8 @@
       "copper_anvil",
       "silver_anvil",
       "anvil",
-      "mithril_anvil"
+      "mithril_anvil",
+      "adamantium_anvil"
     ]
   ],
   "sends_telemetry_event": true

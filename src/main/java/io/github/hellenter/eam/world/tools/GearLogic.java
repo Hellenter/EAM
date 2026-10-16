@@ -13,6 +13,12 @@ public final class GearLogic {
 	/** Copper armor wears out twice as fast as in vanilla; so does silver armor, which copies copper. */
 	public static final int COPPER_ARMOR_DURABILITY_DIVISOR = 2;
 
+	/** Netherite is the upgrade of adamantium, which has vanilla netherite's numbers: netherite gear lasts this many times longer. */
+	public static final int NETHERITE_DURABILITY_FACTOR = 3;
+	/** Uses of a vanilla netherite tool, which adamantium tools keep. */
+	private static final int VANILLA_NETHERITE_TOOL_DURABILITY = 2031;
+	private static final int NETHERITE_TOOL_DURABILITY = VANILLA_NETHERITE_TOOL_DURABILITY * NETHERITE_DURABILITY_FACTOR;
+
 	private static final Map<String, Integer> TOOL_DURABILITY = Map.ofEntries(
 			Map.entry("copper_pickaxe", 24),
 			Map.entry("copper_axe", 36),
@@ -41,7 +47,13 @@ public final class GearLogic {
 			Map.entry("ancient_metal_axe", 240),
 			Map.entry("ancient_metal_shovel", 360),
 			Map.entry("ancient_metal_sword", 500),
-			Map.entry("ancient_metal_hoe", 360)
+			Map.entry("ancient_metal_hoe", 360),
+			Map.entry("netherite_pickaxe", NETHERITE_TOOL_DURABILITY),
+			Map.entry("netherite_axe", NETHERITE_TOOL_DURABILITY),
+			Map.entry("netherite_shovel", NETHERITE_TOOL_DURABILITY),
+			Map.entry("netherite_sword", NETHERITE_TOOL_DURABILITY),
+			Map.entry("netherite_hoe", NETHERITE_TOOL_DURABILITY),
+			Map.entry("netherite_spear", NETHERITE_TOOL_DURABILITY)
 	);
 
 	private GearLogic() {
@@ -50,6 +62,10 @@ public final class GearLogic {
 	/** New max damage for a tool, by its item id path; empty keeps the vanilla value. */
 	public static Optional<Integer> toolDurability(String path) {
 		return Optional.ofNullable(TOOL_DURABILITY.get(path));
+	}
+
+	public static int netheriteArmorDurability(int vanillaDurability) {
+		return vanillaDurability * NETHERITE_DURABILITY_FACTOR;
 	}
 
 	public static int copperArmorDurability(int vanillaDurability) {

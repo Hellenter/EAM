@@ -1,0 +1,40 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "eam:iron_plates_enabled"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_adamantium_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:adamantium_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:adamantium_boots_from_ingots"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_adamantium_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:adamantium_boots_from_ingots"
+    ]
+  }
+}

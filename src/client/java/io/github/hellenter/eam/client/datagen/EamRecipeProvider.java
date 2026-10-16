@@ -37,6 +37,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -140,16 +141,19 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
 				knife(EamItems.ANCIENT_METAL_KNIFE, EamItems.ANCIENT_METAL_INGOT);
 				knife(EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_INGOT);
+				knife(EamItems.ADAMANTIUM_KNIFE, EamItems.ADAMANTIUM_INGOT);
 
 				// Anvils like the vanilla one, from their own metal; hammers: two ingots across a stick handle.
 				anvil(EamItems.COPPER_ANVIL, Items.COPPER_BLOCK.weathering().unaffected(), Items.COPPER_INGOT);
 				anvil(EamItems.SILVER_ANVIL, EamItems.SILVER_BLOCK, EamItems.SILVER_INGOT);
 				anvil(EamItems.MITHRIL_ANVIL, EamItems.MITHRIL_BLOCK, EamItems.MITHRIL_INGOT);
+				anvil(EamItems.ADAMANTIUM_ANVIL, EamItems.ADAMANTIUM_BLOCK, EamItems.ADAMANTIUM_INGOT);
 				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
 				hammer(EamItems.ANCIENT_METAL_HAMMER, EamItems.ANCIENT_METAL_INGOT);
 				hammer(EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_INGOT);
+				hammer(EamItems.ADAMANTIUM_HAMMER, EamItems.ADAMANTIUM_INGOT);
 
 				// Bars, doors and trapdoors like the iron ones; copper has its own in vanilla.
 				metalBuilding(EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR, EamItems.SILVER_INGOT);
@@ -165,6 +169,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.ANCIENT_METAL_SAW, EamItems.ANCIENT_METAL_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
+				saw(EamItems.ADAMANTIUM_SAW, EamItems.ADAMANTIUM_INGOT);
 				// Chainmail: a ring of four nuggets, rings in the shapes ingot armor takes ingots. Iron chainmail is the vanilla one.
 				chainmail(Items.COPPER_NUGGET, EamItems.COPPER_RING, EamItems.COPPER_CHAINMAIL_HELMET, EamItems.COPPER_CHAINMAIL_CHESTPLATE,
 						EamItems.COPPER_CHAINMAIL_LEGGINGS, EamItems.COPPER_CHAINMAIL_BOOTS);
@@ -272,6 +277,10 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				mithrilRecipes();
 				mithrilPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				mithrilIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				adamantiumRecipes();
+				adamantiumPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				adamantiumIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				netheriteUpgradeRecipes();
 				ancientMetalRecipes();
 				ancientMetalPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				ancientMetalIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
@@ -598,6 +607,112 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				}
 				recipe.unlockedBy(getHasName(EamItems.MITHRIL_INGOT), has(EamItems.MITHRIL_INGOT))
 						.save(output);
+			}
+
+			/**
+			 * Adamantium: smelts only in the obsidian blast furnace like mithril, packs into blocks and makes tools of the
+			 * usual shapes. Its armor is in {@link #adamantiumPlateRecipes}.
+			 */
+			private void adamantiumRecipes() {
+				for (Item smeltable : List.of(EamItems.ADAMANTIUM_ORE, EamItems.DEEPSLATE_ADAMANTIUM_ORE, EamItems.RAW_ADAMANTIUM)) {
+					SimpleCookingRecipeBuilder.blasting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.ADAMANTIUM_INGOT, 2.0F, 200)
+							.group("adamantium_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:adamantium_ingot_from_blasting_" + getItemName(smeltable));
+				}
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ADAMANTIUM_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.ADAMANTIUM_BLOCK,
+						"eam:adamantium_block", null, "eam:adamantium_ingot_from_adamantium_block", "adamantium_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ADAMANTIUM_NUGGET, RecipeCategory.MISC, EamItems.ADAMANTIUM_INGOT,
+						"eam:adamantium_ingot_from_nuggets", "adamantium_ingot", "eam:adamantium_nugget", null);
+				adamantium(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, "X", "X", "#");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, "X", "#", "#");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, "XXX", " # ", " # ");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, "XX", "X#", " #");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_HOE, "XX", " #", " #");
+			}
+
+			private void adamantium(RecipeCategory category, Item result, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('X', EamItems.ADAMANTIUM_INGOT)
+						.define('#', Items.STICK);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT))
+						.save(output);
+			}
+
+			/** Adamantium ingot to hot adamantium in the obsidian blast furnace, and adamantium armor from plates and ingots. */
+			private void adamantiumPlateRecipes(RecipeOutput enabled) {
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(EamItems.ADAMANTIUM_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_ADAMANTIUM_INGOT, 0.0F, 200)
+						.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT))
+						.save(enabled, "eam:hot_adamantium_ingot_from_blasting");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_HELMET, "", "PPP", "I I");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_CHESTPLATE, "", "I I", "PPP", "IPI");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_LEGGINGS, "", "PIP", "P P", "I I");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_BOOTS, "", "I I", "P P");
+			}
+
+			/** With the plates off, adamantium armor takes ingots only, like vanilla armor. */
+			private void adamantiumIngotArmorRecipes(RecipeOutput disabled) {
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_HELMET, "_from_ingots", "III", "I I");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_CHESTPLATE, "_from_ingots", "I I", "III", "III");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_LEGGINGS, "_from_ingots", "III", "I I", "I I");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_BOOTS, "_from_ingots", "I I", "I I");
+			}
+
+			private void adamantiumArmor(RecipeOutput output, Item result, String suffix, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('I', EamItems.ADAMANTIUM_INGOT);
+				if (String.join("", pattern).contains("P")) {
+					recipe.define('P', EamItems.ADAMANTIUM_PLATE);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
+			}
+
+			/**
+			 * Netherite is the upgrade of adamantium: the vanilla smithing recipes, saved under their vanilla ids, take
+			 * adamantium gear instead of diamond gear (the spear keeps diamond, which cannot be crafted). The upgrade
+			 * template can only be found: its copying recipe is saved under the vanilla id with a condition that never
+			 * holds, so neither it nor the vanilla one loads.
+			 */
+			private void netheriteUpgradeRecipes() {
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, Items.NETHERITE_SWORD);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, Items.NETHERITE_SHOVEL);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, Items.NETHERITE_PICKAXE);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, Items.NETHERITE_AXE);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_HOE, Items.NETHERITE_HOE);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_HELMET, Items.NETHERITE_HELMET);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_CHESTPLATE, Items.NETHERITE_CHESTPLATE);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_LEGGINGS, Items.NETHERITE_LEGGINGS);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_BOOTS, Items.NETHERITE_BOOTS);
+
+				shaped(RecipeCategory.MISC, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, 2)
+						.define('#', Items.DIAMOND)
+						.define('C', Items.NETHERRACK)
+						.define('S', Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+						.pattern("#S#")
+						.pattern("#C#")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), has(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE))
+						.save(withConditions(output, ResourceConditions.alwaysFalse()));
+			}
+
+			private void netheriteUpgrade(RecipeCategory category, Item adamantium, Item netherite) {
+				SmithingTransformRecipeBuilder.smithing(Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(adamantium),
+								tag(ItemTags.NETHERITE_TOOL_MATERIALS), category, netherite)
+						.unlocks(getHasName(Items.NETHERITE_INGOT), has(Items.NETHERITE_INGOT))
+						.save(output, "minecraft:" + getItemName(netherite) + "_smithing");
 			}
 
 			/** Mithril ingot to hot mithril in the obsidian blast furnace, and mithril armor from plates and ingots like iron's. */

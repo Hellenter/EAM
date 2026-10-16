@@ -214,6 +214,24 @@ public final class EamBlocks {
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.ICE));
 
+	/**
+	 * Adamantium ore: only in the underworld's lower level, rarer than mithril; mined with a mithril pickaxe or better.
+	 * Mostly the deepslate kind, since the depths are deepslate.
+	 */
+	public static final Block ADAMANTIUM_ORE = register("adamantium_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_ORE).strength(5.0F, 6.0F));
+	public static final Block DEEPSLATE_ADAMANTIUM_ORE = register("deepslate_adamantium_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.DEEPSLATE_IRON_ORE).strength(6.5F, 6.0F));
+	public static final Block ADAMANTIUM_BLOCK = register("adamantium_block", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.instrument(NoteBlockInstrument.BELL)
+			.requiresCorrectToolForDrops()
+			.strength(10.0F, 1200.0F)
+			.sound(SoundType.METAL));
+	/** Repairs everything, adamantium and netherite gear too, and forges adamantium plates. */
+	public static final Block ADAMANTIUM_ANVIL = register("adamantium_anvil", p -> new MetalAnvilBlock(5, p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.COLOR_CYAN));
+
 	/** A blast furnace that also smelts mithril; see {@link ObsidianBlastFurnaceBlock}. */
 	public static final Block OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace", ObsidianBlastFurnaceBlock::new,
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.BLAST_FURNACE).mapColor(MapColor.COLOR_BLACK).strength(10.0F, 1200.0F));

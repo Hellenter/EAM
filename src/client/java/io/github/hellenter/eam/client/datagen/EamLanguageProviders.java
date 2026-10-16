@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
@@ -18,6 +19,7 @@ import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
+import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.mithril.MithrilModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -428,8 +430,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
 			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
 			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
-			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron and ancient metal a copper or silver one, mithril an iron or ancient metal one");
+			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron and ancient metal a copper or silver one, mithril an iron or ancient metal one, adamantium a mithril one");
 			mithril(builder);
+			adamantium(builder);
 			rusty(builder);
 			ancientMetal(builder);
 			advancements(builder);
@@ -556,6 +559,42 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.RUSTY_CHAINMAIL_CHESTPLATE, "Rusty Chainmail Chestplate");
 			builder.add(EamItems.RUSTY_CHAINMAIL_LEGGINGS, "Rusty Chainmail Leggings");
 			builder.add(EamItems.RUSTY_CHAINMAIL_BOOTS, "Rusty Chainmail Boots");
+		}
+
+		private static void adamantium(TranslationBuilder builder) {
+			builder.add(EamItems.ADAMANTIUM_ORE, "Adamantium Ore");
+			builder.add(EamItems.DEEPSLATE_ADAMANTIUM_ORE, "Deepslate Adamantium Ore");
+			builder.add(EamItems.ADAMANTIUM_BLOCK, "Block of Adamantium");
+			builder.add(EamItems.RAW_ADAMANTIUM, "Raw Adamantium");
+			builder.add(EamItems.ADAMANTIUM_INGOT, "Adamantium Ingot");
+			builder.add(EamItems.ADAMANTIUM_NUGGET, "Adamantium Nugget");
+			builder.add(EamItems.HOT_ADAMANTIUM_INGOT, "Hot Adamantium");
+			builder.add(EamItems.ADAMANTIUM_PLATE, "Adamantium Plate");
+			builder.add(EamItems.ADAMANTIUM_SWORD, "Adamantium Sword");
+			builder.add(EamItems.ADAMANTIUM_SHOVEL, "Adamantium Shovel");
+			builder.add(EamItems.ADAMANTIUM_PICKAXE, "Adamantium Pickaxe");
+			builder.add(EamItems.ADAMANTIUM_AXE, "Adamantium Axe");
+			builder.add(EamItems.ADAMANTIUM_HOE, "Adamantium Hoe");
+			builder.add(EamItems.ADAMANTIUM_HELMET, "Adamantium Helmet");
+			builder.add(EamItems.ADAMANTIUM_CHESTPLATE, "Adamantium Chestplate");
+			builder.add(EamItems.ADAMANTIUM_LEGGINGS, "Adamantium Leggings");
+			builder.add(EamItems.ADAMANTIUM_BOOTS, "Adamantium Boots");
+			builder.add(EamItems.ADAMANTIUM_KNIFE, "Adamantium Knife");
+			builder.add(EamItems.ADAMANTIUM_SAW, "Adamantium Saw");
+			builder.add(EamItems.ADAMANTIUM_HAMMER, "Adamantium Hammer");
+			builder.add(EamBlocks.ADAMANTIUM_ANVIL, "Adamantium Anvil");
+			builder.add(AdamantiumGear.TOOL_MATERIALS, "Adamantium Tool Materials");
+			builder.add(AdamantiumGear.REPAIRS_ARMOR, "Adamantium Armor Repair Materials");
+			builder.add(HandBreakingModule.FULL_MINING_SPEED, "Mine at Full Speed");
+			builder.add(ForgingTags.HAMMER_TIERS.get(4), "Anvil Hammers: Tier 5");
+			builder.add(CraftingTags.KNIFE_TIERS.get(4), "Crafting Table Knives: Tier 5");
+			builder.add(CraftingTags.SAW_TIERS.get(4), "Saws: Tier 5");
+			builder.add(CraftingTags.MATERIAL_TIERS.get(4), "Crafting Materials: Tier 5");
+			builder.add("item.eam.hot_adamantium_ingot.cools_in", "Cools in %s s");
+			builder.add("item.eam.hot_adamantium_ingot.cooled", "Cooled: it is an adamantium ingot again");
+			builder.add("item.eam.hot_adamantium_ingot.forge", "Forge on an adamantium anvil: 2 make an adamantium plate");
+			builder.add("advancements.eam.adamantium.title", "Adamantium");
+			builder.add("advancements.eam.adamantium.description", "Smelt adamantium. Its ore lies only in the depths of the underworld and needs a mithril pickaxe");
 		}
 
 		private static void mithril(TranslationBuilder builder) {
@@ -1054,8 +1093,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
 			builder.add("gui.eam.crafting_table.tool", "Ножи, пилы и молотки: нужен хотя бы нож, каждый инструмент ускоряет свой крафт");
 			builder.add("gui.eam.crafting_table.tool.tiers",
-					"Для меди и серебра нужен кремнёвый нож, для железа и древнего металла медный или серебряный, для мифрила железный или из древнего металла");
+					"Для меди и серебра нужен кремнёвый нож, для железа и древнего металла медный или серебряный, для мифрила железный или из древнего металла, для адамантия мифриловый");
 			mithril(builder);
+			adamantium(builder);
 			rusty(builder);
 			ancientMetal(builder);
 			advancements(builder);
@@ -1181,6 +1221,42 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.RUSTY_CHAINMAIL_CHESTPLATE, "Ржавая кольчуга");
 			builder.add(EamItems.RUSTY_CHAINMAIL_LEGGINGS, "Ржавые кольчужные поножи");
 			builder.add(EamItems.RUSTY_CHAINMAIL_BOOTS, "Ржавые кольчужные ботинки");
+		}
+
+		private static void adamantium(TranslationBuilder builder) {
+			builder.add(EamItems.ADAMANTIUM_ORE, "Адамантиевая руда");
+			builder.add(EamItems.DEEPSLATE_ADAMANTIUM_ORE, "Глубинносланцевая адамантиевая руда");
+			builder.add(EamItems.ADAMANTIUM_BLOCK, "Адамантиевый блок");
+			builder.add(EamItems.RAW_ADAMANTIUM, "Необработанный адамантий");
+			builder.add(EamItems.ADAMANTIUM_INGOT, "Адамантиевый слиток");
+			builder.add(EamItems.ADAMANTIUM_NUGGET, "Кусочек адамантия");
+			builder.add(EamItems.HOT_ADAMANTIUM_INGOT, "Раскалённый адамантий");
+			builder.add(EamItems.ADAMANTIUM_PLATE, "Адамантиевая пластина");
+			builder.add(EamItems.ADAMANTIUM_SWORD, "Адамантиевый меч");
+			builder.add(EamItems.ADAMANTIUM_SHOVEL, "Адамантиевая лопата");
+			builder.add(EamItems.ADAMANTIUM_PICKAXE, "Адамантиевая кирка");
+			builder.add(EamItems.ADAMANTIUM_AXE, "Адамантиевый топор");
+			builder.add(EamItems.ADAMANTIUM_HOE, "Адамантиевая мотыга");
+			builder.add(EamItems.ADAMANTIUM_HELMET, "Адамантиевый шлем");
+			builder.add(EamItems.ADAMANTIUM_CHESTPLATE, "Адамантиевый нагрудник");
+			builder.add(EamItems.ADAMANTIUM_LEGGINGS, "Адамантиевые поножи");
+			builder.add(EamItems.ADAMANTIUM_BOOTS, "Адамантиевые ботинки");
+			builder.add(EamItems.ADAMANTIUM_KNIFE, "Адамантиевый нож");
+			builder.add(EamItems.ADAMANTIUM_SAW, "Адамантиевая пила");
+			builder.add(EamItems.ADAMANTIUM_HAMMER, "Адамантиевый молоток");
+			builder.add(EamBlocks.ADAMANTIUM_ANVIL, "Адамантиевая наковальня");
+			builder.add(AdamantiumGear.TOOL_MATERIALS, "Материалы адамантиевых инструментов");
+			builder.add(AdamantiumGear.REPAIRS_ARMOR, "Материалы для починки адамантиевой брони");
+			builder.add(HandBreakingModule.FULL_MINING_SPEED, "Копают с полной скоростью");
+			builder.add(ForgingTags.HAMMER_TIERS.get(4), "Молотки для наковальни: тир 5");
+			builder.add(CraftingTags.KNIFE_TIERS.get(4), "Ножи для верстака: тир 5");
+			builder.add(CraftingTags.SAW_TIERS.get(4), "Пилы: тир 5");
+			builder.add(CraftingTags.MATERIAL_TIERS.get(4), "Материалы для крафта: тир 5");
+			builder.add("item.eam.hot_adamantium_ingot.cools_in", "Остынет через %s с");
+			builder.add("item.eam.hot_adamantium_ingot.cooled", "Остыл: снова адамантиевый слиток");
+			builder.add("item.eam.hot_adamantium_ingot.forge", "Выкуйте на адамантиевой наковальне: из 2 выйдет адамантиевая пластина");
+			builder.add("advancements.eam.adamantium.title", "Адамантий");
+			builder.add("advancements.eam.adamantium.description", "Выплавьте адамантий. Его руда лежит только в глубинах подземного мира и добывается мифриловой киркой");
 		}
 
 		private static void mithril(TranslationBuilder builder) {

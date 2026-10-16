@@ -3,7 +3,8 @@ package io.github.hellenter.eam.world.mining;
 /**
  * Players break blocks {@link #TIME_MULTIPLIER} times slower, and nothing breaks faster than
  * {@link #MIN_BREAK_TICKS}. These are constants, not data: the client predicts break progress
- * with the same numbers, and a mismatch with the server makes broken blocks reappear.
+ * with the same numbers, and a mismatch with the server makes broken blocks reappear. Tools that mine at full speed
+ * (netherite) skip both rules and break blocks as fast as in vanilla.
  */
 public final class BreakTimeLogic {
 	public static final float TIME_MULTIPLIER = 4.0F;
@@ -16,5 +17,10 @@ public final class BreakTimeLogic {
 	/** @param progress break progress per tick (1 = broken); infinite for blocks that break instantly */
 	public static float destroyProgress(float progress) {
 		return Math.min(progress / TIME_MULTIPLIER, 1.0F / MIN_BREAK_TICKS);
+	}
+
+	/** @param fullSpeed the tool in hand mines at vanilla speed: the progress stays as it is */
+	public static float destroyProgress(float progress, boolean fullSpeed) {
+		return fullSpeed ? progress : destroyProgress(progress);
 	}
 }
