@@ -21,7 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * Player block breaking. Without a tool made for the block in the main hand only blocks in {@link #HAND_BREAKABLE} (and blocks
  * that break instantly) can be broken; everything else gets no break progress at all ({@link HandBreakingLogic}).
  * Blocks in {@link #AXE_ONLY} (logs) break only with an item in {@link #CHOPS_LOGS}, like MITE.
- * Everything breaks slower, and nothing breaks instantly ({@link BreakTimeLogic}).
+ * Everything breaks slower, and nothing breaks instantly ({@link BreakTimeLogic}), except with a tool in
+ * {@link #FULL_MINING_SPEED}.
  */
 public final class HandBreakingModule {
 	/** Blocks a player can break with an empty hand or a non-tool item. */
@@ -31,6 +32,8 @@ public final class HandBreakingModule {
 	public static final TagKey<Block> AXE_ONLY = TagKey.create(Registries.BLOCK, Eam.id("axe_only"));
 	/** Items that break {@link #AXE_ONLY} blocks: every axe and hatchet. */
 	public static final TagKey<Item> CHOPS_LOGS = TagKey.create(Registries.ITEM, Eam.id("chops_logs"));
+	/** Tools that break blocks as fast as in vanilla, not slower: the netherite ones. */
+	public static final TagKey<Item> FULL_MINING_SPEED = TagKey.create(Registries.ITEM, Eam.id("full_mining_speed"));
 
 	private static boolean enabled;
 
@@ -61,7 +64,7 @@ public final class HandBreakingModule {
 				state.is(AXE_ONLY),
 				player.getMainHandItem().is(CHOPS_LOGS)
 		);
-		return BreakTimeLogic.destroyProgress(progress);
+		return BreakTimeLogic.destroyProgress(progress, player.getMainHandItem().is(FULL_MINING_SPEED));
 	}
 
 	/** A tool counts only on blocks it is made for: an axe does not break stone, a knife does not chop logs. */

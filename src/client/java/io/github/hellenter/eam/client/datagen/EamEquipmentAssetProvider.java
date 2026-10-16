@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
@@ -35,6 +36,7 @@ public class EamEquipmentAssetProvider implements DataProvider {
 		return DataProvider.saveAll(cache, EquipmentClientInfo.CODEC, pathProvider::json, worn(Map.of(
 				SilverGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("silver")).build(),
 				MithrilGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("mithril")).build(),
+				AdamantiumGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("adamantium")).build(),
 				RustyGear.IRON_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_iron")).build(),
 				RustyGear.CHAINMAIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_chainmail")).build(),
 				AncientMetalGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("ancient_metal")).build(),

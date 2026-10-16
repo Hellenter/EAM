@@ -25,6 +25,8 @@ public final class EamWorldgen {
 	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
 	public static final ResourceKey<Feature> ORE_SILVER = feature("ore_silver");
 	public static final ResourceKey<Feature> ORE_MITHRIL = feature("ore_mithril");
+	/** Small adamantium veins; placed only in the underworld's lower level (see UnderworldWorldgen). */
+	public static final ResourceKey<Feature> ORE_ADAMANTIUM = feature("ore_adamantium");
 	public static final ResourceKey<Feature> WILD_GARLIC = feature("wild_garlic");
 
 	/** Pebbles on the forest floor. */

@@ -65,6 +65,9 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
+		generators.createTrivialCube(EamBlocks.ADAMANTIUM_ORE);
+		generators.createTrivialCube(EamBlocks.DEEPSLATE_ADAMANTIUM_ORE);
+		generators.createTrivialCube(EamBlocks.ADAMANTIUM_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createTrivialCube(EamBlocks.DEEP_BEDROCK);
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_CAP);
@@ -676,6 +679,15 @@ public class EamModelProvider extends FabricModelProvider {
 		}
 		for (Item item : List.of(EamItems.MITHRIL_SWORD, EamItems.MITHRIL_SHOVEL, EamItems.MITHRIL_PICKAXE, EamItems.MITHRIL_AXE,
 				EamItems.MITHRIL_HOE, EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_SAW, EamItems.MITHRIL_HAMMER)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+		for (Item item : List.of(EamItems.RAW_ADAMANTIUM, EamItems.ADAMANTIUM_NUGGET, EamItems.ADAMANTIUM_INGOT, EamItems.HOT_ADAMANTIUM_INGOT,
+				EamItems.ADAMANTIUM_PLATE, EamItems.ADAMANTIUM_HELMET, EamItems.ADAMANTIUM_CHESTPLATE, EamItems.ADAMANTIUM_LEGGINGS,
+				EamItems.ADAMANTIUM_BOOTS)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.ADAMANTIUM_SWORD, EamItems.ADAMANTIUM_SHOVEL, EamItems.ADAMANTIUM_PICKAXE, EamItems.ADAMANTIUM_AXE,
+				EamItems.ADAMANTIUM_HOE, EamItems.ADAMANTIUM_KNIFE, EamItems.ADAMANTIUM_SAW, EamItems.ADAMANTIUM_HAMMER)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 		// Metal buckets, each with every content.

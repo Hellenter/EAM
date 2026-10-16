@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Pure rules for crafting with metals. Every material and table tool has a tier: flint 1, copper and silver 2, iron and ancient metal 3,
- * mithril 4.
+ * mithril 4, adamantium (and netherite, its upgrade) 5.
  * Crafting with a material of tier N needs a knife of tier N - 1 or better in the crafting table; tools in the table
  * also make crafting faster, each by its tier's bonus: knives every craft, saws wooden and decorative results, hammers
  * metalwork.

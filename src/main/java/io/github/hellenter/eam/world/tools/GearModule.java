@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.tools;
 
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -28,7 +29,8 @@ import java.util.Set;
 
 /**
  * Weaker gear: copper and iron tools wear out sooner, player armor gives less protection and copper armor wears out
- * twice as fast (silver copies copper, and so do their chainmail). Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
+ * twice as fast (silver copies copper, and so do their chainmail). Netherite gear, the upgrade of adamantium, lasts three
+ * times as long as vanilla netherite. Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
  * {@link GearLogic}.
  */
 public final class GearModule {
@@ -44,6 +46,7 @@ public final class GearModule {
 			ArmorMaterials.NETHERITE,
 			SilverGear.ARMOR,
 			MithrilGear.ARMOR,
+			AdamantiumGear.ARMOR,
 			RustyGear.IRON_ARMOR,
 			RustyGear.CHAINMAIL_ARMOR,
 			AncientMetalGear.ARMOR,
@@ -89,6 +92,9 @@ public final class GearModule {
 			Integer maxDamage = builder.get(DataComponents.MAX_DAMAGE);
 			if (HALF_DURABILITY.contains(asset) && maxDamage != null) {
 				builder.set(DataComponents.MAX_DAMAGE, GearLogic.copperArmorDurability(maxDamage));
+			}
+			if (asset == EquipmentAssets.NETHERITE && maxDamage != null) {
+				builder.set(DataComponents.MAX_DAMAGE, GearLogic.netheriteArmorDurability(maxDamage));
 			}
 		}));
 	}

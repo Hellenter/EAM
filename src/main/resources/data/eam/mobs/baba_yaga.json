@@ -52,6 +52,25 @@
     "fade_ticks": 200,
     "health_multiplier": 0.7
   },
+  "crowd": {
+    "radius": 64.0,
+    "soldier_health_multiplier": 1.0,
+    "tiers": [
+      {
+        "players": 2,
+        "sub_waves": [3, 3]
+      },
+      {
+        "players": 3,
+        "sub_waves": [3, 3, 2]
+      },
+      {
+        "players": 4,
+        "sub_waves": [3, 3, 3],
+        "health_multiplier": 0.9
+      }
+    ]
+  },
   "potion": {
     "cooldown": 300,
     "range": 28.0,

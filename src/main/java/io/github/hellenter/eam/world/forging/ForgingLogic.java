@@ -1,6 +1,6 @@
 package io.github.hellenter.eam.world.forging;
 
-/** Pure rules for hot iron and hot mithril: when they cool and what the anvil makes of them. */
+/** Pure rules for hot iron, mithril and adamantium: when they cool and what the anvil makes of them. */
 public final class ForgingLogic {
 	/** Hot iron turns back into an ingot this long after it leaves the furnace: one minute. */
 	public static final int COOL_TICKS = 60 * 20;
@@ -14,8 +14,11 @@ public final class ForgingLogic {
 	public static final int PLATE_ANVIL_TIER = 3;
 	/** Mithril plates are forged only on the mithril anvil. */
 	public static final int MITHRIL_PLATE_ANVIL_TIER = 4;
-	/** Speed a hammer adds to forging, by hammer tier (first entry is tier 1): copper and silver +25%, iron +50%, mithril +75%. */
-	public static final float[] HAMMER_SPEED_BONUS = {0.15F, 0.25F, 0.5F, 0.75F};
+	/** Adamantium plates are forged only on the adamantium anvil. */
+	public static final int ADAMANTIUM_PLATE_ANVIL_TIER = 5;
+	/** Speed a hammer adds to forging, by hammer tier (first entry is tier 1): copper and silver +25%, iron +50%, mithril +75%,
+	 * adamantium +100%. */
+	public static final float[] HAMMER_SPEED_BONUS = {0.15F, 0.25F, 0.5F, 0.75F, 1.0F};
 
 	private ForgingLogic() {
 	}

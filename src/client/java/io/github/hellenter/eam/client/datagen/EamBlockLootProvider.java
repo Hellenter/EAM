@@ -139,9 +139,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
 		add(EamBlocks.DEEPSLATE_MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
 		dropSelf(EamBlocks.MITHRIL_BLOCK);
+		add(EamBlocks.ADAMANTIUM_ORE, block -> createOreDrop(block, EamItems.RAW_ADAMANTIUM));
+		add(EamBlocks.DEEPSLATE_ADAMANTIUM_ORE, block -> createOreDrop(block, EamItems.RAW_ADAMANTIUM));
+		dropSelf(EamBlocks.ADAMANTIUM_BLOCK);
 		dropSelf(EamBlocks.ANCIENT_METAL_BLOCK);
 		add(EamBlocks.OBSIDIAN_BLAST_FURNACE, this::createNameableBlockEntityTable);
-		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL)) {
+		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL, EamBlocks.ADAMANTIUM_ANVIL)) {
 			add(anvil, LootTable.lootTable().withPool(applyExplosionCondition(anvil, LootPool.lootPool()
 					.setRolls(ContextIntProviders.exactly(1))
 					.add(LootItem.lootTableItem(anvil).apply(CopyBlockState.copyState(anvil).copy(MetalAnvilBlock.WEAR))))));

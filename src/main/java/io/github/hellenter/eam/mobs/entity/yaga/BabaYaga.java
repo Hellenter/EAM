@@ -93,7 +93,7 @@ import java.util.UUID;
 
 /**
  * Baba Yaga, the swamp witch. Phase one: she circles high over the player in her mortar, untouchable by blade, arrow or
- * spell, and fights through others: groups of swamp creatures raised around the player, half at once and half later, poison flasks,
+ * spell, and fights through others: groups of swamp creatures raised around the player, in sub-waves a while apart, poison flasks,
  * spells that strengthen one group (absorption, speed or strength, picked by what the group needs) and glyphs on the
  * ground that curse the player and help her creatures. Only once a wave is dead does she dive at the player with her
  * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. A dive that
@@ -154,9 +154,9 @@ public class BabaYaga extends Monster {
 	private int castGap;
 	/** Ticks until she raises the next wave, or -1 while one is out. */
 	private int nextWave = -1;
-	/** The second halves of the current wave's groups, still to rise, and ticks until they do. */
-	private final List<LaterHalf> laterHalves = new ArrayList<>();
-	private int laterHalvesTimer;
+	/** The later sub-waves of the current wave's groups, still to rise, and ticks until the next of them do. */
+	private final List<LaterPart> laterParts = new ArrayList<>();
+	private int laterPartsTimer;
 	private float waveAngle;
 	private GroupKind waveFirstKind = GroupKind.LURKERS;
 	private int clearedTicks;
@@ -595,7 +595,7 @@ public class BabaYaga extends Monster {
 			}
 			return;
 		}
-		if (aliveMinions() == 0 && laterHalves.isEmpty()) {
+		if (aliveMinions() == 0 && laterParts.isEmpty()) {
 			if (++clearedTicks >= settings.swoop().delay()) {
 				startAction(YagaAction.SWOOP, target);
 			}
@@ -877,9 +877,9 @@ public class BabaYaga extends Monster {
 	}
 
 	/**
-	 * Phase one: every group of the wave is rolled at once, each a good way off on its own side, and splits in two: the
-	 * first half of every group rises at once, the second halves together a while later in the same spots. Lurker and
-	 * wight groups take turns, so a wave of two has one of each.
+	 * Phase one: every group of the wave is rolled at once, each a good way off on its own side, and rises in sub-waves:
+	 * the first of every group at once, the next ones together a while apart in the same spots. Lurker and wight groups
+	 * take turns, so a wave of two has one of each. More players in the fight make more groups and sub-waves.
 	 */
 	private void raiseWave(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings settings = settings();
@@ -887,20 +887,27 @@ public class BabaYaga extends Monster {
 		groups.removeIf(group -> group.alive(level) == 0);
 		waveAngle = random.nextFloat() * 360.0F;
 		waveFirstKind = random.nextBoolean() ? GroupKind.LURKERS : GroupKind.WIGHTS;
-		laterHalves.clear();
-		for (int g = 0; g < summon.groups(); g++) {
-			Vec3 center = waveGroupCenter(level, target, g);
+		laterParts.clear();
+		List<Integer> shape = BabaYagaLogic.waveShape(playersInFight(level), summon, settings.crowd());
+		List<List<List<Creature>>> wave = new ArrayList<>(shape.size());
+		for (int g = 0; g < shape.size(); g++) {
+			wave.add(BabaYagaLogic.waveParts(BabaYagaLogic.waveGroupKind(g, waveFirstKind), shape.get(g), summon, random::nextDouble));
+		}
+		wave = BabaYagaLogic.capWights(wave, summon.maxWights());
+		for (int g = 0; g < wave.size(); g++) {
+			Vec3 center = waveGroupCenter(level, target, g, wave.size());
 			if (center == null) {
 				continue;
 			}
-			GroupKind kind = BabaYagaLogic.waveGroupKind(g, waveFirstKind);
-			List<List<Creature>> halves = BabaYagaLogic.halves(BabaYagaLogic.waveGroup(kind, summon, random::nextDouble), random::nextDouble);
-			raiseGroup(level, target, center, halves.get(0));
-			if (!halves.get(1).isEmpty()) {
-				laterHalves.add(new LaterHalf(center, halves.get(1)));
+			List<List<Creature>> parts = wave.get(g);
+			raiseGroup(level, target, center, parts.get(0));
+			for (int p = 1; p < parts.size(); p++) {
+				if (!parts.get(p).isEmpty()) {
+					laterParts.add(new LaterPart(center, parts.get(p), p));
+				}
 			}
 		}
-		laterHalvesTimer = summon.halfDelay();
+		laterPartsTimer = summon.halfDelay();
 		nextWave = -1;
 		clearedTicks = 0;
 		glyphCooldown = Math.max(glyphCooldown, settings.glyphs().firstDelay());
@@ -908,27 +915,47 @@ public class BabaYaga extends Monster {
 		potionCooldown = Math.max(potionCooldown, 40);
 	}
 
-	/** Phase one: raises the second halves of the wave's groups when their time comes, whatever she is busy with. */
+	/** Phase one: raises the wave's next sub-waves when their time comes, whatever she is busy with. */
 	private void tickWaveGroups(ServerLevel level, @Nullable LivingEntity target) {
-		if (laterHalves.isEmpty() || phase() != 1 || --laterHalvesTimer > 0) {
+		if (laterParts.isEmpty() || phase() != 1 || --laterPartsTimer > 0) {
 			return;
 		}
 		if (target == null) {
-			laterHalvesTimer = 1;
+			laterPartsTimer = 1;
 			return;
 		}
 		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, 0.6F);
 		Vec3 tip = staffTip();
 		level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.4F), tip.x, tip.y, tip.z, 20, 0.3, 0.3, 0.3, 0.0);
-		for (LaterHalf half : laterHalves) {
-			raiseGroup(level, target, half.center(), half.creatures());
+		int next = Integer.MAX_VALUE;
+		for (LaterPart part : laterParts) {
+			next = Math.min(next, part.round());
 		}
-		laterHalves.clear();
+		for (LaterPart part : laterParts) {
+			if (part.round() == next) {
+				raiseGroup(level, target, part.center(), part.creatures());
+			}
+		}
+		int raised = next;
+		laterParts.removeIf(part -> part.round() == raised);
+		laterPartsTimer = settings().summon().halfDelay();
 	}
 
-	private @Nullable Vec3 waveGroupCenter(ServerLevel level, LivingEntity target, int g) {
+	/** Players in the fight: alive, not in creative or spectator mode, and near her. */
+	private int playersInFight(ServerLevel level) {
+		double radius = settings().crowd().radius();
+		int count = 0;
+		for (Player player : level.players()) {
+			if (player.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && distanceToSqr(player) <= radius * radius) {
+				count++;
+			}
+		}
+		return Math.max(1, count);
+	}
+
+	private @Nullable Vec3 waveGroupCenter(ServerLevel level, LivingEntity target, int g, int count) {
 		BabaYagaSettings.Summon summon = settings().summon();
-		double angle = Math.toRadians(waveAngle + 360.0 * g / summon.groups() + (random.nextDouble() - 0.5) * 50.0);
+		double angle = Math.toRadians(waveAngle + 360.0 * g / count + (random.nextDouble() - 0.5) * 50.0);
 		Vec3 center = null;
 		for (int attempt = 0; attempt < 6 && center == null; attempt++) {
 			double distance = Mth.lerp(random.nextDouble(), summon.minRadius(), Math.max(summon.minRadius(), summon.maxRadius()));
@@ -943,8 +970,8 @@ public class BabaYaga extends Monster {
 		return center;
 	}
 
-	/** The part of a wave group still to rise, and where. */
-	private record LaterHalf(Vec3 center, List<Creature> creatures) {
+	/** A sub-wave of a wave group still to rise, where, and its turn: 1 for the second sub-wave, 2 for the third. */
+	private record LaterPart(Vec3 center, List<Creature> creatures, int round) {
 	}
 
 	/** Phase two: one group between her and the player. */
@@ -1001,6 +1028,7 @@ public class BabaYaga extends Monster {
 
 	private void raiseGroup(ServerLevel level, LivingEntity target, Vec3 center, List<Creature> creatures) {
 		Group group = new Group();
+		int players = playersInFight(level);
 		for (Creature creature : creatures) {
 			EntityType<? extends Mob> type = switch (creature) {
 				case LURKER -> EamEntities.SWAMP_LURKER;
@@ -1010,7 +1038,8 @@ public class BabaYaga extends Monster {
 			double angle = random.nextDouble() * Math.PI * 2.0;
 			double spread = 0.8 + random.nextDouble() * 1.8;
 			Vec3 at = ground(level, center.x + Math.cos(angle) * spread, center.y, center.z + Math.sin(angle) * spread, type);
-			Mob mob = raise(level, type, at != null ? at : center, target);
+			Mob mob = raise(level, type, at != null ? at : center, target, BabaYagaLogic.healthMultiplier(creature, players,
+					settings().summon(), settings().crowd()));
 			if (mob != null) {
 				group.add(mob);
 			}
@@ -1025,7 +1054,7 @@ public class BabaYaga extends Monster {
 	}
 
 	/** One creature, risen out of the ground: it is hers, knows where the player is and goes for them at once. */
-	private @Nullable Mob raise(ServerLevel level, EntityType<? extends Mob> type, Vec3 at, LivingEntity target) {
+	private @Nullable Mob raise(ServerLevel level, EntityType<? extends Mob> type, Vec3 at, LivingEntity target, double healthMultiplier) {
 		Mob mob = type.create(level, EntitySpawnReason.MOB_SUMMONED);
 		if (mob == null) {
 			return null;
@@ -1034,11 +1063,13 @@ public class BabaYaga extends Monster {
 		// Tagged first: a wight raised by her never cloaks, a lurker never hides.
 		mob.addTag(BabaYagaModule.MINION_TAG);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(at)), EntitySpawnReason.MOB_SUMMONED, null);
-		// Her creatures are weaker than their wild kin, but rise at full health.
+		// Her creatures may be weaker than their wild kin, but rise at full health.
 		AttributeInstance health = mob.getAttribute(Attributes.MAX_HEALTH);
 		if (health != null) {
-			health.addOrReplacePermanentModifier(new AttributeModifier(HEALTH_MODIFIER, settings().summon().healthMultiplier() - 1.0,
-					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			if (healthMultiplier != 1.0) {
+				health.addOrReplacePermanentModifier(new AttributeModifier(HEALTH_MODIFIER, healthMultiplier - 1.0,
+						AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			}
 			mob.setHealth(mob.getMaxHealth());
 		}
 		AttributeInstance follow = mob.getAttribute(Attributes.FOLLOW_RANGE);
@@ -1455,7 +1486,7 @@ public class BabaYaga extends Monster {
 		bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		bossEvent.setProgress(1.0F);
 		spells.clear();
-		laterHalves.clear();
+		laterParts.clear();
 		LivingEntity target = getTarget();
 		setAction(YagaAction.SHATTER);
 		actionTarget = target;
@@ -2069,7 +2100,7 @@ public class BabaYaga extends Monster {
 		}
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
-		laterHalves.clear();
+		laterParts.clear();
 		adoptMinions = true;
 	}
 

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "eam:adamantium_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "ISI",
+    " S ",
+    " S "
+  ],
+  "result": {
+    "id": "eam:adamantium_hammer"
+  }
+}

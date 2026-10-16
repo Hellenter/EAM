@@ -117,6 +117,8 @@ public class Koschei extends Monster {
 	private static final double ORANGE_REACH_BONUS = 0.6;
 	/** The burst still catches the one he casts at this much further than its range. */
 	private static final double FORCE_AIMED_SLACK = 3.0;
+	/** How many ravens scatter from where he vanishes. */
+	private static final int RAVENS = 16;
 	/** He walks in this fast while the sword is raised over his head. */
 	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
@@ -854,7 +856,8 @@ public class Koschei extends Monster {
 				continue;
 			}
 			warpCloud(level, from, 1.0);
-			level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.6F);
+			ravens(level, from);
+			level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.0F, 0.6F);
 			teleportTo(spot.x, spot.y, spot.z);
 			getNavigation().stop();
 			faceTowards(target);
@@ -863,6 +866,19 @@ public class Koschei extends Monster {
 			level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.7F);
 			return;
 		}
+	}
+
+	/** A flock of ravens bursting out of where he stood, every way and upwards, with a few black feathers left drifting down. */
+	private void ravens(ServerLevel level, Vec3 at) {
+		level.playSound(null, at.x, at.y, at.z, EamSounds.KOSCHEI_RAVENS, getSoundSource(), 2.0F, 0.9F + random.nextFloat() * 0.2F);
+		for (int i = 0; i < RAVENS; i++) {
+			double angle = random.nextDouble() * Math.PI * 2.0;
+			double speed = 0.22 + random.nextDouble() * 0.2;
+			double y = at.y + 0.3 + random.nextDouble() * getBbHeight() * 0.8;
+			level.sendParticles(EamParticles.KOSCHEI_RAVEN, at.x + Math.cos(angle) * 0.3, y, at.z + Math.sin(angle) * 0.3, 0,
+					Math.cos(angle) * speed, 0.1 + random.nextDouble() * 0.2, Math.sin(angle) * speed, 1.0);
+		}
+		level.sendParticles(EamParticles.YAGA_FEATHER, at.x, at.y + getBbHeight() * 0.5, at.z, 10, 0.5, 0.6, 0.5, 0.02);
 	}
 
 	/** Where he can stand near {@code at}: open air for his body over solid ground, a few blocks up or down at most. */
