@@ -17,6 +17,7 @@ import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
+import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
@@ -117,6 +118,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.anvil.too_weak", "This anvil is too weak for it");
 			builder.add("enchantment.eam.arrow_recovery", "Arrow Recovery");
 			builder.add("enchantment.eam.light_as_a_feather", "Light as a Feather");
+			builder.add("enchantment.eam.harvest", "Harvest");
+			builder.add(HarvestModule.CROPS, "Harvest Enchantment Crops");
+			builder.add(HarvestModule.PRODUCE, "Harvest Enchantment Produce");
 			builder.add("gui.eam.enchanting.title", "Choose Enchantments");
 			builder.add("gui.eam.enchanting.empty", "Put an item or a book in the table to choose its enchantments");
 			builder.add("gui.eam.enchanting.none", "No enchantments can be added to this item");
@@ -773,6 +777,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.anvil.too_weak", "Эта наковальня слишком слабая");
 			builder.add("enchantment.eam.arrow_recovery", "Возврат стрел");
 			builder.add("enchantment.eam.light_as_a_feather", "Лёгкий как пух");
+			builder.add("enchantment.eam.harvest", "Урожай");
+			builder.add(HarvestModule.CROPS, "Культуры для чар «Урожай»");
+			builder.add(HarvestModule.PRODUCE, "Плоды для чар «Урожай»");
 			builder.add("gui.eam.enchanting.title", "Выбор чар");
 			builder.add("gui.eam.enchanting.empty", "Положите предмет или книгу на стол, чтобы выбрать чары");
 			builder.add("gui.eam.enchanting.none", "На этот предмет больше нельзя наложить чары");

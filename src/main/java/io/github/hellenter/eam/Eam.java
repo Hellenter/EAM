@@ -59,6 +59,7 @@ import io.github.hellenter.eam.world.crafting.CraftingModule;
 import io.github.hellenter.eam.world.darkness.DarknessModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
+import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
@@ -154,6 +155,7 @@ public class Eam implements ModInitializer {
 		BlastFurnaceModule.register();
 		BrewingModule.register();
 		FarmingModule.register();
+		HarvestModule.register();
 		EnchantingModule.register();
 		ShieldModule.register();
 		SafeRoomModule.register();
@@ -209,6 +211,7 @@ public class Eam implements ModInitializer {
 		if (config.foodSpoilage()) SpoilageModule.init();
 		if (config.mithril()) MithrilModule.init();
 		if (config.enchanting()) EnchantingModule.init();
+		if (config.enchanting()) HarvestModule.init();
 		if (config.enchanting()) ShieldModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
