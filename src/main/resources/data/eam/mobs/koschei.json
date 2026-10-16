@@ -38,8 +38,8 @@
     "overhead": {
       "damage": 12.0,
       "shield_reduction": 0.5,
-      "weight": 1.5,
-      "cooldown": 120,
+      "weight": 3.0,
+      "cooldown": 60,
       "parry_window": 7
     },
     "lunge": {
@@ -96,7 +96,11 @@
     "speed": 0.6,
     "burst_share": 0.25,
     "burst_window": 100,
-    "burst_speed": 1.1
+    "burst_speed": 1.1,
+    "in_chance": 0.06,
+    "in_from": 4.5,
+    "in_min": 2.0,
+    "in_max": 3.5
   },
   "mob_damage_multiplier": 4.0
 }

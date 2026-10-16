@@ -23,10 +23,10 @@ public enum KoscheiAction {
 	 */
 	OVERHEAD(34),
 	/**
-	 * The lunge: drawn back until {@link #LUNGE_PUSH}, a rush in until {@link #LUNGE_RUSH_END}, the stab on
+	 * The lunge: drawn back and held still for a moment until {@link #LUNGE_PUSH}, a rush in until {@link #LUNGE_RUSH_END}, the stab on
 	 * {@link #LUNGE_STAB}, then a hop back. A hit just before the stab parries him.
 	 */
-	LUNGE(24),
+	LUNGE(27),
 	/** The right hand thrust out: a blue burst of force on {@link #FORCE_RELEASE} throws whoever is in front far back. */
 	FORCE(16),
 	/**
@@ -54,9 +54,11 @@ public enum KoscheiAction {
 	/** The sword starts down on this tick (the parry window opens) and lands on the hit. */
 	public static final int OVERHEAD_DESCENT = 19;
 	public static final int OVERHEAD_HIT = 26;
-	public static final int LUNGE_PUSH = 6;
-	public static final int LUNGE_RUSH_END = 11;
-	public static final int LUNGE_STAB = 12;
+	/** Ticks the lunge holds drawn back before the rush, a beat to read it by. */
+	public static final int LUNGE_HOLD = 3;
+	public static final int LUNGE_PUSH = 9;
+	public static final int LUNGE_RUSH_END = 14;
+	public static final int LUNGE_STAB = 15;
 	public static final int KICK_HIT = 6;
 	public static final int FORCE_RELEASE = 8;
 	public static final int BOLT_RELEASE = 18;

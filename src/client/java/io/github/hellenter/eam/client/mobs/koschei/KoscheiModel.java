@@ -389,22 +389,23 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private void lunge(float t, float restL, float restFl, float restS) {
 		float push = KoscheiAction.LUNGE_PUSH;
 		float stab = KoscheiAction.LUNGE_STAB;
-		float[] times = {0, push, stab - 2, stab, stab + 3, 24};
-		leftArm.xRot = keys(t, times, restL, 0.5F, 0.3F, -1.55F, -1.5F, restL);
-		leftArm.yRot = keys(t, times, 0.0F, 0.2F, 0.1F, -0.1F, -0.1F, 0.0F);
-		leftForearm.xRot = keys(t, times, restFl, -1.8F, -1.6F, 0.0F, -0.1F, restFl);
-		sword.xRot = keys(t, times, restS, 1.3F, 1.3F, ALONG, 1.5F, restS);
-		body.yRot = keys(t, times, 0.0F, 0.5F, 0.4F, -0.35F, -0.3F, 0.0F);
-		body.xRot += keys(t, times, 0.0F, 0.1F, 0.2F, 0.3F, 0.25F, 0.0F);
-		rightArm.xRot = keys(t, times, rightArm.xRot, -0.3F, 0.3F, 0.7F, 0.6F, rightArm.xRot);
-		rightArm.zRot = keys(t, times, rightArm.zRot, 0.4F, 0.4F, 0.5F, 0.5F, rightArm.zRot);
+		// Drawn back by the hold, held still through it, then the rush.
+		float[] times = {0, push - KoscheiAction.LUNGE_HOLD, push, stab - 2, stab, stab + 3, KoscheiAction.LUNGE.length()};
+		leftArm.xRot = keys(t, times, restL, 0.5F, 0.5F, 0.3F, -1.55F, -1.5F, restL);
+		leftArm.yRot = keys(t, times, 0.0F, 0.2F, 0.2F, 0.1F, -0.1F, -0.1F, 0.0F);
+		leftForearm.xRot = keys(t, times, restFl, -1.8F, -1.8F, -1.6F, 0.0F, -0.1F, restFl);
+		sword.xRot = keys(t, times, restS, 1.3F, 1.3F, 1.3F, ALONG, 1.5F, restS);
+		body.yRot = keys(t, times, 0.0F, 0.5F, 0.5F, 0.4F, -0.35F, -0.3F, 0.0F);
+		body.xRot += keys(t, times, 0.0F, 0.1F, 0.1F, 0.2F, 0.3F, 0.25F, 0.0F);
+		rightArm.xRot = keys(t, times, rightArm.xRot, -0.3F, -0.3F, 0.3F, 0.7F, 0.6F, rightArm.xRot);
+		rightArm.zRot = keys(t, times, rightArm.zRot, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, rightArm.zRot);
 		if (t >= push && t < stab - 1) {
 			// Running in.
 			float stride = Mth.sin((t - push) * 1.6F);
 			bendLeg(rightLeg, rightShin, 1.0F, -0.8F * stride, 0.3F + 0.8F * Math.max(0.0F, stride));
 			bendLeg(leftLeg, leftShin, 1.0F, 0.8F * stride, 0.3F + 0.8F * Math.max(0.0F, -stride));
 		} else {
-			float crouch = keys(t, times, 0.0F, 0.6F, 0.6F, 1.0F, 1.0F, 0.0F);
+			float crouch = keys(t, times, 0.0F, 0.6F, 0.6F, 0.6F, 1.0F, 1.0F, 0.0F);
 			step(crouch, false);
 		}
 	}
