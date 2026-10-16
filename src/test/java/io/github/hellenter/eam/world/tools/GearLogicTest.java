@@ -64,4 +64,10 @@ class GearLogicTest {
 	void netheriteArmorTripled() {
 		assertEquals(1221, GearLogic.netheriteArmorDurability(407));
 	}
+
+	@Test
+	void fullArmorSetsKeepVanillaPoints() {
+		// Adamantium and netherite: vanilla netherite's 3/8/6/3 = 20.
+		assertArrayEquals(new int[] {3, 8, 6, 3}, GearLogic.scaleSet(new int[] {3, 8, 6, 3}, 1.0));
+	}
 }
