@@ -1,0 +1,7 @@
+{
+  "food_max": 32,
+  "interval_ticks": 2400,
+  "keep_per_kind": 3,
+  "pen_cells": 1024,
+  "radius": 16
+}
