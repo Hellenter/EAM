@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.VillagerRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
@@ -62,7 +63,14 @@ public class VillagerFigureRenderer extends HumanoidMobRenderer<Villager, Villag
 		ItemStack item = villager.getItemHeldByArm(arm);
 		if (item.isEmpty()) return HumanoidModel.ArmPose.EMPTY;
 		if (usesSpearPose(item, arm, villager)) return HumanoidModel.ArmPose.SPEAR;
-		if (villager.isUsingItem() && villager.getUseItem() == item && item.is(Items.BOW)) return HumanoidModel.ArmPose.BOW_AND_ARROW;
+		if (villager.isUsingItem() && usedArm(villager) == arm) {
+			if (item.is(Items.BOW)) return HumanoidModel.ArmPose.BOW_AND_ARROW;
+			if (item.is(Items.CROSSBOW)) return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+		}
 		return HumanoidModel.ArmPose.ITEM;
+	}
+
+	private static HumanoidArm usedArm(Villager villager) {
+		return villager.getUsedItemHand() == InteractionHand.MAIN_HAND ? villager.getMainArm() : villager.getMainArm().getOpposite();
 	}
 }

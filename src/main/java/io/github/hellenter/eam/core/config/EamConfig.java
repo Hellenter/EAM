@@ -61,10 +61,11 @@ public record EamConfig(
 		boolean blueMoon,
 		boolean foodSpoilage,
 		boolean rainDousesFires,
-		boolean villagerGear
+		boolean villagerGear,
+		boolean villagerGuards
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -103,7 +104,7 @@ public record EamConfig(
 	/** The third map codec, for flags after {@code swampy_forest}: {@link LaterFlags} is full too. */
 	private record LastFlags(boolean talismanPortal, boolean arrowRecovery, boolean underworld, boolean livestockFeeding,
 			boolean monsterEvolution, boolean blueMoon, boolean foodSpoilage,
-			boolean rainDousesFires, boolean villagerGear) {
+			boolean rainDousesFires, boolean villagerGear, boolean villagerGuards) {
 		private static final MapCodec<LastFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal),
 				Codec.BOOL.optionalFieldOf("arrow_recovery", DEFAULT.arrowRecovery).forGetter(LastFlags::arrowRecovery),
@@ -113,12 +114,13 @@ public record EamConfig(
 				Codec.BOOL.optionalFieldOf("blue_moon", DEFAULT.blueMoon).forGetter(LastFlags::blueMoon),
 				Codec.BOOL.optionalFieldOf("food_spoilage", DEFAULT.foodSpoilage).forGetter(LastFlags::foodSpoilage),
 				Codec.BOOL.optionalFieldOf("rain_douses_fires", DEFAULT.rainDousesFires).forGetter(LastFlags::rainDousesFires),
-				Codec.BOOL.optionalFieldOf("villager_gear", DEFAULT.villagerGear).forGetter(LastFlags::villagerGear)
+				Codec.BOOL.optionalFieldOf("villager_gear", DEFAULT.villagerGear).forGetter(LastFlags::villagerGear),
+				Codec.BOOL.optionalFieldOf("villager_guards", DEFAULT.villagerGuards).forGetter(LastFlags::villagerGuards)
 		).apply(instance, LastFlags::new));
 
 		private static LastFlags of(EamConfig config) {
 			return new LastFlags(config.talismanPortal, config.arrowRecovery, config.underworld, config.livestockFeeding,
-					config.monsterEvolution, config.blueMoon, config.foodSpoilage, config.rainDousesFires, config.villagerGear);
+					config.monsterEvolution, config.blueMoon, config.foodSpoilage, config.rainDousesFires, config.villagerGear, config.villagerGuards);
 		}
 	}
 
@@ -146,7 +148,7 @@ public record EamConfig(
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
 			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding, last.monsterEvolution, last.blueMoon,
-			last.foodSpoilage, last.rainDousesFires, last.villagerGear)));
+			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
