@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingTags;
+import io.github.hellenter.eam.world.shield.ShieldModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
@@ -36,9 +37,10 @@ public class EamEnchantmentTagProvider extends FabricTagsProvider<Enchantment> {
 				Enchantments.PROJECTILE_PROTECTION, Enchantments.FEATHER_FALLING, Enchantments.RESPIRATION,
 				Enchantments.AQUA_AFFINITY, Enchantments.DEPTH_STRIDER, Enchantments.EFFICIENCY, Enchantments.SILK_TOUCH,
 				Enchantments.UNBREAKING, Enchantments.FORTUNE, Enchantments.LUCK_OF_THE_SEA, Enchantments.LURE,
-				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE, ArrowRecoveryModule.ARROW_RECOVERY);
-		// Arrow Recovery is an ordinary enchantment: on the table, on books, in loot and trades.
-		builder(EnchantmentTags.NON_TREASURE).add(ArrowRecoveryModule.ARROW_RECOVERY);
+				Enchantments.INFINITY, Enchantments.LOYALTY, Enchantments.RIPTIDE, ArrowRecoveryModule.ARROW_RECOVERY,
+				ShieldModule.LIGHT_AS_A_FEATHER);
+		// Arrow Recovery and Light as a Feather are ordinary enchantments: on the table, on books, in loot and trades.
+		builder(EnchantmentTags.NON_TREASURE).add(ArrowRecoveryModule.ARROW_RECOVERY, ShieldModule.LIGHT_AS_A_FEATHER);
 		// Villagers trade every book vanilla lets them but Mending: only a duergar runecarver sells that one.
 		builder(EnchantmentTags.TRADEABLE).setReplace(true)
 				.forceAddTag(EnchantmentTags.NON_TREASURE)

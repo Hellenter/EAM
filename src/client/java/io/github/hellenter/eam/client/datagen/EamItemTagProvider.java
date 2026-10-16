@@ -20,6 +20,7 @@ import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.mithril.MithrilModule;
+import io.github.hellenter.eam.world.shield.ShieldModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -90,6 +91,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 		// Axes take the melee weapon enchantments too: looting, knockback, fire aspect.
 		builder(ItemTags.MELEE_WEAPON_ENCHANTABLE).addOptionalTag(ItemTags.AXES);
+		builder(ShieldModule.ENCHANTABLE).add(Items.SHIELD.builtInRegistryHolder().key());
 
 		// Logs break only with these; a battle axe goes here too.
 		builder(HandBreakingModule.CHOPS_LOGS).forceAddTag(ItemTags.AXES);
