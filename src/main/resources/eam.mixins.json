@@ -28,6 +28,7 @@
 		"mobs.vanilla.AbstractArrowMixin",
 		"mobs.vanilla.ClipContextMixin",
 		"mobs.vanilla.LivingEntityDeathDropsMixin",
+		"mobs.vanilla.villager.HarvestFarmlandMixin",
 		"mobs.vanilla.villager.ShowTradesToPlayerMixin",
 		"mobs.vanilla.villager.UseBonemealMixin",
 		"mobs.vanilla.villager.VillagerAttributesMixin",

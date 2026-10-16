@@ -180,6 +180,11 @@ public final class VillagerGearModule {
 		villager.setItemSlot(EquipmentSlot.MAINHAND, stack);
 	}
 
+	/** After something a player gave the villager wore: a broken main hand item gives way to the work item. */
+	static void afterWear(Villager villager) {
+		if (villager.getMainHandItem().isEmpty()) resetHand(villager);
+	}
+
 	/** Whether vanilla's drop chance for a shown item applies: not when the hand holds a player's item aside. */
 	public static boolean keepsVanillaDropChance() {
 		return !enabled;
