@@ -141,6 +141,17 @@ public final class VillagerGearModule {
 		return current == null ? Optional.empty() : current.tools();
 	}
 
+	/** Items the villager's inventory takes besides food, if his trade has any. */
+	public static Optional<TagKey<Item>> goods(Villager villager) {
+		VillagerWork current = work(villager);
+		return current == null ? Optional.empty() : current.goods();
+	}
+
+	/** The goods a player can give a villager of {@code profession}, named by its datagen. */
+	public static TagKey<Item> goodsTag(ResourceKey<VillagerProfession> profession) {
+		return TagKey.create(Registries.ITEM, Eam.id("villager_goods/" + profession.identifier().getPath()));
+	}
+
 	/** What the villager really holds in his main hand, even while vanilla shows a trade in it. */
 	public static ItemStack realHand(Villager villager) {
 		ItemStack aside = villager.getAttached(HELD_ASIDE);
@@ -240,7 +251,7 @@ public final class VillagerGearModule {
 
 		@Override
 		public VillagerGearMenu.OpenData getScreenOpeningData(ServerPlayer player) {
-			return new VillagerGearMenu.OpenData(villager.getId(), tools(villager));
+			return new VillagerGearMenu.OpenData(villager.getId(), tools(villager), goods(villager));
 		}
 
 		@Override

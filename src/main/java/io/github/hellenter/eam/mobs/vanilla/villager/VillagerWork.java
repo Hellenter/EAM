@@ -16,10 +16,12 @@ import java.util.Optional;
  *
  * @param item  the villager's own work item: always in his inventory, held while his hand is free, never given or taken
  * @param tools items a player can give him to work with instead, such as better hoes for a farmer
+ * @param goods items his inventory takes besides food, such as brewing ingredients for a cleric
  */
-public record VillagerWork(Item item, Optional<TagKey<Item>> tools) {
+public record VillagerWork(Item item, Optional<TagKey<Item>> tools, Optional<TagKey<Item>> goods) {
 	public static final Codec<VillagerWork> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(VillagerWork::item),
-			TagKey.codec(Registries.ITEM).optionalFieldOf("tools").forGetter(VillagerWork::tools)
+			TagKey.codec(Registries.ITEM).optionalFieldOf("tools").forGetter(VillagerWork::tools),
+			TagKey.codec(Registries.ITEM).optionalFieldOf("goods").forGetter(VillagerWork::goods)
 	).apply(instance, VillagerWork::new));
 }
