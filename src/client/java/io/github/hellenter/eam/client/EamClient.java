@@ -74,6 +74,7 @@ import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.client.mobs.villager.VillagerFigureModel;
 import io.github.hellenter.eam.client.mobs.villager.VillagerFigureRenderer;
 import io.github.hellenter.eam.client.mobs.villager.VillagerGearScreen;
+import io.github.hellenter.eam.client.mobs.villager.VillagerTradePanelScreen;
 import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
@@ -218,6 +219,7 @@ public class EamClient implements ClientModInitializer {
 		MenuScreens.<BrewingStandMenu, SilverBrewingStandScreen>register(BrewingModule.MENU, SilverBrewingStandScreen::new);
 		MenuScreens.register(FeederModule.MENU, FeederScreen::new);
 		MenuScreens.register(VillagerGearModule.MENU, VillagerGearScreen::new);
+		VillagerTradePanelScreen.init();
 		MenuScreens.register(FridgeModule.MENU, FridgeScreen::new);
 		CraftProgress.register();
 		HotIronTooltip.register();

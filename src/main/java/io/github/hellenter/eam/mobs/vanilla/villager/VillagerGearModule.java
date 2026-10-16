@@ -44,8 +44,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Villagers get an inventory a player opens with a right click: armor, a weapon or a tool of their trade, a shield and
- * the slots they keep food in, with a button to their trades (sneaking still opens the trades directly). Each profession
+ * Villagers get an inventory: armor, a weapon or a tool of their trade, a shield and the slots they keep food in. A right
+ * click opens a villager's trades with his gear beside them and a button to his inventory; sneaking opens the inventory
+ * directly, and so does a right click on a villager with nothing to trade. Each profession
  * has a work item the villager always has and holds while his hand is free; which one is in
  * {@code data/<namespace>/villager_work/<profession>.json}. What a player gives drops when the villager dies; the work
  * item never leaves him.
@@ -85,13 +86,21 @@ public final class VillagerGearModule {
 	public static void register() {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(VillagerWorkLoader.ID, new VillagerWorkLoader());
 		PayloadTypeRegistry.serverboundPlay().register(VillagerTradePayload.TYPE, VillagerTradePayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(VillagerInventoryPayload.TYPE, VillagerInventoryPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(VillagerTradePanelPayload.TYPE, VillagerTradePanelPayload.STREAM_CODEC);
 	}
 
 	public static void init() {
 		enabled = true;
 		UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
-			if (!(entity instanceof Villager villager) || !opensGear(player, villager, hand)) return InteractionResult.PASS;
-			if (player instanceof ServerPlayer serverPlayer) serverPlayer.openMenu(new Provider(villager));
+			if (!(entity instanceof Villager villager) || !interacts(player, villager, hand)) return InteractionResult.PASS;
+			if (player instanceof ServerPlayer serverPlayer) {
+				if (serverPlayer.isSecondaryUseActive() || villager.getOffers().isEmpty()) {
+					serverPlayer.openMenu(new Provider(villager));
+				} else {
+					startTrading(villager, serverPlayer);
+				}
+			}
 			return InteractionResult.SUCCESS;
 		});
 		ServerPlayNetworking.registerGlobalReceiver(VillagerTradePayload.TYPE, (payload, context) -> {
@@ -100,6 +109,13 @@ public final class VillagerGearModule {
 			Villager villager = menu.villager();
 			player.closeContainer();
 			startTrading(villager, player);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(VillagerInventoryPayload.TYPE, (payload, context) -> {
+			ServerPlayer player = context.player();
+			Villager villager = VillagerTradePanel.trading(player);
+			if (villager == null || !villager.isAlive()) return;
+			player.closeContainer();
+			player.openMenu(new Provider(villager));
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
 			if (entity instanceof Villager villager) resetHand(villager);
@@ -201,8 +217,8 @@ public final class VillagerGearModule {
 		return !enabled;
 	}
 
-	private static boolean opensGear(Player player, Villager villager, InteractionHand hand) {
-		if (hand != InteractionHand.MAIN_HAND || player.isSpectator() || player.isSecondaryUseActive()) return false;
+	private static boolean interacts(Player player, Villager villager, InteractionHand hand) {
+		if (hand != InteractionHand.MAIN_HAND || player.isSpectator()) return false;
 		ItemStack held = player.getItemInHand(hand);
 		if (held.is(Items.VILLAGER_SPAWN_EGG) || held.is(Items.NAME_TAG) || held.is(Items.LEAD)) return false;
 		return villager.isAlive() && !villager.isBaby() && !villager.isSleeping() && !villager.isTrading();
@@ -217,6 +233,7 @@ public final class VillagerGearModule {
 			return;
 		}
 		((VillagerInvoker) villager).eam$startTrading(player);
+		VillagerTradePanel.show(villager, player);
 	}
 
 	/** Gives the villager his work item when his hand holds no item of a player's, or takes an old trade's away. */
