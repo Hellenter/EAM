@@ -154,6 +154,7 @@
   "container.eam.fridge.no_ice": "Нет льда: еда портится",
   "container.eam.obsidian_blast_furnace": "Обсидиановая доменная печь",
   "container.eam.silver_brewing_stand": "Серебряная варочная стойка",
+  "container.eam.villager.inventory": "Инвентарь",
   "container.eam.villager.trade": "Торговать",
   "death.attack.eam.baba_yaga_beam": "%2$s сожгла %1$s дотла",
   "death.attack.eam.baba_yaga_beam.player": "%2$s сожгла %1$s дотла",

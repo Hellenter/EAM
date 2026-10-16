@@ -43,7 +43,7 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 	/** Height of the part above the player's inventory: four rows, like a chest with four rows. */
 	public static final int TOP_HEIGHT = TOP - 1 + 4 * SLOT;
 	public static final int PLAYER_INVENTORY_TOP = TOP_HEIGHT + 14;
-	private static final Identifier[] ARMOR_ICONS = {InventoryMenu.EMPTY_ARMOR_SLOT_HELMET, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE,
+	static final Identifier[] ARMOR_ICONS = {InventoryMenu.EMPTY_ARMOR_SLOT_HELMET, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE,
 			InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS};
 
 	private final Container gear;
@@ -151,7 +151,7 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 	 * What the client needs to lay the menu out: the villager, to draw him, and the tag of tools his trade can take.
 	 */
 	public record OpenData(int villagerId, Optional<TagKey<Item>> tools, Optional<TagKey<Item>> goods) {
-		private static final StreamCodec<ByteBuf, Optional<TagKey<Item>>> TAG = ByteBufCodecs.optional(
+		public static final StreamCodec<ByteBuf, Optional<TagKey<Item>>> TAG = ByteBufCodecs.optional(
 				Identifier.STREAM_CODEC.map(id -> TagKey.create(Registries.ITEM, id), TagKey::location));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenData> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.VAR_INT, OpenData::villagerId,
