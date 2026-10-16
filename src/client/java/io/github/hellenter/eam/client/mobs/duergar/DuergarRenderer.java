@@ -29,8 +29,9 @@ import net.minecraft.world.item.Items;
 public class DuergarRenderer<T extends Mob & DuergarLook> extends HumanoidMobRenderer<T, DuergarRenderState, DuergarModel> {
 	private final Identifier[] textures;
 	private final RenderType eyes;
-	private final ItemStack bomb = new ItemStack(EamItems.DUERGAR_BOMB);
-	private final ItemStack flintAndSteel = new ItemStack(Items.FLINT_AND_STEEL);
+	// Made on first use: renderers are built before item components are bound, so a stack here breaks the reload.
+	private ItemStack bomb;
+	private ItemStack flintAndSteel;
 
 	public DuergarRenderer(EntityRendererProvider.Context context, String kind, int skins) {
 		super(context, new DuergarModel(context.bakeLayer(DuergarModel.LAYER)), 0.5F);
@@ -63,6 +64,10 @@ public class DuergarRenderer<T extends Mob & DuergarLook> extends HumanoidMobRen
 			state.actionTime = renegade.actionTime(partialTicks);
 			if (state.action == RenegadeAction.BOMB && state.actionTime < RenegadeAction.BOMB_THROW) {
 				// The bomb in his right hand, the flint and steel in his left until the fuse catches.
+				if (bomb == null) {
+					bomb = new ItemStack(EamItems.DUERGAR_BOMB);
+					flintAndSteel = new ItemStack(Items.FLINT_AND_STEEL);
+				}
 				ItemStack flint = state.actionTime < RenegadeAction.BOMB_LIT + 2 ? flintAndSteel : ItemStack.EMPTY;
 				itemModelResolver.updateForLiving(state.rightHandItemState, bomb, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, duergar);
 				itemModelResolver.updateForLiving(state.leftHandItemState, flint, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, duergar);
