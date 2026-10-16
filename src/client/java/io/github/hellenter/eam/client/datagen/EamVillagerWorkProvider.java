@@ -39,18 +39,19 @@ public class EamVillagerWorkProvider extends FabricCodecDataProvider<VillagerWor
 		withTools(provider, VillagerProfession.WEAPONSMITH, EamItems.COPPER_HAMMER);
 		withTools(provider, VillagerProfession.MASON, Items.WOODEN_PICKAXE);
 		only(provider, VillagerProfession.LIBRARIAN, Items.BOOK);
-		only(provider, VillagerProfession.CLERIC, Items.GLASS_BOTTLE);
+		provider.accept(VillagerProfession.CLERIC.identifier(), new VillagerWork(Items.GLASS_BOTTLE, Optional.empty(),
+				Optional.of(VillagerGearModule.goodsTag(VillagerProfession.CLERIC))));
 		only(provider, VillagerProfession.CARTOGRAPHER, Items.MAP);
 		only(provider, VillagerProfession.LEATHERWORKER, Items.LEATHER);
 		only(provider, VillagerProfession.FLETCHER, Items.ARROW);
 	}
 
 	private static void withTools(BiConsumer<Identifier, VillagerWork> provider, ResourceKey<VillagerProfession> profession, Item item) {
-		provider.accept(profession.identifier(), new VillagerWork(item, Optional.of(VillagerGearModule.toolsTag(profession))));
+		provider.accept(profession.identifier(), new VillagerWork(item, Optional.of(VillagerGearModule.toolsTag(profession)), Optional.empty()));
 	}
 
 	private static void only(BiConsumer<Identifier, VillagerWork> provider, ResourceKey<VillagerProfession> profession, Item item) {
-		provider.accept(profession.identifier(), new VillagerWork(item, Optional.empty()));
+		provider.accept(profession.identifier(), new VillagerWork(item, Optional.empty(), Optional.empty()));
 	}
 
 	@Override

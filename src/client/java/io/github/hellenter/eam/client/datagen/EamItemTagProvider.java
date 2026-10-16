@@ -15,6 +15,7 @@ import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
+import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.farming.HarvestModule;
@@ -41,6 +42,7 @@ import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.Items;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -99,6 +101,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(VillagerGearModule.toolsTag(VillagerProfession.ARMORER)).forceAddTag(ForgingTags.HAMMERS);
 		builder(VillagerGearModule.toolsTag(VillagerProfession.TOOLSMITH)).forceAddTag(ForgingTags.HAMMERS);
 		builder(VillagerGearModule.toolsTag(VillagerProfession.WEAPONSMITH)).forceAddTag(ForgingTags.HAMMERS);
+		var clericGoods = builder(VillagerGearModule.goodsTag(VillagerProfession.CLERIC));
+		ClericSettings.DEFAULT.potions().keySet().stream().map(item -> item.builtInRegistryHolder().key())
+				.sorted(Comparator.comparing(key -> key.identifier().toString())).forEach(clericGoods::add);
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),

@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.vanilla.villager;
 
+import io.netty.buffer.ByteBuf;
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -67,6 +69,7 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 			addSlot(new ArmorSlot(gear, i, VillagerGearContainer.ARMOR[i], ARMOR_ICONS[i]));
 		}
 		Optional<TagKey<Item>> tools = data.tools();
+		Optional<TagKey<Item>> goods = data.goods();
 		addSlot(new GearSlot(gear, VillagerGearContainer.MAIN_HAND, HANDS_X, TOP + SLOT, null) {
 			@Override
 			public boolean mayPlace(ItemStack stack) {
@@ -94,7 +97,8 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 			addSlot(new Slot(gear, VillagerGearContainer.INVENTORY + i, INVENTORY_X + i % INVENTORY_COLUMNS * SLOT, TOP + i / INVENTORY_COLUMNS * SLOT) {
 				@Override
 				public boolean mayPlace(ItemStack stack) {
-					return stack.is(ItemTags.VILLAGER_PICKS_UP) || stack.has(DataComponents.VILLAGER_FOOD);
+					return stack.is(ItemTags.VILLAGER_PICKS_UP) || stack.has(DataComponents.VILLAGER_FOOD)
+							|| goods.isPresent() && stack.is(goods.get());
 				}
 			});
 		}
@@ -146,10 +150,13 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 	/**
 	 * What the client needs to lay the menu out: the villager, to draw him, and the tag of tools his trade can take.
 	 */
-	public record OpenData(int villagerId, Optional<TagKey<Item>> tools) {
+	public record OpenData(int villagerId, Optional<TagKey<Item>> tools, Optional<TagKey<Item>> goods) {
+		private static final StreamCodec<ByteBuf, Optional<TagKey<Item>>> TAG = ByteBufCodecs.optional(
+				Identifier.STREAM_CODEC.map(id -> TagKey.create(Registries.ITEM, id), TagKey::location));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenData> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.VAR_INT, OpenData::villagerId,
-				ByteBufCodecs.optional(Identifier.STREAM_CODEC.map(id -> TagKey.create(Registries.ITEM, id), TagKey::location)), OpenData::tools,
+				TAG, OpenData::tools,
+				TAG, OpenData::goods,
 				OpenData::new);
 	}
 

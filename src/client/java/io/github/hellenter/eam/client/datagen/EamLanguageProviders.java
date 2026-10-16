@@ -132,6 +132,7 @@ public final class EamLanguageProviders {
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.ARMORER), "Armorer Tools");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.TOOLSMITH), "Toolsmith Tools");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.WEAPONSMITH), "Weaponsmith Tools");
+			builder.add(VillagerGearModule.goodsTag(VillagerProfession.CLERIC), "Cleric Ingredients");
 			builder.add(HarvestModule.CROPS, "Harvest Enchantment Crops");
 			builder.add(HarvestModule.PRODUCE, "Harvest Enchantment Produce");
 			builder.add("gui.eam.enchanting.title", "Choose Enchantments");
@@ -802,6 +803,7 @@ public final class EamLanguageProviders {
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.ARMORER), "Инструменты бронника");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.TOOLSMITH), "Инструменты инструментальщика");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.WEAPONSMITH), "Инструменты оружейника");
+			builder.add(VillagerGearModule.goodsTag(VillagerProfession.CLERIC), "Ингредиенты священника");
 			builder.add(HarvestModule.CROPS, "Культуры для чар «Урожай»");
 			builder.add(HarvestModule.PRODUCE, "Плоды для чар «Урожай»");
 			builder.add("gui.eam.enchanting.title", "Выбор чар");

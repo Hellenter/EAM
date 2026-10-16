@@ -1,0 +1,15 @@
+{
+  "brew_interval_ticks": 1200,
+  "heal_amount": 2.0,
+  "heal_interval_ticks": 200,
+  "potion_max": 4,
+  "potions": {
+    "minecraft:blaze_powder": "minecraft:strength",
+    "minecraft:ghast_tear": "minecraft:regeneration",
+    "minecraft:glistering_melon_slice": "minecraft:healing",
+    "minecraft:golden_carrot": "minecraft:night_vision",
+    "minecraft:magma_cream": "minecraft:fire_resistance",
+    "minecraft:sugar": "minecraft:swiftness"
+  },
+  "radius": 16
+}
