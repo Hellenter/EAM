@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:stick",
+    "eam:adamantium_ingot"
+  ],
+  "result": {
+    "id": "eam:adamantium_knife"
+  }
+}

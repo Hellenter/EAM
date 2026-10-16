@@ -50,10 +50,18 @@ class GearLogicTest {
 		assertEquals(Optional.of(24), GearLogic.toolDurability("copper_pickaxe"));
 		assertEquals(Optional.of(250), GearLogic.toolDurability("iron_sword"));
 		assertEquals(Optional.empty(), GearLogic.toolDurability("golden_pickaxe"));
+		// Netherite lasts three times as long as adamantium, which keeps vanilla netherite's 2031.
+		assertEquals(Optional.of(6093), GearLogic.toolDurability("netherite_pickaxe"));
+		assertEquals(Optional.empty(), GearLogic.toolDurability("adamantium_pickaxe"));
 	}
 
 	@Test
 	void copperArmorHalved() {
 		assertEquals(88, GearLogic.copperArmorDurability(176));
+	}
+
+	@Test
+	void netheriteArmorTripled() {
+		assertEquals(1221, GearLogic.netheriteArmorDurability(407));
 	}
 }

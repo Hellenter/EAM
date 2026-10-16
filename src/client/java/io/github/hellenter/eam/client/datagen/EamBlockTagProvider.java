@@ -121,6 +121,13 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		diamondTool.setReplace(true);
 		diamondTool.add(BlockItemIds.CRYING_OBSIDIAN, BlockItemIds.NETHERITE_BLOCK, BlockItemIds.RESPAWN_ANCHOR, BlockItemIds.ANCIENT_DEBRIS);
 		builder(BlockTags.ANVIL).add(EamBlocks.MITHRIL_ANVIL.builtInRegistryHolder().key());
+		// Adamantium: a mithril pickaxe or better.
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.ADAMANTIUM_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.builtInRegistryHolder().key(), EamBlocks.ADAMANTIUM_BLOCK.builtInRegistryHolder().key(),
+				EamBlocks.ADAMANTIUM_ANVIL.builtInRegistryHolder().key());
+		diamondTool.add(EamBlocks.ADAMANTIUM_ORE.builtInRegistryHolder().key(), EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.builtInRegistryHolder().key(),
+				EamBlocks.ADAMANTIUM_BLOCK.builtInRegistryHolder().key());
+		builder(BlockTags.ANVIL).add(EamBlocks.ADAMANTIUM_ANVIL.builtInRegistryHolder().key());
 
 		// Silver and mithril bars, doors and trapdoors: tagged like the iron ones, so safe rooms count the doors as doors.
 		builder(BlockTags.BARS).add(EamBlocks.SILVER_BARS.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key());

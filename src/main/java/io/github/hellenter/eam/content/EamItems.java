@@ -13,6 +13,7 @@ import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.heart.HeartInJarItem;
 import io.github.hellenter.eam.content.horn.CommanderHornItem;
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
@@ -294,6 +295,36 @@ public final class EamItems {
 	public static final Item MITHRIL_SAW = register("mithril_saw", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item MITHRIL_HAMMER = register("mithril_hammer", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item MITHRIL_ANVIL = blockItem("mithril_anvil", EamBlocks.MITHRIL_ANVIL);
+
+	public static final Item ADAMANTIUM_ORE = blockItem("adamantium_ore", EamBlocks.ADAMANTIUM_ORE);
+	public static final Item DEEPSLATE_ADAMANTIUM_ORE = blockItem("deepslate_adamantium_ore", EamBlocks.DEEPSLATE_ADAMANTIUM_ORE);
+	public static final Item ADAMANTIUM_BLOCK = blockItem("adamantium_block", EamBlocks.ADAMANTIUM_BLOCK);
+	public static final Item RAW_ADAMANTIUM = register("raw_adamantium", Item::new, new Item.Properties());
+	public static final Item ADAMANTIUM_INGOT = register("adamantium_ingot", Item::new, new Item.Properties());
+	public static final Item ADAMANTIUM_NUGGET = register("adamantium_nugget", Item::new, new Item.Properties());
+	/** An adamantium ingot heated in the obsidian blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item HOT_ADAMANTIUM_INGOT = register("hot_adamantium_ingot", p -> new HotIronItem(ADAMANTIUM_INGOT, p), new Item.Properties());
+	/** Forged from hot adamantium on the adamantium anvil; adamantium armor is made of these. */
+	public static final Item ADAMANTIUM_PLATE = register("adamantium_plate", Item::new, new Item.Properties().stacksTo(16));
+
+	/** Adamantium tools hit and last like vanilla netherite ones; netherite is their smithing upgrade. */
+	public static final Item ADAMANTIUM_SWORD = register("adamantium_sword", Item::new, new Item.Properties().sword(AdamantiumGear.TOOL, 3.0F, -2.4F));
+	public static final Item ADAMANTIUM_SHOVEL = register("adamantium_shovel", Item::new, new Item.Properties().shovel(AdamantiumGear.TOOL, 1.5F, -3.0F));
+	public static final Item ADAMANTIUM_PICKAXE = register("adamantium_pickaxe", Item::new, new Item.Properties().pickaxe(AdamantiumGear.TOOL, 1.0F, -2.8F));
+	public static final Item ADAMANTIUM_AXE = register("adamantium_axe", Item::new, new Item.Properties().axe(AdamantiumGear.TOOL, 5.0F, -3.0F));
+	public static final Item ADAMANTIUM_HOE = register("adamantium_hoe", Item::new, new Item.Properties().hoe(AdamantiumGear.TOOL, -4.0F, 0.0F));
+
+	/** Adamantium armor protects and lasts like vanilla netherite, before the gear module's cut. */
+	public static final Item ADAMANTIUM_HELMET = armor("adamantium_helmet", AdamantiumGear.ARMOR, ArmorType.HELMET);
+	public static final Item ADAMANTIUM_CHESTPLATE = armor("adamantium_chestplate", AdamantiumGear.ARMOR, ArmorType.CHESTPLATE);
+	public static final Item ADAMANTIUM_LEGGINGS = armor("adamantium_leggings", AdamantiumGear.ARMOR, ArmorType.LEGGINGS);
+	public static final Item ADAMANTIUM_BOOTS = armor("adamantium_boots", AdamantiumGear.ARMOR, ArmorType.BOOTS);
+
+	public static final Item ADAMANTIUM_KNIFE = register("adamantium_knife", KnifeItem::new, new Item.Properties()
+			.sword(AdamantiumGear.KNIFE, AdamantiumGear.KNIFE_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+	public static final Item ADAMANTIUM_SAW = register("adamantium_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ADAMANTIUM_HAMMER = register("adamantium_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ADAMANTIUM_ANVIL = blockItem("adamantium_anvil", EamBlocks.ADAMANTIUM_ANVIL);
 
 	public static final Item OBSIDIAN_BLAST_FURNACE = blockItem("obsidian_blast_furnace", EamBlocks.OBSIDIAN_BLAST_FURNACE);
 

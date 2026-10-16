@@ -246,6 +246,7 @@ final class UnderworldWorldgen {
 	static final ResourceKey<PlacedFeature> P_ORE_SILVER = placed("underworld/ore_silver", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_MITHRIL = placed("underworld/ore_mithril", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_MITHRIL_DEPTHS = placed("underworld/ore_mithril_depths", GenerationStep.Decoration.UNDERGROUND_ORES);
+	static final ResourceKey<PlacedFeature> P_ORE_ADAMANTIUM = placed("underworld/ore_adamantium", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_DIAMOND = placed("underworld/ore_diamond", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_REDSTONE = placed("underworld/ore_redstone", GenerationStep.Decoration.UNDERGROUND_ORES);
 	static final ResourceKey<PlacedFeature> P_ORE_LAPIS = placed("underworld/ore_lapis", GenerationStep.Decoration.UNDERGROUND_ORES);
@@ -766,7 +767,7 @@ final class UnderworldWorldgen {
 		PlacementUtils.register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
 		// Ores: the underworld is where the rare ores are. Diamond, silver and mithril are richer than in the overworld,
 		// the common ores (iron, gold, copper, redstone, lapis) scarcer. Copper, silver, redstone and lapis only in the
-		// upper level; mithril is most common under the deep bedrock. The hot biomes (lava caves, mushroom forest) add
+		// upper level; mithril is most common under the deep bedrock, and adamantium is found only there. The hot biomes (lava caves, mushroom forest) add
 		// gold and redstone; the ice caves add diamond, silver, mithril and lapis.
 		ore(context, P_ORE_IRON, features.getOrThrow(OreFeatures.ORE_IRON), 9, all);
 		ore(context, P_ORE_GOLD, features.getOrThrow(OreFeatures.ORE_GOLD), 3, all);
@@ -777,6 +778,9 @@ final class UnderworldWorldgen {
 		ore(context, P_ORE_SILVER, features.getOrThrow(EamWorldgen.ORE_SILVER), 9, upper);
 		ore(context, P_ORE_MITHRIL, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
 		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 6, lower);
+		// Adamantium only in the depths, one small vein per chunk on average (3 tries, each kept 1 time in 3).
+		PlacementUtils.register(context, P_ORE_ADAMANTIUM, features.getOrThrow(EamWorldgen.ORE_ADAMANTIUM), List.of(CountPlacement.of(3),
+				RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		ore(context, P_ORE_GOLD_HOT, features.getOrThrow(OreFeatures.ORE_GOLD), 7, upper);
 		ore(context, P_ORE_REDSTONE_HOT, features.getOrThrow(OreFeatures.ORE_REDSTONE), 6, upper);
 		ore(context, P_ORE_DIAMOND_ICE, features.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL), 4, upper);
@@ -1019,7 +1023,7 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
 				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),
-				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_DIAMOND), P_ORE_MITHRIL_DEPTHS, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
+				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_DIAMOND), P_ORE_MITHRIL_DEPTHS, P_ORE_ADAMANTIUM, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
 						P_GLOW_LICHEN),
 				spawns()));
 	}

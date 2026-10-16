@@ -20,4 +20,11 @@ class BreakTimeLogicTest {
 	void unbreakableStaysUnbreakable() {
 		assertEquals(0.0F, BreakTimeLogic.destroyProgress(0.0F));
 	}
+
+	@Test
+	void fullSpeedToolsBreakLikeVanilla() {
+		assertEquals(0.04F, BreakTimeLogic.destroyProgress(0.04F, true), 1e-6F);
+		assertEquals(Float.POSITIVE_INFINITY, BreakTimeLogic.destroyProgress(Float.POSITIVE_INFINITY, true));
+		assertEquals(0.01F, BreakTimeLogic.destroyProgress(0.04F, false), 1e-6F);
+	}
 }
