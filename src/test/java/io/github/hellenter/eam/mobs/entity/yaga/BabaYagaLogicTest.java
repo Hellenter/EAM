@@ -215,4 +215,64 @@ class BabaYagaLogicTest {
 			assertEquals(SETTINGS.summon(), parsed.summon());
 		}
 	}
+
+	@Test
+	void dataFileHasTheCrowdScaling() throws Exception {
+		try (var reader = new java.io.InputStreamReader(BabaYagaLogicTest.class.getResourceAsStream("/data/eam/mobs/baba_yaga.json"))) {
+			var json = com.google.gson.JsonParser.parseReader(reader);
+			BabaYagaSettings parsed = BabaYagaSettings.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE, json).getOrThrow();
+			assertEquals(SETTINGS.crowd(), parsed.crowd());
+		}
+	}
+
+	@Test
+	void wavesGrowWithThePlayers() {
+		BabaYagaSettings.Summon summon = SETTINGS.summon();
+		BabaYagaSettings.Crowd crowd = SETTINGS.crowd();
+		assertEquals(List.of(2, 2), BabaYagaLogic.waveShape(1, summon, crowd));
+		assertEquals(List.of(3, 3), BabaYagaLogic.waveShape(2, summon, crowd));
+		assertEquals(List.of(3, 3, 2), BabaYagaLogic.waveShape(3, summon, crowd));
+		assertEquals(List.of(3, 3, 3), BabaYagaLogic.waveShape(4, summon, crowd));
+		assertEquals(List.of(3, 3, 3), BabaYagaLogic.waveShape(7, summon, crowd));
+	}
+
+	@Test
+	void creaturesLoseLessHealthInBigFightsAndSoldiersNone() {
+		BabaYagaSettings.Summon summon = SETTINGS.summon();
+		BabaYagaSettings.Crowd crowd = SETTINGS.crowd();
+		assertEquals(0.7, BabaYagaLogic.healthMultiplier(Creature.WIGHT, 1, summon, crowd), 1.0E-9);
+		assertEquals(0.7, BabaYagaLogic.healthMultiplier(Creature.LURKER, 3, summon, crowd), 1.0E-9);
+		assertEquals(0.9, BabaYagaLogic.healthMultiplier(Creature.LURKER, 4, summon, crowd), 1.0E-9);
+		assertEquals(1.0, BabaYagaLogic.healthMultiplier(Creature.SOLDIER, 1, summon, crowd), 1.0E-9);
+		assertEquals(1.0, BabaYagaLogic.healthMultiplier(Creature.SOLDIER, 5, summon, crowd), 1.0E-9);
+	}
+
+	@Test
+	void aThirdSubWaveIsTheFirstHalfOfAnotherGroup() {
+		java.util.Random random = new java.util.Random(7);
+		for (int i = 0; i < 200; i++) {
+			List<List<Creature>> parts = BabaYagaLogic.waveParts(GroupKind.LURKERS, 3, SETTINGS.summon(), random::nextDouble);
+			assertEquals(3, parts.size());
+			int total = parts.stream().mapToInt(List::size).sum();
+			assertTrue(total >= 3 && total <= 8, "total " + total);
+			assertTrue(parts.get(2).size() >= 1 && parts.get(2).size() <= 3);
+		}
+		assertEquals(1, BabaYagaLogic.waveParts(GroupKind.WIGHTS, 1, SETTINGS.summon(), () -> 0.5).size());
+	}
+
+	@Test
+	void aWaveNeverHasMoreWightsThanTheCap() {
+		List<List<List<Creature>>> wave = List.of(
+				List.of(List.of(Creature.WIGHT, Creature.SOLDIER), List.of(Creature.SOLDIER), List.of(Creature.WIGHT)),
+				List.of(List.of(Creature.LURKER), List.of(Creature.SOLDIER)),
+				List.of(List.of(Creature.WIGHT), List.of(Creature.SOLDIER), List.of(Creature.WIGHT)));
+		List<List<List<Creature>>> capped = BabaYagaLogic.capWights(wave, 3);
+		long wights = capped.stream().flatMap(List::stream).flatMap(List::stream).filter(c -> c == Creature.WIGHT).count();
+		assertEquals(3, wights);
+		// The first sub-waves keep theirs; the last one in turn loses its wight.
+		assertEquals(List.of(Creature.WIGHT, Creature.SOLDIER), capped.get(0).get(0));
+		assertEquals(List.of(Creature.WIGHT), capped.get(2).get(0));
+		assertEquals(List.of(Creature.WIGHT), capped.get(0).get(2));
+		assertEquals(List.of(Creature.SOLDIER), capped.get(2).get(2));
+	}
 }
