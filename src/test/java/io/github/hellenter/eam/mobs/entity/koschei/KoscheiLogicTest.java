@@ -32,43 +32,57 @@ class KoscheiLogicTest {
 
 	@Test
 	void theBoltIsNeverShotFromCloserThanSixBlocks() {
-		assertEquals(Attack.BOLT, KoscheiLogic.choose(6.0, true, 0, ready(), null, ONE, ALWAYS).attack());
-		assertEquals(Attack.BOLT, KoscheiLogic.choose(15.0, true, 0, ready(), null, ONE, ALWAYS).attack());
-		assertNotEquals(Attack.BOLT, KoscheiLogic.choose(5.9, true, 0, ready(), null, ONE, ALWAYS).attack());
-		assertNotEquals(Attack.BOLT, KoscheiLogic.choose(2.0, true, 0, ready(), null, ONE, ALWAYS).attack());
+		assertEquals(Attack.BOLT, KoscheiLogic.choose(6.0, true, 0, 0, ready(), null, ONE, ALWAYS).attack());
+		assertEquals(Attack.BOLT, KoscheiLogic.choose(15.0, true, 0, 0, ready(), null, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.BOLT, KoscheiLogic.choose(5.9, true, 0, 0, ready(), null, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.BOLT, KoscheiLogic.choose(2.0, true, 0, 0, ready(), null, ONE, ALWAYS).attack());
 	}
 
 	@Test
 	void heLungesFromAboutFourBlocksAndWalksInFromFurther() {
 		int[] noBolt = cooling(Attack.BOLT);
-		assertEquals(Attack.LUNGE, KoscheiLogic.choose(4.0, true, 0, noBolt, null, ONE, ALWAYS).attack());
-		assertNull(KoscheiLogic.choose(7.0, true, 0, noBolt, null, ONE, ALWAYS).attack());
-		assertNull(KoscheiLogic.choose(4.0, true, 0, cooling(Attack.BOLT, Attack.LUNGE), null, ONE, ALWAYS).attack());
+		assertEquals(Attack.LUNGE, KoscheiLogic.choose(4.0, true, 0, 0, noBolt, null, ONE, ALWAYS).attack());
+		assertNull(KoscheiLogic.choose(7.0, true, 0, 0, noBolt, null, ONE, ALWAYS).attack());
+		assertNull(KoscheiLogic.choose(4.0, true, 0, 0, cooling(Attack.BOLT, Attack.LUNGE), null, ONE, ALWAYS).attack());
 	}
 
 	@Test
 	void aLungeWantedAtCloseRangeFailsAndAfterTwoHeMakesRoom() {
 		int[] noForce = cooling(Attack.BOLT, Attack.FORCE);
-		Choice close = KoscheiLogic.choose(2.0, true, 0, noForce, null, ONE, ALWAYS);
+		Choice close = KoscheiLogic.choose(2.0, true, 0, 0, noForce, null, ONE, ALWAYS);
 		assertTrue(close.lungeFailed());
 		assertNotEquals(Attack.LUNGE, close.attack());
-		assertNotEquals(Attack.MAKE_ROOM, KoscheiLogic.choose(2.0, true, ONE.lunge().maxFails(), noForce, null, ONE, ALWAYS).attack());
-		assertEquals(Attack.MAKE_ROOM, KoscheiLogic.choose(2.0, true, ONE.lunge().maxFails() + 1, noForce, null, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.MAKE_ROOM, KoscheiLogic.choose(2.0, true, 0, ONE.lunge().maxFails(), noForce, null, ONE, ALWAYS).attack());
+		assertEquals(Attack.MAKE_ROOM, KoscheiLogic.choose(2.0, true, 0, ONE.lunge().maxFails() + 1, noForce, null, ONE, ALWAYS).attack());
 	}
 
 	@Test
 	void theOrangeBlowNeedsAShieldThatIsNotKnockedOut() {
 		int[] onlyOrange = cooling(Attack.DOUBLE, Attack.RED, Attack.OVERHEAD);
 		KoscheiSettings.PhaseOne noStrike = new KoscheiSettings.PhaseOne(ONE.reach(), new KoscheiSettings.Blow(8.0F, 0.0F, 0),
-				ONE.doubleStrike(), ONE.orange(), ONE.red(), ONE.overhead(), ONE.lunge(), ONE.force(), ONE.bolt(), ONE.parry(), 1.0F);
-		assertEquals(Attack.ORANGE, KoscheiLogic.melee(true, onlyOrange, null, noStrike, ALWAYS));
-		assertEquals(Attack.STRIKE, KoscheiLogic.melee(false, onlyOrange, null, noStrike, ALWAYS));
+				ONE.doubleStrike(), ONE.orange(), ONE.red(), ONE.overhead(), ONE.lunge(), ONE.kick(), ONE.force(), ONE.bolt(), ONE.parry(), 1.0F);
+		assertEquals(Attack.ORANGE, KoscheiLogic.melee(true, false, onlyOrange, null, noStrike, ALWAYS));
+		assertEquals(Attack.STRIKE, KoscheiLogic.melee(false, false, onlyOrange, null, noStrike, ALWAYS));
+	}
+
+	@Test
+	void heKicksAShieldHeldUpCloseAndNeverFromAfar() {
+		int[] noBolt = cooling(Attack.BOLT, Attack.FORCE);
+		int held = ONE.kick().shieldTicks();
+		assertEquals(Attack.KICK, KoscheiLogic.choose(1.5, true, held, 0, noBolt, null, ONE, NEVER).attack());
+		assertNotEquals(Attack.KICK, KoscheiLogic.choose(1.5, true, held - 1, 0, noBolt, null, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.KICK, KoscheiLogic.choose(3.0, true, held, 0, noBolt, null, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.KICK, KoscheiLogic.choose(1.5, true, held, 0, cooling(Attack.BOLT, Attack.FORCE, Attack.KICK), null, ONE, ALWAYS)
+				.attack());
+		int[] onlyKick = cooling(Attack.STRIKE, Attack.DOUBLE, Attack.ORANGE, Attack.RED, Attack.OVERHEAD);
+		assertEquals(Attack.KICK, KoscheiLogic.melee(true, true, onlyKick, null, ONE, ALWAYS));
+		assertEquals(Attack.STRIKE, KoscheiLogic.melee(true, false, onlyKick, null, ONE, ALWAYS));
 	}
 
 	@Test
 	void blowsOnCooldownAreNotPicked() {
 		int[] all = cooling(Attack.DOUBLE, Attack.ORANGE, Attack.RED, Attack.OVERHEAD);
-		assertEquals(Attack.STRIKE, KoscheiLogic.melee(true, all, null, ONE, NEVER));
+		assertEquals(Attack.STRIKE, KoscheiLogic.melee(true, false, all, null, ONE, NEVER));
 	}
 
 	@Test

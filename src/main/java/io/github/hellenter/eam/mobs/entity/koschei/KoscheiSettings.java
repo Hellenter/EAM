@@ -41,7 +41,7 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 */
 	public record Stats(float health, int armor, double speed, double followRange, int xp, float regen, double armorPiercing,
 			float physicalResist, double attackSpeed) {
-		public static final Stats DEFAULT = new Stats(100.0F, 6, 0.32, 32.0, 300, 1.0F, 0.15, 0.2F, 1.75);
+		public static final Stats DEFAULT = new Stats(100.0F, 6, 0.384, 32.0, 300, 1.0F, 0.15, 0.2F, 1.75);
 
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(Stats::health),
@@ -71,16 +71,18 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param orange           the orange blow only a shield stops, knocking it out
 	 * @param red              the red blow a shield only halves
 	 * @param overhead         the red blow from over the head, parried as it comes down
-	 * @param lunge            the stab from four blocks off, parried just before it lands
+	 * @param lunge            the stab from four blocks off, parried just before it lands; a shield that takes it is knocked
+	 *                         out and a quick hit back then parries him
+	 * @param kick             the kick at close range, the way the Fallen Lord kicks: it knocks a raised shield out
 	 * @param force            the blue burst of force from the right hand that throws the target back
 	 * @param bolt             the lightning shot from the sword's point
 	 * @param parry            a player's parry
 	 * @param arrowParryChance chance he knocks an arrow from the front aside with his sword
 	 */
 	public record PhaseOne(double reach, Blow strike, Blow doubleStrike, Orange orange, Shielded red, Shielded overhead, Lunge lunge,
-			Force force, Bolt bolt, Parry parry, float arrowParryChance) {
+			Kick kick, Force force, Bolt bolt, Parry parry, float arrowParryChance) {
 		public static final PhaseOne DEFAULT = new PhaseOne(3.2, new Blow(8.0F, 4.0F, 0), new Blow(6.0F, 2.0F, 50), Orange.DEFAULT,
-				new Shielded(12.0F, 0.5F, 1.5F, 100, 0), new Shielded(12.0F, 0.5F, 1.5F, 120, 7), Lunge.DEFAULT, Force.DEFAULT, Bolt.DEFAULT,
+				new Shielded(12.0F, 0.5F, 1.5F, 100, 0), new Shielded(12.0F, 0.5F, 1.5F, 120, 7), Lunge.DEFAULT, Kick.DEFAULT, Force.DEFAULT, Bolt.DEFAULT,
 				Parry.DEFAULT, 1.0F);
 
 		public static final Codec<PhaseOne> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -91,6 +93,7 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Shielded.CODEC.fieldOf("red").orElse(DEFAULT.red).forGetter(PhaseOne::red),
 				Shielded.CODEC.fieldOf("overhead").orElse(DEFAULT.overhead).forGetter(PhaseOne::overhead),
 				Lunge.CODEC.fieldOf("lunge").orElse(DEFAULT.lunge).forGetter(PhaseOne::lunge),
+				Kick.CODEC.fieldOf("kick").orElse(DEFAULT.kick).forGetter(PhaseOne::kick),
 				Force.CODEC.fieldOf("force").orElse(DEFAULT.force).forGetter(PhaseOne::force),
 				Bolt.CODEC.fieldOf("bolt").orElse(DEFAULT.bolt).forGetter(PhaseOne::bolt),
 				Parry.CODEC.fieldOf("parry").orElse(DEFAULT.parry).forGetter(PhaseOne::parry),
@@ -155,9 +158,12 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param cooldown     ticks before he lunges again
 	 * @param parryWindow  ticks before the stab in which a player's hit parries him
 	 * @param maxFails     after this many times the target stood too close for a lunge he wanted, he makes room for one
+	 * @param shieldSeconds     how long a shield that takes the stab stays knocked out
+	 * @param shieldParryWindow ticks after the stab knocks a shield out in which the player's hit parries him
 	 */
-	public record Lunge(float damage, double minRange, double maxRange, float chance, int cooldown, int parryWindow, int maxFails) {
-		public static final Lunge DEFAULT = new Lunge(10.0F, 3.5, 5.0, 0.7F, 60, 7, 2);
+	public record Lunge(float damage, double minRange, double maxRange, float chance, int cooldown, int parryWindow, int maxFails,
+			float shieldSeconds, int shieldParryWindow) {
+		public static final Lunge DEFAULT = new Lunge(10.0F, 3.5, 5.0, 0.7F, 60, 7, 2, 5.0F, 11);
 
 		public static final Codec<Lunge> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Lunge::damage),
@@ -166,8 +172,36 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Lunge::chance),
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Lunge::cooldown),
 				Codec.intRange(1, 11).fieldOf("parry_window").orElse(DEFAULT.parryWindow).forGetter(Lunge::parryWindow),
-				Codec.intRange(0, 100).fieldOf("max_fails").orElse(DEFAULT.maxFails).forGetter(Lunge::maxFails)
+				Codec.intRange(0, 100).fieldOf("max_fails").orElse(DEFAULT.maxFails).forGetter(Lunge::maxFails),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Lunge::shieldSeconds),
+				Codec.intRange(1, 100).fieldOf("shield_parry_window").orElse(DEFAULT.shieldParryWindow).forGetter(Lunge::shieldParryWindow)
 		).apply(instance, Lunge::new));
+	}
+
+	/**
+	 * The kick, as the Fallen Lord kicks: a step in and a boot to the target. It knocks a raised shield out first, so it
+	 * always lands.
+	 *
+	 * @param damage        damage of the kick
+	 * @param knockback     how hard it pushes the target back
+	 * @param shieldSeconds how long a shield it kicks aside stays knocked out
+	 * @param reach         he kicks a target this close, flat from his centre
+	 * @param shieldTicks   a target that has held its shield up this many ticks this close gets kicked
+	 * @param weight        how likely he kicks a close target with no shield up, against his blows' weights
+	 * @param cooldown      ticks before he kicks again
+	 */
+	public record Kick(float damage, float knockback, float shieldSeconds, double reach, int shieldTicks, float weight, int cooldown) {
+		public static final Kick DEFAULT = new Kick(5.0F, 0.8F, 5.0F, 2.2, 8, 1.5F, 80);
+
+		public static final Codec<Kick> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Kick::damage),
+				Codec.floatRange(0.0F, 16.0F).fieldOf("knockback").orElse(DEFAULT.knockback).forGetter(Kick::knockback),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Kick::shieldSeconds),
+				Codec.doubleRange(0.5, 8.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(Kick::reach),
+				Codec.intRange(0, 200).fieldOf("shield_ticks").orElse(DEFAULT.shieldTicks).forGetter(Kick::shieldTicks),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("weight").orElse(DEFAULT.weight).forGetter(Kick::weight),
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Kick::cooldown)
+		).apply(instance, Kick::new));
 	}
 
 	/**

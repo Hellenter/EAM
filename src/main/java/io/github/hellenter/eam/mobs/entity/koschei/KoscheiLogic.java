@@ -13,6 +13,7 @@ public final class KoscheiLogic {
 		RED,
 		OVERHEAD,
 		LUNGE,
+		KICK,
 		FORCE,
 		BOLT,
 		/** Not a blow: the target stood too close for his lunge too often, so he makes room (the burst of force or a hop back). */
@@ -37,12 +38,13 @@ public final class KoscheiLogic {
 	 *
 	 * @param distance    flat distance to the target
 	 * @param shieldReady the target's shield is not knocked out
+	 * @param shieldTicks ticks the target has held its shield up toward him; 0 when it holds none up
 	 * @param lungeFails  times in a row the target stood too close for a lunge he wanted
 	 * @param cooldowns   ticks left for each {@link Attack}, by ordinal
 	 * @param last        his last attack, picked less often again
 	 * @param rolls       random numbers in [0, 1)
 	 */
-	public static Choice choose(double distance, boolean shieldReady, int lungeFails, int[] cooldowns, @Nullable Attack last,
+	public static Choice choose(double distance, boolean shieldReady, int shieldTicks, int lungeFails, int[] cooldowns, @Nullable Attack last,
 			KoscheiSettings.PhaseOne settings, DoubleSupplier rolls) {
 		KoscheiSettings.Bolt bolt = settings.bolt();
 		// The bolt is his rare pool: never from close by.
@@ -58,6 +60,12 @@ public final class KoscheiLogic {
 			}
 			return Choice.WALK;
 		}
+		KoscheiSettings.Kick kick = settings.kick();
+		boolean kickReady = cooldowns[Attack.KICK.ordinal()] <= 0 && distance <= kick.reach();
+		if (kickReady && shieldTicks >= kick.shieldTicks()) {
+			// Up close behind a raised shield: he kicks it aside.
+			return new Choice(Attack.KICK, false);
+		}
 		if (lungeFails > lunge.maxFails()) {
 			return new Choice(Attack.MAKE_ROOM, false);
 		}
@@ -66,19 +74,20 @@ public final class KoscheiLogic {
 		}
 		// A lunge he would take here fails: the target is inside its range. He cuts instead.
 		boolean failed = lungeReady && distance < lunge.minRange() && rolls.getAsDouble() < lunge.chance();
-		return new Choice(melee(shieldReady, cooldowns, last, settings, rolls), failed);
+		return new Choice(melee(shieldReady, kickReady, cooldowns, last, settings, rolls), failed);
 	}
 
-	/** One of his sword blows for a target in reach, picked by weight. */
-	public static Attack melee(boolean shieldReady, int[] cooldowns, @Nullable Attack last, KoscheiSettings.PhaseOne settings,
+	/** One of his blows for a target in reach, picked by weight; the kick only for a target close enough for it. */
+	public static Attack melee(boolean shieldReady, boolean kickReady, int[] cooldowns, @Nullable Attack last, KoscheiSettings.PhaseOne settings,
 			DoubleSupplier rolls) {
-		Attack[] blows = {Attack.STRIKE, Attack.DOUBLE, Attack.ORANGE, Attack.RED, Attack.OVERHEAD};
+		Attack[] blows = {Attack.STRIKE, Attack.DOUBLE, Attack.ORANGE, Attack.RED, Attack.OVERHEAD, Attack.KICK};
 		float[] weights = {
 				settings.strike().weight(),
 				settings.doubleStrike().weight(),
 				shieldReady ? settings.orange().weight() : 0.0F,
 				settings.red().weight(),
-				settings.overhead().weight()
+				settings.overhead().weight(),
+				kickReady ? settings.kick().weight() : 0.0F
 		};
 		float total = 0.0F;
 		for (int i = 0; i < blows.length; i++) {

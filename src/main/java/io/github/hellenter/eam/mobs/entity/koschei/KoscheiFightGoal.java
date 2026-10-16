@@ -79,8 +79,8 @@ final class KoscheiFightGoal extends Goal {
 				koschei.hopAround(target);
 				return;
 			}
-			Choice choice = KoscheiLogic.choose(distance, Koschei.shieldReady(target), koschei.lungeFails(), koschei.cooldowns(),
-					koschei.lastAttack(), one, koschei.getRandom()::nextDouble);
+			Choice choice = KoscheiLogic.choose(distance, Koschei.shieldReady(target), koschei.shieldTicks(target), koschei.lungeFails(),
+					koschei.cooldowns(), koschei.lastAttack(), one, koschei.getRandom()::nextDouble);
 			if (choice.lungeFailed()) {
 				koschei.lungeFailed();
 			}

@@ -2,7 +2,7 @@
   "stats": {
     "health": 100.0,
     "armor": 6,
-    "speed": 0.32,
+    "speed": 0.384,
     "follow_range": 32.0,
     "xp": 300,
     "regen": 1.0,
@@ -49,7 +49,18 @@
       "chance": 0.7,
       "cooldown": 60,
       "parry_window": 7,
-      "max_fails": 2
+      "max_fails": 2,
+      "shield_seconds": 5.0,
+      "shield_parry_window": 11
+    },
+    "kick": {
+      "damage": 5.0,
+      "knockback": 0.8,
+      "shield_seconds": 5.0,
+      "reach": 2.2,
+      "shield_ticks": 8,
+      "weight": 1.5,
+      "cooldown": 80
     },
     "force": {
       "push": 10.0,
