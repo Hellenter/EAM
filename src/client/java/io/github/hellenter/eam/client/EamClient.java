@@ -61,6 +61,7 @@ import io.github.hellenter.eam.client.mobs.yaga.BuffIconParticle;
 import io.github.hellenter.eam.client.mobs.yaga.YagaFxParticle;
 import io.github.hellenter.eam.client.mobs.koschei.ConvulsionsClient;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiModel;
+import io.github.hellenter.eam.client.mobs.koschei.KoscheiRavenParticle;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.HagGlyphRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.HagThreadRenderer;
@@ -130,6 +131,7 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.KOSCHEI_SPARK, YagaFxParticle.Style.SPARK);
 		registerYagaFx(EamParticles.KOSCHEI_WARP, YagaFxParticle.Style.WARP);
 		registerYagaFx(EamParticles.KOSCHEI_FORCE, YagaFxParticle.Style.FORCE);
+		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
 		ModelLayerRegistry.registerModelLayer(KoscheiModel.LAYER, KoscheiModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.KOSCHEI, KoscheiRenderer::new);
 		ConvulsionsClient.register();

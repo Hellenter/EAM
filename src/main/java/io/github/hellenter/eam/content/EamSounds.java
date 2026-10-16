@@ -18,6 +18,8 @@ public final class EamSounds {
 
 	/** A rising, ringing hum with a crackle of embers as Koschei's blade glows orange: only a raised shield stops this blow. */
 	public static final SoundEvent KOSCHEI_ORANGE_CUE = register("entity.koschei.orange_cue");
+	/** A flock of ravens bursting up in a flurry of wing beats where Koschei vanishes. */
+	public static final SoundEvent KOSCHEI_RAVENS = register("entity.koschei.ravens");
 
 	/** The wight's rare rasping breath while it stalks unseen. */
 	public static final SoundEvent WIGHT_AMBIENT = register("entity.wight.ambient");
