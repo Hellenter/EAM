@@ -7,8 +7,10 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -52,6 +54,13 @@ public class FridgeScreen extends AbstractContainerScreen<FridgeMenu> {
 		Component cold = hours <= 0
 				? Component.translatable("container.eam.fridge.no_ice")
 				: Component.translatable("container.eam.fridge.cold", String.format(Locale.ROOT, "%.1f", hours / 24.0F));
-		graphics.text(font, cold, 8, menu.iceY() + 5, hours <= 0 ? WARM_COLOR : TEXT_COLOR, false);
+		// The label wraps to the free part of the ice row: the large fridge's four ice slots leave too little for one line.
+		List<FormattedCharSequence> lines = font.split(cold, menu.iceX(0) - 12);
+		if (lines.size() > 2) lines = lines.subList(0, 2);
+		int y = menu.iceY() + (SLOT + 1 - lines.size() * font.lineHeight) / 2;
+		for (FormattedCharSequence line : lines) {
+			graphics.text(font, line, 8, y, hours <= 0 ? WARM_COLOR : TEXT_COLOR, false);
+			y += font.lineHeight;
+		}
 	}
 }
