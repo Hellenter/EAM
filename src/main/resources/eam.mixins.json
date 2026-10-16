@@ -67,6 +67,7 @@
 		"world.items.ItemInstanceMixin",
 		"world.mining.BlockStateBaseMixin",
 		"world.mithril.AbstractFurnaceBlockEntityMixin",
+		"world.shield.BlocksAttacksMixin",
 		"world.mithril.BlockStateBaseObsidianMixin",
 		"world.structures.ChunkGeneratorMixin",
 		"world.structures.JigsawPlacementMixin",
