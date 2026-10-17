@@ -68,6 +68,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 	@Override
 	public void generate() {
 		dropSelf(EamBlocks.PEBBLE);
+		dropSelf(EamBlocks.FOOD_DRYER);
 		dropSelf(EamBlocks.FLINT_SHARD);
 		dropSelf(EamBlocks.UNLIT_TORCH);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);

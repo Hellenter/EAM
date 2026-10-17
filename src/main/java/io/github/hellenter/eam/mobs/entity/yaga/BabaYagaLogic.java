@@ -326,4 +326,13 @@ public final class BabaYagaLogic {
 	public static double arc(double s, double height) {
 		return 4.0 * height * s * (1.0 - s);
 	}
+
+	/**
+	 * Whether a player sends her flask back: they hit or raised a shield {@code actedAgo} ticks ago (-1: neither), and the
+	 * flask reaches them in {@code ticksToReach}. Only what was done in the last {@code window} ticks before it reaches
+	 * them counts, give or take a tick; a shield held up long before does not.
+	 */
+	public static boolean reflects(double ticksToReach, int actedAgo, int window) {
+		return actedAgo >= 0 && ticksToReach <= window && actedAgo + ticksToReach <= window + 1;
+	}
 }
