@@ -35,6 +35,14 @@ class BabaYagaLogicTest {
 	}
 
 	@Test
+	void sheWakesOnlyForAPlayerRightUpAtHerDoor() {
+		BabaYagaSettings.Storm hut = SETTINGS.storm();
+		assertTrue(BabaYagaLogic.wakesAtHut(8.0 * 8.0, hut));
+		assertTrue(BabaYagaLogic.wakesAtHut(2.0, hut));
+		assertFalse(BabaYagaLogic.wakesAtHut(8.1 * 8.1, hut));
+	}
+
+	@Test
 	void hurtGroupGetsAbsorptionFarGroupSpeedNearGroupStrength() {
 		BabaYagaSettings.Spell spell = SETTINGS.spell();
 		assertEquals(Buff.ABSORPTION, BabaYagaLogic.buffFor(30.0, true, spell));
