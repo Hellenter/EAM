@@ -25,15 +25,18 @@ import java.util.Set;
 
 /**
  * The vanilla villager with his arms apart, hanging at his sides like a person's, so he walks swinging them and holds
- * items in his hands. Same texture layout as vanilla: each arm is the crossed-arms sleeve, a little longer, on top of a
- * bare hand cut from the crossed hands, the lower quarter of the arm. The clothes layers have no hands, so the skin always
- * shows. Children keep their crossed arms (their hands hold nothing).
+ * items in his hands. Same texture layout as vanilla: each arm is the crossed-arms sleeve, a little longer. The bare
+ * hands below the sleeves, the lower quarter of the arm, are drawn by their own layer with their own texture
+ * ({@link #createHandsLayer}), since vanilla's clothes textures paint the crossed hands as sleeve. Children keep their
+ * crossed arms (their hands hold nothing).
  */
 public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState> implements VillagerLikeModel<VillagerFigureRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("villager"), "main");
 	public static final ModelLayerLocation NO_HAT_LAYER = new ModelLayerLocation(Eam.id("villager"), "no_hat");
 	public static final ModelLayerLocation BABY_LAYER = new ModelLayerLocation(Eam.id("villager_baby"), "main");
 	public static final ModelLayerLocation BABY_NO_HAT_LAYER = new ModelLayerLocation(Eam.id("villager_baby"), "no_hat");
+	public static final ModelLayerLocation HANDS_LAYER = new ModelLayerLocation(Eam.id("villager"), "hands");
+	public static final ModelLayerLocation MAIL_LAYER = new ModelLayerLocation(Eam.id("villager"), "mail");
 	public static final ArmorModelSet<ModelLayerLocation> ARMOR = new ArmorModelSet<>(armorLayer("helmet"), armorLayer("chestplate"),
 			armorLayer("leggings"), armorLayer("boots"));
 	/** Armor parts per slot: leggings are a skirt over the robe instead of the legs under it. */
@@ -50,12 +53,11 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 	}
 
 	public static LayerDefinition createLayer() {
-		return LayerDefinition.create(createMesh(true), 64, 64);
+		return LayerDefinition.create(createMesh(), 64, 64);
 	}
 
-	/** The clothes layers: no head, and no hands, which their textures would cover with sleeve. */
 	public static LayerDefinition createNoHatLayer() {
-		MeshDefinition mesh = createMesh(false);
+		MeshDefinition mesh = createMesh();
 		mesh.getRoot().clearChild("head").clearRecursively();
 		return LayerDefinition.create(mesh, 64, 64);
 	}
@@ -114,7 +116,35 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 		return LayerDefinition.create(mesh, 64, 64);
 	}
 
-	private static MeshDefinition createMesh(boolean hands) {
+	/** Only the bare hands, 3 long below the sleeves, on a 16 by 8 texture. */
+	public static LayerDefinition createHandsLayer() {
+		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
+		PartDefinition root = mesh.getRoot();
+		root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F),
+				PartPose.offset(-5.0F, 2.0F, 0.0F));
+		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror().texOffs(0, 0).addBox(-1.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F),
+				PartPose.offset(5.0F, 2.0F, 0.0F));
+		return LayerDefinition.create(mesh, 16, 8);
+	}
+
+	/**
+	 * Mail worn under a chestplate: a shirt over the robe down past the waist, where the chestplate ends and the leggings
+	 * skirt begins, and short sleeves on the upper arms. It sits between the robe (3.5 out) and the chestplate (3.7).
+	 */
+	public static LayerDefinition createMailLayer() {
+		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
+		PartDefinition root = mesh.getRoot();
+		root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0)
+				.addBox(-4.0F, 0.0F, -3.0F, 8.0F, 15.0F, 6.0F, new CubeDeformation(0.6F, 0.6F, 0.6F)), PartPose.ZERO);
+		CubeDeformation sleeve = new CubeDeformation(0.4F);
+		root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(32, 0).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 5.0F, 4.0F, sleeve),
+				PartPose.offset(-5.0F, 2.0F, 0.0F));
+		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror().texOffs(32, 0).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 5.0F, 4.0F, sleeve),
+				PartPose.offset(5.0F, 2.0F, 0.0F));
+		return LayerDefinition.create(mesh, 64, 32);
+	}
+
+	private static MeshDefinition createMesh() {
 		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
 		PartDefinition root = mesh.getRoot();
 		PartDefinition head = root.addOrReplaceChild("head",
@@ -129,15 +159,11 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 				CubeListBuilder.create().texOffs(16, 20).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F), PartPose.ZERO);
 		body.addOrReplaceChild("jacket",
 				CubeListBuilder.create().texOffs(0, 38).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 20.0F, 6.0F, new CubeDeformation(0.5F)), PartPose.ZERO);
-		// Sleeve: the 8-long crossed-arm box drawn 9 long. Hand: 3 of the crossed hands below it, so the arm is 12 long.
-		CubeListBuilder rightArm = CubeListBuilder.create().texOffs(44, 22).addBox(-3.0F, -1.5F, -2.0F, 4.0F, 8.0F, 4.0F, SLEEVE);
-		CubeListBuilder leftArm = CubeListBuilder.create().mirror().texOffs(44, 22).addBox(-1.0F, -1.5F, -2.0F, 4.0F, 8.0F, 4.0F, SLEEVE);
-		if (hands) {
-			rightArm.texOffs(44, 38).addBox(-3.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F);
-			leftArm.texOffs(44, 38).addBox(-1.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F);
-		}
-		root.addOrReplaceChild("right_arm", rightArm, PartPose.offset(-5.0F, 2.0F, 0.0F));
-		root.addOrReplaceChild("left_arm", leftArm, PartPose.offset(5.0F, 2.0F, 0.0F));
+		// Sleeve: the 8-long crossed-arm box drawn 9 long; the hand layer adds 3 of hand below it, so the arm is 12 long.
+		root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(44, 22).addBox(-3.0F, -1.5F, -2.0F, 4.0F, 8.0F, 4.0F, SLEEVE),
+				PartPose.offset(-5.0F, 2.0F, 0.0F));
+		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror().texOffs(44, 22).addBox(-1.0F, -1.5F, -2.0F, 4.0F, 8.0F, 4.0F, SLEEVE),
+				PartPose.offset(5.0F, 2.0F, 0.0F));
 		root.addOrReplaceChild("right_leg",
 				CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F), PartPose.offset(-2.0F, 12.0F, 0.0F));
 		root.addOrReplaceChild("left_leg",
