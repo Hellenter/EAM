@@ -112,6 +112,7 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				piece("stairs/1", processors, 3),
 				piece("stairs/2", processors, 3),
 				piece("stairs/3", processors, 2),
+				piece("lift/1", processors, 2),
 				piece("room/1", processors, 2),
 				piece("room/2", processors, 1),
 				piece("room/3", processors, 1)), StructureTemplatePool.Projection.RIGID));
@@ -121,7 +122,11 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 				piece("end/3", processors, 1)), StructureTemplatePool.Projection.RIGID));
 	}
 
-	/** In the mine's tunnels and halls the only monsters that spawn are zombie duergar, one to three at a time. */
+	/**
+	 * In the mine's tunnels and halls the only monsters that spawn are zombie duergar, one to three at a time. About one
+	 * mine in three has a caved-in wing and about one in three a flooded one (when a wing runs deep enough under the tunnel
+	 * it branches off), and about one piece in eight has a chest minecart on its rails.
+	 */
 	public static void bootstrap(BootstrapContext<Structure> context) {
 		Map<MobCategory, StructureSpawnOverride> spawns = Map.of(MobCategory.MONSTER, new StructureSpawnOverride(
 				StructureSpawnOverride.BoundingBoxType.PIECE,
@@ -131,7 +136,7 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
 				context.lookup(Registries.TEMPLATE_POOL).getOrThrow(UnderworldMine.START_POOL), 7,
 				UniformHeight.of(VerticalAnchor.absolute(60), VerticalAnchor.absolute(120)),
-				new JigsawStructure.MaxDistance(80, 48), new DimensionPadding(56, 8), 40, 4));
+				new JigsawStructure.MaxDistance(80, 48), new DimensionPadding(56, 8), 40, 4, 0.35F, 0.3F, 0.12F));
 	}
 
 	/** No mine starts within eight chunks of a duergar village, so its tunnels never cut through the village hall. */
