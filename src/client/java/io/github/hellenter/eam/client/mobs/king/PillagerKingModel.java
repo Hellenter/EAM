@@ -169,6 +169,23 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 				head.xRot -= 0.45F * off;
 				bendLeg(rightLeg, rightShin, off, -0.35F, 0.5F);
 			}
+			case STUNNED -> {
+				// Knocked silly by the wall: reeling back, arms hanging, head lolling round.
+				float off = keys(t, new float[] {0, 3, 24, 30}, new float[] {0.0F, 1.0F, 1.0F, 0.0F});
+				float wobble = Mth.sin(t * 0.45F);
+				rightArm.xRot = Mth.lerp(off, restR, 0.15F);
+				leftArm.xRot = Mth.lerp(off, restL, 0.15F);
+				rightArm.zRot = Mth.lerp(off, restRz, 0.25F + 0.1F * wobble);
+				leftArm.zRot = Mth.lerp(off, restLz, -0.25F + 0.1F * wobble);
+				rightForearm.xRot = Mth.lerp(off, restFr, -0.15F);
+				leftForearm.xRot = Mth.lerp(off, restFl, -0.15F);
+				body.xRot = -0.15F * off;
+				body.zRot = 0.12F * wobble * off;
+				head.xRot = Mth.lerp(off, head.xRot, -0.35F + 0.15F * Mth.cos(t * 0.45F));
+				head.zRot = 0.3F * wobble * off;
+				bendLeg(rightLeg, rightShin, off, -0.2F, 0.35F);
+				bendLeg(leftLeg, leftShin, off, -0.1F, 0.25F);
+			}
 			case TOTEM -> {
 				// The totem held high in the left hand.
 				float up = keys(t, new float[] {0, 4, 24, 30}, new float[] {0.0F, 1.0F, 1.0F, 0.0F});

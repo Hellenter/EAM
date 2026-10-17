@@ -98,6 +98,21 @@ public final class SpoilageLogic {
 		return List.copyOf(delayed);
 	}
 
+	/**
+	 * Spoil times of food taken off a dryer: the time each item had left grows {@code multiplier} times, but never past
+	 * what freshly dried food keeps ({@code lifetime} times {@code multiplier}). Unstamped items count as fresh.
+	 */
+	public static List<Long> dried(List<Long> times, long now, long lifetime, double multiplier) {
+		long longest = Math.round(lifetime * multiplier);
+		List<Long> dried = new ArrayList<>(times.size());
+		for (long time : times) {
+			long left = time == UNSTAMPED ? lifetime : Math.max(0L, time - now);
+			dried.add(now + Math.min(longest, Math.round(left * multiplier)));
+		}
+		dried.sort(null);
+		return List.copyOf(dried);
+	}
+
 	/** A group of items in one stack that spoil within the same tenth of a day. */
 	public record Batch(int count, long ticksLeft) {
 	}

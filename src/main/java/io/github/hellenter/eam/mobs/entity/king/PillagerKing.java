@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.king;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.DizzyStars;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
@@ -57,6 +58,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
@@ -69,7 +71,8 @@ import java.util.Arrays;
  * He cuts once, in a four-cut combo that a hit at its start parries, in an onslaught (a rush and a leap with both axes
  * for a blow a shield only softens, parried by a hit while he is in the air), spins in a long tornado of weak blockable
  * cuts, throws his left axe to knock a raised shield out or round the target into its back, and from afar charges after
- * his eyes flash red for three cuts, the first knocking a raised shield out, and a kick, slower after the first cut. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
+ * his eyes flash red for three cuts, the first knocking a raised shield out, and a kick, slower after the first cut; a
+ * charge into a wall or a pillar leaves him stunned for a moment. He knocks arrows from the front aside. He dashes at players a few blocks off and hops back from those who crowd him,
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
@@ -90,6 +93,8 @@ public class PillagerKing extends Monster implements AxeThrower {
 	private static final double KICK_REACH = 2.4;
 	/** The charge reaches the target this close. */
 	private static final double CHARGE_CONTACT = 2.0;
+	/** How far ahead of him a wall is looked for when the charge is blocked. */
+	private static final double WALL_PROBE = 0.25;
 	/** The combo ends with a hop back on this tick, if the hop is ready. */
 	private static final int COMBO_HOP = 32;
 
@@ -390,13 +395,14 @@ public class PillagerKing extends Monster implements AxeThrower {
 			return;
 		}
 		boolean spinning = action == KingAction.TORNADO;
-		if (action != KingAction.TOTEM && action != KingAction.STAGGER && action != KingAction.PARRY_ARROW && !spinning
+		boolean dazed = action == KingAction.STAGGER || action == KingAction.STUNNED;
+		if (action != KingAction.TOTEM && !dazed && action != KingAction.PARRY_ARROW && !spinning
 				&& (target == null || !target.isAlive())) {
 			endAction();
 			return;
 		}
 		getNavigation().stop();
-		if (target != null && !spinning && action != KingAction.STAGGER) {
+		if (target != null && !spinning && !dazed) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -417,9 +423,13 @@ public class PillagerKing extends Monster implements AxeThrower {
 					level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_DASH_WARNING, getSoundSource(), 2.0F, 0.8F);
 				}
 			}
-			case CHARGE -> tickCharge(level, target, settings.charge());
+			case CHARGE -> tickCharge(level, t, target, settings.charge());
 			case CHARGE_HITS -> tickChargeHits(level, t, target, settings);
 			case TORNADO -> tickTornado(level, t, target, settings);
+			case STUNNED -> {
+				setDeltaMovement(getDeltaMovement().multiply(0.5, 1.0, 0.5));
+				DizzyStars.show(level, this);
+			}
 			case THROW -> {
 				if (t == KingAction.THROW_RELEASE && target != null) {
 					throwAxe(level, target, settings.axeThrow());
@@ -488,9 +498,13 @@ public class PillagerKing extends Monster implements AxeThrower {
 		target.push(away.x * push, 0.35, away.z * push);
 	}
 
-	/** Runs at the target; on reaching it, goes into the cuts. */
-	private void tickCharge(ServerLevel level, @Nullable LivingEntity target, PillagerKingSettings.Charge charge) {
+	/** Runs at the target; on reaching it, goes into the cuts. Running into a wall or a pillar on the way stuns him. */
+	private void tickCharge(ServerLevel level, int t, @Nullable LivingEntity target, PillagerKingSettings.Charge charge) {
 		if (target == null) {
+			return;
+		}
+		if (t > 0 && hitWall()) {
+			stun(level);
 			return;
 		}
 		if (horizontalDistanceTo(target) > CHARGE_CONTACT) {
@@ -503,6 +517,34 @@ public class PillagerKing extends Monster implements AxeThrower {
 		}
 		setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
 		setAction(KingAction.CHARGE_HITS);
+	}
+
+	/**
+	 * Whether the last step of his charge ran into something taller than a step: a block against him above his knees, on
+	 * the side he runs to.
+	 */
+	private boolean hitWall() {
+		if (!horizontalCollision) {
+			return false;
+		}
+		Vec3 ahead = horizontal(getDeltaMovement());
+		if (ahead.lengthSqr() < 1.0E-4) {
+			ahead = horizontal(Vec3.directionFromRotation(0.0F, getYRot()));
+		}
+		AABB box = getBoundingBox().move(ahead.x * WALL_PROBE, 0.0, ahead.z * WALL_PROBE);
+		box = new AABB(box.minX, box.minY + 1.0, box.minZ, box.maxX, box.maxY - 0.2, box.maxZ);
+		return !level().noBlockCollision(this, box);
+	}
+
+	/** He slammed into a wall: a thud, sparks off his helm, and he stands dazed for a moment. */
+	private void stun(ServerLevel level) {
+		LivingEntity target = actionTarget;
+		setAction(KingAction.STUNNED);
+		actionTarget = target;
+		setDeltaMovement(getDeltaMovement().multiply(-0.3, 1.0, -0.3));
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.ANVIL_LAND, getSoundSource(), 1.2F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.5F, 0.5F);
+		level.sendParticles(ParticleTypes.CRIT, getX(), getEyeY(), getZ(), 16, getBbWidth() * 0.5, 0.3, getBbWidth() * 0.5, 0.3);
 	}
 
 	/** Three quick cuts after the charge, then a kick; slower after the first cut. */
@@ -867,7 +909,8 @@ public class PillagerKing extends Monster implements AxeThrower {
 		for (Hit hit : recentHits) {
 			taken += hit.amount();
 		}
-		if (!PillagerKingLogic.burstLeap(taken, getMaxHealth(), hop.burstShare()) || !onGround() || action == KingAction.TOTEM) {
+		if (!PillagerKingLogic.burstLeap(taken, getMaxHealth(), hop.burstShare()) || !onGround() || action == KingAction.TOTEM
+				|| action == KingAction.STUNNED) {
 			return;
 		}
 		recentHits.clear();
