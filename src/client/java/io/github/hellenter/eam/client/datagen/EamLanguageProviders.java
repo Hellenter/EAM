@@ -316,6 +316,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.RED_BOLT, "Red Bolt");
 			builder.add(EamEntities.NET_SHOT, "Net");
 			builder.add(EamBlocks.NET, "Net");
+			builder.add(EamEntities.WEB_SHOT, "Spider Web");
+			builder.add(EamBlocks.SPIDER_WEB, "Spider Web");
 			builder.add("death.attack.eam.red_bolt", "%1$s was pierced by %2$s's red bolt");
 			builder.add("death.attack.eam.red_bolt.player", "%1$s was pierced by %2$s's red bolt");
 			builder.add(EamEntities.PILLAGER_GUARD, "Pillager Guard");
@@ -1000,6 +1002,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.RED_BOLT, "Красный болт");
 			builder.add(EamEntities.NET_SHOT, "Сеть");
 			builder.add(EamBlocks.NET, "Сеть");
+			builder.add(EamEntities.WEB_SHOT, "Паучья паутина");
+			builder.add(EamBlocks.SPIDER_WEB, "Паучья паутина");
 			builder.add("death.attack.eam.red_bolt", "%2$s пронзил %1$s красным болтом");
 			builder.add("death.attack.eam.red_bolt.player", "%2$s пронзил %1$s красным болтом");
 			builder.add(EamEntities.PILLAGER_GUARD, "Гвардеец разбойников");

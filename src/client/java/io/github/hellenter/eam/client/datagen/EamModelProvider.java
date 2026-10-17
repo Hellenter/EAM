@@ -132,6 +132,8 @@ public class EamModelProvider extends FabricModelProvider {
 				.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
+		// An evolved spider's web looks like cobweb and has no item.
+		generators.createCrossBlock(EamBlocks.SPIDER_WEB, BlockModelGenerators.PlantType.NOT_TINTED, TextureMapping.cross(Blocks.COBWEB));
 		bigShrub(generators);
 		for (Block tall : List.of(EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
 			generators.createDoublePlantWithDefaultItem(tall, BlockModelGenerators.PlantType.NOT_TINTED);

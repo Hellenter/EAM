@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
+import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
 import io.github.hellenter.eam.mobs.entity.crossbowman.RedBolt;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
@@ -349,6 +350,14 @@ public final class EamEntities {
 			EntityType.Builder.<NetShot>of(NetShot::new, MobCategory.MISC)
 					.noLootTable()
 					.sized(0.4F, 0.4F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
+
+	/** An evolved spider's web in flight. */
+	public static final EntityType<WebShot> WEB_SHOT = register("web_shot",
+			EntityType.Builder.<WebShot>of(WebShot::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3F, 0.3F)
 					.clientTrackingRange(4)
 					.updateInterval(10));
 

@@ -15,9 +15,11 @@ import java.util.Map;
  * @param pieceChance chance of each armor slot to be filled once a mob's armor roll came up; one piece is always worn
  * @param phases      the phases in the order they begin
  * @param tiers       named sets of gear the phases roll for
+ * @param melee       how evolved skeletons switch between bow and blade
+ * @param web         how evolved spiders shoot webs
  */
-public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<String, Tier> tiers) {
-	public static final EvolutionSettings DEFAULT = new EvolutionSettings(0.6F, List.of(), Map.of());
+public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<String, Tier> tiers, Melee melee, Web web) {
+	public static final EvolutionSettings DEFAULT = new EvolutionSettings(0.6F, List.of(), Map.of(), Melee.DEFAULT, Web.DEFAULT);
 
 	/**
 	 * One phase of evolution.
@@ -26,14 +28,54 @@ public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<Strin
 	 * @param armor              the armor roll: one tier at most, each with its own chance
 	 * @param weapons            the weapon roll, separate from the armor roll
 	 * @param enchantedBowChance chance a mob holding a plain bow gets it enchanted
+	 * @param meleeChance        chance a skeleton learns to put its bow away and fight with a blade up close
+	 * @param webChance          chance a spider learns to shoot webs
 	 */
-	public record Phase(int day, List<Roll> armor, List<Roll> weapons, float enchantedBowChance) {
+	public record Phase(int day, List<Roll> armor, List<Roll> weapons, float enchantedBowChance, float meleeChance, float webChance) {
 		static final Codec<Phase> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, Integer.MAX_VALUE).fieldOf("day").forGetter(Phase::day),
 				Roll.CODEC.listOf().optionalFieldOf("armor", List.of()).forGetter(Phase::armor),
 				Roll.CODEC.listOf().optionalFieldOf("weapons", List.of()).forGetter(Phase::weapons),
-				Codec.floatRange(0.0F, 1.0F).optionalFieldOf("enchanted_bow_chance", 0.0F).forGetter(Phase::enchantedBowChance)
+				Codec.floatRange(0.0F, 1.0F).optionalFieldOf("enchanted_bow_chance", 0.0F).forGetter(Phase::enchantedBowChance),
+				Codec.floatRange(0.0F, 1.0F).optionalFieldOf("skeleton_melee_chance", 0.0F).forGetter(Phase::meleeChance),
+				Codec.floatRange(0.0F, 1.0F).optionalFieldOf("spider_web_chance", 0.0F).forGetter(Phase::webChance)
 		).apply(instance, Phase::new));
+	}
+
+	/**
+	 * Evolved skeletons' blade.
+	 *
+	 * @param drawRange    the skeleton swaps its bow for the blade once its target is this close
+	 * @param sheatheRange it takes the bow back once the target is farther than this
+	 */
+	public record Melee(float drawRange, float sheatheRange) {
+		static final Melee DEFAULT = new Melee(4.0F, 7.0F);
+
+		static final Codec<Melee> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 64.0F).optionalFieldOf("draw_range", DEFAULT.drawRange).forGetter(Melee::drawRange),
+				Codec.floatRange(0.0F, 64.0F).optionalFieldOf("sheathe_range", DEFAULT.sheatheRange).forGetter(Melee::sheatheRange)
+		).apply(instance, Melee::new));
+	}
+
+	/**
+	 * Evolved spiders' web shot.
+	 *
+	 * @param minRange      the spider shoots only at targets at least this far
+	 * @param maxRange      and no farther than this
+	 * @param cooldownTicks ticks between two shots
+	 * @param speed         flight speed of the web
+	 * @param seconds       how long a web lasts before it falls apart
+	 */
+	public record Web(float minRange, float maxRange, int cooldownTicks, float speed, int seconds) {
+		static final Web DEFAULT = new Web(3.0F, 12.0F, 200, 1.0F, 5);
+
+		static final Codec<Web> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 64.0F).optionalFieldOf("min_range", DEFAULT.minRange).forGetter(Web::minRange),
+				Codec.floatRange(0.0F, 64.0F).optionalFieldOf("max_range", DEFAULT.maxRange).forGetter(Web::maxRange),
+				Codec.intRange(1, 72000).optionalFieldOf("cooldown_ticks", DEFAULT.cooldownTicks).forGetter(Web::cooldownTicks),
+				Codec.floatRange(0.1F, 4.0F).optionalFieldOf("speed", DEFAULT.speed).forGetter(Web::speed),
+				Codec.intRange(1, 3600).optionalFieldOf("seconds", DEFAULT.seconds).forGetter(Web::seconds)
+		).apply(instance, Web::new));
 	}
 
 	/** A tier of gear and the chance to get it. */
@@ -60,6 +102,8 @@ public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<Strin
 	public static final Codec<EvolutionSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("piece_chance", DEFAULT.pieceChance).forGetter(EvolutionSettings::pieceChance),
 			Phase.CODEC.listOf().optionalFieldOf("phases", DEFAULT.phases).forGetter(EvolutionSettings::phases),
-			Codec.unboundedMap(Codec.STRING, Tier.CODEC).optionalFieldOf("tiers", DEFAULT.tiers).forGetter(EvolutionSettings::tiers)
+			Codec.unboundedMap(Codec.STRING, Tier.CODEC).optionalFieldOf("tiers", DEFAULT.tiers).forGetter(EvolutionSettings::tiers),
+			Melee.CODEC.optionalFieldOf("skeleton_melee", DEFAULT.melee).forGetter(EvolutionSettings::melee),
+			Web.CODEC.optionalFieldOf("spider_web", DEFAULT.web).forGetter(EvolutionSettings::web)
 	).apply(instance, EvolutionSettings::new));
 }
