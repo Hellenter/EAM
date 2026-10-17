@@ -15,8 +15,8 @@ public enum KoscheiAction {
 	 * {@link #ORANGE_HIT}. A raised shield takes it and is knocked out; anything else takes the full blow.
 	 */
 	ORANGE(21),
-	/** The red blow: the blade glows red, a low sweep lands on {@link #RED_HIT}. A shield only halves it. */
-	RED(24),
+	/** The red blow: the blade glows red, a low sweep lands on {@link #RED_HIT}, walking in as he draws it back. A shield only halves it. */
+	RED(23),
 	/**
 	 * The sword raised over the head with a red glow, held, then brought down from {@link #OVERHEAD_DESCENT} to
 	 * {@link #OVERHEAD_HIT}. A shield halves it; a hit as the sword starts down parries him.
@@ -52,7 +52,7 @@ public enum KoscheiAction {
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
 	public static final int ORANGE_HIT = 12;
-	public static final int RED_HIT = 14;
+	public static final int RED_HIT = 13;
 	/** The sword starts down on this tick (the parry window opens) and lands on the hit. */
 	public static final int OVERHEAD_DESCENT = 18;
 	public static final int OVERHEAD_HIT = 25;
