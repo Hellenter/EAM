@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "ripe=false": {
+      "model": "eam:block/glowshroom_vines_bare"
+    },
+    "ripe=true": {
       "model": "eam:block/glowshroom_vines"
     }
   }

@@ -20,6 +20,7 @@ import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.underworld.GlowshroomModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
@@ -250,6 +251,7 @@ public class Eam implements ModInitializer {
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();
 		if (config.underworld()) UnderworldModule.init();
+		if (config.underworld()) GlowshroomModule.init();
 		if (config.rainDousesFires()) DarknessModule.init();
 	}
 

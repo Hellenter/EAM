@@ -370,6 +370,8 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SMOLDERING_MUSHROOM_CAP, "Smoldering Mushroom Cap");
 			builder.add(EamBlocks.GLOWSHROOM_VINES, "Glowshroom Vines");
 			builder.add(EamBlocks.GLOWSHROOM_VINES_PLANT, "Glowshroom Vines Plant");
+			builder.add(EamItems.GLOWSHROOM, "Glowshroom");
+			builder.add(EamBlocks.GLOWSHROOM_LAMP, "Glowshroom Lamp");
 			builder.add(EamBlocks.CHAMPIGNON_CAP, "Champignon Cap");
 			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Glowing Champignon Cap");
 			builder.add(EamItems.BEDROCK_BREAKER, "Bedrock Breaker");
@@ -1068,6 +1070,8 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SMOLDERING_MUSHROOM_CAP, "Тлеющая шляпка гриба");
 			builder.add(EamBlocks.GLOWSHROOM_VINES, "Светящиеся грибные лианы");
 			builder.add(EamBlocks.GLOWSHROOM_VINES_PLANT, "Светящиеся грибные лианы");
+			builder.add(EamItems.GLOWSHROOM, "Светогриб");
+			builder.add(EamBlocks.GLOWSHROOM_LAMP, "Светогрибной фонарь");
 			builder.add(EamBlocks.CHAMPIGNON_CAP, "Шляпка шампиньона");
 			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Светящаяся шляпка шампиньона");
 			builder.add(EamItems.BEDROCK_BREAKER, "Сокрушитель бедрока");

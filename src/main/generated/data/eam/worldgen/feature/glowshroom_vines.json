@@ -48,7 +48,8 @@
         "source": {
           "id": "eam:glowshroom_vines",
           "properties": {
-            "age": "0"
+            "age": "0",
+            "ripe": "true"
           }
         },
         "values": {
