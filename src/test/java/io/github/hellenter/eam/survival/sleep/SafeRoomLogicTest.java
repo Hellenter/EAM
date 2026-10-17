@@ -1,6 +1,9 @@
 package io.github.hellenter.eam.survival.sleep;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.github.hellenter.eam.survival.sleep.SafeRoomLogic.Cell;
 import io.github.hellenter.eam.survival.sleep.SafeRoomLogic.Result;
@@ -113,5 +116,64 @@ class SafeRoomLogicTest {
 		World world = new World().box(4, 2, 4, Cell.STRONG);
 		world.light = 0;
 		assertEquals(Result.NEEDS_LIGHT, SafeRoomLogic.check(world, BED, SETTINGS));
+	}
+
+	@Test
+	void windowIsTheWeakSpot() {
+		World world = new World().box(4, 2, 4, Cell.STRONG).set(5, 1, 2, Cell.OPEN);
+		SafeRoomLogic.Report report = SafeRoomLogic.inspect(world, BED, SETTINGS);
+		assertEquals(Result.NOT_ENCLOSED, report.result());
+		assertArrayEquals(new int[] {5, 1, 2}, report.spot());
+	}
+
+	@Test
+	void doorwayIsTheWeakSpot() {
+		World world = new World().box(4, 2, 4, Cell.STRONG).set(3, 1, 5, Cell.OPEN).set(3, 2, 5, Cell.OPEN);
+		int[] spot = SafeRoomLogic.inspect(world, BED, SETTINGS).spot();
+		assertNotNull(spot);
+		assertEquals(3, spot[0]);
+		assertEquals(5, spot[2]);
+	}
+
+	@Test
+	void missingRoofShowsOpenSky() {
+		World world = new World().box(4, 2, 4, Cell.STRONG);
+		for (int x = 1; x <= 4; x++) {
+			for (int z = 1; z <= 4; z++) {
+				world.set(x, 3, z, Cell.OPEN);
+			}
+		}
+		SafeRoomLogic.Report report = SafeRoomLogic.inspect(world, BED, SETTINGS);
+		assertEquals(Result.NOT_ENCLOSED, report.result());
+		assertNotNull(report.spot());
+	}
+
+	@Test
+	void dirtBlockInStoneWallIsTheWeakSpot() {
+		World world = new World().box(4, 2, 4, Cell.STRONG).set(5, 1, 2, Cell.WEAK);
+		SafeRoomLogic.Report report = SafeRoomLogic.inspect(world, BED, SETTINGS);
+		assertEquals(Result.WEAK_BLOCKS, report.result());
+		assertArrayEquals(new int[] {5, 1, 2}, report.spot());
+	}
+
+	@Test
+	void hugeHallHasNoSpot() {
+		assertNull(SafeRoomLogic.inspect(new World().box(30, 3, 30, Cell.STRONG), BED, SETTINGS).spot());
+	}
+
+	@Test
+	void dirtFloorIsShownBesideTheBed() {
+		World world = new World().box(4, 2, 4, Cell.STRONG);
+		for (int x = 1; x <= 4; x++) {
+			for (int z = 1; z <= 4; z++) {
+				world.set(x, 0, z, Cell.WEAK);
+			}
+		}
+		SafeRoomLogic.Report report = SafeRoomLogic.inspect(world, BED, SETTINGS);
+		assertEquals(Result.WEAK_BLOCKS, report.result());
+		assertEquals(0, report.spot()[1]);
+		assertEquals(1, report.seenFrom()[1]);
+		boolean underBed = report.spot()[2] == 1 && (report.spot()[0] == 1 || report.spot()[0] == 2);
+		assertEquals(false, underBed, "spot hidden under the bed");
 	}
 }
