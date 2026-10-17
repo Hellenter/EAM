@@ -256,6 +256,11 @@ public final class BabaYagaLogic {
 		return Math.max(0, lockout - 1);
 	}
 
+	/** Whether a player {@code distanceSqr} (squared) from her hut's door wakes her up there. */
+	public static boolean wakesAtHut(double distanceSqr, BabaYagaSettings.Storm storm) {
+		return distanceSqr <= storm.hutWakeRadius() * storm.hutWakeRadius();
+	}
+
 	/** Phase two: whether she may raise creatures now. */
 	public static boolean maySummon(int alive, int lockout, BabaYagaSettings.PhaseTwo two) {
 		return lockout <= 0 && alive < two.summonCap();

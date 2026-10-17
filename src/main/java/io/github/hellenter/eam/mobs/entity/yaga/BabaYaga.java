@@ -35,6 +35,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
@@ -72,6 +73,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ValueInput;
@@ -112,6 +115,8 @@ public class BabaYaga extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_GLOW = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	/** Where her fire beam hits, from her feet; zero while it is not burning. */
 	private static final EntityDataAccessor<Vector3fc> DATA_BEAM = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.VECTOR3);
+	/** Set while she waits in her hut, unseen, for a player to come up to its door. */
+	private static final EntityDataAccessor<Boolean> DATA_WAITING = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BOOLEAN);
 	private static final Identifier FOLLOW_MODIFIER = Eam.id("baba_yaga_minion_follow");
 	private static final Identifier HEALTH_MODIFIER = Eam.id("baba_yaga_minion_health");
 
@@ -191,6 +196,8 @@ public class BabaYaga extends Monster {
 	/** Where she started; she goes back there once she has lost the players. */
 	private @Nullable BlockPos home;
 	private boolean returningHome;
+	/** Her hut's door, which she bursts out of once a player comes up to it. */
+	private @Nullable BlockPos hutDoor;
 	/** Loaded from a save made while her storm was still the whole world's weather: that weather goes back once. */
 	private @Nullable LegacyWeather legacyWeather;
 
@@ -235,6 +242,7 @@ public class BabaYaga extends Monster {
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_GLOW, (byte) 0);
 		builder.define(DATA_BEAM, new Vector3f());
+		builder.define(DATA_WAITING, false);
 	}
 
 	@Override
@@ -412,6 +420,88 @@ public class BabaYaga extends Monster {
 		Vec3 forward = Vec3.directionFromRotation(0.0F, bodyRot);
 		Vec3 right = Vec3.directionFromRotation(0.0F, bodyRot + 90.0F);
 		return new Vec3(0.0, height + (inMortar ? 0.2 : 0.35), 0.0).add(forward.scale(0.5)).add(right.scale(-0.45));
+	}
+
+	// ---- Waiting in her hut ----
+
+	/**
+	 * She waits in her hut: unseen, untouchable and still, until a player comes within
+	 * {@link BabaYagaSettings.Storm#hutWakeRadius()} of {@code door}. Then the door bursts open and she is out, laughing.
+	 */
+	public void waitInHut(BlockPos door) {
+		hutDoor = door.immutable();
+		setWaiting(true);
+	}
+
+	/** Whether she is still waiting in her hut, unseen. */
+	public boolean waiting() {
+		return entityData.get(DATA_WAITING);
+	}
+
+	private void setWaiting(boolean waiting) {
+		entityData.set(DATA_WAITING, waiting);
+		bossEvent.setVisible(!waiting);
+	}
+
+	@Override
+	public void aiStep() {
+		if (!waiting()) {
+			super.aiStep();
+			return;
+		}
+		setDeltaMovement(Vec3.ZERO);
+		if (level() instanceof ServerLevel level && tickCount % 5 == 0) {
+			Player player = playerAtDoor(level);
+			if (player != null) {
+				burstOut(level, player);
+			}
+		}
+	}
+
+	/** A player close enough to her hut's door to wake her; spectators don't. */
+	private @Nullable Player playerAtDoor(ServerLevel level) {
+		Vec3 door = hutDoor != null ? Vec3.atCenterOf(hutDoor) : position();
+		for (Player player : level.players()) {
+			if (player.isAlive() && !player.isSpectator()
+					&& BabaYagaLogic.wakesAtHut(player.distanceToSqr(door), settings().storm())) {
+				return player;
+			}
+		}
+		return null;
+	}
+
+	/** The door flies open and she is there in a cloud of ink, cackling; a player she can fight is her first target. */
+	private void burstOut(ServerLevel level, Player player) {
+		setWaiting(false);
+		if (hutDoor != null) {
+			BlockState door = level.getBlockState(hutDoor);
+			level.playSound(null, hutDoor, SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.BLOCKS, 2.0F, 0.8F);
+			if (door.getBlock() instanceof DoorBlock doorBlock) {
+				doorBlock.setOpen(this, level, door, hutDoor, true);
+			}
+			level.sendParticles(ParticleTypes.CLOUD, hutDoor.getX() + 0.5, hutDoor.getY() + 1.0, hutDoor.getZ() + 0.5, 12, 0.3, 0.6, 0.3, 0.05);
+		}
+		YagaFx.blink(level, this);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 4.0F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_AMBIENT, getSoundSource(), 3.0F, 0.5F);
+		if (EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
+			setTarget(player);
+		}
+	}
+
+	@Override
+	public boolean isPickable() {
+		return !waiting() && super.isPickable();
+	}
+
+	@Override
+	public boolean isPushable() {
+		return !waiting() && super.isPushable();
+	}
+
+	@Override
+	public boolean canBeSeenAsEnemy() {
+		return !waiting() && super.canBeSeenAsEnemy();
 	}
 
 	// ---- Server tick ----
@@ -1867,6 +1957,9 @@ public class BabaYaga extends Monster {
 
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+		if (waiting() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			return false;
+		}
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			return super.hurtServer(level, source, damage);
 		}
@@ -2072,6 +2165,10 @@ public class BabaYaga extends Monster {
 		if (home != null) {
 			output.putLong("Home", home.asLong());
 		}
+		output.putBoolean("WaitingInHut", waiting());
+		if (hutDoor != null) {
+			output.putLong("HutDoor", hutDoor.asLong());
+		}
 	}
 
 	@Override
@@ -2091,6 +2188,8 @@ public class BabaYaga extends Monster {
 		unseenTicks = input.getIntOr("Unseen", 0);
 		returningHome = input.getBooleanOr("ReturningHome", false);
 		home = input.getLong("Home").map(BlockPos::of).orElse(null);
+		hutDoor = input.getLong("HutDoor").map(BlockPos::of).orElse(null);
+		setWaiting(input.getBooleanOr("WaitingInHut", false));
 		// Saved while her storm was the whole world's weather, recently enough that it still thunders: put the old back.
 		long stormSavedAt = input.getLongOr("StormSavedAt", level().getGameTime());
 		if (input.getBooleanOr("StormOwner", false) && level().getGameTime() - stormSavedAt <= LEGACY_STORM_TICKS) {
@@ -2107,8 +2206,8 @@ public class BabaYaga extends Monster {
 	// ---- Sounds: a witch's voice, older ----
 
 	@Override
-	protected SoundEvent getAmbientSound() {
-		return SoundEvents.WITCH_AMBIENT;
+	protected @Nullable SoundEvent getAmbientSound() {
+		return waiting() ? null : SoundEvents.WITCH_AMBIENT;
 	}
 
 	@Override
