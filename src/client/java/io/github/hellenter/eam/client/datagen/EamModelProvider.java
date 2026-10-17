@@ -501,6 +501,12 @@ public class EamModelProvider extends FabricModelProvider {
 		return element;
 	}
 
+	/**
+	 * Height of the duckweed sheet in its own block. A still water block's surface is drawn at 8/9 of a block, 16/9 pixels
+	 * below the duckweed's block; the sheet lies a hair above it so it does not flicker with the water.
+	 */
+	private static final double DUCKWEED_SHEET_Y = -1.7;
+
 	private static JsonObject floatingSheet(Identifier texture) {
 		JsonObject textures = new JsonObject();
 		textures.addProperty("particle", texture.toString());
@@ -515,8 +521,8 @@ public class EamModelProvider extends FabricModelProvider {
 		up.addProperty("texture", "#texture");
 		faces.add("up", up);
 		JsonObject element = new JsonObject();
-		element.add("from", vector(0, 0.25, 0));
-		element.add("to", vector(16, 0.25, 16));
+		element.add("from", vector(0, DUCKWEED_SHEET_Y, 0));
+		element.add("to", vector(16, DUCKWEED_SHEET_Y, 16));
 		element.add("faces", faces);
 		JsonArray elements = new JsonArray();
 		elements.add(element);
