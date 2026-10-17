@@ -55,7 +55,7 @@ class OutpostLogicTest {
 		int[][] ground = slope(0, 0);
 		// A hill on the western samples: the outpost moves east, off it.
 		for (int z = 0; z < WIDTH; z++) {
-			for (int x = 0; x <= 3; x++) ground[x][z] = 72;
+			for (int x = 0; x <= OutpostLogic.REACH - 2; x++) ground[x][z] = 72;
 		}
 		OutpostLogic.Site site = OutpostLogic.site(ground, new boolean[WIDTH][WIDTH], 10, 0);
 		assertEquals(1, site.dx());

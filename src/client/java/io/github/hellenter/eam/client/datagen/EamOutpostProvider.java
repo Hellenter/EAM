@@ -25,7 +25,9 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * The pillager outpost: Maxim's template in plains and forests, placed after the trees so it can clear them within 15
- * blocks. It is spread like the vanilla outpost (which no longer generates) and keeps the same 10 chunks from villages.
+ * blocks. It keeps the vanilla outpost's 10 chunks from villages. One outpost tries every 32 chunks (512 blocks) with
+ * frequency 0.85, so with half the tries landing outside plains and forests or on steep or wet ground about every
+ * 2240-block square with plains or forest in it gets one or two (measured on three seeds; Maxim's ask).
  */
 public class EamOutpostProvider extends FabricDynamicRegistryProvider {
 	public EamOutpostProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -42,10 +44,10 @@ public class EamOutpostProvider extends FabricDynamicRegistryProvider {
 	public static void bootstrapSets(BootstrapContext<StructureSet> context) {
 		context.register(OutpostModule.STRUCTURE_SET, new StructureSet(
 				context.lookup(Registries.STRUCTURE).getOrThrow(OutpostModule.STRUCTURE),
-				new RandomSpreadStructurePlacement(Vec3i.ZERO, AbstractSpreadingStructurePlacement.FrequencyReductionMethod.DEFAULT, 0.35F,
+				new RandomSpreadStructurePlacement(Vec3i.ZERO, AbstractSpreadingStructurePlacement.FrequencyReductionMethod.DEFAULT, 0.85F,
 						20261012, Optional.of(new AbstractSpreadingStructurePlacement.ExclusionZone(
 								context.lookup(Registries.STRUCTURE_SET).getOrThrow(BuiltinStructureSets.VILLAGES), 10)),
-						26, 7, RandomSpreadType.LINEAR)));
+						32, 10, RandomSpreadType.LINEAR)));
 	}
 
 	@Override
