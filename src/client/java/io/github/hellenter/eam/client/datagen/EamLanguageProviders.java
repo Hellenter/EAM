@@ -226,6 +226,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
+			builder.add("message.eam.milked_today", "This animal has already been milked today");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
 			builder.add(EamItems.LAIR_MAP, "Map to a Lair");
@@ -272,6 +273,7 @@ public final class EamLanguageProviders {
 			builder.add(FridgeModule.ICE, "Icebox Ice");
 			builder.add("item.eam.rotten_food", "Rotten Food");
 			builder.add(SpoilageSettings.SPOILS, "Perishable Food");
+			builder.add(SpoilageSettings.SOURS, "Souring Milk");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Fast-Spoiling Food");
 			builder.add("tooltip.eam.spoils_in", "Spoils in %s");
 			builder.add("tooltip.eam.dried", "Dried: keeps longer, makes you thirsty");
@@ -912,6 +914,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
+			builder.add("message.eam.milked_today", "Сегодня это животное уже подоили");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
 			builder.add(EamItems.LAIR_MAP, "Карта к логову");
@@ -958,6 +961,7 @@ public final class EamLanguageProviders {
 			builder.add(FridgeModule.ICE, "Лёд для холодильника");
 			builder.add("item.eam.rotten_food", "Гнилая еда");
 			builder.add(SpoilageSettings.SPOILS, "Скоропортящаяся еда");
+			builder.add(SpoilageSettings.SOURS, "Скисающее молоко");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Быстро портящаяся еда");
 			builder.add("tooltip.eam.spoils_in", "Испортится через %s");
 			builder.add("tooltip.eam.dried", "Сушёное: хранится дольше, отнимает воду");
