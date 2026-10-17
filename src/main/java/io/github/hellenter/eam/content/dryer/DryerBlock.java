@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content.dryer;
 import io.github.hellenter.eam.content.EamBlockEntities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -14,37 +15,60 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
 
 /**
- * A food dryer: a low wooden rack strung with twine. Dryable food used on it lies on the twine, up to four items, and
- * dries while no rain falls on it; an empty hand takes it back, dried food first. Breaking it drops the food.
+ * A food dryer: two A-frames of crossed sticks holding a pole, with four small hooks on twine. Dryable food used on it
+ * hangs from a hook, up to four items, and dries while no rain falls on it; an empty hand takes it back, dried food
+ * first. Breaking it drops the food. {@link #FACING} is the side the hooks' front row faces: the pole runs across it.
  */
 public class DryerBlock extends BaseEntityBlock {
-	/** The height of the twine the food lies on, in pixels. */
-	public static final double RACK_HEIGHT = 10.0;
+	public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
-	private static final VoxelShape SHAPE = Shapes.or(
-			Block.box(1.0, 9.0, 1.0, 15.0, RACK_HEIGHT + 1.0, 15.0),
-			Block.box(1.0, 0.0, 1.0, 3.0, 9.0, 3.0),
-			Block.box(13.0, 0.0, 1.0, 15.0, 9.0, 3.0),
-			Block.box(1.0, 0.0, 13.0, 3.0, 9.0, 15.0),
-			Block.box(13.0, 0.0, 13.0, 15.0, 9.0, 15.0));
+	private static final VoxelShape SHAPE_X = Block.box(0.0, 0.0, 1.0, 16.0, 16.0, 15.0);
+	private static final VoxelShape SHAPE_Z = Block.box(1.0, 0.0, 0.0, 15.0, 16.0, 16.0);
 
 	public DryerBlock(BlockBehaviour.Properties properties) {
 		super(properties);
+		registerDefaultState(stateDefinition.any().setValue(FACING, Direction.SOUTH));
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING);
+	}
+
+	/** The front row of hooks faces the player who places it. */
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	@Override
+	protected BlockState rotate(BlockState state, Rotation rotation) {
+		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	protected BlockState mirror(BlockState state, Mirror mirror) {
+		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
 	@Override
@@ -76,7 +100,7 @@ public class DryerBlock extends BaseEntityBlock {
 
 	@Override
 	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return SHAPE;
+		return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_X : SHAPE_Z;
 	}
 
 	@Override

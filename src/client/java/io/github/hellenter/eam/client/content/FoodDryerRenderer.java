@@ -23,11 +23,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Draws the food lying flat on the twine of a food dryer, one item in each quarter. */
+/** Draws the food hanging upright from the hooks of a food dryer, each item a little turned. */
 public class FoodDryerRenderer implements BlockEntityRenderer<DryerBlockEntity, CampfireRenderState> {
-	private static final float ITEM_SCALE = 0.375F;
-	/** Just above the twine on top of the rack. */
-	private static final float ITEM_Y = (float) (DryerBlock.RACK_HEIGHT + 1.0 + 0.25) / 16.0F;
+	private static final float ITEM_SCALE = 0.3F;
+	/** How far the hook goes into the food, in pixels. */
+	private static final float PIERCE = 0.5F;
+	/** Each item's turn about its hook, in degrees, so the row does not look stamped out. */
+	private static final float[] TURN = {12.0F, -8.0F, -14.0F, 9.0F};
 
 	private final ItemModelResolver itemModelResolver;
 
@@ -52,6 +54,7 @@ public class FoodDryerRenderer implements BlockEntityRenderer<DryerBlockEntity, 
 			items.add(item);
 		}
 		state.items = items;
+		state.facing = dryer.getBlockState().getValue(DryerBlock.FACING);
 	}
 
 	@Override
@@ -62,12 +65,15 @@ public class FoodDryerRenderer implements BlockEntityRenderer<DryerBlockEntity, 
 				continue;
 			}
 			poseStack.pushPose();
+			// The model faces south unrotated; turn the hooks with the block about its centre.
+			poseStack.translate(0.5F, 0.0F, 0.5F);
+			poseStack.rotateDegrees(Axis.YP, -90.0F * state.facing.get2DDataValue());
+			float top = (float) DryerBlockEntity.hookBottom(slot) + PIERCE;
 			poseStack.translate(
-					0.5F + DryerBlockEntity.slotX(slot) * DryerBlockEntity.SLOT_OFFSET,
-					ITEM_Y,
-					0.5F + DryerBlockEntity.slotZ(slot) * DryerBlockEntity.SLOT_OFFSET);
-			poseStack.rotateDegrees(Axis.YP, -90.0F * slot);
-			poseStack.rotateDegrees(Axis.XP, 90.0F);
+					(float) DryerBlockEntity.HOOK_X[slot] / 16.0F - 0.5F,
+					top / 16.0F - ITEM_SCALE / 2.0F,
+					(float) DryerBlockEntity.HOOK_Z[slot] / 16.0F - 0.5F);
+			poseStack.rotateDegrees(Axis.YP, TURN[slot]);
 			poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
 			item.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 			poseStack.popPose();
