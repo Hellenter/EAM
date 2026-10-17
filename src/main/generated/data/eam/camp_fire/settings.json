@@ -4,6 +4,7 @@
   "char_ticks": 1800,
   "cook_ticks": 900,
   "max_charcoal": 16,
+  "max_cook_bonus": 0.25,
   "scorch_ticks": 600,
   "sticks_per_charcoal": 3,
   "sticks_to_light": 6,

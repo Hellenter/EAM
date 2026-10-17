@@ -54,6 +54,13 @@ public final class HungerLogic {
 		return food < maxFood;
 	}
 
+	/** A food that gives some of a deficient nutrient can be eaten even with a full food bar. */
+	public static boolean fixesDeficiency(Deficiencies deficiencies, Nutrients food) {
+		return deficiencies.protein() && food.protein() > 0
+				|| deficiencies.fat() && food.fat() > 0
+				|| deficiencies.carbs() && food.carbs() > 0;
+	}
+
 	/** Sprinting needs more than 30% of the food bar; with a full-size bar this is vanilla's "more than 6". */
 	public static boolean canSprint(int food, int maxFood) {
 		return food * 10 > maxFood * 3;

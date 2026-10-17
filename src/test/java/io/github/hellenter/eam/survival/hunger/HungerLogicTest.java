@@ -24,6 +24,15 @@ class HungerLogicTest {
 	}
 
 	@Test
+	void onlyFoodWithTheMissingNutrientGoesPastAFullBar() {
+		Deficiencies noProtein = new Deficiencies(true, false, false);
+		assertTrue(HungerLogic.fixesDeficiency(noProtein, new Nutrients(10, 5, 0)));
+		assertFalse(HungerLogic.fixesDeficiency(noProtein, new Nutrients(0, 5, 20)));
+		assertFalse(HungerLogic.fixesDeficiency(Deficiencies.NONE, new Nutrients(10, 10, 10)));
+		assertTrue(HungerLogic.fixesDeficiency(new Deficiencies(false, false, true), new Nutrients(0, 0, 1)));
+	}
+
+	@Test
 	void sprintNeedsMoreThanThirtyPercent() {
 		assertFalse(HungerLogic.canSprint(6, 20));
 		assertTrue(HungerLogic.canSprint(7, 20));

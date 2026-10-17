@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
@@ -105,6 +106,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
 		// Like copper ore and the iron block: a copper pickaxe or better.
 		// Our anvils are anvils: the menu accepts them, they fall and hurt like the vanilla one.
+		builder(FridgeModule.CHILLERS).add(BlockItemIds.SNOW, BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.ICE, BlockItemIds.PACKED_ICE,
+				BlockItemIds.BLUE_ICE);
 		builder(BlockTags.ANVIL).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(), EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
