@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
+import io.github.hellenter.eam.Eam;
+
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -16,16 +18,22 @@ import net.minecraft.world.item.Items;
 
 /**
  * Draws villagers as {@link VillagerFigureModel}: arms apart, the item in hand, and armor shaped to the villager's head,
- * robe and arms. Replaces the vanilla villager renderer; clothes, hats and the
+ * robe and arms, with bare hands below the sleeves and mail under a chestplate. Replaces the vanilla villager renderer; clothes, hats and the
  * profession badges are vanilla's.
  */
 public class VillagerFigureRenderer extends HumanoidMobRenderer<Villager, VillagerFigureRenderState, VillagerFigureModel> {
 	private static final Identifier VILLAGER = Identifier.withDefaultNamespace("textures/entity/villager/villager.png");
 	private static final Identifier VILLAGER_BABY = Identifier.withDefaultNamespace("textures/entity/villager/villager_baby.png");
+	private static final Identifier HANDS = Eam.id("textures/entity/villager/hands.png");
+	private static final Identifier MAIL = Eam.id("textures/entity/villager/mail.png");
 
 	public VillagerFigureRenderer(EntityRendererProvider.Context context) {
 		super(context, new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.LAYER)),
 				new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.BABY_LAYER)), 0.5F, VillagerRenderer.CUSTOM_HEAD_TRANSFORMS);
+		addLayer(new VillagerPartLayer(this, new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.HANDS_LAYER)), HANDS,
+				state -> !state.isBaby));
+		addLayer(new VillagerPartLayer(this, new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.MAIL_LAYER)), MAIL,
+				state -> !state.isBaby && !state.chestEquipment.isEmpty()));
 		addLayer(new HumanoidArmorLayer<>(this,
 				ArmorModelSet.bake(VillagerFigureModel.ARMOR, context.getModelSet(), root -> new HumanoidModel<VillagerFigureRenderState>(root)),
 				context.getEquipmentRenderer()));

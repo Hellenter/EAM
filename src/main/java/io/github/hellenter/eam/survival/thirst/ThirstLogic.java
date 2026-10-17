@@ -18,7 +18,11 @@ public final class ThirstLogic {
 	 * @param poisoned the player has food poisoning
 	 * @param grace    the player just spawned: thirst does not drain and exhaustion is dropped
 	 */
-	public record Environment(boolean peaceful, boolean hot, boolean poisoned, boolean grace) {
+	/** @param drainFactor water drains at this fraction of the normal rate (a buff below 1) */
+	public record Environment(boolean peaceful, boolean hot, boolean poisoned, boolean grace, float drainFactor) {
+		public Environment(boolean peaceful, boolean hot, boolean poisoned, boolean grace) {
+			this(peaceful, hot, poisoned, grace, 1.0F);
+		}
 	}
 
 	/**
@@ -54,8 +58,9 @@ public final class ThirstLogic {
 		float passive = settings.passiveExhaustion() * (environment.hot() ? settings.hotMultiplier() : 1.0F);
 		float exhaustion = Math.min(counters.exhaustion() + passive, MAX_EXHAUSTION);
 		Thirst next = thirst;
-		if (exhaustion >= settings.exhaustionPerPoint()) {
-			exhaustion -= settings.exhaustionPerPoint();
+		float perPoint = settings.exhaustionPerPoint() / environment.drainFactor();
+		if (exhaustion >= perPoint) {
+			exhaustion -= perPoint;
 			next = thirst.add(-1);
 		}
 

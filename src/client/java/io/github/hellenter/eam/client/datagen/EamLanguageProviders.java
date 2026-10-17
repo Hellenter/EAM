@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.content.dryer.DryerModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -64,6 +65,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Protein Deficiency");
 			builder.add("effect.eam.fat_deficiency", "Fat Deficiency");
 			builder.add("effect.eam.carbs_deficiency", "Carbs Deficiency");
+			builder.add("effect.eam.rested", "Rested");
+			builder.add("eam.sleep.rested", "You slept well: rested");
 			builder.add("eam.hunger.deficiency.protein", "Out of protein: weaker hits, slower mining");
 			builder.add("eam.hunger.deficiency.fat", "Out of fat: hunger drains faster");
 			builder.add("eam.hunger.deficiency.carbs", "Out of carbs: you tire quickly when running");
@@ -123,6 +126,8 @@ public final class EamLanguageProviders {
 			builder.add("enchantment.eam.harvest", "Harvest");
 			builder.add("container.eam.villager.trade", "Trade");
 			builder.add("container.eam.villager.inventory", "Inventory");
+			builder.add("container.eam.villager.make_guard", "Make Guard");
+			builder.add("entity.eam.villager.guard", "Guard");
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Farmer Tools");
@@ -268,6 +273,9 @@ public final class EamLanguageProviders {
 			builder.add(SpoilageSettings.SPOILS, "Perishable Food");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Fast-Spoiling Food");
 			builder.add("tooltip.eam.spoils_in", "Spoils in %s");
+			builder.add("tooltip.eam.dried", "Dried: keeps longer, makes you thirsty");
+			builder.add(DryerModule.DRYABLE, "Dryable Food");
+			builder.add(EamBlocks.FOOD_DRYER, "Food Dryer");
 			builder.add("tooltip.eam.spoils", "Spoils:");
 			builder.add("tooltip.eam.spoils_batch", " %s in %s");
 			builder.add("tooltip.eam.spoils_rest", " %s later");
@@ -740,6 +748,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Нехватка белка");
 			builder.add("effect.eam.fat_deficiency", "Нехватка жиров");
 			builder.add("effect.eam.carbs_deficiency", "Нехватка углеводов");
+			builder.add("effect.eam.rested", "Отдохнул");
+			builder.add("eam.sleep.rested", "Вы хорошо выспались и отдохнули");
 			builder.add("eam.hunger.deficiency.protein", "Нет белка: удар слабее, копание медленнее");
 			builder.add("eam.hunger.deficiency.fat", "Нет жиров: голод наступает быстрее");
 			builder.add("eam.hunger.deficiency.carbs", "Нет углеводов: быстро устаёшь на бегу");
@@ -799,6 +809,8 @@ public final class EamLanguageProviders {
 			builder.add("enchantment.eam.harvest", "Урожай");
 			builder.add("container.eam.villager.trade", "Торговать");
 			builder.add("container.eam.villager.inventory", "Инвентарь");
+			builder.add("container.eam.villager.make_guard", "Сделать стражником");
+			builder.add("entity.eam.villager.guard", "Стражник");
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Инструменты фермера");
@@ -944,6 +956,9 @@ public final class EamLanguageProviders {
 			builder.add(SpoilageSettings.SPOILS, "Скоропортящаяся еда");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Быстро портящаяся еда");
 			builder.add("tooltip.eam.spoils_in", "Испортится через %s");
+			builder.add("tooltip.eam.dried", "Сушёное: хранится дольше, отнимает воду");
+			builder.add(DryerModule.DRYABLE, "Еда для сушки");
+			builder.add(EamBlocks.FOOD_DRYER, "Сушилка для еды");
 			builder.add("tooltip.eam.spoils", "Испортится:");
 			builder.add("tooltip.eam.spoils_batch", " %s шт. через %s");
 			builder.add("tooltip.eam.spoils_rest", " ещё %s шт. позже");

@@ -164,4 +164,12 @@ class ThirstLogicTest {
 		ThirstCounters full = ThirstCounters.ZERO.withExhaustion(ThirstLogic.MAX_EXHAUSTION);
 		assertEquals(ThirstLogic.MAX_EXHAUSTION, ThirstLogic.addPassive(full, settings, 2.0F).exhaustion());
 	}
+
+	@Test
+	void restedThirstDrainsSlower() {
+		ThirstCounters full = new ThirstCounters(SETTINGS.exhaustionPerPoint(), 0, 0, 0);
+		ThirstLogic.Environment rested = new ThirstLogic.Environment(false, false, false, false, 0.9F);
+		assertEquals(Thirst.MAX - 1, ThirstLogic.tick(Thirst.full(), full, SETTINGS, NORMAL).thirst().water());
+		assertEquals(Thirst.MAX, ThirstLogic.tick(Thirst.full(), full, SETTINGS, rested).thirst().water());
+	}
 }
