@@ -58,6 +58,17 @@ final class KoscheiEffects {
 							tip.z + (random.nextDouble() - 0.5) * 0.4, 0.0, 0.0, 0.0);
 				}
 			}
+			case SUMMON -> {
+				if (t < KoscheiAction.SUMMON_RELEASE) {
+					// Dark motes drawn in to his raised hand.
+					Vec3 hand = koschei.raisedHand();
+					for (int i = 0; i < 2; i++) {
+						Vec3 from = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).scale(1.6);
+						level.addParticle(EamParticles.KOSCHEI_WARP, hand.x + from.x, hand.y + from.y, hand.z + from.z, -from.x * 0.12,
+								-from.y * 0.12, -from.z * 0.12);
+					}
+				}
+			}
 			case TELEPORT -> {
 				if (random.nextInt(2) == 0) {
 					level.addParticle(EamParticles.KOSCHEI_WARP, koschei.getRandomX(0.6), koschei.getY() + random.nextDouble() * 0.3,

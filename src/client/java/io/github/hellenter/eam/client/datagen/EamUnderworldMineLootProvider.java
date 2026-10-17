@@ -28,7 +28,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Underworld mine loot: what miners left behind. Chests hold mining supplies, ore and nuggets (mithril rarely) and about
- * every other time a worn copper or rusty iron tool; barrels hold their food, now mostly spoiled, and lighting.
+ * every other time a worn copper or rusty iron tool; barrels hold their food, now mostly spoiled, and lighting; chest
+ * minecarts on the rails hold ore that never left the mine.
  */
 public class EamUnderworldMineLootProvider extends SimpleFabricLootTableSubProvider {
 	public EamUnderworldMineLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -49,6 +50,25 @@ public class EamUnderworldMineLootProvider extends SimpleFabricLootTableSubProvi
 	public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
 		output.accept(UnderworldMine.CHEST_LOOT, chest());
 		output.accept(UnderworldMine.BARREL_LOOT, barrel());
+		output.accept(UnderworldMine.MINECART_LOOT, minecart());
+	}
+
+	/** A cart of ore that never left the mine, with what the miners threw on top. */
+	private static LootTable.Builder minecart() {
+		LootPool.Builder ore = LootPool.lootPool().setRolls(ContextIntProviders.between(2, 4))
+				.add(item(Items.RAW_COPPER, 8, 2, 6))
+				.add(item(EamItems.RAW_SILVER, 5, 1, 4))
+				.add(item(Items.RAW_IRON, 4, 1, 4))
+				.add(item(Items.COAL, 8, 3, 8))
+				.add(item(Items.COBBLESTONE, 6, 4, 12))
+				.add(item(EamItems.MITHRIL_NUGGET, 1, 1, 2));
+		LootPool.Builder supplies = LootPool.lootPool().setRolls(ContextIntProviders.between(0, 2))
+				.add(item(Items.RAIL, 6, 2, 8))
+				.add(item(Items.TORCH, 5, 2, 6))
+				.add(item(Items.STICK, 4, 2, 6))
+				.add(worn(Items.COPPER_PICKAXE, 1, 0.1F, 0.4F))
+				.add(worn(EamItems.RUSTY_IRON_PICKAXE, 1, 0.1F, 0.4F));
+		return LootTable.lootTable().withPool(ore).withPool(supplies);
 	}
 
 	private static LootTable.Builder chest() {

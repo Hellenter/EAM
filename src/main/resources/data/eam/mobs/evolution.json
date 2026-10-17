@@ -9,21 +9,29 @@
 		{
 			"day": 20,
 			"armor": [{"tier": "leather", "chance": 0.2}, {"tier": "copper_chainmail", "chance": 0.125}],
-			"weapons": [{"tier": "wood", "chance": 0.2}, {"tier": "copper", "chance": 0.125}]
+			"weapons": [{"tier": "wood", "chance": 0.2}, {"tier": "copper", "chance": 0.125}],
+			"skeleton_melee_chance": 0.15,
+			"spider_web_chance": 0.15
 		},
 		{
 			"day": 40,
 			"armor": [{"tier": "leather", "chance": 0.35}, {"tier": "copper", "chance": 0.2}],
 			"weapons": [{"tier": "wood", "chance": 0.35}, {"tier": "copper", "chance": 0.2}],
-			"enchanted_bow_chance": 0.25
+			"enchanted_bow_chance": 0.25,
+			"skeleton_melee_chance": 0.35,
+			"spider_web_chance": 0.35
 		},
 		{
 			"day": 60,
 			"armor": [{"tier": "leather", "chance": 0.35}, {"tier": "copper", "chance": 0.2}, {"tier": "rusty_iron", "chance": 0.1}],
 			"weapons": [{"tier": "wood", "chance": 0.35}, {"tier": "copper", "chance": 0.2}, {"tier": "rusty_iron", "chance": 0.1}],
-			"enchanted_bow_chance": 0.25
+			"enchanted_bow_chance": 0.25,
+			"skeleton_melee_chance": 0.6,
+			"spider_web_chance": 0.6
 		}
 	],
+	"skeleton_melee": {"draw_range": 4.0, "sheathe_range": 7.0},
+	"spider_web": {"min_range": 3.0, "max_range": 12.0, "cooldown_ticks": 200, "speed": 1.0, "seconds": 5},
 	"tiers": {
 		"leather": {
 			"head": ["minecraft:leather_helmet"],

@@ -17,7 +17,9 @@ public final class KoscheiLogic {
 		FORCE,
 		BOLT,
 		/** Not a blow: the target stood too close for his lunge too often, so he makes room (the burst of force or a hop back). */
-		MAKE_ROOM
+		MAKE_ROOM,
+		/** The phantom ravens, his rare pool alongside the bolt. */
+		RAVENS
 	}
 
 	/**
@@ -194,6 +196,27 @@ public final class KoscheiLogic {
 	/** Whether the bolt waits at {@code now}: a shield he knocked out is ready at {@code back}, more than {@code lead} ticks off. */
 	public static boolean boltBlocked(long now, long back, int lead) {
 		return now < back - lead;
+	}
+
+	/**
+	 * Whether he calls up his phantom ravens on a target this far: his rare pool, only while none of the last flock are
+	 * about (they hold the cooldown up) and the target is in range.
+	 *
+	 * @param cooldown ticks left before he may call them again
+	 * @param roll     uniform random in [0, 1)
+	 */
+	public static boolean callsRavens(double distance, int cooldown, KoscheiSettings.Ravens ravens, double roll) {
+		return ravens.count() > 0 && cooldown <= 0 && distance <= ravens.maxRange() && roll < ravens.chance();
+	}
+
+	/**
+	 * How he answers a target that keeps out of his reach: the bolt when it is ready, not held back, and the target in its
+	 * range and in sight; else (null) he stands behind it.
+	 *
+	 * @param boltCooldown ticks left before he may shoot again
+	 */
+	public static @Nullable Attack answerRetreat(double distance, boolean sees, int boltCooldown, boolean boltBlocked, KoscheiSettings.Bolt bolt) {
+		return sees && boltCooldown <= 0 && !boltBlocked && distance >= bolt.minRange() && distance <= bolt.maxRange() ? Attack.BOLT : null;
 	}
 
 	/** Whether the {@code hits}-th hit during the overhead windup is one too many: then the blow can't be parried. */

@@ -12,16 +12,19 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param phaseOne            the sword duel of his first phase
  * @param teleport            he vanishes and stands behind the target now and then
  * @param hop                 short hops aside or back, and a leap back when he loses health fast
+ * @param ravens              the flock of phantom ravens he calls up now and then
  * @param mobDamageMultiplier his blows deal this many times their damage to anything but a player
  */
-public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, float mobDamageMultiplier) {
-	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, 4.0F);
+public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier) {
+	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
+			4.0F);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
 			PhaseOne.CODEC.fieldOf("phase_one").orElse(DEFAULT.phaseOne).forGetter(KoscheiSettings::phaseOne),
 			Teleport.CODEC.fieldOf("teleport").orElse(DEFAULT.teleport).forGetter(KoscheiSettings::teleport),
 			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(KoscheiSettings::hop),
+			Ravens.CODEC.fieldOf("ravens").orElse(DEFAULT.ravens).forGetter(KoscheiSettings::ravens),
 			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
 					.forGetter(KoscheiSettings::mobDamageMultiplier)
 	).apply(instance, KoscheiSettings::new));
@@ -280,15 +283,17 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param chance   chance each tick he teleports while it is ready and he is free to
 	 * @param distance how far behind the target he appears
 	 * @param maxAngle he appears up to this many degrees to either side of straight behind the target
+	 * @param retreatTicks a target that keeps out of his reach this long gets the bolt, or he stands behind it
 	 */
-	public record Teleport(int cooldown, float chance, double distance, float maxAngle) {
-		public static final Teleport DEFAULT = new Teleport(240, 0.05F, 6.0, 70.0F);
+	public record Teleport(int cooldown, float chance, double distance, float maxAngle, int retreatTicks) {
+		public static final Teleport DEFAULT = new Teleport(180, 0.08F, 6.0, 70.0F, 60);
 
 		public static final Codec<Teleport> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Teleport::cooldown),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Teleport::chance),
 				Codec.doubleRange(1.0, 32.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(Teleport::distance),
-				Codec.floatRange(0.0F, 180.0F).fieldOf("max_angle").orElse(DEFAULT.maxAngle).forGetter(Teleport::maxAngle)
+				Codec.floatRange(0.0F, 180.0F).fieldOf("max_angle").orElse(DEFAULT.maxAngle).forGetter(Teleport::maxAngle),
+				Codec.intRange(1, 24000).fieldOf("retreat_ticks").orElse(DEFAULT.retreatTicks).forGetter(Teleport::retreatTicks)
 		).apply(instance, Teleport::new));
 	}
 
@@ -310,7 +315,7 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 */
 	public record Hop(int cooldown, float chance, double speed, float burstShare, int burstWindow, double burstSpeed, float inChance, double inFrom,
 			double inMin, double inMax, float flankChance, int flankCooldown, double flankRange) {
-		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1, 0.06F, 4.5, 2.0, 3.5, 0.3F, 70, 6.0);
+		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1, 0.06F, 4.5, 2.0, 3.5, 0.4F, 55, 6.0);
 
 		public static final Codec<Hop> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Hop::cooldown),
@@ -327,5 +332,30 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Codec.intRange(0, 24000).fieldOf("flank_cooldown").orElse(DEFAULT.flankCooldown).forGetter(Hop::flankCooldown),
 				Codec.doubleRange(0.0, 32.0).fieldOf("flank_range").orElse(DEFAULT.flankRange).forGetter(Hop::flankRange)
 		).apply(instance, Hop::new));
+	}
+
+	/**
+	 * @param count    how many he calls up at once
+	 * @param health   health of each
+	 * @param damage   damage of each peck
+	 * @param lifetime ticks before they fade away
+	 * @param speed    how fast they fly at the target
+	 * @param chance   chance each time he is about to attack that he calls them instead; his rare pool, as the bolt
+	 * @param cooldown ticks before he calls them again, counted once the last of them is gone
+	 * @param maxRange he calls them only on a target at most this far away
+	 */
+	public record Ravens(int count, float health, float damage, int lifetime, double speed, float chance, int cooldown, double maxRange) {
+		public static final Ravens DEFAULT = new Ravens(3, 1.0F, 1.0F, 300, 0.45, 0.02F, 400, 16.0);
+
+		public static final Codec<Ravens> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 16).fieldOf("count").orElse(DEFAULT.count).forGetter(Ravens::count),
+				Codec.floatRange(1.0F, 1024.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(Ravens::health),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Ravens::damage),
+				Codec.intRange(1, 24000).fieldOf("lifetime").orElse(DEFAULT.lifetime).forGetter(Ravens::lifetime),
+				Codec.doubleRange(0.05, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Ravens::speed),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Ravens::chance),
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Ravens::cooldown),
+				Codec.doubleRange(0.0, 64.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(Ravens::maxRange)
+		).apply(instance, Ravens::new));
 	}
 }
