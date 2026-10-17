@@ -145,4 +145,30 @@ class KoscheiLogicTest {
 		assertEquals(2.5, KoscheiLogic.hopInLength(4.5, 2.0, 3.5, 1.0), 1.0E-9);
 		assertEquals(0.0, KoscheiLogic.hopInLength(3.5, 2.0, 3.5, 0.5), 1.0E-9);
 	}
+
+	@Test
+	void afterKnockingAShieldOutTheBoltWaitsTillHalfASecondBeforeItIsBack() {
+		assertTrue(KoscheiLogic.boltBlocked(100, 200, 10));
+		assertTrue(KoscheiLogic.boltBlocked(189, 200, 10));
+		assertFalse(KoscheiLogic.boltBlocked(190, 200, 10));
+		assertNotEquals(Attack.BOLT, KoscheiLogic.choose(8.0, false, 0, 0, ready(), null, true, false, ONE, ALWAYS).attack());
+	}
+
+	@Test
+	void hungryForTheBoltHeShootsFromCloseAndLeavesARaisedShieldAlone() {
+		assertEquals(Attack.BOLT, KoscheiLogic.choose(3.0, true, 0, 0, ready(), null, false, true, ONE, ALWAYS).attack());
+		int[] noBolt = cooling(Attack.BOLT);
+		assertNotEquals(Attack.LUNGE, KoscheiLogic.choose(4.0, true, 0, 0, noBolt, null, false, true, ONE, ALWAYS).attack());
+		assertNotEquals(Attack.KICK, KoscheiLogic.choose(1.5, true, 100, 0, noBolt, null, false, true, ONE, ALWAYS).attack());
+		for (double roll = 0.0; roll < 1.0; roll += 0.05) {
+			double r = roll;
+			assertNotEquals(Attack.ORANGE, KoscheiLogic.melee(false, false, ready(), null, ONE, () -> r));
+		}
+	}
+
+	@Test
+	void clickingThroughTheOverheadWindupCostsTheParry() {
+		assertFalse(KoscheiLogic.windupSpammed(2, 2));
+		assertTrue(KoscheiLogic.windupSpammed(3, 2));
+	}
 }

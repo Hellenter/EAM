@@ -77,10 +77,15 @@
       "min_range": 6.0,
       "max_range": 18.0,
       "chance": 0.03,
-      "cooldown": 400
+      "cooldown": 400,
+      "shield_back": 10,
+      "hunger_ticks": 300,
+      "hunger_chance": 5.0,
+      "hunger_min_range": 3.0
     },
     "parry": {
-      "multiplier": 1.5
+      "multiplier": 1.5,
+      "windup_hits": 2
     },
     "arrow_parry_chance": 1.0
   },
@@ -100,7 +105,10 @@
     "in_chance": 0.06,
     "in_from": 4.5,
     "in_min": 2.0,
-    "in_max": 3.5
+    "in_max": 3.5,
+    "flank_chance": 0.3,
+    "flank_cooldown": 70,
+    "flank_range": 6.0
   },
   "mob_damage_multiplier": 4.0
 }

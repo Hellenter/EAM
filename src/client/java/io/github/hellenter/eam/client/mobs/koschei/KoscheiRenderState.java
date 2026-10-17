@@ -3,11 +3,6 @@ package io.github.hellenter.eam.client.mobs.koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiAction;
 
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.world.phys.Vec3;
-
-import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 public class KoscheiRenderState extends HumanoidRenderState {
 	/** What he is doing. */
@@ -26,14 +21,6 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public float fallSpeed;
 	/** How fast he moves over the ground: 0 walking, 1 rushing. */
 	public float dash;
-	/** The sword's point while he aims or holds the bolt, relative to his feet; null otherwise. */
-	public @Nullable Vec3 boltFrom;
-	/** Where each bolt strikes, relative to his feet; empty while it is not loosed. */
-	public List<Vec3> boltTo = List.of();
-	/** Changes every other tick, so the bolt's shape crackles. */
-	public long boltSeed;
-	/** How far the bolt has grown toward the target, 0 to 1. */
-	public float boltGrowth;
 
 	public enum Eyes {
 		/** His eyes always glow a cold pale blue. */

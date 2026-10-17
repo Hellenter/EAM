@@ -236,9 +236,16 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param maxRange        further than this he doesn't shoot, and the bolt breaks off
 	 * @param chance          chance each tick he shoots while it is ready and the target is in range and he is free
 	 * @param cooldown        ticks before he shoots again
+	 * @param shieldBack      after he knocks the target's shield out he starts the bolt no sooner than this many ticks
+	 *                        before the shield is ready again
+	 * @param hungerTicks     once the bolt has been ready this long without a cast (the shield kept knocked out, the
+	 *                        target kept close) he stops knocking shields out and goes for the bolt
+	 * @param hungerChance    the bolt's chance is multiplied by this then
+	 * @param hungerMinRange  and he shoots from this close
 	 */
-	public record Bolt(float damagePerSecond, int pulse, double minRange, double maxRange, float chance, int cooldown) {
-		public static final Bolt DEFAULT = new Bolt(8.0F, 5, 6.0, 18.0, 0.03F, 400);
+	public record Bolt(float damagePerSecond, int pulse, double minRange, double maxRange, float chance, int cooldown, int shieldBack,
+			int hungerTicks, float hungerChance, double hungerMinRange) {
+		public static final Bolt DEFAULT = new Bolt(8.0F, 5, 6.0, 18.0, 0.03F, 400, 10, 300, 5.0F, 3.0);
 
 		public static final Codec<Bolt> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage_per_second").orElse(DEFAULT.damagePerSecond).forGetter(Bolt::damagePerSecond),
@@ -246,16 +253,25 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Codec.doubleRange(0.0, 64.0).fieldOf("min_range").orElse(DEFAULT.minRange).forGetter(Bolt::minRange),
 				Codec.doubleRange(0.0, 64.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(Bolt::maxRange),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Bolt::chance),
-				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Bolt::cooldown)
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Bolt::cooldown),
+				Codec.intRange(0, 24000).fieldOf("shield_back").orElse(DEFAULT.shieldBack).forGetter(Bolt::shieldBack),
+				Codec.intRange(0, 24000).fieldOf("hunger_ticks").orElse(DEFAULT.hungerTicks).forGetter(Bolt::hungerTicks),
+				Codec.floatRange(1.0F, 100.0F).fieldOf("hunger_chance").orElse(DEFAULT.hungerChance).forGetter(Bolt::hungerChance),
+				Codec.doubleRange(0.0, 64.0).fieldOf("hunger_min_range").orElse(DEFAULT.hungerMinRange).forGetter(Bolt::hungerMinRange)
 		).apply(instance, Bolt::new));
 	}
 
-	/** @param multiplier damage multiplier of the parrying hit */
-	public record Parry(float multiplier) {
-		public static final Parry DEFAULT = new Parry(1.5F);
+	/**
+	 * @param multiplier  damage multiplier of the parrying hit
+	 * @param windupHits  a player who hits him more than this many times while he raises the overhead blow (just clicking
+	 *                    at him) loses its parry for that blow
+	 */
+	public record Parry(float multiplier, int windupHits) {
+		public static final Parry DEFAULT = new Parry(1.5F, 2);
 
 		public static final Codec<Parry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Codec.floatRange(0.0F, 10.0F).fieldOf("multiplier").orElse(DEFAULT.multiplier).forGetter(Parry::multiplier)
+				Codec.floatRange(0.0F, 10.0F).fieldOf("multiplier").orElse(DEFAULT.multiplier).forGetter(Parry::multiplier),
+				Codec.intRange(0, 100).fieldOf("windup_hits").orElse(DEFAULT.windupHits).forGetter(Parry::windupHits)
 		).apply(instance, Parry::new));
 	}
 
@@ -287,10 +303,14 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	 * @param inFrom      he hops in only at a target at least this far away
 	 * @param inMin       shortest hop in, blocks
 	 * @param inMax       longest hop in, blocks; it never lands closer than a couple of blocks to the target
+	 * @param flankChance chance he dashes round to the target's side or back, then strikes, each time he is about to attack
+	 *                    one in reach; a fifth of it each tick he walks up to one
+	 * @param flankCooldown ticks between two such dashes
+	 * @param flankRange  he dashes round only a target at most this far away
 	 */
 	public record Hop(int cooldown, float chance, double speed, float burstShare, int burstWindow, double burstSpeed, float inChance, double inFrom,
-			double inMin, double inMax) {
-		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1, 0.06F, 4.5, 2.0, 3.5);
+			double inMin, double inMax, float flankChance, int flankCooldown, double flankRange) {
+		public static final Hop DEFAULT = new Hop(50, 0.15F, 0.6, 0.25F, 100, 1.1, 0.06F, 4.5, 2.0, 3.5, 0.3F, 70, 6.0);
 
 		public static final Codec<Hop> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Hop::cooldown),
@@ -302,7 +322,10 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 				Codec.floatRange(0.0F, 1.0F).fieldOf("in_chance").orElse(DEFAULT.inChance).forGetter(Hop::inChance),
 				Codec.doubleRange(0.0, 64.0).fieldOf("in_from").orElse(DEFAULT.inFrom).forGetter(Hop::inFrom),
 				Codec.doubleRange(0.0, 16.0).fieldOf("in_min").orElse(DEFAULT.inMin).forGetter(Hop::inMin),
-				Codec.doubleRange(0.0, 16.0).fieldOf("in_max").orElse(DEFAULT.inMax).forGetter(Hop::inMax)
+				Codec.doubleRange(0.0, 16.0).fieldOf("in_max").orElse(DEFAULT.inMax).forGetter(Hop::inMax),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("flank_chance").orElse(DEFAULT.flankChance).forGetter(Hop::flankChance),
+				Codec.intRange(0, 24000).fieldOf("flank_cooldown").orElse(DEFAULT.flankCooldown).forGetter(Hop::flankCooldown),
+				Codec.doubleRange(0.0, 32.0).fieldOf("flank_range").orElse(DEFAULT.flankRange).forGetter(Hop::flankRange)
 		).apply(instance, Hop::new));
 	}
 }
