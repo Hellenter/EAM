@@ -43,6 +43,12 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 	private static final Map<EquipmentSlot, Set<String>> ARMOR_PARTS = Map.of(EquipmentSlot.HEAD, Set.of("head"),
 			EquipmentSlot.CHEST, Set.of("body", "left_arm", "right_arm"), EquipmentSlot.LEGS, Set.of("skirt"),
 			EquipmentSlot.FEET, Set.of("left_leg", "right_leg"));
+	/**
+	 * The only parts the hands and mail layers draw: the humanoid mesh also has a head and legs, which would be drawn
+	 * with the hands or mail texture right on the villager's face.
+	 */
+	private static final Set<String> HAND_PARTS = Set.of("left_arm", "right_arm");
+	private static final Set<String> MAIL_PARTS = Set.of("body", "left_arm", "right_arm");
 
 	private static final CubeDeformation SLEEVE = new CubeDeformation(0.0F, 0.5F, 0.0F);
 	private static final CubeDeformation OUTER_ARMOR = new CubeDeformation(1.0F);
@@ -124,6 +130,7 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 				PartPose.offset(-5.0F, 2.0F, 0.0F));
 		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror().texOffs(0, 0).addBox(-1.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F),
 				PartPose.offset(5.0F, 2.0F, 0.0F));
+		root.retainExactParts(HAND_PARTS);
 		return LayerDefinition.create(mesh, 16, 8);
 	}
 
@@ -141,6 +148,7 @@ public class VillagerFigureModel extends HumanoidModel<VillagerFigureRenderState
 				PartPose.offset(-5.0F, 2.0F, 0.0F));
 		root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror().texOffs(32, 0).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 5.0F, 4.0F, sleeve),
 				PartPose.offset(5.0F, 2.0F, 0.0F));
+		root.retainExactParts(MAIL_PARTS);
 		return LayerDefinition.create(mesh, 64, 32);
 	}
 

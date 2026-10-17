@@ -32,14 +32,23 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Food lying on a dryer and how long each item has dried. Food dries while no rain falls on it, then stays on the rack
+ * Food hanging on a dryer and how long each item has dried. Food dries while no rain falls on it, then stays on the rack
  * until taken. It still ages while it dries, and food that spoils on the rack turns into what it spoils into.
  */
 public class DryerBlockEntity extends BlockEntity {
 	public static final int SLOTS = 4;
-	/** Distance of a food slot from the centre on each axis, in blocks. */
-	public static final float SLOT_OFFSET = 0.21875F;
-	/** How often food on the rack is checked for spoiling, in ticks. */
+	/**
+	 * Where each hook hangs, in pixels, for a dryer facing south: along the pole, from front (z 9) to back (z 7) in turn,
+	 * and how far below the pole its hook is. Back hooks hang lower, so the food does not hide behind its neighbours.
+	 */
+	public static final double[] HOOK_X = {4.5, 6.8, 9.2, 11.5};
+	public static final double[] HOOK_Z = {9.0, 7.0, 9.0, 7.0};
+	public static final double[] HOOK_DROP = {1.5, 3.0, 1.5, 3.0};
+	/** The underside of the pole the hooks hang from, in pixels. */
+	public static final double POLE_BOTTOM = 13.5;
+	/** How tall a hook is from its twine to the bend the food hangs on, in pixels. */
+	public static final double HOOK_HEIGHT = 1.75;
+	/** How often food on the hooks is checked for spoiling, in ticks. */
 	private static final int SPOIL_INTERVAL = 20;
 
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -100,14 +109,9 @@ public class DryerBlockEntity extends BlockEntity {
 		}
 	}
 
-	/** -1 or 1: the side of the centre a slot is on along x. */
-	public static int slotX(int slot) {
-		return slot == 0 || slot == 3 ? -1 : 1;
-	}
-
-	/** -1 or 1: the side of the centre a slot is on along z. */
-	public static int slotZ(int slot) {
-		return slot < 2 ? -1 : 1;
+	/** The height of the bend of hook {@code slot}, where its food hangs, in pixels. */
+	public static double hookBottom(int slot) {
+		return POLE_BOTTOM - HOOK_DROP[slot] - HOOK_HEIGHT;
 	}
 
 	public NonNullList<ItemStack> getItems() {
