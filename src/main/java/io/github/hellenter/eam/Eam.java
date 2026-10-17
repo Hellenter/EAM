@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.bucket.BucketModule;
 import io.github.hellenter.eam.content.heart.HeartInJarModule;
 import io.github.hellenter.eam.content.talisman.TalismanModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
+import io.github.hellenter.eam.content.dryer.DryerModule;
 import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.EamEntities;
@@ -138,6 +139,7 @@ public class Eam implements ModInitializer {
 		BleedingModule.register();
 		EamWorldgen.init();
 		CampFireModule.register();
+		DryerModule.register();
 		SieveModule.register();
 		FeederModule.register();
 		FridgeModule.register();

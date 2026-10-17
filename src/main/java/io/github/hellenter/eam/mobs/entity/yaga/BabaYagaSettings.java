@@ -221,10 +221,13 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param weaknessTicks weakness (none by default)
 	 * @param weaknessLevel weakness's level
 	 * @param flightTicks   the flask is in the air at least this long, so a player can step out from under it
+	 * @param reflectWindow a hit or a raised shield this many ticks or less before the flask reaches a player sends it back
+	 * @param reflectSpeed  blocks a tick the flask flies back to her at
+	 * @param dazeTicks     reaching her, the flask sent back stuns her: no attack for this long, but no damage either
 	 */
 	public record Potion(int cooldown, double range, double radius, int poisonTicks, int nauseaTicks, int nauseaLevel, int weaknessTicks,
-			int weaknessLevel, int flightTicks) {
-		public static final Potion DEFAULT = new Potion(300, 28.0, 4.0, 200, 50, 0, 0, 0, 24);
+			int weaknessLevel, int flightTicks, int reflectWindow, double reflectSpeed, int dazeTicks) {
+		public static final Potion DEFAULT = new Potion(300, 28.0, 4.0, 200, 50, 0, 0, 0, 24, 5, 1.2, 100);
 		public static final Codec<Potion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Potion::cooldown),
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Potion::range),
@@ -234,7 +237,10 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.intRange(0, 9).fieldOf("nausea_level").orElse(DEFAULT.nauseaLevel).forGetter(Potion::nauseaLevel),
 				Codec.intRange(0, 12000).fieldOf("weakness_ticks").orElse(DEFAULT.weaknessTicks).forGetter(Potion::weaknessTicks),
 				Codec.intRange(0, 9).fieldOf("weakness_level").orElse(DEFAULT.weaknessLevel).forGetter(Potion::weaknessLevel),
-				Codec.intRange(5, 100).fieldOf("flight_ticks").orElse(DEFAULT.flightTicks).forGetter(Potion::flightTicks)
+				Codec.intRange(5, 100).fieldOf("flight_ticks").orElse(DEFAULT.flightTicks).forGetter(Potion::flightTicks),
+				Codec.intRange(0, 40).fieldOf("reflect_window").orElse(DEFAULT.reflectWindow).forGetter(Potion::reflectWindow),
+				Codec.doubleRange(0.2, 4.0).fieldOf("reflect_speed").orElse(DEFAULT.reflectSpeed).forGetter(Potion::reflectSpeed),
+				Codec.intRange(0, 1200).fieldOf("daze_ticks").orElse(DEFAULT.dazeTicks).forGetter(Potion::dazeTicks)
 		).apply(instance, Potion::new));
 	}
 
