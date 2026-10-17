@@ -124,6 +124,8 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.NO_HAT_LAYER, VillagerFigureModel::createNoHatLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_LAYER, VillagerFigureModel::createBabyLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_NO_HAT_LAYER, VillagerFigureModel::createBabyNoHatLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.HANDS_LAYER, VillagerFigureModel::createHandsLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.MAIL_LAYER, VillagerFigureModel::createMailLayer);
 		var villagerArmor = VillagerFigureModel.createArmorLayerSet();
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.head(), villagerArmor::head);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.chest(), villagerArmor::chest);
@@ -135,6 +137,7 @@ public class EamClient implements ClientModInitializer {
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_ABSORPTION, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_SPEED, BuffIconParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.DIZZY_STAR, BuffIconParticle.Provider::new);
 		registerYagaFx(EamParticles.YAGA_FEATHER, YagaFxParticle.Style.FEATHER);
 		registerYagaFx(EamParticles.YAGA_WISP, YagaFxParticle.Style.WISP);
 		registerYagaFx(EamParticles.YAGA_TOXIC, YagaFxParticle.Style.TOXIC);
