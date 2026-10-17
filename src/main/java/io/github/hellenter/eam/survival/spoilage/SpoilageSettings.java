@@ -23,8 +23,9 @@ import java.util.List;
  *
  * @param rules      what spoils, how fast and into what; the first rule whose tag holds an item wins
  * @param daysPerIce how long one ice item keeps a fridge cold
+ * @param driedMultiplier how many times longer dried food keeps than fresh food of its rule
  */
-public record SpoilageSettings(List<Rule> rules, double daysPerIce) {
+public record SpoilageSettings(List<Rule> rules, double daysPerIce, double driedMultiplier) {
 	/** Raw meat and fish: five days, then rotten flesh. */
 	public static final TagKey<Item> SPOILS_FAST = TagKey.create(Registries.ITEM, Eam.id("spoils_fast"));
 	/** Fruit, vegetables and cooked food: ten days, then rotten food. */
@@ -32,11 +33,12 @@ public record SpoilageSettings(List<Rule> rules, double daysPerIce) {
 
 	public static final SpoilageSettings DEFAULT = new SpoilageSettings(List.of(
 			new Rule(SPOILS_FAST, 5.0, Items.ROTTEN_FLESH),
-			new Rule(SPOILS, 10.0, EamItems.ROTTEN_FOOD)), 1.0);
+			new Rule(SPOILS, 10.0, EamItems.ROTTEN_FOOD)), 1.0, 5.0);
 
 	public static final Codec<SpoilageSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Rule.CODEC.listOf().fieldOf("rules").orElse(DEFAULT.rules).forGetter(SpoilageSettings::rules),
-			Codec.doubleRange(0.01, 1000.0).fieldOf("days_per_ice").orElse(DEFAULT.daysPerIce).forGetter(SpoilageSettings::daysPerIce)
+			Codec.doubleRange(0.01, 1000.0).fieldOf("days_per_ice").orElse(DEFAULT.daysPerIce).forGetter(SpoilageSettings::daysPerIce),
+			Codec.doubleRange(1.0, 1000.0).fieldOf("dried_multiplier").orElse(DEFAULT.driedMultiplier).forGetter(SpoilageSettings::driedMultiplier)
 	).apply(instance, SpoilageSettings::new));
 
 	/** The rule {@code stack} spoils by, or null when it keeps. */

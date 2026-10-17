@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.dryer.DryerBlock;
 import io.github.hellenter.eam.content.torch.UnlitTorchBlock;
 import io.github.hellenter.eam.content.torch.UnlitWallTorchBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
@@ -79,6 +80,15 @@ public final class EamBlocks {
 			.lightLevel(state -> state.getValue(CampFireBlock.LIT) ? 15 : 0)
 			.noOcclusion()
 			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** A wooden rack food dries on; see {@link DryerBlock}. */
+	public static final Block FOOD_DRYER = register("food_dryer", DryerBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.strength(1.0F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava()
 			.pushReaction(PushReaction.POPPED));
 
 	/** A torch the rain has put out; see {@link UnlitTorchBlock}. */

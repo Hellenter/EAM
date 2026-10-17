@@ -1,5 +1,6 @@
 {
   "days_per_ice": 1.0,
+  "dried_multiplier": 5.0,
   "rules": [
     {
       "becomes": "minecraft:rotten_flesh",
