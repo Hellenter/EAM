@@ -123,6 +123,11 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.NO_HAT_LAYER, VillagerFigureModel::createNoHatLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_LAYER, VillagerFigureModel::createBabyLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_NO_HAT_LAYER, VillagerFigureModel::createBabyNoHatLayer);
+		var villagerArmor = VillagerFigureModel.createArmorLayerSet();
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.head(), villagerArmor::head);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.chest(), villagerArmor::chest);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.legs(), villagerArmor::legs);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.feet(), villagerArmor::feet);
 		EntityRendererRegistry.register(EntityTypes.VILLAGER, VillagerFigureRenderer::new);
 		ModelLayerRegistry.registerModelLayer(FallenLordModel.LAYER, FallenLordModel::createLayer);
 		ParticleProviderRegistry.getInstance().register(EamParticles.HEAVY_WAVE, HeavyWaveParticle.Provider::new);
