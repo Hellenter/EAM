@@ -5,11 +5,11 @@ public final class OutpostLogic {
 	/** Blocks between two ground samples. */
 	public static final int STEP = 8;
 	/** Samples from the chunk middle to the edge of the sampled square, which is {@code 2 * REACH + 1} samples wide. */
-	public static final int REACH = 5;
+	public static final int REACH = 6;
 	/** Samples from the outpost's middle to the edge of its footprint: the template is 33 blocks, 4 steps, wide. */
 	private static final int HALF = 2;
 	/** How far, in samples, the middle may move off the chunk middle to find flatter ground. */
-	private static final int SHIFT = 1;
+	private static final int SHIFT = 2;
 
 	private OutpostLogic() {
 	}
@@ -23,7 +23,7 @@ public final class OutpostLogic {
 	}
 
 	/**
-	 * Picks the flattest dry site among the middles at most one sample off the chunk middle, preferring the middle on
+	 * Picks the flattest dry site among the middles at most two samples off the chunk middle, preferring the middle on
 	 * a tie, or none if every one is wet or rises more than {@code maxSlope}. The outpost stands on the highest ground
 	 * of its footprint, so a slope never buries it, and its gate faces the side whose land falls lowest.
 	 *
