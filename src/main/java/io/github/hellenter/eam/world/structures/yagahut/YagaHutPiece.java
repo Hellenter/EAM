@@ -2,6 +2,7 @@ package io.github.hellenter.eam.world.structures.yagahut;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
+import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -60,7 +62,9 @@ public class YagaHutPiece extends TemplateStructurePiece {
 				.setLiquidSettings(LiquidSettings.IGNORE_WATERLOGGING)
 				// Already shaped in the template; reshaping chunk by chunk would break doors and chests split across chunks.
 				.setKnownShape(true)
-				.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+				.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
+				.addProcessor(new EmptyContainerLoot(Blocks.CHEST, YagaHutModule.CHEST_LOOT))
+				.addProcessor(new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS));
 	}
 
 	/** The whole template's box. */

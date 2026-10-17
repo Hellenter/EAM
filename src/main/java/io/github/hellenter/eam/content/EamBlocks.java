@@ -27,10 +27,12 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
+import io.github.hellenter.eam.mobs.vanilla.evolution.SpiderWebBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -211,7 +213,7 @@ public final class EamBlocks {
 			.noCollision()
 			.instabreak()
 			.sound(SoundType.WEEPING_VINES)
-			.lightLevel(state -> 10)
+			.lightLevel(state -> GlowshroomLogic.light(state.getValue(GlowshroomVinesBlock.RIPE)))
 			.pushReaction(PushReaction.POPPED));
 	public static final Block GLOWSHROOM_VINES_PLANT = register("glowshroom_vines_plant", GlowshroomVinesPlantBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_CYAN)
@@ -220,6 +222,12 @@ public final class EamBlocks {
 			.sound(SoundType.WEEPING_VINES)
 			.lightLevel(state -> 5)
 			.pushReaction(PushReaction.POPPED));
+	/** Glowshroom caps packed behind glass: a steady light that rain does not put out. */
+	public static final Block GLOWSHROOM_LAMP = register("glowshroom_lamp", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.strength(1.0F)
+			.sound(SoundType.SHROOMLIGHT)
+			.lightLevel(state -> 13));
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
@@ -354,6 +362,16 @@ public final class EamBlocks {
 			.noCollision()
 			.requiresCorrectToolForDrops()
 			.strength(2.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** An evolved spider's web: holds like cobweb and falls apart after a few seconds; see {@link SpiderWebBlock}. */
+	public static final Block SPIDER_WEB = register("spider_web", SpiderWebBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOL)
+			.sound(SoundType.COBWEB)
+			.forceSolidOn()
+			.noCollision()
+			.strength(1.0F)
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
 

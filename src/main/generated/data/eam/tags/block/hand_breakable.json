@@ -96,6 +96,8 @@
     "eam:glowing_champignon_cap",
     "eam:burnt_mushroom_cap",
     "eam:burnt_mushroom_stem",
-    "eam:smoldering_mushroom_cap"
+    "eam:smoldering_mushroom_cap",
+    "eam:glowshroom_lamp",
+    "eam:net"
   ]
 }

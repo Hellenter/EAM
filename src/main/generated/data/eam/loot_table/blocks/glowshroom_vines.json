@@ -35,6 +35,25 @@
         }
       ],
       "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "eam:glowshroom_vines",
+        "state": {
+          "ripe": "true"
+        }
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:explosion_decay"
+          },
+          "name": "eam:glowshroom"
+        }
+      ],
+      "rolls": 1
     }
   ]
 }

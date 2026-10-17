@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.stone_wastes.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.stone_wastes.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -30,7 +35,15 @@
       },
       "modifier": "overlay"
     },
-    "minecraft:visual/fog_color": "#2e2e2e"
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "eam:underworld_dust"
+        },
+        "probability": 0.004
+      }
+    ],
+    "minecraft:visual/fog_color": "#34322f"
   },
   "carvers": [],
   "downfall": 0.0,

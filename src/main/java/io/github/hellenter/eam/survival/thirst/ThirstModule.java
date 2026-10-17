@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -125,6 +126,7 @@ public final class ThirstModule {
 	 * server agree on registries whatever their config files say.
 	 */
 	public static void register() {
+		RainWater.register();
 		PayloadTypeRegistry.serverboundPlay().register(DrinkFromSourcePayload.TYPE, DrinkFromSourcePayload.STREAM_CODEC);
 		DefaultItemComponentEvents.MODIFY.register(context -> {
 			DRINKS.forEach((item, water) -> context.modify(item, components -> components.set(HYDRATION, new Hydration(water))));
@@ -146,6 +148,7 @@ public final class ThirstModule {
 	/** Turns the mechanic on: drain, damage, drinking. */
 	public static void init() {
 		enabled = true;
+		RainWater.init();
 		ItemComponentTooltipProviderRegistry.addLast(RAW_WATER);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(ThirstSettingsLoader.ID, new ThirstSettingsLoader());
 		ServerTickEvents.END_SERVER_TICK.register(ThirstModule::tick);
@@ -171,9 +174,10 @@ public final class ThirstModule {
 		ServerLevel level = player.level();
 		ThirstLogic.Environment environment = new ThirstLogic.Environment(
 				level.getDifficulty() == Difficulty.PEACEFUL,
-				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature(),
+				level.getBiome(player.blockPosition()).value().getBaseTemperature(),
 				player.hasEffect(FOOD_POISONING),
-				ProgressionModule.inGracePeriod(player));
+				ProgressionModule.inGracePeriod(player),
+				RestedModule.drainFactor(player));
 
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
 		int max = ProgressionModule.capacity(player);
@@ -214,9 +218,9 @@ public final class ThirstModule {
 	public static void addPassiveDrain(ServerPlayer player, float factor) {
 		if (enabled && factor > 0.0F && !ProgressionModule.inGracePeriod(player)) {
 			ThirstSettings settings = ThirstModule.settings;
-			boolean hot = player.level().getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature();
+			float temperature = player.level().getBiome(player.blockPosition()).value().getBaseTemperature();
 			player.setAttached(COUNTERS, ThirstLogic.addPassive(player.getAttachedOrCreate(COUNTERS), settings,
-					hot ? factor * settings.hotMultiplier() : factor));
+					factor * ThirstLogic.climateMultiplier(settings, temperature)));
 		}
 	}
 

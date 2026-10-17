@@ -3,6 +3,11 @@
     {
       "processor_type": "minecraft:protected_blocks",
       "value": "#minecraft:features_cannot_replace"
+    },
+    {
+      "block": "minecraft:barrel",
+      "loot_table": "eam:chests/light_potions",
+      "processor_type": "eam:empty_container_loot"
     }
   ]
 }

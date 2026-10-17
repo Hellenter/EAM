@@ -9,6 +9,10 @@
   "dried_multiplier": 5.0,
   "rules": [
     {
+      "days": 3.0,
+      "items": "eam:sours"
+    },
+    {
       "becomes": "minecraft:rotten_flesh",
       "days": 5.0,
       "items": "eam:spoils_fast"

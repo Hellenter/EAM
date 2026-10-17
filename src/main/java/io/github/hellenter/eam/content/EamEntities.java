@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
+import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
 import io.github.hellenter.eam.mobs.entity.crossbowman.RedBolt;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
@@ -34,6 +35,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
 import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
 import io.github.hellenter.eam.mobs.entity.yaga.HagPotion;
@@ -229,6 +231,14 @@ public final class EamEntities {
 					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
 
+	/** One of the see-through black ravens Koschei calls up, flying through walls at his target. */
+	public static final EntityType<KoscheiRaven> KOSCHEI_RAVEN = register("koschei_raven",
+			EntityType.Builder.of(KoscheiRaven::new, MobCategory.MONSTER)
+					.sized(0.5F, 0.4F)
+					.fireImmune()
+					.eyeHeight(0.25F)
+					.clientTrackingRange(8));
+
 	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */
 	public static final EntityType<DrownedSoldier> DROWNED_SOLDIER = register("drowned_soldier",
 			EntityType.Builder.of(DrownedSoldier::new, MobCategory.MONSTER)
@@ -349,6 +359,14 @@ public final class EamEntities {
 			EntityType.Builder.<NetShot>of(NetShot::new, MobCategory.MISC)
 					.noLootTable()
 					.sized(0.4F, 0.4F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
+
+	/** An evolved spider's web in flight. */
+	public static final EntityType<WebShot> WEB_SHOT = register("web_shot",
+			EntityType.Builder.<WebShot>of(WebShot::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3F, 0.3F)
 					.clientTrackingRange(4)
 					.updateInterval(10));
 

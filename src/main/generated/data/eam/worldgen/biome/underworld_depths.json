@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.depths.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.depths.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -36,9 +41,19 @@
           "type": "minecraft:ash"
         },
         "probability": 0.01
+      },
+      {
+        "particle": {
+          "type": "eam:underworld_ember"
+        },
+        "probability": 0.002
       }
     ],
-    "minecraft:visual/fog_color": "#2a1410"
+    "minecraft:visual/fog_color": "#2a1410",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.7,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

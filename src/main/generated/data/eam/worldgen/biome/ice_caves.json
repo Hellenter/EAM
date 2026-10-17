@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.ice_caves.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.ice_caves.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -33,12 +38,16 @@
     "minecraft:visual/ambient_particles": [
       {
         "particle": {
-          "type": "minecraft:snowflake"
+          "type": "eam:underworld_snow"
         },
-        "probability": 0.004
+        "probability": 0.008
       }
     ],
-    "minecraft:visual/fog_color": "#2d3a4a"
+    "minecraft:visual/fog_color": "#3c5068",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.9,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

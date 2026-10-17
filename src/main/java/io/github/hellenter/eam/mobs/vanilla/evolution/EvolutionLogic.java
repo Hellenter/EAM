@@ -43,4 +43,21 @@ public final class EvolutionLogic {
 		}
 		return -1;
 	}
+
+	/**
+	 * Whether an evolved skeleton fights with its blade: it draws the blade once its target is within {@code drawRange}
+	 * and keeps it until the target is farther than {@code sheatheRange}, so it does not flip between the two at one
+	 * distance. Without a target it holds its bow.
+	 */
+	public static boolean wantsBlade(boolean holdingBlade, boolean hasTarget, double distance, float drawRange, float sheatheRange) {
+		if (!hasTarget) {
+			return false;
+		}
+		return holdingBlade ? distance <= sheatheRange : distance <= drawRange;
+	}
+
+	/** Whether an evolved spider may shoot a web at a target {@code distance} away that it can see. */
+	public static boolean canShootWeb(double distance, boolean canSee, int cooldownLeft, float minRange, float maxRange) {
+		return canSee && cooldownLeft <= 0 && distance >= minRange && distance <= maxRange;
+	}
 }

@@ -76,14 +76,17 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(SpoilageSettings.SPOILS_FAST).addAll(keys(Items.BEEF, Items.PORKCHOP, Items.MUTTON, Items.CHICKEN, Items.RABBIT,
 				EamItems.WOLF_MEAT, Items.COD, Items.SALMON, Items.TROPICAL_FISH, Items.PUFFERFISH));
 		builder(SpoilageSettings.SPOILS).addAll(keys(Items.APPLE, Items.CARROT, Items.POTATO, Items.POISONOUS_POTATO, Items.BEETROOT,
-				Items.MELON_SLICE, Items.SWEET_BERRIES, Items.GLOW_BERRIES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.GARLIC,
+				Items.MELON_SLICE, Items.SWEET_BERRIES, Items.GLOW_BERRIES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.GARLIC, EamItems.GLOWSHROOM,
 				Items.BAKED_POTATO, Items.BREAD, Items.COOKIE, Items.PUMPKIN_PIE,
 				Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_MUTTON, Items.COOKED_CHICKEN, Items.COOKED_RABBIT,
 				EamItems.COOKED_WOLF_MEAT, Items.COOKED_COD, Items.COOKED_SALMON,
 				Items.MUSHROOM_STEW, Items.BEETROOT_SOUP, Items.RABBIT_STEW, Items.SUSPICIOUS_STEW,
 				EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP, EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP,
 				EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP, EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM,
-				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL, EamItems.MILK_BOWL));
+				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL));
+		// Milk sours in three days.
+		builder(SpoilageSettings.SOURS).addAll(keys(Items.MILK_BUCKET, EamItems.COPPER_MILK_BUCKET, EamItems.SILVER_MILK_BUCKET,
+				EamItems.GOLDEN_MILK_BUCKET, EamItems.MITHRIL_MILK_BUCKET, EamItems.MILK_BOWL));
 		builder(DryerModule.DRYABLE).addAll(keys(DRYABLE.toArray(Item[]::new)));
 		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
 		// Produce that drops more under a blue moon; seeds stay as they are.

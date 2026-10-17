@@ -209,6 +209,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.CHANTERELLE_STEM.builtInRegistryHolder().key(), EamBlocks.CHAMPIGNON_CAP.builtInRegistryHolder().key(),
 				EamBlocks.GLOWING_CHAMPIGNON_CAP.builtInRegistryHolder().key());
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.BURNT_MUSHROOM_CAP.builtInRegistryHolder().key(), EamBlocks.BURNT_MUSHROOM_STEM.builtInRegistryHolder().key(), EamBlocks.SMOLDERING_MUSHROOM_CAP.builtInRegistryHolder().key());
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.GLOWSHROOM_LAMP.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.GLOWSHROOM_LAMP.builtInRegistryHolder().key());
+		// A player caught in a crossbowman's net tears it by hand, slowly; a sword or shears cut it at once.
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.NET.builtInRegistryHolder().key());
 		builder(BlockTags.CLIMBABLE).add(EamBlocks.GLOWSHROOM_VINES.builtInRegistryHolder().key(), EamBlocks.GLOWSHROOM_VINES_PLANT.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());

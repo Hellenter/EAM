@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.lake_caves.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.river_caves.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -38,7 +43,11 @@
         "probability": 0.006
       }
     ],
-    "minecraft:visual/fog_color": "#1c2a2e"
+    "minecraft:visual/fog_color": "#1a2e3c",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.85,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

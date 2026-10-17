@@ -20,6 +20,7 @@ import io.github.hellenter.eam.content.sieve.SieveModule;
 import io.github.hellenter.eam.content.arrows.ArrowHeadModule;
 import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.underworld.GlowshroomModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
@@ -44,6 +45,7 @@ import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
@@ -84,6 +86,7 @@ import io.github.hellenter.eam.world.structures.mine.UnderworldMineModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageModule;
+import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 import io.github.hellenter.eam.world.shield.ShieldModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
@@ -149,6 +152,7 @@ public class Eam implements ModInitializer {
 		RunningModule.register();
 		NoiseModule.register();
 		MonsterEvolutionModule.register();
+		NemesisModule.register();
 		CowDefenseModule.register();
 		PredatorModule.register();
 		EarlyToolsModule.register();
@@ -159,6 +163,7 @@ public class Eam implements ModInitializer {
 		OutpostModule.register();
 		YagaHutModule.register();
 		DuergarVillageModule.register();
+		EmptyContainerLoot.register();
 		UnderworldMineModule.register();
 		ForgingModule.register();
 		SilverModule.register();
@@ -211,6 +216,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.monsterEvolution()) MonsterEvolutionModule.init();
+		if (config.mobs() && config.nemesis()) NemesisModule.init();
 		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();
@@ -248,6 +254,7 @@ public class Eam implements ModInitializer {
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();
 		if (config.underworld()) UnderworldModule.init();
+		if (config.underworld()) GlowshroomModule.init();
 		if (config.rainDousesFires()) DarknessModule.init();
 	}
 

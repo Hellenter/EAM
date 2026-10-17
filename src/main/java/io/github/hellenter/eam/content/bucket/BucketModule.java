@@ -1,7 +1,13 @@
 package io.github.hellenter.eam.content.bucket;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.content.bucket.CauldronDispatcherInvoker;
 
+import com.mojang.serialization.Codec;
+
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -18,6 +24,7 @@ import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,6 +36,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.cow.AbstractCow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.player.Player;
@@ -60,6 +68,10 @@ import java.util.Map;
  * more often (MITE's chances, {@code data/eam/buckets/lava_melting.json}); the lava stays where it was.
  */
 public final class BucketModule {
+	/** Game time a cow or goat was last milked; synced so the client does not show milk it will not get. */
+	public static final AttachmentType<Long> LAST_MILKED = AttachmentRegistry.create(Eam.id("last_milked"),
+			builder -> builder.persistent(Codec.LONG).syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.all()));
+
 	private static volatile BucketSettings settings = new BucketSettings(Map.of());
 
 	private BucketModule() {
@@ -83,6 +95,19 @@ public final class BucketModule {
 		// The vanilla bucket scooping lava from a cauldron may melt too.
 		dispatcher(CauldronInteractions.LAVA).eam$put(Items.BUCKET, BucketModule::fillFromLavaCauldron);
 		UseItemCallback.EVENT.register(BucketModule::meltWhenScoopingLava);
+		// A cow or goat gives one bucket a day; registered first, so it runs before any bucket fills.
+		UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
+			ItemStack held = player.getItemInHand(hand);
+			boolean bucket = held.is(Items.BUCKET) || MetalBuckets.contentOf(held.getItem()) == BucketContent.EMPTY;
+			boolean milkable = (entity instanceof AbstractCow || entity instanceof Goat) && !((LivingEntity) entity).isBaby();
+			if (!bucket || !milkable || player.isSpectator()) return InteractionResult.PASS;
+			if (!BucketLogic.givesMilk(entity.getAttached(LAST_MILKED), level.getGameTime(), settings.milkIntervalTicks())) {
+				if (!level.isClientSide()) player.sendOverlayMessage(Component.translatable("message.eam.milked_today"));
+				return InteractionResult.FAIL;
+			}
+			if (!level.isClientSide()) entity.setAttached(LAST_MILKED, level.getGameTime());
+			return InteractionResult.PASS;
+		});
 		UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
 			ItemStack held = player.getItemInHand(hand);
 			if (held.is(Items.BUCKET) || MetalBuckets.contentOf(held.getItem()) != BucketContent.EMPTY) return InteractionResult.PASS;

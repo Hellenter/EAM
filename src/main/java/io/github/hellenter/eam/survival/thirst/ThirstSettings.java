@@ -13,6 +13,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param passiveExhaustion         exhaustion added every tick just for being alive
  * @param hotMultiplier             multiplier for passive exhaustion in hot biomes and the Nether
  * @param hotTemperature            biome base temperature above which a biome counts as hot
+ * @param coldMultiplier            multiplier for passive exhaustion in cold biomes
+ * @param coldTemperature           biome base temperature below which a biome counts as cold (snow falls below 0.15)
  * @param dehydrationInterval       ticks between dehydration damage at zero water
  * @param dehydrationDamage         damage dealt each interval at zero water
  * @param peacefulRefillInterval    ticks between +1 water in peaceful
@@ -27,6 +29,8 @@ public record ThirstSettings(
 		float passiveExhaustion,
 		float hotMultiplier,
 		float hotTemperature,
+		float coldMultiplier,
+		float coldTemperature,
 		int dehydrationInterval,
 		float dehydrationDamage,
 		int peacefulRefillInterval,
@@ -36,7 +40,7 @@ public record ThirstSettings(
 		FlaskSettings flask
 ) {
 	public static final ThirstSettings DEFAULT = new ThirstSettings(
-			8.0F, 1.0F, 0.003F, 2.0F, 1.5F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT, FlaskSettings.DEFAULT
+			8.0F, 1.0F, 0.003F, 2.0F, 1.5F, 0.6F, 0.15F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT, FlaskSettings.DEFAULT
 	);
 
 	public static final Codec<ThirstSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -45,6 +49,8 @@ public record ThirstSettings(
 			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("passive_exhaustion").orElse(DEFAULT.passiveExhaustion).forGetter(ThirstSettings::passiveExhaustion),
 			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("hot_multiplier").orElse(DEFAULT.hotMultiplier).forGetter(ThirstSettings::hotMultiplier),
 			Codec.FLOAT.fieldOf("hot_temperature").orElse(DEFAULT.hotTemperature).forGetter(ThirstSettings::hotTemperature),
+			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("cold_multiplier").orElse(DEFAULT.coldMultiplier).forGetter(ThirstSettings::coldMultiplier),
+			Codec.FLOAT.fieldOf("cold_temperature").orElse(DEFAULT.coldTemperature).forGetter(ThirstSettings::coldTemperature),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("dehydration_interval").orElse(DEFAULT.dehydrationInterval).forGetter(ThirstSettings::dehydrationInterval),
 			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("dehydration_damage").orElse(DEFAULT.dehydrationDamage).forGetter(ThirstSettings::dehydrationDamage),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("peaceful_refill_interval").orElse(DEFAULT.peacefulRefillInterval).forGetter(ThirstSettings::peacefulRefillInterval),

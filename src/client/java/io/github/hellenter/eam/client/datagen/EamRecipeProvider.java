@@ -231,6 +231,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				// Glowshroom caps packed around a pane of glass: a light rain does not put out.
+				shaped(RecipeCategory.DECORATIONS, EamItems.GLOWSHROOM_LAMP)
+						.define('G', EamItems.GLOWSHROOM)
+						.define('X', Items.GLASS)
+						.pattern(" G ")
+						.pattern("GXG")
+						.pattern(" G ")
+						.unlockedBy(getHasName(EamItems.GLOWSHROOM), has(EamItems.GLOWSHROOM))
+						.save(output);
+
 				// Twine strung over a frame of sticks: a rack to dry food on.
 				shaped(RecipeCategory.DECORATIONS, EamItems.FOOD_DRYER)
 						.define('T', EamItems.FLASK_THREADS)

@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.koschei;
 
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Choice;
 
 import net.minecraft.world.entity.LivingEntity;
@@ -9,7 +10,7 @@ import java.util.EnumSet;
 
 /**
  * Walks Koschei up to his target, sidesteps while in reach, hops aside now and then and in at it from a few blocks off, vanishes to stand behind it and starts
- * his attacks.
+ * his attacks. A target that keeps out of his reach gets the bolt, or finds him behind it.
  */
 final class KoscheiFightGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
@@ -18,6 +19,8 @@ final class KoscheiFightGoal extends Goal {
 	private LivingEntity target;
 	private int strafeTicks;
 	private boolean strafeRight;
+	/** Ticks in a row the target has kept out of his reach. */
+	private int awayTicks;
 
 	KoscheiFightGoal(Koschei koschei) {
 		this.koschei = koschei;
@@ -47,6 +50,7 @@ final class KoscheiFightGoal extends Goal {
 	@Override
 	public void stop() {
 		target = null;
+		awayTicks = 0;
 		koschei.setAggressive(false);
 		koschei.getNavigation().stop();
 		koschei.getMoveControl().strafe(0.0F, 0.0F);
@@ -68,6 +72,19 @@ final class KoscheiFightGoal extends Goal {
 		KoscheiSettings.PhaseOne one = settings.phaseOne();
 		boolean sees = koschei.getSensing().hasLineOfSight(target);
 		boolean inReach = distance <= one.reach();
+		awayTicks = distance > one.reach() + 1.0 ? awayTicks + 1 : 0;
+		if (awayTicks >= settings.teleport().retreatTicks() && koschei.readyToAttack()) {
+			// It keeps backing off: the bolt after it, or he stands at its back.
+			awayTicks = 0;
+			koschei.getMoveControl().strafe(0.0F, 0.0F);
+			int[] cooldowns = koschei.cooldowns();
+			if (KoscheiLogic.answerRetreat(distance, sees, cooldowns[Attack.BOLT.ordinal()], koschei.boltBlocked(target), one.bolt()) != null) {
+				koschei.startAttack(Attack.BOLT, target);
+			} else {
+				koschei.startTeleport(target);
+			}
+			return;
+		}
 
 		if (sees && koschei.readyToAttack() && Math.abs(target.getY() - koschei.getY()) < 2.5) {
 			if (koschei.teleportReady() && distance > 2.0 && koschei.getRandom().nextFloat() < settings.teleport().chance()) {
@@ -84,6 +101,11 @@ final class KoscheiFightGoal extends Goal {
 					&& koschei.flankDash(target)) {
 				// Round to its side or back, and the blow follows on landing.
 				koschei.getMoveControl().strafe(0.0F, 0.0F);
+				return;
+			}
+			if (KoscheiLogic.callsRavens(distance, koschei.cooldowns()[Attack.RAVENS.ordinal()], settings.ravens(), koschei.getRandom().nextDouble())) {
+				koschei.getMoveControl().strafe(0.0F, 0.0F);
+				koschei.startAttack(Attack.RAVENS, target);
 				return;
 			}
 			Choice choice = KoscheiLogic.choose(distance, Koschei.shieldReady(target), koschei.shieldTicks(target), koschei.lungeFails(),

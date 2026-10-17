@@ -254,6 +254,12 @@ public final class EamItems {
 	public static final Item BURNT_MUSHROOM_STEM = blockItem("burnt_mushroom_stem", EamBlocks.BURNT_MUSHROOM_STEM);
 	public static final Item SMOLDERING_MUSHROOM_CAP = blockItem("smoldering_mushroom_cap", EamBlocks.SMOLDERING_MUSHROOM_CAP);
 	public static final Item GLOWSHROOM_VINES = blockItem("glowshroom_vines", EamBlocks.GLOWSHROOM_VINES);
+	/** A cap cut from a ripe glowshroom tip: eaten raw, a little protein and sugar, or packed into a lamp. */
+	public static final Item GLOWSHROOM = register("glowshroom", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.2F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(1, 0, 1))
+			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
+	public static final Item GLOWSHROOM_LAMP = blockItem("glowshroom_lamp", EamBlocks.GLOWSHROOM_LAMP);
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);

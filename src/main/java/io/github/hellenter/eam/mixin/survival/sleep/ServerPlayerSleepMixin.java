@@ -30,7 +30,7 @@ abstract class ServerPlayerSleepMixin {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 		Player.BedSleepingProblem problem = BloodMoonModule.sleepProblem(player.level());
 		if (problem == null) {
-			problem = SafeRoomModule.problem(player.level(), bed, pos);
+			problem = SafeRoomModule.problem(player, bed, pos);
 		}
 		if (problem != null) {
 			cir.setReturnValue(Either.left(problem));

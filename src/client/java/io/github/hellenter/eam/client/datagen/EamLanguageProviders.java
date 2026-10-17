@@ -14,6 +14,7 @@ import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
@@ -65,6 +66,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Protein Deficiency");
 			builder.add("effect.eam.fat_deficiency", "Fat Deficiency");
 			builder.add("effect.eam.carbs_deficiency", "Carbs Deficiency");
+			builder.add("effect.eam.rested", "Rested");
+			builder.add("eam.sleep.rested", "You slept well: rested");
 			builder.add("eam.hunger.deficiency.protein", "Out of protein: weaker hits, slower mining");
 			builder.add("eam.hunger.deficiency.fat", "Out of fat: hunger drains faster");
 			builder.add("eam.hunger.deficiency.carbs", "Out of carbs: you tire quickly when running");
@@ -124,6 +127,8 @@ public final class EamLanguageProviders {
 			builder.add("enchantment.eam.harvest", "Harvest");
 			builder.add("container.eam.villager.trade", "Trade");
 			builder.add("container.eam.villager.inventory", "Inventory");
+			builder.add("container.eam.villager.make_guard", "Make Guard");
+			builder.add("entity.eam.villager.guard", "Guard");
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Farmer Tools");
@@ -180,6 +185,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
 			builder.add("item.eam.filtered_glass_flask", "Glass Flask with Charcoal-Silver Filter");
 			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Bottle of Boiled Water");
+			builder.add("item.minecraft.potion.effect.eam.rain_water", "Bottle of Rain Water");
 			builder.add("item.eam.raw_water", "Raw water: boil it before drinking");
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
@@ -221,6 +227,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
+			builder.add("message.eam.milked_today", "This animal has already been milked today");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
 			builder.add(EamItems.LAIR_MAP, "Map to a Lair");
@@ -267,6 +274,7 @@ public final class EamLanguageProviders {
 			builder.add(FridgeModule.ICE, "Icebox Ice");
 			builder.add("item.eam.rotten_food", "Rotten Food");
 			builder.add(SpoilageSettings.SPOILS, "Perishable Food");
+			builder.add(SpoilageSettings.SOURS, "Souring Milk");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Fast-Spoiling Food");
 			builder.add("tooltip.eam.spoils_in", "Spoils in %s");
 			builder.add("tooltip.eam.dried", "Dried: keeps longer, makes you thirsty");
@@ -311,6 +319,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.RED_BOLT, "Red Bolt");
 			builder.add(EamEntities.NET_SHOT, "Net");
 			builder.add(EamBlocks.NET, "Net");
+			builder.add(EamEntities.WEB_SHOT, "Spider Web");
+			builder.add(EamBlocks.SPIDER_WEB, "Spider Web");
 			builder.add("death.attack.eam.red_bolt", "%1$s was pierced by %2$s's red bolt");
 			builder.add("death.attack.eam.red_bolt.player", "%1$s was pierced by %2$s's red bolt");
 			builder.add(EamEntities.PILLAGER_GUARD, "Pillager Guard");
@@ -360,6 +370,8 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SMOLDERING_MUSHROOM_CAP, "Smoldering Mushroom Cap");
 			builder.add(EamBlocks.GLOWSHROOM_VINES, "Glowshroom Vines");
 			builder.add(EamBlocks.GLOWSHROOM_VINES_PLANT, "Glowshroom Vines Plant");
+			builder.add(EamItems.GLOWSHROOM, "Glowshroom");
+			builder.add(EamBlocks.GLOWSHROOM_LAMP, "Glowshroom Lamp");
 			builder.add(EamBlocks.CHAMPIGNON_CAP, "Champignon Cap");
 			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Glowing Champignon Cap");
 			builder.add(EamItems.BEDROCK_BREAKER, "Bedrock Breaker");
@@ -413,6 +425,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_lightning.player", "%1$s was struck by %2$s's lightning");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Koschei's blade glows orange");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Ravens scatter");
+			builder.add(EamEntities.KOSCHEI_RAVEN, "Phantom Raven");
+			builder.add("subtitles.eam.entity.koschei_raven.caw", "Phantom raven caws");
 			builder.add(EamEntities.BABA_YAGA, "Baba Yaga");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Baba Yaga Spawn Egg");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Drowned Soldier");
@@ -718,6 +732,9 @@ public final class EamLanguageProviders {
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Richer Harvest Under a Blue Moon");
 			builder.add(PredatorModule.HUNTERS, "Hunt Livestock at Night");
 			builder.add(PredatorModule.RAIDERS, "Raid Open Pens at Night");
+			builder.add(NemesisModule.EXCLUDED, "Never Become a Nemesis");
+			builder.add("eam.nemesis.name", "%s, Slayer of %s");
+			builder.add("eam.nemesis.took", "%s takes your %s");
 			builder.add("itemGroup.eam.survival", "EAM: Survival");
 			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
 			builder.add("itemGroup.eam.tools", "EAM: Tools");
@@ -742,6 +759,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Нехватка белка");
 			builder.add("effect.eam.fat_deficiency", "Нехватка жиров");
 			builder.add("effect.eam.carbs_deficiency", "Нехватка углеводов");
+			builder.add("effect.eam.rested", "Отдохнул");
+			builder.add("eam.sleep.rested", "Вы хорошо выспались и отдохнули");
 			builder.add("eam.hunger.deficiency.protein", "Нет белка: удар слабее, копание медленнее");
 			builder.add("eam.hunger.deficiency.fat", "Нет жиров: голод наступает быстрее");
 			builder.add("eam.hunger.deficiency.carbs", "Нет углеводов: быстро устаёшь на бегу");
@@ -801,6 +820,8 @@ public final class EamLanguageProviders {
 			builder.add("enchantment.eam.harvest", "Урожай");
 			builder.add("container.eam.villager.trade", "Торговать");
 			builder.add("container.eam.villager.inventory", "Инвентарь");
+			builder.add("container.eam.villager.make_guard", "Сделать стражником");
+			builder.add("entity.eam.villager.guard", "Стражник");
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Инструменты фермера");
@@ -857,6 +878,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
 			builder.add("item.eam.filtered_glass_flask", "Стеклянная фляга с угольно-серебряным фильтром");
 			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Бутылка кипячёной воды");
+			builder.add("item.minecraft.potion.effect.eam.rain_water", "Бутылка дождевой воды");
 			builder.add("item.eam.raw_water", "Сырая вода: вскипятите перед питьём");
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
@@ -898,6 +920,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
+			builder.add("message.eam.milked_today", "Сегодня это животное уже подоили");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");
 			builder.add(EamItems.LAIR_MAP, "Карта к логову");
@@ -944,6 +967,7 @@ public final class EamLanguageProviders {
 			builder.add(FridgeModule.ICE, "Лёд для холодильника");
 			builder.add("item.eam.rotten_food", "Гнилая еда");
 			builder.add(SpoilageSettings.SPOILS, "Скоропортящаяся еда");
+			builder.add(SpoilageSettings.SOURS, "Скисающее молоко");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Быстро портящаяся еда");
 			builder.add("tooltip.eam.spoils_in", "Испортится через %s");
 			builder.add("tooltip.eam.dried", "Сушёное: хранится дольше, отнимает воду");
@@ -988,6 +1012,8 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.RED_BOLT, "Красный болт");
 			builder.add(EamEntities.NET_SHOT, "Сеть");
 			builder.add(EamBlocks.NET, "Сеть");
+			builder.add(EamEntities.WEB_SHOT, "Паучья паутина");
+			builder.add(EamBlocks.SPIDER_WEB, "Паучья паутина");
 			builder.add("death.attack.eam.red_bolt", "%2$s пронзил %1$s красным болтом");
 			builder.add("death.attack.eam.red_bolt.player", "%2$s пронзил %1$s красным болтом");
 			builder.add(EamEntities.PILLAGER_GUARD, "Гвардеец разбойников");
@@ -1044,6 +1070,8 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.SMOLDERING_MUSHROOM_CAP, "Тлеющая шляпка гриба");
 			builder.add(EamBlocks.GLOWSHROOM_VINES, "Светящиеся грибные лианы");
 			builder.add(EamBlocks.GLOWSHROOM_VINES_PLANT, "Светящиеся грибные лианы");
+			builder.add(EamItems.GLOWSHROOM, "Светогриб");
+			builder.add(EamBlocks.GLOWSHROOM_LAMP, "Светогрибной фонарь");
 			builder.add(EamBlocks.CHAMPIGNON_CAP, "Шляпка шампиньона");
 			builder.add(EamBlocks.GLOWING_CHAMPIGNON_CAP, "Светящаяся шляпка шампиньона");
 			builder.add(EamItems.BEDROCK_BREAKER, "Сокрушитель бедрока");
@@ -1097,6 +1125,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_lightning.player", "%2$s испепелил %1$s молнией");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Меч Кощея раскаляется");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Разлетаются вороны");
+			builder.add(EamEntities.KOSCHEI_RAVEN, "Призрачный ворон");
+			builder.add("subtitles.eam.entity.koschei_raven.caw", "Каркает призрачный ворон");
 			builder.add(EamEntities.BABA_YAGA, "Баба Яга");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Яйцо призыва Бабы Яги");
 			builder.add(EamEntities.DROWNED_SOLDIER, "Утопленный солдат");
@@ -1402,6 +1432,9 @@ public final class EamLanguageProviders {
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Богатый урожай под голубой луной");
 			builder.add(PredatorModule.HUNTERS, "Охотятся на скот ночью");
 			builder.add(PredatorModule.RAIDERS, "Нападают ночью на открытые загоны");
+			builder.add(NemesisModule.EXCLUDED, "Не становятся мстителями");
+			builder.add("eam.nemesis.name", "%s, убийца %s");
+			builder.add("eam.nemesis.took", "%s забирает: %s");
 			builder.add("itemGroup.eam.survival", "EAM: Выживание");
 			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
 			builder.add("itemGroup.eam.tools", "EAM: Инструменты");

@@ -11,6 +11,7 @@
     "eam:cranberry",
     "eam:wolfberry",
     "eam:garlic",
+    "eam:glowshroom",
     "minecraft:baked_potato",
     "minecraft:bread",
     "minecraft:cookie",
@@ -38,7 +39,6 @@
     "eam:ice_cream",
     "eam:sorbet",
     "eam:porridge",
-    "eam:cereal",
-    "eam:milk_bowl"
+    "eam:cereal"
   ]
 }

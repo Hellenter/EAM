@@ -36,6 +36,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamOutpostLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamYagaGraveLootProvider::new);
+		pack.addProvider(EamHutLootProvider::new);
 		pack.addProvider(EamCryptSpawnerProvider::new);
 		pack.addProvider(EamCryptGearProvider::new);
 		pack.addProvider(EamEarlyLootProvider::new);
@@ -46,6 +47,8 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamCampFireSettingsProvider::new);
 		pack.addProvider(EamFoodDryerSettingsProvider::new);
 		pack.addProvider(EamRainDousingSettingsProvider::new);
+		pack.addProvider(EamGlowshroomSettingsProvider::new);
+		pack.addProvider(EamGlowshroomHarvestProvider::new);
 		pack.addProvider(EamTimelineProvider::new);
 		pack.addProvider(EamTimelineTagProvider::new);
 		pack.addProvider(EamSieveSettingsProvider::new);

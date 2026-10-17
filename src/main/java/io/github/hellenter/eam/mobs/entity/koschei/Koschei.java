@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.koschei;
 
+import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
@@ -122,7 +123,7 @@ public class Koschei extends Monster {
 	/** The burst still catches the one he casts at this much further than its range. */
 	private static final double FORCE_AIMED_SLACK = 3.0;
 	/** How many ravens scatter from where he vanishes. */
-	private static final int RAVENS = 16;
+	private static final int RAVENS = 28;
 	/** He walks in this fast while the sword is raised over his head. */
 	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
@@ -162,6 +163,8 @@ public class Koschei extends Monster {
 	/** Hits a player landed on him while he raised the overhead blow under way. */
 	private int windupHits;
 	private int teleportCooldown;
+	/** The phantom ravens he called up that are still about. */
+	private final List<KoscheiRaven> flock = new ArrayList<>();
 	/** Damage he took lately: when and how much, oldest first. */
 	private final ArrayDeque<Hit> recentHits = new ArrayDeque<>();
 	/** Where the one who hurt him fast stands: he leaps back from there on his next tick, after the hit's knockback. */
@@ -411,6 +414,11 @@ public class Koschei extends Monster {
 			closeParry();
 		}
 		if (teleportCooldown > 0) teleportCooldown--;
+		flock.removeIf(raven -> !raven.isAlive());
+		if (!flock.isEmpty()) {
+			// No new flock while one is about: the cooldown counts from when the last of it is gone.
+			cooldowns[Attack.RAVENS.ordinal()] = Math.max(cooldowns[Attack.RAVENS.ordinal()], settings().ravens().cooldown());
+		}
 		if (leapFrom != null) {
 			leapBack(leapFrom);
 			leapFrom = null;
@@ -471,6 +479,10 @@ public class Koschei extends Monster {
 				boltLanded.clear();
 				clearBolt();
 				setAction(KoscheiAction.BOLT);
+			}
+			case RAVENS -> {
+				cooldowns[attack.ordinal()] = settings().ravens().cooldown();
+				setAction(KoscheiAction.SUMMON);
 			}
 			case MAKE_ROOM -> {
 				// Room for the lunge he keeps wanting: the burst of force if it is ready, else a hop back.
@@ -586,6 +598,13 @@ public class Koschei extends Monster {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.6F);
 				} else if (t == action.length() - 1 && target != null) {
 					teleportBehind(level, target, settings().teleport());
+				}
+			}
+			case SUMMON -> {
+				if (t == 0) {
+					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.6F);
+				} else if (t == KoscheiAction.SUMMON_RELEASE && target != null) {
+					summonRavens(level, target, settings().ravens());
 				}
 			}
 			case HOP -> {
@@ -834,13 +853,24 @@ public class Koschei extends Monster {
 			clearBolt();
 			return;
 		}
-		// Each one it loses (out of range, out of sight, dead) is let go, and so is each one who raises a shield to it.
-		Vec3 tip = swordTip();
-		if (boltTargets.removeIf(struck -> !struck.isAlive() || !holdsBolt(struck, bolt) || shieldsBolt(level, struck, tip))) {
+		// Each one it loses (out of range, out of sight, dead) is let go.
+		if (boltTargets.removeIf(struck -> !struck.isAlive() || !holdsBolt(struck, bolt))) {
 			syncBolt();
 		}
 		boolean pulse = (t - KoscheiAction.BOLT_RELEASE) % bolt.pulse() == 0;
+		Vec3 tip = swordTip();
 		for (LivingEntity struck : boltTargets) {
+			Vec3 shield = shieldAgainstBolt(struck, tip);
+			if (shield != null) {
+				// A shield raised his way takes the lightning: it still crackles against the shield, but burns no one and the
+				// convulsions stop.
+				struck.removeEffect(KoscheiModule.CONVULSIONS);
+				if (pulse) {
+					level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 1.5F);
+					level.sendParticles(ParticleTypes.ELECTRIC_SPARK, shield.x, shield.y, shield.z, 14, 0.2, 0.3, 0.2, 0.25);
+				}
+				continue;
+			}
 			if (t % 4 == 0) {
 				level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 0.5F,
 						1.8F + random.nextFloat() * 0.2F);
@@ -859,23 +889,19 @@ public class Koschei extends Monster {
 	}
 
 	/**
-	 * Whether {@code struck} holds a shield up to the lightning: then it breaks off them for the rest of the bolt and the
-	 * convulsions stop. Any shield turned his way counts, since the convulsions keep jerking the view about.
+	 * Where {@code struck} holds a shield up to the lightning, or null. Any shield turned his way counts, since the
+	 * convulsions keep jerking the view about.
 	 */
-	private boolean shieldsBolt(ServerLevel level, LivingEntity struck, Vec3 tip) {
+	private static @Nullable Vec3 shieldAgainstBolt(LivingEntity struck, Vec3 tip) {
 		ItemStack shield = struck.getItemBlockingWith();
 		if (shield == null || !shield.has(DataComponents.BLOCKS_ATTACKS)) {
-			return false;
+			return null;
 		}
 		Vec3 look = horizontal(struck.getLookAngle());
 		if (look.dot(horizontal(tip.subtract(struck.position()))) < 0.0) {
-			return false;
+			return null;
 		}
-		struck.removeEffect(KoscheiModule.CONVULSIONS);
-		level.playSound(null, struck.getX(), struck.getY(), struck.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.0F, 1.5F);
-		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, struck.getX() + look.x * 0.6, struck.getY(0.6), struck.getZ() + look.z * 0.6, 14, 0.2, 0.3,
-				0.2, 0.25);
-		return true;
+		return new Vec3(struck.getX() + look.x * 0.6, struck.getY(0.6), struck.getZ() + look.z * 0.6);
 	}
 
 	/** Whether his lightning reaches {@code entity}: in range and in sight. */
@@ -935,6 +961,32 @@ public class Koschei extends Monster {
 					Math.cos(angle) * speed, 0.1 + random.nextDouble() * 0.2, Math.sin(angle) * speed, 1.0);
 		}
 		level.sendParticles(EamParticles.YAGA_FEATHER, at.x, at.y + getBbHeight() * 0.5, at.z, 10, 0.5, 0.6, 0.5, 0.02);
+	}
+
+	/** Phantom ravens burst from his raised hand and go for the target. */
+	private void summonRavens(ServerLevel level, LivingEntity target, KoscheiSettings.Ravens settings) {
+		Vec3 hand = raisedHand();
+		level.playSound(null, hand.x, hand.y, hand.z, EamSounds.KOSCHEI_RAVENS, getSoundSource(), 1.5F, 1.1F);
+		level.playSound(null, hand.x, hand.y, hand.z, EamSounds.KOSCHEI_RAVEN_CAW, getSoundSource(), 1.5F, 0.8F);
+		level.sendParticles(EamParticles.KOSCHEI_WARP, hand.x, hand.y, hand.z, 24, 0.3, 0.3, 0.3, 0.03);
+		for (int i = 0; i < settings.count(); i++) {
+			KoscheiRaven raven = EamEntities.KOSCHEI_RAVEN.create(level, EntitySpawnReason.MOB_SUMMONED);
+			if (raven == null) {
+				continue;
+			}
+			double angle = (i + random.nextDouble() * 0.5) * Math.PI * 2.0 / settings.count();
+			raven.snapTo(hand.x, hand.y, hand.z, getYRot(), 0.0F);
+			raven.setDeltaMovement(Math.cos(angle) * 0.35, 0.3 + random.nextDouble() * 0.15, Math.sin(angle) * 0.35);
+			raven.summon(this, target, settings);
+			level.addFreshEntity(raven);
+			flock.add(raven);
+		}
+		for (int i = 0; i < 8; i++) {
+			double angle = random.nextDouble() * Math.PI * 2.0;
+			double speed = 0.15 + random.nextDouble() * 0.15;
+			level.sendParticles(EamParticles.KOSCHEI_RAVEN, hand.x, hand.y, hand.z, 0, Math.cos(angle) * speed, 0.15 + random.nextDouble() * 0.15,
+					Math.sin(angle) * speed, 1.0);
+		}
 	}
 
 	/** Where he can stand near {@code at}: open air for his body over solid ground, a few blocks up or down at most. */
@@ -1318,6 +1370,13 @@ public class Koschei extends Monster {
 
 	private Vec3 swordTip() {
 		return position().add(swordTipOffset(yBodyRot, getBbHeight()));
+	}
+
+	/** Where his right hand is as he raises it high to call up the ravens, in the world. */
+	public Vec3 raisedHand() {
+		Vec3 forward = Vec3.directionFromRotation(0.0F, yBodyRot);
+		Vec3 right = Vec3.directionFromRotation(0.0F, yBodyRot + 90.0F);
+		return position().add(forward.scale(0.3)).add(right.scale(0.5)).add(0.0, getBbHeight() + 0.4, 0.0);
 	}
 
 	/** Where his right palm is as he thrusts it out, in the world. */
