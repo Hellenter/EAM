@@ -15,6 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Pools;
@@ -112,8 +113,18 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 			context.register(style.structure(), new DuergarVillageStructure(
 					new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(style.biomes()), spawns,
 							GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.BEARD_THIN),
-					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), 6, 58, 150, 56, 1, 14, 0.15F));
+					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), 6, 58, 150, 56, 1, 14, 0.15F,
+					foundation(style).defaultBlockState(), 6));
 		}
+	}
+
+	/** What fills the gap under a piece: the ground each style stands on. */
+	private static Block foundation(Style style) {
+		return switch (style) {
+			case STONE -> Blocks.COBBLED_DEEPSLATE;
+			case MUSHROOM -> Blocks.DIRT;
+			case LAKE -> Blocks.MUD;
+		};
 	}
 
 	public static void bootstrapSets(BootstrapContext<StructureSet> context) {

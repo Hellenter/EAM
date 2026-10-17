@@ -17,13 +17,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
@@ -38,7 +44,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSetting
  * wide enough stretch of floor near its chunk, builds the village there, then sets every piece down onto the floor
  * under it, at most {@code max_step} blocks above or below the piece it joins, so the streets climb and fall with the
  * cave like a surface village's paths. Where the floor rises faster than that, the street stops at the foot of the rise
- * rather than tunnel on under it. A site where too many pieces would hang over open air is given up.
+ * rather than tunnel on under it. A site where too many pieces would hang over open air is given up; a smaller gap under
+ * a piece is filled with a footing once it is built.
  */
 public class DuergarVillageStructure extends Structure {
 	public static final MapCodec<DuergarVillageStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -50,7 +57,9 @@ public class DuergarVillageStructure extends Structure {
 			Codec.intRange(16, 100).optionalFieldOf("max_distance", 56).forGetter(village -> village.maxDistance),
 			Codec.intRange(0, 4).optionalFieldOf("max_step", 1).forGetter(village -> village.maxStep),
 			Codec.intRange(4, 32).optionalFieldOf("site_radius", 14).forGetter(village -> village.siteRadius),
-			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("max_hanging", 0.15F).forGetter(village -> village.maxHanging)
+			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("max_hanging", 0.15F).forGetter(village -> village.maxHanging),
+			BlockState.CODEC.fieldOf("foundation").forGetter(village -> village.foundation),
+			Codec.intRange(0, 16).optionalFieldOf("foundation_depth", 6).forGetter(village -> village.foundationDepth)
 	).apply(instance, DuergarVillageStructure::new));
 
 	/** How far above or below its expected height a piece looks for the floor. */
@@ -68,9 +77,11 @@ public class DuergarVillageStructure extends Structure {
 	private final int maxStep;
 	private final int siteRadius;
 	private final float maxHanging;
+	private final BlockState foundation;
+	private final int foundationDepth;
 
 	public DuergarVillageStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int size, int floorMinY,
-			int floorMaxY, int maxDistance, int maxStep, int siteRadius, float maxHanging) {
+			int floorMaxY, int maxDistance, int maxStep, int siteRadius, float maxHanging, BlockState foundation, int foundationDepth) {
 		super(settings);
 		this.startPool = startPool;
 		this.size = size;
@@ -80,6 +91,8 @@ public class DuergarVillageStructure extends Structure {
 		this.maxStep = maxStep;
 		this.siteRadius = siteRadius;
 		this.maxHanging = maxHanging;
+		this.foundation = foundation;
+		this.foundationDepth = foundationDepth;
 	}
 
 	@Override
@@ -114,6 +127,40 @@ public class DuergarVillageStructure extends Structure {
 		StructurePiecesBuilder settled = new StructurePiecesBuilder();
 		best.pieces().forEach(settled::addPiece);
 		return Optional.of(new GenerationStub(bestPosition.above(best.startMove()), Either.right(settled)));
+	}
+
+	/**
+	 * Fills the air under each piece's floor down to the ground with {@code foundation}, at most {@code foundation_depth}
+	 * blocks, like a woodland mansion's footing. The floor is set from the bare terrain a step at a time, so a street can
+	 * end up a block or two above the ground; this closes that gap. Water under the lake village stilts is left as it is,
+	 * and so is a drop deeper than the footing, which the site search keeps rare.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator, RandomSource random,
+			BoundingBox chunkBox, ChunkPos chunkPos, PiecesContainer pieces) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		for (StructurePiece piece : pieces.pieces()) {
+			BoundingBox box = piece.getBoundingBox();
+			int floor = box.minY();
+			for (int x = Math.max(box.minX(), chunkBox.minX()); x <= Math.min(box.maxX(), chunkBox.maxX()); x++) {
+				for (int z = Math.max(box.minZ(), chunkBox.minZ()); z <= Math.min(box.maxZ(), chunkBox.maxZ()); z++) {
+					BlockState top = level.getBlockState(pos.set(x, floor, z));
+					if (top.isAir() || !top.getFluidState().isEmpty()) {
+						continue;
+					}
+					int gap = 0;
+					while (gap < foundationDepth && level.getBlockState(pos.set(x, floor - gap - 1, z)).isAir()) {
+						gap++;
+					}
+					if (gap == 0 || gap == foundationDepth && level.getBlockState(pos.set(x, floor - gap - 1, z)).isAir()) {
+						continue;
+					}
+					for (int y = floor - gap; y < floor; y++) {
+						level.setBlock(pos.set(x, y, z), foundation, Block.UPDATE_CLIENTS);
+					}
+				}
+			}
+		}
 	}
 
 	/**

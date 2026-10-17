@@ -3,6 +3,8 @@ package io.github.hellenter.eam.dimension.feature;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.hellenter.eam.world.structures.village.VillageArea;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -115,6 +117,15 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 					if (Math.sqrt(dx * dx + dz * dz) <= width + 0.5) {
 						channel.merge(ChunkPos.pack(point.getX() + dx, point.getZ() + dz), point.getY(), Math::max);
 					}
+				}
+			}
+		}
+		// A stream may run into a neighbouring chunk that was decorated already: never through a duergar village.
+		VillageArea villages = VillageArea.around(level, origin, 2);
+		if (!villages.isEmpty()) {
+			for (Map.Entry<Long, Integer> column : channel.entrySet()) {
+				if (villages.touches(new BlockPos(ChunkPos.getX(column.getKey()), column.getValue(), ChunkPos.getZ(column.getKey())))) {
+					return false;
 				}
 			}
 		}
