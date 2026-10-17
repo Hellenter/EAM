@@ -272,6 +272,11 @@ public final class ThirstModule {
 		}
 	}
 
+	/** Eating something dry: costs {@code water} points. */
+	public static void drain(ServerPlayer player, int water) {
+		drink(player, -water);
+	}
+
 	static void drink(ServerPlayer player, int water) {
 		if (enabled) {
 			player.setAttached(THIRST, player.getAttachedOrCreate(THIRST).add(water));

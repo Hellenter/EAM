@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Ice-cooled fridges: food inside does not age while the fridge has ice. The blocks are registered in {@code EamBlocks}
@@ -17,6 +18,8 @@ import net.minecraft.world.item.Item;
 public final class FridgeModule {
 	/** What goes in a fridge's ice slots; each item keeps it cold for {@code days_per_ice}. */
 	public static final TagKey<Item> ICE = TagKey.create(Registries.ITEM, Eam.id("fridge_ice"));
+	/** Snow and ice blocks that make a fridge's ice last longer when they touch it. */
+	public static final TagKey<Block> CHILLERS = TagKey.create(Registries.BLOCK, Eam.id("fridge_chillers"));
 
 	public static final ExtendedMenuType<FridgeMenu, FridgeMenu.Size> MENU = Registry.register(BuiltInRegistries.MENU, Eam.id("fridge"),
 			new ExtendedMenuType<>(FridgeMenu::new, FridgeMenu.Size.STREAM_CODEC));

@@ -46,6 +46,9 @@ public final class EamParticles {
 	/** Claw rakes torn across the air, one per rake. */
 	public static final SimpleParticleType YAGA_CLAW = register("yaga_claw");
 
+	/** Yellow stars circling round the head of a stunned boss; sent with count 0 so the "velocity" is the star's motion along the ring. */
+	public static final SimpleParticleType DIZZY_STAR = register("dizzy_star");
+
 	/** Orange embers streaming off Koschei's blade before his orange blow. */
 	public static final SimpleParticleType KOSCHEI_SPARK = register("koschei_spark");
 	/** Purple and blue motes left hanging where Koschei vanished, and gathering where he appears. */

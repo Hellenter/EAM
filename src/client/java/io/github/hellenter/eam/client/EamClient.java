@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client;
 import io.github.hellenter.eam.client.brewing.SilverBrewingStandScreen;
 import io.github.hellenter.eam.client.bucket.BucketMeltTooltip;
 import io.github.hellenter.eam.client.content.CampFireRenderer;
+import io.github.hellenter.eam.client.content.FoodDryerRenderer;
 import io.github.hellenter.eam.client.content.arrows.NockedArrow;
 import io.github.hellenter.eam.client.content.feeder.FeederScreen;
 import io.github.hellenter.eam.client.content.fridge.FridgeScreen;
@@ -126,6 +127,8 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.NO_HAT_LAYER, VillagerFigureModel::createNoHatLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_LAYER, VillagerFigureModel::createBabyLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_NO_HAT_LAYER, VillagerFigureModel::createBabyNoHatLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.HANDS_LAYER, VillagerFigureModel::createHandsLayer);
+		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.MAIL_LAYER, VillagerFigureModel::createMailLayer);
 		var villagerArmor = VillagerFigureModel.createArmorLayerSet();
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.head(), villagerArmor::head);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.ARMOR.chest(), villagerArmor::chest);
@@ -137,6 +140,7 @@ public class EamClient implements ClientModInitializer {
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_ABSORPTION, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_SPEED, BuffIconParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.DIZZY_STAR, BuffIconParticle.Provider::new);
 		registerYagaFx(EamParticles.YAGA_FEATHER, YagaFxParticle.Style.FEATHER);
 		registerYagaFx(EamParticles.YAGA_WISP, YagaFxParticle.Style.WISP);
 		registerYagaFx(EamParticles.YAGA_TOXIC, YagaFxParticle.Style.TOXIC);
@@ -227,6 +231,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.HAG_BOLT, NoopRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_THREAD, HagThreadRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
+		BlockEntityRenderers.register(EamBlockEntities.FOOD_DRYER, FoodDryerRenderer::new);
 		MenuScreens.<CraftingMenu, CraftingTableScreen>register(CraftingTypes.MENU, (menu, inventory, title) ->
 				new CraftingTableScreen((CraftingTableMenu) menu, inventory, title));
 		// The silver stand's menu has the vanilla layout: the vanilla brewing screen draws it, plus a recipe book.
