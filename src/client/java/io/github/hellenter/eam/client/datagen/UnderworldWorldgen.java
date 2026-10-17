@@ -17,6 +17,8 @@ import io.github.hellenter.eam.dimension.feature.UnderworldFluidsFeature;
 import io.github.hellenter.eam.dimension.feature.UnderworldLakeFeature;
 import io.github.hellenter.eam.world.darkness.DarknessLogic;
 import io.github.hellenter.eam.world.darkness.DarknessModule;
+import io.github.hellenter.eam.world.structures.village.DuergarVillage;
+import io.github.hellenter.eam.world.structures.village.OutsideStructureFilter;
 
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 
@@ -758,17 +760,17 @@ final class UnderworldWorldgen {
 
 		// Lakes: the feature finds the lowest floor of its column itself; the fixed height only picks the upper level's biome.
 		PlacementModifier upperBiome = HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM + 40), VerticalAnchor.absolute(UPPER_BOTTOM + 40));
-		PlacementUtils.register(context, P_LAKES_FEW, features.getOrThrow(LAKE), List.of(RarityFilter.onAverageOnceEvery(3),
+		register(context, P_LAKES_FEW, features.getOrThrow(LAKE), List.of(RarityFilter.onAverageOnceEvery(3),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_LAKES, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(1, 2)),
+		register(context, P_LAKES, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(1, 2)),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_LAKES_MANY, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(3, 5)),
+		register(context, P_LAKES_MANY, features.getOrThrow(LAKE), List.of(CountPlacement.of(UniformInt.of(3, 5)),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_LAVA_LAKES, features.getOrThrow(LAVA_LAKE), List.of(RarityFilter.onAverageOnceEvery(2),
+		register(context, P_LAVA_LAKES, features.getOrThrow(LAVA_LAKE), List.of(RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), upperBiome, BiomeFilter.biome()));
 		onFloor(context, P_STREAMS, features.getOrThrow(STREAM), CountPlacement.of(UniformInt.of(1, 3)));
 		onFloor(context, P_RIVERS, features.getOrThrow(RIVER), CountPlacement.of(UniformInt.of(2, 4)));
-		PlacementUtils.register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
+		register(context, P_FLUIDS, features.getOrThrow(FLUIDS), List.of());
 		// Ores: the underworld is where the rare ores are. Diamond, silver and mithril are richer than in the overworld,
 		// the common ores (iron, gold, copper, redstone, lapis) scarcer. Copper, silver, redstone and lapis only in the
 		// upper level; mithril is most common under the deep bedrock, and adamantium is found only there. The hot biomes (lava caves, mushroom forest) add
@@ -783,7 +785,7 @@ final class UnderworldWorldgen {
 		ore(context, P_ORE_MITHRIL, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
 		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 6, lower);
 		// Adamantium only in the depths, one small vein per chunk on average (3 tries, each kept 1 time in 3).
-		PlacementUtils.register(context, P_ORE_ADAMANTIUM, features.getOrThrow(EamWorldgen.ORE_ADAMANTIUM), List.of(CountPlacement.of(3),
+		register(context, P_ORE_ADAMANTIUM, features.getOrThrow(EamWorldgen.ORE_ADAMANTIUM), List.of(CountPlacement.of(3),
 				RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		ore(context, P_ORE_GOLD_HOT, features.getOrThrow(OreFeatures.ORE_GOLD), 7, upper);
 		ore(context, P_ORE_REDSTONE_HOT, features.getOrThrow(OreFeatures.ORE_REDSTONE), 6, upper);
@@ -802,20 +804,20 @@ final class UnderworldWorldgen {
 
 		// Pillars stand anywhere in the open and reach from floor (or lava bed) to ceiling. In the upper caves they rise
 		// before the mines are dug, so a mine tunnel or its adit cuts through a pillar instead of being walled up by one.
-		PlacementUtils.register(context, P_LAVA_PILLAR, features.getOrThrow(LAVA_PILLAR),
+		register(context, P_LAVA_PILLAR, features.getOrThrow(LAVA_PILLAR),
 				List.of(RarityFilter.onAverageOnceEvery(2), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
+		register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
 				List.of(CountPlacement.of(UniformInt.of(1, 2)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_ICE_SPIRE, features.getOrThrow(ICE_SPIRE), List.of(CountPlacement.of(UniformInt.of(3, 7)),
+		register(context, P_ICE_SPIRE, features.getOrThrow(ICE_SPIRE), List.of(CountPlacement.of(UniformInt.of(3, 7)),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
 		// A pack every forty chunks or so of the ice caves, on the floor of the great hall.
-		PlacementUtils.register(context, P_DRAUGR_PACK, features.getOrThrow(DRAUGR_PACK), List.of(RarityFilter.onAverageOnceEvery(40),
+		register(context, P_DRAUGR_PACK, features.getOrThrow(DRAUGR_PACK), List.of(RarityFilter.onAverageOnceEvery(40),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
-		PlacementUtils.register(context, P_ICE_SPIKE, features.getOrThrow(ICE_SPIKE),
+		register(context, P_ICE_SPIKE, features.getOrThrow(ICE_SPIKE),
 				List.of(CountPlacement.of(UniformInt.of(4, 9)), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
 		onFloor(context, P_GIANT_BROWN, features.getOrThrow(GIANT_BROWN_MUSHROOM), CountPlacement.of(UniformInt.of(2, 5)));
 		onFloor(context, P_GIANT_RED, features.getOrThrow(GIANT_RED_MUSHROOM), CountPlacement.of(UniformInt.of(2, 4)));
@@ -850,29 +852,29 @@ final class UnderworldWorldgen {
 		decoration(context, P_ROCK_PILE, features.getOrThrow(ROCK_PILE), 1, 4, Blocks.STONE, Blocks.GRAVEL, Blocks.TUFF);
 		decoration(context, P_OLD_BONES, features.getOrThrow(OLD_BONES), 1, 3, Blocks.STONE, Blocks.GRAVEL, Blocks.TUFF);
 		// The ice caves' hall is far taller than the scan: look for its floor from just above it, like the spires do.
-		PlacementUtils.register(context, P_BIG_ICE_BOULDER, features.getOrThrow(BIG_ICE_BOULDER), List.of(RarityFilter.onAverageOnceEvery(3),
+		register(context, P_BIG_ICE_BOULDER, features.getOrThrow(BIG_ICE_BOULDER), List.of(RarityFilter.onAverageOnceEvery(3),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				OffsetPlacement.vertical(ConstantInt.of(1)), floorOf(Blocks.SNOW_BLOCK, Blocks.PACKED_ICE), BiomeFilter.biome()));
 		patch(context, P_BROWN_MUSHROOMS, features.getOrThrow(VegetationFeatures.BROWN_MUSHROOM), 8, Blocks.BROWN_MUSHROOM);
 		patch(context, P_RED_MUSHROOMS, features.getOrThrow(VegetationFeatures.RED_MUSHROOM), 5, Blocks.RED_MUSHROOM);
 		patch(context, P_BROWN_MUSHROOMS_FEW, features.getOrThrow(VegetationFeatures.BROWN_MUSHROOM), 2, Blocks.BROWN_MUSHROOM);
-		PlacementUtils.register(context, P_CAVE_VINES, features.getOrThrow(CaveFeatures.CAVE_VINE), List.of(CountPlacement.of(60),
+		register(context, P_CAVE_VINES, features.getOrThrow(CaveFeatures.CAVE_VINE), List.of(CountPlacement.of(60),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.hasSturdyFace(Direction.DOWN),
 						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
-		PlacementUtils.register(context, P_COBWEB, features.getOrThrow(COBWEB), List.of(CountPlacement.of(10), InSquarePlacement.spread(),
+		register(context, P_COBWEB, features.getOrThrow(COBWEB), List.of(CountPlacement.of(10), InSquarePlacement.spread(),
 				all, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 12),
 				OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
-		PlacementUtils.register(context, P_GLOW_LICHEN, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
+		register(context, P_GLOW_LICHEN, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
 				List.of(CountPlacement.of(UniformInt.of(30, 50)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
-		PlacementUtils.register(context, P_GLOW_LICHEN_MANY, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
+		register(context, P_GLOW_LICHEN_MANY, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
 				List.of(CountPlacement.of(UniformInt.of(90, 130)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
 
 		// Frozen caves: a small ice spike every other chunk or so, a few short icicles.
-		PlacementUtils.register(context, P_SMALL_ICE_SPIRE, features.getOrThrow(SMALL_ICE_SPIRE), List.of(RarityFilter.onAverageOnceEvery(2),
+		register(context, P_SMALL_ICE_SPIRE, features.getOrThrow(SMALL_ICE_SPIRE), List.of(RarityFilter.onAverageOnceEvery(2),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(),
 						BlockPredicate.ONLY_IN_AIR_PREDICATE, 32), OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome()));
-		PlacementUtils.register(context, P_SMALL_ICE_SPIKE, features.getOrThrow(SMALL_ICE_SPIKE),
+		register(context, P_SMALL_ICE_SPIKE, features.getOrThrow(SMALL_ICE_SPIKE),
 				List.of(CountPlacement.of(UniformInt.of(1, 3)), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
 
 		// Burnt mushroom forest.
@@ -888,7 +890,7 @@ final class UnderworldWorldgen {
 				PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING));
 		onFloor(context, P_FOREST_MOSS, features.getOrThrow(CaveFeatures.MOSS_PATCH), CountPlacement.of(UniformInt.of(2, 4)));
 		patch(context, P_FOREST_PLANTS, features.getOrThrow(FOREST_PLANTS), 10, Blocks.FERN);
-		PlacementUtils.register(context, P_GLOWSHROOM_VINES, features.getOrThrow(GLOWSHROOM_VINES), List.of(CountPlacement.of(90),
+		register(context, P_GLOWSHROOM_VINES, features.getOrThrow(GLOWSHROOM_VINES), List.of(CountPlacement.of(90),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.hasSturdyFace(Direction.DOWN),
 						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
 
@@ -900,12 +902,12 @@ final class UnderworldWorldgen {
 		patch(context, P_FERNS, features.getOrThrow(VegetationFeatures.TAIGA_GRASS), 3, Blocks.FERN);
 		patch(context, P_SHORE_PLANTS, features.getOrThrow(SHORE_PLANTS), 4, Blocks.FERN);
 		patch(context, P_SUGAR_CANE, features.getOrThrow(VegetationFeatures.SUGAR_CANE), 8, Blocks.SUGAR_CANE);
-		PlacementUtils.register(context, P_SPORE_BLOSSOM, features.getOrThrow(CaveFeatures.SPORE_BLOSSOM), List.of(CountPlacement.of(6),
+		register(context, P_SPORE_BLOSSOM, features.getOrThrow(CaveFeatures.SPORE_BLOSSOM), List.of(CountPlacement.of(6),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.solid(),
 						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
 		inWater(context, P_KELP, features.getOrThrow(AquaticFeatures.KELP), 80);
 		inWater(context, P_SEAGRASS, features.getOrThrow(AquaticFeatures.SEAGRASS_MID), 50);
-		PlacementUtils.register(context, P_LILY_PADS, features.getOrThrow(VegetationFeatures.WATERLILY), List.of(CountPlacement.of(30),
+		register(context, P_LILY_PADS, features.getOrThrow(VegetationFeatures.WATERLILY), List.of(CountPlacement.of(30),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.DOWN,
 						BlockPredicate.matchesBlocks(Direction.DOWN, Blocks.WATER), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				BlockPredicateFilter.forPredicate(BlockPredicate.wouldSurvive(Blocks.LILY_PAD)), BiomeFilter.biome()));
@@ -913,7 +915,7 @@ final class UnderworldWorldgen {
 
 	private static void ore(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count,
 			PlacementModifier height) {
-		PlacementUtils.register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(), height, BiomeFilter.biome()));
+		register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(), height, BiomeFilter.biome()));
 	}
 
 	/**
@@ -921,7 +923,7 @@ final class UnderworldWorldgen {
 	 * through it to the bed, one block above it.
 	 */
 	private static void inWater(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count) {
-		PlacementUtils.register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(),
+		register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM), VerticalAnchor.absolute(UPPER_TOP)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.matchesBlocks(Blocks.WATER), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.matchesBlocks(Blocks.WATER), 8),
@@ -937,7 +939,7 @@ final class UnderworldWorldgen {
 				OffsetPlacement.vertical(ConstantInt.of(1))));
 		modifiers.addAll(List.of(filters));
 		modifiers.add(BiomeFilter.biome());
-		PlacementUtils.register(context, key, feature, modifiers);
+		register(context, key, feature, modifiers);
 	}
 
 	/**
@@ -965,7 +967,7 @@ final class UnderworldWorldgen {
 	/** {@code count} patches of a small plant on cave floors, 12 tries around each. */
 	private static void patch(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature, int count,
 			Block plant) {
-		PlacementUtils.register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(),
+		register(context, key, feature, List.of(CountPlacement.of(count), InSquarePlacement.spread(),
 				HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM), VerticalAnchor.absolute(UPPER_TOP)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
 				OffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome(), CountPlacement.of(12), OffsetPlacement.ofTriangle(4, 2),
@@ -1102,6 +1104,18 @@ final class UnderworldWorldgen {
 		for (ResourceKey<Biome> key : UnderworldDimension.BIOMES) {
 			entries.add(biomes, key);
 		}
+	}
+
+	/** Decorations and springs keep out of duergar village pieces, which are built before them. */
+	private static void register(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature,
+			List<PlacementModifier> modifiers) {
+		GenerationStep.Decoration step = ORDER.get(key);
+		if (step == GenerationStep.Decoration.VEGETAL_DECORATION || step == GenerationStep.Decoration.FLUID_SPRINGS) {
+			List<PlacementModifier> all = new ArrayList<>(modifiers);
+			all.add(new OutsideStructureFilter(DuergarVillage.VILLAGES));
+			modifiers = all;
+		}
+		PlacementUtils.register(context, key, feature, modifiers);
 	}
 
 	private static ResourceKey<Feature> feature(String name) {

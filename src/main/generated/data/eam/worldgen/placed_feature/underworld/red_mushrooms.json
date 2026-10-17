@@ -81,6 +81,10 @@
           }
         ]
       }
+    },
+    {
+      "type": "eam:outside_structure",
+      "structures": "eam:duergar_villages"
     }
   ]
 }

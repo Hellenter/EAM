@@ -121,7 +121,7 @@ public final class SpoilageModule {
 			return null;
 		});
 		List<ItemStack> out = new ArrayList<>();
-		out.add(new ItemStack(rule.becomes(), spoiled));
+		rule.becomes().ifPresent(becomes -> out.add(new ItemStack(becomes, spoiled)));
 		if (remainder != null) {
 			ItemStack left = remainder.convertInto().create();
 			left.setCount(left.getCount() * spoiled);

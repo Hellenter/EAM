@@ -81,6 +81,7 @@ import io.github.hellenter.eam.world.structures.mine.UnderworldMineModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageModule;
+import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 import io.github.hellenter.eam.world.shield.ShieldModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestModule;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
@@ -154,6 +155,7 @@ public class Eam implements ModInitializer {
 		OutpostModule.register();
 		YagaHutModule.register();
 		DuergarVillageModule.register();
+		EmptyContainerLoot.register();
 		UnderworldMineModule.register();
 		ForgingModule.register();
 		SilverModule.register();

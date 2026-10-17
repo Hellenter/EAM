@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Balance numbers for food spoilage and fridges, read from {@code data/eam/spoilage/settings.json} so datapacks can
@@ -30,9 +31,13 @@ public record SpoilageSettings(List<Rule> rules, double daysPerIce) {
 	/** Fruit, vegetables and cooked food: ten days, then rotten food. */
 	public static final TagKey<Item> SPOILS = TagKey.create(Registries.ITEM, Eam.id("spoils"));
 
+	/** Milk: sours in three days and is poured out, leaving the bucket or bowl. */
+	public static final TagKey<Item> SOURS = TagKey.create(Registries.ITEM, Eam.id("sours"));
+
 	public static final SpoilageSettings DEFAULT = new SpoilageSettings(List.of(
-			new Rule(SPOILS_FAST, 5.0, Items.ROTTEN_FLESH),
-			new Rule(SPOILS, 10.0, EamItems.ROTTEN_FOOD)), 1.0);
+			new Rule(SOURS, 3.0, Optional.empty()),
+			new Rule(SPOILS_FAST, 5.0, Optional.of(Items.ROTTEN_FLESH)),
+			new Rule(SPOILS, 10.0, Optional.of(EamItems.ROTTEN_FOOD))), 1.0);
 
 	public static final Codec<SpoilageSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Rule.CODEC.listOf().fieldOf("rules").orElse(DEFAULT.rules).forGetter(SpoilageSettings::rules),
@@ -54,13 +59,13 @@ public record SpoilageSettings(List<Rule> rules, double daysPerIce) {
 	/**
 	 * @param items   foods this rule covers
 	 * @param days    how long they keep out of a fridge
-	 * @param becomes what each spoiled item turns into
+	 * @param becomes what each spoiled item turns into; without it only its container (bucket, bowl) is left
 	 */
-	public record Rule(TagKey<Item> items, double days, Item becomes) {
+	public record Rule(TagKey<Item> items, double days, Optional<Item> becomes) {
 		public static final Codec<Rule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				TagKey.codec(Registries.ITEM).fieldOf("items").forGetter(Rule::items),
 				Codec.doubleRange(0.01, 10000.0).fieldOf("days").forGetter(Rule::days),
-				BuiltInRegistries.ITEM.byNameCodec().fieldOf("becomes").forGetter(Rule::becomes)
+				BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("becomes").forGetter(Rule::becomes)
 		).apply(instance, Rule::new));
 
 		public long lifetime() {
