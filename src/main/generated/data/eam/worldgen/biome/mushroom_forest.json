@@ -40,7 +40,7 @@
         "particle": {
           "type": "eam:underworld_spore"
         },
-        "probability": 0.012
+        "probability": 0.004
       }
     ],
     "minecraft:visual/fog_color": "#3a2a48",

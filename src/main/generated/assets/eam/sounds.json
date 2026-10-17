@@ -4,37 +4,37 @@
       {
         "name": "minecraft:ambient/nether/basalt_deltas/click1",
         "pitch": 0.8,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/click2",
         "pitch": 0.8,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/click4",
         "pitch": 0.75,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/soulsand_valley/sand1",
         "pitch": 0.8,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/soulsand_valley/sand2",
         "pitch": 0.75,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 3
       },
       {
         "name": "minecraft:random/fizz",
         "pitch": 0.6,
-        "volume": 0.05
+        "volume": 0.015000001
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.burnt_mushroom_forest.additions"
@@ -44,7 +44,7 @@
       {
         "name": "eam:ambient/underworld/burnt_mushroom_forest",
         "stream": true,
-        "volume": 0.55
+        "volume": 0.165
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.burnt_mushroom_forest.loop"
@@ -54,35 +54,35 @@
       {
         "name": "minecraft:ambient/nether/basalt_deltas/basaltground1",
         "pitch": 0.5,
-        "volume": 0.5,
+        "volume": 0.15,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/basaltground2",
         "pitch": 0.5,
-        "volume": 0.5,
+        "volume": 0.15,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/basaltground3",
         "pitch": 0.5,
-        "volume": 0.5,
+        "volume": 0.15,
         "weight": 3
       },
       {
         "name": "minecraft:ambient/nether/nether_wastes/addition1",
         "pitch": 0.6,
-        "volume": 0.3
+        "volume": 0.09
       },
       {
         "name": "minecraft:ambient/nether/nether_wastes/addition4",
         "pitch": 0.6,
-        "volume": 0.3
+        "volume": 0.09
       },
       {
         "name": "minecraft:liquid/lavapop",
         "pitch": 0.6,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       }
     ],
@@ -93,7 +93,7 @@
       {
         "name": "eam:ambient/underworld/depths",
         "stream": true,
-        "volume": 0.2
+        "volume": 0.060000002
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.depths.loop"
@@ -104,7 +104,7 @@
         "name": "eam:ambient/underworld/wind",
         "pitch": 0.9,
         "stream": true,
-        "volume": 0.22
+        "volume": 0.066
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.frozen_caves.loop"
@@ -114,60 +114,60 @@
       {
         "name": "minecraft:block/amethyst/resonate1",
         "pitch": 0.5,
-        "volume": 0.15,
+        "volume": 0.045,
         "weight": 2
       },
       {
         "name": "minecraft:block/powder_snow/break1",
         "pitch": 0.7,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:block/amethyst/resonate2",
         "pitch": 0.5,
-        "volume": 0.15,
+        "volume": 0.045,
         "weight": 2
       },
       {
         "name": "minecraft:block/powder_snow/break2",
         "pitch": 0.7,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:block/amethyst/resonate3",
         "pitch": 0.5,
-        "volume": 0.15,
+        "volume": 0.045,
         "weight": 2
       },
       {
         "name": "minecraft:block/powder_snow/break3",
         "pitch": 0.7,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:block/amethyst/resonate4",
         "pitch": 0.5,
-        "volume": 0.15,
+        "volume": 0.045,
         "weight": 2
       },
       {
         "name": "minecraft:block/powder_snow/break4",
         "pitch": 0.7,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:random/glass1",
         "pitch": 0.5,
-        "volume": 0.05
+        "volume": 0.015000001
       },
       {
         "name": "minecraft:random/glass2",
         "pitch": 0.5,
-        "volume": 0.05
+        "volume": 0.015000001
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.ice_caves.additions"
@@ -177,7 +177,7 @@
       {
         "name": "eam:ambient/underworld/wind",
         "stream": true,
-        "volume": 0.35
+        "volume": 0.105000004
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.ice_caves.loop"
@@ -187,73 +187,73 @@
       {
         "name": "minecraft:block/pointed_dripstone/drip_water1",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron1",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water2",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron2",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water3",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron3",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water4",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron4",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water5",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron5",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water6",
         "pitch": 0.9,
-        "volume": 0.45,
+        "volume": 0.135,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water_cauldron6",
         "pitch": 0.8,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       }
     ],
@@ -264,30 +264,30 @@
       {
         "name": "minecraft:liquid/lavapop",
         "pitch": 0.8,
-        "volume": 0.5,
+        "volume": 0.15,
         "weight": 4
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/basaltground1",
         "pitch": 0.7,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/basalt_deltas/basaltground2",
         "pitch": 0.7,
-        "volume": 0.4,
+        "volume": 0.120000005,
         "weight": 2
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_lava1",
         "pitch": 0.8,
-        "volume": 0.4
+        "volume": 0.120000005
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_lava3",
         "pitch": 0.8,
-        "volume": 0.4
+        "volume": 0.120000005
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.lava_caves.additions"
@@ -298,7 +298,7 @@
         "name": "minecraft:ambient/nether/basalt_deltas/ambience",
         "pitch": 0.8,
         "stream": true,
-        "volume": 0.7
+        "volume": 0.21000001
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.lava_caves.loop"
@@ -308,43 +308,43 @@
       {
         "name": "minecraft:ambient/nether/crimson_forest/particles1",
         "pitch": 0.7,
-        "volume": 0.35,
+        "volume": 0.105000004,
         "weight": 4
       },
       {
         "name": "minecraft:ambient/nether/crimson_forest/particles2",
         "pitch": 0.7,
-        "volume": 0.35,
+        "volume": 0.105000004,
         "weight": 4
       },
       {
         "name": "minecraft:ambient/nether/crimson_forest/particles3",
         "pitch": 0.65,
-        "volume": 0.35,
+        "volume": 0.105000004,
         "weight": 4
       },
       {
         "name": "minecraft:ambient/nether/crimson_forest/shroom1",
         "pitch": 0.6,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/crimson_forest/shroom2",
         "pitch": 0.6,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/crimson_forest/shroom3",
         "pitch": 0.55,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/warped_forest/addition1",
         "pitch": 0.6,
-        "volume": 0.08
+        "volume": 0.024
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.mushroom_forest.additions"
@@ -354,7 +354,7 @@
       {
         "name": "eam:ambient/underworld/mushroom_forest",
         "stream": true,
-        "volume": 0.4
+        "volume": 0.120000005
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.mushroom_forest.loop"
@@ -364,7 +364,7 @@
       {
         "name": "eam:ambient/underworld/river_caves",
         "stream": true,
-        "volume": 0.3
+        "volume": 0.09
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.river_caves.loop"
@@ -374,46 +374,46 @@
       {
         "name": "minecraft:step/gravel1",
         "pitch": 0.6,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:step/gravel2",
         "pitch": 0.6,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:step/gravel3",
         "pitch": 0.55,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:step/gravel4",
         "pitch": 0.55,
-        "volume": 0.25,
+        "volume": 0.075,
         "weight": 2
       },
       {
         "name": "minecraft:block/dripstone/break1",
         "pitch": 0.5,
-        "volume": 0.15
+        "volume": 0.045
       },
       {
         "name": "minecraft:block/dripstone/break3",
         "pitch": 0.5,
-        "volume": 0.15
+        "volume": 0.045
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water1",
         "pitch": 0.9,
-        "volume": 0.3
+        "volume": 0.09
       },
       {
         "name": "minecraft:block/pointed_dripstone/drip_water4",
         "pitch": 0.85,
-        "volume": 0.3
+        "volume": 0.09
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.stone_wastes.additions"
@@ -423,7 +423,7 @@
       {
         "name": "eam:ambient/underworld/stone_wastes",
         "stream": true,
-        "volume": 0.3
+        "volume": 0.09
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.stone_wastes.loop"
@@ -433,86 +433,92 @@
       {
         "name": "minecraft:ambient/nether/warped_forest/creak1",
         "pitch": 0.8,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/warped_forest/creak2",
         "pitch": 0.8,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/warped_forest/creak3",
         "pitch": 0.8,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/warped_forest/creak4",
         "pitch": 0.8,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:ambient/nether/warped_forest/creak5",
         "pitch": 0.8,
-        "volume": 0.3,
+        "volume": 0.09,
         "weight": 2
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush1",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss1",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush2",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss2",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush3",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss3",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush4",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss4",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush5",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss5",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       },
       {
         "name": "minecraft:block/firefly_bush/firefly_bush6",
-        "pitch": 0.75
+        "pitch": 0.75,
+        "volume": 0.3
       },
       {
         "name": "minecraft:block/pale_hanging_moss/pale_hanging_moss6",
         "pitch": 0.8,
-        "volume": 0.5
+        "volume": 0.15
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.underground_forest.additions"
@@ -522,7 +528,7 @@
       {
         "name": "eam:ambient/underworld/underground_forest",
         "stream": true,
-        "volume": 0.6
+        "volume": 0.18
       }
     ],
     "subtitle": "subtitles.eam.ambient.underworld.underground_forest.loop"

@@ -998,7 +998,7 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x3A2A48, 0.75F, 0x3D57D6,
 				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(EamSounds.UNDERWORLD_MUSHROOM_FOREST_LOOP, EamSounds.UNDERWORLD_MUSHROOM_FOREST_ADDITIONS),
-				AmbientParticle.of(EamParticles.UNDERWORLD_SPORE, 0.012F),
+				AmbientParticle.of(EamParticles.UNDERWORLD_SPORE, 0.004F),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
 						P_HUGE_RED, P_FALLEN_MUSHROOM_STEM, P_MOSSY_BOULDER_MUSHROOM, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
@@ -1023,7 +1023,7 @@ final class UnderworldWorldgen {
 				spawns()));
 		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x122E28, 0.9F, 0x2E8E80,
 				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, ambience(EamSounds.UNDERWORLD_FOREST_LOOP, EamSounds.UNDERWORLD_FOREST_ADDITIONS),
-				AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
+				AmbientParticle.of(ParticleTypes.GLOW, 0.0015F),
 				features(common, P_STREAMS, P_FALLEN_SPRUCE, P_MOSSY_BOULDER_FOREST, P_SPRUCE, P_SMALL_SPRUCE, P_FOREST_MOSS, P_FOREST_PLANTS, P_BROWN_MUSHROOMS_FEW,
 						P_GLOWSHROOM_VINES, P_GLOW_LICHEN),
 				spawns()));
