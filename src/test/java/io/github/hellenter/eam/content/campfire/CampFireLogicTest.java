@@ -91,4 +91,15 @@ class CampFireLogicTest {
 		assertEquals(CampFireBlock.SCORCHED, CampFireLogic.charStage(600, SETTINGS));
 		assertEquals(CampFireBlock.CHARRED, CampFireLogic.charStage(1800, SETTINGS));
 	}
+
+	@Test
+	void moreSticksCookFasterUpToAQuarter() {
+		assertEquals(900, CampFireLogic.cookTicks(1, SETTINGS));
+		assertEquals(720, CampFireLogic.cookTicks(9, SETTINGS));
+		assertTrue(CampFireLogic.cookTicks(6, SETTINGS) < CampFireLogic.cookTicks(5, SETTINGS));
+		assertEquals(FoodStep.COOK, CampFireLogic.foodStep(CampFireLogic.RAW, 720, SETTINGS, 9));
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.RAW, 720, SETTINGS, 1));
+		// Only cooking speeds up: cooked food burns on the same timer.
+		assertEquals(FoodStep.WAIT, CampFireLogic.foodStep(CampFireLogic.COOKED, 1199, SETTINGS, 9));
+	}
 }

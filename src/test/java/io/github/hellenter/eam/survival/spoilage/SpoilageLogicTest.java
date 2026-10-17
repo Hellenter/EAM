@@ -83,4 +83,15 @@ class SpoilageLogicTest {
 		assertEquals(0, SpoilageLogic.spoiled(List.of(SpoilageLogic.UNSTAMPED), Long.MAX_VALUE - 1));
 		assertEquals(List.of(5L, 100L, 100L), SpoilageLogic.stamp(taken, 100L));
 	}
+
+	@Test
+	void iceLastsAThirdShorterInHeatAndLongerInTheCold() {
+		SpoilageSettings.Climate climate = SpoilageSettings.Climate.DEFAULT;
+		assertEquals(1.0, climate.factor(0.8F, false));
+		assertEquals(0.67, climate.factor(2.0F, false));
+		assertEquals(1.33, climate.factor(0.0F, false));
+		assertEquals(1.33, climate.factor(0.8F, true));
+		assertEquals(1.33, climate.factor(-0.5F, true));
+		assertEquals(0.67 * 1.33, climate.factor(2.0F, true), 1.0E-9);
+	}
 }

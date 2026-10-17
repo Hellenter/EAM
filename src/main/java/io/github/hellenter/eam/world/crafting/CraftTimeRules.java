@@ -22,9 +22,11 @@ import java.util.List;
  * @param toolSpeedBonus           speed each knife in the crafting table adds to every craft, by tier (first entry is tier 1)
  * @param sawSpeedBonus            speed each saw adds to wooden and decorative results ({@link CraftingTags#SAW_RESULTS})
  * @param hammerSpeedBonus         speed each hammer adds to crafts with metal in the grid ({@link CraftingTags#METALS})
+ * @param wearFreeTier             table tools of this tier or better (iron and up) lose no durability; lower ones lose
+ *                                 one point per craft they help
  */
 public record CraftTimeRules(float defaultSeconds, float craftingTableMultiplier, List<Rule> rules, List<Float> toolSpeedBonus,
-		List<Float> sawSpeedBonus, List<Float> hammerSpeedBonus) {
+		List<Float> sawSpeedBonus, List<Float> hammerSpeedBonus, int wearFreeTier) {
 	/**
 	 * @param items         results this rule covers
 	 * @param seconds       seconds per craft, or per item in the grid when {@code perIngredient}
@@ -42,8 +44,8 @@ public record CraftTimeRules(float defaultSeconds, float craftingTableMultiplier
 			new Rule(CraftingTags.TEN_SECONDS, 10.0F, false),
 			new Rule(CraftingTags.ARMOR, 5.0F, true),
 			new Rule(CraftingTags.FIVE_SECONDS, 5.0F, false)
-	), List.of(0.15F, 0.25F, 0.35F, 0.45F, 0.55F), List.of(0.0F, 0.35F, 0.5F, 0.65F, 0.8F),
-			List.of(0.0F, 0.25F, 0.5F, 0.75F, 1.0F));
+	), List.of(0.1F, 0.2F, 0.4F, 0.6F, 0.8F), List.of(0.0F, 0.3F, 0.6F, 0.9F, 1.2F),
+			List.of(0.0F, 0.2F, 0.6F, 1.0F, 1.4F), 3);
 
 	public static final Codec<CraftTimeRules> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(0.0F, 1000.0F).fieldOf("default_seconds").orElse(DEFAULT.defaultSeconds).forGetter(CraftTimeRules::defaultSeconds),
@@ -51,7 +53,8 @@ public record CraftTimeRules(float defaultSeconds, float craftingTableMultiplier
 			Rule.CODEC.listOf().fieldOf("rules").orElse(DEFAULT.rules).forGetter(CraftTimeRules::rules),
 			Codec.floatRange(0.0F, 10.0F).listOf().fieldOf("tool_speed_bonus").orElse(DEFAULT.toolSpeedBonus).forGetter(CraftTimeRules::toolSpeedBonus),
 			Codec.floatRange(0.0F, 10.0F).listOf().fieldOf("saw_speed_bonus").orElse(DEFAULT.sawSpeedBonus).forGetter(CraftTimeRules::sawSpeedBonus),
-			Codec.floatRange(0.0F, 10.0F).listOf().fieldOf("hammer_speed_bonus").orElse(DEFAULT.hammerSpeedBonus).forGetter(CraftTimeRules::hammerSpeedBonus)
+			Codec.floatRange(0.0F, 10.0F).listOf().fieldOf("hammer_speed_bonus").orElse(DEFAULT.hammerSpeedBonus).forGetter(CraftTimeRules::hammerSpeedBonus),
+			Codec.intRange(0, 100).fieldOf("wear_free_tier").orElse(DEFAULT.wearFreeTier).forGetter(CraftTimeRules::wearFreeTier)
 	).apply(instance, CraftTimeRules::new));
 
 	/**

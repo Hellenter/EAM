@@ -38,7 +38,8 @@ import java.util.stream.IntStream;
  * A fridge's ice and food. Every second it works out how long it has been cold since the last check: first the cold left
  * from the ice melting now, then one more ice from its ice slots at a time. The food's spoil times are put off by that
  * long, so food in a fridge with ice never ages. The check counts from the last one, so a fridge in an unloaded chunk
- * catches up, ice and all, when it loads again.
+ * catches up, ice and all, when it loads again. Ice lasts shorter in a hot biome and longer in a snowy one or next to
+ * snow and ice blocks; see {@link SpoilageSettings.Climate}.
  */
 public class FridgeBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, ExtendedMenuProvider<FridgeMenu.Size> {
 	private static final int INTERVAL = 20;
@@ -55,6 +56,8 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 	private long checkedAt = UNSET;
 	/** Cold since the food's times were last put off. */
 	private long pendingCold;
+	/** How long ice lasts here against a temperate place, from the last check. */
+	private double iceFactor = 1.0;
 
 	/** Hours of cold left, for the menu. */
 	private final ContainerData data = new ContainerData() {
@@ -95,7 +98,8 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 			return;
 		}
 		SpoilageSettings settings = SpoilageModule.settings();
-		SpoilageLogic.Cooling cooling = SpoilageLogic.cool(now - checkedAt, charge, ice(), settings.ticksPerIce());
+		iceFactor = settings.climate().factor(level.getBiome(worldPosition).value().getBaseTemperature(), chilled(level));
+		SpoilageLogic.Cooling cooling = SpoilageLogic.cool(now - checkedAt, charge, ice(), settings.ticksPerIce(iceFactor));
 		checkedAt = now;
 		charge = cooling.charge();
 		pendingCold += cooling.cooled();
@@ -109,6 +113,13 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 		SpoilageModule.updateContainer(this, now - pendingCold, true, rotten -> Containers.dropItemStack(level,
 				worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5, rotten));
 		if (changed) setChanged();
+	}
+
+	private boolean chilled(ServerLevel level) {
+		for (Direction direction : Direction.values()) {
+			if (level.getBlockState(worldPosition.relative(direction)).is(FridgeModule.CHILLERS)) return true;
+		}
+		return false;
 	}
 
 	private int ice() {
@@ -129,7 +140,7 @@ public class FridgeBlockEntity extends BaseContainerBlockEntity implements World
 	/** Ticks the fridge stays cold with the ice it has. */
 	private long coldLeft() {
 		if (!SpoilageModule.enabled()) return 0;
-		return charge + ice() * SpoilageModule.settings().ticksPerIce();
+		return charge + ice() * SpoilageModule.settings().ticksPerIce(iceFactor);
 	}
 
 	@Override

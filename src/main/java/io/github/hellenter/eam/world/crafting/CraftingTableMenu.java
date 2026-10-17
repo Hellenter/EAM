@@ -3,6 +3,9 @@ package io.github.hellenter.eam.world.crafting;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,8 +21,8 @@ import java.util.List;
 
 /**
  * The vanilla crafting menu plus three tool slots for knives, saws and hammers ({@link CraftingTags#CRAFTING_TABLE_TOOLS})
- * in any mix. Without a knife the table crafts nothing; tools are not used up, but each one makes its crafts faster, and
- * metal recipes need a knife of the tier below the metal ({@link CraftingTierLogic}). The tools live in the table's
+ * in any mix. Without a knife the table crafts nothing; each tool makes its crafts faster, tools below iron wear a little
+ * with each craft they help, and metal recipes need a knife of the tier below the metal ({@link CraftingTierLogic}). The tools live in the table's
  * block entity.
  */
 public class CraftingTableMenu extends CraftingMenu {
@@ -70,6 +73,39 @@ public class CraftingTableMenu extends CraftingMenu {
 	/** Best knife tier in the table, {@link CraftingTierLogic#NONE} without knives. */
 	public int bestKnifeTier() {
 		return knifeTiers().stream().mapToInt(Integer::intValue).max().orElse(CraftingTierLogic.NONE);
+	}
+
+	/**
+	 * Server, when a craft of {@code result} is done and before its ingredients are used up: every tool that helped it
+	 * (knives always, saws on wooden and decorative results, hammers on metalwork) and is below {@code wearFreeTier}
+	 * loses a point of durability.
+	 */
+	public void wearTools(ServerPlayer player, ItemStack result, int wearFreeTier) {
+		boolean sawCraft = result.is(CraftingTags.SAW_RESULTS);
+		boolean metal = CraftingTiers.hasMetal(craftSlots);
+		for (int i = 0; i < tools.getContainerSize(); i++) {
+			ItemStack tool = tools.getItem(i);
+			if (tool.isDamageableItem() && CraftingTierLogic.wears(helpingTier(tool, sawCraft, metal), wearFreeTier)) {
+				tool.hurtAndBreak(1, player.level(), player, item -> player.level().playSound(null, player.getX(), player.getY(),
+						player.getZ(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 0.8F, 1.0F));
+			}
+		}
+		tools.setChanged();
+	}
+
+	/** Tier of a tool that helps this craft, {@link CraftingTierLogic#NONE} when it does not. */
+	private static int helpingTier(ItemStack tool, boolean sawCraft, boolean metal) {
+		int knife = CraftingTiers.tier(tool, CraftingTags.KNIFE_TIERS);
+		if (knife > CraftingTierLogic.NONE) {
+			return knife;
+		}
+		if (sawCraft) {
+			int saw = CraftingTiers.tier(tool, CraftingTags.SAW_TIERS);
+			if (saw > CraftingTierLogic.NONE) {
+				return saw;
+			}
+		}
+		return metal ? CraftingTiers.tier(tool, ForgingTags.HAMMER_TIERS) : CraftingTierLogic.NONE;
 	}
 
 	/** What the tools in the table do for a craft from {@code grid}. */
