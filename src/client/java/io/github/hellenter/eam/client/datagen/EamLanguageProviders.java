@@ -64,6 +64,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Protein Deficiency");
 			builder.add("effect.eam.fat_deficiency", "Fat Deficiency");
 			builder.add("effect.eam.carbs_deficiency", "Carbs Deficiency");
+			builder.add("effect.eam.rested", "Rested");
+			builder.add("eam.sleep.rested", "You slept well: rested");
 			builder.add("eam.hunger.deficiency.protein", "Out of protein: weaker hits, slower mining");
 			builder.add("eam.hunger.deficiency.fat", "Out of fat: hunger drains faster");
 			builder.add("eam.hunger.deficiency.carbs", "Out of carbs: you tire quickly when running");
@@ -738,6 +740,8 @@ public final class EamLanguageProviders {
 			builder.add("effect.eam.protein_deficiency", "Нехватка белка");
 			builder.add("effect.eam.fat_deficiency", "Нехватка жиров");
 			builder.add("effect.eam.carbs_deficiency", "Нехватка углеводов");
+			builder.add("effect.eam.rested", "Отдохнул");
+			builder.add("eam.sleep.rested", "Вы хорошо выспались и отдохнули");
 			builder.add("eam.hunger.deficiency.protein", "Нет белка: удар слабее, копание медленнее");
 			builder.add("eam.hunger.deficiency.fat", "Нет жиров: голод наступает быстрее");
 			builder.add("eam.hunger.deficiency.carbs", "Нет углеводов: быстро устаёшь на бегу");

@@ -19,7 +19,12 @@ public final class HungerLogic {
 	 * creative or spectator) hunger does not drain: all exhaustion is dropped.
 	 */
 	public record TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean paused,
-			Deficiencies deficiencies) {
+			Deficiencies deficiencies, float drainFactor, float regenFactor) {
+		/** No buffs: hunger drains and regeneration runs at the normal rate. */
+		public TickContext(int maxFood, boolean hurt, boolean naturalRegen, boolean peaceful, boolean balanced, boolean paused,
+				Deficiencies deficiencies) {
+			this(maxFood, hurt, naturalRegen, peaceful, balanced, paused, deficiencies, 1.0F, 1.0F);
+		}
 	}
 
 	/** Which nutrients are at or below the deficiency threshold. */
@@ -73,7 +78,8 @@ public final class HungerLogic {
 		if (context.deficiencies().fat()) {
 			perPoint /= rules.deficiency().fatHungerFactor();
 		}
-		float regenFactor = 1.0F;
+		perPoint /= context.drainFactor();
+		float regenFactor = 1.0F / context.regenFactor();
 		if (context.balanced()) {
 			regenFactor /= rules.balancedRegenFactor();
 		}

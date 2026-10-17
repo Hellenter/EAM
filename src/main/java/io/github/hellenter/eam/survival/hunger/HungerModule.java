@@ -3,6 +3,7 @@ package io.github.hellenter.eam.survival.hunger;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.survival.hunger.FoodDataAccessor;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -142,7 +143,9 @@ public final class HungerModule {
 						level.getDifficulty() == Difficulty.PEACEFUL,
 						HungerLogic.balanced(nutrition, current.balanceThreshold()),
 						paused,
-						HungerLogic.deficiencies(nutrition, current.deficiency().threshold())
+						HungerLogic.deficiencies(nutrition, current.deficiency().threshold()),
+						RestedModule.drainFactor(player),
+						RestedModule.regenFactor(player)
 				),
 				current
 		);

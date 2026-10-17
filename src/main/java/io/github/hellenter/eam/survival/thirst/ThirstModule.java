@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -173,7 +174,8 @@ public final class ThirstModule {
 				level.getDifficulty() == Difficulty.PEACEFUL,
 				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature(),
 				player.hasEffect(FOOD_POISONING),
-				ProgressionModule.inGracePeriod(player));
+				ProgressionModule.inGracePeriod(player),
+				RestedModule.drainFactor(player));
 
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
 		int max = ProgressionModule.capacity(player);
