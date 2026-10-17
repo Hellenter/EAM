@@ -224,4 +224,16 @@ class HungerLogicTest {
 		TickResult due = HungerLogic.tick(new FoodState(10, 0.0F, 0.0F, interval - 1), malnourished, RULES);
 		assertEquals(1.0F, due.heal());
 	}
+
+	@Test
+	void restedHungerDrainsSlowerAndHealsFaster() {
+		TickContext rested = new TickContext(20, true, true, false, false, false, Deficiencies.NONE, 0.9F, 1.1F);
+		float perPoint = RULES.exhaustionPerPoint();
+		// Just over the normal threshold spends a point, but not when rested.
+		assertTrue(HungerLogic.tick(new FoodState(20, 0.0F, perPoint, 0), HURT, RULES).pointSpent());
+		assertFalse(HungerLogic.tick(new FoodState(20, 0.0F, perPoint, 0), rested, RULES).pointSpent());
+		int restedInterval = Math.round(RULES.regenIntervalTicks() / 1.1F);
+		assertEquals(1.0F, HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, restedInterval - 1), rested, RULES).heal());
+		assertEquals(0.0F, HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, restedInterval - 1), HURT, RULES).heal());
+	}
 }
