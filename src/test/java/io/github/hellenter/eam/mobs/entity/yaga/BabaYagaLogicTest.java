@@ -283,4 +283,17 @@ class BabaYagaLogicTest {
 		assertEquals(List.of(Creature.WIGHT), capped.get(0).get(2));
 		assertEquals(List.of(Creature.SOLDIER), capped.get(2).get(2));
 	}
+
+	@Test
+	void flaskGoesBackOnlyForAHitOrShieldJustBeforeItLands() {
+		int window = SETTINGS.potion().reflectWindow();
+		assertTrue(BabaYagaLogic.reflects(0.5, 3, window));
+		assertTrue(BabaYagaLogic.reflects(4.0, 0, window));
+		// Too early: the flask is still far off.
+		assertFalse(BabaYagaLogic.reflects(8.0, 0, window));
+		// A shield raised long before, or a swing well before the window opened.
+		assertFalse(BabaYagaLogic.reflects(0.5, 40, window));
+		assertFalse(BabaYagaLogic.reflects(3.0, 5, window));
+		assertFalse(BabaYagaLogic.reflects(1.0, -1, window));
+	}
 }

@@ -83,4 +83,29 @@ class SpoilageLogicTest {
 		assertEquals(0, SpoilageLogic.spoiled(List.of(SpoilageLogic.UNSTAMPED), Long.MAX_VALUE - 1));
 		assertEquals(List.of(5L, 100L, 100L), SpoilageLogic.stamp(taken, 100L));
 	}
+
+	@Test
+	void driedFoodKeepsItsTimeLeftFiveTimesOver() {
+		// Cooked meat with two days left, dried at day 3: it now keeps ten more days.
+		assertEquals(List.of(13 * DAY), SpoilageLogic.dried(List.of(5 * DAY), 3 * DAY, 10 * DAY, 5.0));
+	}
+
+	@Test
+	void driedFoodNeverKeepsLongerThanFreshDriedFood() {
+		// An unstamped apple counts as fresh: ten days times five.
+		assertEquals(List.of(DAY + 50 * DAY), SpoilageLogic.dried(List.of(SpoilageLogic.UNSTAMPED), DAY, 10 * DAY, 5.0));
+		// A time past the lifetime (a datapack shortened it) is capped.
+		assertEquals(List.of(50 * DAY), SpoilageLogic.dried(List.of(40 * DAY), 0, 10 * DAY, 5.0));
+	}
+
+	@Test
+	void iceLastsAThirdShorterInHeatAndLongerInTheCold() {
+		SpoilageSettings.Climate climate = SpoilageSettings.Climate.DEFAULT;
+		assertEquals(1.0, climate.factor(0.8F, false));
+		assertEquals(0.67, climate.factor(2.0F, false));
+		assertEquals(1.33, climate.factor(0.0F, false));
+		assertEquals(1.33, climate.factor(0.8F, true));
+		assertEquals(1.33, climate.factor(-0.5F, true));
+		assertEquals(0.67 * 1.33, climate.factor(2.0F, true), 1.0E-9);
+	}
 }

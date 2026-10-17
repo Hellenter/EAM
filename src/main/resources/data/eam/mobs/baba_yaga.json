@@ -80,7 +80,10 @@
     "nausea_level": 0,
     "weakness_ticks": 0,
     "weakness_level": 0,
-    "flight_ticks": 24
+    "flight_ticks": 24,
+    "reflect_window": 5,
+    "reflect_speed": 1.2,
+    "daze_ticks": 100
   },
   "spell": {
     "cooldown": 120,
