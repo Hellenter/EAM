@@ -74,6 +74,12 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
 		builder(MonsterEvolutionModule.ARMED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER);
+		// Later phases: skeletons carry a blade for close quarters, spiders spit webs.
+		builder(MonsterEvolutionModule.SWORDSMEN)
+				.add(EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
+		builder(MonsterEvolutionModule.WEB_SPINNERS)
+				.add(EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER)
+				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		builder(BloodMoonModule.ARMED).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(BloodMoonModule.HUNTERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
