@@ -1,7 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
@@ -16,8 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Draws villagers as {@link VillagerFigureModel}: arms apart, the item in hand, and armor shaped like a zombie
- * villager's, which fits a villager's head and body. Replaces the vanilla villager renderer; clothes, hats and the
+ * Draws villagers as {@link VillagerFigureModel}: arms apart, the item in hand, and armor shaped to the villager's head,
+ * robe and arms. Replaces the vanilla villager renderer; clothes, hats and the
  * profession badges are vanilla's.
  */
 public class VillagerFigureRenderer extends HumanoidMobRenderer<Villager, VillagerFigureRenderState, VillagerFigureModel> {
@@ -28,7 +27,7 @@ public class VillagerFigureRenderer extends HumanoidMobRenderer<Villager, Villag
 		super(context, new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.LAYER)),
 				new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.BABY_LAYER)), 0.5F, VillagerRenderer.CUSTOM_HEAD_TRANSFORMS);
 		addLayer(new HumanoidArmorLayer<>(this,
-				ArmorModelSet.bake(ModelLayers.ZOMBIE_VILLAGER_ARMOR, context.getModelSet(), root -> new HumanoidModel<VillagerFigureRenderState>(root)),
+				ArmorModelSet.bake(VillagerFigureModel.ARMOR, context.getModelSet(), root -> new HumanoidModel<VillagerFigureRenderState>(root)),
 				context.getEquipmentRenderer()));
 		addLayer(new VillagerProfessionLayer<>(this, context.getResourceManager(), "villager",
 				new VillagerFigureModel(context.bakeLayer(VillagerFigureModel.NO_HAT_LAYER)),
