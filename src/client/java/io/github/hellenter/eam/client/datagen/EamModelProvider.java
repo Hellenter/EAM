@@ -58,6 +58,7 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD));
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
+		FoodDryerModels.generate(generators);
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
@@ -119,7 +120,9 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.WILD_GARLIC, BlockModelGenerators.PlantType.NOT_TINTED);
 		// Four looks over eight ages, like carrots.
-		generators.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
+		// Garlic is the crop's item, so its definition comes from here; dried garlic looks darker.
+		new BlockModelGenerators(generators.blockStateOutput, DriedItemModels.output(generators.itemModelOutput), generators.modelOutput)
+				.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
 		bigShrub(generators);
@@ -620,11 +623,14 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		// Dryable food: a darker look while the stack is dried.
+		ItemModelGenerators dryable = new ItemModelGenerators(DriedItemModels.output(generators.itemModelOutput), generators.modelOutput);
+		dryable.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		dryable.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		dryable.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,
-				EamItems.ROTTEN_FOOD, EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT)) {
+				EamItems.ROTTEN_FOOD, EamItems.WOLF_MEAT)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		generators.generateFlatItem(EamItems.FALLEN_LORD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);

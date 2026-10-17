@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.content.dryer.DryerModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -268,6 +269,9 @@ public final class EamLanguageProviders {
 			builder.add(SpoilageSettings.SPOILS, "Perishable Food");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Fast-Spoiling Food");
 			builder.add("tooltip.eam.spoils_in", "Spoils in %s");
+			builder.add("tooltip.eam.dried", "Dried: keeps longer, makes you thirsty");
+			builder.add(DryerModule.DRYABLE, "Dryable Food");
+			builder.add(EamBlocks.FOOD_DRYER, "Food Dryer");
 			builder.add("tooltip.eam.spoils", "Spoils:");
 			builder.add("tooltip.eam.spoils_batch", " %s in %s");
 			builder.add("tooltip.eam.spoils_rest", " %s later");
@@ -942,6 +946,9 @@ public final class EamLanguageProviders {
 			builder.add(SpoilageSettings.SPOILS, "Скоропортящаяся еда");
 			builder.add(SpoilageSettings.SPOILS_FAST, "Быстро портящаяся еда");
 			builder.add("tooltip.eam.spoils_in", "Испортится через %s");
+			builder.add("tooltip.eam.dried", "Сушёное: хранится дольше, отнимает воду");
+			builder.add(DryerModule.DRYABLE, "Еда для сушки");
+			builder.add(EamBlocks.FOOD_DRYER, "Сушилка для еды");
 			builder.add("tooltip.eam.spoils", "Испортится:");
 			builder.add("tooltip.eam.spoils_batch", " %s шт. через %s");
 			builder.add("tooltip.eam.spoils_rest", " ещё %s шт. позже");

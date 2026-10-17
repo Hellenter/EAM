@@ -16,6 +16,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param maxCharcoal       most charcoal one fire drops
  * @param scorchTicks       ticks a fire has burnt before its sticks look scorched
  * @param charTicks         ticks a fire has burnt before its sticks look charred black
+ * @param maxCookBonus      how much faster a full fire cooks than one with a single stick (0.25 = 25% faster); the
+ *                          bonus grows evenly with each stick
  */
 public record CampFireSettings(
 		int sticksToLight,
@@ -26,9 +28,10 @@ public record CampFireSettings(
 		int sticksPerCharcoal,
 		int maxCharcoal,
 		int scorchTicks,
-		int charTicks
+		int charTicks,
+		float maxCookBonus
 ) {
-	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 600, 900, 1200, 1200, 3, 16, 600, 1800);
+	public static final CampFireSettings DEFAULT = new CampFireSettings(6, 600, 900, 1200, 1200, 3, 16, 600, 1800, 0.25F);
 
 	public static final Codec<CampFireSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, CampFireBlock.MAX_STICKS).fieldOf("sticks_to_light").orElse(DEFAULT.sticksToLight).forGetter(CampFireSettings::sticksToLight),
@@ -39,6 +42,7 @@ public record CampFireSettings(
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sticks_per_charcoal").orElse(DEFAULT.sticksPerCharcoal).forGetter(CampFireSettings::sticksPerCharcoal),
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("max_charcoal").orElse(DEFAULT.maxCharcoal).forGetter(CampFireSettings::maxCharcoal),
 			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("scorch_ticks").orElse(DEFAULT.scorchTicks).forGetter(CampFireSettings::scorchTicks),
-			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("char_ticks").orElse(DEFAULT.charTicks).forGetter(CampFireSettings::charTicks)
+			Codec.intRange(0, Integer.MAX_VALUE).fieldOf("char_ticks").orElse(DEFAULT.charTicks).forGetter(CampFireSettings::charTicks),
+			Codec.floatRange(0.0F, 10.0F).fieldOf("max_cook_bonus").orElse(DEFAULT.maxCookBonus).forGetter(CampFireSettings::maxCookBonus)
 	).apply(instance, CampFireSettings::new));
 }

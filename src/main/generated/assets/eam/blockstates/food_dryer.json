@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "eam:block/food_dryer"
+    }
+  }
+}

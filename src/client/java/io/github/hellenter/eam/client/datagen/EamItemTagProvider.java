@@ -9,6 +9,7 @@ import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.campfire.CampFireModule;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.content.dryer.DryerModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -48,6 +49,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
+	/** Food that dries on a food dryer: fruit, berries, root vegetables, bread and cooked meat and fish. */
+	static final List<Item> DRYABLE = List.of(Items.APPLE, Items.CARROT, Items.BEETROOT, Items.MELON_SLICE, Items.SWEET_BERRIES,
+			Items.GLOW_BERRIES, EamItems.CRANBERRY, EamItems.WOLFBERRY, EamItems.GARLIC, Items.BREAD,
+			Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_MUTTON, Items.COOKED_CHICKEN, Items.COOKED_RABBIT, EamItems.COOKED_WOLF_MEAT,
+			Items.COOKED_COD, Items.COOKED_SALMON);
+
 	public EamItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
@@ -77,6 +84,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP, EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP,
 				EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP, EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM,
 				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL, EamItems.MILK_BOWL));
+		builder(DryerModule.DRYABLE).addAll(keys(DRYABLE.toArray(Item[]::new)));
 		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
 		// Produce that drops more under a blue moon; seeds stay as they are.
 		builder(BlueMoonModule.HARVEST_ITEMS).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
