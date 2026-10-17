@@ -47,6 +47,14 @@ public final class VillagerClericModule {
 		enabled = true;
 	}
 
+	static boolean enabled() {
+		return enabled;
+	}
+
+	static ClericSettings settings() {
+		return settings;
+	}
+
 	static void setSettings(ClericSettings value) {
 		settings = value;
 	}
@@ -76,6 +84,15 @@ public final class VillagerClericModule {
 				handOver(cleric.getInventory(), other.getInventory());
 			}
 		}
+	}
+
+	/** A cleric answering the village alarm heals the guard he reached and hands him a potion if he has one to spare. */
+	static void tendGuard(ServerLevel level, Villager cleric, Villager guard, float heal) {
+		if (guard.getHealth() < guard.getMaxHealth()) {
+			guard.heal(heal);
+			level.broadcastEntityEvent(guard, HAPPY_PARTICLES);
+		}
+		if (potions(guard.getInventory()) < settings.potionMax()) handOver(cleric.getInventory(), guard.getInventory());
 	}
 
 	/** At work, turns one ingredient a player gave the cleric into its potion while he has room for more. */
@@ -124,7 +141,7 @@ public final class VillagerClericModule {
 		}
 	}
 
-	private static int potions(SimpleContainer inventory) {
+	static int potions(SimpleContainer inventory) {
 		return inventory.countItem(Items.POTION);
 	}
 }
