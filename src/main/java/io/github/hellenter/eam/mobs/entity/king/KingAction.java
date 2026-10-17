@@ -36,7 +36,9 @@ public enum KingAction {
 	/** Parried at the start of a combo: thrown off balance, open to hits. */
 	STAGGER(24),
 	/** His totem breaks instead of him: invulnerable for the moment, healed. */
-	TOTEM(30);
+	TOTEM(30),
+	/** Ran into a wall or a pillar in a charge: dazed, stars round his head, open to hits. */
+	STUNNED(30);
 
 	public static final int SLASH_HIT = 7;
 	public static final int COMBO_PARRY_END = 10;
