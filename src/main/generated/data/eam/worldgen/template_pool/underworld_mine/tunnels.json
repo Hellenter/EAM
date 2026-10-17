@@ -163,6 +163,16 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
+        "location": "eam:underworld_mine/lift/1",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:underworld_mine",
+        "projection": "rigid"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
         "location": "eam:underworld_mine/room/1",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:underworld_mine",
