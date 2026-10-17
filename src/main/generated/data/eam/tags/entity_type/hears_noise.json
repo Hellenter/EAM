@@ -1,0 +1,28 @@
+{
+  "values": [
+    "minecraft:zombie",
+    "minecraft:husk",
+    "minecraft:drowned",
+    "minecraft:zombie_villager",
+    "minecraft:zombified_piglin",
+    "minecraft:spider",
+    "minecraft:cave_spider",
+    "minecraft:creeper",
+    "minecraft:witch",
+    "minecraft:vindicator",
+    "minecraft:pillager",
+    "minecraft:silverfish",
+    "minecraft:skeleton",
+    "minecraft:stray",
+    "minecraft:bogged",
+    "minecraft:parched",
+    "minecraft:wither_skeleton",
+    "eam:pillager_guard",
+    "eam:zombie_duergar",
+    "eam:duergar_renegade",
+    "eam:wood_spider",
+    "eam:black_widow",
+    "eam:wight",
+    "eam:lost"
+  ]
+}
