@@ -111,7 +111,8 @@ public class Koschei extends Monster {
 	/** The lunge stops this close to the target and stabs from there. */
 	private static final double LUNGE_STOP = 1.8;
 	private static final double LUNGE_SPEED = 0.8;
-	private static final double LUNGE_REACH = 2.8;
+	/** The stab reaches only this far: he has to rush in close for it to go in. */
+	private static final double LUNGE_REACH = 2.05;
 	/** A hop pushes for this many ticks; the rest of the action is the landing. */
 	private static final int HOP_PUSH_TICKS = 3;
 	private static final double HOP_LIFT = 0.35;
@@ -124,7 +125,7 @@ public class Koschei extends Monster {
 	private static final double FORCE_AIMED_SLACK = 3.0;
 	/** How many ravens scatter from where he vanishes. */
 	private static final int RAVENS = 28;
-	/** He walks in this fast while the sword is raised over his head. */
+	/** He walks in this fast while the sword is raised over his head or drawn back for the red blow. */
 	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
 	private static final double KICK_STOP = 1.4;
@@ -566,6 +567,10 @@ public class Koschei extends Monster {
 			case RED -> {
 				if (t == 0) {
 					redCue(level);
+				}
+				if (t < KoscheiAction.RED_HIT && target != null) {
+					// As with the overhead blow: stepping back does not take the target out of reach.
+					walkIn(target, OVERHEAD_WALK_SPEED);
 				}
 				if (t == KoscheiAction.RED_HIT) {
 					cleave(level, target, one.red());

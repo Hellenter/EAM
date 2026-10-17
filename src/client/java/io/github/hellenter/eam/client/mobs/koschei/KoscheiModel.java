@@ -213,7 +213,8 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 			}
 			case RED -> {
 				// Drawn low behind him, then a rising cut up and across.
-				float[] times = {0, 9, 13, 14, 17, 24};
+				float hit = KoscheiAction.RED_HIT;
+				float[] times = {0, hit - 5, hit - 1, hit, hit + 3, KoscheiAction.RED.length()};
 				leftArm.xRot = keys(t, times, restL, 0.9F, 1.0F, -1.6F, -1.9F, restL);
 				leftArm.yRot = keys(t, times, 0.0F, 0.3F, 0.35F, -0.6F, -0.7F, 0.0F);
 				leftForearm.xRot = keys(t, times, restFl, -0.3F, -0.3F, -0.2F, -0.3F, restFl);
