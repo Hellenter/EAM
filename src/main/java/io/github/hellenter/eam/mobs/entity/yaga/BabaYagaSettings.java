@@ -26,7 +26,8 @@ import java.util.Optional;
  * @param beam     phase two: a fire beam a shield blocks
  * @param claws    phase two: she blinks behind the player and rakes them with her claws
  * @param eat      phase two: she eats one of her creatures to heal
- * @param storm    her own thunderstorm around her while she fights, and her way home once nobody is left to fight
+ * @param storm    her own thunderstorm around her while she fights, her way home once nobody is left to fight, and the
+ *                 hut she waits in until a player comes up to it
  */
 public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon summon, Crowd crowd, Potion potion, Spell spell,
 		Glyphs glyphs, PhaseTwo phaseTwo, Escape escape, Acid acid, Threads threads, Beam beam, Claws claws, Eat eat, Storm storm) {
@@ -478,14 +479,16 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param lightningOdds while the storm lasts, a lightning flash strikes near her on average once in this many ticks
 	 * @param lightningReach the flashes strike at most this far from her
 	 * @param lostTicks     once she has seen no player for this long, her storm ends and she goes back where she started
+	 * @param hutWakeRadius a hut's Baba Yaga waits in it, unseen, until a player is within this many blocks of its door
 	 */
-	public record Storm(double radius, int lightningOdds, double lightningReach, int lostTicks) {
-		public static final Storm DEFAULT = new Storm(100.0, 120, 60.0, 3600);
+	public record Storm(double radius, int lightningOdds, double lightningReach, int lostTicks, double hutWakeRadius) {
+		public static final Storm DEFAULT = new Storm(100.0, 120, 60.0, 3600, 8.0);
 		public static final Codec<Storm> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(8.0, 512.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Storm::radius),
 				Codec.intRange(1, 72000).fieldOf("lightning_odds").orElse(DEFAULT.lightningOdds).forGetter(Storm::lightningOdds),
 				Codec.doubleRange(0.0, 512.0).fieldOf("lightning_reach").orElse(DEFAULT.lightningReach).forGetter(Storm::lightningReach),
-				Codec.intRange(20, 720000).fieldOf("lost_ticks").orElse(DEFAULT.lostTicks).forGetter(Storm::lostTicks)
+				Codec.intRange(20, 720000).fieldOf("lost_ticks").orElse(DEFAULT.lostTicks).forGetter(Storm::lostTicks),
+				Codec.doubleRange(1.0, 64.0).fieldOf("hut_wake_radius").orElse(DEFAULT.hutWakeRadius).forGetter(Storm::hutWakeRadius)
 		).apply(instance, Storm::new));
 	}
 }

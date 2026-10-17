@@ -14,6 +14,7 @@ import com.mojang.math.Axis;
 
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -50,6 +51,12 @@ public class BabaYagaRenderer extends MobRenderer<BabaYaga, BabaYagaRenderState,
 	public BabaYagaRenderer(EntityRendererProvider.Context context) {
 		super(context, new BabaYagaModel(context.bakeLayer(BabaYagaModel.LAYER)), 0.6F);
 		addLayer(new Glow(this));
+	}
+
+	@Override
+	public boolean shouldRender(BabaYaga entity, Frustum culler, double camX, double camY, double camZ, float partialTicks) {
+		// Waiting in her hut she is not there to see, shadow included.
+		return !entity.waiting() && super.shouldRender(entity, culler, camX, camY, camZ, partialTicks);
 	}
 
 	@Override
