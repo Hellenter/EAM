@@ -83,7 +83,10 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				Items.MUSHROOM_STEW, Items.BEETROOT_SOUP, Items.RABBIT_STEW, Items.SUSPICIOUS_STEW,
 				EamItems.BEEF_STEW, EamItems.CHICKEN_SOUP, EamItems.VEGETABLE_SOUP, EamItems.CREAM_OF_MUSHROOM_SOUP,
 				EamItems.CREAM_OF_VEGETABLE_SOUP, EamItems.PUMPKIN_SOUP, EamItems.MASHED_POTATO, EamItems.SALAD, EamItems.ICE_CREAM,
-				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL, EamItems.MILK_BOWL));
+				EamItems.SORBET, EamItems.PORRIDGE, EamItems.CEREAL));
+		// Milk sours in three days.
+		builder(SpoilageSettings.SOURS).addAll(keys(Items.MILK_BUCKET, EamItems.COPPER_MILK_BUCKET, EamItems.SILVER_MILK_BUCKET,
+				EamItems.GOLDEN_MILK_BUCKET, EamItems.MITHRIL_MILK_BUCKET, EamItems.MILK_BOWL));
 		builder(DryerModule.DRYABLE).addAll(keys(DRYABLE.toArray(Item[]::new)));
 		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
 		// Produce that drops more under a blue moon; seeds stay as they are.

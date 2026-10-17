@@ -29,4 +29,11 @@ class BucketLogicTest {
 		assertEquals("0.5", BucketLogic.percent(0.005F));
 		assertEquals("100", BucketLogic.percent(1.0F));
 	}
+
+	@Test
+	void givesMilkOnceADay() {
+		assertTrue(BucketLogic.givesMilk(null, 100, 24000));
+		assertFalse(BucketLogic.givesMilk(1000L, 24999, 24000));
+		assertTrue(BucketLogic.givesMilk(1000L, 25000, 24000));
+	}
 }

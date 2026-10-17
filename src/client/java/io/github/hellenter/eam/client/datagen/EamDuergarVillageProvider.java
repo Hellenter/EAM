@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage.Style;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageStructure;
@@ -14,6 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceKey;
@@ -58,7 +60,9 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 	public static void bootstrapProcessors(BootstrapContext<StructureProcessorList> context) {
 		HolderGetter<net.minecraft.world.level.block.Block> blocks = context.lookup(Registries.BLOCK);
 		context.register(PROCESSORS, new StructureProcessorList(List.of(
-				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)))));
+				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
+				// Barrels Maxim left empty hold a few potions.
+				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS))));
 	}
 
 	public static void bootstrapPools(BootstrapContext<StructureTemplatePool> context) {

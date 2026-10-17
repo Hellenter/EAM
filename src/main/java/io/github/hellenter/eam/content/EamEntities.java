@@ -35,6 +35,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
 import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
 import io.github.hellenter.eam.mobs.entity.yaga.HagPotion;
@@ -229,6 +230,14 @@ public final class EamEntities {
 					.fireImmune()
 					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
+
+	/** One of the see-through black ravens Koschei calls up, flying through walls at his target. */
+	public static final EntityType<KoscheiRaven> KOSCHEI_RAVEN = register("koschei_raven",
+			EntityType.Builder.of(KoscheiRaven::new, MobCategory.MONSTER)
+					.sized(0.5F, 0.4F)
+					.fireImmune()
+					.eyeHeight(0.25F)
+					.clientTrackingRange(8));
 
 	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */
 	public static final EntityType<DrownedSoldier> DROWNED_SOLDIER = register("drowned_soldier",

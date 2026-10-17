@@ -127,6 +127,7 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 
 		// Koschei drops only experience until his last phase is built.
 		output.accept(EamEntities.KOSCHEI.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		// The Pillager King drops only experience for now.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 

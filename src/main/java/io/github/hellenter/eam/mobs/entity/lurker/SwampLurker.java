@@ -327,12 +327,19 @@ public class SwampLurker extends Monster {
 	/** Bursts out of its mud, at {@code player} if there is one. */
 	private void emerge(ServerLevel level, @Nullable Player player, boolean breakBlock) {
 		BlockPos pos = blockPosition();
+		boolean roofed = level.getBlockState(pos.above()).isSolid();
 		if (breakBlock) {
-			level.destroyBlock(pos, false, this);
+			if (roofed) {
+				// Something was built on top: it breaks the mud to have room to come out.
+				level.destroyBlock(pos, false, this);
+			} else {
+				// The mud stays where it lay, so its burrows never sink into pits.
+				level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos)));
+			}
 		}
 		setHidden(false);
-		// Out of the hole first: its walls would stop the leap dead. Unless something was built on top of it.
-		if (!level.getBlockState(pos.above()).isSolid()) {
+		// Out of the mud first: it would stop the leap dead. Unless something was built on top of it.
+		if (!roofed) {
 			setPos(getX(), pos.getY() + 1.0, getZ());
 		}
 		noTargetTicks = 0;

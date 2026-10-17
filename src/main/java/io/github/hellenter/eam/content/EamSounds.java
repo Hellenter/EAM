@@ -20,6 +20,8 @@ public final class EamSounds {
 	public static final SoundEvent KOSCHEI_ORANGE_CUE = register("entity.koschei.orange_cue");
 	/** A flock of ravens bursting up in a flurry of wing beats where Koschei vanishes. */
 	public static final SoundEvent KOSCHEI_RAVENS = register("entity.koschei.ravens");
+	/** The hoarse, hollow caw of one of the phantom ravens Koschei calls up. */
+	public static final SoundEvent KOSCHEI_RAVEN_CAW = register("entity.koschei_raven.caw");
 
 	/** The wight's rare rasping breath while it stalks unseen. */
 	public static final SoundEvent WIGHT_AMBIENT = register("entity.wight.ambient");
