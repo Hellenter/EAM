@@ -1140,11 +1140,12 @@ final class UnderworldWorldgen {
 		}
 	}
 
-	/** Decorations and springs keep out of duergar village pieces, which are built before them. */
+	/** Ores, decorations and springs keep out of duergar village pieces, which are built before them. */
 	private static void register(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature,
 			List<PlacementModifier> modifiers) {
 		GenerationStep.Decoration step = ORDER.get(key);
-		if (step == GenerationStep.Decoration.VEGETAL_DECORATION || step == GenerationStep.Decoration.FLUID_SPRINGS) {
+		if (step == GenerationStep.Decoration.UNDERGROUND_ORES || step == GenerationStep.Decoration.VEGETAL_DECORATION
+				|| step == GenerationStep.Decoration.FLUID_SPRINGS) {
 			List<PlacementModifier> all = new ArrayList<>(modifiers);
 			all.add(new OutsideStructureFilter(DuergarVillage.VILLAGES));
 			modifiers = all;
