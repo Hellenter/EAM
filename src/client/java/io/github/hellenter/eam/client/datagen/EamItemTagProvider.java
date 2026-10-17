@@ -238,6 +238,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.addTag(CraftingTags.MATERIAL_TIERS.get(4))
 				.addOptionalTag(ItemTags.METAL_NUGGETS)
 				.addAll(keys(EamItems.SILVER_NUGGET, EamItems.MITHRIL_NUGGET, EamItems.ADAMANTIUM_NUGGET, EamItems.ANCIENT_METAL_NUGGET, Items.GOLD_INGOT, Items.GOLD_NUGGET, Items.IRON_NUGGET, Items.COPPER_NUGGET));
+		builder(ItemTags.WOODEN_FENCES).addAll(keys(EamItems.STRIPPED_POPLAR_FENCE));
 		// A saw in the table speeds up crafting these: wooden things and decorative blocks.
 		builder(CraftingTags.SAW_RESULTS)
 				.addOptionalTag(ItemTags.PLANKS)

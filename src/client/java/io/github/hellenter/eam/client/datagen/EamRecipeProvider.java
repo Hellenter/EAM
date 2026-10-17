@@ -231,6 +231,15 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				// Like a fence, but of stripped logs: the posts of the underworld mines' supports.
+				shaped(RecipeCategory.DECORATIONS, EamItems.STRIPPED_POPLAR_FENCE, 3)
+						.define('L', Items.STRIPPED_POPLAR_LOG)
+						.define('S', Items.STICK)
+						.pattern("LSL")
+						.pattern("LSL")
+						.unlockedBy(getHasName(Items.STRIPPED_POPLAR_LOG), has(Items.STRIPPED_POPLAR_LOG))
+						.save(output);
+
 				// A trough of planks under a rack of sticks.
 				shaped(RecipeCategory.DECORATIONS, EamItems.FEEDER)
 						.define('P', ItemTags.PLANKS)

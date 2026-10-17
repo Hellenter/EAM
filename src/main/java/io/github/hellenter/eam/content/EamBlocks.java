@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.HugeMushroomBlock;
@@ -315,6 +316,9 @@ public final class EamBlocks {
 	/** Wild garlic bush in forests: the only source of garlic bulbs before the first harvest. */
 	public static final Block WILD_GARLIC = register("wild_garlic", p -> new BushBlock(p, 10), plant().replaceable()
 			.offsetType(BlockBehaviour.OffsetType.XZ));
+	/** A fence of stripped poplar: the thin posts of the underworld mines' timber supports. */
+	public static final Block STRIPPED_POPLAR_FENCE = register("stripped_poplar_fence", FenceBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(Blocks.POPLAR_FENCE));
 
 	private EamBlocks() {
 	}
@@ -324,6 +328,7 @@ public final class EamBlocks {
 		FlammableBlockRegistry.getDefaultInstance().add(DENSE_SHRUB, 30, 60);
 		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_LEAVES, 30, 60);
 		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_STEM, 5, 5);
+		FlammableBlockRegistry.getDefaultInstance().add(STRIPPED_POPLAR_FENCE, 5, 20);
 		HOLLOW_LOGS.forEach((log, hollow) -> {
 			if (log != Blocks.CRIMSON_STEM && log != Blocks.WARPED_STEM) {
 				FlammableBlockRegistry.getDefaultInstance().add(hollow, 5, 5);

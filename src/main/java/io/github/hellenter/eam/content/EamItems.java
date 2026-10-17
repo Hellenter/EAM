@@ -500,6 +500,7 @@ public final class EamItems {
 			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1))
 			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
 	public static final Item WILD_GARLIC = plantItem("wild_garlic", EamBlocks.WILD_GARLIC, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item STRIPPED_POPLAR_FENCE = blockItem("stripped_poplar_fence", EamBlocks.STRIPPED_POPLAR_FENCE);
 	public static final Item SHELF_MUSHROOM = plantItem("shelf_mushroom", EamBlocks.SHELF_MUSHROOM, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
 			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();
