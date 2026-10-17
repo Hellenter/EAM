@@ -93,7 +93,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.GROUND_STICK.builtInRegistryHolder().key(),
 				EamBlocks.SIEVE.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
-				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key());
+				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key(), EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
+		builder(BlockTags.WOODEN_FENCES).add(EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
 
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(),
 				EamBlocks.LARGE_FRIDGE.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),

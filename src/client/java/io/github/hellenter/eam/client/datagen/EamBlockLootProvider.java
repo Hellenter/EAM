@@ -100,6 +100,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		}
 		addNetherVinesDropTable(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT);
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
+		dropSelf(EamBlocks.STRIPPED_POPLAR_FENCE);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
 		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,
 				LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))))

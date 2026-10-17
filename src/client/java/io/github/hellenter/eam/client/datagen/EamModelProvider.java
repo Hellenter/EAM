@@ -27,6 +27,7 @@ import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
@@ -57,6 +58,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);
+		generators.new BlockFamilyProvider(TextureMapping.cube(Blocks.STRIPPED_POPLAR_LOG)).fence(EamBlocks.STRIPPED_POPLAR_FENCE);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);

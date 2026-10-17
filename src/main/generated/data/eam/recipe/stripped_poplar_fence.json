@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "L": "minecraft:stripped_poplar_log",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "LSL",
+    "LSL"
+  ],
+  "result": {
+    "count": 3,
+    "id": "eam:stripped_poplar_fence"
+  }
+}

@@ -333,6 +333,7 @@ public final class EamLanguageProviders {
 					BuiltInRegistries.BLOCK.getKey(hollow).getPath().split("_"))
 					.map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1)).collect(Collectors.joining(" "))));
 			builder.add(EamBlocks.FIREWEED, "Fireweed");
+			builder.add(EamBlocks.STRIPPED_POPLAR_FENCE, "Stripped Poplar Fence");
 			builder.add(EamBlocks.MARSH_MARIGOLD, "Marsh Marigold");
 			builder.add("biome.eam.swampy_forest", "Swampy Forest");
 			builder.add("biome.eam.swampy_lakes", "Swampy Forest Lakes");
@@ -1001,6 +1002,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.CRANBERRY, "Клюква");
 			builder.add(EamItems.WOLFBERRY, "Волчья ягода");
 			builder.add(EamBlocks.SHELF_MUSHROOM, "Трутовик");
+			builder.add(EamBlocks.STRIPPED_POPLAR_FENCE, "Забор из ошкуренного тополя");
 			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.OAK_LOG), "Пустое дубовое бревно");
 			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.SPRUCE_LOG), "Пустое еловое бревно");
 			builder.add(EamBlocks.HOLLOW_LOGS.get(Blocks.BIRCH_LOG), "Пустое берёзовое бревно");
