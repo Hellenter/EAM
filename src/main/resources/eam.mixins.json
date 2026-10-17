@@ -67,6 +67,7 @@
 		"world.enchanting.EnchantmentMenuAccessor",
 		"world.enchanting.EnchantmentMenuShelvesMixin",
 		"world.farming.AgeableMobMixin",
+		"world.farming.BlockStatePlaceMixin",
 		"world.farming.CropBlockMixin",
 		"world.farming.PitcherCropBlockMixin",
 		"world.farming.StemBlockMixin",

@@ -2060,7 +2060,10 @@ public class FallenLord extends Monster {
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (parrying != null) {
-			parried(level, parrying);
+			// Only a hit that lands parries: not one swallowed by hurt frames, nor the killing blow.
+			if (hurt && isAlive()) {
+				parried(level, parrying);
+			}
 			return hurt;
 		}
 		if (hurt && action == FallenLordAction.DRINK && source.getEntity() instanceof Player player) {

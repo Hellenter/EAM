@@ -825,7 +825,7 @@ public class PillagerKing extends Monster implements AxeThrower {
 			damage *= penalty.multiplier(settings().combo().parryMultiplier(), penalized);
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
-		if (parry && isAlive() && action != KingAction.TOTEM) {
+		if (parry && hurt && isAlive() && action != KingAction.TOTEM) {
 			parried(level, (Player) source.getEntity());
 		}
 		return hurt;

@@ -18,6 +18,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.AbstractBedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
  * A player sleeps through the night only in a safe room: closed, walled with blocks mobs cannot break (planks are
@@ -76,6 +77,10 @@ public final class SafeRoomModule {
 				return Cell.OPEN;
 			}
 			BlockState state = level.getBlockState(pos);
+			// An open door, trapdoor or gate lets mobs through, whatever its collision box says.
+			if (state.hasProperty(BlockStateProperties.OPEN) && state.getValue(BlockStateProperties.OPEN)) {
+				return Cell.OPEN;
+			}
 			if (state.is(BlockTags.DOORS)) {
 				return Cell.DOOR;
 			}

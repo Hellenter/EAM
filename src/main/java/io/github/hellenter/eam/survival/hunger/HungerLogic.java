@@ -85,11 +85,13 @@ public final class HungerLogic {
 		boolean pointSpent = false;
 		if (exhaustion > perPoint) {
 			exhaustion -= perPoint;
-			pointSpent = true;
+			// Peaceful never takes food, so nothing was spent and nutrients must not drain either.
 			if (saturation > 0.0F) {
 				saturation = Math.max(saturation - 1.0F, 0.0F);
+				pointSpent = true;
 			} else if (!context.peaceful()) {
 				food = Math.max(food - 1, 0);
+				pointSpent = true;
 			}
 		}
 

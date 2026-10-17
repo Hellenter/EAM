@@ -68,6 +68,7 @@ class HungerLogicTest {
 	void peacefulNeverDrainsFood() {
 		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 4.0F, 0), new TickContext(20, false, true, true, false, false, Deficiencies.NONE), RULES);
 		assertEquals(10, result.state().food());
+		assertFalse(result.pointSpent(), "nutrients drained in peaceful");
 	}
 
 	@Test
