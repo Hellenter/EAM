@@ -14,6 +14,7 @@ import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 import io.github.hellenter.eam.content.swamp.DuckweedBlock;
 import io.github.hellenter.eam.content.swamp.HollowLogBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -82,7 +83,13 @@ public class EamModelProvider extends FabricModelProvider {
 		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_CAP, "_cracked", "_ashy", "_charred");
 		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_STEM, "_cracked", "_ashy");
 		generators.createMushroomBlock(EamBlocks.SMOLDERING_MUSHROOM_CAP);
-		generators.createGrowingPlant(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
+		// The tip shows its bright caps while ripe; cut, it is a bare dim thread.
+		MultiVariant ripeTip = BlockModelGenerators.plainVariant(generators.createSuffixedVariant(EamBlocks.GLOWSHROOM_VINES, "", ModelTemplates.CROSS, TextureMapping::cross));
+		MultiVariant bareTip = BlockModelGenerators.plainVariant(generators.createSuffixedVariant(EamBlocks.GLOWSHROOM_VINES, "_bare", ModelTemplates.CROSS, TextureMapping::cross));
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(EamBlocks.GLOWSHROOM_VINES)
+				.with(BlockModelGenerators.createBooleanModelDispatch(GlowshroomVinesBlock.RIPE, ripeTip, bareTip)));
+		generators.createCrossBlock(EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.createTrivialCube(EamBlocks.GLOWSHROOM_LAMP);
 		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
 		generators.createHorizontallyRotatedBlock(EamBlocks.SMALL_FRIDGE, TexturedModel.ORIENTABLE);
@@ -621,6 +628,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.GLOWSHROOM, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,

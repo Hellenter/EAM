@@ -26,6 +26,7 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
@@ -201,7 +202,7 @@ public final class EamBlocks {
 			.noCollision()
 			.instabreak()
 			.sound(SoundType.WEEPING_VINES)
-			.lightLevel(state -> 10)
+			.lightLevel(state -> GlowshroomLogic.light(state.getValue(GlowshroomVinesBlock.RIPE)))
 			.pushReaction(PushReaction.POPPED));
 	public static final Block GLOWSHROOM_VINES_PLANT = register("glowshroom_vines_plant", GlowshroomVinesPlantBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_CYAN)
@@ -210,6 +211,12 @@ public final class EamBlocks {
 			.sound(SoundType.WEEPING_VINES)
 			.lightLevel(state -> 5)
 			.pushReaction(PushReaction.POPPED));
+	/** Glowshroom caps packed behind glass: a steady light that rain does not put out. */
+	public static final Block GLOWSHROOM_LAMP = register("glowshroom_lamp", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.strength(1.0F)
+			.sound(SoundType.SHROOMLIGHT)
+			.lightLevel(state -> 13));
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),

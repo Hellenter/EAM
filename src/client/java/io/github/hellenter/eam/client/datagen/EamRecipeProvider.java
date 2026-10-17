@@ -231,6 +231,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				// Glowshroom caps packed around a pane of glass: a light rain does not put out.
+				shaped(RecipeCategory.DECORATIONS, EamItems.GLOWSHROOM_LAMP)
+						.define('G', EamItems.GLOWSHROOM)
+						.define('X', Items.GLASS)
+						.pattern(" G ")
+						.pattern("GXG")
+						.pattern(" G ")
+						.unlockedBy(getHasName(EamItems.GLOWSHROOM), has(EamItems.GLOWSHROOM))
+						.save(output);
+
 				// Like a fence, but of stripped logs: the posts of the underworld mines' supports.
 				shaped(RecipeCategory.DECORATIONS, EamItems.STRIPPED_POPLAR_FENCE, 3)
 						.define('L', Items.STRIPPED_POPLAR_LOG)

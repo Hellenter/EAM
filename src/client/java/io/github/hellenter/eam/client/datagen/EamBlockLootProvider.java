@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.swamp.BerryShrub;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -58,6 +59,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 				.add(applyExplosionDecay(block, LootItem.lootTableItem(berry).apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, max)))));
 	}
 
+	/** Vanilla's nether vines table: the vine item to shears or silk touch, else a third of the time (more with fortune). */
+	private LootTable.Builder glowshroomVines() {
+		return createSilkTouchOrShearsDispatchTable(EamBlocks.GLOWSHROOM_VINES, LootItem.lootTableItem(EamBlocks.GLOWSHROOM_VINES)
+				.when(BonusLevelTableCondition.bonusLevelFlatChance(enchantments.getOrThrow(Enchantments.FORTUNE), 0.33F, 0.55F, 0.77F, 1.0F)));
+	}
+
 	@Override
 	public void generate() {
 		dropSelf(EamBlocks.PEBBLE);
@@ -98,7 +105,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 			add(burnt, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
 					LootItem.lootTableItem(EamItems.ASH).when(LootItemRandomChanceCondition.randomChance(0.3F)))));
 		}
-		addNetherVinesDropTable(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT);
+		// Glowshroom vines drop like weeping vines; a ripe tip also lets fall one of its caps.
+		add(EamBlocks.GLOWSHROOM_VINES_PLANT, glowshroomVines());
+		add(EamBlocks.GLOWSHROOM_VINES, glowshroomVines().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
+				.when(matches(EamBlocks.GLOWSHROOM_VINES, StatePropertiesPredicate.Builder.properties().hasProperty(GlowshroomVinesBlock.RIPE, true)))
+				.add(applyExplosionDecay(EamBlocks.GLOWSHROOM_VINES, LootItem.lootTableItem(EamItems.GLOWSHROOM)))));
+		dropSelf(EamBlocks.GLOWSHROOM_LAMP);
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
 		dropSelf(EamBlocks.STRIPPED_POPLAR_FENCE);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
