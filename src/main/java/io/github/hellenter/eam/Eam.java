@@ -47,6 +47,7 @@ import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerButcherModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerClericModule;
@@ -146,6 +147,7 @@ public class Eam implements ModInitializer {
 		FridgeModule.register();
 		BlockBreakingModule.register();
 		RunningModule.register();
+		NoiseModule.register();
 		MonsterEvolutionModule.register();
 		CowDefenseModule.register();
 		PredatorModule.register();
@@ -191,6 +193,7 @@ public class Eam implements ModInitializer {
 		if (config.thirst()) ThirstModule.init();
 		if (config.stackSizes()) StackSizeModule.init();
 		if (config.mining()) HandBreakingModule.init();
+		if (config.mobs() && config.mobNoise()) NoiseModule.init();
 		if (config.mobs() && config.mobBlockBreaking()) BlockBreakingModule.init();
 		if (config.mobs()) ThroughLeavesModule.init();
 		if (config.mobs()) SwampLurkerModule.init();
