@@ -14,6 +14,7 @@ import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
@@ -731,6 +732,9 @@ public final class EamLanguageProviders {
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Richer Harvest Under a Blue Moon");
 			builder.add(PredatorModule.HUNTERS, "Hunt Livestock at Night");
 			builder.add(PredatorModule.RAIDERS, "Raid Open Pens at Night");
+			builder.add(NemesisModule.EXCLUDED, "Never Become a Nemesis");
+			builder.add("eam.nemesis.name", "%s, Slayer of %s");
+			builder.add("eam.nemesis.took", "%s takes your %s");
 			builder.add("itemGroup.eam.survival", "EAM: Survival");
 			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
 			builder.add("itemGroup.eam.tools", "EAM: Tools");
@@ -1428,6 +1432,9 @@ public final class EamLanguageProviders {
 			builder.add(BlueMoonModule.HARVEST_ITEMS, "Богатый урожай под голубой луной");
 			builder.add(PredatorModule.HUNTERS, "Охотятся на скот ночью");
 			builder.add(PredatorModule.RAIDERS, "Нападают ночью на открытые загоны");
+			builder.add(NemesisModule.EXCLUDED, "Не становятся мстителями");
+			builder.add("eam.nemesis.name", "%s, убийца %s");
+			builder.add("eam.nemesis.took", "%s забирает: %s");
 			builder.add("itemGroup.eam.survival", "EAM: Выживание");
 			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
 			builder.add("itemGroup.eam.tools", "EAM: Инструменты");

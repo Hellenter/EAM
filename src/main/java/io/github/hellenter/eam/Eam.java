@@ -45,6 +45,7 @@ import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
@@ -150,6 +151,7 @@ public class Eam implements ModInitializer {
 		RunningModule.register();
 		NoiseModule.register();
 		MonsterEvolutionModule.register();
+		NemesisModule.register();
 		CowDefenseModule.register();
 		PredatorModule.register();
 		EarlyToolsModule.register();
@@ -212,6 +214,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.monsterEvolution()) MonsterEvolutionModule.init();
+		if (config.mobs() && config.nemesis()) NemesisModule.init();
 		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();

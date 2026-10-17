@@ -68,10 +68,11 @@ public record EamConfig(
 		boolean villagerButcher,
 		boolean villagerCleric,
 		boolean villagerElder,
-		boolean mobNoise
+		boolean mobNoise,
+		boolean nemesis
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -111,7 +112,7 @@ public record EamConfig(
 	private record LastFlags(boolean talismanPortal, boolean arrowRecovery, boolean underworld, boolean livestockFeeding,
 			boolean monsterEvolution, boolean blueMoon, boolean foodSpoilage,
 			boolean rainDousesFires, boolean villagerGear, boolean villagerGuards, boolean villagerRepair, boolean villagerFood, boolean villagerButcher, boolean villagerCleric, boolean villagerElder,
-			boolean mobNoise) {
+			ExtraFlags extra) {
 		private static final MapCodec<LastFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("talisman_portal", DEFAULT.talismanPortal).forGetter(LastFlags::talismanPortal),
 				Codec.BOOL.optionalFieldOf("arrow_recovery", DEFAULT.arrowRecovery).forGetter(LastFlags::arrowRecovery),
@@ -128,12 +129,24 @@ public record EamConfig(
 				Codec.BOOL.optionalFieldOf("villager_butcher", DEFAULT.villagerButcher).forGetter(LastFlags::villagerButcher),
 				Codec.BOOL.optionalFieldOf("villager_cleric", DEFAULT.villagerCleric).forGetter(LastFlags::villagerCleric),
 				Codec.BOOL.optionalFieldOf("villager_elder", DEFAULT.villagerElder).forGetter(LastFlags::villagerElder),
-				Codec.BOOL.optionalFieldOf("mob_noise", DEFAULT.mobNoise).forGetter(LastFlags::mobNoise)
+				ExtraFlags.CODEC.forGetter(LastFlags::extra)
 		).apply(instance, LastFlags::new));
 
 		private static LastFlags of(EamConfig config) {
 			return new LastFlags(config.talismanPortal, config.arrowRecovery, config.underworld, config.livestockFeeding,
-					config.monsterEvolution, config.blueMoon, config.foodSpoilage, config.rainDousesFires, config.villagerGear, config.villagerGuards, config.villagerRepair, config.villagerFood, config.villagerButcher, config.villagerCleric, config.villagerElder, config.mobNoise);
+					config.monsterEvolution, config.blueMoon, config.foodSpoilage, config.rainDousesFires, config.villagerGear, config.villagerGuards, config.villagerRepair, config.villagerFood, config.villagerButcher, config.villagerCleric, config.villagerElder, ExtraFlags.of(config));
+		}
+	}
+
+	/** The fourth map codec, nested in {@link LastFlags} for flags after {@code villager_elder}: add new flags here. */
+	private record ExtraFlags(boolean mobNoise, boolean nemesis) {
+		private static final MapCodec<ExtraFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Codec.BOOL.optionalFieldOf("mob_noise", DEFAULT.mobNoise).forGetter(ExtraFlags::mobNoise),
+				Codec.BOOL.optionalFieldOf("nemesis", DEFAULT.nemesis).forGetter(ExtraFlags::nemesis)
+		).apply(instance, ExtraFlags::new));
+
+		private static ExtraFlags of(EamConfig config) {
+			return new ExtraFlags(config.mobNoise, config.nemesis);
 		}
 	}
 
@@ -161,7 +174,7 @@ public record EamConfig(
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
 			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding, last.monsterEvolution, last.blueMoon,
-			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.mobNoise)));
+			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.extra.mobNoise, last.extra.nemesis)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
