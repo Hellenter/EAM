@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -170,5 +171,9 @@ public final class NemesisModule {
 		}
 		killer.setItemSlot(slot, trophy);
 		killer.setGuaranteedDrop(slot);
+		// A skeleton that swaps bow and blade would stow the trophy where it never drops: it keeps to the trophy instead.
+		if (slot == EquipmentSlot.MAINHAND) {
+			killer.removeAttached(MonsterEvolutionModule.STOWED_WEAPON);
+		}
 	}
 }
