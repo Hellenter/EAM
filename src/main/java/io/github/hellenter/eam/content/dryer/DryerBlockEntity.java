@@ -58,6 +58,7 @@ public class DryerBlockEntity extends BlockEntity {
 		boolean wet = level.isRainingAt(pos.above());
 		boolean checkSpoiling = level.getGameTime() % SPOIL_INTERVAL == 0;
 		boolean itemsChanged = false;
+		boolean dried = false;
 
 		for (int slot = 0; slot < SLOTS; slot++) {
 			ItemStack stack = dryer.items.get(slot);
@@ -79,7 +80,9 @@ public class DryerBlockEntity extends BlockEntity {
 			if (!DryerLogic.canDry(stack.is(DryerModule.DRYABLE), stack.has(SpoilageModule.DRIED))) {
 				continue;
 			}
-			dryer.progress[slot] = DryerLogic.advance(dryer.progress[slot], wet);
+			int before = dryer.progress[slot];
+			dryer.progress[slot] = DryerLogic.advance(before, wet);
+			dried |= dryer.progress[slot] != before;
 			if (DryerLogic.done(dryer.progress[slot], settings)) {
 				dryer.items.set(slot, SpoilageModule.dry(stack, now, settings.water()));
 				dryer.progress[slot] = 0;
@@ -87,7 +90,10 @@ public class DryerBlockEntity extends BlockEntity {
 			}
 		}
 
-		setChanged(level, pos, state);
+		// An empty rack, or one with only dried food or in the rain, has nothing new to save.
+		if (dried || itemsChanged) {
+			setChanged(level, pos, state);
+		}
 		if (itemsChanged) {
 			level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
 			level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(state));
