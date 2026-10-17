@@ -193,6 +193,7 @@
     "radius": 100.0,
     "lightning_odds": 120,
     "lightning_reach": 60.0,
-    "lost_ticks": 3600
+    "lost_ticks": 3600,
+    "hut_wake_radius": 8.0
   }
 }
