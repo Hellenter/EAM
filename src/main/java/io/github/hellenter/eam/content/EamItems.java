@@ -116,6 +116,8 @@ public final class EamItems {
 	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
+	public static final Item FOOD_DRYER = blockItem("food_dryer", EamBlocks.FOOD_DRYER);
+
 	public static final Item UNLIT_TORCH = register("unlit_torch",
 			p -> new StandingAndWallBlockItem(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH, Direction.DOWN, p),
 			new Item.Properties().useBlockDescriptionPrefix());
