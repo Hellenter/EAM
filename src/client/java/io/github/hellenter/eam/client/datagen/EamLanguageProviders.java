@@ -184,6 +184,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.filtered_leather_flask", "Leather Flask with Charcoal Filter");
 			builder.add("item.eam.filtered_glass_flask", "Glass Flask with Charcoal-Silver Filter");
 			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Bottle of Boiled Water");
+			builder.add("item.minecraft.potion.effect.eam.rain_water", "Bottle of Rain Water");
 			builder.add("item.eam.raw_water", "Raw water: boil it before drinking");
 			builder.add("item.eam.flask.water", "Water: %s/%s");
 			builder.add("item.eam.flask.filter", "Filter: %s/%s");
@@ -865,6 +866,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.filtered_leather_flask", "Кожаная фляга с угольным фильтром");
 			builder.add("item.eam.filtered_glass_flask", "Стеклянная фляга с угольно-серебряным фильтром");
 			builder.add("item.minecraft.potion.effect.eam.boiled_water", "Бутылка кипячёной воды");
+			builder.add("item.minecraft.potion.effect.eam.rain_water", "Бутылка дождевой воды");
 			builder.add("item.eam.raw_water", "Сырая вода: вскипятите перед питьём");
 			builder.add("item.eam.flask.water", "Вода: %s/%s");
 			builder.add("item.eam.flask.filter", "Фильтр: %s/%s");
