@@ -61,6 +61,14 @@ public final class DuergarVillageLogic {
 		return column.applyAsInt(y - 1) == AIR && column.applyAsInt(y - 2) == AIR;
 	}
 
+	/**
+	 * Whether something standing on {@code y} is dug into the ground: the two blocks above it are rock, so the cave floor
+	 * around it stands at least two blocks higher and walls it in.
+	 */
+	public static boolean buried(IntUnaryOperator column, int y) {
+		return column.applyAsInt(y + 1) == SOLID && column.applyAsInt(y + 2) == SOLID;
+	}
+
 	/** The middle of the values (the lower middle for an even count). */
 	public static int median(int[] values) {
 		int[] sorted = values.clone();
