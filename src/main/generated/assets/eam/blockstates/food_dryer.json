@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "eam:block/food_dryer",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "eam:block/food_dryer",
+      "y": 180
+    },
+    "facing=south": {
       "model": "eam:block/food_dryer"
+    },
+    "facing=west": {
+      "model": "eam:block/food_dryer",
+      "y": 90
     }
   }
 }
