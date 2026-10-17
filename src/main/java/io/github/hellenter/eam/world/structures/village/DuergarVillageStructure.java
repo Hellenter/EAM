@@ -37,7 +37,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSetting
  * A duergar village: a jigsaw village that stands on the floor of a cave instead of at a random height. It looks for a
  * wide enough stretch of floor near its chunk, builds the village there, then sets every piece down onto the floor
  * under it, at most {@code max_step} blocks above or below the piece it joins, so the streets climb and fall with the
- * cave like a surface village's paths. A site where too many pieces would hang over open air is given up.
+ * cave like a surface village's paths. Where the floor rises faster than that, the street stops at the foot of the rise
+ * rather than tunnel on under it. A site where too many pieces would hang over open air is given up.
  */
 public class DuergarVillageStructure extends Structure {
 	public static final MapCodec<DuergarVillageStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -54,7 +55,7 @@ public class DuergarVillageStructure extends Structure {
 
 	/** How far above or below its expected height a piece looks for the floor. */
 	private static final int SEARCH = 6;
-	/** How many sites are tried before the village is given up for this placement. */
+	/** How many sites are tried; the one that keeps the most pieces is built. */
 	private static final int TRIES = 3;
 	/** How far apart the columns tried as the village's centre are. */
 	private static final int GRID = 8;
@@ -91,6 +92,8 @@ public class DuergarVillageStructure extends Structure {
 		Columns columns = new Columns(context);
 		List<BlockPos> sites = sites(context, columns);
 		RandomSource random = context.random();
+		Settled best = null;
+		BlockPos bestPosition = null;
 		for (int i = 0; i < TRIES && !sites.isEmpty(); i++) {
 			BlockPos site = sites.remove(random.nextInt(Math.min(sites.size(), 4)));
 			Optional<GenerationStub> stub = JigsawPlacement.addPieces(context, startPool, Optional.empty(), size, site, false,
@@ -99,17 +102,18 @@ public class DuergarVillageStructure extends Structure {
 			if (stub.isEmpty()) {
 				continue;
 			}
-			StructurePiecesBuilder builder = stub.get().getPiecesBuilder();
-			List<StructurePiece> pieces = new ArrayList<>(builder.build().pieces());
-			int[] moves = settle(pieces, columns);
-			if (moves == null) {
-				continue;
+			Settled village = settle(stub.get().getPiecesBuilder().build().pieces(), columns);
+			if (village != null && (best == null || village.pieces().size() > best.pieces().size())) {
+				best = village;
+				bestPosition = stub.get().position();
 			}
-			StructurePiecesBuilder settled = new StructurePiecesBuilder();
-			pieces.forEach(settled::addPiece);
-			return Optional.of(new GenerationStub(stub.get().position().above(moves[0]), Either.right(settled)));
 		}
-		return Optional.empty();
+		if (best == null) {
+			return Optional.empty();
+		}
+		StructurePiecesBuilder settled = new StructurePiecesBuilder();
+		best.pieces().forEach(settled::addPiece);
+		return Optional.of(new GenerationStub(bestPosition.above(best.startMove()), Either.right(settled)));
 	}
 
 	/**
@@ -150,16 +154,24 @@ public class DuergarVillageStructure extends Structure {
 	}
 
 	/**
-	 * Moves each piece down or up onto the floor under it, and returns how far each moved; {@code null} when too many
-	 * of them would still hang in the air.
+	 * Moves each piece down or up onto the floor under it. A piece the floor still walls in after its step (the cave
+	 * floor rises faster than the streets may climb) is left out together with everything joined on beyond it, so a
+	 * street ends at the foot of the rise instead of running on under the ground. {@code null} when too many pieces
+	 * would hang in the air or fewer than a third are left.
 	 */
-	private int[] settle(List<StructurePiece> pieces, Columns columns) {
-		int n = pieces.size();
+	private Settled settle(List<StructurePiece> all, Columns columns) {
+		int n = all.size();
 		int[] moves = new int[n];
+		boolean[] dropped = new boolean[n];
 		int hanging = 0;
+		int kept = 0;
 		for (int i = 0; i < n; i++) {
-			BoundingBox box = pieces.get(i).getBoundingBox();
-			int parent = parent(pieces, i);
+			BoundingBox box = all.get(i).getBoundingBox();
+			int parent = parent(all, i);
+			if (parent >= 0 && dropped[parent]) {
+				dropped[i] = true;
+				continue;
+			}
 			int base = parent < 0 ? 0 : moves[parent];
 			int[][] samples = samples(box);
 			int[] found = new int[samples.length];
@@ -173,36 +185,57 @@ public class DuergarVillageStructure extends Structure {
 			int wanted = count == 0 ? base : DuergarVillageLogic.median(Arrays.copyOf(found, count));
 			moves[i] = parent < 0 ? wanted : DuergarVillageLogic.step(wanted, base, maxStep);
 			int over = 0;
+			int under = 0;
 			for (int[] sample : samples) {
-				if (DuergarVillageLogic.hangs(columns.at(sample[0], sample[1]), box.minY() + moves[i])) {
+				IntUnaryOperator column = columns.at(sample[0], sample[1]);
+				if (DuergarVillageLogic.hangs(column, box.minY() + moves[i])) {
 					over++;
 				}
+				if (DuergarVillageLogic.buried(column, box.minY() + moves[i])) {
+					under++;
+				}
 			}
+			if (parent >= 0 && under * 2 > samples.length) {
+				dropped[i] = true;
+				continue;
+			}
+			kept++;
 			if (over * 2 > samples.length) {
 				hanging++;
 			}
 		}
-		if (hanging > maxHanging * n) {
+		if (hanging > maxHanging * kept || kept * 3 < n) {
 			return null;
 		}
+		List<StructurePiece> pieces = new ArrayList<>();
 		for (int i = 0; i < n; i++) {
-			pieces.get(i).move(0, moves[i], 0);
+			if (!dropped[i]) {
+				all.get(i).move(0, moves[i], 0);
+				pieces.add(all.get(i));
+			}
 		}
-		// The joins between pieces smooth the ground (terrain adaptation); keep them at the pieces' new heights.
+		// The joins between pieces smooth the ground (terrain adaptation); keep them at the pieces' new heights, and
+		// forget the joins into pieces that were left out.
 		for (StructurePiece piece : pieces) {
 			if (piece instanceof PoolElementStructurePiece pool) {
 				List<JigsawJunction> junctions = pool.getJunctions();
-				for (int j = 0; j < junctions.size(); j++) {
+				for (int j = junctions.size() - 1; j >= 0; j--) {
 					JigsawJunction junction = junctions.get(j);
-					int target = containing(pieces, junction.getSourceX(), junction.getSourceZ(), piece);
-					if (target >= 0 && moves[target] != 0) {
+					int target = containing(all, junction.getSourceX(), junction.getSourceZ(), piece);
+					if (target >= 0 && dropped[target]) {
+						junctions.remove(j);
+					} else if (target >= 0 && moves[target] != 0) {
 						junctions.set(j, new JigsawJunction(junction.getSourceX(), junction.getSourceGroundY() + moves[target],
 								junction.getSourceZ(), junction.getDeltaY(), junction.getDestProjection()));
 					}
 				}
 			}
 		}
-		return moves;
+		return new Settled(pieces, moves[0]);
+	}
+
+	/** The pieces that stay, set down onto the floor, and how far the first one moved. */
+	private record Settled(List<StructurePiece> pieces, int startMove) {
 	}
 
 	/** The piece this one was joined to: the earlier piece with a junction pointing into it. */
