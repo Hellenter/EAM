@@ -69,6 +69,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		ServerLevel serverLevel = (ServerLevel) level;
 		CampFireSettings settings = CampFireModule.settings();
 		boolean itemsChanged = false;
+		int sticks = state.getValue(CampFireBlock.STICKS);
 
 		for (int slot = 0; slot < SLOTS; slot++) {
 			ItemStack stack = fire.items.get(slot);
@@ -76,7 +77,7 @@ public class CampFireBlockEntity extends BlockEntity {
 				continue;
 			}
 			fire.progress[slot]++;
-			switch (CampFireLogic.foodStep(fire.cooked[slot], fire.progress[slot], settings)) {
+			switch (CampFireLogic.foodStep(fire.cooked[slot], fire.progress[slot], settings, sticks)) {
 				case COOK -> {
 					SingleRecipeInput input = new SingleRecipeInput(stack);
 					ItemStack result = serverLevel.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, input, serverLevel)
