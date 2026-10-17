@@ -8,9 +8,11 @@ import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.world.level.MoonPhase;
 
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SkyRenderer.class)
@@ -22,5 +24,16 @@ abstract class SkyRendererMixin {
 			state.skyColor = BloodMoonSky.skyColor(state.skyColor);
 			state.moonPhase = MoonPhase.FULL_MOON;
 		}
+	}
+
+	/** A blood moon is red. */
+	@ModifyArg(
+			method = "renderMoon",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/renderer/DynamicGpuData;writeTransform(Lorg/joml/Matrix4f;Lorg/joml/Vector4f;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"),
+			index = 1)
+	private Vector4f eam$redMoon(Vector4f color) {
+		return BloodMoonSky.moonColor(color);
 	}
 }

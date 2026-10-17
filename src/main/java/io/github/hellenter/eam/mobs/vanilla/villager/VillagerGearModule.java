@@ -21,6 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.sounds.SoundEvents;
@@ -190,7 +191,8 @@ public final class VillagerGearModule {
 
 	/**
 	 * Vanilla shows a trade or bone meal in the villager's hand ({@code stack}), and clears it after with an empty stack:
-	 * the real item is put aside meanwhile and comes back after.
+	 * the real item is put aside meanwhile and comes back after. Vanilla also clears the hand when there is nothing to
+	 * show and nothing was shown; then the hand holds the real item, which stays.
 	 */
 	public static void showInHand(Villager villager, ItemStack stack) {
 		if (!enabled) {
@@ -199,12 +201,28 @@ public final class VillagerGearModule {
 		}
 		if (stack.isEmpty()) {
 			ItemStack aside = villager.removeAttached(HELD_ASIDE);
-			villager.setItemSlot(EquipmentSlot.MAINHAND, aside != null ? aside : ItemStack.EMPTY);
+			if (aside != null) villager.setItemSlot(EquipmentSlot.MAINHAND, aside);
 			resetHand(villager);
 			return;
 		}
 		if (!villager.hasAttached(HELD_ASIDE)) villager.setAttached(HELD_ASIDE, villager.getMainHandItem());
 		villager.setItemSlot(EquipmentSlot.MAINHAND, stack);
+	}
+
+	/**
+	 * Whether the villager's brain runs this tick: not while a player has his inventory open, so he does not walk off
+	 * from the player or swap what is in his hands; he stands and looks at the player instead.
+	 */
+	public static boolean thinks(Villager villager) {
+		if (!enabled || !(villager.level() instanceof ServerLevel level)) return true;
+		for (ServerPlayer player : level.players()) {
+			if (player.containerMenu instanceof VillagerGearMenu menu && menu.villager() == villager) {
+				villager.getNavigation().stop();
+				villager.getLookControl().setLookAt(player);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** After something a player gave the villager wore: a broken main hand item gives way to the work item. */
