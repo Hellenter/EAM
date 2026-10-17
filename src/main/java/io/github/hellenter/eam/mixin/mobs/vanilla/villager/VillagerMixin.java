@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * A villager who takes up a trade gets its work item; now and then his gear gets mended and his trade feeds the
- * village; a guard's brain waits while he fights.
+ * village; his brain waits while he fights as a guard or a player has his inventory open.
  */
 @Mixin(Villager.class)
 abstract class VillagerMixin {
@@ -37,7 +37,8 @@ abstract class VillagerMixin {
 	@WrapOperation(method = "customServerAiStep", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/ai/Brain;tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;)V"))
 	private void eam$waitWhileFighting(Brain<?> brain, ServerLevel level, LivingEntity body, Operation<Void> original) {
-		if (VillagerGuardModule.thinks((Villager) (Object) this)) original.call(brain, level, body);
+		Villager villager = (Villager) (Object) this;
+		if (VillagerGuardModule.thinks(villager) && VillagerGearModule.thinks(villager)) original.call(brain, level, body);
 	}
 
 	@Inject(method = "customServerAiStep", at = @At("HEAD"))

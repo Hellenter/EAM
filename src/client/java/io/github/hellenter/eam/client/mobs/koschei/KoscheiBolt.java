@@ -34,8 +34,8 @@ final class KoscheiBolt {
 	private KoscheiBolt() {
 	}
 
-	/** The full bolt from {@code from} to {@code to}, grown {@code growth} of the way. */
-	static void submit(PoseStack poseStack, SubmitNodeCollector collector, Vec3 from, Vec3 to, long seed, float growth) {
+	/** The full bolt from {@code from} to {@code to}, grown {@code growth} of the way, with arcs over the target if {@code arcs}. */
+	static void submit(PoseStack poseStack, SubmitNodeCollector collector, Vec3 from, Vec3 to, long seed, float growth, boolean arcs) {
 		RandomSource random = RandomSource.create(seed);
 		List<Vec3> trunk = path(from, to, TRUNK_DEPTH, 0.12, random);
 		int shown = Math.max(1, Math.round((trunk.size() - 1) * Math.clamp(growth, 0.0F, 1.0F)));
@@ -54,7 +54,7 @@ final class KoscheiBolt {
 			double forkLength = length * (0.12 + random.nextDouble() * 0.18);
 			pieces.add(path(start, start.add(dir.scale(forkLength)), BRANCH_DEPTH, 0.18, random));
 		}
-		if (growth >= 1.0F) {
+		if (arcs && growth >= 1.0F) {
 			// Arcs crawling over the target.
 			for (int i = 0; i < 3; i++) {
 				Vec3 dir = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).normalize();

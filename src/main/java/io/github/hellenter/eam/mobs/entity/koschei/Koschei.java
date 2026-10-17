@@ -56,11 +56,13 @@ import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
@@ -99,6 +101,8 @@ public class Koschei extends Monster {
 	};
 	/** His lunge just knocked a shield out: a hit now parries him. The client lights his eyes yellow. */
 	private static final EntityDataAccessor<Boolean> DATA_PARRY_OPEN = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
+	/** The overhead blow under way lost its parry: the player kept clicking at him while he raised it. No yellow eyes then. */
+	private static final EntityDataAccessor<Boolean> DATA_PARRY_LOST = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
 	/** Where the blow he turns aside comes at him, packed by {@link #packGuard}; the client holds the sword there. */
 	private static final EntityDataAccessor<Integer> DATA_GUARD = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT);
 	/** Hits further than this flat distance past their reach still land, for a moving target. */
@@ -123,6 +127,12 @@ public class Koschei extends Monster {
 	private static final double OVERHEAD_WALK_SPEED = 0.2;
 	/** The kick's step in stops this close to the target. */
 	private static final double KICK_STOP = 1.4;
+	/** A dash round to the target's side or back lands this far from it. */
+	private static final double FLANK_DISTANCE = 2.2;
+	/** And this far round from where it faces, at least and at most, degrees. */
+	private static final float FLANK_MIN_ANGLE = 80.0F;
+	private static final float FLANK_MAX_ANGLE = 160.0F;
+	private static final double FLANK_LIFT = 0.15;
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
 			BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
@@ -139,6 +149,18 @@ public class Koschei extends Monster {
 	private int hopCooldown;
 	/** Speed of the hop under way, blocks per tick. */
 	private double hopSpeed;
+	/** The hop under way is aimed at a spot: it stops there instead of coasting on. */
+	private boolean hopAimed;
+	private int flankCooldown;
+	/** The hop under way is a dash round the target: the blow follows as soon as he lands. */
+	private boolean flankStrike;
+	/** Ticks his bolt has been ready with a target about and not cast. */
+	private int boltHunger;
+	/** Whose shield he last knocked out, and the game time it is ready again. */
+	private @Nullable UUID shieldDownOf;
+	private long shieldBackAt;
+	/** Hits a player landed on him while he raised the overhead blow under way. */
+	private int windupHits;
 	private int teleportCooldown;
 	/** Damage he took lately: when and how much, oldest first. */
 	private final ArrayDeque<Hit> recentHits = new ArrayDeque<>();
@@ -196,6 +218,7 @@ public class Koschei extends Monster {
 			builder.define(slot, -1);
 		}
 		builder.define(DATA_PARRY_OPEN, false);
+		builder.define(DATA_PARRY_LOST, false);
 		builder.define(DATA_GUARD, packGuard(0.6F, 0.0F));
 	}
 
@@ -272,6 +295,11 @@ public class Koschei extends Monster {
 	/** Client: whether a hit now parries him, after his lunge knocked a shield out. */
 	public boolean parryOpen() {
 		return entityData.get(DATA_PARRY_OPEN);
+	}
+
+	/** Client: the overhead blow under way can't be parried any more, the player clicked at him through its windup. */
+	public boolean parryLost() {
+		return entityData.get(DATA_PARRY_LOST);
 	}
 
 	/** Client: how high the blow he turns aside comes at him, 0 at his feet to 1 at the top of his head. */
@@ -375,6 +403,10 @@ public class Koschei extends Monster {
 			if (cooldowns[i] > 0) cooldowns[i]--;
 		}
 		if (hopCooldown > 0) hopCooldown--;
+		if (flankCooldown > 0) flankCooldown--;
+		if (getTarget() != null && cooldowns[Attack.BOLT.ordinal()] <= 0) {
+			boltHunger++;
+		}
 		if (parryPlayer != null && level.getGameTime() > parryUntil) {
 			closeParry();
 		}
@@ -435,6 +467,7 @@ public class Koschei extends Monster {
 			}
 			case BOLT -> {
 				cooldowns[attack.ordinal()] = one.bolt().cooldown();
+				boltHunger = 0;
 				boltLanded.clear();
 				clearBolt();
 				setAction(KoscheiAction.BOLT);
@@ -455,7 +488,9 @@ public class Koschei extends Monster {
 	private void setAction(KoscheiAction next) {
 		action = next;
 		actionTicks = 0;
+		windupHits = 0;
 		entityData.set(DATA_ACTION, (byte) next.ordinal());
+		entityData.set(DATA_PARRY_LOST, false);
 	}
 
 	private void endAction() {
@@ -476,10 +511,11 @@ public class Koschei extends Monster {
 				actionTarget = target;
 				cooldowns[Attack.FORCE.ordinal()] = phaseOne().force().cooldown();
 				setAction(KoscheiAction.FORCE);
-			} else if (ended == KoscheiAction.TELEPORT) {
-				// Behind the target: the next blow comes at once.
+			} else if (ended == KoscheiAction.TELEPORT || ended == KoscheiAction.HOP && flankStrike) {
+				// Behind the target or at its side: the next blow comes at once.
 				idleTicks = settings().stats().attackPause();
 			}
+			flankStrike = false;
 			return;
 		}
 		boolean free = action == KoscheiAction.STAGGER || action == KoscheiAction.PARRY_ARROW || action == KoscheiAction.BLOCK
@@ -497,7 +533,7 @@ public class Koschei extends Monster {
 		}
 		KoscheiSettings.PhaseOne one = phaseOne();
 		int parryStart = action.parryStart(parryWindow(action));
-		if (t == parryStart && parryStart >= 0) {
+		if (t == parryStart && parryStart >= 0 && !entityData.get(DATA_PARRY_LOST)) {
 			// A bright ping: the moment to parry him.
 			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 0.9F);
 		}
@@ -554,7 +590,11 @@ public class Koschei extends Monster {
 			}
 			case HOP -> {
 				if (t < HOP_PUSH_TICKS && !horizontalCollision) {
-					setDeltaMovement(rushDirection.x * hopSpeed, t == 0 ? HOP_LIFT : getDeltaMovement().y, rushDirection.z * hopSpeed);
+					double lift = flankStrike ? FLANK_LIFT : HOP_LIFT;
+					setDeltaMovement(rushDirection.x * hopSpeed, t == 0 ? lift : getDeltaMovement().y, rushDirection.z * hopSpeed);
+				} else if (t == HOP_PUSH_TICKS && hopAimed) {
+					// At the spot it was aimed at: no coasting past it.
+					setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
 				}
 			}
 			default -> {
@@ -928,11 +968,16 @@ public class Koschei extends Monster {
 	}
 
 	private void hop(Vec3 direction, @Nullable LivingEntity target, double speed) {
+		hop(direction, target, speed, false);
+	}
+
+	private void hop(Vec3 direction, @Nullable LivingEntity target, double speed, boolean aimed) {
 		if (!onGround() || direction.lengthSqr() < 1.0E-6) {
 			return;
 		}
 		hopCooldown = settings().hop().cooldown();
 		hopSpeed = speed;
+		hopAimed = aimed;
 		rushDirection = direction.normalize();
 		actionTarget = target;
 		setAction(KoscheiAction.HOP);
@@ -954,8 +999,51 @@ public class Koschei extends Monster {
 		double length = KoscheiLogic.hopInLength(horizontalDistanceTo(target), hop.inMin(), hop.inMax(), random.nextDouble());
 		if (length > 0.0) {
 			getNavigation().stop();
-			hop(horizontal(target.position().subtract(position())), target, length / HOP_PUSH_TICKS);
+			hop(horizontal(target.position().subtract(position())), target, length / HOP_PUSH_TICKS, true);
 		}
+	}
+
+	/** He knocked {@code target}'s shield out and it is not about to be ready again: the bolt waits. */
+	boolean boltBlocked(LivingEntity target) {
+		return target.getUUID().equals(shieldDownOf)
+				&& KoscheiLogic.boltBlocked(level().getGameTime(), shieldBackAt, phaseOne().bolt().shieldBack());
+	}
+
+	/** His bolt has been ready a long while without a cast. */
+	boolean boltHungry() {
+		return boltHunger >= phaseOne().bolt().hungerTicks();
+	}
+
+	boolean flankReady() {
+		return flankCooldown <= 0 && onGround();
+	}
+
+	/**
+	 * A quick low dash round to the target's side or back, where a raised shield does not cover, and the blow comes as soon
+	 * as he lands. False when there is no room for it there.
+	 */
+	boolean flankDash(LivingEntity target) {
+		if (!(level() instanceof ServerLevel level) || !flankReady()) {
+			return false;
+		}
+		flankCooldown = settings().hop().flankCooldown();
+		float side = random.nextBoolean() ? 1.0F : -1.0F;
+		float angle = target.getYHeadRot() + side * Mth.lerp(random.nextFloat(), FLANK_MIN_ANGLE, FLANK_MAX_ANGLE);
+		Vec3 spot = findStandingSpot(level, target.position().add(Vec3.directionFromRotation(0.0F, angle).scale(FLANK_DISTANCE)));
+		if (spot == null) {
+			return false;
+		}
+		Vec3 way = spot.subtract(position());
+		double length = Math.sqrt(way.x * way.x + way.z * way.z);
+		Vec3 from = position().add(0.0, 1.0, 0.0);
+		if (length < 1.0 || level.clip(new ClipContext(from, spot.add(0.0, 1.0, 0.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
+				.getType() != HitResult.Type.MISS) {
+			return false;
+		}
+		getNavigation().stop();
+		hop(horizontal(way), target, length / HOP_PUSH_TICKS, true);
+		flankStrike = action == KoscheiAction.HOP;
+		return flankStrike;
 	}
 
 	private void leapBack(Vec3 from) {
@@ -1001,6 +1089,8 @@ public class Koschei extends Monster {
 			return;
 		}
 		blocks.disable(level, target, seconds, shield);
+		shieldDownOf = target.getUUID();
+		shieldBackAt = level.getGameTime() + Math.round(seconds * 20.0F);
 		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.8F);
 	}
 
@@ -1069,7 +1159,13 @@ public class Koschei extends Monster {
 		if (melee && attacker instanceof Player player) {
 			ParryPenalty penalty = BossParry.penalty();
 			boolean penalized = parryStreak.penalized(player.getUUID(), level.getGameTime(), penalty);
-			if (KoscheiLogic.parries(action, actionTicks - 1, penalty.window(parryWindow(action), penalized))) {
+			int window = penalty.window(parryWindow(action), penalized);
+			if (action == KoscheiAction.OVERHEAD && actionTicks - 1 < action.parryStart(window)
+					&& KoscheiLogic.windupSpammed(++windupHits, phaseOne().parry().windupHits())) {
+				// Clicking at him all through the windup: this blow can't be parried.
+				entityData.set(DATA_PARRY_LOST, true);
+			}
+			if (!entityData.get(DATA_PARRY_LOST) && KoscheiLogic.parries(action, actionTicks - 1, window)) {
 				float hit = damage * penalty.multiplier(phaseOne().parry().multiplier(), penalized);
 				boolean hurt = super.hurtServer(level, source, resisted(source, hit));
 				if (isAlive()) {
@@ -1133,6 +1229,7 @@ public class Koschei extends Monster {
 	private void parried(ServerLevel level, Player player) {
 		parryStreak.parried(player.getUUID(), level.getGameTime());
 		// As with the Fallen Lord: a shield he knocked out is ready again at once.
+		shieldDownOf = null;
 		for (ItemStack held : new ItemStack[] {player.getMainHandItem(), player.getOffhandItem()}) {
 			if (held.has(DataComponents.BLOCKS_ATTACKS)) {
 				player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(held));
