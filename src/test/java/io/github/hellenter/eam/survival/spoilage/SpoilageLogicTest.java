@@ -97,4 +97,15 @@ class SpoilageLogicTest {
 		// A time past the lifetime (a datapack shortened it) is capped.
 		assertEquals(List.of(50 * DAY), SpoilageLogic.dried(List.of(40 * DAY), 0, 10 * DAY, 5.0));
 	}
+
+	@Test
+	void iceLastsAThirdShorterInHeatAndLongerInTheCold() {
+		SpoilageSettings.Climate climate = SpoilageSettings.Climate.DEFAULT;
+		assertEquals(1.0, climate.factor(0.8F, false));
+		assertEquals(0.67, climate.factor(2.0F, false));
+		assertEquals(1.33, climate.factor(0.0F, false));
+		assertEquals(1.33, climate.factor(0.8F, true));
+		assertEquals(1.33, climate.factor(-0.5F, true));
+		assertEquals(0.67 * 1.33, climate.factor(2.0F, true), 1.0E-9);
+	}
 }
