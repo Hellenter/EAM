@@ -26,7 +26,8 @@ import org.jspecify.annotations.Nullable;
 public class DuckweedBlock extends LilyPadBlock implements SegmentableBlock {
 	public static final int MAX_COVERAGE = 4;
 	public static final IntegerProperty COVERAGE = IntegerProperty.create("coverage", 1, MAX_COVERAGE);
-	private static final VoxelShape SHAPE = Block.column(16.0, 0.0, 1.0);
+	/** Follows the sheet, which lies on the water surface 16/9 pixels below the block (still water is 8/9 high). */
+	private static final VoxelShape SHAPE = Block.column(16.0, -1.7, -0.7);
 
 	public DuckweedBlock(BlockBehaviour.Properties properties) {
 		super(properties);
