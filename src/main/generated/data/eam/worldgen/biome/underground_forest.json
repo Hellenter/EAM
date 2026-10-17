@@ -40,7 +40,7 @@
         "particle": {
           "type": "minecraft:glow"
         },
-        "probability": 0.004
+        "probability": 0.0015
       }
     ],
     "minecraft:visual/fog_color": "#122e28",

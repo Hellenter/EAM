@@ -3,6 +3,7 @@
   "biomes": "#eam:has_structure/duergar_village_mushroom",
   "floor_max_y": 150,
   "floor_min_y": 58,
+  "foundation": "minecraft:dirt",
   "size": 6,
   "spawn_overrides": {
     "monster": {

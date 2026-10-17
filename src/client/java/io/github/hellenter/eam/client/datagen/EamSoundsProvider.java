@@ -15,6 +15,9 @@ import java.util.concurrent.CompletableFuture;
 
 /** {@code sounds.json}: our sound events, their files and subtitles. */
 public class EamSoundsProvider extends FabricSoundsProvider {
+	/** Scales every underworld ambience volume below; Maxim found the first mix too loud (2026-10-17: 70% quieter). */
+	private static final float AMBIENCE_VOLUME = 0.3F;
+
 	public EamSoundsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
@@ -94,7 +97,7 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 
 		exporter.add(EamSounds.UNDERWORLD_LAVA_CAVES_LOOP, SoundTypeBuilder.of(EamSounds.UNDERWORLD_LAVA_CAVES_LOOP)
 				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace("ambient/nether/basalt_deltas/ambience"))
-						.pitch(0.8F).volume(0.7F).stream(true)));
+						.pitch(0.8F).volume(0.7F * AMBIENCE_VOLUME).stream(true)));
 		exporter.add(EamSounds.UNDERWORLD_LAVA_CAVES_ADDITIONS, SoundTypeBuilder.of(EamSounds.UNDERWORLD_LAVA_CAVES_ADDITIONS)
 				.sound(vanilla("liquid/lavapop", 0.8F, 0.5F, 4))
 				.sound(vanilla("ambient/nether/basalt_deltas/basaltground1", 0.7F, 0.4F, 2))
@@ -143,11 +146,11 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 
 	private static SoundTypeBuilder loop(SoundEvent event, String file, float volume, float pitch) {
 		return SoundTypeBuilder.of(event).sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("ambient/underworld/" + file))
-				.volume(volume).pitch(pitch).stream(true));
+				.volume(volume * AMBIENCE_VOLUME).pitch(pitch).stream(true));
 	}
 
 	private static SoundTypeBuilder.RegistrationBuilder vanilla(String file, float pitch, float volume, int weight) {
-		return SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file)).pitch(pitch).volume(volume).weight(weight);
+		return SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file)).pitch(pitch).volume(volume * AMBIENCE_VOLUME).weight(weight);
 	}
 
 	private static SoundTypeBuilder wight(SoundEvent event, String name, String file, int files, float pitch, float volume) {
