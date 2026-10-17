@@ -15,22 +15,15 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
- * The rest of the time they glow a cold pale blue. His lightning is drawn here, from the sword's point to the target.
+ * The rest of the time they glow a cold pale blue. His lightning is drawn by {@link KoscheiBolts}.
  */
 public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderState, KoscheiModel> {
 	/** The model is 2 blocks tall. */
@@ -66,7 +59,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		float t = state.actionTime;
 		int window = parryWindow(state.action);
 		int parryStart = state.action.parryStart(window);
-		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd();
+		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd() && !koschei.parryLost();
 		state.eyes = parry ? KoscheiRenderState.Eyes.YELLOW
 				: state.action == KoscheiAction.TELEPORT ? KoscheiRenderState.Eyes.WARP : KoscheiRenderState.Eyes.GLOW;
 		state.guardHeight = koschei.guardHeight();
@@ -82,18 +75,6 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		double dx = koschei.getX() - koschei.xo;
 		double dz = koschei.getZ() - koschei.zo;
 		state.dash = Math.clamp(((float) Math.sqrt(dx * dx + dz * dz) - 0.25F) / 0.35F, 0.0F, 1.0F);
-		// The bolt: sparks at the point while he aims, then the lightning to the target.
-		boolean aiming = state.action == KoscheiAction.BOLT && t >= 8.0F && t < KoscheiAction.BOLT_END;
-		state.boltFrom = aiming ? Koschei.swordTipOffset(state.bodyRot, koschei.getBbHeight()) : null;
-		List<Vec3> to = new ArrayList<>();
-		if (aiming) {
-			for (Entity target : koschei.boltTargets()) {
-				to.add(target.getPosition(partialTicks).add(0.0, target.getBbHeight() * 0.55, 0.0).subtract(koschei.getPosition(partialTicks)));
-			}
-		}
-		state.boltTo = to;
-		state.boltSeed = koschei.getId() * 341873128712L + (long) Math.floor(state.ageInTicks / 2.0F);
-		state.boltGrowth = (t - KoscheiAction.BOLT_RELEASE) / 3.0F;
 	}
 
 	private static int parryWindow(KoscheiAction action) {
@@ -102,31 +83,6 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 			case OVERHEAD -> KoscheiModule.settings().phaseOne().overhead().parryWindow();
 			default -> 0;
 		};
-	}
-
-	@Override
-	protected AABB getBoundingBoxForCulling(Koschei koschei, float partialTicks) {
-		AABB box = super.getBoundingBoxForCulling(koschei, partialTicks);
-		for (Entity target : koschei.boltTargets()) {
-			box = box.minmax(target.getBoundingBox());
-		}
-		return box;
-	}
-
-	@Override
-	public void submit(KoscheiRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
-		super.submit(state, poseStack, collector, camera);
-		if (state.boltFrom == null) {
-			return;
-		}
-		if (!state.boltTo.isEmpty()) {
-			for (int i = 0; i < state.boltTo.size(); i++) {
-				// Each bolt its own shape.
-				KoscheiBolt.submit(poseStack, collector, state.boltFrom, state.boltTo.get(i), state.boltSeed + i * 7919L, state.boltGrowth);
-			}
-		} else if (state.actionTime < KoscheiAction.BOLT_RELEASE) {
-			KoscheiBolt.submitSparks(poseStack, collector, state.boltFrom, state.boltSeed);
-		}
 	}
 
 	@Override

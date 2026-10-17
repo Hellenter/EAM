@@ -46,14 +46,30 @@ public final class KoscheiLogic {
 	 */
 	public static Choice choose(double distance, boolean shieldReady, int shieldTicks, int lungeFails, int[] cooldowns, @Nullable Attack last,
 			KoscheiSettings.PhaseOne settings, DoubleSupplier rolls) {
+		return choose(distance, shieldReady, shieldTicks, lungeFails, cooldowns, last, false, false, settings, rolls);
+	}
+
+	/**
+	 * As above, with the bolt held back or wanted.
+	 *
+	 * @param boltBlocked he knocked the target's shield out and it is not about to be ready again: no bolt yet
+	 * @param boltHungry  the bolt has been ready a long while without a cast: he leaves raised shields alone (no orange
+	 *                    blow, no lunge or kick into one) and shoots more often and from closer
+	 */
+	public static Choice choose(double distance, boolean shieldReady, int shieldTicks, int lungeFails, int[] cooldowns, @Nullable Attack last,
+			boolean boltBlocked, boolean boltHungry, KoscheiSettings.PhaseOne settings, DoubleSupplier rolls) {
 		KoscheiSettings.Bolt bolt = settings.bolt();
 		// The bolt is his rare pool: never from close by.
-		if (cooldowns[Attack.BOLT.ordinal()] <= 0 && distance >= bolt.minRange() && distance <= bolt.maxRange()
-				&& rolls.getAsDouble() < bolt.chance()) {
+		double boltMin = boltHungry ? Math.min(bolt.minRange(), bolt.hungerMinRange()) : bolt.minRange();
+		double boltChance = boltHungry ? bolt.chance() * bolt.hungerChance() : bolt.chance();
+		if (!boltBlocked && cooldowns[Attack.BOLT.ordinal()] <= 0 && distance >= boltMin && distance <= bolt.maxRange()
+				&& rolls.getAsDouble() < boltChance) {
 			return new Choice(Attack.BOLT, false);
 		}
+		// Hungry for the bolt, he leaves a raised shield standing.
+		boolean spareShield = boltHungry && shieldReady;
 		KoscheiSettings.Lunge lunge = settings.lunge();
-		boolean lungeReady = cooldowns[Attack.LUNGE.ordinal()] <= 0;
+		boolean lungeReady = cooldowns[Attack.LUNGE.ordinal()] <= 0 && !spareShield;
 		if (distance > settings.reach()) {
 			if (lungeReady && distance >= lunge.minRange() && distance <= lunge.maxRange() && rolls.getAsDouble() < lunge.chance()) {
 				return new Choice(Attack.LUNGE, false);
@@ -61,7 +77,7 @@ public final class KoscheiLogic {
 			return Choice.WALK;
 		}
 		KoscheiSettings.Kick kick = settings.kick();
-		boolean kickReady = cooldowns[Attack.KICK.ordinal()] <= 0 && distance <= kick.reach();
+		boolean kickReady = cooldowns[Attack.KICK.ordinal()] <= 0 && distance <= kick.reach() && !spareShield;
 		if (kickReady && shieldTicks >= kick.shieldTicks()) {
 			// Up close behind a raised shield: he kicks it aside.
 			return new Choice(Attack.KICK, false);
@@ -74,7 +90,7 @@ public final class KoscheiLogic {
 		}
 		// A lunge he would take here fails: the target is inside its range. He cuts instead.
 		boolean failed = lungeReady && distance < lunge.minRange() && rolls.getAsDouble() < lunge.chance();
-		return new Choice(melee(shieldReady, kickReady, cooldowns, last, settings, rolls), failed);
+		return new Choice(melee(shieldReady && !boltHungry, kickReady, cooldowns, last, settings, rolls), failed);
 	}
 
 	/** One of his blows for a target in reach, picked by weight; the kick only for a target close enough for it. */
@@ -173,5 +189,15 @@ public final class KoscheiLogic {
 		double low = Math.min(min, max);
 		double length = Math.min(low + roll * (Math.max(min, max) - low), distance - HOP_IN_GAP);
 		return length >= low ? length : 0.0;
+	}
+
+	/** Whether the bolt waits at {@code now}: a shield he knocked out is ready at {@code back}, more than {@code lead} ticks off. */
+	public static boolean boltBlocked(long now, long back, int lead) {
+		return now < back - lead;
+	}
+
+	/** Whether the {@code hits}-th hit during the overhead windup is one too many: then the blow can't be parried. */
+	public static boolean windupSpammed(int hits, int allowed) {
+		return hits > allowed;
 	}
 }

@@ -79,8 +79,16 @@ final class KoscheiFightGoal extends Goal {
 				koschei.hopAround(target);
 				return;
 			}
+			float flankChance = settings.hop().flankChance() * (inReach ? 1.0F : 0.2F);
+			if (distance <= settings.hop().flankRange() && koschei.flankReady() && koschei.getRandom().nextFloat() < flankChance
+					&& koschei.flankDash(target)) {
+				// Round to its side or back, and the blow follows on landing.
+				koschei.getMoveControl().strafe(0.0F, 0.0F);
+				return;
+			}
 			Choice choice = KoscheiLogic.choose(distance, Koschei.shieldReady(target), koschei.shieldTicks(target), koschei.lungeFails(),
-					koschei.cooldowns(), koschei.lastAttack(), one, koschei.getRandom()::nextDouble);
+					koschei.cooldowns(), koschei.lastAttack(), koschei.boltBlocked(target), koschei.boltHungry(), one,
+					koschei.getRandom()::nextDouble);
 			if (choice.lungeFailed()) {
 				koschei.lungeFailed();
 			}
