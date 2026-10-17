@@ -769,9 +769,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);
 		// The same talisman with its crystal glowing, shown while it lights a portal.
 		ModelTemplates.FLAT_ITEM.create(TALISMAN_GLOWING_MODEL, TextureMapping.layer0(new Material(TALISMAN_GLOWING_MODEL)), generators.modelOutput);
-		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
-		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
-		generators.generateBow(EamItems.SLINGSHOT);
+		SlingshotModels.generate(generators);
 	}
 
 	/**
