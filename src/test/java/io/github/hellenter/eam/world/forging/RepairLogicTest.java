@@ -33,4 +33,15 @@ class RepairLogicTest {
 		assertEquals(1, RepairLogic.itemsUsed(144, perIngot, 5));
 		assertEquals(144, RepairLogic.repaired(144, perIngot, 1));
 	}
+
+	@Test
+	void pickaxeTakesFourNuggets() {
+		int max = 250;
+		int damage = max * 3 / 4;
+		float perNugget = RepairLogic.perNugget(max, 3, true);
+		assertEquals(4, RepairLogic.itemsUsed(damage, perNugget, 64));
+		assertEquals(damage, RepairLogic.repaired(damage, perNugget, 4));
+		// Armor keeps one nugget per ingot.
+		assertEquals(8, RepairLogic.nuggetsForShare(8, false));
+	}
 }
