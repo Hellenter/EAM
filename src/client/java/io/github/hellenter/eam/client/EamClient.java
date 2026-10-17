@@ -135,6 +135,7 @@ public class EamClient implements ClientModInitializer {
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_STRENGTH, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_ABSORPTION, BuffIconParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(EamParticles.YAGA_SPEED, BuffIconParticle.Provider::new);
+		ParticleProviderRegistry.getInstance().register(EamParticles.DIZZY_STAR, BuffIconParticle.Provider::new);
 		registerYagaFx(EamParticles.YAGA_FEATHER, YagaFxParticle.Style.FEATHER);
 		registerYagaFx(EamParticles.YAGA_WISP, YagaFxParticle.Style.WISP);
 		registerYagaFx(EamParticles.YAGA_TOXIC, YagaFxParticle.Style.TOXIC);
