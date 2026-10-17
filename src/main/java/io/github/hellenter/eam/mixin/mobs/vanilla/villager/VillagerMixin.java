@@ -48,5 +48,6 @@ abstract class VillagerMixin {
 		VillagerButcherModule.tick((Villager) (Object) this, level);
 		VillagerClericModule.tick((Villager) (Object) this, level);
 		VillagerElderModule.tick((Villager) (Object) this, level);
+		VillagerGuardModule.tick((Villager) (Object) this, level);
 	}
 }
