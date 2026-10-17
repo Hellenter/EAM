@@ -34,12 +34,24 @@ public final class CampFireLogic {
 	 * for {@code ashTicks} more turns to ash. {@code progress} counts from the last change of stage.
 	 */
 	public static FoodStep foodStep(int stage, int progress, CampFireSettings settings) {
+		return foodStep(stage, progress, settings, 1);
+	}
+
+	/** As {@link #foodStep(int, int, CampFireSettings)} on a fire of {@code sticks}: more sticks cook raw food faster. */
+	public static FoodStep foodStep(int stage, int progress, CampFireSettings settings, int sticks) {
 		return switch (stage) {
-			case RAW -> progress >= settings.cookTicks() ? FoodStep.COOK : FoodStep.WAIT;
+			case RAW -> progress >= cookTicks(sticks, settings) ? FoodStep.COOK : FoodStep.WAIT;
 			case COOKED -> progress >= settings.burnTicks() ? FoodStep.BURN : FoodStep.WAIT;
 			case BURNT -> progress >= settings.ashTicks() ? FoodStep.ASH : FoodStep.WAIT;
 			default -> FoodStep.WAIT;
 		};
+	}
+
+	/** Ticks raw food takes to cook on a fire of {@code sticks}: {@code cookTicks} on one stick, up to {@code maxCookBonus} faster on a full fire. */
+	public static int cookTicks(int sticks, CampFireSettings settings) {
+		int extra = Math.clamp(sticks - 1, 0, CampFireBlock.MAX_STICKS - 1);
+		float speed = 1.0F + settings.maxCookBonus() * extra / (CampFireBlock.MAX_STICKS - 1);
+		return Math.round(settings.cookTicks() / speed);
 	}
 
 	/** Which food an empty hand takes first: cooked, then burnt, then ash, raw food last. */

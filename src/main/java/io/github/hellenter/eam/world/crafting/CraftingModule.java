@@ -33,8 +33,9 @@ import org.jspecify.annotations.Nullable;
  * a crafting table at {@link CraftTimeRules#craftingTableMultiplier()}) the ingredients are used up and the result
  * waits in the slot; the next craft follows while the grid still makes it. The crafter block is not touched.
  * The crafting table needs a knife in one of its three tool slots, which also take saws and hammers and keep them in
- * the table between uses; tools are not used up but make crafting faster. Crafting with metal needs a knife of the tier
- * below it in the table, so the inventory grid cannot craft with metal at all ({@link CraftingTierLogic}).
+ * the table between uses; they make crafting faster, and those below iron wear a point per craft they help. Crafting
+ * with metal needs a knife of the tier below it in the table, so the inventory grid cannot craft with metal at all
+ * ({@link CraftingTierLogic}).
  */
 public final class CraftingModule {
 	private static final Component CRAFTING_TITLE = Component.translatable("container.crafting");
@@ -197,6 +198,9 @@ public final class CraftingModule {
 				output.grow(crafted.getCount());
 			} else {
 				AbstractContainerMenuAccessor.eam$dropOrPlaceInInventory(player, crafted.copy());
+			}
+			if (menu instanceof CraftingTableMenu table && !player.hasInfiniteMaterials()) {
+				table.wearTools(player, crafted, rules.wearFreeTier());
 			}
 			// Vanilla take: stats, recipe unlocks, ingredients used up, remainders; the grid is evaluated again.
 			((ResultSlotAccessor) slot).eam$setRemoveCount(crafted.getCount());

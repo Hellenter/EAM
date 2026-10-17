@@ -49,4 +49,13 @@ class CraftingTierLogicTest {
 		assertEquals(0.75F, bonus, 1e-6);
 		assertEquals(1.0F / 1.75F, CraftingTierLogic.timeFactor(bonus), 1e-6);
 	}
+
+	@Test
+	void onlyToolsBelowIronWear() {
+		assertFalse(CraftingTierLogic.wears(0, 3));
+		assertTrue(CraftingTierLogic.wears(1, 3));
+		assertTrue(CraftingTierLogic.wears(2, 3));
+		assertFalse(CraftingTierLogic.wears(3, 3));
+		assertFalse(CraftingTierLogic.wears(5, 3));
+	}
 }
