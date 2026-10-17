@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
@@ -9,6 +10,7 @@ import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
@@ -91,10 +93,13 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.PEBBLE.builtInRegistryHolder().key(),
 				EamBlocks.FLINT_SHARD.builtInRegistryHolder().key(),
 				EamBlocks.GROUND_STICK.builtInRegistryHolder().key(),
-				EamBlocks.SIEVE.builtInRegistryHolder().key());
-		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
+				EamBlocks.SIEVE.builtInRegistryHolder().key(),
+				EamBlocks.FOOD_DRYER.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FOOD_DRYER.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
 				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key(), EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
 		builder(BlockTags.WOODEN_FENCES).add(EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
+		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
+		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(),
 				EamBlocks.LARGE_FRIDGE.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
@@ -102,6 +107,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
 		// Like copper ore and the iron block: a copper pickaxe or better.
 		// Our anvils are anvils: the menu accepts them, they fall and hurt like the vanilla one.
+		builder(FridgeModule.CHILLERS).add(BlockItemIds.SNOW, BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.ICE, BlockItemIds.PACKED_ICE,
+				BlockItemIds.BLUE_ICE);
 		builder(BlockTags.ANVIL).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(), EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
@@ -202,6 +209,8 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.CHANTERELLE_STEM.builtInRegistryHolder().key(), EamBlocks.CHAMPIGNON_CAP.builtInRegistryHolder().key(),
 				EamBlocks.GLOWING_CHAMPIGNON_CAP.builtInRegistryHolder().key());
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.BURNT_MUSHROOM_CAP.builtInRegistryHolder().key(), EamBlocks.BURNT_MUSHROOM_STEM.builtInRegistryHolder().key(), EamBlocks.SMOLDERING_MUSHROOM_CAP.builtInRegistryHolder().key());
+		// A player caught in a crossbowman's net tears it by hand, slowly; a sword or shears cut it at once.
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.NET.builtInRegistryHolder().key());
 		builder(BlockTags.CLIMBABLE).add(EamBlocks.GLOWSHROOM_VINES.builtInRegistryHolder().key(), EamBlocks.GLOWSHROOM_VINES_PLANT.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());

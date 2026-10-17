@@ -4,6 +4,7 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.dryer.DryerBlock;
 import io.github.hellenter.eam.content.torch.UnlitTorchBlock;
 import io.github.hellenter.eam.content.torch.UnlitWallTorchBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
@@ -30,6 +31,7 @@ import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
+import io.github.hellenter.eam.mobs.vanilla.evolution.SpiderWebBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -79,6 +81,15 @@ public final class EamBlocks {
 			.lightLevel(state -> state.getValue(CampFireBlock.LIT) ? 15 : 0)
 			.noOcclusion()
 			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** A wooden rack food dries on; see {@link DryerBlock}. */
+	public static final Block FOOD_DRYER = register("food_dryer", DryerBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.strength(1.0F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava()
 			.pushReaction(PushReaction.POPPED));
 
 	/** A torch the rain has put out; see {@link UnlitTorchBlock}. */
@@ -344,6 +355,16 @@ public final class EamBlocks {
 			.noCollision()
 			.requiresCorrectToolForDrops()
 			.strength(2.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** An evolved spider's web: holds like cobweb and falls apart after a few seconds; see {@link SpiderWebBlock}. */
+	public static final Block SPIDER_WEB = register("spider_web", SpiderWebBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOL)
+			.sound(SoundType.COBWEB)
+			.forceSolidOn()
+			.noCollision()
+			.strength(1.0F)
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
 

@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.DizzyStars;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
@@ -157,6 +158,8 @@ public class BabaYaga extends Monster {
 	private int spellCooldown;
 	private int glyphCooldown;
 	private int castGap;
+	/** Ticks left stunned by her own flask sent back at her: she only flies, starting no attack. */
+	private int dazed;
 	/** Ticks until she raises the next wave, or -1 while one is out. */
 	private int nextWave = -1;
 	/** The later sub-waves of the current wave's groups, still to rise, and ticks until the next of them do. */
@@ -517,6 +520,10 @@ public class BabaYaga extends Monster {
 		if (summonCooldown > 0) summonCooldown--;
 		if (escapeCooldown > 0) escapeCooldown--;
 		if (eatCooldown > 0) eatCooldown--;
+		if (dazed > 0) {
+			dazed--;
+			DizzyStars.show(level, this);
+		}
 		for (int i = 0; i < attackCooldowns.length; i++) {
 			if (attackCooldowns[i] > 0) attackCooldowns[i]--;
 		}
@@ -677,6 +684,9 @@ public class BabaYaga extends Monster {
 		flyTowards(orbitPoint(target, settings.flight().orbitRadius()), settings.flight().speed());
 		getLookControl().setLookAt(target, 30.0F, 30.0F);
 		faceTowards(target);
+		if (dazed > 0) {
+			return;
+		}
 
 		boolean waveOut = nextWave < 0;
 		if (!waveOut) {
@@ -719,7 +729,7 @@ public class BabaYaga extends Monster {
 		idleTicks++;
 		getLookControl().setLookAt(target, 30.0F, 30.0F);
 		keepDistance(target, settings.phaseTwo());
-		if (idleTicks < settings.phaseTwo().attackPause()) {
+		if (dazed > 0 || idleTicks < settings.phaseTwo().attackPause()) {
 			return;
 		}
 		Mob meal = nearestMinion(settings.eat().range());
@@ -1423,6 +1433,19 @@ public class BabaYaga extends Monster {
 	}
 
 	// ---- Flasks ----
+
+	/**
+	 * Her own flask, sent back by a player, burst on her: it does her no harm, but she starts no attack for a while and
+	 * flies round dazed, stars circling her head. A spell or a throw she was casting is lost.
+	 */
+	public void dazeByFlask(ServerLevel level) {
+		dazed = Math.max(dazed, settings().potion().dazeTicks());
+		if (action == YagaAction.THROW || action == YagaAction.SPELL || action == YagaAction.GLYPH) {
+			endAction();
+		}
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_HURT, getSoundSource(), 3.0F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SPLASH_POTION_BREAK, getSoundSource(), 2.0F, 0.8F);
+	}
 
 	private void throwFlask(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings.Potion potion = settings().potion();

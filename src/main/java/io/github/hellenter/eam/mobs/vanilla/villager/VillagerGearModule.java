@@ -31,6 +31,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
@@ -40,7 +41,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.gamerules.GameRules;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,6 +77,10 @@ public final class VillagerGearModule {
 	 */
 	public static final AttachmentType<ItemStack> HELD_ASIDE = AttachmentRegistry.create(Eam.id("villager_held_aside"),
 			builder -> builder.persistent(ItemStack.OPTIONAL_CODEC));
+
+	/** What a villager had when he turned into another mob that could not keep it; it drops when that mob dies. */
+	public static final AttachmentType<List<ItemStack>> CARRIED = AttachmentRegistry.create(Eam.id("villager_carried"),
+			builder -> builder.persistent(ItemStack.CODEC.listOf()));
 
 	public static final ExtendedMenuType<VillagerGearMenu, VillagerGearMenu.OpenData> MENU = Registry.register(BuiltInRegistries.MENU,
 			Eam.id("villager_gear"), new ExtendedMenuType<>(VillagerGearMenu::new, VillagerGearMenu.OpenData.STREAM_CODEC));
@@ -130,7 +138,15 @@ public final class VillagerGearModule {
 			return true;
 		});
 		ServerLivingEntityEvents.MOB_CONVERSION.register((previous, converted, params) -> {
-			if (previous instanceof Villager) dropNoWorkItem(converted);
+			if (previous instanceof Villager villager) {
+				dropNoWorkItem(converted);
+				carryOver(villager, converted);
+			} else if (previous.hasAttached(CARRIED)) {
+				converted.setAttached(CARRIED, previous.removeAttached(CARRIED));
+			}
+		});
+		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity.level() instanceof ServerLevel level) dropCarried(level, entity);
 		});
 	}
 
@@ -276,6 +292,35 @@ public final class VillagerGearModule {
 		for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND}) {
 			if (isWorkItem(mob.getItemBySlot(slot))) mob.setItemSlot(slot, ItemStack.EMPTY);
 		}
+	}
+
+	/**
+	 * What the villager had that his new body did not take over (a witch from lightning keeps no gear, a zombie villager
+	 * no inventory) stays with that mob, so it drops when it dies.
+	 */
+	private static void carryOver(Villager villager, Mob converted) {
+		List<ItemStack> carried = new ArrayList<>();
+		List<ItemStack> before = villager.removeAttached(CARRIED);
+		if (before != null) carried.addAll(before);
+		carried.addAll(villager.getInventory().removeAllItems());
+		ItemStack aside = villager.removeAttached(HELD_ASIDE);
+		if (aside != null && !aside.isEmpty() && !isWorkItem(aside)) carried.add(aside);
+		for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+			// Gear the conversion moved over is gone from the villager; what is left was not taken.
+			ItemStack left = villager.getItemBySlot(slot);
+			if (!left.isEmpty() && !isWorkItem(left)) carried.add(left.copyAndClear());
+		}
+		if (!carried.isEmpty()) converted.setAttached(CARRIED, List.copyOf(carried));
+	}
+
+	/** A dead villager drops his inventory, and any mob he turned into drops what it carries for him. */
+	private static void dropCarried(ServerLevel level, LivingEntity entity) {
+		List<ItemStack> drops = new ArrayList<>();
+		if (entity instanceof Villager villager) drops.addAll(villager.getInventory().removeAllItems());
+		List<ItemStack> carried = entity.removeAttached(CARRIED);
+		if (carried != null) drops.addAll(carried);
+		if (!level.getGameRules().get(GameRules.MOB_DROPS)) return;
+		for (ItemStack stack : drops) entity.spawnAtLocation(level, stack);
 	}
 
 	private static VillagerWork work(Villager villager) {

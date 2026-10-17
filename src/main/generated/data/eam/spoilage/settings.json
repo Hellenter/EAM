@@ -1,6 +1,17 @@
 {
+  "climate": {
+    "cold_factor": 1.33,
+    "cold_temperature": 0.15,
+    "hot_factor": 0.67,
+    "hot_temperature": 1.5
+  },
   "days_per_ice": 1.0,
+  "dried_multiplier": 5.0,
   "rules": [
+    {
+      "days": 3.0,
+      "items": "eam:sours"
+    },
     {
       "becomes": "minecraft:rotten_flesh",
       "days": 5.0,

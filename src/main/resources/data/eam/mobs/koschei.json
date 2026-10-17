@@ -90,10 +90,11 @@
     "arrow_parry_chance": 1.0
   },
   "teleport": {
-    "cooldown": 240,
-    "chance": 0.05,
+    "cooldown": 180,
+    "chance": 0.08,
     "distance": 6.0,
-    "max_angle": 70.0
+    "max_angle": 70.0,
+    "retreat_ticks": 60
   },
   "hop": {
     "cooldown": 50,
@@ -106,9 +107,19 @@
     "in_from": 4.5,
     "in_min": 2.0,
     "in_max": 3.5,
-    "flank_chance": 0.3,
-    "flank_cooldown": 70,
+    "flank_chance": 0.4,
+    "flank_cooldown": 55,
     "flank_range": 6.0
+  },
+  "ravens": {
+    "count": 3,
+    "health": 1.0,
+    "damage": 1.0,
+    "lifetime": 300,
+    "speed": 0.45,
+    "chance": 0.02,
+    "cooldown": 400,
+    "max_range": 16.0
   },
   "mob_damage_multiplier": 4.0
 }

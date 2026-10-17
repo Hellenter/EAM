@@ -1,0 +1,21 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "eam:dried",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/carrot"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/carrot",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -4022148
+        }
+      ]
+    },
+    "property": "minecraft:has_component"
+  }
+}

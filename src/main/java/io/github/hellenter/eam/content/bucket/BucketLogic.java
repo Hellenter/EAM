@@ -1,11 +1,18 @@
 package io.github.hellenter.eam.content.bucket;
 
+import org.jspecify.annotations.Nullable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/** Pure rules for buckets melting in lava. */
+/** Pure rules for buckets: melting in lava, and how often an animal gives milk. */
 public final class BucketLogic {
 	private BucketLogic() {
+	}
+
+	/** Whether an animal last milked at {@code lastMilked} (null: never) gives milk at {@code now}. */
+	public static boolean givesMilk(@Nullable Long lastMilked, long now, int interval) {
+		return lastMilked == null || now - lastMilked >= interval || now < lastMilked;
 	}
 
 	/**

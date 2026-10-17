@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearMenu;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerTradePayload;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -22,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A villager's inventory on the vanilla chest background, with the villager drawn beside his armor like the player in
- * his own inventory, and a button to his trades.
+ * his own inventory, a button to his trades and one that makes him a guard.
  */
 public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu> {
 	private static final Identifier CONTAINER_BACKGROUND = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -48,6 +50,15 @@ public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu
 				.build();
 		trade.active = villager != null && trades(villager);
 		addRenderableWidget(trade);
+		if (villager != null && !villager.isBaby() && !VillagerGuardModule.isGuardProfession(villager)) {
+			Component label = Component.translatable("container.eam.villager.make_guard");
+			addRenderableWidget(Button.builder(label, button -> {
+						ClientPlayNetworking.send(VillagerGuardPayload.INSTANCE);
+						button.visible = false;
+					})
+					.bounds(leftPos + imageWidth + 2, topPos + VillagerGearMenu.TOP, font.width(label) + 12, 20)
+					.build());
+		}
 	}
 
 	@Override
@@ -78,9 +89,10 @@ public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu
 		return entity instanceof Villager villager ? villager : null;
 	}
 
-	/** Nitwits and villagers without a job have nothing to trade. */
+	/** Nitwits, guards and villagers without a job have nothing to trade. */
 	private static boolean trades(Villager villager) {
 		var profession = villager.getVillagerData().profession();
-		return !profession.is(VillagerProfession.NONE) && !profession.is(VillagerProfession.NITWIT);
+		return !profession.is(VillagerProfession.NONE) && !profession.is(VillagerProfession.NITWIT)
+				&& !profession.is(VillagerGuardModule.GUARD);
 	}
 }

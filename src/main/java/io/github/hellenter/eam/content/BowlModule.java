@@ -1,8 +1,12 @@
 package io.github.hellenter.eam.content;
 
+import io.github.hellenter.eam.mixin.content.bucket.CauldronDispatcherInvoker;
+import io.github.hellenter.eam.survival.thirst.RainWater;
+
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -16,12 +20,18 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** An empty bowl scoops water from a source like a glass bottle, as in MITE. */
+/**
+ * An empty bowl scoops water from a source or a water cauldron like a glass bottle, as in MITE. Rain water from a
+ * cauldron comes out boiled: it is safe to drink.
+ */
 public final class BowlModule {
 	private BowlModule() {
 	}
 
 	public static void register() {
+		((CauldronDispatcherInvoker) (Object) CauldronInteractions.WATER).eam$put(Items.BOWL,
+				(state, level, pos, player, hand, itemInHand) -> RainWater.takeWater(state, level, pos, player, hand, itemInHand,
+						new ItemStack(RainWater.isRainWater(level, pos) ? EamItems.BOILED_WATER_BOWL : EamItems.WATER_BOWL)));
 		UseItemCallback.EVENT.register((player, level, hand) -> {
 			ItemStack stack = player.getItemInHand(hand);
 			if (!stack.is(Items.BOWL)) {

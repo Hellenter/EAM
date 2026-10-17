@@ -46,6 +46,9 @@ public final class EamParticles {
 	/** Claw rakes torn across the air, one per rake. */
 	public static final SimpleParticleType YAGA_CLAW = register("yaga_claw");
 
+	/** Yellow stars circling round the head of a stunned boss; sent with count 0 so the "velocity" is the star's motion along the ring. */
+	public static final SimpleParticleType DIZZY_STAR = register("dizzy_star");
+
 	/** Orange embers streaming off Koschei's blade before his orange blow. */
 	public static final SimpleParticleType KOSCHEI_SPARK = register("koschei_spark");
 	/** Purple and blue motes left hanging where Koschei vanished, and gathering where he appears. */
@@ -54,6 +57,17 @@ public final class EamParticles {
 	public static final SimpleParticleType KOSCHEI_RAVEN = register("koschei_raven");
 	/** Blue motes of Koschei's burst of force, rushing out from his palm. */
 	public static final SimpleParticleType KOSCHEI_FORCE = register("koschei_force");
+
+	/**
+	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the
+	 * mushroom forest, ash flakes settling in the burnt one, snow sifting down in the frozen and ice caves, embers rising
+	 * over lava and stone dust hanging in the wastes.
+	 */
+	public static final SimpleParticleType UNDERWORLD_SPORE = registerAmbient("underworld_spore");
+	public static final SimpleParticleType UNDERWORLD_ASH = registerAmbient("underworld_ash");
+	public static final SimpleParticleType UNDERWORLD_SNOW = registerAmbient("underworld_snow");
+	public static final SimpleParticleType UNDERWORLD_EMBER = registerAmbient("underworld_ember");
+	public static final SimpleParticleType UNDERWORLD_DUST = registerAmbient("underworld_dust");
 
 	private EamParticles() {
 	}
@@ -64,5 +78,10 @@ public final class EamParticles {
 
 	private static SimpleParticleType register(String name) {
 		return Registry.register(BuiltInRegistries.PARTICLE_TYPE, Eam.id(name), FabricParticleTypes.simple(true));
+	}
+
+	/** Scenery, not a cue: thinned out by the particle setting like vanilla biome particles. */
+	private static SimpleParticleType registerAmbient(String name) {
+		return Registry.register(BuiltInRegistries.PARTICLE_TYPE, Eam.id(name), FabricParticleTypes.simple(false));
 	}
 }

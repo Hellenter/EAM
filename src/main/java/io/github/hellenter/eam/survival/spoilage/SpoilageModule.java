@@ -2,8 +2,10 @@ package io.github.hellenter.eam.survival.spoilage;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.fridge.FridgeBlockEntity;
+import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.Registry;
@@ -42,6 +44,8 @@ import java.util.function.Consumer;
 public final class SpoilageModule {
 	/** When each item of a perishable stack spoils. */
 	public static DataComponentType<Freshness> FRESHNESS;
+	/** Food dried on a dryer: keeps longer and costs a little water when eaten. */
+	public static DataComponentType<Dried> DRIED;
 
 	/** How often players' inventories and open containers are checked, in ticks. */
 	private static final int PLAYER_INTERVAL = 10;
@@ -58,6 +62,9 @@ public final class SpoilageModule {
 	public static void registerTypes() {
 		FRESHNESS = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Eam.id("freshness"),
 				DataComponentType.<Freshness>builder().persistent(Freshness.CODEC).networkSynchronized(Freshness.STREAM_CODEC).build());
+		DRIED = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Eam.id("dried"),
+				DataComponentType.<Dried>builder().persistent(Dried.CODEC).networkSynchronized(Dried.STREAM_CODEC).build());
+		ItemComponentTooltipProviderRegistry.addLast(DRIED);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(SpoilageSettingsLoader.ID, new SpoilageSettingsLoader());
 	}
 
@@ -106,7 +113,7 @@ public final class SpoilageModule {
 			return Update.CHANGED;
 		}
 		List<Long> times = freshness == null ? List.of() : freshness.spoilsAt();
-		long fresh = now + rule.lifetime();
+		long fresh = now + lifetime(stack, rule);
 		List<Long> fitted = SpoilageLogic.stamp(SpoilageLogic.fit(times, stack.getCount(), fresh), fresh);
 		boolean changed = freshness == null || !fitted.equals(times);
 		int spoiled = SpoilageLogic.spoiled(fitted, now);
@@ -121,13 +128,37 @@ public final class SpoilageModule {
 			return null;
 		});
 		List<ItemStack> out = new ArrayList<>();
-		out.add(new ItemStack(rule.becomes(), spoiled));
+		rule.becomes().ifPresent(becomes -> out.add(new ItemStack(becomes, spoiled)));
 		if (remainder != null) {
 			ItemStack left = remainder.convertInto().create();
 			left.setCount(left.getCount() * spoiled);
 			out.add(left);
 		}
 		return new Update(out, true);
+	}
+
+	/** Ticks the stack keeps from fresh: dried food lasts {@code dried_multiplier} times as long. */
+	private static long lifetime(ItemStack stack, SpoilageSettings.Rule rule) {
+		long lifetime = rule.lifetime();
+		return stack.has(DRIED) ? Math.round(lifetime * settings.driedMultiplier()) : lifetime;
+	}
+
+	/**
+	 * The dried version of {@code food}: it no longer quenches thirst, costs {@code water} when eaten instead, and each
+	 * item keeps the time it had left {@code dried_multiplier} times over.
+	 */
+	public static ItemStack dry(ItemStack food, long now, int water) {
+		ItemStack dried = food.copy();
+		dried.remove(ThirstModule.HYDRATION);
+		dried.set(DRIED, new Dried(water));
+		SpoilageSettings.Rule rule = settings.rule(food);
+		Freshness freshness = food.get(FRESHNESS);
+		if (enabled && rule != null) {
+			List<Long> times = freshness == null ? List.of() : freshness.spoilsAt();
+			times = SpoilageLogic.fit(times, food.getCount(), SpoilageLogic.UNSTAMPED);
+			dried.set(FRESHNESS, new Freshness(SpoilageLogic.dried(times, now, rule.lifetime(), settings.driedMultiplier())));
+		}
+		return dried;
 	}
 
 	/** Puts a perishable stack's spoil times off by {@code ticks}: it spent them cold. */

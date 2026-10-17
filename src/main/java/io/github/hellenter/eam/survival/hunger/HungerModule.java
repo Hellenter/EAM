@@ -3,6 +3,7 @@ package io.github.hellenter.eam.survival.hunger;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.survival.hunger.FoodDataAccessor;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -24,12 +25,14 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
 
 /**
@@ -142,7 +145,9 @@ public final class HungerModule {
 						level.getDifficulty() == Difficulty.PEACEFUL,
 						HungerLogic.balanced(nutrition, current.balanceThreshold()),
 						paused,
-						HungerLogic.deficiencies(nutrition, current.deficiency().threshold())
+						HungerLogic.deficiencies(nutrition, current.deficiency().threshold()),
+						RestedModule.drainFactor(player),
+						RestedModule.regenFactor(player)
 				),
 				current
 		);
@@ -251,6 +256,20 @@ public final class HungerModule {
 	public static boolean needsFood(Player player, boolean vanilla) {
 		HungerStats stats = player.getAttached(STATS);
 		return stats == null ? vanilla : HungerLogic.needsFood(player.getFoodData().getFoodLevel(), stats.maxFood());
+	}
+
+	/**
+	 * Whether a food can be eaten past a full bar because it gives a nutrient the player lacks: on both sides, from the
+	 * synced deficiency effects.
+	 */
+	public static boolean fixesDeficiency(LivingEntity user, ItemStack stack) {
+		Nutrients nutrients = stack.get(NUTRIENTS);
+		if (nutrients == null || !(user instanceof Player player) || !player.hasAttached(STATS)) {
+			return false;
+		}
+		HungerLogic.Deficiencies deficiencies = new HungerLogic.Deficiencies(
+				player.hasEffect(PROTEIN_DEFICIENCY), player.hasEffect(FAT_DEFICIENCY), player.hasEffect(CARBS_DEFICIENCY));
+		return HungerLogic.fixesDeficiency(deficiencies, nutrients);
 	}
 
 	/** Whether the player has enough food to sprint: on both sides, from the synced food bar size. */
