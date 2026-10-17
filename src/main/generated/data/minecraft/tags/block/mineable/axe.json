@@ -1,6 +1,7 @@
 {
   "values": [
     "eam:sieve",
+    "eam:food_dryer",
     "eam:feeder",
     "eam:small_fridge",
     "eam:stripped_poplar_fence",
