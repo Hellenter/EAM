@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.mushroom_forest.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.mushroom_forest.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -33,12 +38,16 @@
     "minecraft:visual/ambient_particles": [
       {
         "particle": {
-          "type": "minecraft:mycelium"
+          "type": "eam:underworld_spore"
         },
-        "probability": 0.02
+        "probability": 0.012
       }
     ],
-    "minecraft:visual/fog_color": "#2d2433"
+    "minecraft:visual/fog_color": "#3a2a48",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.75,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.burnt_mushroom_forest.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.burnt_mushroom_forest.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -33,12 +38,22 @@
     "minecraft:visual/ambient_particles": [
       {
         "particle": {
-          "type": "minecraft:white_ash"
+          "type": "eam:underworld_ash"
         },
         "probability": 0.02
+      },
+      {
+        "particle": {
+          "type": "eam:underworld_ember"
+        },
+        "probability": 0.0015
       }
     ],
-    "minecraft:visual/fog_color": "#2a1c18"
+    "minecraft:visual/fog_color": "#3a2e28",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.6,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,
