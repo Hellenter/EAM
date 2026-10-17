@@ -8,6 +8,7 @@ import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
@@ -72,6 +73,11 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(MonsterEvolutionModule.ARMORED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
+		// Bosses keep their own name and fight; they never become a player's nemesis.
+		builder(NemesisModule.EXCLUDED)
+				.add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(), EamEntities.BABA_YAGA.builtInRegistryHolder().key(),
+						EamEntities.KOSCHEI.builtInRegistryHolder().key(), EamEntities.PILLAGER_KING.builtInRegistryHolder().key())
+				.add(EntityTypeIds.WITHER, EntityTypeIds.ENDER_DRAGON);
 		builder(MonsterEvolutionModule.ARMED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(BloodMoonModule.ARMED).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
