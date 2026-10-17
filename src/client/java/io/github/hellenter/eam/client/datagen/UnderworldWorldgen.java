@@ -2,6 +2,8 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.EamParticles;
+import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.dimension.UnderworldLogic;
@@ -28,6 +30,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BlockStateProviders;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -41,6 +44,7 @@ import net.minecraft.data.worldgen.material.VanillaMaterialConditions;
 import net.minecraft.data.worldgen.material.VanillaMaterialRules;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -53,11 +57,13 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.util.valueproviders.WeightedListInt;
 import net.minecraft.world.attribute.AmbientMoodSettings;
 import net.minecraft.world.attribute.AmbientParticle;
+import net.minecraft.world.attribute.AmbientAdditionsSettings;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.attribute.modifier.FloatModifier;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.CardinalLighting;
@@ -117,6 +123,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * The underworld's datagen: its dimension type, terrain (noise settings, density functions, material rules), its
@@ -982,53 +990,63 @@ final class UnderworldWorldgen {
 		List<ResourceKey<PlacedFeature>> common = List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_COPPER, P_ORE_REDSTONE, P_ORE_LAPIS,
 				P_ORE_DIAMOND, P_ORE_SILVER, P_ORE_MITHRIL);
 
-		context.register(UnderworldDimension.STONE_WASTES, biome(placed, carvers, 0.5F, 0x2E2E2E, 0x3F4A55,
-				SoundEvents.MUSIC_BIOME_DRIPSTONE_CAVES, List.of(),
+		context.register(UnderworldDimension.STONE_WASTES, biome(placed, carvers, 0.5F, 0x34322F, 1.0F, 0x3F4A55,
+				SoundEvents.MUSIC_BIOME_DRIPSTONE_CAVES, ambience(EamSounds.UNDERWORLD_STONE_WASTES_LOOP, EamSounds.UNDERWORLD_STONE_WASTES_ADDITIONS),
+				AmbientParticle.of(EamParticles.UNDERWORLD_DUST, 0.004F),
 				features(common, P_LAKES_FEW, P_ORE_GRAVEL, P_SPRING_WATER, P_SPRING_LAVA, P_ROCK_PILE, P_OLD_BONES, P_BROWN_MUSHROOMS_FEW,
 						P_COBWEB, P_GLOW_LICHEN),
 				spawns()));
-		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x2D2433, 0x3D57D6,
-				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.MYCELIUM, 0.02F),
+		context.register(UnderworldDimension.MUSHROOM_FOREST, biome(placed, carvers, 0.9F, 0x3A2A48, 0.75F, 0x3D57D6,
+				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(EamSounds.UNDERWORLD_MUSHROOM_FOREST_LOOP, EamSounds.UNDERWORLD_MUSHROOM_FOREST_ADDITIONS),
+				AmbientParticle.of(EamParticles.UNDERWORLD_SPORE, 0.012F),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_SPRING_WATER, P_GIANT_BROWN, P_GIANT_RED, P_GIANT_CHANTERELLE, P_GIANT_CHAMPIGNON, P_HUGE_BROWN,
 						P_HUGE_RED, P_FALLEN_MUSHROOM_STEM, P_MOSSY_BOULDER_MUSHROOM, P_BROWN_MUSHROOMS,
 						P_RED_MUSHROOMS, P_GLOW_LICHEN),
 				spawns()));
 		List<ResourceKey<PlacedFeature>> lakePlants = List.of(P_FALLEN_POPLAR, P_MOSSY_BOULDER_LAKE, P_MOSS_PATCH, P_DRIPLEAF_CLAY, P_ORCHIDS, P_FERNS, P_SHORE_PLANTS, P_SUGAR_CANE,
 				P_SPORE_BLOSSOM, P_KELP, P_SEAGRASS, P_LILY_PADS);
-		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E6E8E,
-				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
+		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1A3238, 0.8F, 0x2E6E8E,
+				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(null, EamSounds.UNDERWORLD_LAKE_CAVES_ADDITIONS),
+				AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
 				features(features(common, P_LAKES_MANY, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY), lakePlants),
 				spawns()));
-		context.register(UnderworldDimension.RIVER_CAVES, biome(placed, carvers, 0.6F, 0x1C2A2E, 0x2E7A8E,
-				SoundEvents.MUSIC_BIOME_LUSH_CAVES, AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
+		context.register(UnderworldDimension.RIVER_CAVES, biome(placed, carvers, 0.6F, 0x1A2E3C, 0.85F, 0x2E7A8E,
+				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(EamSounds.UNDERWORLD_RIVER_CAVES_LOOP, EamSounds.UNDERWORLD_LAKE_CAVES_ADDITIONS),
+				AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
 				features(features(common, P_LAKES_FEW, P_RIVERS, P_ORE_GRAVEL, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY), lakePlants),
 				spawns()));
-		context.register(UnderworldDimension.FROZEN_CAVES, biome(placed, carvers, -0.5F, 0x2A3644, 0x3938C9,
-				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.002F),
+		context.register(UnderworldDimension.FROZEN_CAVES, biome(placed, carvers, -0.5F, 0x34465A, 0.8F, 0x3938C9,
+				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, ambience(EamSounds.UNDERWORLD_FROZEN_CAVES_LOOP, EamSounds.UNDERWORLD_ICE_ADDITIONS),
+				AmbientParticle.of(EamParticles.UNDERWORLD_SNOW, 0.004F),
 				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_MANY, P_ORE_GRAVEL, P_SMALL_ICE_SPIRE,
 						P_SMALL_ICE_SPIKE, P_FALLEN_FROZEN_SPRUCE, P_ICE_BOULDER, P_COBWEB, P_GLOW_LICHEN),
 				spawns()));
-		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x10262A, 0x2E8E80,
-				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
+		context.register(UnderworldDimension.UNDERGROUND_FOREST, biome(placed, carvers, 0.3F, 0x122E28, 0.9F, 0x2E8E80,
+				SoundEvents.MUSIC_BIOME_OLD_GROWTH_TAIGA, ambience(EamSounds.UNDERWORLD_FOREST_LOOP, EamSounds.UNDERWORLD_FOREST_ADDITIONS),
+				AmbientParticle.of(ParticleTypes.GLOW, 0.004F),
 				features(common, P_STREAMS, P_FALLEN_SPRUCE, P_MOSSY_BOULDER_FOREST, P_SPRUCE, P_SMALL_SPRUCE, P_FOREST_MOSS, P_FOREST_PLANTS, P_BROWN_MUSHROOMS_FEW,
 						P_GLOWSHROOM_VINES, P_GLOW_LICHEN),
 				spawns()));
-		context.register(UnderworldDimension.BURNT_MUSHROOM_FOREST, biome(placed, carvers, 1.5F, 0x2A1C18, 0x3F76E4,
-				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.02F),
+		context.register(UnderworldDimension.BURNT_MUSHROOM_FOREST, biome(placed, carvers, 1.5F, 0x3A2E28, 0.6F, 0x3F76E4,
+				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, ambience(EamSounds.UNDERWORLD_BURNT_FOREST_LOOP, EamSounds.UNDERWORLD_BURNT_FOREST_ADDITIONS),
+				List.of(new AmbientParticle(EamParticles.UNDERWORLD_ASH, 0.02F), new AmbientParticle(EamParticles.UNDERWORLD_EMBER, 0.0015F)),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES_FEW, P_ORE_MAGMA, P_SPRING_LAVA, P_BURNT_BROWN, P_BURNT_RED,
 						P_SMOLDERING, P_FALLEN_BURNT_STEM, P_SCORCHED_BOULDER, P_DEAD_BUSHES),
 				spawns()));
-		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x3A1A10, 0x3F76E4,
-				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.03F),
+		context.register(UnderworldDimension.LAVA_CAVES, biome(placed, carvers, 2.0F, 0x4A1E10, 0.65F, 0x3F76E4,
+				SoundEvents.MUSIC_BIOME_BASALT_DELTAS, ambience(EamSounds.UNDERWORLD_LAVA_CAVES_LOOP, EamSounds.UNDERWORLD_LAVA_CAVES_ADDITIONS),
+				List.of(new AmbientParticle(ParticleTypes.WHITE_ASH, 0.015F), new AmbientParticle(EamParticles.UNDERWORLD_EMBER, 0.006F)),
 				features(common, P_ORE_GOLD_HOT, P_ORE_REDSTONE_HOT, P_LAKES, P_LAVA_LAKES, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR, P_BASALT_BOULDER),
 				spawns()));
-		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x2D3A4A, 0x3938C9,
-				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, AmbientParticle.of(ParticleTypes.SNOWFLAKE, 0.004F),
+		context.register(UnderworldDimension.ICE_CAVES, biome(placed, carvers, -0.7F, 0x3C5068, 0.9F, 0x3938C9,
+				SoundEvents.MUSIC_BIOME_FROZEN_PEAKS, ambience(EamSounds.UNDERWORLD_ICE_CAVES_LOOP, EamSounds.UNDERWORLD_ICE_ADDITIONS),
+				AmbientParticle.of(EamParticles.UNDERWORLD_SNOW, 0.008F),
 				features(common, P_ORE_DIAMOND_ICE, P_ORE_SILVER_ICE, P_ORE_MITHRIL_ICE, P_ORE_LAPIS_ICE, P_LAKES_FEW, P_ICE_SPIRE, P_ICE_SPIKE, P_BIG_ICE_BOULDER,
 						P_GLOW_LICHEN, P_DRAUGR_PACK),
 				spawns()));
-		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0x3F76E4,
-				SoundEvents.MUSIC_BIOME_DEEP_DARK, AmbientParticle.of(ParticleTypes.ASH, 0.01F),
+		context.register(UnderworldDimension.DEPTHS, biome(placed, carvers, 2.0F, 0x2A1410, 0.7F, 0x3F76E4,
+				SoundEvents.MUSIC_BIOME_DEEP_DARK, ambience(EamSounds.UNDERWORLD_DEPTHS_LOOP, EamSounds.UNDERWORLD_DEPTHS_ADDITIONS),
+				List.of(new AmbientParticle(ParticleTypes.ASH, 0.01F), new AmbientParticle(EamParticles.UNDERWORLD_EMBER, 0.002F)),
 				features(List.of(P_FLUIDS, P_ORE_IRON, P_ORE_GOLD, P_ORE_DIAMOND), P_ORE_MITHRIL_DEPTHS, P_ORE_ADAMANTIUM, P_ORE_MAGMA, P_SPRING_LAVA_MANY, P_LAVA_PILLAR_DEPTHS,
 						P_GLOW_LICHEN),
 				spawns()));
@@ -1055,8 +1073,22 @@ final class UnderworldWorldgen {
 		return mobs.build();
 	}
 
-	private static Biome biome(HolderGetter<PlacedFeature> placed, HolderGetter<WorldCarver> carvers, float temperature, int fog, int water,
-			Holder<net.minecraft.sounds.SoundEvent> music, List<AmbientParticle> particles, List<ResourceKey<PlacedFeature>> features,
+	/**
+	 * A biome's sound: its own loop (none for {@code null}) and rare additions over it, both under the shared cave mood.
+	 * Additions roll every tick, so 0.008 is one about every six seconds on average.
+	 */
+	private static AmbientSounds ambience(@Nullable SoundEvent loop, SoundEvent additions) {
+		return new AmbientSounds(Optional.ofNullable(loop).map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder),
+				Optional.of(new AmbientMoodSettings(SoundEvents.AMBIENT_CAVE, 6000, 8, 2.0)),
+				List.of(new AmbientAdditionsSettings(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(additions), 0.008)));
+	}
+
+	/**
+	 * @param fogReach how far one sees in the biome, as a share of the dimension's fog distance: ash, spores, heat and
+	 *                 damp air close it in
+	 */
+	private static Biome biome(HolderGetter<PlacedFeature> placed, HolderGetter<WorldCarver> carvers, float temperature, int fog, float fogReach,
+			int water, Holder<SoundEvent> music, AmbientSounds sounds, List<AmbientParticle> particles, List<ResourceKey<PlacedFeature>> features,
 			MobSpawnSettings mobs) {
 		BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
 		// Add in the shared order, so no two biomes ever disagree on it.
@@ -1071,13 +1103,15 @@ final class UnderworldWorldgen {
 				.downfall(0.0F)
 				.setAttribute(EnvironmentAttributes.FOG_COLOR, ARGB.vector3fFromRGB24(fog))
 				.setAttribute(EnvironmentAttributes.BACKGROUND_MUSIC, new BackgroundMusic(music))
-				.setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, new AmbientSounds(Optional.empty(),
-						Optional.of(new AmbientMoodSettings(SoundEvents.AMBIENT_CAVE, 6000, 8, 2.0)), List.of()))
+				.setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, sounds)
 				.specialEffects(new BiomeSpecialEffects.Builder().waterColor(water).build())
 				.mobSpawnSettings(mobs)
 				.generationSettings(generation.build());
 		if (!particles.isEmpty()) {
 			builder.setAttribute(EnvironmentAttributes.AMBIENT_PARTICLES, particles);
+		}
+		if (fogReach != 1.0F) {
+			builder.modifyAttribute(EnvironmentAttributes.FOG_END_DISTANCE, FloatModifier.MULTIPLY, fogReach);
 		}
 		return builder.build();
 	}

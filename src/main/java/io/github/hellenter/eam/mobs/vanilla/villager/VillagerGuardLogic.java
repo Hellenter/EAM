@@ -5,9 +5,17 @@ public final class VillagerGuardLogic {
 	private VillagerGuardLogic() {
 	}
 
-	/** A grown villager with a weapon in his main hand and at least one piece of armor on is a guard. */
-	public static boolean isGuard(boolean adult, boolean weaponInHand, int armorPieces) {
-		return adult && weaponInHand && armorPieces > 0;
+	/**
+	 * A grown villager with a weapon in his main hand fights as a guard: one of the guard profession with the weapon
+	 * alone, any other with at least one piece of armor on too.
+	 */
+	public static boolean isGuard(boolean adult, boolean weaponInHand, int armorPieces, boolean guardProfession) {
+		return adult && weaponInHand && (armorPieces > 0 || guardProfession);
+	}
+
+	/** A jobless villager armed as a guard takes the guard profession instead of a job. */
+	public static boolean becomesGuard(boolean jobless, boolean armedAsGuard) {
+		return jobless && armedAsGuard;
 	}
 
 	/** Whether a guard drawing his bow for {@code drawnTicks} lets the arrow go. */

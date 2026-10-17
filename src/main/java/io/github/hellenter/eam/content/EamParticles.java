@@ -58,6 +58,17 @@ public final class EamParticles {
 	/** Blue motes of Koschei's burst of force, rushing out from his palm. */
 	public static final SimpleParticleType KOSCHEI_FORCE = register("koschei_force");
 
+	/**
+	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the
+	 * mushroom forest, ash flakes settling in the burnt one, snow sifting down in the frozen and ice caves, embers rising
+	 * over lava and stone dust hanging in the wastes.
+	 */
+	public static final SimpleParticleType UNDERWORLD_SPORE = registerAmbient("underworld_spore");
+	public static final SimpleParticleType UNDERWORLD_ASH = registerAmbient("underworld_ash");
+	public static final SimpleParticleType UNDERWORLD_SNOW = registerAmbient("underworld_snow");
+	public static final SimpleParticleType UNDERWORLD_EMBER = registerAmbient("underworld_ember");
+	public static final SimpleParticleType UNDERWORLD_DUST = registerAmbient("underworld_dust");
+
 	private EamParticles() {
 	}
 
@@ -67,5 +78,10 @@ public final class EamParticles {
 
 	private static SimpleParticleType register(String name) {
 		return Registry.register(BuiltInRegistries.PARTICLE_TYPE, Eam.id(name), FabricParticleTypes.simple(true));
+	}
+
+	/** Scenery, not a cue: thinned out by the particle setting like vanilla biome particles. */
+	private static SimpleParticleType registerAmbient(String name) {
+		return Registry.register(BuiltInRegistries.PARTICLE_TYPE, Eam.id(name), FabricParticleTypes.simple(false));
 	}
 }
