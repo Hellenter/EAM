@@ -14,11 +14,11 @@ public final class ThirstLogic {
 	 * Where the player is this tick.
 	 *
 	 * @param peaceful the difficulty is peaceful: no drain, slow refill
-	 * @param hot      the player stands in a hot biome
+	 * @param temperature base temperature of the biome the player stands in
 	 * @param poisoned the player has food poisoning
 	 * @param grace    the player just spawned: thirst does not drain and exhaustion is dropped
 	 */
-	public record Environment(boolean peaceful, boolean hot, boolean poisoned, boolean grace) {
+	public record Environment(boolean peaceful, float temperature, boolean poisoned, boolean grace) {
 	}
 
 	/**
@@ -51,7 +51,7 @@ public final class ThirstLogic {
 			return new TickResult(thirst, new ThirstCounters(0.0F, 0, sipCooldown, immunity), false);
 		}
 
-		float passive = settings.passiveExhaustion() * (environment.hot() ? settings.hotMultiplier() : 1.0F);
+		float passive = settings.passiveExhaustion() * climateMultiplier(settings, environment.temperature());
 		float exhaustion = Math.min(counters.exhaustion() + passive, MAX_EXHAUSTION);
 		Thirst next = thirst;
 		if (exhaustion >= settings.exhaustionPerPoint()) {
@@ -70,6 +70,25 @@ public final class ThirstLogic {
 		}
 
 		return new TickResult(next, new ThirstCounters(exhaustion, timer, sipCooldown, immunity), dehydrate);
+	}
+
+	/** How much faster than usual a biome of this base temperature makes the player thirsty: more in heat, less in cold. */
+	public static float climateMultiplier(ThirstSettings settings, float temperature) {
+		if (temperature > settings.hotTemperature()) return settings.hotMultiplier();
+		if (temperature < settings.coldTemperature()) return settings.coldMultiplier();
+		return 1.0F;
+	}
+
+	/**
+	 * Whether the water in a cauldron is rain water after its level changed from {@code oldLevel} to {@code newLevel}
+	 * (0 is no water). Only rain keeps it clean: any other water poured in, even into a clean cauldron, spoils all of it.
+	 *
+	 * @param rain the change is rain filling the cauldron
+	 */
+	public static boolean rainWaterAfter(boolean wasRainWater, int oldLevel, int newLevel, boolean rain) {
+		if (newLevel == 0) return false;
+		if (newLevel > oldLevel) return rain && (oldLevel == 0 || wasRainWater);
+		return wasRainWater;
 	}
 
 	/** Adds {@code factor} ticks' worth of passive thirst, for effects that make the player thirsty faster. */

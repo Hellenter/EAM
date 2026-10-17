@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -43,15 +44,33 @@ public record RawWater() implements ConsumableListener, TooltipProvider {
 	 * water for brewing, cauldrons and mud.
 	 */
 	public static final String BOILED_NAME = "eam.boiled_water";
+	/** Potion {@code custom_name} of a water bottle filled from a cauldron of rain water: as safe as boiled water. */
+	public static final String RAIN_NAME = "eam.rain_water";
+
 	/** What a furnace makes of a water bottle. */
 	public static PotionContents boiledWater() {
 		return new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of(), Optional.of(BOILED_NAME));
 	}
 
-	/** Whether the item's water is unboiled: anything but a potion that carries this component, or a raw water bottle. */
+	public static ItemStack rainWaterBottle() {
+		ItemStack bottle = new ItemStack(Items.POTION);
+		bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of(), Optional.of(RAIN_NAME)));
+		return bottle;
+	}
+
+	public static ItemStack rawWaterBottle() {
+		return PotionContents.createItemStack(Items.POTION, Potions.WATER);
+	}
+
+	/**
+	 * Whether the item's water is unboiled: anything but a potion that carries this component, or a water bottle that
+	 * is neither boiled nor rain water.
+	 */
 	public static boolean isRaw(DataComponentGetter components) {
 		PotionContents potion = components.get(DataComponents.POTION_CONTENTS);
-		return potion == null || potion.is(Potions.WATER) && !potion.customName().equals(Optional.of(BOILED_NAME));
+		if (potion == null) return true;
+		Optional<String> name = potion.customName();
+		return potion.is(Potions.WATER) && !name.equals(Optional.of(BOILED_NAME)) && !name.equals(Optional.of(RAIN_NAME));
 	}
 
 	/**

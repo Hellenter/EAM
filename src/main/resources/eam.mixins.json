@@ -51,6 +51,8 @@
 		"survival.spoilage.ItemEntitySpoilageMixin",
 		"survival.spoilage.ItemStackSpoilageMixin",
 		"survival.thirst.BrewingStandBoilMixin",
+		"survival.thirst.CauldronRainMixin",
+		"survival.thirst.CauldronWaterChangeMixin",
 		"survival.thirst.PlayerThirstMixin",
 		"world.bloodmoon.LivingEntityMixin",
 		"world.bloodmoon.ServerLevelMixin",
