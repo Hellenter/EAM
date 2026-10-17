@@ -87,6 +87,7 @@ import io.github.hellenter.eam.client.survival.spoilage.SpoilageTooltip;
 import io.github.hellenter.eam.client.survival.thirst.DrinkFromSourceHandler;
 import io.github.hellenter.eam.client.world.bloodmoon.BloodMoonSky;
 import io.github.hellenter.eam.client.world.bluemoon.BlueMoonSky;
+import io.github.hellenter.eam.client.world.underworld.UnderworldAmbientParticle;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.world.crafting.CraftingTableMenu;
 import io.github.hellenter.eam.world.crafting.CraftingTypes;
@@ -104,6 +105,7 @@ import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CraftingMenu;
@@ -153,6 +155,11 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.KOSCHEI_WARP, YagaFxParticle.Style.WARP);
 		registerYagaFx(EamParticles.KOSCHEI_FORCE, YagaFxParticle.Style.FORCE);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
+		registerAmbient(EamParticles.UNDERWORLD_SPORE, UnderworldAmbientParticle.Style.SPORE);
+		registerAmbient(EamParticles.UNDERWORLD_ASH, UnderworldAmbientParticle.Style.ASH);
+		registerAmbient(EamParticles.UNDERWORLD_SNOW, UnderworldAmbientParticle.Style.SNOW);
+		registerAmbient(EamParticles.UNDERWORLD_EMBER, UnderworldAmbientParticle.Style.EMBER);
+		registerAmbient(EamParticles.UNDERWORLD_DUST, UnderworldAmbientParticle.Style.DUST);
 		ModelLayerRegistry.registerModelLayer(KoscheiModel.LAYER, KoscheiModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.KOSCHEI, KoscheiRenderer::new);
 		ConvulsionsClient.register();
@@ -244,6 +251,10 @@ public class EamClient implements ClientModInitializer {
 		YagaStormClient.register();
 		HeartFlight.register();
 		TalismanActivation.register();
+	}
+
+	private static void registerAmbient(SimpleParticleType type, UnderworldAmbientParticle.Style style) {
+		ParticleProviderRegistry.getInstance().register(type, sprites -> new UnderworldAmbientParticle.Provider(sprites, style));
 	}
 
 	private static <T extends ParticleOptions> void registerYagaFx(ParticleType<T> type, YagaFxParticle.Style style) {

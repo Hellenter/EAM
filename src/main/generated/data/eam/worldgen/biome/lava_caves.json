@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.lava_caves.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.lava_caves.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -35,10 +40,20 @@
         "particle": {
           "type": "minecraft:white_ash"
         },
-        "probability": 0.03
+        "probability": 0.015
+      },
+      {
+        "particle": {
+          "type": "eam:underworld_ember"
+        },
+        "probability": 0.006
       }
     ],
-    "minecraft:visual/fog_color": "#3a1a10"
+    "minecraft:visual/fog_color": "#4a1e10",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.65,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

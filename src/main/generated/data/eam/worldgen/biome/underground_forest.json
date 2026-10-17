@@ -1,6 +1,11 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
+      "additions": {
+        "sound": "eam:ambient.underworld.underground_forest.additions",
+        "tick_chance": 0.008
+      },
+      "loop": "eam:ambient.underworld.underground_forest.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -38,7 +43,11 @@
         "probability": 0.004
       }
     ],
-    "minecraft:visual/fog_color": "#10262a"
+    "minecraft:visual/fog_color": "#122e28",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.9,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,
