@@ -14,19 +14,19 @@ public enum KoscheiAction {
 	 * The orange blow: the blade glows orange from the start and he runs at the target, a wide sweep lands on
 	 * {@link #ORANGE_HIT}. A raised shield takes it and is knocked out; anything else takes the full blow.
 	 */
-	ORANGE(19),
+	ORANGE(21),
 	/** The red blow: the blade glows red, a low sweep lands on {@link #RED_HIT}. A shield only halves it. */
 	RED(24),
 	/**
 	 * The sword raised over the head with a red glow, held, then brought down from {@link #OVERHEAD_DESCENT} to
 	 * {@link #OVERHEAD_HIT}. A shield halves it; a hit as the sword starts down parries him.
 	 */
-	OVERHEAD(34),
+	OVERHEAD(33),
 	/**
 	 * The lunge: drawn back and held still for a moment until {@link #LUNGE_PUSH}, a rush in until {@link #LUNGE_RUSH_END}, the stab on
 	 * {@link #LUNGE_STAB}, then a hop back. A hit just before the stab parries him.
 	 */
-	LUNGE(27),
+	LUNGE(28),
 	/** The right hand thrust out: a blue burst of force on {@link #FORCE_RELEASE} throws whoever is in front far back. */
 	FORCE(16),
 	/**
@@ -45,24 +45,28 @@ public enum KoscheiAction {
 	/** A step in and a kick on {@link #KICK_HIT}, the way the Fallen Lord kicks: it knocks a raised shield out. */
 	KICK(14),
 	/** Parried: thrown off balance and open to hits; then the burst of force. */
-	STAGGER(24);
+	STAGGER(24),
+	/** The right hand raised high, dark motes gathering about it; three phantom ravens burst from it on {@link #SUMMON_RELEASE}. */
+	SUMMON(22);
 
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
-	public static final int ORANGE_HIT = 10;
+	public static final int ORANGE_HIT = 12;
 	public static final int RED_HIT = 14;
 	/** The sword starts down on this tick (the parry window opens) and lands on the hit. */
-	public static final int OVERHEAD_DESCENT = 19;
-	public static final int OVERHEAD_HIT = 26;
+	public static final int OVERHEAD_DESCENT = 18;
+	public static final int OVERHEAD_HIT = 25;
 	/** Ticks the lunge holds drawn back before the rush, a beat to read it by. */
 	public static final int LUNGE_HOLD = 3;
 	public static final int LUNGE_PUSH = 9;
 	public static final int LUNGE_RUSH_END = 14;
-	public static final int LUNGE_STAB = 15;
+	/** The rush ends a moment before the stab: a last beat before the blade goes in. */
+	public static final int LUNGE_STAB = 16;
 	public static final int KICK_HIT = 6;
 	public static final int FORCE_RELEASE = 8;
 	public static final int BOLT_RELEASE = 18;
 	public static final int BOLT_END = 48;
+	public static final int SUMMON_RELEASE = 12;
 
 	private final int length;
 

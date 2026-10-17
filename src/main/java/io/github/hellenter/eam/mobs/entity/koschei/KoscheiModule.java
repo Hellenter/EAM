@@ -36,6 +36,7 @@ public final class KoscheiModule {
 	public static void register() {
 		BossParry.register();
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI, Koschei.createAttributes());
+		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_RAVEN, KoscheiRaven.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(KoscheiSettingsLoader.ID, new KoscheiSettingsLoader());
 	}
 

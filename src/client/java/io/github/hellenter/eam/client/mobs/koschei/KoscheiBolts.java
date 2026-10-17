@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public final class KoscheiBolts {
 	/** Seen through the struck player's own eyes the bolt ends this far in front of them and this far under their eyes. */
 	private static final double FIRST_PERSON_REACH = 0.9;
 	private static final double FIRST_PERSON_DROP = 0.45;
+	/** A shield takes it a little further out, where it meets the raised shield. */
+	private static final double SHIELD_REACH = 0.7;
 
 	private static final List<Cast> CASTS = new ArrayList<>();
 
@@ -68,6 +71,11 @@ public final class KoscheiBolts {
 		});
 	}
 
+	private static Vec3 horizontal(Vec3 vector) {
+		Vec3 flat = new Vec3(vector.x, 0.0, vector.z);
+		return flat.lengthSqr() < 1.0E-6 ? Vec3.ZERO : flat.normalize();
+	}
+
 	private static void gather(Koschei koschei, Vec3 camera, float partialTicks) {
 		float t = koschei.actionTime(partialTicks);
 		if (koschei.action() != KoscheiAction.BOLT || t < 8.0F || t >= KoscheiAction.BOLT_END) {
@@ -79,14 +87,18 @@ public final class KoscheiBolts {
 		boolean firstPerson = minecraft.options.getCameraType().isFirstPerson();
 		List<Strike> to = new ArrayList<>();
 		for (Entity target : koschei.boltTargets()) {
+			boolean shielded = target instanceof LivingEntity living && living.isBlocking();
 			if (firstPerson && target == minecraft.getCameraEntity()) {
 				// Ending in the chest right under the camera, it would pass through the view edge-on and hardly show:
 				// it ends a little in front of the eyes instead, coming in from where he stands.
 				Vec3 eyes = target.getEyePosition(partialTicks);
 				Vec3 in = tip.subtract(eyes).normalize();
-				to.add(new Strike(eyes.add(in.scale(FIRST_PERSON_REACH)).add(0.0, -FIRST_PERSON_DROP, 0.0).subtract(tip), false));
+				double reach = FIRST_PERSON_REACH + (shielded ? SHIELD_REACH : 0.0);
+				to.add(new Strike(eyes.add(in.scale(reach)).add(0.0, -FIRST_PERSON_DROP, 0.0).subtract(tip), false));
 			} else {
-				to.add(new Strike(target.getPosition(partialTicks).add(0.0, target.getBbHeight() * 0.55, 0.0).subtract(tip), true));
+				Vec3 chest = target.getPosition(partialTicks).add(0.0, target.getBbHeight() * 0.55, 0.0);
+				Vec3 at = shielded ? chest.add(horizontal(tip.subtract(chest)).scale(SHIELD_REACH)) : chest;
+				to.add(new Strike(at.subtract(tip), !shielded));
 			}
 		}
 		long seed = koschei.getId() * 341873128712L + (long) Math.floor((koschei.tickCount + partialTicks) / 2.0F);
