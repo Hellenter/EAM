@@ -1,59 +1,133 @@
 {
   "multipart": [
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem"
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "weight": 2
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked"
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy"
+        }
+      ],
       "when": {
         "north": "true"
       }
     },
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem",
-        "uvlock": true,
-        "y": 90
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "uvlock": true,
+          "weight": 2,
+          "y": 90
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked",
+          "uvlock": true,
+          "y": 90
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy",
+          "uvlock": true,
+          "y": 90
+        }
+      ],
       "when": {
         "east": "true"
       }
     },
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem",
-        "uvlock": true,
-        "y": 180
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "uvlock": true,
+          "weight": 2,
+          "y": 180
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked",
+          "uvlock": true,
+          "y": 180
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy",
+          "uvlock": true,
+          "y": 180
+        }
+      ],
       "when": {
         "south": "true"
       }
     },
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem",
-        "uvlock": true,
-        "y": 270
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "uvlock": true,
+          "weight": 2,
+          "y": 270
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked",
+          "uvlock": true,
+          "y": 270
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy",
+          "uvlock": true,
+          "y": 270
+        }
+      ],
       "when": {
         "west": "true"
       }
     },
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem",
-        "uvlock": true,
-        "x": 270
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "uvlock": true,
+          "weight": 2,
+          "x": 270
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked",
+          "uvlock": true,
+          "x": 270
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy",
+          "uvlock": true,
+          "x": 270
+        }
+      ],
       "when": {
         "up": "true"
       }
     },
     {
-      "apply": {
-        "model": "eam:block/burnt_mushroom_stem",
-        "uvlock": true,
-        "x": 90
-      },
+      "apply": [
+        {
+          "model": "eam:block/burnt_mushroom_stem",
+          "uvlock": true,
+          "weight": 2,
+          "x": 90
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_cracked",
+          "uvlock": true,
+          "x": 90
+        },
+        {
+          "model": "eam:block/burnt_mushroom_stem_ashy",
+          "uvlock": true,
+          "x": 90
+        }
+      ],
       "when": {
         "down": "true"
       }

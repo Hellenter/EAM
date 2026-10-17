@@ -20,6 +20,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.MultiVariant;
@@ -28,12 +29,14 @@ import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -74,8 +77,8 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_STEM);
 		generators.createMushroomBlock(EamBlocks.CHAMPIGNON_CAP);
 		generators.createMushroomBlock(EamBlocks.GLOWING_CHAMPIGNON_CAP);
-		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_CAP);
-		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_STEM);
+		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_CAP, "_cracked", "_ashy", "_charred");
+		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_STEM, "_cracked", "_ashy");
 		generators.createMushroomBlock(EamBlocks.SMOLDERING_MUSHROOM_CAP);
 		generators.createGrowingPlant(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
@@ -751,5 +754,35 @@ public class EamModelProvider extends FabricModelProvider {
 		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
 		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
 		generators.generateBow(EamItems.SLINGSHOT);
+	}
+
+	/**
+	 * A giant mushroom block like vanilla's, but each block picks one of several skins at random by its position, so a wide
+	 * cap doesn't read as one endless texture. The plain skin comes up as often as all the others together.
+	 */
+	private static void variedMushroomBlock(BlockModelGenerators generators, Block block, String... suffixes) {
+		WeightedList.Builder<Variant> skins = WeightedList.<Variant>builder()
+				.add(BlockModelGenerators.plainModel(ModelTemplates.SINGLE_FACE.create(block, TextureMapping.defaultTexture(block), generators.modelOutput)),
+						suffixes.length);
+		for (String suffix : suffixes) {
+			skins.add(BlockModelGenerators.plainModel(ModelTemplates.SINGLE_FACE.createWithSuffix(block, suffix,
+					TextureMapping.defaultTexture(TextureMapping.getBlockTexture(block, suffix)), generators.modelOutput)), 1);
+		}
+		MultiVariant skin = new MultiVariant(skins.build());
+		MultiVariant skinless = BlockModelGenerators.plainVariant(ModelLocationUtils.decorateBlockModelLocation("mushroom_block_inside"));
+		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.NORTH, true), skin)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.EAST, true), skin.with(BlockModelGenerators.Y_ROT_90).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.SOUTH, true), skin.with(BlockModelGenerators.Y_ROT_180).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.WEST, true), skin.with(BlockModelGenerators.Y_ROT_270).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.UP, true), skin.with(BlockModelGenerators.X_ROT_270).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.DOWN, true), skin.with(BlockModelGenerators.X_ROT_90).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.NORTH, false), skinless)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.EAST, false), skinless.with(BlockModelGenerators.Y_ROT_90))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.SOUTH, false), skinless.with(BlockModelGenerators.Y_ROT_180))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.WEST, false), skinless.with(BlockModelGenerators.Y_ROT_270))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.UP, false), skinless.with(BlockModelGenerators.X_ROT_270))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.DOWN, false), skinless.with(BlockModelGenerators.X_ROT_90)));
+		generators.registerSimpleItemModel(block, TexturedModel.CUBE.createWithSuffix(block, "_inventory", generators.modelOutput));
 	}
 }
