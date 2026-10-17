@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.mobs.vanilla.evolution;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,5 +34,23 @@ class EvolutionLogicTest {
 		assertEquals(1, EvolutionLogic.pick(chances, 0.32F));
 		assertEquals(-1, EvolutionLogic.pick(chances, 0.33F));
 		assertEquals(-1, EvolutionLogic.pick(List.of(), 0.0F));
+	}
+
+	@Test
+	void skeletonDrawsCloseAndSheathesFar() {
+		assertFalse(EvolutionLogic.wantsBlade(false, true, 5.0, 4.0F, 7.0F));
+		assertTrue(EvolutionLogic.wantsBlade(false, true, 4.0, 4.0F, 7.0F));
+		assertTrue(EvolutionLogic.wantsBlade(true, true, 6.5, 4.0F, 7.0F));
+		assertFalse(EvolutionLogic.wantsBlade(true, true, 7.5, 4.0F, 7.0F));
+		assertFalse(EvolutionLogic.wantsBlade(true, false, 1.0, 4.0F, 7.0F));
+	}
+
+	@Test
+	void spiderShootsWebInRangeWhenReady() {
+		assertTrue(EvolutionLogic.canShootWeb(6.0, true, 0, 3.0F, 12.0F));
+		assertFalse(EvolutionLogic.canShootWeb(6.0, false, 0, 3.0F, 12.0F));
+		assertFalse(EvolutionLogic.canShootWeb(6.0, true, 5, 3.0F, 12.0F));
+		assertFalse(EvolutionLogic.canShootWeb(2.0, true, 0, 3.0F, 12.0F));
+		assertFalse(EvolutionLogic.canShootWeb(13.0, true, 0, 3.0F, 12.0F));
 	}
 }

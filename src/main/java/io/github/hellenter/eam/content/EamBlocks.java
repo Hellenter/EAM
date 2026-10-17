@@ -31,6 +31,7 @@ import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
+import io.github.hellenter.eam.mobs.vanilla.evolution.SpiderWebBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -354,6 +355,16 @@ public final class EamBlocks {
 			.noCollision()
 			.requiresCorrectToolForDrops()
 			.strength(2.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** An evolved spider's web: holds like cobweb and falls apart after a few seconds; see {@link SpiderWebBlock}. */
+	public static final Block SPIDER_WEB = register("spider_web", SpiderWebBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOL)
+			.sound(SoundType.COBWEB)
+			.forceSolidOn()
+			.noCollision()
+			.strength(1.0F)
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
 
