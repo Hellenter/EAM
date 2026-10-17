@@ -318,6 +318,20 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				head.xRot -= 0.45F * off;
 				bendLeg(rightLeg, rightShin, off, -0.35F, 0.5F);
 			}
+			case SUMMON -> {
+				// The right hand raised high, palm up, his head lifted to it; the sword held low aside. Flung up as the ravens burst out.
+				float release = KoscheiAction.SUMMON_RELEASE;
+				float[] times = {0, 6, release, release + 2, KoscheiAction.SUMMON.length()};
+				rightArm.xRot = keys(t, times, restR, -2.7F, -2.8F, -3.05F, restR);
+				rightArm.zRot = keys(t, times, restRz, 0.25F, 0.3F, 0.15F, restRz);
+				rightForearm.xRot = keys(t, times, restFr, -0.6F, -0.7F, -0.1F, restFr);
+				float up = keys(t, times, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
+				head.xRot -= 0.35F * up;
+				leftArm.zRot = Mth.lerp(up, restLz, -0.4F);
+				leftArm.xRot = Mth.lerp(up, restL, 0.15F);
+				body.xRot -= 0.06F * up;
+				stance(0.3F * up);
+			}
 			case NONE -> {
 			}
 		}
@@ -331,7 +345,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private void overhead(float t, float restL, float restR, float restFl, float restFr, float restS) {
 		float descent = KoscheiAction.OVERHEAD_DESCENT;
 		float hit = KoscheiAction.OVERHEAD_HIT;
-		float[] times = {0, 10, descent, descent + 3, hit, hit + 3, 34};
+		float[] times = {0, 10, descent, descent + 3, hit, hit + 3, KoscheiAction.OVERHEAD.length()};
 		float shake = t > 10 && t < descent ? Mth.sin(t * 2.2F) * 0.03F : 0.0F;
 		leftArm.xRot = keys(t, times, restL, -3.0F, -3.05F, -2.75F, -0.6F, -0.6F, restL) + shake;
 		rightArm.xRot = keys(t, times, restR, -2.9F, -2.95F, -2.65F, -0.6F, -0.6F, restR) + shake;

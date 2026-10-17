@@ -171,4 +171,23 @@ class KoscheiLogicTest {
 		assertFalse(KoscheiLogic.windupSpammed(2, 2));
 		assertTrue(KoscheiLogic.windupSpammed(3, 2));
 	}
+
+	@Test
+	void theRavensAreRareAndNeverCalledWhileAFlockIsAbout() {
+		KoscheiSettings.Ravens ravens = KoscheiSettings.DEFAULT.ravens();
+		assertTrue(KoscheiLogic.callsRavens(5.0, 0, ravens, 0.0));
+		assertFalse(KoscheiLogic.callsRavens(5.0, 0, ravens, ravens.chance()));
+		assertFalse(KoscheiLogic.callsRavens(5.0, 1, ravens, 0.0));
+		assertFalse(KoscheiLogic.callsRavens(ravens.maxRange() + 0.1, 0, ravens, 0.0));
+	}
+
+	@Test
+	void aTargetThatKeepsBackingOffGetsTheBoltOrHimBehindIt() {
+		KoscheiSettings.Bolt bolt = ONE.bolt();
+		assertEquals(Attack.BOLT, KoscheiLogic.answerRetreat(8.0, true, 0, false, bolt));
+		assertNull(KoscheiLogic.answerRetreat(8.0, false, 0, false, bolt));
+		assertNull(KoscheiLogic.answerRetreat(8.0, true, 1, false, bolt));
+		assertNull(KoscheiLogic.answerRetreat(8.0, true, 0, true, bolt));
+		assertNull(KoscheiLogic.answerRetreat(bolt.minRange() - 0.5, true, 0, false, bolt));
+	}
 }
