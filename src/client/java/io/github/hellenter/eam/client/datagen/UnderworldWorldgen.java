@@ -65,6 +65,7 @@ import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Aquifer;
@@ -89,6 +90,7 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePl
 import net.minecraft.world.level.levelgen.feature.treedecorators.AttachedToLogsDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.ShelfMushroomDecorator;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.feature.stateproviders.RandomizedIntStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.feature.SimpleBlockFeature;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
@@ -670,12 +672,14 @@ final class UnderworldWorldgen {
 				.add(Blocks.MOSS_CARPET.defaultBlockState(), 4)
 				.add(Blocks.SWEET_BERRY_BUSH.defaultBlockState(), 1)
 				.add(Blocks.BROWN_MUSHROOM.defaultBlockState(), 1))));
-		// Glowing fungus threads from the ceilings: mostly short, some long enough to reach far down.
+		// Glowing fungus threads from the ceilings: mostly short, some long enough to reach far down. The tip starts old, as
+		// vanilla's vines do, so they barely grow on after worldgen.
 		context.register(GLOWSHROOM_VINES, new BlockColumnFeature(List.of(
 				BlockColumnFeature.layer(new WeightedListInt(WeightedList.<IntProvider>builder()
 						.add(UniformInt.of(0, 3), 6).add(UniformInt.of(2, 7), 3).add(UniformInt.of(5, 12), 1).build()),
 						BlockStateProvider.of(EamBlocks.GLOWSHROOM_VINES_PLANT)),
-				BlockColumnFeature.layer(ConstantInt.of(1), BlockStateProvider.of(EamBlocks.GLOWSHROOM_VINES))),
+				BlockColumnFeature.layer(ConstantInt.of(1), new RandomizedIntStateProvider(BlockStateProvider.of(EamBlocks.GLOWSHROOM_VINES),
+						GrowingPlantHeadBlock.AGE, UniformInt.of(17, 25)))),
 				Direction.DOWN, BlockPredicate.ONLY_IN_AIR_PREDICATE, true));
 		// Plants on the banks of the lake and river caves.
 		context.register(SHORE_PLANTS, new SimpleBlockFeature(new WeightedStateProvider(WeightedList.<BlockState>builder()

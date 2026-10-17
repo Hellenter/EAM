@@ -14,7 +14,9 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -25,7 +27,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * and get ready to breed again several times slower. Numbers are in {@code data/eam/farming/growth.json}.
  */
 public final class FarmingModule {
-	/** Crops in a chunk that got bone meal. Kept until the crop is broken by a player. */
+	/** Crops in a chunk that got bone meal. Kept until the crop is broken by a player or a new one is planted there. */
 	public static final AttachmentType<BoostedCrops> BOOSTED_CROPS = AttachmentRegistry.create(Eam.id("boosted_crops"),
 			builder -> builder.persistent(BoostedCrops.CODEC));
 
@@ -77,6 +79,16 @@ public final class FarmingModule {
 		ChunkAccess chunk = chunk(level, pos);
 		chunk.setAttached(BOOSTED_CROPS, chunk.getAttachedOrElse(BOOSTED_CROPS, BoostedCrops.EMPTY).with(pos.asLong()));
 		return true;
+	}
+
+	/**
+	 * A plant was just set into an empty spot: whatever got bone meal there before is gone (trampled, harvested by a
+	 * villager or water, blown up), so the new one starts without the boost.
+	 */
+	public static void onPlaced(Level level, BlockPos pos, BlockState state, BlockState oldState) {
+		if (crops && state.getBlock() instanceof BonemealableBlock && oldState.canBeReplaced()) {
+			forget(level.getChunk(pos), pos);
+		}
 	}
 
 	/** The block a pitcher plant's growth is keyed by: its lower half. */

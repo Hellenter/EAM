@@ -804,7 +804,7 @@ public class Koschei extends Monster {
 		}
 		if (t == KoscheiAction.BOLT_RELEASE) {
 			// It leaps to every player in his sight at once, the target first.
-			if (holdsBolt(target, bolt)) {
+			if (holdsBolt(target, bolt) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
 				boltTargets.add(target);
 			}
 			Vec3 facing = Vec3.directionFromRotation(0.0F, yBodyRot);
@@ -1151,7 +1151,7 @@ public class Koschei extends Monster {
 			float hit = damage * BossParry.penalty().multiplier(phaseOne().parry().multiplier(), parryPenalized);
 			closeParry();
 			boolean hurt = super.hurtServer(level, source, resisted(source, hit));
-			if (isAlive()) {
+			if (hurt && isAlive()) {
 				parried(level, player);
 			}
 			return hurt;
@@ -1168,7 +1168,7 @@ public class Koschei extends Monster {
 			if (!entityData.get(DATA_PARRY_LOST) && KoscheiLogic.parries(action, actionTicks - 1, window)) {
 				float hit = damage * penalty.multiplier(phaseOne().parry().multiplier(), penalized);
 				boolean hurt = super.hurtServer(level, source, resisted(source, hit));
-				if (isAlive()) {
+				if (hurt && isAlive()) {
 					parried(level, player);
 				}
 				return hurt;

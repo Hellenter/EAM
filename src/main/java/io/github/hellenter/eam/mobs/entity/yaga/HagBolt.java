@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -130,7 +131,7 @@ public class HagBolt extends Projectile {
 			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 1.2F);
 			return;
 		}
-		if (target instanceof Player || target.isAlive()) {
+		if (EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target) && (target instanceof Player || target.isAlive())) {
 			HagThread.tie(level, getOwner(), target, settings.threads());
 		}
 	}

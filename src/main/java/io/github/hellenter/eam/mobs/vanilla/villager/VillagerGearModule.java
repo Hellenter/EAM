@@ -119,7 +119,11 @@ public final class VillagerGearModule {
 			player.openMenu(new Provider(villager));
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-			if (entity instanceof Villager villager) resetHand(villager);
+			if (!(entity instanceof Villager villager)) return;
+			// Saved while showing a trade: the showing stopped with the save, so his own item goes back in his hand.
+			ItemStack aside = villager.removeAttached(HELD_ASIDE);
+			if (aside != null) villager.setItemSlot(EquipmentSlot.MAINHAND, aside);
+			resetHand(villager);
 		});
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
 			if (entity instanceof Villager villager) dropNoWorkItem(villager);
