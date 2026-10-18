@@ -4,6 +4,7 @@ import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightSettings;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +28,11 @@ final class LostFightGoal extends Goal {
 	/** And stops this close to it. */
 	private static final double ROW_ON_SPOT = 0.2;
 	private static final double ROW_RUN_SPEED = 1.2;
+	/** A spot behind him this close he backs onto, facing the target, and this fast. */
+	private static final double ROW_BACKSTEP_DISTANCE = 6.0;
+	private static final double ROW_BACKSTEP_SPEED = 0.9;
+	/** Degrees a tick a spearman in the row turns to face the target. */
+	private static final float ROW_TURN = 30.0F;
 
 	private final Lost lost;
 	private LivingEntity target;
@@ -135,25 +141,45 @@ final class LostFightGoal extends Goal {
 		if (spot == null) {
 			return false;
 		}
-		double off = Math.hypot(spot.x - lost.getX(), spot.z - lost.getZ());
-		if (off > ROW_PATH_DISTANCE || Math.abs(spot.y - lost.getY()) > 1.5) {
-			// Far from his spot: walk there, a little faster than usual.
+		double offX = spot.x - lost.getX();
+		double offZ = spot.z - lost.getZ();
+		double off = Math.hypot(offX, offZ);
+		// A spot behind him, away from the target: he backs onto it facing the target rather than turning round.
+		double toTargetX = target.getX() - lost.getX();
+		double toTargetZ = target.getZ() - lost.getZ();
+		boolean behind = offX * toTargetX + offZ * toTargetZ < 0.0;
+		double stepRange = behind ? ROW_BACKSTEP_DISTANCE : ROW_PATH_DISTANCE;
+		if (off > stepRange || Math.abs(spot.y - lost.getY()) > 1.5 || lost.stepControl().stepBlocked()) {
+			// Far from his spot, or no straight step there: walk there, a little faster than usual.
 			if (repath <= 0 || lost.getNavigation().isDone()) {
 				repath = REPATH_INTERVAL / 2;
 				lost.getNavigation().moveTo(spot.x, spot.y, spot.z, ROW_RUN_SPEED);
 			}
-		} else if (off > ROW_ON_SPOT) {
-			// Close: step right onto it. A path would end in the middle of a block, and the spots are closer than that.
-			lost.getNavigation().stop();
-			lost.getMoveControl().setWantedPosition(spot.x, lost.getY(), spot.z, off > 1.0 ? ROW_RUN_SPEED : 0.7);
+			lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
+			return true;
+		}
+		// Close: keep his face and shield to the target and step onto the spot sideways or backwards. Walking there by
+		// path or wanted position would turn him to where he walks, and he would stand there side-on.
+		lost.getNavigation().stop();
+		faceTarget();
+		if (off > ROW_ON_SPOT) {
+			float[] input = LostLogic.stepInput(lost.getYRot(), offX, offZ);
+			double speed = behind ? ROW_BACKSTEP_SPEED : off > 1.0 ? ROW_RUN_SPEED : 0.7;
+			lost.stepControl().step(input[0], input[1], speed);
 		} else {
-			lost.getNavigation().stop();
 			lost.getMoveControl().setWantedPosition(lost.getX(), lost.getY(), lost.getZ(), 0.0);
 			lost.setXxa(0.0F);
 			lost.setZza(0.0F);
 		}
-		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		return true;
+	}
+
+	/** Turns him, body and head, to the target, so the row stands face and shield on and never side-on. */
+	private void faceTarget() {
+		float yaw = (float) (Mth.atan2(target.getZ() - lost.getZ(), target.getX() - lost.getX()) * Mth.RAD_TO_DEG) - 90.0F;
+		lost.setYRot(LostLogic.turnTowards(lost.getYRot(), yaw, ROW_TURN));
+		lost.setYBodyRot(lost.getYRot());
+		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
 	}
 
 	/** Takes his spot between the target and the squad's archers. Returns false when there are none to cover. */
