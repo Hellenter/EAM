@@ -8,9 +8,11 @@ import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
+import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -86,8 +88,14 @@ import java.util.UUID;
  * parried as it starts down; from four blocks off a lunge, parried just before the stab; a burst of blue force from his
  * right hand that throws the target far back; and from afar, now and then, a bolt of lightning from the sword's point that
  * burns through armor and makes the body jerk. His eyes flicker purple and blue before he vanishes and stands behind the
- * target, and he hops aside and back. Phases two and three are not built yet: for now he dies at the end of the first.
- * Numbers are in {@code data/eam/mobs/koschei.json}.
+ * target, and he hops aside and back.
+ * <p>
+ * Struck down, his sword crumbles into ravens and comes together again as a staff: in his second phase, the lord of the
+ * undead, he keeps his distance as Baba Yaga does in hers, vanishes and hops away, shoots blue bolts from the staff that
+ * only a shield stops, sweeps one who comes close away with it, and raises draugr out of the ground, faster and frailer
+ * than those of the ice caves: with souls thrown over the arena, or round one he lets walk up to him before he vanishes.
+ * The third phase is not built yet: for now he dies at the end of the second. Numbers are in
+ * {@code data/eam/mobs/koschei.json}.
  */
 public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
@@ -137,6 +145,13 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final float FLANK_MIN_ANGLE = 80.0F;
 	private static final float FLANK_MAX_ANGLE = 160.0F;
 	private static final double FLANK_LIFT = 0.15;
+	/** He counts his draugr this far round him. */
+	private static final double THRALL_RANGE = 48.0;
+	/** The staff's sweep throws the target off its feet for about this many ticks. */
+	private static final int STRIKE_AIR_TICKS = 8;
+	private static final double STRIKE_LIFT = 0.3;
+	/** A soul is in the air about this long, ticks. */
+	private static final int SOUL_FLIGHT = 26;
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
 			BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
@@ -189,6 +204,14 @@ public class Koschei extends Monster implements BuildingAware {
 	private boolean parryPenalized;
 	/** Client: the tick count when the current action started. */
 	private int clientActionStart;
+	/** Second phase: ticks left for each {@link StaffAttack}, by ordinal. */
+	private final int[] staffCooldowns = new int[StaffAttack.values().length];
+	/** Second phase: ticks he still waits with the trap laid; 0 when it is not. */
+	private int trapWait;
+	/** Second phase: the teleport under way takes him away from the target rather than behind it. */
+	private boolean teleportAway;
+	/** His draugr up, counted now and then. */
+	private int thrallCount;
 
 	public Koschei(EntityType<? extends Koschei> type, Level level) {
 		super(type, level);
@@ -219,6 +242,10 @@ public class Koschei extends Monster implements BuildingAware {
 		return settings().phaseOne();
 	}
 
+	PhaseTwoSettings phaseTwo() {
+		return settings().phaseTwo();
+	}
+
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
@@ -236,6 +263,7 @@ public class Koschei extends Monster implements BuildingAware {
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
 		goalSelector.addGoal(2, new KoscheiFightGoal(this));
+		goalSelector.addGoal(2, new KoscheiStaffGoal(this));
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.7));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
@@ -262,9 +290,10 @@ public class Koschei extends Monster implements BuildingAware {
 
 	private void applyStats(boolean full) {
 		KoscheiSettings.Stats stats = settings().stats();
-		setBase(Attributes.MAX_HEALTH, stats.health());
+		boolean two = phase() >= 2;
+		setBase(Attributes.MAX_HEALTH, two ? phaseTwo().health() : stats.health());
 		setBase(Attributes.ARMOR, stats.armor());
-		setBase(Attributes.MOVEMENT_SPEED, stats.speed());
+		setBase(Attributes.MOVEMENT_SPEED, stats.speed() * (two ? phaseTwo().speedMultiplier() : 1.0));
 		setBase(Attributes.FOLLOW_RANGE, stats.followRange());
 		setBase(Attributes.ATTACK_SPEED, stats.attackSpeed());
 		setHealth(full ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
@@ -284,7 +313,7 @@ public class Koschei extends Monster implements BuildingAware {
 		return KoscheiAction.byId(entityData.get(DATA_ACTION));
 	}
 
-	/** The phase he fights in: 1 for now. */
+	/** The phase he fights in: 1 with the sword, 2 with the staff. */
 	public int phase() {
 		return entityData.get(DATA_PHASE);
 	}
@@ -347,7 +376,7 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** Ready to attack: no action for one swing of his sword. */
 	public boolean readyToAttack() {
-		return action == KoscheiAction.NONE && idleTicks >= settings().stats().attackPause();
+		return action == KoscheiAction.NONE && idleTicks >= (phase() >= 2 ? phaseTwo().attackPause() : settings().stats().attackPause());
 	}
 
 	int[] cooldowns() {
@@ -421,6 +450,13 @@ public class Koschei extends Monster implements BuildingAware {
 			closeParry();
 		}
 		if (teleportCooldown > 0) teleportCooldown--;
+		for (int i = 0; i < staffCooldowns.length; i++) {
+			if (staffCooldowns[i] > 0) staffCooldowns[i]--;
+		}
+		if (trapWait > 0) trapWait--;
+		if (phase() >= 2 && tickCount % 10 == 0) {
+			thrallCount = countThralls(level);
+		}
 		LivingEntity current = getTarget();
 		highTicks = current != null && current.isAlive() && current.getY() - getY() > settings().height().above() ? highTicks + 1 : 0;
 		flock.removeIf(raven -> !raven.isAlive());
@@ -540,7 +576,7 @@ public class Koschei extends Monster implements BuildingAware {
 			return;
 		}
 		boolean free = action == KoscheiAction.STAGGER || action == KoscheiAction.PARRY_ARROW || action == KoscheiAction.BLOCK
-				|| action == KoscheiAction.HOP;
+				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM;
 		if (!free && (target == null || !target.isAlive())) {
 			endAction();
 			return;
@@ -609,6 +645,9 @@ public class Koschei extends Monster implements BuildingAware {
 			case TELEPORT -> {
 				if (t == 0) {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.6F);
+				} else if (t == action.length() - 1 && target != null && teleportAway) {
+					teleportAway = false;
+					teleportAwayFrom(level, target, phaseTwo().teleport().distance());
 				} else if (t == action.length() - 1 && target != null) {
 					// Looked for again: the target may have come down or moved on up there meanwhile.
 					Vec3 spot = teleportSpot != null && target.getY() - getY() > settings().height().above()
@@ -626,6 +665,35 @@ public class Koschei extends Monster implements BuildingAware {
 					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.6F);
 				} else if (t == KoscheiAction.SUMMON_RELEASE && target != null) {
 					summonRavens(level, target, settings().ravens());
+				}
+			}
+			case TRANSFORM -> tickTransform(level, t);
+			case STAFF_BOLT -> {
+				if (t == 0) {
+					level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_PREPARE_ATTACK, getSoundSource(), 1.2F, 1.5F);
+				} else if (t == KoscheiAction.STAFF_BOLT_RELEASE && target != null) {
+					shootBolt(level, target, phaseTwo().bolt());
+				}
+			}
+			case STAFF_STRIKE -> {
+				if (t == 0) {
+					playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.2F, 0.6F);
+				} else if (t == KoscheiAction.STAFF_STRIKE_HIT && target != null) {
+					staffStrike(level, target, phaseTwo().strike());
+				}
+			}
+			case SOULS -> {
+				if (t == 0) {
+					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.5F);
+				} else if (t == KoscheiAction.SOULS_RELEASE) {
+					throwSouls(level, phaseTwo());
+				}
+			}
+			case TRAP -> {
+				if (t == 0) {
+					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.5F);
+				} else if (t == action.length() - 1 && target != null) {
+					springTrap(level, target, phaseTwo());
 				}
 			}
 			case HOP -> {
@@ -944,6 +1012,217 @@ public class Koschei extends Monster implements BuildingAware {
 	private void clearBolt() {
 		boltTargets.clear();
 		syncBolt();
+	}
+
+	// ---- Second phase ----
+
+	/**
+	 * Struck down in his first phase: whatever he was doing breaks off, the boss bar turns green and he rises again with
+	 * the staff through {@link KoscheiAction#TRANSFORM}.
+	 */
+	private void startTransform(ServerLevel level) {
+		closeParry();
+		clearBolt();
+		getNavigation().stop();
+		recentHits.clear();
+		leapFrom = null;
+		entityData.set(DATA_PHASE, (byte) 2);
+		applyStats(false);
+		bossEvent.setColor(BossEvent.BossBarColor.GREEN);
+		Arrays.fill(staffCooldowns, 0);
+		trapWait = 0;
+		LivingEntity target = getTarget();
+		setAction(KoscheiAction.TRANSFORM);
+		actionTarget = target;
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_PREPARE_SUMMON, getSoundSource(), 2.0F, 0.4F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 2.0F, 0.5F);
+	}
+
+	/** The sword crumbles into ravens, they wheel about him and come together as the staff; his health fills meanwhile. */
+	private void tickTransform(ServerLevel level, int t) {
+		setDeltaMovement(getDeltaMovement().multiply(0.0, 1.0, 0.0));
+		int length = KoscheiAction.TRANSFORM.length();
+		setHealth(KoscheiLogic.transformHealth(t + 1, length, 1.0F, getMaxHealth()));
+		Vec3 centre = position().add(0.0, getBbHeight() * 0.6, 0.0);
+		if (t == KoscheiAction.TRANSFORM_CRUMBLE) {
+			Vec3 tip = swordTip();
+			level.playSound(null, tip.x, tip.y, tip.z, SoundEvents.ITEM_BREAK.value(), getSoundSource(), 1.5F, 0.5F);
+			ravens(level, position());
+		}
+		if (t > KoscheiAction.TRANSFORM_CRUMBLE && t < KoscheiAction.TRANSFORM_STAFF && t % 2 == 0) {
+			// Ravens and green motes wheel round him.
+			double angle = t * 0.6;
+			for (int i = 0; i < 3; i++) {
+				double a = angle + i * Math.PI * 2.0 / 3.0;
+				level.sendParticles(EamParticles.KOSCHEI_RAVEN, centre.x + Math.cos(a) * 1.4, centre.y + (i - 1) * 0.5, centre.z + Math.sin(a) * 1.4, 0,
+						-Math.sin(a) * 0.3, 0.05, Math.cos(a) * 0.3, 1.0);
+			}
+			level.sendParticles(ParticleTypes.SOUL, centre.x, centre.y, centre.z, 3, 0.8, 0.8, 0.8, 0.02);
+		}
+		if (t == KoscheiAction.TRANSFORM_STAFF) {
+			Vec3 hand = raisedHand();
+			level.playSound(null, hand.x, hand.y, hand.z, EamSounds.KOSCHEI_RAVENS, getSoundSource(), 2.0F, 0.7F);
+			level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.ZOMBIE_VILLAGER_CURE, getSoundSource(), 1.0F, 1.4F);
+			level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, centre.x, centre.y, centre.z, 30, 0.6, 0.9, 0.6, 0.05);
+			warpCloud(level, position(), 0.6);
+		}
+		if (t == length - 1) {
+			setHealth(getMaxHealth());
+			// He opens his second phase by raising the dead.
+			staffCooldowns[StaffAttack.SOULS.ordinal()] = 0;
+			idleTicks = phaseTwo().attackPause();
+		}
+	}
+
+	int[] staffCooldowns() {
+		return staffCooldowns;
+	}
+
+	int thrallCount() {
+		return thrallCount;
+	}
+
+	/** Starts one of his staff attacks on {@code target}; the trap is only laid, he waits for the target to come to him. */
+	void startStaff(StaffAttack attack, LivingEntity target) {
+		PhaseTwoSettings two = phaseTwo();
+		actionTarget = target;
+		switch (attack) {
+			case BOLT -> {
+				staffCooldowns[attack.ordinal()] = two.bolt().cooldown();
+				setAction(KoscheiAction.STAFF_BOLT);
+			}
+			case STRIKE -> {
+				staffCooldowns[attack.ordinal()] = two.strike().cooldown();
+				setAction(KoscheiAction.STAFF_STRIKE);
+			}
+			case SOULS -> {
+				staffCooldowns[attack.ordinal()] = two.souls().cooldown();
+				setAction(KoscheiAction.SOULS);
+			}
+			case TRAP -> {
+				staffCooldowns[attack.ordinal()] = two.trap().cooldown();
+				trapWait = two.trap().waitTicks();
+				actionTarget = null;
+			}
+		}
+	}
+
+	/** Whether the trap is laid: he stands still and lets the target come right up to him. */
+	boolean trapLaid() {
+		return trapWait > 0;
+	}
+
+	/** The target came close with the trap laid: a moment by him, then he vanishes and draugr rise round it. */
+	void triggerTrap(LivingEntity target) {
+		trapWait = 0;
+		actionTarget = target;
+		setAction(KoscheiAction.TRAP);
+	}
+
+	private void springTrap(ServerLevel level, LivingEntity target, PhaseTwoSettings two) {
+		teleportAwayFrom(level, target, two.teleport().distance());
+		int raise = KoscheiLogic.thrallsToRaise(two.trap().count(), countThralls(level), two.thralls().cap());
+		double start = random.nextDouble() * Math.PI * 2.0;
+		for (int i = 0; i < raise; i++) {
+			double angle = start + i * Math.PI * 2.0 / raise + (random.nextDouble() - 0.5) * 0.6;
+			double distance = two.trap().radius() * (0.6 + random.nextDouble() * 0.4);
+			raiseThrall(level, target.position().add(Math.cos(angle) * distance, 0.0, Math.sin(angle) * distance));
+		}
+	}
+
+	/** The blue bolt from the staff's head at where the target stands. */
+	private void shootBolt(ServerLevel level, LivingEntity target, PhaseTwoSettings.Bolt bolt) {
+		Vec3 from = staffHead();
+		Vec3 to = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0);
+		Vec3 velocity = to.subtract(from).normalize().scale(bolt.speed());
+		level.addFreshEntity(new KoscheiOrb(level, this, KoscheiOrb.Kind.BOLT, from, velocity));
+		level.playSound(null, from.x, from.y, from.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.2F, 1.4F);
+		level.playSound(null, from.x, from.y, from.z, SoundEvents.TRIDENT_THUNDER.value(), getSoundSource(), 0.4F, 2.0F);
+	}
+
+	/** A sweep of the staff: the blow a raised shield blocks as any blow, and it throws the target back either way. */
+	private void staffStrike(ServerLevel level, LivingEntity target, PhaseTwoSettings.Strike strike) {
+		playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.3F, 0.6F);
+		if (!inReach(target, strike.reach())) {
+			return;
+		}
+		target.damageCooldownTime = 0;
+		strike(level, target, damageSources().mobAttack(this), strike.damage(), 0.0F);
+		Vec3 away = horizontal(target.position().subtract(position()));
+		double speed = KoscheiLogic.pushSpeed(strike.push(), STRIKE_AIR_TICKS);
+		target.setDeltaMovement(away.x * speed, STRIKE_LIFT, away.z * speed);
+		target.syncVelocity = true;
+		target.needsSync = true;
+	}
+
+	/** Green souls thrown out in arcs from his raised hands, each to raise a draugr where it comes down. */
+	private void throwSouls(ServerLevel level, PhaseTwoSettings two) {
+		Vec3 hand = raisedHand();
+		level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 2.0F, 0.6F);
+		level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 0.7F);
+		int count = KoscheiLogic.thrallsToRaise(two.souls().count(), countThralls(level), two.thralls().cap());
+		double start = random.nextDouble() * Math.PI * 2.0;
+		for (int i = 0; i < count; i++) {
+			double angle = start + i * Math.PI * 2.0 / Math.max(1, count) + (random.nextDouble() - 0.5) * 0.8;
+			double distance = two.souls().spread() * (0.4 + random.nextDouble() * 0.6);
+			Vec3 spot = findStandingSpot(level, position().add(Math.cos(angle) * distance, 0.0, Math.sin(angle) * distance));
+			if (spot == null) {
+				continue;
+			}
+			Vec3 way = spot.subtract(hand);
+			double vy = (way.y + KoscheiOrb.SOUL_GRAVITY * SOUL_FLIGHT * (SOUL_FLIGHT + 1) / 2.0) / SOUL_FLIGHT;
+			level.addFreshEntity(new KoscheiOrb(level, this, KoscheiOrb.Kind.SOUL, hand, new Vec3(way.x / SOUL_FLIGHT, vy, way.z / SOUL_FLIGHT)));
+		}
+	}
+
+	/** One of his draugr climbs out of the ground at {@code at}, if there is room for it and he is under his cap. */
+	public void raiseThrall(ServerLevel level, Vec3 at) {
+		PhaseTwoSettings.Thralls thralls = phaseTwo().thralls();
+		if (countThralls(level) >= thralls.cap()) {
+			return;
+		}
+		Vec3 spot = findStandingSpot(level, at);
+		if (spot == null) {
+			return;
+		}
+		Draugr draugr = EamEntities.DRAUGR.create(level, EntitySpawnReason.MOB_SUMMONED);
+		if (draugr == null) {
+			return;
+		}
+		draugr.snapTo(spot.x, spot.y, spot.z, random.nextFloat() * 360.0F, 0.0F);
+		draugr.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(spot)), EntitySpawnReason.MOB_SUMMONED, null);
+		draugr.raiseAsThrall(level, this, getTarget(), spot, thralls.speedMultiplier(), thralls.healthMultiplier());
+		level.addFreshEntity(draugr);
+		thrallCount++;
+		level.sendParticles(ParticleTypes.SCULK_SOUL, spot.x, spot.y + 0.2, spot.z, 12, 0.4, 0.1, 0.4, 0.03);
+		level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 1.5F, 0.5F);
+	}
+
+	/** His draugr up now. */
+	private int countThralls(ServerLevel level) {
+		return level.getEntitiesOfClass(Draugr.class, getBoundingBox().inflate(THRALL_RANGE), draugr -> draugr.isAlive() && draugr.servedBy(this))
+				.size();
+	}
+
+	/** Vanishes as in his first phase, but stands far off the target instead of behind it. */
+	void startTeleportAway(LivingEntity target) {
+		startTeleport(target);
+		teleportCooldown = phaseTwo().teleport().cooldown();
+		teleportAway = true;
+	}
+
+	/** Stands about {@code distance} from the target, on the side away from it if there is room, facing it. */
+	private void teleportAwayFrom(ServerLevel level, LivingEntity target, double distance) {
+		Vec3 away = horizontal(position().subtract(target.position()));
+		float base = away == Vec3.ZERO ? random.nextFloat() * 360.0F : (float) (Mth.atan2(away.z, away.x) * Mth.RAD_TO_DEG) - 90.0F;
+		for (float angle : KoscheiLogic.teleportAngles(80.0F, random::nextDouble)) {
+			Vec3 dir = Vec3.directionFromRotation(0.0F, base + angle);
+			Vec3 spot = findStandingSpot(level, target.position().add(dir.scale(distance)));
+			if (spot != null) {
+				teleportTo(level, spot, target);
+				return;
+			}
+		}
 	}
 
 	// ---- Teleport and hops ----
@@ -1267,6 +1546,10 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** Whether his sword is free to turn blows and arrows aside: not while he is thrown off balance, casting or vanishing. */
 	private boolean guarding() {
+		if (phase() >= 2) {
+			// The staff does not turn blows aside.
+			return false;
+		}
 		return switch (action) {
 			case STAGGER, FORCE, BOLT -> false;
 			default -> true;
@@ -1281,6 +1564,10 @@ public class Koschei extends Monster implements BuildingAware {
 			return super.hurtServer(level, source, damage);
 		}
 		Entity attacker = source.getEntity();
+		if (action == KoscheiAction.TRANSFORM || attacker instanceof Draugr draugr && draugr.servedBy(this)) {
+			// Nothing touches him while he changes, and his own draugr do not hurt him.
+			return false;
+		}
 		boolean melee = attacker instanceof LivingEntity && source.getDirectEntity() == attacker;
 		if (melee && attacker instanceof Player player && player.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil) {
 			// The hit back after his lunge knocked the shield out.
@@ -1384,6 +1671,12 @@ public class Koschei extends Monster implements BuildingAware {
 	protected void actuallyHurt(ServerLevel level, DamageSource source, float damage) {
 		float before = getHealth();
 		super.actuallyHurt(level, source, damage);
+		if (phase() == 1 && getHealth() <= 0.0F && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			// Struck down in his first phase: he does not die, he changes.
+			setHealth(1.0F);
+			startTransform(level);
+			return;
+		}
 		if (isAlive()) {
 			leapIfHurtFast(level, source, before - getHealth());
 		}
@@ -1456,6 +1749,20 @@ public class Koschei extends Monster implements BuildingAware {
 		return position().add(swordTipOffset(yBodyRot, getBbHeight()));
 	}
 
+	/**
+	 * Where the crystal at the head of his staff is as he thrusts it out at the target, for a body turned {@code bodyYaw},
+	 * relative to his feet.
+	 */
+	public static Vec3 staffHeadOffset(float bodyYaw, float height) {
+		Vec3 forward = Vec3.directionFromRotation(0.0F, bodyYaw);
+		Vec3 left = Vec3.directionFromRotation(0.0F, bodyYaw - 90.0F);
+		return forward.scale(1.8).add(left.scale(0.4)).add(0.0, height * 1.1, 0.0);
+	}
+
+	private Vec3 staffHead() {
+		return position().add(staffHeadOffset(yBodyRot, getBbHeight()));
+	}
+
 	/** Where his right hand is as he raises it high to call up the ravens, in the world. */
 	public Vec3 raisedHand() {
 		Vec3 forward = Vec3.directionFromRotation(0.0F, yBodyRot);
@@ -1495,6 +1802,12 @@ public class Koschei extends Monster implements BuildingAware {
 		return false;
 	}
 
+	/** His draugr fight at his side. */
+	@Override
+	protected boolean considersEntityAsAlly(Entity other) {
+		return other instanceof Draugr draugr && draugr.servedBy(this) || super.considersEntityAsAlly(other);
+	}
+
 	@Override
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
@@ -1507,7 +1820,9 @@ public class Koschei extends Monster implements BuildingAware {
 		entityData.set(DATA_PHASE, input.getByteOr("Phase", (byte) 1));
 		applyStats(false);
 		bossEvent.setName(getDisplayName());
+		bossEvent.setColor(phase() >= 2 ? BossEvent.BossBarColor.GREEN : BossEvent.BossBarColor.PURPLE);
 		Arrays.fill(cooldowns, 0);
+		Arrays.fill(staffCooldowns, 0);
 	}
 
 	// ---- Sounds ----

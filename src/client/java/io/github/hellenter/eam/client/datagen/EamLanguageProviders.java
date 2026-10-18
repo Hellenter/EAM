@@ -461,6 +461,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_cleave.player", "%1$s was cut down by %2$s");
 			builder.add("death.attack.eam.koschei_lightning", "%1$s was struck by %2$s's lightning");
 			builder.add("death.attack.eam.koschei_lightning.player", "%1$s was struck by %2$s's lightning");
+			builder.add("death.attack.eam.koschei_sorcery", "%1$s was withered by %2$s's sorcery");
+			builder.add("death.attack.eam.koschei_sorcery.player", "%1$s was withered by %2$s's sorcery");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Koschei's blade glows orange");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Ravens scatter");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Phantom Raven");
@@ -472,6 +474,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.HAG_GLYPH, "Glyph");
 			builder.add(EamEntities.HAG_POTION, "Poison Flask");
 			builder.add(EamEntities.HAG_BOLT, "Witch Bolt");
+			builder.add(EamEntities.KOSCHEI_ORB, "Deathless Sorcery");
 			builder.add(EamEntities.HAG_THREAD, "Purple Thread");
 			builder.add("death.attack.eam.baba_yaga_curse", "%1$s was cursed to death by %2$s");
 			builder.add("death.attack.eam.baba_yaga_curse.player", "%1$s was cursed to death by %2$s");
@@ -1199,6 +1202,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_cleave.player", "%2$s зарубил %1$s");
 			builder.add("death.attack.eam.koschei_lightning", "%2$s испепелил %1$s молнией");
 			builder.add("death.attack.eam.koschei_lightning.player", "%2$s испепелил %1$s молнией");
+			builder.add("death.attack.eam.koschei_sorcery", "%2$s иссушил %1$s чародейством");
+			builder.add("death.attack.eam.koschei_sorcery.player", "%2$s иссушил %1$s чародейством");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Меч Кощея раскаляется");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Разлетаются вороны");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Призрачный ворон");
@@ -1210,6 +1215,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.HAG_GLYPH, "Глиф");
 			builder.add(EamEntities.HAG_POTION, "Ядовитая склянка");
 			builder.add(EamEntities.HAG_BOLT, "Колдовской заряд");
+			builder.add(EamEntities.KOSCHEI_ORB, "Кощеево чародейство");
 			builder.add(EamEntities.HAG_THREAD, "Фиолетовая нить");
 			builder.add("death.attack.eam.baba_yaga_curse", "%2$s прокляла %1$s до смерти");
 			builder.add("death.attack.eam.baba_yaga_curse.player", "%2$s прокляла %1$s до смерти");

@@ -15,11 +15,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param ravens              the flock of phantom ravens he calls up now and then
  * @param mobDamageMultiplier his blows deal this many times their damage to anything but a player
  * @param height              how he gets at a player who climbed out of his reach above him
+ * @param phaseTwo            the second phase, the lord of the undead
  */
 public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier,
-		Height height) {
+		Height height, PhaseTwoSettings phaseTwo) {
 	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
-			4.0F, Height.DEFAULT);
+			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
@@ -29,7 +30,8 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 			Ravens.CODEC.fieldOf("ravens").orElse(DEFAULT.ravens).forGetter(KoscheiSettings::ravens),
 			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
 					.forGetter(KoscheiSettings::mobDamageMultiplier),
-			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height)
+			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height),
+			PhaseTwoSettings.CODEC.fieldOf("phase_two").orElse(PhaseTwoSettings.DEFAULT).forGetter(KoscheiSettings::phaseTwo)
 	).apply(instance, KoscheiSettings::new));
 
 	/**

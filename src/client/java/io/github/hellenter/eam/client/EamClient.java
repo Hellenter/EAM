@@ -238,6 +238,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.HAG_GLYPH, HagGlyphRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_POTION, ThrownItemRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_BOLT, NoopRenderer::new);
+		EntityRendererRegistry.register(EamEntities.KOSCHEI_ORB, NoopRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_THREAD, HagThreadRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.FOOD_DRYER, FoodDryerRenderer::new);

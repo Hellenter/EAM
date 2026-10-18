@@ -47,7 +47,20 @@ public enum KoscheiAction {
 	/** Parried: thrown off balance and open to hits; then the burst of force. */
 	STAGGER(24),
 	/** The right hand raised high, dark motes gathering about it; three phantom ravens burst from it on {@link #SUMMON_RELEASE}. */
-	SUMMON(22);
+	SUMMON(22),
+	/**
+	 * Struck down in the first phase: his sword crumbles into a flock of ravens, they wheel about him and become a staff in
+	 * his hand on {@link #TRANSFORM_STAFF}; nothing hurts him meanwhile, and he rises at full health in his second phase.
+	 */
+	TRANSFORM(60),
+	/** The staff levelled at the target, a blue glow at its head; the bolt flies on {@link #STAFF_BOLT_RELEASE}. */
+	STAFF_BOLT(16),
+	/** A sweep of the staff at one who came close, on {@link #STAFF_STRIKE_HIT}; it throws them back. */
+	STAFF_STRIKE(14),
+	/** Both hands raised, green souls gathering; three fly out over the arena on {@link #SOULS_RELEASE}. */
+	SOULS(24),
+	/** The trap sprung: his eyes flicker purple and blue, he vanishes at the end and draugr rise round the target. */
+	TRAP(10);
 
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
@@ -67,6 +80,12 @@ public enum KoscheiAction {
 	public static final int BOLT_RELEASE = 18;
 	public static final int BOLT_END = 48;
 	public static final int SUMMON_RELEASE = 12;
+	/** The sword crumbles into ravens on this tick of the transformation, and the staff forms on the second. */
+	public static final int TRANSFORM_CRUMBLE = 12;
+	public static final int TRANSFORM_STAFF = 40;
+	public static final int STAFF_BOLT_RELEASE = 9;
+	public static final int STAFF_STRIKE_HIT = 7;
+	public static final int SOULS_RELEASE = 14;
 
 	private final int length;
 

@@ -58,6 +58,11 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(DamageTypeTags.BYPASSES_ARMOR).add(KoscheiModule.LIGHTNING_DAMAGE);
 		builder(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(KoscheiModule.LIGHTNING_DAMAGE);
 		builder(DamageTypeTags.NO_KNOCKBACK).add(KoscheiModule.LIGHTNING_DAMAGE);
+		// His sorcery in the second phase is pure damage too; he checks a shield held towards it himself.
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(KoscheiModule.SORCERY_DAMAGE);
+		builder(DamageTypeTags.BYPASSES_ARMOR).add(KoscheiModule.SORCERY_DAMAGE);
+		builder(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(KoscheiModule.SORCERY_DAMAGE);
+		builder(DamageTypeTags.NO_KNOCKBACK).add(KoscheiModule.SORCERY_DAMAGE);
 		// Weapon hits and projectiles, which the Fallen Lord partly resists.
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Choice;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
 
 import org.junit.jupiter.api.Test;
 
@@ -201,5 +202,39 @@ class KoscheiLogicTest {
 		assertEquals(KoscheiLogic.HeightAnswer.FORCE, KoscheiLogic.answerHeight(true, false, true, true, true, true));
 		assertEquals(KoscheiLogic.HeightAnswer.BOLT, KoscheiLogic.answerHeight(true, false, true, false, true, true));
 		assertNull(KoscheiLogic.answerHeight(false, true, false, true, true, false));
+	}
+
+	@Test
+	void withTheStaffHeSweepsAwayOneCloseElseRaisesTheDeadNowAndThenElseShoots() {
+		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
+		int[] ready = new int[StaffAttack.values().length];
+		assertEquals(StaffAttack.STRIKE, KoscheiLogic.chooseStaff(two.strike().reach(), true, ready, 0, two, () -> 0.99));
+		assertEquals(StaffAttack.SOULS, KoscheiLogic.chooseStaff(8.0, true, ready, 0, two, () -> 0.0));
+		// At his cap of draugr he raises no more: the bolt instead.
+		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, two.thralls().cap(), two, () -> 0.0));
+		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, 0, two, () -> 0.99));
+		assertNull(KoscheiLogic.chooseStaff(8.0, false, ready, 0, two, () -> 0.99));
+		int[] soulsCooling = new int[StaffAttack.values().length];
+		soulsCooling[StaffAttack.SOULS.ordinal()] = 1;
+		assertEquals(StaffAttack.TRAP, KoscheiLogic.chooseStaff(8.0, true, soulsCooling, 0, two, () -> 0.0));
+		int[] boltCooling = new int[StaffAttack.values().length];
+		boltCooling[StaffAttack.BOLT.ordinal()] = 1;
+		assertNull(KoscheiLogic.chooseStaff(8.0, true, boltCooling, 0, two, () -> 0.99));
+	}
+
+	@Test
+	void heNeverRaisesMoreDraugrThanHisCap() {
+		assertEquals(3, KoscheiLogic.thrallsToRaise(3, 0, 5));
+		assertEquals(2, KoscheiLogic.thrallsToRaise(3, 3, 5));
+		assertEquals(0, KoscheiLogic.thrallsToRaise(3, 5, 5));
+		assertEquals(0, KoscheiLogic.thrallsToRaise(3, 7, 5));
+	}
+
+	@Test
+	void hisHealthFillsThroughTheTransformation() {
+		assertEquals(1.0F, KoscheiLogic.transformHealth(0, 60, 1.0F, 120.0F));
+		assertEquals(60.5F, KoscheiLogic.transformHealth(30, 60, 1.0F, 120.0F), 1.0E-4F);
+		assertEquals(120.0F, KoscheiLogic.transformHealth(60, 60, 1.0F, 120.0F));
+		assertEquals(120.0F, KoscheiLogic.transformHealth(90, 60, 1.0F, 120.0F));
 	}
 }

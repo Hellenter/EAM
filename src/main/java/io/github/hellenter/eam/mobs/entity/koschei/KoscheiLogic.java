@@ -253,4 +253,51 @@ public final class KoscheiLogic {
 		}
 		return boltReady && sees ? HeightAnswer.BOLT : null;
 	}
+
+	// ---- Second phase ----
+
+	/** His attacks with the staff in his second phase. */
+	public enum StaffAttack {
+		BOLT,
+		STRIKE,
+		SOULS,
+		/** Not an attack yet: he stops backing off and waits for the target to come close, then springs the trap. */
+		TRAP
+	}
+
+	/**
+	 * What he does next in his second phase, or null to keep moving: the staff blow at a target in its reach; else, now
+	 * and then, the souls while there is room under his cap of draugr, or the trap; else the bolt at a target in sight.
+	 *
+	 * @param cooldowns ticks left for each {@link StaffAttack}, by ordinal
+	 * @param thralls   his draugr up now
+	 * @param rolls     random numbers in [0, 1)
+	 */
+	public static @Nullable StaffAttack chooseStaff(double distance, boolean sees, int[] cooldowns, int thralls, PhaseTwoSettings two,
+			DoubleSupplier rolls) {
+		if (cooldowns[StaffAttack.STRIKE.ordinal()] <= 0 && distance <= two.strike().reach()) {
+			return StaffAttack.STRIKE;
+		}
+		if (cooldowns[StaffAttack.SOULS.ordinal()] <= 0 && thralls < two.thralls().cap() && rolls.getAsDouble() < two.souls().chance()) {
+			return StaffAttack.SOULS;
+		}
+		if (cooldowns[StaffAttack.TRAP.ordinal()] <= 0 && thralls < two.thralls().cap() && rolls.getAsDouble() < two.trap().chance()) {
+			return StaffAttack.TRAP;
+		}
+		if (sees && cooldowns[StaffAttack.BOLT.ordinal()] <= 0 && distance <= two.bolt().maxRange()) {
+			return StaffAttack.BOLT;
+		}
+		return null;
+	}
+
+	/** How many of {@code wanted} draugr he may raise with {@code alive} already up, so as not to pass {@code cap}. */
+	public static int thrallsToRaise(int wanted, int alive, int cap) {
+		return Math.max(0, Math.min(wanted, cap - alive));
+	}
+
+	/** His health through the transformation: from {@code from} up to {@code full} as it goes, full at its end. */
+	public static float transformHealth(int t, int length, float from, float full) {
+		float progress = Math.clamp((float) t / Math.max(1, length), 0.0F, 1.0F);
+		return from + (full - from) * progress;
+	}
 }
