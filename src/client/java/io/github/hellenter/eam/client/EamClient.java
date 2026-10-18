@@ -65,6 +65,7 @@ import io.github.hellenter.eam.client.mobs.koschei.KoscheiBolts;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiModel;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiRavenModel;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiRavenParticle;
+import io.github.hellenter.eam.client.mobs.koschei.KoscheiIceRavenRenderer;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiRavenRenderer;
 import io.github.hellenter.eam.client.mobs.koschei.KoscheiRenderer;
 import io.github.hellenter.eam.client.mobs.yaga.HagGlyphRenderer;
@@ -171,6 +172,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.KOSCHEI, KoscheiRenderer::new);
 		ModelLayerRegistry.registerModelLayer(KoscheiRavenModel.LAYER, KoscheiRavenModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.KOSCHEI_RAVEN, KoscheiRavenRenderer::new);
+		EntityRendererRegistry.register(EamEntities.KOSCHEI_ICE_RAVEN, KoscheiIceRavenRenderer::new);
+		EntityRendererRegistry.register(EamEntities.KOSCHEI_BALL_LIGHTNING, NoopRenderer::new);
 		ConvulsionsClient.register();
 		KoscheiBolts.register();
 		ModelLayerRegistry.registerModelLayer(FallenLordGearModel.LAYER, FallenLordGearModel::createLayer);

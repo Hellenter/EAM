@@ -78,6 +78,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.ADAMANTIUM_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createTrivialCube(EamBlocks.DEEP_BEDROCK);
+		generators.createTrivialCube(EamBlocks.KOSCHEI_ICE);
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_CAP);
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_STEM);
 		generators.createMushroomBlock(EamBlocks.CHAMPIGNON_CAP);
