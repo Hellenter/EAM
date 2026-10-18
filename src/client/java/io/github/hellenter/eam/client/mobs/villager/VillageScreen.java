@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageGuardPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageListPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageResidentRequestPayload;
@@ -76,6 +77,7 @@ public class VillageScreen extends Screen {
 		left = (width - WIDTH) / 2;
 		top = (height - HEIGHT) / 2;
 		scroll = Mth.clamp(scroll, 0, maxScroll());
+		addUpgradesButton();
 		List<VillageListPayload.Resident> residents = village.villagers();
 		for (int row = 0; row < ROWS && scroll + row < residents.size(); row++) {
 			VillageListPayload.Resident resident = residents.get(scroll + row);
@@ -91,6 +93,14 @@ public class VillageScreen extends Screen {
 			button.active = village.guards();
 			addRenderableWidget(button);
 		}
+	}
+
+	/** The upgrades button under the window: the elder's resources and orders. */
+	private void addUpgradesButton() {
+		addRenderableWidget(Button.builder(Component.translatable("gui.eam.village.upgrades"),
+						pressed -> ClientPlayNetworking.send(new VillageEconomyOpenPayload(village.elderId())))
+				.bounds(left + WIDTH - 90, top + HEIGHT + 2, 90, 20)
+				.build());
 	}
 
 	int elderId() {

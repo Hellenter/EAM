@@ -1,4 +1,5 @@
 {
+  "goods": "eam:village_components/farmer",
   "item": "minecraft:wooden_hoe",
   "tools": "eam:villager_tools/farmer"
 }

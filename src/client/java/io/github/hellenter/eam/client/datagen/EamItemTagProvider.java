@@ -17,6 +17,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
+import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.farming.HarvestModule;
@@ -130,6 +131,19 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		for (var profession : List.of(VillagerProfession.FARMER, VillagerProfession.MASON, VillagerProfession.FISHERMAN, VillagerProfession.SHEPHERD,
 				VillagerProfession.BUTCHER, VillagerProfession.ARMORER, VillagerProfession.TOOLSMITH, VillagerProfession.WEAPONSMITH)) {
 			elderGoods.forceAddTag(VillagerGearModule.toolsTag(profession));
+		}
+		component("farmer", Items.BONE_MEAL);
+		component("fisherman", Items.STRING);
+		builder(EconomySettings.componentsTag("butcher")).forceAddTag(ItemTags.COALS);
+		component("mason", Items.CLAY_BALL);
+		for (String smith : List.of("armorer", "toolsmith", "weaponsmith")) builder(EconomySettings.componentsTag(smith)).forceAddTag(ItemTags.COALS);
+		component("fletcher", Items.FLINT, Items.FEATHER);
+		builder(EconomySettings.componentsTag("shepherd")).forceAddTag(ConventionalItemTags.DYES);
+		component("leatherworker", Items.RABBIT_HIDE);
+		component("librarian", Items.PAPER);
+		for (String profession : List.of("farmer", "fisherman", "butcher", "mason", "armorer", "toolsmith", "weaponsmith", "fletcher", "shepherd",
+				"leatherworker", "librarian")) {
+			elderGoods.forceAddTag(EconomySettings.componentsTag(profession));
 		}
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
@@ -363,5 +377,11 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	private static List<ResourceKey<Item>> keys(Item... items) {
 		return Arrays.stream(items).map(item -> BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow()).toList();
+	}
+
+	/** The components that raise a trade's share of the village economy. */
+	private void component(String profession, Item... items) {
+		var builder = builder(EconomySettings.componentsTag(profession));
+		for (Item item : items) builder.add(item.builtInRegistryHolder().key());
 	}
 }

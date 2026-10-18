@@ -1,8 +1,10 @@
 package io.github.hellenter.eam.mixin.mobs.vanilla.villager;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerAlarmModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerButcherModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerChestModule;
@@ -27,7 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * A villager who takes up a trade gets its work item; now and then his gear gets mended and his trade feeds the
- * village; he keeps his things in his locked chest; his brain waits while he fights as a guard, answers the village alarm or a player has his inventory open.
+ * village; he keeps his things in his locked chest and brings his share to the elder; he has children only with a
+ * bed and food for them; his brain waits while he fights as a guard, answers the village alarm or a player has his inventory open.
  */
 @Mixin(Villager.class)
 abstract class VillagerMixin {
@@ -53,5 +56,11 @@ abstract class VillagerMixin {
 		VillagerGuardModule.tick((Villager) (Object) this, level);
 		VillagerAlarmModule.tick((Villager) (Object) this, level);
 		VillagerChestModule.tick((Villager) (Object) this, level);
+		VillageEconomyModule.tick((Villager) (Object) this, level);
+	}
+
+	@ModifyReturnValue(method = "canBreed", at = @At("RETURN"))
+	private boolean eam$needsBedAndFood(boolean original) {
+		return VillageEconomyModule.canBreed((Villager) (Object) this, original);
 	}
 }

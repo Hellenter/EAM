@@ -72,10 +72,11 @@ public record EamConfig(
 		boolean nemesis,
 		boolean villagerAlarm,
 		boolean deathPenalty,
-		boolean villagerChests
+		boolean villagerChests,
+		boolean villageEconomy
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -142,17 +143,18 @@ public record EamConfig(
 	}
 
 	/** The fourth map codec, nested in {@link LastFlags} for flags after {@code villager_elder}: add new flags here. */
-	private record ExtraFlags(boolean mobNoise, boolean nemesis, boolean villagerAlarm, boolean deathPenalty, boolean villagerChests) {
+	private record ExtraFlags(boolean mobNoise, boolean nemesis, boolean villagerAlarm, boolean deathPenalty, boolean villagerChests, boolean villageEconomy) {
 		private static final MapCodec<ExtraFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("mob_noise", DEFAULT.mobNoise).forGetter(ExtraFlags::mobNoise),
 				Codec.BOOL.optionalFieldOf("nemesis", DEFAULT.nemesis).forGetter(ExtraFlags::nemesis),
 				Codec.BOOL.optionalFieldOf("villager_alarm", DEFAULT.villagerAlarm).forGetter(ExtraFlags::villagerAlarm),
 				Codec.BOOL.optionalFieldOf("death_penalty", DEFAULT.deathPenalty).forGetter(ExtraFlags::deathPenalty),
-				Codec.BOOL.optionalFieldOf("villager_chests", DEFAULT.villagerChests).forGetter(ExtraFlags::villagerChests)
+				Codec.BOOL.optionalFieldOf("villager_chests", DEFAULT.villagerChests).forGetter(ExtraFlags::villagerChests),
+				Codec.BOOL.optionalFieldOf("village_economy", DEFAULT.villageEconomy).forGetter(ExtraFlags::villageEconomy)
 		).apply(instance, ExtraFlags::new));
 
 		private static ExtraFlags of(EamConfig config) {
-			return new ExtraFlags(config.mobNoise, config.nemesis, config.villagerAlarm, config.deathPenalty, config.villagerChests);
+			return new ExtraFlags(config.mobNoise, config.nemesis, config.villagerAlarm, config.deathPenalty, config.villagerChests, config.villageEconomy);
 		}
 	}
 
@@ -180,7 +182,7 @@ public record EamConfig(
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
 			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding, last.monsterEvolution, last.blueMoon,
-			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.extra.mobNoise, last.extra.nemesis, last.extra.villagerAlarm, last.extra.deathPenalty, last.extra.villagerChests)));
+			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.extra.mobNoise, last.extra.nemesis, last.extra.villagerAlarm, last.extra.deathPenalty, last.extra.villagerChests, last.extra.villageEconomy)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
