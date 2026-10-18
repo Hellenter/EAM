@@ -18,6 +18,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The silver brewing stand: brews holy water and light potions from its own recipe type ({@code eam:silver_brewing}),
@@ -112,6 +115,14 @@ public final class BrewingModule {
 
 	public static void init() {
 		replaceInStructures = true;
+	}
+
+	/** The silver stand is the cleric's job site, like the vanilla stand it replaces in villages. */
+	public static Optional<Holder<PoiType>> poiType(BlockState state, Optional<Holder<PoiType>> type) {
+		if (type.isPresent() || !state.is(EamBlocks.SILVER_BREWING_STAND)) {
+			return type;
+		}
+		return BuiltInRegistries.POINT_OF_INTEREST_TYPE.get(PoiTypes.CLERIC).map(cleric -> cleric);
 	}
 
 	/** Called for every structure piece being placed: vanilla brewing stands become silver ones, contents and bottles kept. */

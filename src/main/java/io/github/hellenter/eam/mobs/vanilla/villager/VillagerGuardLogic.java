@@ -13,9 +13,12 @@ public final class VillagerGuardLogic {
 		return adult && weaponInHand && (armorPieces > 0 || guardProfession);
 	}
 
-	/** A jobless villager armed as a guard takes the guard profession instead of a job. */
-	public static boolean becomesGuard(boolean jobless, boolean armedAsGuard) {
-		return jobless && armedAsGuard;
+	/**
+	 * A jobless villager armed as a guard takes the guard profession instead of a job, unless a player dismissed him
+	 * from it and he has not had a job since.
+	 */
+	public static boolean becomesGuard(boolean jobless, boolean armedAsGuard, boolean dismissed) {
+		return jobless && armedAsGuard && !dismissed;
 	}
 
 	/** Whether a guard drawing his bow for {@code drawnTicks} lets the arrow go. */
