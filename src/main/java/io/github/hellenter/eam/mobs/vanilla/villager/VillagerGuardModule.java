@@ -4,9 +4,12 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
 
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Codec;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -43,12 +46,16 @@ import net.minecraft.world.item.ProjectileWeaponItem;
  * <p>
  * Guarding is a profession of its own, {@code eam:guard}, with no job site and no trades. A jobless villager armed as a
  * guard takes it instead of looking for a job, and a player can make any grown villager a guard with the button in his
- * inventory. A guard of the profession fights with a weapon alone, armor or not.
+ * inventory. A guard of the profession fights with a weapon alone, armor or not. The same button turns a guard back into
+ * a jobless villager, who then looks for a job instead of taking up guarding again.
  */
 public final class VillagerGuardModule {
 	public static final ResourceKey<VillagerProfession> GUARD = ResourceKey.create(Registries.VILLAGER_PROFESSION, Eam.id("guard"));
 	private static final int PROFESSION_CHECK_TICKS = 20;
 	private static final byte HAPPY_PARTICLES = 14;
+	/** Set on a guard a player dismissed, until he takes a job: he does not become a guard again on his own. */
+	public static final AttachmentType<Boolean> DISMISSED = AttachmentRegistry.create(Eam.id("villager_guard_dismissed"),
+			builder -> builder.persistent(Codec.BOOL));
 
 	private static volatile GuardSettings settings = GuardSettings.DEFAULT;
 	private static boolean enabled;
@@ -68,9 +75,12 @@ public final class VillagerGuardModule {
 	public static void init() {
 		enabled = true;
 		ServerPlayNetworking.registerGlobalReceiver(VillagerGuardPayload.TYPE, (payload, context) -> {
-			if (context.player().containerMenu instanceof VillagerGearMenu menu && menu.villager() != null
-					&& !menu.villager().isBaby() && !isGuardProfession(menu.villager())) {
-				makeGuard(menu.villager(), context.player().level());
+			if (!(context.player().containerMenu instanceof VillagerGearMenu menu) || menu.villager() == null || menu.villager().isBaby()) return;
+			Villager villager = menu.villager();
+			if (payload.guard() && !isGuardProfession(villager)) {
+				makeGuard(villager, context.player().level());
+			} else if (!payload.guard() && isGuardProfession(villager)) {
+				dismiss(villager, context.player().level());
 			}
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
@@ -104,13 +114,16 @@ public final class VillagerGuardModule {
 	/** Called every tick a villager thinks on the server: a jobless villager armed as a guard takes the profession. */
 	public static void tick(Villager villager, ServerLevel level) {
 		if (!enabled || !VillagerRepairLogic.checksNow(level.getGameTime(), villager.getId(), PROFESSION_CHECK_TICKS)) return;
-		if (VillagerGuardLogic.becomesGuard(villager.getVillagerData().profession().is(VillagerProfession.NONE), isGuard(villager))) {
+		boolean jobless = villager.getVillagerData().profession().is(VillagerProfession.NONE);
+		if (!jobless) villager.removeAttached(DISMISSED);
+		if (VillagerGuardLogic.becomesGuard(jobless, isGuard(villager), villager.hasAttached(DISMISSED))) {
 			makeGuard(villager, level);
 		}
 	}
 
 	/** Gives the villager the guard profession: he leaves his job site, and his trades and work item go. */
 	static void makeGuard(Villager villager, ServerLevel level) {
+		villager.removeAttached(DISMISSED);
 		villager.releasePoi(MemoryModuleType.JOB_SITE);
 		villager.releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
 		villager.getBrain().eraseMemory(MemoryModuleType.JOB_SITE);
@@ -121,6 +134,15 @@ public final class VillagerGuardModule {
 		villager.refreshBrain(level);
 		level.broadcastEntityEvent(villager, HAPPY_PARTICLES);
 		villager.makeSound(SoundEvents.VILLAGER_CELEBRATE);
+	}
+
+	/** Takes the guard profession away: he is a jobless villager again and goes looking for a job site. */
+	static void dismiss(Villager villager, ServerLevel level) {
+		villager.setAttached(DISMISSED, true);
+		villager.setVillagerData(villager.getVillagerData().withProfession(level.registryAccess(), VillagerProfession.NONE).withLevel(1));
+		villager.setVillagerXp(0);
+		villager.refreshBrain(level);
+		villager.makeSound(SoundEvents.VILLAGER_YES);
 	}
 
 	static boolean hasBow(Villager villager) {
