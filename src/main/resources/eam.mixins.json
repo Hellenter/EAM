@@ -45,6 +45,7 @@
 		"mobs.vanilla.TargetGoalAccessor",
 		"mobs.vanilla.TrialSpawnerMixin",
 		"survival.bleeding.PlayerBleedingMixin",
+		"survival.death.PlayerDeathMixin",
 		"survival.hunger.ConsumableMixin",
 		"survival.hunger.FoodDataAccessor",
 		"survival.hunger.FoodDataMixin",

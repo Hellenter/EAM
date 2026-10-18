@@ -735,7 +735,7 @@ public final class EamLanguageProviders {
 			builder.add(PredatorModule.RAIDERS, "Raid Open Pens at Night");
 			builder.add(NemesisModule.EXCLUDED, "Never Become a Nemesis");
 			builder.add("eam.nemesis.name", "%s, Slayer of %s");
-			builder.add("eam.nemesis.took", "%s takes your %s");
+			builder.add("gamerule.eam.keep_inventory_on_boss_death", "Keep inventory when killed by a boss");
 			builder.add("itemGroup.eam.survival", "EAM: Survival");
 			builder.add("itemGroup.eam.metals", "EAM: Ores and Metals");
 			builder.add("itemGroup.eam.tools", "EAM: Tools");
@@ -1436,7 +1436,7 @@ public final class EamLanguageProviders {
 			builder.add(PredatorModule.RAIDERS, "Нападают ночью на открытые загоны");
 			builder.add(NemesisModule.EXCLUDED, "Не становятся мстителями");
 			builder.add("eam.nemesis.name", "%s, убийца %s");
-			builder.add("eam.nemesis.took", "%s забирает: %s");
+			builder.add("gamerule.eam.keep_inventory_on_boss_death", "Сохранять вещи при смерти от босса");
 			builder.add("itemGroup.eam.survival", "EAM: Выживание");
 			builder.add("itemGroup.eam.metals", "EAM: Руды и металлы");
 			builder.add("itemGroup.eam.tools", "EAM: Инструменты");

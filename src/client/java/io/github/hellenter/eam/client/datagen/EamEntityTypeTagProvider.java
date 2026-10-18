@@ -13,6 +13,7 @@ import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
+import io.github.hellenter.eam.survival.death.DeathModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -74,11 +75,13 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(MonsterEvolutionModule.ARMORED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
 						EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
-		// Bosses keep their own name and fight; they never become a player's nemesis.
-		builder(NemesisModule.EXCLUDED)
+		// Bosses: a player they kill keeps their things while the game rule is on.
+		builder(DeathModule.BOSSES)
 				.add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(), EamEntities.BABA_YAGA.builtInRegistryHolder().key(),
 						EamEntities.KOSCHEI.builtInRegistryHolder().key(), EamEntities.PILLAGER_KING.builtInRegistryHolder().key())
 				.add(EntityTypeIds.WITHER, EntityTypeIds.ENDER_DRAGON);
+		// Bosses keep their own name and fight; they never become a player's nemesis.
+		builder(NemesisModule.EXCLUDED).addTag(DeathModule.BOSSES);
 		builder(MonsterEvolutionModule.ARMED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER);
 		// Later phases: skeletons carry a blade for close quarters, spiders spit webs.
