@@ -13,6 +13,8 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.equipment.Equippable;
 
 import org.jspecify.annotations.Nullable;
@@ -224,6 +227,16 @@ public final class VillagerElderModule {
 		return VillagerElderLogic.Kind.OTHER;
 	}
 
+	/** Whether the potion heals: the only kind a villager who is no guard drinks. */
+	private static boolean heals(ItemStack stack) {
+		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+		if (contents == null) return false;
+		for (MobEffectInstance effect : contents.getAllEffects()) {
+			if (effect.is(MobEffects.INSTANT_HEALTH) || effect.is(MobEffects.REGENERATION)) return true;
+		}
+		return false;
+	}
+
 	private static boolean isPotion(ItemStack stack) {
 		return stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION);
 	}
@@ -239,8 +252,8 @@ public final class VillagerElderModule {
 	/**
 	 * Who should get some of {@code stack} now, if anyone. Armor, weapons and shields go to the best-armed villager who
 	 * can take them, tools to a villager of their trade with a free hand, goods to a villager of their trade, food to
-	 * the hungriest. Potions go to the guard with the fewest short of his share, then to a villager with none; arrows to
-	 * the guard with a bow and the fewest. Nothing is moved yet.
+	 * the hungriest. Potions go to the guard with the fewest short of his share, then healing ones to a villager with none;
+	 * arrows to the guard with a bow and the fewest. Nothing is moved yet.
 	 */
 	private static @Nullable Gift gift(ItemStack stack, List<Villager> near, ElderSettings current) {
 		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
@@ -270,7 +283,7 @@ public final class VillagerElderModule {
 					.filter(villager -> VillagerGuardModule.isGuard(villager) && potions(villager) < potionMax && villager.getInventory().canAddItem(stack))
 					.min(Comparator.comparingInt(VillagerElderModule::potions))
 					.map(villager -> new Gift(villager, null, 1)).orElse(null);
-			if (guard != null) return guard;
+			if (guard != null || !heals(stack)) return guard;
 			return near.stream()
 					.filter(villager -> !VillagerGuardModule.isGuard(villager) && !villager.getVillagerData().profession().is(VillagerProfession.CLERIC)
 							&& potions(villager) == 0 && villager.getInventory().canAddItem(stack))
