@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.vanilla.villager;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.EamItems;
 
 import com.mojang.serialization.Codec;
 
@@ -19,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Prediction;
 import net.minecraft.util.SpawnUtil;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -99,8 +101,10 @@ public final class VillageEconomyModule {
 			if (elder == null) return;
 			if (payload.order().isEmpty()) {
 				elder.setAttached(TREASURY, treasury(elder).withGoal(Optional.empty()));
+			} else if (payload.take()) {
+				take(elder, context.player(), payload.order());
 			} else if (settings.orders().containsKey(payload.order())) {
-				order(elder, context.player().level(), payload.order());
+				order(elder, context.player().level(), payload.order(), context.player());
 			}
 			send(context.player(), elder);
 		});
@@ -108,6 +112,10 @@ public final class VillageEconomyModule {
 
 	static void setSettings(EconomySettings value) {
 		settings = value;
+	}
+
+	static EconomySettings settings() {
+		return settings;
 	}
 
 	private static @Nullable Villager elderFor(ServerPlayer player, int elderId) {
@@ -250,13 +258,16 @@ public final class VillageEconomyModule {
 			if (order == null) {
 				elder.setAttached(TREASURY, treasury(elder).withGoal(Optional.empty()));
 			} else if (VillageEconomyLogic.affords(treasury(elder).stock(), order.cost())) {
-				order(elder, level, goal);
+				order(elder, level, goal, null);
 			}
 		});
 	}
 
-	/** Carries the order out if the stock covers it and it is available; else the village saves up for it. */
-	static void order(Villager elder, ServerLevel level, String id) {
+	/**
+	 * Carries the order out if the stock covers it and it is available; else the village saves up for it. A blueprint
+	 * goes to {@code player}, or with none (the village saved up for it) waits for a player to take it.
+	 */
+	static void order(Villager elder, ServerLevel level, String id, @Nullable ServerPlayer player) {
 		EconomySettings current = settings;
 		EconomySettings.Order order = current.orders().get(id);
 		if (order == null || !available(elder, level, id, current)) return;
@@ -265,7 +276,15 @@ public final class VillageEconomyModule {
 			elder.setAttached(TREASURY, treasury.withGoal(Optional.of(id)));
 			return;
 		}
-		if (!carryOut(elder, level, id)) return;
+		if (order.blueprint()) {
+			if (player == null) {
+				treasury = treasury.withReady(id, true);
+			} else if (!give(elder, player, id, order)) {
+				return;
+			}
+		} else if (!carryOut(elder, level, id)) {
+			return;
+		}
 		VillageTreasury paid = treasury.pay(order.cost());
 		if (paid.goal().filter(id::equals).isPresent()) paid = paid.withGoal(Optional.empty());
 		elder.setAttached(TREASURY, paid);
@@ -273,10 +292,38 @@ public final class VillageEconomyModule {
 		elder.makeSound(SoundEvents.VILLAGER_CELEBRATE);
 	}
 
-	/** Whether the order can be had now, the stock aside: a golem only while the village may have one more. */
+	/**
+	 * Whether the order can be had now, the stock aside: a golem only while the village may have one more, a blueprint
+	 * only while buildings are on.
+	 */
 	private static boolean available(Villager elder, ServerLevel level, String id, EconomySettings current) {
 		if (EconomySettings.IRON_GOLEM.equals(id)) return golems(elder, level) < golemsAllowed(elder, level, current);
+		EconomySettings.Order order = current.orders().get(id);
+		return order == null || !order.blueprint()
+				|| VillageBuildModule.enabled() && VillageBuildModule.template(order, style(elder), elder.getRandom()).isPresent();
+	}
+
+	/** The village's building style: the elder's villager type. */
+	private static String style(Villager elder) {
+		return elder.getVillagerData().type().unwrapKey().map(key -> key.identifier().getPath()).orElse("plains");
+	}
+
+	/** Gives the player a blueprint of the order in the village's style; whether one could be made. */
+	private static boolean give(Villager elder, ServerPlayer player, String id, EconomySettings.Order order) {
+		Optional<Identifier> template = VillageBuildModule.template(order, style(elder), elder.getRandom());
+		if (template.isEmpty()) return false;
+		ItemStack blueprint = new ItemStack(EamItems.BLUEPRINT);
+		blueprint.set(VillageBuildModule.BLUEPRINT, new BlueprintData(template.get(), id, 0));
+		if (!player.getInventory().add(blueprint)) player.drop(blueprint, false, Prediction.SERVER_ONLY);
 		return true;
+	}
+
+	/** The player takes a blueprint the village saved up for. */
+	private static void take(Villager elder, ServerPlayer player, String id) {
+		EconomySettings.Order order = settings.orders().get(id);
+		VillageTreasury treasury = treasury(elder);
+		if (order == null || !treasury.ready().contains(id) || !give(elder, player, id, order)) return;
+		elder.setAttached(TREASURY, treasury.withReady(id, false));
 	}
 
 	private static boolean carryOut(Villager elder, ServerLevel level, String id) {
@@ -393,7 +440,8 @@ public final class VillageEconomyModule {
 		current.orders().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
 			List<Double> cost = new ArrayList<>();
 			for (VillageResource resource : VillageResource.values()) cost.add(entry.getValue().cost().getOrDefault(resource, 0.0));
-			orders.add(new VillageEconomyPayload.OrderView(entry.getKey(), cost, available(elder, level, entry.getKey(), current)));
+			int ready = (int) treasury.ready().stream().filter(entry.getKey()::equals).count();
+			orders.add(new VillageEconomyPayload.OrderView(entry.getKey(), cost, available(elder, level, entry.getKey(), current), ready));
 		});
 		ServerPlayNetworking.send(player, new VillageEconomyPayload(elder.getId(), stock, incomes, status, treasury.goal(), orders));
 	}

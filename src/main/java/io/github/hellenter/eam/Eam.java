@@ -52,6 +52,7 @@ import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageBuildModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerAlarmModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerButcherModule;
@@ -191,6 +192,7 @@ public class Eam implements ModInitializer {
 		VillagerAlarmModule.register();
 		VillagerChestModule.register();
 		VillageEconomyModule.register();
+		VillageBuildModule.register();
 		EnchantingModule.register();
 		ShieldModule.register();
 		SafeRoomModule.register();
@@ -260,6 +262,7 @@ public class Eam implements ModInitializer {
 		if (config.villagerGear() && config.villagerAlarm()) VillagerAlarmModule.init();
 		if (config.villagerGear() && config.villagerChests()) VillagerChestModule.init();
 		if (config.villagerGear() && config.villagerElder() && config.villageEconomy()) VillageEconomyModule.init();
+		if (config.villagerGear() && config.villagerElder() && config.villageEconomy() && config.villageBuildings()) VillageBuildModule.init();
 		if (config.enchanting()) ShieldModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();

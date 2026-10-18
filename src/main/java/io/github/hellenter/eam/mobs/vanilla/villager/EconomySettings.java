@@ -12,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,10 +34,13 @@ import java.util.Optional;
  * @param toolTiers        the share multiplier of a tool by the tier of its material, named by the blocks it cannot mine
  * @param untieredTool     the multiplier of a tool with no tier, such as shears or a fishing rod
  * @param orders           what the elder can order with the stock, by id
+ * @param builders         villagers who build one building at a time at most
+ * @param ticksPerBlock    ticks a builder takes for each block
  */
 public record EconomySettings(int periodTicks, double upkeep, double breedCost, int villagersPerGuard, int guardCheckTicks,
 		int villagersPerGolem, double levelBonus, double componentBonus, int componentsMax, int farmRadius,
-		Map<Identifier, Yield> professions, Map<TagKey<Block>, Double> toolTiers, double untieredTool, Map<String, Order> orders) {
+		Map<Identifier, Yield> professions, Map<TagKey<Block>, Double> toolTiers, double untieredTool, Map<String, Order> orders,
+		int builders, int ticksPerBlock) {
 
 	/**
 	 * What a villager of one profession brings.
@@ -58,19 +62,27 @@ public record EconomySettings(int periodTicks, double upkeep, double breedCost, 
 	/**
 	 * Something the elder can order.
 	 *
-	 * @param cost what it takes from the stock
+	 * @param cost      what it takes from the stock
+	 * @param templates for a blueprint, the structure templates of the building by the village's villager type (its
+	 *                  style, such as {@code plains} or {@code desert}), one picked at random, or {@code default} for
+	 *                  any other type; empty for anything else
 	 */
-	public record Order(Map<VillageResource, Double> cost) {
+	public record Order(Map<VillageResource, Double> cost, Map<String, List<Identifier>> templates) {
 		public static final Codec<Order> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Codec.unboundedMap(VillageResource.CODEC, Codec.doubleRange(0.0, 100_000.0)).fieldOf("cost").forGetter(Order::cost)
+				Codec.unboundedMap(VillageResource.CODEC, Codec.doubleRange(0.0, 100_000.0)).fieldOf("cost").forGetter(Order::cost),
+				Codec.unboundedMap(Codec.STRING, Identifier.CODEC.listOf()).optionalFieldOf("templates", Map.of()).forGetter(Order::templates)
 		).apply(instance, Order::new));
+
+		public boolean blueprint() {
+			return !templates.isEmpty();
+		}
 	}
 
 	/** The id of the iron golem order. */
 	public static final String IRON_GOLEM = "iron_golem";
 
 	public static final EconomySettings DEFAULT = new EconomySettings(12_000, 0.25, 6.0, 8, 600, 8, 0.25, 0.15, 4, 16,
-			defaultProfessions(), defaultToolTiers(), 1.5, defaultOrders());
+			defaultProfessions(), defaultToolTiers(), 1.5, defaultOrders(), 3, 12);
 
 	public static final Codec<EconomySettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(200, 1_000_000).fieldOf("period_ticks").orElse(DEFAULT.periodTicks).forGetter(EconomySettings::periodTicks),
@@ -87,7 +99,9 @@ public record EconomySettings(int periodTicks, double upkeep, double breedCost, 
 			Codec.unboundedMap(TagKey.codec(Registries.BLOCK), Codec.doubleRange(0.0, 100.0)).fieldOf("tool_tiers").orElse(DEFAULT.toolTiers)
 					.forGetter(EconomySettings::toolTiers),
 			Codec.doubleRange(0.0, 100.0).fieldOf("untiered_tool").orElse(DEFAULT.untieredTool).forGetter(EconomySettings::untieredTool),
-			Codec.unboundedMap(Codec.STRING, Order.CODEC).fieldOf("orders").orElse(DEFAULT.orders).forGetter(EconomySettings::orders)
+			Codec.unboundedMap(Codec.STRING, Order.CODEC).fieldOf("orders").orElse(DEFAULT.orders).forGetter(EconomySettings::orders),
+			Codec.intRange(1, 16).fieldOf("builders").orElse(DEFAULT.builders).forGetter(EconomySettings::builders),
+			Codec.intRange(1, 1200).fieldOf("ticks_per_block").orElse(DEFAULT.ticksPerBlock).forGetter(EconomySettings::ticksPerBlock)
 	).apply(instance, EconomySettings::new));
 
 	private static Map<Identifier, Yield> defaultProfessions() {
@@ -131,6 +145,30 @@ public record EconomySettings(int periodTicks, double upkeep, double breedCost, 
 	}
 
 	private static Map<String, Order> defaultOrders() {
-		return Map.of(IRON_GOLEM, new Order(Map.of(VillageResource.METAL, 16.0, VillageResource.MONEY, 6.0, VillageResource.PROVISIONS, 4.0)));
+		return Map.of(
+				IRON_GOLEM, new Order(Map.of(VillageResource.METAL, 16.0, VillageResource.MONEY, 6.0, VillageResource.PROVISIONS, 4.0), Map.of()),
+				"house_small", new Order(Map.of(VillageResource.WOOD, 20.0, VillageResource.STONE, 10.0, VillageResource.MONEY, 4.0),
+						houses("small_house", Map.of("plains", 8, "desert", 8, "savanna", 8, "snowy", 8, "taiga", 5))),
+				"house_medium", new Order(Map.of(VillageResource.WOOD, 40.0, VillageResource.STONE, 20.0, VillageResource.METAL, 2.0,
+						VillageResource.MONEY, 8.0), houses("medium_house", Map.of("plains", 2, "desert", 2, "savanna", 2, "snowy", 3, "taiga", 4))),
+				"house_big", new Order(Map.of(VillageResource.WOOD, 64.0, VillageResource.STONE, 36.0, VillageResource.METAL, 4.0,
+						VillageResource.MONEY, 16.0), houses("big_house", Map.of("plains", 1))));
+	}
+
+	/**
+	 * Vanilla village houses of one kind, {@code village/<style>/houses/<style>_<kind>_<n>} for each style's count; the
+	 * snowy style is the {@code snow} villager type, and plains houses stand for every type without its own.
+	 */
+	private static Map<String, List<Identifier>> houses(String kind, Map<String, Integer> counts) {
+		Map<String, List<Identifier>> map = new LinkedHashMap<>();
+		counts.forEach((style, count) -> {
+			List<Identifier> templates = new java.util.ArrayList<>();
+			for (int i = 1; i <= count; i++) {
+				templates.add(Identifier.withDefaultNamespace("village/" + style + "/houses/" + style + "_" + kind + "_" + i));
+			}
+			map.put(style.equals("snowy") ? "snow" : style, List.copyOf(templates));
+		});
+		map.put("default", map.get("plains"));
+		return Map.copyOf(map);
 	}
 }

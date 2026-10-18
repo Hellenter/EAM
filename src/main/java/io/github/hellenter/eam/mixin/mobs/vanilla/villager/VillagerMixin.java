@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageBuildModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerAlarmModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerButcherModule;
@@ -43,7 +44,8 @@ abstract class VillagerMixin {
 			target = "Lnet/minecraft/world/entity/ai/Brain;tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;)V"))
 	private void eam$waitWhileFighting(Brain<?> brain, ServerLevel level, LivingEntity body, Operation<Void> original) {
 		Villager villager = (Villager) (Object) this;
-		if (VillagerGuardModule.thinks(villager) && VillagerGearModule.thinks(villager) && VillagerAlarmModule.thinks(villager)) original.call(brain, level, body);
+		if (VillagerGuardModule.thinks(villager) && VillagerGearModule.thinks(villager) && VillagerAlarmModule.thinks(villager)
+				&& VillageBuildModule.thinks(villager)) original.call(brain, level, body);
 	}
 
 	@Inject(method = "customServerAiStep", at = @At("HEAD"))
@@ -57,6 +59,7 @@ abstract class VillagerMixin {
 		VillagerAlarmModule.tick((Villager) (Object) this, level);
 		VillagerChestModule.tick((Villager) (Object) this, level);
 		VillageEconomyModule.tick((Villager) (Object) this, level);
+		VillageBuildModule.tick((Villager) (Object) this, level);
 	}
 
 	@ModifyReturnValue(method = "canBreed", at = @At("RETURN"))

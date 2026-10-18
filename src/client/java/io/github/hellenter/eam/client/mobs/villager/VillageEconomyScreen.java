@@ -39,7 +39,7 @@ public class VillageEconomyScreen extends Screen {
 	private static final int STATUS_TOP = 58;
 	private static final int ORDERS_TOP = 128;
 	private static final int ROW = 22;
-	private static final int ROWS = 4;
+	private static final int ROWS = 6;
 	private static final int HEIGHT = ORDERS_TOP + ROWS * ROW + 8;
 	private static final int COLUMN = 58;
 	private static final int BUTTON_WIDTH = 64;
@@ -81,14 +81,17 @@ public class VillageEconomyScreen extends Screen {
 			VillageEconomyPayload.OrderView order = orders.get(scroll + row);
 			boolean goal = economy.goal().filter(order.id()::equals).isPresent();
 			boolean affordable = affords(order);
-			String label = goal ? "cancel" : !order.available() ? "unavailable" : affordable ? "order" : "save_up";
-			Button button = Button.builder(Component.translatable("gui.eam.village.economy." + label), pressed -> {
-						ClientPlayNetworking.send(new VillageOrderPayload(economy.elderId(), goal ? "" : order.id()));
+			boolean take = order.ready() > 0;
+			String label = take ? "take" : goal ? "cancel" : !order.available() ? "unavailable" : affordable ? "order" : "save_up";
+			Component text = take ? Component.translatable("gui.eam.village.economy.take", order.ready())
+					: Component.translatable("gui.eam.village.economy." + label);
+			Button button = Button.builder(text, pressed -> {
+						ClientPlayNetworking.send(new VillageOrderPayload(economy.elderId(), goal && !take ? "" : order.id(), take));
 						pressed.active = false;
 					})
 					.bounds(left + WIDTH - 8 - BUTTON_WIDTH, top + ORDERS_TOP + row * ROW + 1, BUTTON_WIDTH, 20)
 					.build();
-			button.active = goal || order.available();
+			button.active = take || goal || order.available();
 			addRenderableWidget(button);
 		}
 	}

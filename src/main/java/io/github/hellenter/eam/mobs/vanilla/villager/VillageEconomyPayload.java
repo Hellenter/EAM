@@ -66,12 +66,14 @@ public record VillageEconomyPayload(int elderId, List<Double> stock, List<Double
 	 * @param id        the order's id; its name is {@code gui.eam.village.order.<id>}
 	 * @param cost      what it takes, in {@link VillageResource} order
 	 * @param available whether it can be ordered at all now, the stock aside (a golem only while the village may have one more)
+	 * @param ready     blueprints of it the village saved up for, waiting to be taken
 	 */
-	public record OrderView(String id, List<Double> cost, boolean available) {
+	public record OrderView(String id, List<Double> cost, boolean available, int ready) {
 		public static final StreamCodec<RegistryFriendlyByteBuf, OrderView> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.STRING_UTF8, OrderView::id,
 				ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), OrderView::cost,
 				ByteBufCodecs.BOOL, OrderView::available,
+				ByteBufCodecs.VAR_INT, OrderView::ready,
 				OrderView::new);
 	}
 }
