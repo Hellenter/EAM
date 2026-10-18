@@ -138,6 +138,21 @@ public final class LostLogic {
 		return spots;
 	}
 
+	/**
+	 * The walking input that moves someone turned to {@code yaw} by {@code offsetX}, {@code offsetZ} without turning:
+	 * {forward, left}, as {@code zza} and {@code xxa} of a mob. Its length is the offset's, capped at 1, so the step slows
+	 * down near the spot.
+	 */
+	public static float[] stepInput(float yaw, double offsetX, double offsetZ) {
+		double sin = Math.sin(Math.toRadians(yaw));
+		double cos = Math.cos(Math.toRadians(yaw));
+		double forward = -offsetX * sin + offsetZ * cos;
+		double left = offsetX * cos + offsetZ * sin;
+		double length = Math.sqrt(forward * forward + left * left);
+		double scale = length > 1.0 ? 1.0 / length : 1.0;
+		return new float[] {(float) (forward * scale), (float) (left * scale)};
+	}
+
 	/** Where the shield wall's commander {@code distance} away from the enemy goes next; he holds still rather than strafe. */
 	public static ArcherMove commanderMove(double distance, boolean sees, ShieldWallSettings.Crossbow crossbow) {
 		if (distance < crossbow.minRange()) {
