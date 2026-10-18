@@ -127,6 +127,19 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		return state.is(Blocks.WATER) || state.is(Blocks.LAVA);
 	}
 
+	/**
+	 * Ground a lake may lie in: solid, but not a tree or a mushroom. A lake reaching into a neighbouring chunk that was
+	 * decorated already would otherwise take a crown of leaves or a mushroom cap for a floor.
+	 */
+	static boolean isGround(BlockState state) {
+		return state.isSolid() && !isPlantMatter(state);
+	}
+
+	/** Leaves, logs, mushroom caps and stems, and the planks of mine supports. */
+	static boolean isPlantMatter(BlockState state) {
+		return state.is(BlockTags.LEAVES) || state.is(BlockTags.MINEABLE_WITH_AXE);
+	}
+
 	/** The top block of the lowest ground with air above it in this column, or null. */
 	private @Nullable BlockPos lowestFloor(WorldGenLevel level, int x, int z) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, this.minY, z);
@@ -139,7 +152,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 					return pos.below().immutable();
 				}
 			} else {
-				solidBelow = state.isSolid();
+				solidBelow = isGround(state);
 			}
 		}
 		return null;
@@ -157,7 +170,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 					return pos.below().immutable();
 				}
 			} else {
-				solidBelow = state.isSolid();
+				solidBelow = isGround(state);
 			}
 		}
 		return null;
@@ -189,11 +202,17 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				int cellDepth = Math.max(1, (int) Math.round(depth * (1.0 - (d / edge) * (d / edge)) + 0.4));
 				surfaceCells++;
 				pos.set(surface.getX() + dx, surface.getY(), surface.getZ() + dz);
-				if (!level.getBlockState(pos).isSolid() && !isFluid(level.getBlockState(pos))) {
+				if (!isGround(level.getBlockState(pos)) && !isFluid(level.getBlockState(pos))) {
 					overhang++;
 				}
 				for (int y = 0; y < cellDepth; y++) {
 					water.add(new BlockPos(surface.getX() + dx, surface.getY() - y, surface.getZ() + dz));
+				}
+				// Nor round a tree or a mushroom: the water would stand in its crown or its cap.
+				for (int y = 1; y <= 2; y++) {
+					if (isPlantMatter(level.getBlockState(pos.setY(surface.getY() + y)))) {
+						return null;
+					}
 				}
 			}
 		}
@@ -201,7 +220,8 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			return null;
 		}
 		for (BlockPos cell : water) {
-			if (level.getBlockState(cell).is(BlockTags.FEATURES_CANNOT_REPLACE) || villages.touches(cell)
+			BlockState state = level.getBlockState(cell);
+			if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || isPlantMatter(state) || villages.touches(cell)
 					|| overlooked.overlooks(cell, 2)) {
 				return null;
 			}

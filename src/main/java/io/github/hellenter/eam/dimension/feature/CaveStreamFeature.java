@@ -161,7 +161,7 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 
 	private static boolean isFloor(WorldGenLevel level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		return state.isSolid() && state.getFluidState().isEmpty() && !state.is(BlockTags.FEATURES_CANNOT_REPLACE)
+		return UnderworldLakeFeature.isGround(state) && state.getFluidState().isEmpty() && !state.is(BlockTags.FEATURES_CANNOT_REPLACE)
 				&& !(state.getBlock() instanceof FallingBlock);
 	}
 

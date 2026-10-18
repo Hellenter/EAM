@@ -1,10 +1,7 @@
 package io.github.hellenter.eam.world.structures.outpost;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -25,9 +22,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The outpost template, turned about its middle so it keeps its footprint. Its bottom {@link #GROUND} layers are the
@@ -40,8 +35,6 @@ public class OutpostPiece extends TemplateStructurePiece {
 	public static final int GROUND = 3;
 
 	private final Rotation rotation;
-	/** Where the template places logs of its own; worked out on first use. */
-	private volatile Set<BlockPos> templateLogs;
 
 	public OutpostPiece(StructureTemplateManager manager, BlockPos corner, Rotation rotation) {
 		super(OutpostModule.PIECE, 0, manager, OutpostModule.TEMPLATE, OutpostModule.TEMPLATE.toString(),
@@ -77,23 +70,6 @@ public class OutpostPiece extends TemplateStructurePiece {
 	/** The whole template's box, cellar included. */
 	public BoundingBox templateBox() {
 		return template.getBoundingBox(placeSettings, templatePosition);
-	}
-
-	/** Whether the template places a log of its own at {@code pos}, which the tree clearing must keep. */
-	public boolean placesLog(BlockPos pos) {
-		Set<BlockPos> logs = templateLogs;
-		if (logs == null) {
-			logs = new HashSet<>();
-			for (Holder<Block> log : BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.LOGS)) {
-				// Relative positions: placing the template narrows the settings' box to the chunk being placed, and the
-				// absolute lookup would then leave out every log outside that one chunk.
-				for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, log.value(), false)) {
-					logs.add(StructureTemplate.calculateRelativePosition(placeSettings, info.pos()).offset(templatePosition));
-				}
-			}
-			templateLogs = logs;
-		}
-		return logs.contains(pos);
 	}
 
 	private void cutBox() {
