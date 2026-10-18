@@ -14,6 +14,17 @@
     "#eam:villager_tools/butcher",
     "#eam:villager_tools/armorer",
     "#eam:villager_tools/toolsmith",
-    "#eam:villager_tools/weaponsmith"
+    "#eam:villager_tools/weaponsmith",
+    "#eam:village_components/farmer",
+    "#eam:village_components/fisherman",
+    "#eam:village_components/butcher",
+    "#eam:village_components/mason",
+    "#eam:village_components/armorer",
+    "#eam:village_components/toolsmith",
+    "#eam:village_components/weaponsmith",
+    "#eam:village_components/fletcher",
+    "#eam:village_components/shepherd",
+    "#eam:village_components/leatherworker",
+    "#eam:village_components/librarian"
   ]
 }

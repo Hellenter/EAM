@@ -1,4 +1,5 @@
 {
+  "goods": "eam:village_components/mason",
   "item": "minecraft:wooden_pickaxe",
   "tools": "eam:villager_tools/mason"
 }

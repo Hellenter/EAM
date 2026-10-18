@@ -1,0 +1,105 @@
+{
+  "breed_cost": 6.0,
+  "component_bonus": 0.15,
+  "components_max": 4,
+  "farm_radius": 16,
+  "guard_check_ticks": 600,
+  "level_bonus": 0.25,
+  "orders": {
+    "iron_golem": {
+      "cost": {
+        "metal": 16.0,
+        "money": 6.0,
+        "provisions": 4.0
+      }
+    }
+  },
+  "period_ticks": 12000,
+  "professions": {
+    "minecraft:armorer": {
+      "base": 1.0,
+      "components": "eam:village_components/armorer",
+      "resource": "metal"
+    },
+    "minecraft:butcher": {
+      "base": 1.0,
+      "components": "eam:village_components/butcher",
+      "resource": "provisions"
+    },
+    "minecraft:cartographer": {
+      "base": 1.5,
+      "resource": "money"
+    },
+    "minecraft:cleric": {
+      "base": 1.5,
+      "resource": "money"
+    },
+    "minecraft:farmer": {
+      "base": 0.5,
+      "components": "eam:village_components/farmer",
+      "per_farmland": 0.025,
+      "resource": "provisions"
+    },
+    "minecraft:fisherman": {
+      "base": 1.5,
+      "components": "eam:village_components/fisherman",
+      "resource": "provisions"
+    },
+    "minecraft:fletcher": {
+      "base": 3.0,
+      "components": "eam:village_components/fletcher",
+      "resource": "wood"
+    },
+    "minecraft:leatherworker": {
+      "base": 2.0,
+      "components": "eam:village_components/leatherworker",
+      "resource": "money"
+    },
+    "minecraft:librarian": {
+      "base": 2.0,
+      "components": "eam:village_components/librarian",
+      "resource": "money"
+    },
+    "minecraft:mason": {
+      "base": 3.0,
+      "components": "eam:village_components/mason",
+      "resource": "stone"
+    },
+    "minecraft:nitwit": {
+      "base": 1.5,
+      "resource": "wood"
+    },
+    "minecraft:none": {
+      "base": 1.5,
+      "resource": "wood"
+    },
+    "minecraft:shepherd": {
+      "base": 1.5,
+      "components": "eam:village_components/shepherd",
+      "resource": "money"
+    },
+    "minecraft:toolsmith": {
+      "base": 1.0,
+      "components": "eam:village_components/toolsmith",
+      "resource": "metal"
+    },
+    "minecraft:weaponsmith": {
+      "base": 1.0,
+      "components": "eam:village_components/weaponsmith",
+      "resource": "metal"
+    }
+  },
+  "tool_tiers": {
+    "minecraft:incorrect_for_copper_tool": 1.5,
+    "minecraft:incorrect_for_diamond_tool": 3.0,
+    "minecraft:incorrect_for_gold_tool": 1.25,
+    "minecraft:incorrect_for_iron_tool": 2.0,
+    "minecraft:incorrect_for_netherite_tool": 4.0,
+    "minecraft:incorrect_for_stone_tool": 1.5,
+    "minecraft:incorrect_for_wooden_tool": 1.0
+  },
+  "untiered_tool": 1.5,
+  "upkeep": 0.25,
+  "villagers_per_golem": 8,
+  "villagers_per_guard": 8
+}

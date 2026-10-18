@@ -20,6 +20,7 @@ import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 import io.github.hellenter.eam.world.farming.HarvestModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
@@ -141,6 +142,33 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.level_health", "Level %s, health %s");
 			builder.add("gui.eam.village.make_guard", "To Guard");
 			builder.add("gui.eam.village.dismiss_guard", "Dismiss");
+			builder.add("gui.eam.village.upgrades", "Upgrades");
+			builder.add("gui.eam.village.economy.title", "Village Upgrades");
+			builder.add("gui.eam.village.resource.wood", "Wood");
+			builder.add("gui.eam.village.resource.metal", "Metal and Tools");
+			builder.add("gui.eam.village.resource.stone", "Stone");
+			builder.add("gui.eam.village.resource.money", "Money");
+			builder.add("gui.eam.village.resource.provisions", "Provisions");
+			builder.add("gui.eam.village.economy.income", "%s per half day");
+			builder.add("gui.eam.village.economy.beds", "Villagers: %s, beds: %s");
+			builder.add("gui.eam.village.economy.guards", "Guards: %s of %s");
+			builder.add("gui.eam.village.economy.golems", "Iron golems: %s of %s");
+			builder.add("gui.eam.village.economy.missing", "The village lacks:");
+			builder.add("gui.eam.village.economy.no_beds", "beds, so no children are born");
+			builder.add("gui.eam.village.economy.no_food", "provisions for a child (%s needed)");
+			builder.add("gui.eam.village.economy.hunger", "provisions: it eats more than it gathers");
+			builder.add("gui.eam.village.economy.all_good", "The village has all it needs");
+			builder.add("gui.eam.village.economy.order", "Order");
+			builder.add("gui.eam.village.economy.save_up", "Save Up");
+			builder.add("gui.eam.village.economy.cancel", "Stop");
+			builder.add("gui.eam.village.economy.unavailable", "Not Now");
+			builder.add("gui.eam.village.economy.goal", "Saving up for: %s");
+			builder.add("gui.eam.village.order.iron_golem", "Iron Golem");
+			for (String[] component : new String[][] {{"farmer", "Farmer"}, {"fisherman", "Fisherman"}, {"butcher", "Butcher"},
+					{"mason", "Mason"}, {"armorer", "Armorer"}, {"toolsmith", "Toolsmith"}, {"weaponsmith", "Weaponsmith"},
+					{"fletcher", "Fletcher"}, {"shepherd", "Shepherd"}, {"leatherworker", "Leatherworker"}, {"librarian", "Librarian"}}) {
+				builder.add(EconomySettings.componentsTag(component[0]), component[1] + " Components");
+			}
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
 			builder.add(VillagerGearModule.GIFTS, "Villager Gifts");
@@ -854,6 +882,33 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.level_health", "Ур. %s, здоровье %s");
 			builder.add("gui.eam.village.make_guard", "В стражу");
 			builder.add("gui.eam.village.dismiss_guard", "Из стражи");
+			builder.add("gui.eam.village.upgrades", "Улучшения");
+			builder.add("gui.eam.village.economy.title", "Улучшения деревни");
+			builder.add("gui.eam.village.resource.wood", "Древесина");
+			builder.add("gui.eam.village.resource.metal", "Металл и инструменты");
+			builder.add("gui.eam.village.resource.stone", "Камень");
+			builder.add("gui.eam.village.resource.money", "Деньги");
+			builder.add("gui.eam.village.resource.provisions", "Провиант");
+			builder.add("gui.eam.village.economy.income", "%s за полдня");
+			builder.add("gui.eam.village.economy.beds", "Жителей: %s, кроватей: %s");
+			builder.add("gui.eam.village.economy.guards", "Стражников: %s из %s");
+			builder.add("gui.eam.village.economy.golems", "Железных големов: %s из %s");
+			builder.add("gui.eam.village.economy.missing", "Деревне не хватает:");
+			builder.add("gui.eam.village.economy.no_beds", "кроватей, дети не рождаются");
+			builder.add("gui.eam.village.economy.no_food", "провианта на ребёнка (нужно %s)");
+			builder.add("gui.eam.village.economy.hunger", "провианта: съедает больше, чем добывает");
+			builder.add("gui.eam.village.economy.all_good", "Деревне всего хватает");
+			builder.add("gui.eam.village.economy.order", "Заказать");
+			builder.add("gui.eam.village.economy.save_up", "Копить");
+			builder.add("gui.eam.village.economy.cancel", "Отменить");
+			builder.add("gui.eam.village.economy.unavailable", "Нельзя");
+			builder.add("gui.eam.village.economy.goal", "Копим на: %s");
+			builder.add("gui.eam.village.order.iron_golem", "Железный голем");
+			for (String[] component : new String[][] {{"farmer", "фермера"}, {"fisherman", "рыбака"}, {"butcher", "мясника"},
+					{"mason", "каменщика"}, {"armorer", "бронника"}, {"toolsmith", "инструментальщика"}, {"weaponsmith", "оружейника"},
+					{"fletcher", "лучника"}, {"shepherd", "пастуха"}, {"leatherworker", "кожевника"}, {"librarian", "библиотекаря"}}) {
+				builder.add(EconomySettings.componentsTag(component[0]), "Материалы " + component[1]);
+			}
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
 			builder.add(VillagerGearModule.GIFTS, "Подарки жителям");

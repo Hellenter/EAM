@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerWork;
 
@@ -11,6 +12,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -38,21 +40,26 @@ public class EamVillagerWorkProvider extends FabricCodecDataProvider<VillagerWor
 		withTools(provider, VillagerProfession.TOOLSMITH, EamItems.COPPER_HAMMER);
 		withTools(provider, VillagerProfession.WEAPONSMITH, EamItems.COPPER_HAMMER);
 		withTools(provider, VillagerProfession.MASON, Items.WOODEN_PICKAXE);
-		only(provider, VillagerProfession.LIBRARIAN, Items.BOOK);
+		withComponents(provider, VillagerProfession.LIBRARIAN, Items.BOOK);
 		provider.accept(VillagerProfession.CLERIC.identifier(), new VillagerWork(Items.GLASS_BOTTLE, Optional.empty(),
 				Optional.of(VillagerGearModule.goodsTag(VillagerProfession.CLERIC))));
 		provider.accept(VillagerProfession.CARTOGRAPHER.identifier(), new VillagerWork(Items.MAP, Optional.empty(),
 				Optional.of(VillagerGearModule.goodsTag(VillagerProfession.CARTOGRAPHER))));
-		only(provider, VillagerProfession.LEATHERWORKER, Items.LEATHER);
-		only(provider, VillagerProfession.FLETCHER, Items.ARROW);
+		withComponents(provider, VillagerProfession.LEATHERWORKER, Items.LEATHER);
+		withComponents(provider, VillagerProfession.FLETCHER, Items.ARROW);
 	}
 
 	private static void withTools(BiConsumer<Identifier, VillagerWork> provider, ResourceKey<VillagerProfession> profession, Item item) {
-		provider.accept(profession.identifier(), new VillagerWork(item, Optional.of(VillagerGearModule.toolsTag(profession)), Optional.empty()));
+		provider.accept(profession.identifier(), new VillagerWork(item, Optional.of(VillagerGearModule.toolsTag(profession)), components(profession)));
 	}
 
-	private static void only(BiConsumer<Identifier, VillagerWork> provider, ResourceKey<VillagerProfession> profession, Item item) {
-		provider.accept(profession.identifier(), new VillagerWork(item, Optional.empty(), Optional.empty()));
+	private static void withComponents(BiConsumer<Identifier, VillagerWork> provider, ResourceKey<VillagerProfession> profession, Item item) {
+		provider.accept(profession.identifier(), new VillagerWork(item, Optional.empty(), components(profession)));
+	}
+
+	/** The goods of a trade are the components that raise its share of the village economy. */
+	private static Optional<TagKey<Item>> components(ResourceKey<VillagerProfession> profession) {
+		return Optional.of(EconomySettings.componentsTag(profession.identifier().getPath()));
 	}
 
 	@Override
