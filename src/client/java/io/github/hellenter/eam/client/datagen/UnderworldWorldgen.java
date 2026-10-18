@@ -1065,7 +1065,7 @@ final class UnderworldWorldgen {
 		List<ResourceKey<PlacedFeature>> lakePlants = List.of(P_FALLEN_POPLAR, P_MOSSY_BOULDER_LAKE, P_MOSS_PATCH, P_DRIPLEAF_CLAY, P_ORCHIDS, P_FERNS, P_SHORE_PLANTS, P_SUGAR_CANE,
 				P_SPORE_BLOSSOM, P_KELP, P_SEAGRASS, P_LILY_PADS);
 		context.register(UnderworldDimension.LAKE_CAVES, biome(placed, carvers, 0.6F, 0x1A3238, 0.8F, 0x2E6E8E,
-				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(null, EamSounds.UNDERWORLD_LAKE_CAVES_ADDITIONS),
+				SoundEvents.MUSIC_BIOME_LUSH_CAVES, ambience(null, null),
 				AmbientParticle.of(ParticleTypes.DRIPPING_WATER, 0.006F),
 				features(features(common, P_LAKES_MANY, P_SPRING_WATER_MANY, P_CAVE_VINES, P_GLOW_LICHEN_MANY), lakePlants),
 				spawns()));
