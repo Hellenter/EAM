@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
@@ -62,6 +63,21 @@ public class FeederBlock extends BaseEntityBlock {
 
 	private static final VoxelShape SHAPE_X = Block.box(0, 0, 1, 16, 15, 15);
 	private static final VoxelShape SHAPE_Z = Block.box(1, 0, 0, 15, 15, 16);
+	/** As tall as a fence, so livestock can neither jump over a trough nor plan a path over it. */
+	private static final VoxelShape COLLISION_X = Block.box(0, 0, 1, 16, 24, 15);
+	private static final VoxelShape COLLISION_Z = Block.box(1, 0, 0, 15, 24, 16);
+	/**
+	 * Full faces at both ends and behind the back wall, so fences, walls and panes join a trough there and it can stand in a
+	 * pen's fence line. The top and the front lip stay open.
+	 */
+	private static final VoxelShape SUPPORT_X_BACK_NEGATIVE = Shapes.or(Block.box(0, 0, 0, 1, 16, 16), Block.box(15, 0, 0, 16, 16, 16),
+			Block.box(0, 0, 0, 16, 16, 1));
+	private static final VoxelShape SUPPORT_X_BACK_POSITIVE = Shapes.or(Block.box(0, 0, 0, 1, 16, 16), Block.box(15, 0, 0, 16, 16, 16),
+			Block.box(0, 0, 15, 16, 16, 16));
+	private static final VoxelShape SUPPORT_Z_BACK_NEGATIVE = Shapes.or(Block.box(0, 0, 0, 16, 16, 1), Block.box(0, 0, 15, 16, 16, 16),
+			Block.box(0, 0, 0, 1, 16, 16));
+	private static final VoxelShape SUPPORT_Z_BACK_POSITIVE = Shapes.or(Block.box(0, 0, 0, 16, 16, 1), Block.box(0, 0, 15, 16, 16, 16),
+			Block.box(15, 0, 0, 16, 16, 16));
 
 	private final boolean metal;
 
@@ -225,6 +241,18 @@ public class FeederBlock extends BaseEntityBlock {
 	@Override
 	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return state.getValue(AXIS) == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
+	}
+
+	@Override
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return state.getValue(AXIS) == Direction.Axis.X ? COLLISION_X : COLLISION_Z;
+	}
+
+	@Override
+	protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+		boolean backPositive = state.getValue(BACK_POSITIVE);
+		if (state.getValue(AXIS) == Direction.Axis.X) return backPositive ? SUPPORT_X_BACK_POSITIVE : SUPPORT_X_BACK_NEGATIVE;
+		return backPositive ? SUPPORT_Z_BACK_POSITIVE : SUPPORT_Z_BACK_NEGATIVE;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 {
-  "animal_radius": 16,
+  "animal_radius": 24,
   "breeding": true,
   "crowd_limit": 6,
   "crowd_radius": 2,

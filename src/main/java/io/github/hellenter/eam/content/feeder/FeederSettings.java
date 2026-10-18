@@ -31,7 +31,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 public record FeederSettings(int headsPerFeeder, int slotsPerFeeder, int thinAfterDays, int animalRadius, int farmerRadius,
 		int farmerKeepsPoints, int farmerKeepsSeeds, double metalScale, boolean breeding,
 		double fedGrowthBoost, int waterRadius, int crowdRadius, int crowdLimit, int sickAfterDays) {
-	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 16, 8, 12, 8, 1.5, true, 1.5, 8, 2, 6, 2);
+	public static final FeederSettings DEFAULT = new FeederSettings(10, 8, 7, 24, 8, 12, 8, 1.5, true, 1.5, 8, 2, 6, 2);
 
 	public static final Codec<FeederSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, 1000).fieldOf("heads_per_feeder").orElse(DEFAULT.headsPerFeeder).forGetter(FeederSettings::headsPerFeeder),
