@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A villager's inventory on the vanilla chest background, with the villager drawn beside his armor like the player in
- * his own inventory, a button to his trades and one that makes him a guard.
+ * his own inventory, a button to his trades and one that makes him a guard (or a guard an ordinary villager again).
  */
 public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu> {
 	private static final Identifier CONTAINER_BACKGROUND = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -50,10 +50,11 @@ public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu
 				.build();
 		trade.active = villager != null && trades(villager);
 		addRenderableWidget(trade);
-		if (villager != null && !villager.isBaby() && !VillagerGuardModule.isGuardProfession(villager)) {
-			Component label = Component.translatable("container.eam.villager.make_guard");
+		if (villager != null && !villager.isBaby()) {
+			boolean guard = !VillagerGuardModule.isGuardProfession(villager);
+			Component label = Component.translatable(guard ? "container.eam.villager.make_guard" : "container.eam.villager.dismiss_guard");
 			addRenderableWidget(Button.builder(label, button -> {
-						ClientPlayNetworking.send(VillagerGuardPayload.INSTANCE);
+						ClientPlayNetworking.send(new VillagerGuardPayload(guard));
 						button.visible = false;
 					})
 					.bounds(leftPos + imageWidth + 2, topPos + VillagerGearMenu.TOP, font.width(label) + 12, 20)
