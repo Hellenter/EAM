@@ -18,8 +18,10 @@ import net.minecraft.util.Mth;
  * Koschei: a gaunt bald old man with a long bony face and deep-set eyes under a heavy brow, a tall spiked crown of gold
  * filigree, dark plate worked with filigree over his chest, a thick black fur mantle round his shoulders and up behind
  * his neck, a mail skirt split in front, a long dark cloak hanging behind, spiked pauldrons, vambraces and tall boots. His
- * long sword is part of the model, held in the left hand: the right is kept free for his burst of force. Arms and legs
- * bend at the elbows and knees; every blow is posed here from the action and the ticks into it.
+ * long sword is part of the model, held in the left hand: the right is kept free for his burst of force. In his second
+ * phase the sword is gone and the same hand holds a tall staff of blackened wood bound in leather, with a little bone
+ * skull at its head and a green crystal in iron prongs above it. Arms and legs bend at the elbows and knees; every blow is
+ * posed here from the action and the ticks into it.
  */
 public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Eam.id("koschei"), "main");
@@ -40,6 +42,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private final ModelPart rightShin;
 	private final ModelPart leftShin;
 	private final ModelPart sword;
+	private final ModelPart staff;
 	private final ModelPart mailFrontRight;
 	private final ModelPart mailFrontLeft;
 	private final ModelPart mailBack;
@@ -53,6 +56,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		rightShin = rightLeg.getChild("right_shin");
 		leftShin = leftLeg.getChild("left_shin");
 		sword = leftForearm.getChild("sword");
+		staff = leftForearm.getChild("staff");
 		mailFrontRight = body.getChild("mail_front_right");
 		mailFrontLeft = body.getChild("mail_front_left");
 		mailBack = body.getChild("mail_back");
@@ -137,6 +141,18 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				.texOffs(0, 108).addBox(-0.5F, -1.0F, -18.0F, 1.0F, 2.0F, 16.0F, new CubeDeformation(-0.2F, 0.0F, 0.0F))
 				.texOffs(46, 104).addBox(-0.5F, -0.5F, -19.5F, 1.0F, 1.0F, 2.0F, new CubeDeformation(-0.2F, 0.0F, 0.0F)),
 				PartPose.offset(0.5F, HAND, 0.0F));
+		// The staff in the same fist, upright along -Y: the shaft, the bone skull at its head, the crystal above it in four
+		// iron prongs, and an iron ferrule at its foot.
+		leftForearm.addOrReplaceChild("staff", CubeListBuilder.create()
+				.texOffs(64, 80).addBox(-0.5F, -18.0F, -0.5F, 1.0F, 30.0F, 1.0F)
+				.texOffs(72, 80).addBox(-1.5F, -21.0F, -1.5F, 3.0F, 3.0F, 3.0F)
+				.texOffs(72, 88).addBox(-1.0F, -25.0F, -1.0F, 2.0F, 4.0F, 2.0F)
+				.texOffs(84, 80).addBox(-1.9F, -23.5F, -0.5F, 1.0F, 3.0F, 1.0F, new CubeDeformation(-0.2F))
+				.texOffs(84, 80).addBox(0.9F, -23.5F, -0.5F, 1.0F, 3.0F, 1.0F, new CubeDeformation(-0.2F))
+				.texOffs(84, 80).addBox(-0.5F, -23.5F, -1.9F, 1.0F, 3.0F, 1.0F, new CubeDeformation(-0.2F))
+				.texOffs(84, 80).addBox(-0.5F, -23.5F, 0.9F, 1.0F, 3.0F, 1.0F, new CubeDeformation(-0.2F))
+				.texOffs(88, 80).addBox(-0.5F, 12.0F, -0.5F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.15F)),
+				PartPose.offset(0.5F, HAND, 0.0F));
 		// Legs bending at the knee, tall boots with a cuff and a toe.
 		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
 				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg), PartPose.offset(-1.7F, HIP, 0.0F))
@@ -157,6 +173,16 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	public void setupAnim(KoscheiRenderState state) {
 		super.setupAnim(state);
 		walk(state);
+		sword.visible = state.sword;
+		staff.visible = state.staff;
+		staff.xRot = 0.0F;
+		staff.yRot = 0.0F;
+		staff.zRot = 0.0F;
+		if (state.phase >= 2 && state.action != KoscheiAction.TRANSFORM) {
+			staffAnim(state);
+			finish(state);
+			return;
+		}
 		// The guard: the sword held out before him, its point up toward the enemy's face; the free hand low at his side.
 		leftArm.xRot = leftArm.xRot * 0.4F - 0.35F;
 		leftArm.zRot = -0.12F;
@@ -319,6 +345,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				head.xRot -= 0.45F * off;
 				bendLeg(rightLeg, rightShin, off, -0.35F, 0.5F);
 			}
+			case TRANSFORM -> transform(t, restL, restR, restLz, restRz, restFl, restS);
 			case SUMMON -> {
 				// The right hand raised high, palm up, his head lifted to it; the sword held low aside. Flung up as the ravens burst out.
 				float release = KoscheiAction.SUMMON_RELEASE;
@@ -333,13 +360,129 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				body.xRot -= 0.06F * up;
 				stance(0.3F * up);
 			}
-			case NONE -> {
+			default -> {
 			}
 		}
+		finish(state);
+	}
+
+	private void finish(KoscheiRenderState state) {
 		// Bent knees would lift his feet off the ground: he sinks instead, only a little while he just walks.
 		float sink = Math.min(footLift(rightLeg.xRot, rightShin.xRot), footLift(leftLeg.xRot, leftShin.xRot));
 		root().y += sink * (state.action == KoscheiAction.NONE ? 0.2F : 1.0F);
 		cloth(state);
+	}
+
+	/**
+	 * Struck down: the sword raised and shaking, then gone in a burst of ravens; arms flung wide and head thrown back while
+	 * they wheel about him; then the left hand closes on the staff as it forms and he stands at rest with it.
+	 */
+	private void transform(float t, float restL, float restR, float restLz, float restRz, float restFl, float restS) {
+		float crumble = KoscheiAction.TRANSFORM_CRUMBLE;
+		float formed = KoscheiAction.TRANSFORM_STAFF;
+		float[] times = {0, 6, crumble, crumble + 4, formed - 4, formed, formed + 8, KoscheiAction.TRANSFORM.length()};
+		float shake = t < crumble ? Mth.sin(t * 2.5F) * 0.05F : 0.0F;
+		leftArm.xRot = keys(t, times, restL, -2.6F, -2.7F, -0.4F, -0.5F, -1.2F, -0.4F, STAFF_REST_ARM) + shake;
+		leftArm.zRot = keys(t, times, restLz, -0.2F, -0.2F, -1.2F, -1.2F, -0.4F, -0.12F, -0.12F);
+		leftForearm.xRot = keys(t, times, restFl, -0.5F, -0.5F, -0.2F, -0.2F, -0.9F, -0.8F, STAFF_REST_FOREARM);
+		sword.xRot = keys(t, times, restS, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+		rightArm.xRot = keys(t, times, restR, -0.3F, -0.3F, -0.4F, -0.5F, -0.3F, restR, restR);
+		rightArm.zRot = keys(t, times, restRz, 0.2F, 0.2F, 1.2F, 1.2F, 0.6F, restRz, restRz);
+		float back = keys(t, times, 0.0F, 0.2F, 0.3F, 1.0F, 1.0F, 0.4F, 0.0F, 0.0F);
+		head.xRot -= 0.5F * back;
+		body.xRot -= 0.12F * back;
+		stance(0.5F * back);
+		holdStaffUpright(0.0F);
+	}
+
+	/** At rest the staff stands upright beside him, the left forearm bent forward to hold it. */
+	private static final float STAFF_REST_ARM = -0.15F;
+	private static final float STAFF_REST_FOREARM = -0.75F;
+
+	/** Turns the staff in the fist so it stands {@code lean} radians off upright, its head forward of the hand when positive. */
+	private void holdStaffUpright(float lean) {
+		staff.xRot = -(leftArm.xRot + leftForearm.xRot) + lean;
+		staff.zRot = -leftArm.zRot;
+	}
+
+	/** The second phase: the staff in the left hand, and its attacks. */
+	private void staffAnim(KoscheiRenderState state) {
+		leftArm.xRot = leftArm.xRot * 0.3F + STAFF_REST_ARM;
+		leftArm.zRot = -0.12F;
+		leftForearm.xRot = STAFF_REST_FOREARM;
+		rightArm.zRot = 0.12F;
+		float breath = Mth.sin(state.ageInTicks * 0.06F);
+		body.xRot = 0.06F + breath * 0.01F;
+		head.xRot += 0.05F;
+		float lean = 0.0F;
+		float t = state.actionTime;
+		float restL = leftArm.xRot;
+		float restR = rightArm.xRot;
+		float restLz = leftArm.zRot;
+		float restRz = rightArm.zRot;
+		float restFl = leftForearm.xRot;
+		float restFr = rightForearm.xRot;
+		switch (state.action) {
+			case STAFF_BOLT -> {
+				// The staff thrust out at the target, its head tipped forward; the free hand drawn back.
+				float release = KoscheiAction.STAFF_BOLT_RELEASE;
+				float[] times = {0, release - 3, release, release + 2, KoscheiAction.STAFF_BOLT.length()};
+				float aim = keys(t, times, 0.0F, 0.8F, 1.0F, 1.0F, 0.0F);
+				leftArm.xRot = Mth.lerp(aim, restL, -1.2F + state.xRot * Mth.DEG_TO_RAD * 0.5F);
+				leftArm.zRot = Mth.lerp(aim, restLz, 0.0F);
+				leftForearm.xRot = Mth.lerp(aim, restFl, -0.2F);
+				lean = 0.7F * aim;
+				rightArm.xRot = Mth.lerp(aim, restR, 0.4F);
+				rightArm.zRot = Mth.lerp(aim, restRz, 0.4F);
+				body.yRot = -0.25F * aim;
+				step(keys(t, times, 0.0F, 0.3F, 1.0F, 0.8F, 0.0F), false);
+			}
+			case STAFF_STRIKE -> {
+				// Drawn out to the left, then swept across in front of him at the one who came close.
+				float hit = KoscheiAction.STAFF_STRIKE_HIT;
+				float[] times = {0, hit - 2, hit, hit + 3, KoscheiAction.STAFF_STRIKE.length()};
+				leftArm.xRot = keys(t, times, restL, -1.2F, -1.3F, -1.2F, restL);
+				leftArm.yRot = keys(t, times, 0.0F, 1.0F, -0.6F, -0.9F, 0.0F);
+				leftArm.zRot = keys(t, times, restLz, -0.4F, -0.1F, -0.1F, restLz);
+				leftForearm.xRot = keys(t, times, restFl, -0.3F, -0.1F, -0.2F, restFl);
+				lean = keys(t, times, 0.0F, 1.2F, 1.4F, 1.3F, 0.0F);
+				body.yRot = keys(t, times, 0.0F, 0.6F, -0.4F, -0.5F, 0.0F);
+				rightArm.zRot = keys(t, times, restRz, 0.5F, 0.4F, 0.4F, restRz);
+				stance(keys(t, times, 0.0F, 0.8F, 1.0F, 0.8F, 0.0F));
+			}
+			case SOULS -> {
+				// Both hands raised high, the staff held up overhead, his head lifted; flung up as the souls fly.
+				float release = KoscheiAction.SOULS_RELEASE;
+				float[] times = {0, 7, release, release + 2, KoscheiAction.SOULS.length()};
+				rightArm.xRot = keys(t, times, restR, -2.6F, -2.7F, -3.0F, restR);
+				rightArm.zRot = keys(t, times, restRz, 0.35F, 0.4F, 0.2F, restRz);
+				rightForearm.xRot = keys(t, times, restFr, -0.5F, -0.6F, -0.1F, restFr);
+				leftArm.xRot = keys(t, times, restL, -2.5F, -2.6F, -2.9F, restL);
+				leftArm.zRot = keys(t, times, restLz, -0.35F, -0.4F, -0.2F, restLz);
+				leftForearm.xRot = keys(t, times, restFl, -0.5F, -0.6F, -0.1F, restFl);
+				float up = keys(t, times, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
+				head.xRot -= 0.4F * up;
+				body.xRot -= 0.08F * up;
+				stance(0.3F * up);
+			}
+			case TRAP, TELEPORT -> {
+				// Arms spread low, head bowed as his eyes flicker.
+				float in = keys(t, new float[] {0, 3, 10}, 0.0F, 1.0F, 1.0F);
+				leftArm.zRot = Mth.lerp(in, restLz, -0.6F);
+				rightArm.zRot = Mth.lerp(in, restRz, 0.7F);
+				head.xRot += 0.3F * in;
+				stance(0.4F * in);
+			}
+			case HOP -> {
+				float tuck = keys(t, new float[] {0, 2, 6, 9}, 0.0F, 1.0F, 0.6F, 0.0F);
+				bendLeg(rightLeg, rightShin, tuck, -0.6F, 1.1F);
+				bendLeg(leftLeg, leftShin, tuck, -0.4F, 1.0F);
+				rightArm.zRot = Mth.lerp(tuck, restRz, 0.6F);
+			}
+			default -> {
+			}
+		}
+		holdStaffUpright(lean);
 	}
 
 	/** Both hands on the hilt raised high, the blade hanging back over his head; held; then brought down, slow at first. */

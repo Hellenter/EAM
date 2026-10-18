@@ -49,6 +49,8 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		// Death message keys: death.attack.eam.koschei_cleave, death.attack.eam.koschei_lightning
 		context.register(KoscheiModule.CLEAVE_DAMAGE, new DamageType("eam.koschei_cleave", 0.1F));
 		context.register(KoscheiModule.LIGHTNING_DAMAGE, new DamageType("eam.koschei_lightning", 0.0F));
+		// Death message key: death.attack.eam.koschei_sorcery
+		context.register(KoscheiModule.SORCERY_DAMAGE, new DamageType("eam.koschei_sorcery", 0.0F));
 	}
 
 	@Override
@@ -66,6 +68,7 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), BabaYagaModule.BEAM_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), KoscheiModule.CLEAVE_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), KoscheiModule.LIGHTNING_DAMAGE);
+		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), KoscheiModule.SORCERY_DAMAGE);
 	}
 
 	@Override

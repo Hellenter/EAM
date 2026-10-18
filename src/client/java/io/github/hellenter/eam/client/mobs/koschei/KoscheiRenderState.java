@@ -21,6 +21,11 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public float fallSpeed;
 	/** How fast he moves over the ground: 0 walking, 1 rushing. */
 	public float dash;
+	/** The phase he fights in. */
+	public int phase = 1;
+	/** Whether his sword is in his hand, and his staff. */
+	public boolean sword = true;
+	public boolean staff;
 
 	public enum Eyes {
 		/** His eyes always glow a cold pale blue. */

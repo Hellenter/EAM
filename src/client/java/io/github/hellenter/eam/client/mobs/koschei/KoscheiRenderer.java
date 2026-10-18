@@ -23,7 +23,8 @@ import net.minecraft.world.entity.HumanoidArm;
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
- * The rest of the time they glow a cold pale blue. His lightning is drawn by {@link KoscheiBolts}.
+ * The rest of the time they glow a cold pale blue. The crystal on his staff glows green. His lightning is drawn by
+ * {@link KoscheiBolts}.
  */
 public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderState, KoscheiModel> {
 	/** The model is 2 blocks tall. */
@@ -35,6 +36,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 	private static final RenderType BLUE_EYES = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_eyes_blue.png"));
 	private static final RenderType ORANGE_BLADE = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_blade_orange.png"));
 	private static final RenderType RED_BLADE = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_blade_red.png"));
+	private static final RenderType STAFF_GLOW = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_staff_glow.png"));
 
 	public KoscheiRenderer(EntityRendererProvider.Context context) {
 		super(context, new KoscheiModel(context.bakeLayer(KoscheiModel.LAYER)), 0.5F * SCALE);
@@ -61,7 +63,12 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		int parryStart = state.action.parryStart(window);
 		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd() && !koschei.parryLost();
 		state.eyes = parry ? KoscheiRenderState.Eyes.YELLOW
-				: state.action == KoscheiAction.TELEPORT ? KoscheiRenderState.Eyes.WARP : KoscheiRenderState.Eyes.GLOW;
+				: state.action == KoscheiAction.TELEPORT || state.action == KoscheiAction.TRAP ? KoscheiRenderState.Eyes.WARP
+				: KoscheiRenderState.Eyes.GLOW;
+		state.phase = koschei.phase();
+		boolean transforming = state.action == KoscheiAction.TRANSFORM;
+		state.sword = state.phase < 2 || transforming && t < KoscheiAction.TRANSFORM_CRUMBLE;
+		state.staff = state.phase >= 2 && (!transforming || t >= KoscheiAction.TRANSFORM_STAFF);
 		state.guardHeight = koschei.guardHeight();
 		state.guardSide = koschei.guardSide();
 		state.blade = switch (state.action) {
@@ -121,6 +128,10 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 			};
 			if (blade != null) {
 				collector.order(2).submitModel(getParentModel(), state, poseStack, blade, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+			}
+			if (state.staff) {
+				collector.order(3).submitModel(getParentModel(), state, poseStack, STAFF_GLOW, lightCoords, OverlayTexture.NO_OVERLAY,
+						state.outlineColor);
 			}
 		}
 	}
