@@ -295,6 +295,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.house_small", "Small House");
 			builder.add("gui.eam.village.order.house_medium", "House");
 			builder.add("gui.eam.village.order.house_big", "Big House");
+			builder.add("gui.eam.village.order.wall", "Palisade Wall");
+			builder.add("gui.eam.village.order.gate", "Wall Gate");
+			builder.add("gui.eam.village.order.tower", "Watchtower");
 			builder.add(BlueprintTemplate.GROUND, "Blueprint Ground");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
 			builder.add("message.eam.milked_today", "This animal has already been milked today");
@@ -1073,6 +1076,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.house_small", "Маленький дом");
 			builder.add("gui.eam.village.order.house_medium", "Дом");
 			builder.add("gui.eam.village.order.house_big", "Большой дом");
+			builder.add("gui.eam.village.order.wall", "Частокол");
+			builder.add("gui.eam.village.order.gate", "Ворота");
+			builder.add("gui.eam.village.order.tower", "Сторожевая башня");
 			builder.add(BlueprintTemplate.GROUND, "Земля под чертёж");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
 			builder.add("message.eam.milked_today", "Сегодня это животное уже подоили");
