@@ -1,11 +1,14 @@
 package io.github.hellenter.eam.mobs.vanilla.villager;
 
 import io.github.hellenter.eam.content.lockedchest.LockedChestBlockEntity;
+import io.github.hellenter.eam.content.lockedchest.LockedChestModule;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.Item;
@@ -24,6 +28,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
 
@@ -45,8 +51,9 @@ import java.util.function.Predicate;
  * of the village near him, and he takes it out again when someone needs it. Numbers are in
  * {@code data/eam/villagers/elder.json}.
  * <p>
- * The village button of his inventory opens the village menu: every villager within his reach with his profession, level,
- * health and gear, and a button to make each grown villager a guard or an ordinary villager again.
+ * The village button of his inventory and of his trade panel opens the village menu: every villager within his reach
+ * with his profession, level, health and gear, and a button to make each grown villager a guard or an ordinary villager
+ * again; a right click on a villager opens his page. A locked chest placed in his reach lists his villagers as owners.
  */
 public final class VillagerElderModule {
 	private static final byte HAPPY_PARTICLES = 14;
@@ -63,17 +70,28 @@ public final class VillagerElderModule {
 		PayloadTypeRegistry.serverboundPlay().register(VillageOpenPayload.TYPE, VillageOpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(VillageGuardPayload.TYPE, VillageGuardPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(VillageListPayload.TYPE, VillageListPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(VillageResidentRequestPayload.TYPE, VillageResidentRequestPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(VillageResidentPayload.TYPE, VillageResidentPayload.STREAM_CODEC);
 	}
 
 	public static void init() {
 		enabled = true;
 		ServerPlayNetworking.registerGlobalReceiver(VillageOpenPayload.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
-			if (!(player.containerMenu instanceof VillagerGearMenu menu) || menu.villager() == null || !isElder(menu.villager())) return;
-			Villager elder = menu.villager();
+			Villager elder = player.containerMenu instanceof VillagerGearMenu menu ? menu.villager() : VillagerTradePanel.trading(player);
+			if (elder == null || !isElder(elder)) return;
 			player.closeContainer();
 			sendVillage(player, elder);
 		});
+		ServerPlayNetworking.registerGlobalReceiver(VillageResidentRequestPayload.TYPE, (payload, context) -> {
+			ServerPlayer player = context.player();
+			ServerLevel level = player.level();
+			if (level.getEntity(payload.elderId()) instanceof Villager elder && isElder(elder) && inReach(elder, player)
+					&& level.getEntity(payload.villagerId()) instanceof Villager villager && villager.isAlive() && inReach(elder, villager)) {
+				ServerPlayNetworking.send(player, details(villager, elder, level));
+			}
+		});
+		LockedChestModule.setVillage(VillagerElderModule::villageAround);
 		ServerPlayNetworking.registerGlobalReceiver(VillageGuardPayload.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
 			ServerLevel level = player.level();
@@ -94,6 +112,11 @@ public final class VillagerElderModule {
 		return villager.isAlive() && !villager.isBaby() && villager.getVillagerData().profession().is(VillagerProfession.CARTOGRAPHER);
 	}
 
+	/** Whether the villager's panels get the village button: he is the elder and the elder's module is on. */
+	public static boolean opensVillage(Villager villager) {
+		return enabled && isElder(villager);
+	}
+
 	private static boolean inReach(Villager elder, Entity entity) {
 		double radius = settings.radius();
 		return entity.distanceToSqr(elder) <= radius * radius;
@@ -101,15 +124,66 @@ public final class VillagerElderModule {
 
 	/** Sends the player the villagers of the elder's village: the elder first, then the guards, the others and the children. */
 	private static void sendVillage(ServerPlayer player, Villager elder) {
-		ServerLevel level = player.level();
+		List<VillageListPayload.Resident> residents = new ArrayList<>();
+		for (Villager villager : village(player.level(), elder)) residents.add(resident(villager, elder));
+		ServerPlayNetworking.send(player, new VillageListPayload(elder.getId(), VillagerGuardModule.enabled(), residents));
+	}
+
+	/** Everyone living within the elder's reach, him included: the elder first, then the guards, the others and the children. */
+	private static List<Villager> village(ServerLevel level, Villager elder) {
 		List<Villager> villagers = new ArrayList<>(level.getEntitiesOfClass(Villager.class, elder.getBoundingBox().inflate(settings.radius()),
 				villager -> villager.isAlive() && inReach(elder, villager)));
-		List<VillageListPayload.Resident> residents = new ArrayList<>();
-		for (Villager villager : villagers) residents.add(resident(villager, elder));
-		residents.sort(Comparator.comparing(VillageListPayload.Resident::role)
-				.thenComparing(resident -> resident.profession().getString())
-				.thenComparingInt(VillageListPayload.Resident::id));
-		ServerPlayNetworking.send(player, new VillageListPayload(elder.getId(), VillagerGuardModule.enabled(), residents));
+		villagers.sort(Comparator.comparing((Villager villager) -> role(villager, elder))
+				.thenComparing(villager -> villager.getVillagerData().profession().value().name().getString())
+				.thenComparingInt(Villager::getId));
+		return villagers;
+	}
+
+	/**
+	 * The grown villagers of the village a locked chest at {@code pos} stands in, for its owner list: those of the
+	 * nearest elder whose reach takes in the chest, the elder left out (the village entry is his). {@code null} when no
+	 * elder's reach does.
+	 */
+	private static @Nullable List<Villager> villageAround(ServerLevel level, BlockPos pos) {
+		if (!enabled) return null;
+		double radius = settings.radius();
+		Vec3 center = Vec3.atCenterOf(pos);
+		List<Villager> elders = level.getEntitiesOfClass(Villager.class, new AABB(pos).inflate(radius),
+				villager -> isElder(villager) && villager.distanceToSqr(center) <= radius * radius);
+		if (elders.isEmpty()) return null;
+		Villager elder = elders.stream().min(Comparator.comparingDouble(villager -> villager.distanceToSqr(center))).orElseThrow();
+		List<Villager> villagers = new ArrayList<>(village(level, elder));
+		villagers.removeIf(villager -> villager == elder || villager.isBaby());
+		return villagers;
+	}
+
+	private static VillageListPayload.Role role(Villager villager, Villager elder) {
+		return villager == elder ? VillageListPayload.Role.ELDER
+				: villager.isBaby() ? VillageListPayload.Role.CHILD
+				: VillagerGuardModule.isGuardProfession(villager) ? VillageListPayload.Role.GUARD
+				: VillageListPayload.Role.VILLAGER;
+	}
+
+	/** One villager in detail: his row, experience, work item, inventory, job site, bed and chest. */
+	private static VillageResidentPayload details(Villager villager, Villager elder, ServerLevel level) {
+		List<ItemStack> inventory = new ArrayList<>();
+		for (ItemStack stack : villager.getInventory().getItems()) inventory.add(stack.copy());
+		List<LockedChestBlockEntity> chests = villager == elder
+				? VillagerChestModule.store(level, elder, settings.radius())
+				: LockedChestModule.ownedBy(level, villager.blockPosition(), settings.radius(), villager.getUUID());
+		LockedChestBlockEntity chest = chests.isEmpty() ? null : chests.getFirst();
+		List<ItemStack> chestItems = new ArrayList<>();
+		if (chest != null) {
+			for (int i = 0; i < chest.getContainerSize(); i++) chestItems.add(chest.getItem(i).copy());
+		}
+		return new VillageResidentPayload(elder.getId(), resident(villager, elder), villager.getVillagerXp(),
+				VillagerGearModule.workItem(villager).copy(), inventory, memory(villager, level, MemoryModuleType.JOB_SITE),
+				memory(villager, level, MemoryModuleType.HOME), Optional.ofNullable(chest).map(LockedChestBlockEntity::getBlockPos),
+				chestItems);
+	}
+
+	private static Optional<BlockPos> memory(Villager villager, ServerLevel level, MemoryModuleType<GlobalPos> type) {
+		return villager.getBrain().getMemory(type).filter(pos -> pos.dimension() == level.dimension()).map(GlobalPos::pos);
 	}
 
 	private static VillageListPayload.Resident resident(Villager villager, Villager elder) {
@@ -118,10 +192,7 @@ public final class VillagerElderModule {
 		ItemStack hand = VillagerGearModule.realHand(villager);
 		gear.add(VillagerGearModule.isWorkItem(hand) ? ItemStack.EMPTY : hand.copy());
 		gear.add(villager.getOffhandItem().copy());
-		VillageListPayload.Role role = villager == elder ? VillageListPayload.Role.ELDER
-				: villager.isBaby() ? VillageListPayload.Role.CHILD
-				: VillagerGuardModule.isGuardProfession(villager) ? VillageListPayload.Role.GUARD
-				: VillageListPayload.Role.VILLAGER;
+		VillageListPayload.Role role = role(villager, elder);
 		return new VillageListPayload.Resident(villager.getId(), Optional.ofNullable(villager.getCustomName()),
 				villager.getVillagerData().profession().value().name(), villager.getVillagerData().level(), villager.getHealth(),
 				villager.getMaxHealth(), gear, role);

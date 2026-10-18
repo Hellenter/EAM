@@ -21,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class MerchantScreenMixin extends AbstractContainerScreen<MerchantMenu> {
 	@Unique
 	private Button eam$inventoryButton;
+	@Unique
+	private Button eam$villageButton;
 
 	private MerchantScreenMixin(MerchantMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -29,11 +31,12 @@ abstract class MerchantScreenMixin extends AbstractContainerScreen<MerchantMenu>
 	@Inject(method = "init", at = @At("TAIL"))
 	private void eam$addInventoryButton(CallbackInfo ci) {
 		eam$inventoryButton = addRenderableWidget(VillagerTradePanelScreen.button(leftPos, topPos));
+		eam$villageButton = addRenderableWidget(VillagerTradePanelScreen.villageButton(leftPos, topPos));
 	}
 
 	@Inject(method = "extractBackground", at = @At("TAIL"))
 	private void eam$extractPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-		VillagerTradePanelScreen.extract(menu, graphics, leftPos, topPos, mouseX, mouseY, eam$inventoryButton);
+		VillagerTradePanelScreen.extract(menu, graphics, leftPos, topPos, mouseX, mouseY, eam$inventoryButton, eam$villageButton);
 	}
 
 	@Override
