@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.guard;
 
+import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardLogic.Attack;
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +30,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.illager.AbstractIllager;
@@ -52,6 +55,8 @@ import org.jspecify.annotations.Nullable;
  */
 public class PillagerGuard extends Vindicator implements AxeThrower {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(PillagerGuard.class, EntityDataSerializers.BYTE);
+	/** Scales his plain axe blows by {@code stats.melee_damage_multiplier}. */
+	private static final Identifier MELEE_DAMAGE = Eam.id("guard_melee_damage");
 	/** Attack goals of the vindicator sit at 4 and 5: his moves come first. */
 	private static final int MOVES_PRIORITY = 3;
 	/** The thrown axe is back in his hand after this many ticks at the latest, even if it got lost. */
@@ -110,6 +115,11 @@ public class PillagerGuard extends Vindicator implements AxeThrower {
 		setBase(Attributes.ARMOR, stats.armor());
 		setBase(Attributes.MOVEMENT_SPEED, stats.speed());
 		setBase(Attributes.FOLLOW_RANGE, stats.followRange());
+		AttributeInstance attack = getAttribute(Attributes.ATTACK_DAMAGE);
+		if (attack != null) {
+			attack.addOrReplacePermanentModifier(new AttributeModifier(MELEE_DAMAGE, stats.meleeDamageMultiplier() - 1.0,
+					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+		}
 		setHealth(full ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
 		xpReward = stats.xp();
 	}
