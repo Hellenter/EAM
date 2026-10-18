@@ -29,6 +29,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -163,9 +164,20 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 		return new LockedChestMenu(containerId, inventory, this, getScreenOpeningData((ServerPlayer) inventory.player));
 	}
 
+	/** Who has it now, as the menu marks it in its owner list. */
+	int ownerId(ServerLevel level) {
+		if (village) return LockedChestMenu.OpenData.VILLAGE;
+		if (owner == null) return LockedChestMenu.OpenData.NOBODY;
+		Entity entity = level.getEntity(owner);
+		return entity != null && entity.isAlive() ? entity.getId() : LockedChestMenu.OpenData.GONE;
+	}
+
 	@Override
 	public LockedChestMenu.OpenData getScreenOpeningData(ServerPlayer player) {
-		return new LockedChestMenu.OpenData(ownerName(player.level()), placer != null && placer.equals(player.getUUID()) || player.isCreative());
+		ServerLevel level = player.level();
+		boolean canChange = placer != null && placer.equals(player.getUUID()) || player.isCreative();
+		return new LockedChestMenu.OpenData(ownerName(level), canChange, ownerId(level),
+				canChange ? LockedChestModule.candidates(level, getBlockPos()) : List.of());
 	}
 
 	@Override

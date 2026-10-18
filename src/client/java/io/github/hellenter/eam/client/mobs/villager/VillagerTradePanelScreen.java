@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.mobs.villager;
 
 import io.github.hellenter.eam.mobs.vanilla.villager.TradePanel;
 import io.github.hellenter.eam.mobs.vanilla.villager.TradePanelMenu;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerInventoryPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerTradePanel;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerTradePanelPayload;
@@ -24,7 +25,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Draws the villager gear panel to the right of the vanilla trade screen: a window like vanilla's with his armor, his
- * figure, his hands and a button to his inventory. See {@link VillagerTradePanel}.
+ * figure, his hands, a button to his inventory and, for the elder, one to the village menu. See
+ * {@link VillagerTradePanel}.
  */
 public final class VillagerTradePanelScreen {
 	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
@@ -59,15 +61,28 @@ public final class VillagerTradePanelScreen {
 		return button;
 	}
 
-	/** Draws the panel under the slots' items, and shows the button with it. */
-	public static void extract(MerchantMenu menu, GuiGraphicsExtractor graphics, int leftPos, int topPos, int mouseX, int mouseY, Button button) {
+	/** The elder's village button under the inventory button, hidden until his panel shows. */
+	public static Button villageButton(int leftPos, int topPos) {
+		Button button = Button.builder(Component.translatable("container.eam.villager.village"),
+						pressed -> ClientPlayNetworking.send(VillageOpenPayload.INSTANCE))
+				.bounds(leftPos + VillagerTradePanel.LEFT + 5, topPos + VillagerTradePanel.VILLAGE_BUTTON_Y,
+						VillagerTradePanel.RIGHT - VillagerTradePanel.LEFT - 10, 20)
+				.build();
+		button.visible = false;
+		return button;
+	}
+
+	/** Draws the panel under the slots' items, and shows its buttons with it. */
+	public static void extract(MerchantMenu menu, GuiGraphicsExtractor graphics, int leftPos, int topPos, int mouseX, int mouseY,
+			Button button, Button villageButton) {
 		TradePanel panel = ((TradePanelMenu) menu).eam$panel();
 		button.visible = panel != null;
+		villageButton.visible = panel != null && panel.elder();
 		if (panel == null) return;
 		int x0 = leftPos + VillagerTradePanel.LEFT;
 		int y0 = topPos + VillagerTradePanel.TOP;
 		int x1 = leftPos + VillagerTradePanel.RIGHT;
-		int y1 = topPos + VillagerTradePanel.BOTTOM;
+		int y1 = topPos + VillagerTradePanel.bottom(panel);
 		graphics.fill(x0 + 1, y0, x1 - 1, y1, OUTLINE);
 		graphics.fill(x0, y0 + 1, x1, y1 - 1, OUTLINE);
 		graphics.fill(x0 + 1, y0 + 1, x1 - 2, y1 - 2, LIGHT);
@@ -91,9 +106,10 @@ public final class VillagerTradePanelScreen {
 
 	/** Whether a click at {@code mx, my} lands on the panel, so it is not a click outside the screen. */
 	public static boolean inPanel(MerchantMenu menu, double mx, double my, int leftPos, int topPos) {
-		return ((TradePanelMenu) menu).eam$panel() != null
+		TradePanel panel = ((TradePanelMenu) menu).eam$panel();
+		return panel != null
 				&& mx >= leftPos + VillagerTradePanel.LEFT && mx < leftPos + VillagerTradePanel.RIGHT
-				&& my >= topPos + VillagerTradePanel.TOP && my < topPos + VillagerTradePanel.BOTTOM;
+				&& my >= topPos + VillagerTradePanel.TOP && my < topPos + VillagerTradePanel.bottom(panel);
 	}
 
 	private static @Nullable LivingEntity villager(TradePanel panel) {
