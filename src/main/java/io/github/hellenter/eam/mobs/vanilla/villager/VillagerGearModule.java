@@ -308,6 +308,7 @@ public final class VillagerGearModule {
 		List<ItemStack> before = villager.removeAttached(CARRIED);
 		if (before != null) carried.addAll(before);
 		carried.addAll(villager.getInventory().removeAllItems());
+		carried.addAll(VillagerMilitiaModule.takeStowed(villager));
 		ItemStack aside = villager.removeAttached(HELD_ASIDE);
 		if (aside != null && !aside.isEmpty() && !isWorkItem(aside)) carried.add(aside);
 		for (EquipmentSlot slot : EquipmentSlot.VALUES) {
@@ -321,7 +322,10 @@ public final class VillagerGearModule {
 	/** A dead villager drops his inventory, and any mob he turned into drops what it carries for him. */
 	private static void dropCarried(ServerLevel level, LivingEntity entity) {
 		List<ItemStack> drops = new ArrayList<>();
-		if (entity instanceof Villager villager) drops.addAll(villager.getInventory().removeAllItems());
+		if (entity instanceof Villager villager) {
+			drops.addAll(villager.getInventory().removeAllItems());
+			drops.addAll(VillagerMilitiaModule.takeStowed(villager));
+		}
 		List<ItemStack> carried = entity.removeAttached(CARRIED);
 		if (carried != null) drops.addAll(carried);
 		if (!level.getGameRules().get(GameRules.MOB_DROPS)) return;

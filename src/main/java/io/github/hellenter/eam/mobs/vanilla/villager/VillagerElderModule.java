@@ -188,10 +188,9 @@ public final class VillagerElderModule {
 
 	private static VillageListPayload.Resident resident(Villager villager, Villager elder) {
 		List<ItemStack> gear = new ArrayList<>();
-		for (EquipmentSlot slot : VillagerGearContainer.ARMOR) gear.add(villager.getItemBySlot(slot).copy());
-		ItemStack hand = VillagerGearModule.realHand(villager);
-		gear.add(VillagerGearModule.isWorkItem(hand) ? ItemStack.EMPTY : hand.copy());
-		gear.add(villager.getOffhandItem().copy());
+		for (EquipmentSlot slot : VillagerGearContainer.ARMOR) gear.add(VillagerMilitiaModule.gear(villager, slot).copy());
+		gear.add(VillagerMilitiaModule.gear(villager, EquipmentSlot.MAINHAND).copy());
+		gear.add(VillagerMilitiaModule.gear(villager, EquipmentSlot.OFFHAND).copy());
 		VillageListPayload.Role role = role(villager, elder);
 		return new VillageListPayload.Resident(villager.getId(), Optional.ofNullable(villager.getCustomName()),
 				villager.getVillagerData().profession().value().name(), villager.getVillagerData().level(), villager.getHealth(),
@@ -329,11 +328,13 @@ public final class VillagerElderModule {
 	private static @Nullable Gift gift(ItemStack stack, List<Villager> near, ElderSettings current) {
 		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
 		if (equippable != null && List.of(VillagerGearContainer.ARMOR).contains(equippable.slot())) {
-			return arm(near, equippable.slot(), villager -> villager.getItemBySlot(equippable.slot()).isEmpty());
+			return arm(near, equippable.slot(), villager -> VillagerMilitiaModule.gear(villager, equippable.slot()).isEmpty());
 		}
-		if (stack.is(VillagerGearModule.WEAPONS)) return arm(near, EquipmentSlot.MAINHAND, VillagerElderModule::handFree);
+		if (stack.is(VillagerGearModule.WEAPONS)) {
+			return arm(near, EquipmentSlot.MAINHAND, villager -> handFree(villager) && VillagerMilitiaModule.stowed(villager, EquipmentSlot.MAINHAND).isEmpty());
+		}
 		if (stack.is(VillagerGearModule.OFF_HAND)) {
-			return arm(near, EquipmentSlot.OFFHAND, villager -> villager.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty());
+			return arm(near, EquipmentSlot.OFFHAND, villager -> VillagerMilitiaModule.gear(villager, EquipmentSlot.OFFHAND).isEmpty());
 		}
 		for (Villager villager : near) {
 			if (handFree(villager) && matches(stack, VillagerGearModule.tools(villager))) return new Gift(villager, EquipmentSlot.MAINHAND, 1);
@@ -408,10 +409,10 @@ public final class VillagerElderModule {
 	private static int gear(Villager villager) {
 		int gear = 0;
 		for (EquipmentSlot slot : VillagerGearContainer.ARMOR) {
-			if (!villager.getItemBySlot(slot).isEmpty()) gear++;
+			if (!VillagerMilitiaModule.gear(villager, slot).isEmpty()) gear++;
 		}
-		if (!villager.getItemBySlot(EquipmentSlot.OFFHAND).isEmpty()) gear++;
-		if (!handFree(villager)) gear++;
+		if (!VillagerMilitiaModule.gear(villager, EquipmentSlot.OFFHAND).isEmpty()) gear++;
+		if (!VillagerMilitiaModule.gear(villager, EquipmentSlot.MAINHAND).isEmpty()) gear++;
 		return gear;
 	}
 
