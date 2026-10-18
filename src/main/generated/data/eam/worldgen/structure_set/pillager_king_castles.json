@@ -1,0 +1,24 @@
+{
+  "placement": {
+    "type": "eam:castle_spread",
+    "avoid": [
+      {
+        "chunk_count": 10,
+        "other_set": "minecraft:villages"
+      },
+      {
+        "chunk_count": 8,
+        "other_set": "eam:pillager_outposts"
+      }
+    ],
+    "salt": 20261018,
+    "separation": 24,
+    "spacing": 64
+  },
+  "structures": [
+    {
+      "structure": "eam:pillager_king_castle",
+      "weight": 1
+    }
+  ]
+}
