@@ -110,14 +110,23 @@ public final class VillagerGuardModule {
 		return villager.getVillagerData().profession().is(GUARD);
 	}
 
-	/** Called every tick a villager thinks on the server: a jobless villager armed as a guard takes the profession. */
+	/**
+	 * Called every tick a villager thinks on the server: a jobless villager with a guard's gear takes the profession, and
+	 * the others arm themselves in danger ({@link VillagerMilitiaModule}).
+	 */
 	public static void tick(Villager villager, ServerLevel level) {
-		if (!enabled || !VillagerRepairLogic.checksNow(level.getGameTime(), villager.getId(), PROFESSION_CHECK_TICKS)) return;
+		if (!enabled) return;
+		if (!VillagerRepairLogic.checksNow(level.getGameTime(), villager.getId(), PROFESSION_CHECK_TICKS)) {
+			VillagerMilitiaModule.tick(villager, level, settings);
+			return;
+		}
 		boolean jobless = villager.getVillagerData().profession().is(VillagerProfession.NONE);
 		if (!jobless) villager.removeAttached(DISMISSED);
-		if (VillagerGuardLogic.becomesGuard(jobless, isGuard(villager), villager.hasAttached(DISMISSED))) {
+		boolean armed = !villager.isBaby() && VillagerMilitiaModule.hasArms(villager);
+		if (VillagerGuardLogic.becomesGuard(jobless, armed, villager.hasAttached(DISMISSED))) {
 			makeGuard(villager, level);
 		}
+		VillagerMilitiaModule.tick(villager, level, settings);
 	}
 
 	/** Makes the villager a guard, or a guard an ordinary villager again, as a player asked. */
@@ -132,6 +141,7 @@ public final class VillagerGuardModule {
 	/** Gives the villager the guard profession: he leaves his job site, and his trades and work item go. */
 	static void makeGuard(Villager villager, ServerLevel level) {
 		villager.removeAttached(DISMISSED);
+		VillagerMilitiaModule.arm(villager);
 		villager.releasePoi(MemoryModuleType.JOB_SITE);
 		villager.releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
 		villager.getBrain().eraseMemory(MemoryModuleType.JOB_SITE);
@@ -163,6 +173,7 @@ public final class VillagerGuardModule {
 	 */
 	public static boolean thinks(Villager villager) {
 		if (!enabled) return true;
+		if (VillagerMilitiaModule.runsToGuard(villager)) return false;
 		LivingEntity target = villager.getTarget();
 		if (target == null) return true;
 		if (!isGuard(villager) || !target.isAlive()) {
@@ -194,7 +205,7 @@ public final class VillagerGuardModule {
 				(target, level) -> target instanceof Enemy && !(target instanceof Creeper)) {
 			@Override
 			public boolean canUse() {
-				return isGuard(villager) && super.canUse();
+				return isGuard(villager) && !VillagerMilitiaModule.runsToGuard(villager) && super.canUse();
 			}
 		});
 	}

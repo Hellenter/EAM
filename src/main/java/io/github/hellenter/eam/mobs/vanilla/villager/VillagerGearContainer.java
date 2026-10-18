@@ -8,7 +8,8 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * A villager's gear as one container: armor, the main hand (only what a player gave him; his own work item shows in its
- * own slot), the off hand, his work item and his inventory. Server side only; the client menu uses a plain container.
+ * own slot), the off hand, his work item and his inventory. The gear slots show what he wears or, if he has put it away,
+ * what he keeps for them. Server side only; the client menu uses a plain container.
  */
 final class VillagerGearContainer implements Container {
 	static final int HEAD = 0;
@@ -48,12 +49,9 @@ final class VillagerGearContainer implements Container {
 
 	@Override
 	public ItemStack getItem(int slot) {
-		if (slot < MAIN_HAND) return villager.getItemBySlot(ARMOR[slot]);
-		if (slot == MAIN_HAND) {
-			ItemStack hand = VillagerGearModule.realHand(villager);
-			return VillagerGearModule.isWorkItem(hand) ? ItemStack.EMPTY : hand;
-		}
-		if (slot == OFF_HAND) return villager.getOffhandItem();
+		if (slot < MAIN_HAND) return VillagerMilitiaModule.gear(villager, ARMOR[slot]);
+		if (slot == MAIN_HAND) return VillagerMilitiaModule.gear(villager, EquipmentSlot.MAINHAND);
+		if (slot == OFF_HAND) return VillagerMilitiaModule.gear(villager, EquipmentSlot.OFFHAND);
 		if (slot == WORK_ITEM) return VillagerGearModule.workItem(villager);
 		return villager.getInventory().getItem(slot - INVENTORY);
 	}
@@ -78,14 +76,20 @@ final class VillagerGearContainer implements Container {
 	@Override
 	public void setItem(int slot, ItemStack stack) {
 		if (slot < MAIN_HAND) {
-			VillagerGearModule.give(villager, ARMOR[slot], stack);
+			give(ARMOR[slot], stack);
 		} else if (slot == MAIN_HAND) {
-			VillagerGearModule.give(villager, EquipmentSlot.MAINHAND, stack);
+			give(EquipmentSlot.MAINHAND, stack);
 		} else if (slot == OFF_HAND) {
-			VillagerGearModule.give(villager, EquipmentSlot.OFFHAND, stack);
+			give(EquipmentSlot.OFFHAND, stack);
 		} else if (slot >= INVENTORY) {
 			villager.getInventory().setItem(slot - INVENTORY, stack);
 		}
+	}
+
+	/** Gear a player puts in or takes out replaces both what the villager wears and what he put away. */
+	private void give(EquipmentSlot slot, ItemStack stack) {
+		VillagerMilitiaModule.clearStowed(villager, slot);
+		VillagerGearModule.give(villager, slot, stack);
 	}
 
 	@Override
