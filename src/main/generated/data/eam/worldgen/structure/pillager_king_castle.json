@@ -1,0 +1,7 @@
+{
+  "type": "eam:pillager_king_castle",
+  "biomes": "#eam:has_structure/pillager_king_castle",
+  "spawn_overrides": {},
+  "step": "top_layer_modification",
+  "terrain_adaptation": "beard_thin"
+}

@@ -22,6 +22,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
 
 /**
@@ -100,11 +102,13 @@ public class OutpostPiece extends TemplateStructurePiece {
 		}
 	}
 
-	private static void spawn(WorldGenLevel level, EntityType<?> type, BlockPos pos, RandomSource random) {
-		if (!(type.create(level.getLevel(), EntitySpawnReason.STRUCTURE) instanceof Mob mob)) return;
+	/** Puts a persistent {@code type} mob standing on {@code pos}, facing a random way; null if it is not a mob. */
+	public static @Nullable Mob spawn(WorldGenLevel level, EntityType<?> type, BlockPos pos, RandomSource random) {
+		if (!(type.create(level.getLevel(), EntitySpawnReason.STRUCTURE) instanceof Mob mob)) return null;
 		mob.setPersistenceRequired();
 		mob.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.STRUCTURE, null);
 		level.addFreshEntityWithPassengers(mob);
+		return mob;
 	}
 }

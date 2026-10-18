@@ -83,6 +83,7 @@ import io.github.hellenter.eam.world.structures.StructureRemovalModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMineModule;
+import io.github.hellenter.eam.world.structures.castle.CastleModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageModule;
@@ -161,6 +162,7 @@ public class Eam implements ModInitializer {
 		VillageModule.register();
 		CryptModule.register();
 		OutpostModule.register();
+		CastleModule.register();
 		YagaHutModule.register();
 		DuergarVillageModule.register();
 		EmptyContainerLoot.register();
