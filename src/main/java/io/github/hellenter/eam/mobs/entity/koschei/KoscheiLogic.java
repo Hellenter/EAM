@@ -266,39 +266,69 @@ public final class KoscheiLogic {
 		BALL,
 		STORM,
 		ICE_RAVENS,
-		ICE_WALL
+		ICE_WALL,
+		/** Shield bearers rise in a row before him and he hides behind them. */
+		TURTLE,
+		ICE_COPIES,
+		DRAIN
 	}
 
 	/**
-	 * What he does next in his second phase, or null to keep moving: the staff blow at a target in its reach; a wall of
-	 * ice before one running at him, now and then; else, now and then, the ball of lightning while none of his is about,
-	 * the souls or the trap while there is room under his cap of draugr, the ice ravens or the snow storm at a target in
-	 * their reach; else the bolt at a target in sight.
+	 * How things stand when he picks his next staff attack.
+	 *
+	 * @param thralls     his draugr up now
+	 * @param rushing     the target is running at him
+	 * @param ballAbout   a ball of lightning of his is about
+	 * @param copiesAbout copies of him in ice are about
+	 * @param turtling    he is hiding behind a row of his shield bearers
+	 * @param canDrain    he may drain a draugr's strength now: hurt enough, uses left and one of his draugr near
+	 */
+	public record StaffSituation(double distance, boolean sees, int thralls, boolean rushing, boolean ballAbout, boolean copiesAbout,
+			boolean turtling, boolean canDrain) {
+	}
+
+	/**
+	 * What he does next in his second phase, or null to keep moving: the staff blow at a target in its reach; now and then
+	 * the drain of strength when he may; behind his shield bearers, only the bolt; else a wall of ice before one running at
+	 * him, now and then; else, now and then, the ball of lightning while none of his is about, the ice copies while none
+	 * are about, the shield bearers, the souls or the trap while there is room under his cap of draugr, the ice ravens or
+	 * the snow storm at a target in their reach; else the bolt at a target in sight.
 	 *
 	 * @param cooldowns ticks left for each {@link StaffAttack}, by ordinal
-	 * @param thralls   his draugr up now
-	 * @param rushing   the target is running at him
-	 * @param ballAbout a ball of lightning of his is about
 	 * @param rolls     random numbers in [0, 1)
 	 */
-	public static @Nullable StaffAttack chooseStaff(double distance, boolean sees, int[] cooldowns, int thralls, boolean rushing,
-			boolean ballAbout, PhaseTwoSettings two, DoubleSupplier rolls) {
+	public static @Nullable StaffAttack chooseStaff(StaffSituation now, int[] cooldowns, PhaseTwoSettings two, DoubleSupplier rolls) {
+		double distance = now.distance();
+		boolean sees = now.sees();
 		if (ready(cooldowns, StaffAttack.STRIKE) && distance <= two.strike().reach()) {
 			return StaffAttack.STRIKE;
 		}
+		if (ready(cooldowns, StaffAttack.DRAIN) && now.canDrain() && rolls.getAsDouble() < two.drain().chance()) {
+			return StaffAttack.DRAIN;
+		}
+		boolean bolt = sees && ready(cooldowns, StaffAttack.BOLT) && distance <= two.bolt().maxRange();
+		if (now.turtling()) {
+			return bolt ? StaffAttack.BOLT : null;
+		}
 		PhaseTwoSettings.IceWall wall = two.iceWall();
-		if (ready(cooldowns, StaffAttack.ICE_WALL) && rushing && sees && distance >= wall.minDistance() && distance <= wall.maxDistance()
+		if (ready(cooldowns, StaffAttack.ICE_WALL) && now.rushing() && sees && distance >= wall.minDistance() && distance <= wall.maxDistance()
 				&& rolls.getAsDouble() < wall.chance()) {
 			return StaffAttack.ICE_WALL;
 		}
-		if (ready(cooldowns, StaffAttack.BALL) && !ballAbout && rolls.getAsDouble() < two.ball().chance()) {
+		if (ready(cooldowns, StaffAttack.BALL) && !now.ballAbout() && rolls.getAsDouble() < two.ball().chance()) {
 			return StaffAttack.BALL;
 		}
-		boolean room = thralls < two.thralls().cap();
-		if (ready(cooldowns, StaffAttack.SOULS) && room && rolls.getAsDouble() < two.souls().chance()) {
+		if (ready(cooldowns, StaffAttack.ICE_COPIES) && !now.copiesAbout() && rolls.getAsDouble() < two.iceCopies().chance()) {
+			return StaffAttack.ICE_COPIES;
+		}
+		int room = two.thralls().cap() - now.thralls();
+		if (ready(cooldowns, StaffAttack.TURTLE) && room >= two.turtle().minRoom() && rolls.getAsDouble() < two.turtle().chance()) {
+			return StaffAttack.TURTLE;
+		}
+		if (ready(cooldowns, StaffAttack.SOULS) && room > 0 && rolls.getAsDouble() < two.souls().chance()) {
 			return StaffAttack.SOULS;
 		}
-		if (ready(cooldowns, StaffAttack.TRAP) && room && rolls.getAsDouble() < two.trap().chance()) {
+		if (ready(cooldowns, StaffAttack.TRAP) && room > 0 && rolls.getAsDouble() < two.trap().chance()) {
 			return StaffAttack.TRAP;
 		}
 		if (ready(cooldowns, StaffAttack.ICE_RAVENS) && distance <= two.iceRavens().maxRange() && rolls.getAsDouble() < two.iceRavens().chance()) {
@@ -307,10 +337,17 @@ public final class KoscheiLogic {
 		if (ready(cooldowns, StaffAttack.STORM) && sees && distance <= two.storm().range() && rolls.getAsDouble() < two.storm().chance()) {
 			return StaffAttack.STORM;
 		}
-		if (sees && ready(cooldowns, StaffAttack.BOLT) && distance <= two.bolt().maxRange()) {
-			return StaffAttack.BOLT;
-		}
-		return null;
+		return bolt ? StaffAttack.BOLT : null;
+	}
+
+	/** Whether he may drain a draugr's strength at {@code health} of {@code maxHealth}, having done it {@code used} times. */
+	public static boolean mayDrain(float health, float maxHealth, int used, PhaseTwoSettings.Drain drain) {
+		return used < drain.uses() && health < maxHealth * drain.below();
+	}
+
+	/** What he heals in second {@code second} of a drain, counted from 0: less each second, down to the least. */
+	public static float drainHeal(int second, PhaseTwoSettings.Drain drain) {
+		return Math.max(drain.healMin(), drain.healStart() - drain.healStep() * second);
 	}
 
 	private static boolean ready(int[] cooldowns, StaffAttack attack) {

@@ -43,6 +43,7 @@ public final class KoscheiModule {
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_RAVEN, KoscheiRaven.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_BALL_LIGHTNING, KoscheiBallLightning.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_ICE_RAVEN, KoscheiIceRaven.createAttributes());
+		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_ICE_COPY, KoscheiIceCopy.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(KoscheiSettingsLoader.ID, new KoscheiSettingsLoader());
 	}
 

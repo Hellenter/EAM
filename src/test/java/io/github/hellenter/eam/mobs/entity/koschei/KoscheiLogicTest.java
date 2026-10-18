@@ -208,29 +208,68 @@ class KoscheiLogicTest {
 	void withTheStaffHeSweepsAwayOneCloseElseRaisesTheDeadNowAndThenElseShoots() {
 		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
 		int[] ready = new int[StaffAttack.values().length];
-		assertEquals(StaffAttack.STRIKE, KoscheiLogic.chooseStaff(two.strike().reach(), true, ready, 0, false, false, two, () -> 0.99));
+		assertEquals(StaffAttack.STRIKE, staffAttack(two.strike().reach(), true, ready, 0, false, false, two, () -> 0.99));
 		// The rare ball of lightning comes first, but never a second while one is about.
-		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, false, two, () -> 0.0));
-		assertEquals(StaffAttack.SOULS, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, true, two, () -> 0.0));
+		assertEquals(StaffAttack.BALL, staffAttack(8.0, true, ready, 0, false, false, two, () -> 0.0));
+		assertEquals(StaffAttack.SOULS, staffAttack(8.0, true, ready, 0, false, true, two, () -> 0.0));
 		// At his cap of draugr he raises no more.
-		assertEquals(StaffAttack.ICE_RAVENS, KoscheiLogic.chooseStaff(8.0, true, ready, two.thralls().cap(), false, true, two, () -> 0.0));
-		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, false, two, () -> 0.99));
-		assertNull(KoscheiLogic.chooseStaff(8.0, false, ready, 0, false, false, two, () -> 0.99));
+		assertEquals(StaffAttack.ICE_RAVENS, staffAttack(8.0, true, ready, two.thralls().cap(), false, true, two, () -> 0.0));
+		assertEquals(StaffAttack.BOLT, staffAttack(8.0, true, ready, 0, false, false, two, () -> 0.99));
+		assertNull(staffAttack(8.0, false, ready, 0, false, false, two, () -> 0.99));
 		int[] soulsCooling = new int[StaffAttack.values().length];
 		soulsCooling[StaffAttack.SOULS.ordinal()] = 1;
-		assertEquals(StaffAttack.TRAP, KoscheiLogic.chooseStaff(8.0, true, soulsCooling, 0, false, true, two, () -> 0.0));
+		assertEquals(StaffAttack.TRAP, staffAttack(8.0, true, soulsCooling, 0, false, true, two, () -> 0.0));
 		int[] boltCooling = new int[StaffAttack.values().length];
 		boltCooling[StaffAttack.BOLT.ordinal()] = 1;
-		assertNull(KoscheiLogic.chooseStaff(8.0, true, boltCooling, 0, false, false, two, () -> 0.99));
+		assertNull(staffAttack(8.0, true, boltCooling, 0, false, false, two, () -> 0.99));
 	}
 
 	@Test
 	void aTargetRunningAtHimMayFindAWallOfIce() {
 		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
 		int[] ready = new int[StaffAttack.values().length];
-		assertEquals(StaffAttack.ICE_WALL, KoscheiLogic.chooseStaff(6.0, true, ready, 0, true, false, two, () -> 0.0));
-		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(6.0, true, ready, 0, false, false, two, () -> 0.0));
-		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(two.iceWall().maxDistance() + 1.0, true, ready, 0, true, false, two, () -> 0.0));
+		assertEquals(StaffAttack.ICE_WALL, staffAttack(6.0, true, ready, 0, true, false, two, () -> 0.0));
+		assertEquals(StaffAttack.BALL, staffAttack(6.0, true, ready, 0, false, false, two, () -> 0.0));
+		assertEquals(StaffAttack.BALL, staffAttack(two.iceWall().maxDistance() + 1.0, true, ready, 0, true, false, two, () -> 0.0));
+	}
+
+	private static StaffAttack staffAttack(double distance, boolean sees, int[] cooldowns, int thralls, boolean rushing, boolean ballAbout,
+			PhaseTwoSettings two, java.util.function.DoubleSupplier rolls) {
+		// Copies about and the shield bearers cooling down: the attacks of the earlier tests.
+		int[] cooling = cooldowns.clone();
+		cooling[StaffAttack.TURTLE.ordinal()] = 1;
+		return KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(distance, sees, thralls, rushing, ballAbout, true, false, false), cooling,
+				two, rolls);
+	}
+
+	@Test
+	void behindHisShieldBearersHeOnlyShootsAndHurtHeMayDrainOne() {
+		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
+		int[] ready = new int[StaffAttack.values().length];
+		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(8.0, true, 3, false, false, false, true, false),
+				ready, two, () -> 0.0));
+		assertEquals(StaffAttack.DRAIN, KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(8.0, true, 3, false, false, false, true, true),
+				ready, two, () -> 0.0));
+		// With no ball to call, ice copies come next, then the shield bearers while there is room for enough of them.
+		assertEquals(StaffAttack.ICE_COPIES, KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(8.0, true, 0, false, true, false, false,
+				false), ready, two, () -> 0.0));
+		assertEquals(StaffAttack.TURTLE, KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(8.0, true, 0, false, true, true, false,
+				false), ready, two, () -> 0.0));
+		int tooMany = two.thralls().cap() - two.turtle().minRoom() + 1;
+		assertEquals(StaffAttack.SOULS, KoscheiLogic.chooseStaff(new KoscheiLogic.StaffSituation(8.0, true, tooMany, false, true, true, false,
+				false), ready, two, () -> 0.0));
+	}
+
+	@Test
+	void theDrainHealsLessEachSecondDownToItsLeast() {
+		PhaseTwoSettings.Drain drain = PhaseTwoSettings.DEFAULT.drain();
+		assertEquals(10.0F, KoscheiLogic.drainHeal(0, drain));
+		assertEquals(9.0F, KoscheiLogic.drainHeal(1, drain));
+		assertEquals(7.0F, KoscheiLogic.drainHeal(3, drain));
+		assertEquals(7.0F, KoscheiLogic.drainHeal(6, drain));
+		assertFalse(KoscheiLogic.mayDrain(100.0F, 120.0F, 0, drain));
+		assertTrue(KoscheiLogic.mayDrain(80.0F, 120.0F, 1, drain));
+		assertFalse(KoscheiLogic.mayDrain(80.0F, 120.0F, drain.uses(), drain));
 	}
 
 	@Test

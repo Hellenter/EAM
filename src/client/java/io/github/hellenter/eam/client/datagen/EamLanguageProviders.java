@@ -510,6 +510,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Phantom Raven");
 			builder.add(EamEntities.KOSCHEI_BALL_LIGHTNING, "Ball Lightning");
 			builder.add(EamEntities.KOSCHEI_ICE_RAVEN, "Ice Raven");
+			builder.add(EamEntities.KOSCHEI_ICE_COPY, "Ice Copy of Koschei");
 			builder.add(EamBlocks.KOSCHEI_ICE, "Koschei's Ice");
 			builder.add("subtitles.eam.entity.koschei_raven.caw", "Phantom raven caws");
 			builder.add(EamEntities.BABA_YAGA, "Baba Yaga");
@@ -1294,6 +1295,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Призрачный ворон");
 			builder.add(EamEntities.KOSCHEI_BALL_LIGHTNING, "Шаровая молния");
 			builder.add(EamEntities.KOSCHEI_ICE_RAVEN, "Ледяной ворон");
+			builder.add(EamEntities.KOSCHEI_ICE_COPY, "Ледяной двойник Кощея");
 			builder.add(EamBlocks.KOSCHEI_ICE, "Кощеев лёд");
 			builder.add("subtitles.eam.entity.koschei_raven.caw", "Каркает призрачный ворон");
 			builder.add(EamEntities.BABA_YAGA, "Баба Яга");

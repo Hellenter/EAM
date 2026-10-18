@@ -218,6 +218,37 @@
       "ahead": 2.0,
       "size": 3,
       "lifetime": 200
+    },
+    "turtle": {
+      "chance": 0.1,
+      "cooldown": 600,
+      "count": 3,
+      "min_room": 2,
+      "duration": 300,
+      "spacing": 1.0,
+      "front_distance": 2.5,
+      "reach": 2.6
+    },
+    "ice_copies": {
+      "chance": 0.1,
+      "cooldown": 600,
+      "count": 2,
+      "health": 8.0,
+      "lifetime": 300,
+      "bolt_cooldown": 45,
+      "distance": 3.0
+    },
+    "drain": {
+      "below": 0.7,
+      "uses": 2,
+      "chance": 0.3,
+      "cooldown": 800,
+      "range": 16.0,
+      "damage_per_second": 2.0,
+      "heal_start": 10.0,
+      "heal_step": 1.0,
+      "heal_min": 7.0,
+      "height": 3.0
     }
   }
 }

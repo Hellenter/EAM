@@ -131,6 +131,7 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 		output.accept(EamEntities.KOSCHEI_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_BALL_LIGHTNING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_ICE_COPY.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		// The Pillager King drops only experience for now.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 

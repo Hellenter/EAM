@@ -104,6 +104,11 @@ public class Draugr extends Monster {
 	private int clientRiseStart;
 	/** Who raised him, if a sorcerer did; he lives only as long as his master does. */
 	private @Nullable UUID master;
+	/** His place in a row of shields his master keeps him in, renewed each tick; null when he stands in none. */
+	private @Nullable WallOrder wallOrder;
+	private long wallOrderTime;
+	/** Game time until which something holds him where he stands. */
+	private long heldUntil;
 
 	public Draugr(EntityType<? extends Draugr> type, Level level) {
 		super(type, level);
@@ -136,6 +141,7 @@ public class Draugr extends Monster {
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
+		goalSelector.addGoal(1, new DraugrWallGoal(this));
 		goalSelector.addGoal(2, new SpearUseGoal<>(this, 1.0, 1.0, 10.0F, 2.0F));
 		goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0, true));
 		goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.8));
@@ -284,7 +290,7 @@ public class Draugr extends Monster {
 
 	@Override
 	protected boolean isImmobile() {
-		return state != DraugrState.AWAKE || super.isImmobile();
+		return state != DraugrState.AWAKE || level().getGameTime() < heldUntil || super.isImmobile();
 	}
 
 	@Override
@@ -363,6 +369,33 @@ public class Draugr extends Monster {
 	@Override
 	protected boolean shouldDropLoot(ServerLevel level) {
 		return !isThrall() && super.shouldDropLoot(level);
+	}
+
+	/**
+	 * Where his master wants him this tick: at {@code spot} in a row of shields turned to {@code facing}, swinging at it
+	 * when it comes within {@code reach}. Given again each tick he is to stay there; he goes back to fighting as usual a
+	 * tick after it stops.
+	 */
+	public void holdWall(Vec3 spot, LivingEntity facing, double reach) {
+		wallOrder = new WallOrder(spot, facing, reach);
+		wallOrderTime = level().getGameTime();
+	}
+
+	/** His place in a row of shields, or null when his master keeps him in none now. */
+	@Nullable WallOrder wallOrder() {
+		if (wallOrder != null && (level().getGameTime() - wallOrderTime > 1 || !wallOrder.facing().isAlive())) {
+			wallOrder = null;
+		}
+		return wallOrder;
+	}
+
+	record WallOrder(Vec3 spot, LivingEntity facing, double reach) {
+	}
+
+	/** Holds him where he stands for {@code ticks}: his master draws on him. */
+	public void hold(int ticks) {
+		heldUntil = level().getGameTime() + ticks;
+		getNavigation().stop();
 	}
 
 	/** Whether his master still stands near: a thrall only lives as long as the one who raised him. */
