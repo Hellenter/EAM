@@ -49,8 +49,6 @@ public final class EamSounds {
 	public static final SoundEvent UNDERWORLD_LAVA_CAVES_ADDITIONS = register("ambient.underworld.lava_caves.additions");
 	public static final SoundEvent UNDERWORLD_LAKE_CAVES_ADDITIONS = register("ambient.underworld.lake_caves.additions");
 	public static final SoundEvent UNDERWORLD_RIVER_CAVES_LOOP = register("ambient.underworld.river_caves.loop");
-	public static final SoundEvent UNDERWORLD_FOREST_LOOP = register("ambient.underworld.underground_forest.loop");
-	public static final SoundEvent UNDERWORLD_FOREST_ADDITIONS = register("ambient.underworld.underground_forest.additions");
 	public static final SoundEvent UNDERWORLD_FROZEN_CAVES_LOOP = register("ambient.underworld.frozen_caves.loop");
 	public static final SoundEvent UNDERWORLD_ICE_CAVES_LOOP = register("ambient.underworld.ice_caves.loop");
 	public static final SoundEvent UNDERWORLD_ICE_ADDITIONS = register("ambient.underworld.ice_caves.additions");

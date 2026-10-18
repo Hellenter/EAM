@@ -106,7 +106,8 @@ public record GiantMushroomFeature(BlockState cap, BlockState stem, BlockState l
 			clearance++;
 		}
 		int height = Math.min(wanted, clearance - capTop - HEADROOM);
-		if (height < MIN_HEIGHT) {
+		// A small mushroom tree may be meant to be shorter than that; a giant one is not squeezed below it.
+		if (height < Math.min(MIN_HEIGHT, wanted)) {
 			return false;
 		}
 		boolean thick = height >= this.thickAbove;

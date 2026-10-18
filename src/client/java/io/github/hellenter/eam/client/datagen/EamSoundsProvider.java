@@ -113,17 +113,6 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.UNDERWORLD_LAKE_CAVES_ADDITIONS, drips);
 		exporter.add(EamSounds.UNDERWORLD_RIVER_CAVES_LOOP, loop(EamSounds.UNDERWORLD_RIVER_CAVES_LOOP, "river_caves", 0.3F, 1.0F));
 
-		exporter.add(EamSounds.UNDERWORLD_FOREST_LOOP, loop(EamSounds.UNDERWORLD_FOREST_LOOP, "underground_forest", 0.6F, 1.0F));
-		SoundTypeBuilder forest = SoundTypeBuilder.of(EamSounds.UNDERWORLD_FOREST_ADDITIONS);
-		for (int i = 1; i <= 5; i++) {
-			forest.sound(vanilla("ambient/nether/warped_forest/creak" + i, 0.8F, 0.3F, 2));
-		}
-		for (int i = 1; i <= 6; i++) {
-			forest.sound(vanilla("block/firefly_bush/firefly_bush" + i, 0.75F, 1.0F, 1));
-			forest.sound(vanilla("block/pale_hanging_moss/pale_hanging_moss" + i, 0.8F, 0.5F, 1));
-		}
-		exporter.add(EamSounds.UNDERWORLD_FOREST_ADDITIONS, forest);
-
 		exporter.add(EamSounds.UNDERWORLD_FROZEN_CAVES_LOOP, loop(EamSounds.UNDERWORLD_FROZEN_CAVES_LOOP, "wind", 0.22F, 0.9F));
 		exporter.add(EamSounds.UNDERWORLD_ICE_CAVES_LOOP, loop(EamSounds.UNDERWORLD_ICE_CAVES_LOOP, "wind", 0.35F, 1.0F));
 		SoundTypeBuilder ice = SoundTypeBuilder.of(EamSounds.UNDERWORLD_ICE_ADDITIONS);
