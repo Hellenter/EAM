@@ -62,6 +62,8 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	private static final int MAX_RADIUS = 10;
 	/** A lake is given up when more than this share of its surface has no ground under it. */
 	private static final float MAX_OVERHANG = 0.25F;
+	/** How far beside a duergar village no lake stands higher than its streets. */
+	private static final int VILLAGE_MARGIN = 16;
 	/** How far beside the lake below a cascade lake may stand, centre to centre. */
 	private static final int CASCADE_OFFSET = 8;
 	/** How much higher than the lake below a cascade lake must be, and at most. */
@@ -82,11 +84,14 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		int minX = origin.getX() & ~15;
 		int minZ = origin.getZ() & ~15;
 		VillageArea villages = VillageArea.around(level, origin, WALL + 2);
-		Lake below = lake(level, random, floor, this.radius.sample(random), villages);
+		VillageArea overlooked = VillageArea.around(level, origin, VILLAGE_MARGIN);
+		Lake below = lake(level, random, floor, this.radius.sample(random), villages, overlooked);
 		if (below == null) {
 			return false;
 		}
-		for (int i = 0; i < this.cascades && random.nextFloat() < this.cascadeChance; i++) {
+		// A cascade spills down its rim, and the water may run on past the lake below: none near a duergar village.
+		int cascades = overlooked.isEmpty() ? this.cascades : 0;
+		for (int i = 0; i < cascades && random.nextFloat() < this.cascadeChance; i++) {
 			Lake above = null;
 			int radius = this.radius.sample(random);
 			// How far outside the chunk the cascade lake's centre may be, so it stays inside the area a feature may change.
@@ -98,7 +103,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				int z = Mth.clamp(below.centre.getZ() + Math.round(Mth.sin(angle) * distance), minZ - reach, minZ + 15 + reach);
 				BlockPos higher = floorAbove(level, x, below.centre.getY() + CASCADE_MIN_RISE, below.centre.getY() + CASCADE_MAX_RISE, z);
 				if (higher != null) {
-					above = lake(level, random, higher, radius, villages);
+					above = lake(level, random, higher, radius, villages, overlooked);
 				}
 			}
 			if (above == null) {
@@ -171,8 +176,13 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		return null;
 	}
 
-	/** Digs a lake whose water surface is the ground at {@code surface}, or digs nothing and returns null. */
-	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface, int radius, VillageArea villages) {
+	/**
+	 * Digs a lake whose water surface is the ground at {@code surface}, or digs nothing and returns null: also when it
+	 * would touch a duergar village or lie on a ledge above one, where any water that got over its rim would run down
+	 * into the streets.
+	 */
+	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface, int radius, VillageArea villages,
+			VillageArea overlooked) {
 		int depth = this.depth.sample(random);
 		boolean island = radius >= 4 && random.nextFloat() < this.islandChance;
 		float phase = random.nextFloat() * Mth.TWO_PI;
@@ -211,7 +221,8 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		}
 		for (BlockPos cell : water) {
 			BlockState state = level.getBlockState(cell);
-			if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || isPlantMatter(state) || villages.touches(cell)) {
+			if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || isPlantMatter(state) || villages.touches(cell)
+					|| overlooked.overlooks(cell, 2)) {
 				return null;
 			}
 		}

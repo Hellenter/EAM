@@ -32,7 +32,12 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStruct
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.AlwaysTrueTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.ProcessorRule;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RandomBlockMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.ProtectedBlockProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 
@@ -52,6 +57,8 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 	private static final String TEMPLATES = "eam:duergar_village/";
 	public static final ResourceKey<StructureProcessorList> PROCESSORS =
 			ResourceKey.create(Registries.PROCESSOR_LIST, Eam.id("duergar_village"));
+	public static final ResourceKey<StructureProcessorList> LAKE_STREET_PROCESSORS =
+			ResourceKey.create(Registries.PROCESSOR_LIST, Eam.id("duergar_village_lake_street"));
 
 	public EamDuergarVillageProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -64,31 +71,44 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
 				// Barrels Maxim left empty hold a few potions.
 				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS))));
+		// The canal beside each lake street ran out over lower ground and flooded the street below; it is a muddy verge.
+		context.register(LAKE_STREET_PROCESSORS, new StructureProcessorList(List.of(
+				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
+				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS),
+				new RuleProcessor(List.of(
+						new ProcessorRule(new RandomBlockMatchTest(Blocks.WATER, 0.25F), AlwaysTrueTest.INSTANCE,
+								Blocks.PACKED_MUD.defaultBlockState()),
+						new ProcessorRule(new RandomBlockMatchTest(Blocks.WATER, 0.15F), AlwaysTrueTest.INSTANCE,
+								Blocks.MOSS_BLOCK.defaultBlockState()),
+						new ProcessorRule(new BlockMatchTest(Blocks.WATER), AlwaysTrueTest.INSTANCE,
+								Blocks.MUD.defaultBlockState()))))));
 	}
 
 	public static void bootstrapPools(BootstrapContext<StructureTemplatePool> context) {
 		HolderGetter<StructureTemplatePool> pools = context.lookup(Registries.TEMPLATE_POOL);
 		Holder<StructureProcessorList> processors = context.lookup(Registries.PROCESSOR_LIST).getOrThrow(PROCESSORS);
+		Holder<StructureProcessorList> lakeStreets = context.lookup(Registries.PROCESSOR_LIST).getOrThrow(LAKE_STREET_PROCESSORS);
 		Holder<StructureTemplatePool> empty = pools.getOrThrow(Pools.EMPTY);
 		for (Style style : Style.values()) {
 			String dir = style.id() + "/";
+			Holder<StructureProcessorList> streets = style == Style.LAKE ? lakeStreets : processors;
 			context.register(style.pool("start"), new StructureTemplatePool(empty, List.of(
 					piece(dir + "plaza", processors, 1)), StructureTemplatePool.Projection.RIGID));
 			// Straight streets, turns, forks, ramps up or down and bridges, so a village follows its cave.
 			context.register(style.pool("streets"), new StructureTemplatePool(pools.getOrThrow(style.pool("ends")), List.of(
-					piece(dir + "street/1", processors, 5),
-					piece(dir + "street/2", processors, 2),
-					piece(dir + "street/3", processors, 2),
-					piece(dir + "street/4", processors, 3),
-					piece(dir + "street/5", processors, 3),
-					piece(dir + "ramp", processors, 3),
-					piece(dir + "corner", processors, 3),
-					piece(dir + "fork", processors, 2),
-					piece(dir + "crossing", processors, 1),
-					piece(dir + "bridge", processors, 1)), StructureTemplatePool.Projection.RIGID));
+					piece(dir + "street/1", streets, 5),
+					piece(dir + "street/2", streets, 2),
+					piece(dir + "street/3", streets, 2),
+					piece(dir + "street/4", streets, 3),
+					piece(dir + "street/5", streets, 3),
+					piece(dir + "ramp", streets, 3),
+					piece(dir + "corner", streets, 3),
+					piece(dir + "fork", streets, 2),
+					piece(dir + "crossing", streets, 1),
+					piece(dir + "bridge", streets, 1)), StructureTemplatePool.Projection.RIGID));
 			context.register(style.pool("ends"), new StructureTemplatePool(empty, List.of(
-					piece(dir + "end/1", processors, 2),
-					piece(dir + "end/2", processors, 1)), StructureTemplatePool.Projection.RIGID));
+					piece(dir + "end/1", streets, 2),
+					piece(dir + "end/2", streets, 1)), StructureTemplatePool.Projection.RIGID));
 			// Ten kinds of building and a yard; small homes most often, one drinking hall at most now and then.
 			context.register(style.pool("houses"), new StructureTemplatePool(empty, List.of(
 					piece(dir + "house/1", processors, 4),
@@ -145,6 +165,7 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 	@Override
 	protected void configure(HolderLookup.Provider registries, Entries entries) {
 		entries.add(registries.lookupOrThrow(Registries.PROCESSOR_LIST), PROCESSORS);
+		entries.add(registries.lookupOrThrow(Registries.PROCESSOR_LIST), LAKE_STREET_PROCESSORS);
 		for (Style style : Style.values()) {
 			for (String kind : List.of("start", "streets", "ends", "houses")) {
 				entries.add(registries.lookupOrThrow(Registries.TEMPLATE_POOL), style.pool(kind));
