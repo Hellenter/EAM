@@ -262,32 +262,76 @@ public final class KoscheiLogic {
 		STRIKE,
 		SOULS,
 		/** Not an attack yet: he stops backing off and waits for the target to come close, then springs the trap. */
-		TRAP
+		TRAP,
+		BALL,
+		STORM,
+		ICE_RAVENS,
+		ICE_WALL
 	}
 
 	/**
-	 * What he does next in his second phase, or null to keep moving: the staff blow at a target in its reach; else, now
-	 * and then, the souls while there is room under his cap of draugr, or the trap; else the bolt at a target in sight.
+	 * What he does next in his second phase, or null to keep moving: the staff blow at a target in its reach; a wall of
+	 * ice before one running at him, now and then; else, now and then, the ball of lightning while none of his is about,
+	 * the souls or the trap while there is room under his cap of draugr, the ice ravens or the snow storm at a target in
+	 * their reach; else the bolt at a target in sight.
 	 *
 	 * @param cooldowns ticks left for each {@link StaffAttack}, by ordinal
 	 * @param thralls   his draugr up now
+	 * @param rushing   the target is running at him
+	 * @param ballAbout a ball of lightning of his is about
 	 * @param rolls     random numbers in [0, 1)
 	 */
-	public static @Nullable StaffAttack chooseStaff(double distance, boolean sees, int[] cooldowns, int thralls, PhaseTwoSettings two,
-			DoubleSupplier rolls) {
-		if (cooldowns[StaffAttack.STRIKE.ordinal()] <= 0 && distance <= two.strike().reach()) {
+	public static @Nullable StaffAttack chooseStaff(double distance, boolean sees, int[] cooldowns, int thralls, boolean rushing,
+			boolean ballAbout, PhaseTwoSettings two, DoubleSupplier rolls) {
+		if (ready(cooldowns, StaffAttack.STRIKE) && distance <= two.strike().reach()) {
 			return StaffAttack.STRIKE;
 		}
-		if (cooldowns[StaffAttack.SOULS.ordinal()] <= 0 && thralls < two.thralls().cap() && rolls.getAsDouble() < two.souls().chance()) {
+		PhaseTwoSettings.IceWall wall = two.iceWall();
+		if (ready(cooldowns, StaffAttack.ICE_WALL) && rushing && sees && distance >= wall.minDistance() && distance <= wall.maxDistance()
+				&& rolls.getAsDouble() < wall.chance()) {
+			return StaffAttack.ICE_WALL;
+		}
+		if (ready(cooldowns, StaffAttack.BALL) && !ballAbout && rolls.getAsDouble() < two.ball().chance()) {
+			return StaffAttack.BALL;
+		}
+		boolean room = thralls < two.thralls().cap();
+		if (ready(cooldowns, StaffAttack.SOULS) && room && rolls.getAsDouble() < two.souls().chance()) {
 			return StaffAttack.SOULS;
 		}
-		if (cooldowns[StaffAttack.TRAP.ordinal()] <= 0 && thralls < two.thralls().cap() && rolls.getAsDouble() < two.trap().chance()) {
+		if (ready(cooldowns, StaffAttack.TRAP) && room && rolls.getAsDouble() < two.trap().chance()) {
 			return StaffAttack.TRAP;
 		}
-		if (sees && cooldowns[StaffAttack.BOLT.ordinal()] <= 0 && distance <= two.bolt().maxRange()) {
+		if (ready(cooldowns, StaffAttack.ICE_RAVENS) && distance <= two.iceRavens().maxRange() && rolls.getAsDouble() < two.iceRavens().chance()) {
+			return StaffAttack.ICE_RAVENS;
+		}
+		if (ready(cooldowns, StaffAttack.STORM) && sees && distance <= two.storm().range() && rolls.getAsDouble() < two.storm().chance()) {
+			return StaffAttack.STORM;
+		}
+		if (sees && ready(cooldowns, StaffAttack.BOLT) && distance <= two.bolt().maxRange()) {
 			return StaffAttack.BOLT;
 		}
 		return null;
+	}
+
+	private static boolean ready(int[] cooldowns, StaffAttack attack) {
+		return cooldowns[attack.ordinal()] <= 0;
+	}
+
+	/** Whether a point {@code dx}, {@code dz} from him is within {@code range} and {@code angle} degrees either side of where he faces. */
+	public static boolean inCone(double dx, double dz, double facingX, double facingZ, double range, float angle) {
+		double length = Math.sqrt(dx * dx + dz * dz);
+		if (length > range) {
+			return false;
+		}
+		if (length < 1.0E-4) {
+			return true;
+		}
+		return (dx * facingX + dz * facingZ) / length >= Math.cos(Math.toRadians(angle));
+	}
+
+	/** The slowness level after one more ice raven: one more than {@code current} (-1 for none), at most {@code max}. */
+	public static int stackedSlowness(int current, int max) {
+		return Math.min(max, current + 1);
 	}
 
 	/** How many of {@code wanted} draugr he may raise with {@code alive} already up, so as not to pass {@code cap}. */

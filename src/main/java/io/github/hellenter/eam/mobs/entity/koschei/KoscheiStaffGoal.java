@@ -16,10 +16,15 @@ import java.util.EnumSet;
  */
 final class KoscheiStaffGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
+	/** He judges how fast the target closes in over this many ticks. */
+	private static final int RUSH_TICKS = 10;
 
 	private final Koschei koschei;
 	private LivingEntity target;
 	private int repath;
+	/** The target's distance over the last ticks, newest last, to tell when it runs at him. */
+	private final double[] distances = new double[RUSH_TICKS];
+	private int samples;
 
 	KoscheiStaffGoal(Koschei koschei) {
 		this.koschei = koschei;
@@ -49,6 +54,7 @@ final class KoscheiStaffGoal extends Goal {
 	@Override
 	public void stop() {
 		target = null;
+		samples = 0;
 		koschei.setAggressive(false);
 		koschei.getNavigation().stop();
 	}
@@ -61,12 +67,14 @@ final class KoscheiStaffGoal extends Goal {
 	@Override
 	public void tick() {
 		if (koschei.isBusy() || target == null || !target.isAlive() || target != koschei.getTarget()) {
+			samples = 0;
 			return;
 		}
 		koschei.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		PhaseTwoSettings two = koschei.phaseTwo();
 		double distance = koschei.horizontalDistanceTo(target);
 		boolean sees = koschei.getSensing().hasLineOfSight(target);
+		boolean rushing = rushing(distance, two.iceWall().rushSpeed());
 		if (koschei.trapLaid()) {
 			// Standing his ground, letting it come.
 			koschei.getNavigation().stop();
@@ -85,8 +93,8 @@ final class KoscheiStaffGoal extends Goal {
 			return;
 		}
 		if (koschei.readyToAttack()) {
-			StaffAttack attack = KoscheiLogic.chooseStaff(distance, sees, koschei.staffCooldowns(), koschei.thrallCount(), two,
-					koschei.getRandom()::nextDouble);
+			StaffAttack attack = KoscheiLogic.chooseStaff(distance, sees, koschei.staffCooldowns(), koschei.thrallCount(), rushing,
+					koschei.ballAbout(), two, koschei.getRandom()::nextDouble);
 			if (attack != null) {
 				koschei.getNavigation().stop();
 				koschei.startStaff(attack, target);
@@ -94,6 +102,14 @@ final class KoscheiStaffGoal extends Goal {
 			}
 		}
 		keepDistance(distance, sees, kite);
+	}
+
+	/** Whether the target has closed in on him at least {@code speed} blocks a tick lately: it runs at him. */
+	private boolean rushing(double distance, double speed) {
+		System.arraycopy(distances, 1, distances, 0, RUSH_TICKS - 1);
+		distances[RUSH_TICKS - 1] = distance;
+		samples = Math.min(RUSH_TICKS, samples + 1);
+		return samples == RUSH_TICKS && (distances[0] - distance) / (RUSH_TICKS - 1) >= speed;
 	}
 
 	/** Away from a target that comes too close, fast when it is right on him; up to one too far or out of sight. */

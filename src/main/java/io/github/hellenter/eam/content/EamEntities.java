@@ -35,6 +35,8 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiBallLightning;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceRaven;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
@@ -237,6 +239,23 @@ public final class EamEntities {
 			EntityType.Builder.of(KoscheiRaven::new, MobCategory.MONSTER)
 					.sized(0.5F, 0.4F)
 					.fireImmune()
+					.eyeHeight(0.25F)
+					.clientTrackingRange(8));
+
+	/** Koschei's ball of lightning, drifting after his target. */
+	public static final EntityType<KoscheiBallLightning> KOSCHEI_BALL_LIGHTNING = register("koschei_ball_lightning",
+			EntityType.Builder.of(KoscheiBallLightning::new, MobCategory.MONSTER)
+					.sized(0.8F, 0.8F)
+					.fireImmune()
+					.noSave()
+					.clientTrackingRange(10));
+
+	/** A raven of ice Koschei looses at his target. */
+	public static final EntityType<KoscheiIceRaven> KOSCHEI_ICE_RAVEN = register("koschei_ice_raven",
+			EntityType.Builder.of(KoscheiIceRaven::new, MobCategory.MONSTER)
+					.sized(0.5F, 0.4F)
+					.fireImmune()
+					.noSave()
 					.eyeHeight(0.25F)
 					.clientTrackingRange(8));
 

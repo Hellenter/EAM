@@ -32,6 +32,7 @@ import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
 import io.github.hellenter.eam.mobs.vanilla.evolution.SpiderWebBlock;
 
@@ -206,6 +207,19 @@ public final class EamBlocks {
 			.noLootTable()
 			.pushReaction(PushReaction.IMMOVEABLE)
 			.isValidSpawn((state, level, pos, type) -> false));
+
+	/** The ice of the wall Koschei raises: it melts away on its own and drops nothing. */
+	public static final Block KOSCHEI_ICE = register("koschei_ice", KoscheiIceBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.ICE)
+			.strength(0.5F)
+			.friction(0.98F)
+			.sound(SoundType.GLASS)
+			.noOcclusion()
+			.noLootTable()
+			.isValidSpawn((state, level, pos, type) -> false)
+			.isRedstoneConductor((state, level, pos) -> false)
+			.isSuffocating((state, level, pos) -> false)
+			.pushReaction(PushReaction.IMMOVEABLE));
 
 	/** Underworld mushrooms: a chanterelle (orange funnel cap) and a champignon (white dome, some cap blocks glow blue). */
 	public static final Block CHANTERELLE_CAP = mushroomBlock("chanterelle_cap", MapColor.COLOR_ORANGE, 0);

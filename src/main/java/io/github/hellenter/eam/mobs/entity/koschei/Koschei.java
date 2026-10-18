@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.mobs.entity.koschei;
 
+import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
@@ -64,6 +65,7 @@ import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -94,6 +96,9 @@ import java.util.UUID;
  * undead, he keeps his distance as Baba Yaga does in hers, vanishes and hops away, shoots blue bolts from the staff that
  * only a shield stops, sweeps one who comes close away with it, and raises draugr out of the ground, faster and frailer
  * than those of the ice caves: with souls thrown over the arena, or round one he lets walk up to him before he vanishes.
+ * He also looses a wide snow storm that pushes back and burns those without a shield, three ravens of ice of which one
+ * knocks a shield out, now and then a ball of lightning that hunts the target until struck down, and a wall of ice
+ * before a target that runs at him.
  * The third phase is not built yet: for now he dies at the end of the second. Numbers are in
  * {@code data/eam/mobs/koschei.json}.
  */
@@ -212,6 +217,10 @@ public class Koschei extends Monster implements BuildingAware {
 	private boolean teleportAway;
 	/** His draugr up, counted now and then. */
 	private int thrallCount;
+	/** His ball of lightning while it is about. */
+	private @Nullable KoscheiBallLightning ball;
+	/** His ice ravens still in the air. */
+	private final List<KoscheiIceRaven> iceRavens = new ArrayList<>();
 
 	public Koschei(EntityType<? extends Koschei> type, Level level) {
 		super(type, level);
@@ -457,6 +466,15 @@ public class Koschei extends Monster implements BuildingAware {
 		if (phase() >= 2 && tickCount % 10 == 0) {
 			thrallCount = countThralls(level);
 		}
+		if (ball != null && !ball.isAlive()) {
+			ball = null;
+		}
+		iceRavens.removeIf(raven -> !raven.isAlive());
+		if (!iceRavens.isEmpty()) {
+			// No new ravens while some are in the air: the cooldown counts from when the last is gone.
+			staffCooldowns[StaffAttack.ICE_RAVENS.ordinal()] = Math.max(staffCooldowns[StaffAttack.ICE_RAVENS.ordinal()],
+					phaseTwo().iceRavens().cooldown());
+		}
 		LivingEntity current = getTarget();
 		highTicks = current != null && current.isAlive() && current.getY() - getY() > settings().height().above() ? highTicks + 1 : 0;
 		flock.removeIf(raven -> !raven.isAlive());
@@ -687,6 +705,26 @@ public class Koschei extends Monster implements BuildingAware {
 					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.5F);
 				} else if (t == KoscheiAction.SOULS_RELEASE) {
 					throwSouls(level, phaseTwo());
+				}
+			}
+			case SNOWSTORM -> tickStorm(level, t, phaseTwo().storm());
+			case ICE_RAVENS -> {
+				if (t == 0) {
+					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 1.3F);
+				} else if (t == KoscheiAction.ICE_RAVENS_RELEASE && target != null) {
+					loosIceRavens(level, target, phaseTwo().iceRavens());
+				}
+			}
+			case BALL -> {
+				if (t == 0) {
+					level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.BEACON_ACTIVATE, getSoundSource(), 1.5F, 1.8F);
+				} else if (t == KoscheiAction.BALL_RELEASE && target != null) {
+					callBall(level, target, phaseTwo().ball());
+				}
+			}
+			case ICE_WALL -> {
+				if (t == KoscheiAction.ICE_WALL_RELEASE && target != null) {
+					raiseIceWall(level, target, phaseTwo().iceWall());
 				}
 			}
 			case TRAP -> {
@@ -1104,7 +1142,166 @@ public class Koschei extends Monster implements BuildingAware {
 				trapWait = two.trap().waitTicks();
 				actionTarget = null;
 			}
+			case BALL -> {
+				staffCooldowns[attack.ordinal()] = two.ball().cooldown();
+				setAction(KoscheiAction.BALL);
+			}
+			case STORM -> {
+				staffCooldowns[attack.ordinal()] = two.storm().cooldown();
+				setAction(KoscheiAction.SNOWSTORM);
+			}
+			case ICE_RAVENS -> {
+				staffCooldowns[attack.ordinal()] = two.iceRavens().cooldown();
+				setAction(KoscheiAction.ICE_RAVENS);
+			}
+			case ICE_WALL -> {
+				staffCooldowns[attack.ordinal()] = two.iceWall().cooldown();
+				setAction(KoscheiAction.ICE_WALL);
+			}
 		}
+	}
+
+	/** Whether his ball of lightning is about. */
+	boolean ballAbout() {
+		return ball != null && ball.isAlive();
+	}
+
+	/** The ball of lightning breaks from the staff's crystal and drifts after the target. */
+	private void callBall(ServerLevel level, LivingEntity target, PhaseTwoSettings.Ball settings) {
+		KoscheiBallLightning next = EamEntities.KOSCHEI_BALL_LIGHTNING.create(level, EntitySpawnReason.MOB_SUMMONED);
+		if (next == null) {
+			return;
+		}
+		Vec3 at = raisedStaffHead();
+		next.snapTo(at.x, at.y - next.getBbHeight() * 0.5, at.z, 0.0F, 0.0F);
+		next.summon(this, target, settings);
+		level.addFreshEntity(next);
+		ball = next;
+		level.playSound(null, at.x, at.y, at.z, SoundEvents.LIGHTNING_BOLT_IMPACT, getSoundSource(), 1.5F, 1.6F);
+		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.x, at.y, at.z, 30, 0.3, 0.3, 0.3, 0.3);
+	}
+
+	/**
+	 * The icy blast from his hands: everyone in front of him is pushed slowly back, and burnt a little each second unless
+	 * they hold a shield up to it.
+	 */
+	private void tickStorm(ServerLevel level, int t, PhaseTwoSettings.Storm storm) {
+		if (t == 0) {
+			playSound(SoundEvents.BREEZE_INHALE, 1.5F, 0.6F);
+		}
+		if (t < KoscheiAction.STORM_START) {
+			return;
+		}
+		if ((t - KoscheiAction.STORM_START) % 20 == 0) {
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.POWDER_SNOW_STEP, getSoundSource(), 2.0F, 0.5F);
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.BREEZE_WIND_CHARGE_BURST.value(), getSoundSource(), 0.8F, 0.4F);
+		}
+		Vec3 facing = Vec3.directionFromRotation(0.0F, yBodyRot);
+		Vec3 hands = position().add(facing.scale(0.9)).add(0.0, getBbHeight() * 0.6, 0.0);
+		// Snow and frost blown out in a wide fan.
+		for (int i = 0; i < 6; i++) {
+			float spread = (random.nextFloat() - 0.5F) * 2.0F * storm.angle();
+			Vec3 dir = Vec3.directionFromRotation((random.nextFloat() - 0.5F) * 20.0F, yBodyRot + spread);
+			double speed = 0.5 + random.nextDouble() * 0.4;
+			level.sendParticles(ParticleTypes.SNOWFLAKE, hands.x, hands.y, hands.z, 0, dir.x, dir.y, dir.z, speed);
+			if (i % 2 == 0) {
+				level.sendParticles(ParticleTypes.CLOUD, hands.x, hands.y, hands.z, 0, dir.x, dir.y, dir.z, speed * 0.6);
+			}
+		}
+		boolean burn = (t - KoscheiAction.STORM_START) % 20 == 0;
+		double push = storm.pushPerSecond() / 20.0;
+		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(storm.range(), 3.0, storm.range()),
+				e -> e != this && e.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e) && !(e instanceof Draugr draugr && draugr.servedBy(this))
+						&& !(e instanceof KoscheiBallLightning) && !(e instanceof KoscheiIceRaven))) {
+			if (!KoscheiLogic.inCone(victim.getX() - getX(), victim.getZ() - getZ(), facing.x, facing.z, storm.range(), storm.angle())
+					|| !hasLineOfSight(victim)) {
+				continue;
+			}
+			Vec3 away = horizontal(victim.position().subtract(position()));
+			Vec3 base = victim instanceof Player ? victim.getKnownMovement() : victim.getDeltaMovement();
+			victim.setDeltaMovement(base.x + away.x * push, base.y, base.z + away.z * push);
+			victim.syncVelocity = true;
+			victim.needsSync = true;
+			if (random.nextInt(4) == 0) {
+				level.sendParticles(ParticleTypes.SNOWFLAKE, victim.getX(), victim.getY(0.6), victim.getZ(), 2, 0.3, 0.4, 0.3, 0.02);
+			}
+			if (!burn) {
+				continue;
+			}
+			if (blockingShield(victim) != null) {
+				level.playSound(null, victim.getX(), victim.getY(), victim.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 0.6F, 1.5F);
+				continue;
+			}
+			victim.damageCooldownTime = 0;
+			victim.hurtServer(level, damageSources().source(KoscheiModule.SORCERY_DAMAGE, this), storm.damagePerSecond());
+		}
+	}
+
+	/** The ravens of ice burst from his raised hand, fanned out, and curve in after the target; the middle one breaks shields. */
+	private void loosIceRavens(ServerLevel level, LivingEntity target, PhaseTwoSettings.IceRavens settings) {
+		Vec3 hand = raisedHand();
+		level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.GLASS_BREAK, getSoundSource(), 1.2F, 0.8F);
+		level.playSound(null, hand.x, hand.y, hand.z, EamSounds.KOSCHEI_RAVEN_CAW, getSoundSource(), 1.5F, 1.3F);
+		Vec3 facing = horizontal(target.position().subtract(position()));
+		if (facing == Vec3.ZERO) {
+			facing = Vec3.directionFromRotation(0.0F, yBodyRot);
+		}
+		Vec3 side = new Vec3(-facing.z, 0.0, facing.x);
+		int count = settings.count();
+		for (int i = 0; i < count; i++) {
+			KoscheiIceRaven raven = EamEntities.KOSCHEI_ICE_RAVEN.create(level, EntitySpawnReason.MOB_SUMMONED);
+			if (raven == null) {
+				continue;
+			}
+			double across = count == 1 ? 0.0 : (i / (count - 1.0) - 0.5) * 2.0;
+			Vec3 out = facing.scale(0.5).add(side.scale(across * 0.9)).add(0.0, 0.35, 0.0).normalize().scale(settings.speed());
+			raven.snapTo(hand.x, hand.y, hand.z, getYRot(), 0.0F);
+			raven.setDeltaMovement(out);
+			raven.summon(this, target, settings, i == count / 2);
+			level.addFreshEntity(raven);
+			iceRavens.add(raven);
+		}
+		level.sendParticles(ParticleTypes.SNOWFLAKE, hand.x, hand.y, hand.z, 20, 0.3, 0.3, 0.3, 0.05);
+	}
+
+	/**
+	 * A wall of his ice rises across the way of a target running at him, a couple of blocks in front of it: on open air
+	 * and plants only, never over anything built.
+	 */
+	private void raiseIceWall(ServerLevel level, LivingEntity target, PhaseTwoSettings.IceWall wall) {
+		Vec3 toHim = horizontal(position().subtract(target.position()));
+		if (toHim == Vec3.ZERO) {
+			return;
+		}
+		Vec3 centre = target.position().add(toHim.scale(wall.ahead()));
+		Vec3 across = new Vec3(-toHim.z, 0.0, toHim.x);
+		BlockPos ground = BlockPos.containing(centre.x, target.getY() + 0.5, centre.z);
+		int half = wall.size() / 2;
+		boolean any = false;
+		for (int w = -half; w < wall.size() - half; w++) {
+			for (int h = 0; h < wall.size(); h++) {
+				BlockPos pos = BlockPos.containing(centre.x + across.x * w, ground.getY() + h, centre.z + across.z * w);
+				BlockState there = level.getBlockState(pos);
+				if (!there.canBeReplaced() || !there.getFluidState().isEmpty()) {
+					continue;
+				}
+				level.setBlockAndUpdate(pos, EamBlocks.KOSCHEI_ICE.defaultBlockState());
+				level.scheduleTick(pos, EamBlocks.KOSCHEI_ICE, wall.lifetime() + random.nextInt(20));
+				level.sendParticles(ParticleTypes.SNOWFLAKE, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 4, 0.3, 0.3, 0.3, 0.02);
+				any = true;
+			}
+		}
+		if (any) {
+			level.playSound(null, centre.x, ground.getY(), centre.z, SoundEvents.GLASS_PLACE, getSoundSource(), 2.0F, 0.6F);
+			level.playSound(null, centre.x, ground.getY(), centre.z, SoundEvents.POWDER_SNOW_PLACE, getSoundSource(), 2.0F, 0.5F);
+		}
+	}
+
+	/** Where the crystal of his staff is as he holds it up high, in the world. */
+	public Vec3 raisedStaffHead() {
+		Vec3 forward = Vec3.directionFromRotation(0.0F, yBodyRot);
+		Vec3 left = Vec3.directionFromRotation(0.0F, yBodyRot - 90.0F);
+		return position().add(forward.scale(0.4)).add(left.scale(0.45)).add(0.0, getBbHeight() * 1.45, 0.0);
 	}
 
 	/** Whether the trap is laid: he stands still and lets the target come right up to him. */
