@@ -10,7 +10,8 @@ import java.util.EnumSet;
 
 /**
  * Walks Koschei up to his target, sidesteps while in reach, hops aside now and then and in at it from a few blocks off, vanishes to stand behind it and starts
- * his attacks. A target that keeps out of his reach gets the bolt, or finds him behind it.
+ * his attacks. A target that keeps out of his reach gets the bolt, or finds him behind it; one up on a pillar finds him
+ * standing by it, is thrown off with the burst of force or held in the bolt.
  */
 final class KoscheiFightGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
@@ -72,6 +73,11 @@ final class KoscheiFightGoal extends Goal {
 		KoscheiSettings.PhaseOne one = settings.phaseOne();
 		boolean sees = koschei.getSensing().hasLineOfSight(target);
 		boolean inReach = distance <= one.reach();
+		if (koschei.answerHeight(target)) {
+			// Out of his reach above him: he stands by it up there, throws it off or holds it in the bolt.
+			awayTicks = 0;
+			return;
+		}
 		awayTicks = distance > one.reach() + 1.0 ? awayTicks + 1 : 0;
 		if (awayTicks >= settings.teleport().retreatTicks() && koschei.readyToAttack()) {
 			// It keeps backing off: the bolt after it, or he stands at its back.

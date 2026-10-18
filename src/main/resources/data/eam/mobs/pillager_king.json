@@ -90,5 +90,17 @@
     "burst_window": 100,
     "burst_speed": 1.1
   },
-  "mob_damage_multiplier": 5.0
+  "mob_damage_multiplier": 5.0,
+  "height": {
+    "above": 2.5,
+    "after": 20,
+    "climb_max": 8,
+    "climb_speed": 0.15,
+    "climb_cooldown": 80,
+    "top_cut_damage": 7.0,
+    "top_cut_push": 1.0,
+    "chop_reach": 3.0,
+    "chop_cooldown": 40,
+    "stun_hit": true
+  }
 }

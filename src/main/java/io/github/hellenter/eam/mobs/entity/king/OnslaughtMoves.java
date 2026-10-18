@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.king;
 
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,6 +43,10 @@ public final class OnslaughtMoves {
 		if (t < KingAction.ONSLAUGHT_RUSH_END && flatDistance(mob, target) > RUSH_STOP) {
 			Vec3 to = towards(mob, target);
 			mob.setDeltaMovement(to.x * rushSpeed, mob.getDeltaMovement().y, to.z * rushSpeed);
+			if (mob.horizontalCollision) {
+				// Blocks players put up in the way are swept aside.
+				BossBuilding.breakPlacedIn(level, mob.getBoundingBox().move(to.x * 0.4, 0.0, to.z * 0.4).deflate(0.05, 0.0, 0.05), mob);
+			}
 		}
 		if (t == KingAction.ONSLAUGHT_LEAP) {
 			// A bell: the moment to parry, while the leap is in the air.

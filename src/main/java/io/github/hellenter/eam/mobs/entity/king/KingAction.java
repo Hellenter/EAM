@@ -38,7 +38,16 @@ public enum KingAction {
 	/** His totem breaks instead of him: invulnerable for the moment, healed. */
 	TOTEM(30),
 	/** Ran into a wall or a pillar in a charge: dazed, stars round his head, open to hits. */
-	STUNNED(30);
+	STUNNED(30),
+	/**
+	 * Climbs a wall or a pillar after a target above him, his axes hooked into it in turn; over the top he goes into
+	 * {@link #TOP_CUT}. Ends early when the wall does.
+	 */
+	CLIMB(120),
+	/** At the top of a climb: one cut that throws the target off, on {@link #TOP_CUT_HIT}. */
+	TOP_CUT(14),
+	/** Both axes swung low into the foot of a pillar of placed blocks on {@link #CHOP_HIT}; it comes down. */
+	CHOP(18);
 
 	public static final int SLASH_HIT = 7;
 	public static final int COMBO_PARRY_END = 10;
@@ -54,6 +63,8 @@ public enum KingAction {
 	public static final int TORNADO_SPIN_UP = 8;
 	public static final int[] TORNADO_HITS = {12, 17, 22, 27, 32, 37};
 	public static final int THROW_RELEASE = 8;
+	public static final int TOP_CUT_HIT = 6;
+	public static final int CHOP_HIT = 10;
 
 	private final int length;
 
