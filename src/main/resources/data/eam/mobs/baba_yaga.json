@@ -3,7 +3,7 @@
     "phase_one_health": 50.0,
     "phase_two_health": 100.0,
     "armor": 4.0,
-    "speed": 0.42,
+    "speed": 0.3675,
     "follow_range": 64.0,
     "xp": 300
   },
