@@ -25,6 +25,27 @@ class VillagerGuardLogicTest {
 	}
 
 	@Test
+	void guardsAlwaysWearGearOthersOnlyInDanger() {
+		assertTrue(VillagerGuardLogic.arms(true, false));
+		assertTrue(VillagerGuardLogic.arms(false, true));
+		assertFalse(VillagerGuardLogic.arms(false, false));
+	}
+
+	@Test
+	void gearIsPutAwayOnceItIsQuiet() {
+		assertTrue(VillagerGuardLogic.stows(false, 600, 600));
+		assertFalse(VillagerGuardLogic.stows(false, 599, 600));
+		assertFalse(VillagerGuardLogic.stows(true, 10000, 600));
+	}
+
+	@Test
+	void armedVillagersRunToAGuardUnlessAMonsterIsAtThem() {
+		assertTrue(VillagerGuardLogic.runsToGuard(10.0, 4.0, 8.0, 3.0));
+		assertFalse(VillagerGuardLogic.runsToGuard(3.5, 4.0, 8.0, 3.0));
+		assertFalse(VillagerGuardLogic.runsToGuard(10.0, 4.0, 2.0, 3.0));
+	}
+
+	@Test
 	void dismissedGuardsStayJobless() {
 		assertFalse(VillagerGuardLogic.becomesGuard(true, true, true));
 	}

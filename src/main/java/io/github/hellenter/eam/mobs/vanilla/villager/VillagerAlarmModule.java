@@ -146,9 +146,14 @@ public final class VillagerAlarmModule {
 		if (run.rung >= current.rings()) RUNNERS.remove(villager);
 	}
 
+	/** Whether a bell rings near the villager. */
+	public static boolean alarmed(ServerLevel level, Villager villager) {
+		return enabled && alarmNear(level, villager) != null;
+	}
+
 	/** A guard goes for the monster that raised the alarm once it is within his reach, and until then gathers by the bell. */
 	private static void guard(Villager guard, ServerLevel level, BlockPos bell, Alarm alarm, AlarmSettings current) {
-		if (guard.getTarget() != null) return;
+		if (guard.getTarget() != null || VillagerMilitiaModule.runsToGuard(guard)) return;
 		LivingEntity attacker = alarm.attacker(level);
 		if (attacker != null && attacker.isAlive() && attacker.blockPosition().closerThan(bell, current.bellRadius())
 				&& guard.closerThan(attacker, guard.getAttributeValue(Attributes.FOLLOW_RANGE))) {
