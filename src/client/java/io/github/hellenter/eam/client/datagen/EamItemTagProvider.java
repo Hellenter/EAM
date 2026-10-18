@@ -103,6 +103,14 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.add(Items.MACE.builtInRegistryHolder().key(), Items.TRIDENT.builtInRegistryHolder().key(),
 						Items.BOW.builtInRegistryHolder().key(), Items.CROSSBOW.builtInRegistryHolder().key());
 		builder(VillagerGearModule.OFF_HAND).add(Items.SHIELD.builtInRegistryHolder().key());
+		var gifts = builder(VillagerGearModule.GIFTS)
+				.add(Items.POTION.builtInRegistryHolder().key(), Items.SPLASH_POTION.builtInRegistryHolder().key(),
+						Items.LINGERING_POTION.builtInRegistryHolder().key(), Items.SHEARS.builtInRegistryHolder().key(),
+						Items.FISHING_ROD.builtInRegistryHolder().key())
+				.forceAddTag(ItemTags.ARROWS).forceAddTag(VillagerGearModule.WEAPONS).forceAddTag(VillagerGearModule.OFF_HAND)
+				.forceAddTag(ItemTags.HEAD_ARMOR).forceAddTag(ItemTags.CHEST_ARMOR).forceAddTag(ItemTags.LEG_ARMOR).forceAddTag(ItemTags.FOOT_ARMOR)
+				.forceAddTag(ItemTags.PICKAXES).forceAddTag(ItemTags.SHOVELS).forceAddTag(ItemTags.HOES).forceAddTag(ForgingTags.HAMMERS);
+		CraftingTags.KNIFE_TIERS.forEach(gifts::forceAddTag);
 		builder(VillagerGearModule.toolsTag(VillagerProfession.FARMER)).forceAddTag(ItemTags.HOES);
 		builder(VillagerGearModule.toolsTag(VillagerProfession.MASON)).forceAddTag(ItemTags.PICKAXES);
 		builder(VillagerGearModule.toolsTag(VillagerProfession.FISHERMAN)).add(Items.FISHING_ROD.builtInRegistryHolder().key());

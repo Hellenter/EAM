@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "eam:block/locked_chest",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "eam:block/locked_chest"
+    },
+    "facing=south": {
+      "model": "eam:block/locked_chest",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "eam:block/locked_chest",
+      "y": 270
+    }
+  }
+}

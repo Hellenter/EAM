@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.campfire.CampFireBlockEntity;
 import io.github.hellenter.eam.content.dryer.DryerBlockEntity;
 import io.github.hellenter.eam.content.feeder.FeederBlockEntity;
 import io.github.hellenter.eam.content.fridge.FridgeBlockEntity;
+import io.github.hellenter.eam.content.lockedchest.LockedChestBlockEntity;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlockEntity;
 import io.github.hellenter.eam.content.sieve.SieveBlockEntity;
 
@@ -37,6 +38,9 @@ public final class EamBlockEntities {
 
 	public static final BlockEntityType<FridgeBlockEntity> FRIDGE = register("fridge",
 			new BlockEntityType<>(FridgeBlockEntity::new, Set.of(EamBlocks.SMALL_FRIDGE, EamBlocks.LARGE_FRIDGE)));
+
+	public static final BlockEntityType<LockedChestBlockEntity> LOCKED_CHEST = register("locked_chest",
+			new BlockEntityType<>(LockedChestBlockEntity::new, Set.of(EamBlocks.LOCKED_CHEST)));
 
 	private EamBlockEntities() {
 	}

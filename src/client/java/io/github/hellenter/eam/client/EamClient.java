@@ -83,6 +83,8 @@ import io.github.hellenter.eam.client.mobs.villager.VillageScreen;
 import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
+import io.github.hellenter.eam.content.lockedchest.LockedChestModule;
+import io.github.hellenter.eam.client.content.lockedchest.LockedChestScreen;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.client.hud.ThirstHud;
@@ -247,6 +249,8 @@ public class EamClient implements ClientModInitializer {
 		VillagerTradePanelScreen.init();
 		VillageScreen.register();
 		MenuScreens.register(FridgeModule.MENU, FridgeScreen::new);
+		MenuScreens.register(LockedChestModule.MENU, LockedChestScreen::new);
+		LockedChestScreen.register();
 		CraftProgress.register();
 		HotIronTooltip.register();
 		SpoilageTooltip.register();

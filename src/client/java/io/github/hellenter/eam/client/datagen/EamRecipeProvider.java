@@ -280,6 +280,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 							.save(output, "eam:metal_feeder_from_" + BuiltInRegistries.ITEM.getKey(ingot).getPath());
 				}
 
+				// Planks round an iron lock.
+				shaped(RecipeCategory.DECORATIONS, EamItems.LOCKED_CHEST)
+						.define('P', ItemTags.PLANKS)
+						.define('I', Items.IRON_INGOT)
+						.pattern("PPP")
+						.pattern("PIP")
+						.pattern("PPP")
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(output);
+
 				// A wooden box lined with wool, and a bigger iron one with a bucket to catch the melt water.
 				shaped(RecipeCategory.DECORATIONS, EamItems.SMALL_FRIDGE)
 						.define('P', ItemTags.PLANKS)

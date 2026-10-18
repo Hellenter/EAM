@@ -30,7 +30,8 @@ import java.util.Optional;
 
 /**
  * A villager's inventory: armor on the left beside his figure, then the main hand (a weapon, or a tool of his trade),
- * the off hand (a shield), his own locked work item, and the eight slots he keeps food and seeds in.
+ * the off hand (a shield), his own locked work item, and the eight slots he keeps food, seeds and what a player gives him
+ * in.
  */
 public class VillagerGearMenu extends AbstractContainerMenu {
 	public static final int SLOT = 18;
@@ -97,7 +98,7 @@ public class VillagerGearMenu extends AbstractContainerMenu {
 			addSlot(new Slot(gear, VillagerGearContainer.INVENTORY + i, INVENTORY_X + i % INVENTORY_COLUMNS * SLOT, TOP + i / INVENTORY_COLUMNS * SLOT) {
 				@Override
 				public boolean mayPlace(ItemStack stack) {
-					return stack.is(ItemTags.VILLAGER_PICKS_UP) || stack.has(DataComponents.VILLAGER_FOOD)
+					return stack.is(ItemTags.VILLAGER_PICKS_UP) || stack.has(DataComponents.VILLAGER_FOOD) || stack.is(VillagerGearModule.GIFTS)
 							|| goods.isPresent() && stack.is(goods.get());
 				}
 			});

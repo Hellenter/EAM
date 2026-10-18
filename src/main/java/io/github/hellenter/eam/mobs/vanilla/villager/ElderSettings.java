@@ -9,13 +9,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param intervalTicks how often, in ticks, the elder hands one thing out
  * @param radius        how far, in blocks, the villagers he hands things to can be
  * @param foodPerGift   food items he gives a hungry villager at a time
+ * @param arrowsPerGift arrows he gives a guard with a bow at a time
+ * @param arrowMax      arrows a guard with a bow keeps at most; the rest he hands back to the elder
  */
-public record ElderSettings(int intervalTicks, int radius, int foodPerGift) {
-	public static final ElderSettings DEFAULT = new ElderSettings(100, 48, 4);
+public record ElderSettings(int intervalTicks, int radius, int foodPerGift, int arrowsPerGift, int arrowMax) {
+	public static final ElderSettings DEFAULT = new ElderSettings(100, 48, 4, 16, 64);
 
 	public static final Codec<ElderSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(20, 1_000_000).fieldOf("interval_ticks").orElse(DEFAULT.intervalTicks).forGetter(ElderSettings::intervalTicks),
 			Codec.intRange(1, 128).fieldOf("radius").orElse(DEFAULT.radius).forGetter(ElderSettings::radius),
-			Codec.intRange(1, 64).fieldOf("food_per_gift").orElse(DEFAULT.foodPerGift).forGetter(ElderSettings::foodPerGift)
+			Codec.intRange(1, 64).fieldOf("food_per_gift").orElse(DEFAULT.foodPerGift).forGetter(ElderSettings::foodPerGift),
+			Codec.intRange(1, 64).fieldOf("arrows_per_gift").orElse(DEFAULT.arrowsPerGift).forGetter(ElderSettings::arrowsPerGift),
+			Codec.intRange(0, 576).fieldOf("arrow_max").orElse(DEFAULT.arrowMax).forGetter(ElderSettings::arrowMax)
 	).apply(instance, ElderSettings::new));
 }

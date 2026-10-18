@@ -143,6 +143,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.dismiss_guard", "Dismiss");
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
+			builder.add(VillagerGearModule.GIFTS, "Villager Gifts");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Farmer Tools");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.MASON), "Mason Tools");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FISHERMAN), "Fisherman Tools");
@@ -280,6 +281,13 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.METAL_FEEDER, "Metal Feeder");
 			builder.add("container.eam.feeder.fed", "Fed today: %s/%s");
 			builder.add(EamBlocks.SMALL_FRIDGE, "Wooden Icebox");
+			builder.add(EamBlocks.LOCKED_CHEST, "Locked Chest");
+			builder.add("container.eam.locked_chest.locked", "This chest is locked");
+			builder.add("container.eam.locked_chest.owner", "Owner: %s");
+			builder.add("container.eam.locked_chest.change", "Change Owner");
+			builder.add("container.eam.locked_chest.village", "Village (elder's store)");
+			builder.add("container.eam.locked_chest.nobody", "nobody");
+			builder.add("container.eam.locked_chest.gone", "a villager who is gone");
 			builder.add(EamBlocks.LARGE_FRIDGE, "Iron Icebox");
 			builder.add("container.eam.fridge.cold", "Cold for %s d");
 			builder.add("container.eam.fridge.no_ice", "No ice: food spoils");
@@ -848,6 +856,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.dismiss_guard", "Из стражи");
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
+			builder.add(VillagerGearModule.GIFTS, "Подарки жителям");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FARMER), "Инструменты фермера");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.MASON), "Инструменты каменщика");
 			builder.add(VillagerGearModule.toolsTag(VillagerProfession.FISHERMAN), "Инструменты рыбака");
@@ -985,6 +994,13 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.METAL_FEEDER, "Металлическая кормушка");
 			builder.add("container.eam.feeder.fed", "Поели сегодня: %s/%s");
 			builder.add(EamBlocks.SMALL_FRIDGE, "Маленький холодильник");
+			builder.add(EamBlocks.LOCKED_CHEST, "Сундук с замком");
+			builder.add("container.eam.locked_chest.locked", "Сундук заперт");
+			builder.add("container.eam.locked_chest.owner", "Владелец: %s");
+			builder.add("container.eam.locked_chest.change", "Сменить владельца");
+			builder.add("container.eam.locked_chest.village", "Деревня (склад старосты)");
+			builder.add("container.eam.locked_chest.nobody", "никто");
+			builder.add("container.eam.locked_chest.gone", "житель, которого нет");
 			builder.add(EamBlocks.LARGE_FRIDGE, "Большой холодильник");
 			builder.add("container.eam.fridge.cold", "Холод: %s дн.");
 			builder.add("container.eam.fridge.no_ice", "Нет льда: еда портится");

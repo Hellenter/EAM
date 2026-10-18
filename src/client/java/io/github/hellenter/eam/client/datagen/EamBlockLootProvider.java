@@ -125,6 +125,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.FEEDER);
 		dropSelf(EamBlocks.METAL_FEEDER);
 		dropSelf(EamBlocks.SMALL_FRIDGE);
+		dropSelf(EamBlocks.LOCKED_CHEST);
 		dropSelf(EamBlocks.LARGE_FRIDGE);
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()

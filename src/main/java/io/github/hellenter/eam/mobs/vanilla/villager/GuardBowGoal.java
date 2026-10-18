@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.vanilla.villager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -16,7 +17,8 @@ import java.util.EnumSet;
 
 /**
  * A guard with a bow or crossbow keeps his distance and shoots, like a skeleton: he walks closer while his target is
- * out of range or out of sight, draws for a moment and lets go. His arrows cannot be picked up.
+ * out of range or out of sight, draws for a moment and lets go. He shoots the arrows in his inventory first, tipped ones
+ * too, then plain arrows of his own. His arrows cannot be picked up.
  */
 final class GuardBowGoal extends Goal {
 	private final Villager villager;
@@ -75,10 +77,21 @@ final class GuardBowGoal extends Goal {
 		}
 	}
 
+	/** One of the arrows in his inventory, tipped ones and all, or a plain arrow of his own when he has none. */
+	private ItemStack arrow() {
+		for (ItemStack stack : villager.getInventory().getItems()) {
+			if (!stack.is(ItemTags.ARROWS)) continue;
+			ItemStack arrow = stack.split(1);
+			villager.getInventory().setChanged();
+			return arrow;
+		}
+		return new ItemStack(Items.ARROW);
+	}
+
 	private void shoot(LivingEntity target, float power) {
 		if (!(villager.level() instanceof ServerLevel level)) return;
 		ItemStack bow = villager.getMainHandItem();
-		ItemStack projectile = new ItemStack(Items.ARROW);
+		ItemStack projectile = arrow();
 		AbstractArrow arrow = ProjectileUtil.getMobArrow(villager, projectile, power, bow);
 		arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
 		double dx = target.getX() - villager.getX();
