@@ -208,18 +208,45 @@ class KoscheiLogicTest {
 	void withTheStaffHeSweepsAwayOneCloseElseRaisesTheDeadNowAndThenElseShoots() {
 		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
 		int[] ready = new int[StaffAttack.values().length];
-		assertEquals(StaffAttack.STRIKE, KoscheiLogic.chooseStaff(two.strike().reach(), true, ready, 0, two, () -> 0.99));
-		assertEquals(StaffAttack.SOULS, KoscheiLogic.chooseStaff(8.0, true, ready, 0, two, () -> 0.0));
-		// At his cap of draugr he raises no more: the bolt instead.
-		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, two.thralls().cap(), two, () -> 0.0));
-		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, 0, two, () -> 0.99));
-		assertNull(KoscheiLogic.chooseStaff(8.0, false, ready, 0, two, () -> 0.99));
+		assertEquals(StaffAttack.STRIKE, KoscheiLogic.chooseStaff(two.strike().reach(), true, ready, 0, false, false, two, () -> 0.99));
+		// The rare ball of lightning comes first, but never a second while one is about.
+		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, false, two, () -> 0.0));
+		assertEquals(StaffAttack.SOULS, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, true, two, () -> 0.0));
+		// At his cap of draugr he raises no more.
+		assertEquals(StaffAttack.ICE_RAVENS, KoscheiLogic.chooseStaff(8.0, true, ready, two.thralls().cap(), false, true, two, () -> 0.0));
+		assertEquals(StaffAttack.BOLT, KoscheiLogic.chooseStaff(8.0, true, ready, 0, false, false, two, () -> 0.99));
+		assertNull(KoscheiLogic.chooseStaff(8.0, false, ready, 0, false, false, two, () -> 0.99));
 		int[] soulsCooling = new int[StaffAttack.values().length];
 		soulsCooling[StaffAttack.SOULS.ordinal()] = 1;
-		assertEquals(StaffAttack.TRAP, KoscheiLogic.chooseStaff(8.0, true, soulsCooling, 0, two, () -> 0.0));
+		assertEquals(StaffAttack.TRAP, KoscheiLogic.chooseStaff(8.0, true, soulsCooling, 0, false, true, two, () -> 0.0));
 		int[] boltCooling = new int[StaffAttack.values().length];
 		boltCooling[StaffAttack.BOLT.ordinal()] = 1;
-		assertNull(KoscheiLogic.chooseStaff(8.0, true, boltCooling, 0, two, () -> 0.99));
+		assertNull(KoscheiLogic.chooseStaff(8.0, true, boltCooling, 0, false, false, two, () -> 0.99));
+	}
+
+	@Test
+	void aTargetRunningAtHimMayFindAWallOfIce() {
+		PhaseTwoSettings two = PhaseTwoSettings.DEFAULT;
+		int[] ready = new int[StaffAttack.values().length];
+		assertEquals(StaffAttack.ICE_WALL, KoscheiLogic.chooseStaff(6.0, true, ready, 0, true, false, two, () -> 0.0));
+		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(6.0, true, ready, 0, false, false, two, () -> 0.0));
+		assertEquals(StaffAttack.BALL, KoscheiLogic.chooseStaff(two.iceWall().maxDistance() + 1.0, true, ready, 0, true, false, two, () -> 0.0));
+	}
+
+	@Test
+	void theSnowStormCatchesOnlyThoseInFrontOfHim() {
+		assertTrue(KoscheiLogic.inCone(5.0, 0.0, 1.0, 0.0, 9.0, 35.0F));
+		assertTrue(KoscheiLogic.inCone(5.0, 3.0, 1.0, 0.0, 9.0, 35.0F));
+		assertFalse(KoscheiLogic.inCone(5.0, 4.0, 1.0, 0.0, 9.0, 35.0F));
+		assertFalse(KoscheiLogic.inCone(-5.0, 0.0, 1.0, 0.0, 9.0, 35.0F));
+		assertFalse(KoscheiLogic.inCone(10.0, 0.0, 1.0, 0.0, 9.0, 35.0F));
+	}
+
+	@Test
+	void eachIceRavenAddsALevelOfSlowness() {
+		assertEquals(0, KoscheiLogic.stackedSlowness(-1, 4));
+		assertEquals(2, KoscheiLogic.stackedSlowness(1, 4));
+		assertEquals(4, KoscheiLogic.stackedSlowness(4, 4));
 	}
 
 	@Test

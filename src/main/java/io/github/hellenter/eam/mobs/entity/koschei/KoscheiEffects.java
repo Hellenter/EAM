@@ -92,6 +92,33 @@ final class KoscheiEffects {
 					}
 				}
 			}
+			case SNOWSTORM -> {
+				if (t < KoscheiAction.STORM_START) {
+					// Frost gathering about his hands.
+					Vec3 hands = koschei.position().add(Vec3.directionFromRotation(0.0F, koschei.yBodyRot).scale(0.9))
+							.add(0.0, koschei.getBbHeight() * 0.6, 0.0);
+					Vec3 from = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).scale(1.4);
+					level.addParticle(ParticleTypes.SNOWFLAKE, hands.x + from.x, hands.y + from.y, hands.z + from.z, -from.x * 0.1,
+							-from.y * 0.1, -from.z * 0.1);
+				}
+			}
+			case ICE_RAVENS -> {
+				if (t < KoscheiAction.ICE_RAVENS_RELEASE) {
+					Vec3 hand = koschei.raisedHand();
+					Vec3 from = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).scale(1.4);
+					level.addParticle(ParticleTypes.SNOWFLAKE, hand.x + from.x, hand.y + from.y, hand.z + from.z, -from.x * 0.12,
+							-from.y * 0.12, -from.z * 0.12);
+				}
+			}
+			case BALL -> {
+				if (t < KoscheiAction.BALL_RELEASE) {
+					// Lightning crawling over the crystal at the top of the raised staff.
+					Vec3 head = koschei.raisedStaffHead();
+					level.addParticle(ParticleTypes.ELECTRIC_SPARK, head.x + (random.nextDouble() - 0.5) * 0.6, head.y + (random.nextDouble() - 0.5) * 0.6,
+							head.z + (random.nextDouble() - 0.5) * 0.6, 0.0, 0.0, 0.0);
+					level.addParticle(BLUE, head.x, head.y, head.z, 0.0, 0.0, 0.0);
+				}
+			}
 			case TRANSFORM -> {
 				if (t < KoscheiAction.TRANSFORM_STAFF && random.nextInt(2) == 0) {
 					level.addParticle(ParticleTypes.SOUL, koschei.getRandomX(1.2), koschei.getY() + random.nextDouble() * koschei.getBbHeight(),

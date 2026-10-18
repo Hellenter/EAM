@@ -466,6 +466,9 @@ public final class EamLanguageProviders {
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Koschei's blade glows orange");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Ravens scatter");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Phantom Raven");
+			builder.add(EamEntities.KOSCHEI_BALL_LIGHTNING, "Ball Lightning");
+			builder.add(EamEntities.KOSCHEI_ICE_RAVEN, "Ice Raven");
+			builder.add(EamBlocks.KOSCHEI_ICE, "Koschei's Ice");
 			builder.add("subtitles.eam.entity.koschei_raven.caw", "Phantom raven caws");
 			builder.add(EamEntities.BABA_YAGA, "Baba Yaga");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Baba Yaga Spawn Egg");
@@ -1207,6 +1210,9 @@ public final class EamLanguageProviders {
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Меч Кощея раскаляется");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Разлетаются вороны");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Призрачный ворон");
+			builder.add(EamEntities.KOSCHEI_BALL_LIGHTNING, "Шаровая молния");
+			builder.add(EamEntities.KOSCHEI_ICE_RAVEN, "Ледяной ворон");
+			builder.add(EamBlocks.KOSCHEI_ICE, "Кощеев лёд");
 			builder.add("subtitles.eam.entity.koschei_raven.caw", "Каркает призрачный ворон");
 			builder.add(EamEntities.BABA_YAGA, "Баба Яга");
 			builder.add(EamItems.BABA_YAGA_SPAWN_EGG, "Яйцо призыва Бабы Яги");

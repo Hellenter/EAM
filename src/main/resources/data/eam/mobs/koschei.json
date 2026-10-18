@@ -174,6 +174,50 @@
       "cap": 5,
       "speed_multiplier": 1.75,
       "health_multiplier": 0.5
+    },
+    "ball_lightning": {
+      "chance": 0.04,
+      "cooldown": 600,
+      "unstable_after": 140,
+      "lifetime": 400,
+      "speed": 0.13,
+      "radius": 2.0,
+      "damage_per_second": 1.0,
+      "burst_damage": 5.0,
+      "burst_radius": 2.5,
+      "dart_chance": 0.02,
+      "dart_distance": 2.5
+    },
+    "snow_storm": {
+      "chance": 0.15,
+      "cooldown": 240,
+      "range": 9.0,
+      "angle": 35.0,
+      "push_per_second": 0.33,
+      "damage_per_second": 1.0
+    },
+    "ice_ravens": {
+      "chance": 0.12,
+      "cooldown": 300,
+      "count": 3,
+      "health": 2.0,
+      "damage": 2.0,
+      "slowness_seconds": 4.0,
+      "speed": 0.55,
+      "turn": 0.12,
+      "lifetime": 160,
+      "shield_seconds": 5.0,
+      "max_range": 20.0
+    },
+    "ice_wall": {
+      "chance": 0.25,
+      "cooldown": 400,
+      "rush_speed": 0.15,
+      "min_distance": 4.0,
+      "max_distance": 10.0,
+      "ahead": 2.0,
+      "size": 3,
+      "lifetime": 200
     }
   }
 }

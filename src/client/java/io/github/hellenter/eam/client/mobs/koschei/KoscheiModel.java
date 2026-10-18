@@ -465,6 +465,57 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				body.xRot -= 0.08F * up;
 				stance(0.3F * up);
 			}
+			case SNOWSTORM -> {
+				// Both hands thrust out before him, the staff held level across them, leaning into the blast; it shakes as it blows.
+				float start = KoscheiAction.STORM_START;
+				float length = KoscheiAction.SNOWSTORM.length();
+				float[] times = {0, start - 4, start, length - 4, length};
+				float out = keys(t, times, 0.0F, 0.7F, 1.0F, 1.0F, 0.0F);
+				float shake = t > start && t < length - 4 ? Mth.sin(t * 2.3F) * 0.04F : 0.0F;
+				rightArm.xRot = Mth.lerp(out, restR, -1.45F) + shake;
+				rightArm.yRot = 0.25F * out;
+				rightForearm.xRot = Mth.lerp(out, restFr, -0.1F);
+				leftArm.xRot = Mth.lerp(out, restL, -1.4F) - shake;
+				leftArm.yRot = -0.25F * out;
+				leftArm.zRot = Mth.lerp(out, restLz, 0.0F);
+				leftForearm.xRot = Mth.lerp(out, restFl, -0.15F);
+				lean = 0.5F * out;
+				body.xRot += 0.15F * out;
+				step(0.8F * out, false);
+			}
+			case ICE_RAVENS -> {
+				// The right hand raised high, palm up; flung up as the ravens burst out.
+				float release = KoscheiAction.ICE_RAVENS_RELEASE;
+				float[] times = {0, 5, release, release + 2, KoscheiAction.ICE_RAVENS.length()};
+				rightArm.xRot = keys(t, times, restR, -2.7F, -2.8F, -3.05F, restR);
+				rightArm.zRot = keys(t, times, restRz, 0.25F, 0.3F, 0.15F, restRz);
+				rightForearm.xRot = keys(t, times, restFr, -0.6F, -0.7F, -0.1F, restFr);
+				float up = keys(t, times, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
+				head.xRot -= 0.3F * up;
+				stance(0.3F * up);
+			}
+			case BALL -> {
+				// The staff raised straight up overhead in the left hand; it breaks from the crystal at the top.
+				float release = KoscheiAction.BALL_RELEASE;
+				float[] times = {0, 6, release, release + 3, KoscheiAction.BALL.length()};
+				leftArm.xRot = keys(t, times, restL, -2.9F, -3.0F, -2.6F, restL);
+				leftArm.zRot = keys(t, times, restLz, -0.15F, -0.15F, -0.2F, restLz);
+				leftForearm.xRot = keys(t, times, restFl, -0.2F, -0.2F, -0.4F, restFl);
+				rightArm.zRot = keys(t, times, restRz, 0.4F, 0.45F, 0.3F, restRz);
+				float up = keys(t, times, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
+				head.xRot -= 0.35F * up;
+				stance(0.4F * up);
+			}
+			case ICE_WALL -> {
+				// The staff struck down on the ground before him.
+				float release = KoscheiAction.ICE_WALL_RELEASE;
+				float[] times = {0, release - 2, release, KoscheiAction.ICE_WALL.length()};
+				leftArm.xRot = keys(t, times, restL, -1.6F, -0.9F, restL);
+				leftForearm.xRot = keys(t, times, restFl, -0.4F, -0.3F, restFl);
+				lean = keys(t, times, 0.0F, -0.3F, 0.9F, 0.0F);
+				body.xRot += keys(t, times, 0.0F, -0.1F, 0.25F, 0.0F);
+				step(keys(t, times, 0.0F, 0.3F, 1.0F, 0.0F), false);
+			}
 			case TRAP, TELEPORT -> {
 				// Arms spread low, head bowed as his eyes flicker.
 				float in = keys(t, new float[] {0, 3, 10}, 0.0F, 1.0F, 1.0F);

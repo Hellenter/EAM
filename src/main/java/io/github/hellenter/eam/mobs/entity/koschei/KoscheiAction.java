@@ -60,7 +60,15 @@ public enum KoscheiAction {
 	/** Both hands raised, green souls gathering; three fly out over the arena on {@link #SOULS_RELEASE}. */
 	SOULS(24),
 	/** The trap sprung: his eyes flicker purple and blue, he vanishes at the end and draugr rise round the target. */
-	TRAP(10);
+	TRAP(10),
+	/** Both hands thrust out, frost gathering; from {@link #STORM_START} a wide icy blast blows from them to the end. */
+	SNOWSTORM(72),
+	/** The right hand raised, ice gathering about it; the ravens of ice burst from it on {@link #ICE_RAVENS_RELEASE}. */
+	ICE_RAVENS(20),
+	/** The staff raised high, lightning crawling over its crystal; the ball of lightning breaks from it on {@link #BALL_RELEASE}. */
+	BALL(24),
+	/** The staff struck down on the ground; the wall of ice rises before the target on {@link #ICE_WALL_RELEASE}. */
+	ICE_WALL(10);
 
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
@@ -86,6 +94,10 @@ public enum KoscheiAction {
 	public static final int STAFF_BOLT_RELEASE = 9;
 	public static final int STAFF_STRIKE_HIT = 7;
 	public static final int SOULS_RELEASE = 14;
+	public static final int STORM_START = 12;
+	public static final int ICE_RAVENS_RELEASE = 10;
+	public static final int BALL_RELEASE = 14;
+	public static final int ICE_WALL_RELEASE = 5;
 
 	private final int length;
 
