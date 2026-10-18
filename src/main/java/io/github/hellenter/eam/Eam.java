@@ -60,6 +60,7 @@ import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerRepairModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
+import io.github.hellenter.eam.survival.death.DeathModule;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
@@ -154,6 +155,7 @@ public class Eam implements ModInitializer {
 		NoiseModule.register();
 		MonsterEvolutionModule.register();
 		NemesisModule.register();
+		DeathModule.register();
 		CowDefenseModule.register();
 		PredatorModule.register();
 		EarlyToolsModule.register();
@@ -219,6 +221,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.monsterEvolution()) MonsterEvolutionModule.init();
 		if (config.mobs() && config.nemesis()) NemesisModule.init();
+		if (config.deathPenalty()) DeathModule.init();
 		if (config.mobs() && config.defensiveCows()) CowDefenseModule.init();
 		if (config.removeEarlyTools()) EarlyToolsModule.init();
 		if (config.ores()) OreModule.init();
