@@ -36,6 +36,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiBallLightning;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceCopy;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceRaven;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
@@ -258,6 +259,15 @@ public final class EamEntities {
 					.noSave()
 					.eyeHeight(0.25F)
 					.clientTrackingRange(8));
+
+	/** A copy of Koschei in ice, standing up at his side in his second phase. */
+	public static final EntityType<KoscheiIceCopy> KOSCHEI_ICE_COPY = register("koschei_ice_copy",
+			EntityType.Builder.of(KoscheiIceCopy::new, MobCategory.MONSTER)
+					.sized(0.8F, 2.5F)
+					.fireImmune()
+					.noSave()
+					.eyeHeight(2.2F)
+					.clientTrackingRange(10));
 
 	/** A bolt or a soul thrown from Koschei's staff in his second phase. */
 	public static final EntityType<KoscheiOrb> KOSCHEI_ORB = register("koschei_orb",

@@ -68,7 +68,16 @@ public enum KoscheiAction {
 	/** The staff raised high, lightning crawling over its crystal; the ball of lightning breaks from it on {@link #BALL_RELEASE}. */
 	BALL(24),
 	/** The staff struck down on the ground; the wall of ice rises before the target on {@link #ICE_WALL_RELEASE}. */
-	ICE_WALL(10);
+	ICE_WALL(10),
+	/** The staff struck down on the ground before him; his shield bearers climb out in a row there on {@link #TURTLE_RELEASE}. */
+	TURTLE(20),
+	/** Arms spread wide, frost gathering about him; his copies of ice stand up at his sides on {@link #ICE_COPIES_RELEASE}. */
+	ICE_COPIES(20),
+	/**
+	 * He rises {@link #DRAIN_RISE} ticks into the air and draws the strength out of one of his draugr, a hand reaching to it;
+	 * as long as the draugr lasts, at most the whole length.
+	 */
+	DRAIN(400);
 
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
@@ -98,6 +107,9 @@ public enum KoscheiAction {
 	public static final int ICE_RAVENS_RELEASE = 10;
 	public static final int BALL_RELEASE = 14;
 	public static final int ICE_WALL_RELEASE = 5;
+	public static final int TURTLE_RELEASE = 10;
+	public static final int ICE_COPIES_RELEASE = 12;
+	public static final int DRAIN_RISE = 16;
 
 	private final int length;
 

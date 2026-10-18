@@ -9,13 +9,16 @@ import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
+import io.github.hellenter.eam.mobs.entity.lost.LostLogic;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -61,10 +64,12 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -221,6 +226,15 @@ public class Koschei extends Monster implements BuildingAware {
 	private @Nullable KoscheiBallLightning ball;
 	/** His ice ravens still in the air. */
 	private final List<KoscheiIceRaven> iceRavens = new ArrayList<>();
+	/** Ticks left for the row of his shield bearers; 0 when he hides behind none. */
+	private int turtleTicks;
+	private final List<Draugr> bearers = new ArrayList<>();
+	private final List<KoscheiIceCopy> copies = new ArrayList<>();
+	/** Times he has drained a draugr's strength in this phase. */
+	private int drainsUsed;
+	private @Nullable Draugr drained;
+	/** Where he stood when he rose for the drain. */
+	private double drainGround;
 
 	public Koschei(EntityType<? extends Koschei> type, Level level) {
 		super(type, level);
@@ -470,6 +484,13 @@ public class Koschei extends Monster implements BuildingAware {
 			ball = null;
 		}
 		iceRavens.removeIf(raven -> !raven.isAlive());
+		copies.removeIf(copy -> !copy.isAlive());
+		if (!copies.isEmpty()) {
+			// No new copies while some stand: the cooldown counts from when the last has shattered.
+			staffCooldowns[StaffAttack.ICE_COPIES.ordinal()] = Math.max(staffCooldowns[StaffAttack.ICE_COPIES.ordinal()],
+					phaseTwo().iceCopies().cooldown());
+		}
+		tickTurtle();
 		if (!iceRavens.isEmpty()) {
 			// No new ravens while some are in the air: the cooldown counts from when the last is gone.
 			staffCooldowns[StaffAttack.ICE_RAVENS.ordinal()] = Math.max(staffCooldowns[StaffAttack.ICE_RAVENS.ordinal()],
@@ -561,6 +582,12 @@ public class Koschei extends Monster implements BuildingAware {
 	}
 
 	private void setAction(KoscheiAction next) {
+		if (action == KoscheiAction.DRAIN && next != KoscheiAction.DRAIN) {
+			// Down from the air.
+			setNoGravity(false);
+			resetFallDistance();
+			drained = null;
+		}
 		action = next;
 		actionTicks = 0;
 		windupHits = 0;
@@ -594,7 +621,7 @@ public class Koschei extends Monster implements BuildingAware {
 			return;
 		}
 		boolean free = action == KoscheiAction.STAGGER || action == KoscheiAction.PARRY_ARROW || action == KoscheiAction.BLOCK
-				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM;
+				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM || action == KoscheiAction.DRAIN;
 		if (!free && (target == null || !target.isAlive())) {
 			endAction();
 			return;
@@ -727,6 +754,21 @@ public class Koschei extends Monster implements BuildingAware {
 					raiseIceWall(level, target, phaseTwo().iceWall());
 				}
 			}
+			case TURTLE -> {
+				if (t == 0) {
+					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.45F);
+				} else if (t == KoscheiAction.TURTLE_RELEASE && target != null) {
+					raiseBearers(level, target, phaseTwo());
+				}
+			}
+			case ICE_COPIES -> {
+				if (t == 0) {
+					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 1.5F, 1.2F);
+				} else if (t == KoscheiAction.ICE_COPIES_RELEASE && target != null) {
+					makeCopies(level, target, phaseTwo().iceCopies());
+				}
+			}
+			case DRAIN -> tickDrain(level, t, phaseTwo().drain());
 			case TRAP -> {
 				if (t == 0) {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.5F);
@@ -1069,6 +1111,7 @@ public class Koschei extends Monster implements BuildingAware {
 		bossEvent.setColor(BossEvent.BossBarColor.GREEN);
 		Arrays.fill(staffCooldowns, 0);
 		trapWait = 0;
+		drainsUsed = 0;
 		LivingEntity target = getTarget();
 		setAction(KoscheiAction.TRANSFORM);
 		actionTarget = target;
@@ -1158,7 +1201,171 @@ public class Koschei extends Monster implements BuildingAware {
 				staffCooldowns[attack.ordinal()] = two.iceWall().cooldown();
 				setAction(KoscheiAction.ICE_WALL);
 			}
+			case TURTLE -> {
+				staffCooldowns[attack.ordinal()] = two.turtle().cooldown();
+				setAction(KoscheiAction.TURTLE);
+			}
+			case ICE_COPIES -> {
+				staffCooldowns[attack.ordinal()] = two.iceCopies().cooldown();
+				setAction(KoscheiAction.ICE_COPIES);
+			}
+			case DRAIN -> {
+				if (!(level() instanceof ServerLevel level)) {
+					return;
+				}
+				List<Draugr> near = drainable(level, two.drain());
+				if (near.isEmpty()) {
+					return;
+				}
+				staffCooldowns[attack.ordinal()] = two.drain().cooldown();
+				drainsUsed++;
+				drained = near.get(random.nextInt(near.size()));
+				drainGround = getY();
+				setAction(KoscheiAction.DRAIN);
+			}
 		}
+	}
+
+	/** What he does next with the staff, or null to keep moving; see {@link KoscheiLogic#chooseStaff}. */
+	@Nullable StaffAttack chooseStaff(LivingEntity target, double distance, boolean sees, boolean rushing) {
+		PhaseTwoSettings two = phaseTwo();
+		boolean canDrain = KoscheiLogic.mayDrain(getHealth(), getMaxHealth(), drainsUsed, two.drain()) && level() instanceof ServerLevel level
+				&& !drainable(level, two.drain()).isEmpty();
+		KoscheiLogic.StaffSituation now = new KoscheiLogic.StaffSituation(distance, sees, thrallCount, rushing, ballAbout(), !copies.isEmpty(),
+				turtling(), canDrain);
+		return KoscheiLogic.chooseStaff(now, staffCooldowns, two, random::nextDouble);
+	}
+
+	/** Whether he hides behind a row of his shield bearers now. */
+	boolean turtling() {
+		return turtleTicks > 0 && !bearers.isEmpty();
+	}
+
+	/** Keeps his shield bearers in their row between him and the target while it lasts. */
+	private void tickTurtle() {
+		bearers.removeIf(bearer -> !bearer.isAlive());
+		if (turtleTicks <= 0) {
+			return;
+		}
+		turtleTicks--;
+		LivingEntity target = getTarget();
+		if (bearers.isEmpty() || target == null || !target.isAlive()) {
+			if (bearers.isEmpty()) {
+				turtleTicks = 0;
+			}
+			return;
+		}
+		PhaseTwoSettings.Turtle turtle = phaseTwo().turtle();
+		double[][] at = new double[bearers.size()][];
+		for (int i = 0; i < at.length; i++) {
+			at[i] = new double[] {bearers.get(i).getX(), bearers.get(i).getZ()};
+		}
+		double[][] row = LostLogic.wallSpots(getX(), getZ(), target.getX(), target.getZ(), at, turtle.spacing(), turtle.frontDistance());
+		for (int i = 0; i < row.length; i++) {
+			bearers.get(i).holdWall(new Vec3(row[i][0], getY(), row[i][1]), target, turtle.reach());
+		}
+	}
+
+	/** Draugr with shields climb out of the ground in a row between him and the target. */
+	private void raiseBearers(ServerLevel level, LivingEntity target, PhaseTwoSettings two) {
+		PhaseTwoSettings.Turtle turtle = two.turtle();
+		int count = KoscheiLogic.thrallsToRaise(turtle.count(), countThralls(level), two.thralls().cap());
+		Vec3 toTarget = horizontal(target.position().subtract(position()));
+		if (toTarget == Vec3.ZERO) {
+			toTarget = Vec3.directionFromRotation(0.0F, yBodyRot);
+		}
+		Vec3 side = new Vec3(-toTarget.z, 0.0, toTarget.x);
+		Vec3 centre = position().add(toTarget.scale(Math.min(turtle.frontDistance(), horizontalDistanceTo(target) * 0.5)));
+		bearers.removeIf(bearer -> !bearer.isAlive());
+		for (int i = 0; i < count; i++) {
+			double offset = (i - (count - 1) * 0.5) * turtle.spacing();
+			Draugr bearer = raiseThrall(level, centre.add(side.scale(offset)), true);
+			if (bearer != null) {
+				bearers.add(bearer);
+			}
+		}
+		if (!bearers.isEmpty()) {
+			turtleTicks = turtle.duration();
+			level.playSound(null, centre.x, centre.y, centre.z, SoundEvents.SHIELD_BLOCK.value(), getSoundSource(), 1.5F, 0.6F);
+		}
+	}
+
+	/** His copies of ice stand up at his sides, facing the target. */
+	private void makeCopies(ServerLevel level, LivingEntity target, PhaseTwoSettings.IceCopies settings) {
+		Vec3 toTarget = horizontal(target.position().subtract(position()));
+		if (toTarget == Vec3.ZERO) {
+			toTarget = Vec3.directionFromRotation(0.0F, yBodyRot);
+		}
+		Vec3 side = new Vec3(-toTarget.z, 0.0, toTarget.x);
+		for (int i = 0; i < settings.count(); i++) {
+			// Left, right, then further out each pair.
+			double offset = settings.distance() * (1 + i / 2) * (i % 2 == 0 ? 1.0 : -1.0);
+			Vec3 spot = findStandingSpot(level, position().add(side.scale(offset)));
+			if (spot == null) {
+				continue;
+			}
+			KoscheiIceCopy copy = EamEntities.KOSCHEI_ICE_COPY.create(level, EntitySpawnReason.MOB_SUMMONED);
+			if (copy == null) {
+				continue;
+			}
+			copy.snapTo(spot.x, spot.y, spot.z, getYRot(), 0.0F);
+			copy.summon(this, target, settings);
+			level.addFreshEntity(copy);
+			copies.add(copy);
+			level.sendParticles(ParticleTypes.SNOWFLAKE, spot.x, spot.y + 1.2, spot.z, 30, 0.4, 0.8, 0.4, 0.05);
+			level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PACKED_ICE.defaultBlockState()), spot.x, spot.y + 1.0, spot.z,
+					20, 0.4, 0.8, 0.4, 0.1);
+		}
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.GLASS_PLACE, getSoundSource(), 1.5F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.ILLUSIONER_MIRROR_MOVE, getSoundSource(), 1.5F, 0.8F);
+	}
+
+	/** His draugr he could drain now: in reach and in sight. */
+	private List<Draugr> drainable(ServerLevel level, PhaseTwoSettings.Drain drain) {
+		return level.getEntitiesOfClass(Draugr.class, getBoundingBox().inflate(drain.range()), draugr -> draugr.isAlive() && draugr.servedBy(this)
+				&& draugr.distanceToSqr(this) <= drain.range() * drain.range() && hasLineOfSight(draugr));
+	}
+
+	/**
+	 * He rises into the air and draws the draugr's strength into himself each second, healing a little less each time,
+	 * until the draugr falls or gets away from him.
+	 */
+	private void tickDrain(ServerLevel level, int t, PhaseTwoSettings.Drain drain) {
+		Draugr from = drained;
+		if (from == null || !from.isAlive() || from.distanceToSqr(this) > (drain.range() + 4.0) * (drain.range() + 4.0)) {
+			endAction();
+			return;
+		}
+		setNoGravity(true);
+		double wantedY = drainGround + drain.height();
+		setDeltaMovement(0.0, Mth.clamp((wantedY - getY()) * 0.2, -0.15, 0.25), 0.0);
+		getLookControl().setLookAt(from, 30.0F, 30.0F);
+		faceTowards(from);
+		from.hold(5);
+		if (t == 0) {
+			level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_PREPARE_WOLOLO, getSoundSource(), 1.5F, 0.5F);
+		}
+		Vec3 hand = rightHand();
+		Vec3 chest = from.position().add(0.0, from.getBbHeight() * 0.6, 0.0);
+		if (t % 2 == 0) {
+			// Green motes stream from the draugr to his hand.
+			Vec3 way = hand.subtract(chest);
+			for (int i = 0; i < 4; i++) {
+				double along = random.nextDouble();
+				Vec3 at = chest.add(way.scale(along));
+				level.sendParticles(ParticleTypes.SCULK_SOUL, at.x, at.y, at.z, 0, way.x, way.y, way.z, 0.04);
+			}
+			level.sendParticles(ParticleTypes.SOUL, chest.x, chest.y, chest.z, 1, 0.2, 0.3, 0.2, 0.01);
+		}
+		if (t < KoscheiAction.DRAIN_RISE || (t - KoscheiAction.DRAIN_RISE) % 20 != 0) {
+			return;
+		}
+		int second = (t - KoscheiAction.DRAIN_RISE) / 20;
+		from.damageCooldownTime = 0;
+		from.hurtServer(level, damageSources().source(KoscheiModule.SORCERY_DAMAGE), drain.damagePerSecond());
+		heal(KoscheiLogic.drainHeal(second, drain));
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 1.2F, 0.6F);
+		level.sendParticles(ParticleTypes.HAPPY_VILLAGER, getX(), getY(0.6), getZ(), 4, 0.4, 0.5, 0.4, 0.0);
 	}
 
 	/** Whether his ball of lightning is about. */
@@ -1212,6 +1419,7 @@ public class Koschei extends Monster implements BuildingAware {
 		double push = storm.pushPerSecond() / 20.0;
 		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(storm.range(), 3.0, storm.range()),
 				e -> e != this && e.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e) && !(e instanceof Draugr draugr && draugr.servedBy(this))
+						&& !(e instanceof Koschei)
 						&& !(e instanceof KoscheiBallLightning) && !(e instanceof KoscheiIceRaven))) {
 			if (!KoscheiLogic.inCone(victim.getX() - getX(), victim.getZ() - getZ(), facing.x, facing.z, storm.range(), storm.angle())
 					|| !hasLineOfSight(victim)) {
@@ -1374,25 +1582,35 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** One of his draugr climbs out of the ground at {@code at}, if there is room for it and he is under his cap. */
 	public void raiseThrall(ServerLevel level, Vec3 at) {
+		raiseThrall(level, at, false);
+	}
+
+	/** As {@link #raiseThrall(ServerLevel, Vec3)}; a {@code shieldBearer} rises with a sword and a shield. */
+	private @Nullable Draugr raiseThrall(ServerLevel level, Vec3 at, boolean shieldBearer) {
 		PhaseTwoSettings.Thralls thralls = phaseTwo().thralls();
 		if (countThralls(level) >= thralls.cap()) {
-			return;
+			return null;
 		}
 		Vec3 spot = findStandingSpot(level, at);
 		if (spot == null) {
-			return;
+			return null;
 		}
 		Draugr draugr = EamEntities.DRAUGR.create(level, EntitySpawnReason.MOB_SUMMONED);
 		if (draugr == null) {
-			return;
+			return null;
 		}
 		draugr.snapTo(spot.x, spot.y, spot.z, random.nextFloat() * 360.0F, 0.0F);
 		draugr.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(spot)), EntitySpawnReason.MOB_SUMMONED, null);
+		if (shieldBearer) {
+			draugr.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(EamItems.RUSTY_IRON_SWORD));
+			draugr.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+		}
 		draugr.raiseAsThrall(level, this, getTarget(), spot, thralls.speedMultiplier(), thralls.healthMultiplier());
 		level.addFreshEntity(draugr);
 		thrallCount++;
 		level.sendParticles(ParticleTypes.SCULK_SOUL, spot.x, spot.y + 0.2, spot.z, 12, 0.4, 0.1, 0.4, 0.03);
 		level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 1.5F, 0.5F);
+		return draugr;
 	}
 
 	/** His draugr up now. */
@@ -1765,6 +1983,12 @@ public class Koschei extends Monster implements BuildingAware {
 			// Nothing touches him while he changes, and his own draugr do not hurt him.
 			return false;
 		}
+		if (action == KoscheiAction.DRAIN) {
+			// Nothing touches him while he drains a draugr either: kill the draugr to stop it.
+			level.playSound(null, getX(), getY(0.6), getZ(), SoundEvents.AMETHYST_BLOCK_HIT, getSoundSource(), 1.5F, 0.6F);
+			level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY(0.6), getZ(), 6, 0.4, 0.6, 0.4, 0.02);
+			return false;
+		}
 		boolean melee = attacker instanceof LivingEntity && source.getDirectEntity() == attacker;
 		if (melee && attacker instanceof Player player && player.getUUID().equals(parryPlayer) && level.getGameTime() <= parryUntil) {
 			// The hit back after his lunge knocked the shield out.
@@ -1979,7 +2203,19 @@ public class Koschei extends Monster implements BuildingAware {
 	@Override
 	public void startSeenByPlayer(ServerPlayer player) {
 		super.startSeenByPlayer(player);
-		bossEvent.addPlayer(player);
+		if (showsBossBar()) {
+			bossEvent.addPlayer(player);
+		}
+	}
+
+	/** Whether those who see him see his boss bar. */
+	protected boolean showsBossBar() {
+		return true;
+	}
+
+	/** Sets the phase he fights in, for one made straight into his second phase. */
+	void setPhase(int phase) {
+		entityData.set(DATA_PHASE, (byte) phase);
 	}
 
 	@Override
@@ -2002,7 +2238,7 @@ public class Koschei extends Monster implements BuildingAware {
 	/** His draugr fight at his side. */
 	@Override
 	protected boolean considersEntityAsAlly(Entity other) {
-		return other instanceof Draugr draugr && draugr.servedBy(this) || super.considersEntityAsAlly(other);
+		return other instanceof Draugr draugr && draugr.servedBy(this) || other instanceof Koschei || super.considersEntityAsAlly(other);
 	}
 
 	@Override

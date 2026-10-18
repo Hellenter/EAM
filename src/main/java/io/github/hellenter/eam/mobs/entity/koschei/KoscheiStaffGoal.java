@@ -12,7 +12,7 @@ import java.util.EnumSet;
 /**
  * Koschei in his second phase, with the staff: as Baba Yaga in hers he keeps his distance from his target, runs from it
  * when it comes close, vanishes and stands far off, hops aside, and starts his staff attacks. With the trap laid he stands
- * still instead and lets the target walk right up to him.
+ * still instead and lets the target walk right up to him; behind his shield bearers he neither vanishes nor hops.
  */
 final class KoscheiStaffGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
@@ -84,17 +84,18 @@ final class KoscheiStaffGoal extends Goal {
 			return;
 		}
 		PhaseTwoSettings.Kite kite = two.kite();
-		if (distance < kite.minDistance() && koschei.teleportReady() && koschei.getRandom().nextFloat() < two.teleport().chance()) {
+		// Behind his shield bearers he keeps still in the row's shadow: no vanishing, no hops.
+		boolean turtling = koschei.turtling();
+		if (!turtling && distance < kite.minDistance() && koschei.teleportReady() && koschei.getRandom().nextFloat() < two.teleport().chance()) {
 			koschei.startTeleportAway(target);
 			return;
 		}
-		if (distance < kite.minDistance() && koschei.hopCooldown() <= 0 && koschei.getRandom().nextFloat() < kite.hopChance()) {
+		if (!turtling && distance < kite.minDistance() && koschei.hopCooldown() <= 0 && koschei.getRandom().nextFloat() < kite.hopChance()) {
 			koschei.hopAround(target);
 			return;
 		}
 		if (koschei.readyToAttack()) {
-			StaffAttack attack = KoscheiLogic.chooseStaff(distance, sees, koschei.staffCooldowns(), koschei.thrallCount(), rushing,
-					koschei.ballAbout(), two, koschei.getRandom()::nextDouble);
+			StaffAttack attack = koschei.chooseStaff(target, distance, sees, rushing);
 			if (attack != null) {
 				koschei.getNavigation().stop();
 				koschei.startStaff(attack, target);
