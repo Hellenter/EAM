@@ -52,6 +52,8 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 	/** How far a step down may drop, and how many times a stream may turn away from a wall before it ends. */
 	private static final int MAX_DROP = 3;
 	private static final int TURNS = 4;
+	/** How far beside a duergar village no stream runs higher than its streets. */
+	private static final int VILLAGE_MARGIN = 16;
 
 	@Override
 	public MapCodec<CaveStreamFeature> codec() {
@@ -120,11 +122,14 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 				}
 			}
 		}
-		// A stream may run into a neighbouring chunk that was decorated already: never through a duergar village.
+		// A stream may run into a neighbouring chunk that was decorated already: never through a duergar village, and
+		// never on a ledge above one, where it would pour over the edge into the streets.
 		VillageArea villages = VillageArea.around(level, origin, 2);
-		if (!villages.isEmpty()) {
+		VillageArea overlooked = VillageArea.around(level, origin, VILLAGE_MARGIN);
+		if (!overlooked.isEmpty()) {
 			for (Map.Entry<Long, Integer> column : channel.entrySet()) {
-				if (villages.touches(new BlockPos(ChunkPos.getX(column.getKey()), column.getValue(), ChunkPos.getZ(column.getKey())))) {
+				BlockPos at = new BlockPos(ChunkPos.getX(column.getKey()), column.getValue(), ChunkPos.getZ(column.getKey()));
+				if (villages.touches(at) || overlooked.overlooks(at, 2)) {
 					return false;
 				}
 			}

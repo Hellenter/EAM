@@ -47,6 +47,7 @@
     },
     {
       "type": "eam:outside_structure",
+      "margin": 16,
       "structures": "eam:duergar_villages"
     }
   ]

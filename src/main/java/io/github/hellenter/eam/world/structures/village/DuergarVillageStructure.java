@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.IntUnaryOperator;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
@@ -38,6 +39,8 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.Shapes;
 
 /**
  * A duergar village: a jigsaw village that stands on the floor of a cave instead of at a random height. It looks for a
@@ -45,7 +48,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSetting
  * under it, at most {@code max_step} blocks above or below the piece it joins, so the streets climb and fall with the
  * cave like a surface village's paths. Where the floor rises faster than that, the street stops at the foot of the rise
  * rather than tunnel on under it. A site where too many pieces would hang over open air is given up; a smaller gap under
- * a piece is filled with a footing once it is built.
+ * a piece is filled with a footing once it is built, and water that would run out of a pond or moat is filled in too.
  */
 public class DuergarVillageStructure extends Structure {
 	public static final MapCodec<DuergarVillageStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -132,8 +135,9 @@ public class DuergarVillageStructure extends Structure {
 	/**
 	 * Fills the air under each piece's floor down to the ground with {@code foundation}, at most {@code foundation_depth}
 	 * blocks, like a woodland mansion's footing. The floor is set from the bare terrain a step at a time, so a street can
-	 * end up a block or two above the ground; this closes that gap. Water under the lake village stilts is left as it is,
-	 * and so is a drop deeper than the footing, which the site search keeps rare.
+	 * end up a block or two above the ground; this closes that gap, under the water of a pond or moat too. A drop deeper
+	 * than the footing is left open; the site search keeps it rare. Then the village's own water is kept in: a pond or
+	 * moat block that would run out, over open ground beside it or down into a lower piece, is filled with the footing.
 	 */
 	@Override
 	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator, RandomSource random,
@@ -144,8 +148,7 @@ public class DuergarVillageStructure extends Structure {
 			int floor = box.minY();
 			for (int x = Math.max(box.minX(), chunkBox.minX()); x <= Math.min(box.maxX(), chunkBox.maxX()); x++) {
 				for (int z = Math.max(box.minZ(), chunkBox.minZ()); z <= Math.min(box.maxZ(), chunkBox.maxZ()); z++) {
-					BlockState top = level.getBlockState(pos.set(x, floor, z));
-					if (top.isAir() || !top.getFluidState().isEmpty()) {
+					if (level.getBlockState(pos.set(x, floor, z)).isAir()) {
 						continue;
 					}
 					int gap = 0;
@@ -161,6 +164,38 @@ public class DuergarVillageStructure extends Structure {
 				}
 			}
 		}
+		// A piece in a neighbouring chunk may have been built after this chunk's water was checked and opened a way out
+		// for it, so the water along this chunk's edges is looked at again.
+		BoundingBox around = chunkBox.inflatedBy(1, 0, 1);
+		BlockPos.MutableBlockPos near = new BlockPos.MutableBlockPos();
+		for (StructurePiece piece : pieces.pieces()) {
+			BoundingBox box = piece.getBoundingBox();
+			int floor = box.minY();
+			for (int x = Math.max(box.minX(), around.minX()); x <= Math.min(box.maxX(), around.maxX()); x++) {
+				for (int z = Math.max(box.minZ(), around.minZ()); z <= Math.min(box.maxZ(), around.maxZ()); z++) {
+					BlockState state = level.getBlockState(pos.set(x, floor, z));
+					if (state.getFluidState().isSource() && state.getFluidState().is(FluidTags.WATER)
+							&& leaks(level, pos, near)) {
+						level.setBlock(pos, foundation, Block.UPDATE_CLIENTS);
+					}
+				}
+			}
+		}
+	}
+
+	/** Whether the water at {@code pos} could run off: down, or sideways into a block that is neither water nor a wall. */
+	private static boolean leaks(WorldGenLevel level, BlockPos pos, BlockPos.MutableBlockPos near) {
+		for (Direction direction : Direction.values()) {
+			if (direction == Direction.UP) {
+				continue;
+			}
+			BlockState there = level.getBlockState(near.setWithOffset(pos, direction));
+			FluidState fluid = there.getFluidState();
+			if (fluid.is(FluidTags.WATER) ? !fluid.isSource() : !there.getCollisionShape(level, near).equals(Shapes.block())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

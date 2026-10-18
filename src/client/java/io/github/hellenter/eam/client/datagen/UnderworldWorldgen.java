@@ -1140,14 +1140,21 @@ final class UnderworldWorldgen {
 		}
 	}
 
-	/** Ores, decorations and springs keep out of duergar village pieces, which are built before them. */
+	private static final int WATER_MARGIN = 16;
+
+	/**
+	 * Ores, decorations and springs keep out of duergar village pieces, which are built before them. Springs and clay
+	 * pools also keep {@link #WATER_MARGIN} blocks clear of them and never open above them, or their water would pour
+	 * into the streets.
+	 */
 	private static void register(BootstrapContext<PlacedFeature> context, ResourceKey<PlacedFeature> key, Holder<Feature> feature,
 			List<PlacementModifier> modifiers) {
 		GenerationStep.Decoration step = ORDER.get(key);
 		if (step == GenerationStep.Decoration.UNDERGROUND_ORES || step == GenerationStep.Decoration.VEGETAL_DECORATION
 				|| step == GenerationStep.Decoration.FLUID_SPRINGS) {
 			List<PlacementModifier> all = new ArrayList<>(modifiers);
-			all.add(new OutsideStructureFilter(DuergarVillage.VILLAGES));
+			all.add(new OutsideStructureFilter(DuergarVillage.VILLAGES,
+					step == GenerationStep.Decoration.FLUID_SPRINGS || key == P_DRIPLEAF_CLAY ? WATER_MARGIN : 0));
 			modifiers = all;
 		}
 		PlacementUtils.register(context, key, feature, modifiers);
