@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearMenu;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardPayload;
@@ -24,7 +25,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A villager's inventory on the vanilla chest background, with the villager drawn beside his armor like the player in
- * his own inventory, a button to his trades and one that makes him a guard (or a guard an ordinary villager again).
+ * his own inventory, a button to his trades and one that makes him a guard (or a guard an ordinary villager again). The
+ * elder also has a button to the village menu, {@link VillageScreen}.
  */
 public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu> {
 	private static final Identifier CONTAINER_BACKGROUND = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -58,6 +60,12 @@ public class VillagerGearScreen extends AbstractContainerScreen<VillagerGearMenu
 						button.visible = false;
 					})
 					.bounds(leftPos + imageWidth + 2, topPos + VillagerGearMenu.TOP, font.width(label) + 12, 20)
+					.build());
+		}
+		if (villager != null && !villager.isBaby() && villager.getVillagerData().profession().is(VillagerProfession.CARTOGRAPHER)) {
+			Component label = Component.translatable("container.eam.villager.village");
+			addRenderableWidget(Button.builder(label, button -> ClientPlayNetworking.send(VillageOpenPayload.INSTANCE))
+					.bounds(leftPos + imageWidth + 2, topPos + VillagerGearMenu.TOP + 22, font.width(label) + 12, 20)
 					.build());
 		}
 	}

@@ -76,16 +76,15 @@ public final class VillagerGuardModule {
 		enabled = true;
 		ServerPlayNetworking.registerGlobalReceiver(VillagerGuardPayload.TYPE, (payload, context) -> {
 			if (!(context.player().containerMenu instanceof VillagerGearMenu menu) || menu.villager() == null || menu.villager().isBaby()) return;
-			Villager villager = menu.villager();
-			if (payload.guard() && !isGuardProfession(villager)) {
-				makeGuard(villager, context.player().level());
-			} else if (!payload.guard() && isGuardProfession(villager)) {
-				dismiss(villager, context.player().level());
-			}
+			setGuard(menu.villager(), context.player().level(), payload.guard());
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
 			if (entity instanceof Villager villager) addGoals(villager);
 		});
+	}
+
+	static boolean enabled() {
+		return enabled;
 	}
 
 	static GuardSettings settings() {
@@ -118,6 +117,15 @@ public final class VillagerGuardModule {
 		if (!jobless) villager.removeAttached(DISMISSED);
 		if (VillagerGuardLogic.becomesGuard(jobless, isGuard(villager), villager.hasAttached(DISMISSED))) {
 			makeGuard(villager, level);
+		}
+	}
+
+	/** Makes the villager a guard, or a guard an ordinary villager again, as a player asked. */
+	static void setGuard(Villager villager, ServerLevel level, boolean guard) {
+		if (guard && !isGuardProfession(villager)) {
+			makeGuard(villager, level);
+		} else if (!guard && isGuardProfession(villager)) {
+			dismiss(villager, level);
 		}
 	}
 
