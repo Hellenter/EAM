@@ -9,6 +9,7 @@ import io.github.hellenter.eam.content.torch.UnlitTorchBlock;
 import io.github.hellenter.eam.content.torch.UnlitWallTorchBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
 import io.github.hellenter.eam.content.fridge.FridgeBlock;
+import io.github.hellenter.eam.content.lockedchest.LockedChestBlock;
 import io.github.hellenter.eam.content.fridge.FridgeMenu;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
@@ -133,6 +134,15 @@ public final class EamBlocks {
 			.instrument(NoteBlockInstrument.BASS)
 			.strength(2.5F)
 			.sound(SoundType.WOOD)
+			.ignitedByLava());
+
+	/** A villager's box with an iron lock, or the village's store; see {@link LockedChestBlock}. */
+	public static final Block LOCKED_CHEST = register("locked_chest", LockedChestBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS)
+			.strength(3.5F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
 			.ignitedByLava());
 
 	/** An iron fridge lined with wool: four ice slots and four rows of food. */

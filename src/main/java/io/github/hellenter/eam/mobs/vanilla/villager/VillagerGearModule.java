@@ -63,6 +63,11 @@ public final class VillagerGearModule {
 
 	/** What a villager takes in his main hand to fight with, besides the tools of his trade. */
 	public static final TagKey<Item> WEAPONS = TagKey.create(Registries.ITEM, Eam.id("villager_weapons"));
+	/**
+	 * What any villager's inventory takes besides food and his trade's goods: potions, arrows, weapons, armor and tools.
+	 * What he does not need of it he hands to the elder.
+	 */
+	public static final TagKey<Item> GIFTS = TagKey.create(Registries.ITEM, Eam.id("villager_gifts"));
 	/** What a villager takes in his off hand. */
 	public static final TagKey<Item> OFF_HAND = TagKey.create(Registries.ITEM, Eam.id("villager_off_hand"));
 

@@ -60,6 +60,7 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
 		FoodDryerModels.generate(generators);
+		LockedChestModels.generate(generators);
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		FeederModels.generate(generators);

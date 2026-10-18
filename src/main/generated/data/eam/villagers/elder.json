@@ -1,4 +1,6 @@
 {
+  "arrow_max": 64,
+  "arrows_per_gift": 16,
   "food_per_gift": 4,
   "interval_ticks": 100,
   "radius": 48

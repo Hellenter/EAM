@@ -1,0 +1,25 @@
+{
+  "values": [
+    "minecraft:potion",
+    "minecraft:splash_potion",
+    "minecraft:lingering_potion",
+    "minecraft:shears",
+    "minecraft:fishing_rod",
+    "#minecraft:arrows",
+    "#eam:villager_weapons",
+    "#eam:villager_off_hand",
+    "#minecraft:head_armor",
+    "#minecraft:chest_armor",
+    "#minecraft:leg_armor",
+    "#minecraft:foot_armor",
+    "#minecraft:pickaxes",
+    "#minecraft:shovels",
+    "#minecraft:hoes",
+    "#eam:anvil_hammers",
+    "#eam:crafting_table_knives/tier_1",
+    "#eam:crafting_table_knives/tier_2",
+    "#eam:crafting_table_knives/tier_3",
+    "#eam:crafting_table_knives/tier_4",
+    "#eam:crafting_table_knives/tier_5"
+  ]
+}

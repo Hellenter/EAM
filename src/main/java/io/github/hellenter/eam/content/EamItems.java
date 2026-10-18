@@ -157,6 +157,7 @@ public final class EamItems {
 			new Item.Properties().useBlockDescriptionPrefix());
 
 	public static final Item SMALL_FRIDGE = blockItem("small_fridge", EamBlocks.SMALL_FRIDGE);
+	public static final Item LOCKED_CHEST = blockItem("locked_chest", EamBlocks.LOCKED_CHEST);
 	public static final Item LARGE_FRIDGE = blockItem("large_fridge", EamBlocks.LARGE_FRIDGE);
 
 	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */

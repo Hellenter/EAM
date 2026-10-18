@@ -96,7 +96,7 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.SIEVE.builtInRegistryHolder().key(),
 				EamBlocks.FOOD_DRYER.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FOOD_DRYER.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
-				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key(), EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
+				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key(), EamBlocks.LOCKED_CHEST.builtInRegistryHolder().key(), EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
 		builder(BlockTags.WOODEN_FENCES).add(EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
 		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
 		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);

@@ -25,7 +25,8 @@ import java.util.Map;
 /**
  * The cleric looks after the village: now and then he heals the hurt villagers near him. Given brewing ingredients
  * through his inventory, he brews potions at work and hands them to the guards near him, who drink a healing one when
- * down to half their health and any other in a fight. Which ingredient makes which potion, and the other numbers, are in
+ * down to half their health and any other in a fight; other villagers drink only healing ones. With an elder near, the
+ * potions he brews go to the elder, who hands them out. Which ingredient makes which potion, and the other numbers, are in
  * {@code data/eam/villagers/cleric.json}.
  */
 public final class VillagerClericModule {
@@ -59,7 +60,7 @@ public final class VillagerClericModule {
 		settings = value;
 	}
 
-	/** Called every tick a villager thinks on the server: a cleric heals and brews, a guard drinks his potions. */
+	/** Called every tick a villager thinks on the server: a cleric heals and brews, a villager drinks his potions. */
 	public static void tick(Villager villager, ServerLevel level) {
 		if (!enabled || villager.isBaby()) return;
 		ClericSettings current = settings;
@@ -68,9 +69,7 @@ public final class VillagerClericModule {
 			if (VillagerRepairLogic.checksNow(time, villager.getId(), current.healIntervalTicks())) tend(level, villager, current);
 			if (VillagerRepairLogic.checksNow(time, villager.getId(), current.brewIntervalTicks())) brew(level, villager, current);
 		}
-		if (VillagerRepairLogic.checksNow(time, villager.getId(), DRINK_CHECK_TICKS) && VillagerGuardModule.isGuard(villager)) {
-			drink(level, villager);
-		}
+		if (VillagerRepairLogic.checksNow(time, villager.getId(), DRINK_CHECK_TICKS)) drink(level, villager);
 	}
 
 	/** Heals the hurt villagers near the cleric and hands a potion to each guard short of them. */
@@ -111,10 +110,13 @@ public final class VillagerClericModule {
 		}
 	}
 
-	/** A guard drinks the first potion in his inventory that helps him now. */
+	/**
+	 * A villager drinks the first potion in his inventory that helps him now: a guard any, anyone else only one that
+	 * heals.
+	 */
 	private static void drink(ServerLevel level, Villager guard) {
 		SimpleContainer inventory = guard.getInventory();
-		boolean fighting = guard.getTarget() != null;
+		boolean fighting = guard.getTarget() != null && VillagerGuardModule.isGuard(guard);
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack stack = inventory.getItem(i);
 			PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
