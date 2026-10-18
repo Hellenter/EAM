@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.koschei;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /**
@@ -21,11 +22,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param storm           a wide icy blast from his hands that pushes slowly back and burns those without a shield
  * @param iceRavens       three ravens of ice that fly at the target; one of them knocks a shield out
  * @param iceWall         a wall of ice in front of a target that runs at him; rare
+ * @param wiles           the turtle, the ice copies and the drain of strength
  */
 public record PhaseTwoSettings(float health, double speedMultiplier, int attackPause, Kite kite, Teleport teleport, Bolt bolt, Strike strike,
-		Souls souls, Trap trap, Thralls thralls, Ball ball, Storm storm, IceRavens iceRavens, IceWall iceWall) {
+		Souls souls, Trap trap, Thralls thralls, Ball ball, Storm storm, IceRavens iceRavens, IceWall iceWall, Wiles wiles) {
 	public static final PhaseTwoSettings DEFAULT = new PhaseTwoSettings(120.0F, 1.15, 14, Kite.DEFAULT, Teleport.DEFAULT, Bolt.DEFAULT,
-			Strike.DEFAULT, Souls.DEFAULT, Trap.DEFAULT, Thralls.DEFAULT, Ball.DEFAULT, Storm.DEFAULT, IceRavens.DEFAULT, IceWall.DEFAULT);
+			Strike.DEFAULT, Souls.DEFAULT, Trap.DEFAULT, Thralls.DEFAULT, Ball.DEFAULT, Storm.DEFAULT, IceRavens.DEFAULT, IceWall.DEFAULT,
+			Wiles.DEFAULT);
 
 	public static final Codec<PhaseTwoSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(1.0F, 2048.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(PhaseTwoSettings::health),
@@ -41,8 +44,123 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 			Ball.CODEC.fieldOf("ball_lightning").orElse(DEFAULT.ball).forGetter(PhaseTwoSettings::ball),
 			Storm.CODEC.fieldOf("snow_storm").orElse(DEFAULT.storm).forGetter(PhaseTwoSettings::storm),
 			IceRavens.CODEC.fieldOf("ice_ravens").orElse(DEFAULT.iceRavens).forGetter(PhaseTwoSettings::iceRavens),
-			IceWall.CODEC.fieldOf("ice_wall").orElse(DEFAULT.iceWall).forGetter(PhaseTwoSettings::iceWall)
+			IceWall.CODEC.fieldOf("ice_wall").orElse(DEFAULT.iceWall).forGetter(PhaseTwoSettings::iceWall),
+			Wiles.MAP_CODEC.forGetter(PhaseTwoSettings::wiles)
 	).apply(instance, PhaseTwoSettings::new));
+
+	public Turtle turtle() {
+		return wiles.turtle();
+	}
+
+	public IceCopies iceCopies() {
+		return wiles.iceCopies();
+	}
+
+	public Drain drain() {
+		return wiles.drain();
+	}
+
+	/**
+	 * The last of his attacks, read from {@code turtle}, {@code ice_copies} and {@code drain} beside the others; kept together
+	 * only because a codec takes so many fields at most.
+	 */
+	public record Wiles(Turtle turtle, IceCopies iceCopies, Drain drain) {
+		public static final Wiles DEFAULT = new Wiles(Turtle.DEFAULT, IceCopies.DEFAULT, Drain.DEFAULT);
+
+		public static final MapCodec<Wiles> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Turtle.CODEC.fieldOf("turtle").orElse(DEFAULT.turtle).forGetter(Wiles::turtle),
+				IceCopies.CODEC.fieldOf("ice_copies").orElse(DEFAULT.iceCopies).forGetter(Wiles::iceCopies),
+				Drain.CODEC.fieldOf("drain").orElse(DEFAULT.drain).forGetter(Wiles::drain)
+		).apply(instance, Wiles::new));
+	}
+
+	/**
+	 * Draugr with shields rise in a row before him, lock their shields like the Lost's shield wall, and he hides behind
+	 * them.
+	 *
+	 * @param chance        chance each time he is about to attack that he raises them
+	 * @param cooldown      ticks before he raises them again
+	 * @param count         shield bearers raised, fewer when that would pass the cap of draugr
+	 * @param minRoom       he raises them only with room under the cap for at least this many
+	 * @param duration      ticks the row stands and he keeps behind it; it breaks up sooner when all its bearers fall
+	 * @param spacing       flat distance between neighbours in the row, centre to centre
+	 * @param frontDistance the row stands this far in front of him, toward the target, or halfway to it when closer
+	 * @param reach         a bearer swings at the target this close, lowering his shield for the blow
+	 */
+	public record Turtle(float chance, int cooldown, int count, int minRoom, int duration, double spacing, double frontDistance,
+			double reach) {
+		public static final Turtle DEFAULT = new Turtle(0.1F, 600, 3, 2, 300, 1.0, 2.5, 2.6);
+
+		public static final Codec<Turtle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Turtle::chance),
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Turtle::cooldown),
+				Codec.intRange(1, 8).fieldOf("count").orElse(DEFAULT.count).forGetter(Turtle::count),
+				Codec.intRange(1, 8).fieldOf("min_room").orElse(DEFAULT.minRoom).forGetter(Turtle::minRoom),
+				Codec.intRange(1, 24000).fieldOf("duration").orElse(DEFAULT.duration).forGetter(Turtle::duration),
+				Codec.doubleRange(0.5, 3.0).fieldOf("spacing").orElse(DEFAULT.spacing).forGetter(Turtle::spacing),
+				Codec.doubleRange(0.5, 16.0).fieldOf("front_distance").orElse(DEFAULT.frontDistance).forGetter(Turtle::frontDistance),
+				Codec.doubleRange(0.5, 8.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(Turtle::reach)
+		).apply(instance, Turtle::new));
+	}
+
+	/**
+	 * Copies of him in ice stand up at his sides; they keep their distance and shoot the bolt only, and shatter after a
+	 * while.
+	 *
+	 * @param chance       chance each time he is about to attack that he makes them, while none of his are about
+	 * @param cooldown     ticks before he makes them again, from when the last of them is gone
+	 * @param count        copies made at once
+	 * @param health       a copy's health
+	 * @param lifetime     ticks before a copy shatters on its own
+	 * @param boltCooldown ticks between two bolts of a copy
+	 * @param distance     they stand up this far to his sides
+	 */
+	public record IceCopies(float chance, int cooldown, int count, float health, int lifetime, int boltCooldown, double distance) {
+		public static final IceCopies DEFAULT = new IceCopies(0.1F, 600, 2, 8.0F, 300, 45, 3.0);
+
+		public static final Codec<IceCopies> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(IceCopies::chance),
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(IceCopies::cooldown),
+				Codec.intRange(1, 8).fieldOf("count").orElse(DEFAULT.count).forGetter(IceCopies::count),
+				Codec.floatRange(1.0F, 1024.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(IceCopies::health),
+				Codec.intRange(1, 24000).fieldOf("lifetime").orElse(DEFAULT.lifetime).forGetter(IceCopies::lifetime),
+				Codec.intRange(1, 24000).fieldOf("bolt_cooldown").orElse(DEFAULT.boltCooldown).forGetter(IceCopies::boltCooldown),
+				Codec.doubleRange(1.0, 16.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(IceCopies::distance)
+		).apply(instance, IceCopies::new));
+	}
+
+	/**
+	 * He rises into the air and draws the strength out of one of his draugr to heal himself; nothing hurts him meanwhile.
+	 * It stops when the draugr falls.
+	 *
+	 * @param below           only below this share of his health
+	 * @param uses            at most this many times in the phase
+	 * @param chance          chance each time he is about to attack that he does it, while he may
+	 * @param cooldown        ticks before he does it again
+	 * @param range           he drains a draugr at most this far from him, in sight
+	 * @param damagePerSecond the draugr loses this much each second
+	 * @param healStart       he heals this much in the first second
+	 * @param healStep        and this much less each second after
+	 * @param healMin         but never less than this a second
+	 * @param height          he hovers this high over the ground meanwhile
+	 */
+	public record Drain(float below, int uses, float chance, int cooldown, double range, float damagePerSecond, float healStart, float healStep,
+			float healMin, double height) {
+		public static final Drain DEFAULT = new Drain(0.7F, 2, 0.3F, 800, 16.0, 2.0F, 10.0F, 1.0F, 7.0F, 3.0);
+
+		public static final Codec<Drain> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.floatRange(0.0F, 1.0F).fieldOf("below").orElse(DEFAULT.below).forGetter(Drain::below),
+				Codec.intRange(0, 64).fieldOf("uses").orElse(DEFAULT.uses).forGetter(Drain::uses),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Drain::chance),
+				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Drain::cooldown),
+				Codec.doubleRange(1.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Drain::range),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage_per_second").orElse(DEFAULT.damagePerSecond).forGetter(Drain::damagePerSecond),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("heal_start").orElse(DEFAULT.healStart).forGetter(Drain::healStart),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("heal_step").orElse(DEFAULT.healStep).forGetter(Drain::healStep),
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("heal_min").orElse(DEFAULT.healMin).forGetter(Drain::healMin),
+				Codec.doubleRange(0.0, 8.0).fieldOf("height").orElse(DEFAULT.height).forGetter(Drain::height)
+		).apply(instance, Drain::new));
+	}
 
 	/**
 	 * As Baba Yaga on foot: he runs from a target closer than {@code fleeDistance}, steps back from one closer than

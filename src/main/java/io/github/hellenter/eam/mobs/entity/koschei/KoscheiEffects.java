@@ -119,6 +119,28 @@ final class KoscheiEffects {
 					level.addParticle(BLUE, head.x, head.y, head.z, 0.0, 0.0, 0.0);
 				}
 			}
+			case TURTLE -> {
+				if (t < KoscheiAction.TURTLE_RELEASE) {
+					// Green souls seeping up from the ground before him.
+					Vec3 ahead = koschei.position().add(Vec3.directionFromRotation(0.0F, koschei.yBodyRot).scale(2.5));
+					level.addParticle(GREEN, ahead.x + (random.nextDouble() - 0.5) * 3.0, ahead.y + 0.1, ahead.z + (random.nextDouble() - 0.5) * 3.0,
+							0.0, 0.06, 0.0);
+				}
+			}
+			case ICE_COPIES -> {
+				if (t < KoscheiAction.ICE_COPIES_RELEASE) {
+					// Frost whirling about him.
+					double a = random.nextDouble() * Math.PI * 2.0;
+					level.addParticle(ParticleTypes.SNOWFLAKE, koschei.getX() + Math.cos(a) * 1.6, koschei.getY() + random.nextDouble() * koschei.getBbHeight(),
+							koschei.getZ() + Math.sin(a) * 1.6, -Math.sin(a) * 0.15, 0.0, Math.cos(a) * 0.15);
+				}
+			}
+			case DRAIN -> {
+				// Green motes about the reaching hand.
+				Vec3 hand = koschei.rightHand();
+				level.addParticle(GREEN, hand.x + (random.nextDouble() - 0.5) * 0.4, hand.y + (random.nextDouble() - 0.5) * 0.4,
+						hand.z + (random.nextDouble() - 0.5) * 0.4, 0.0, 0.0, 0.0);
+			}
 			case TRANSFORM -> {
 				if (t < KoscheiAction.TRANSFORM_STAFF && random.nextInt(2) == 0) {
 					level.addParticle(ParticleTypes.SOUL, koschei.getRandomX(1.2), koschei.getY() + random.nextDouble() * koschei.getBbHeight(),

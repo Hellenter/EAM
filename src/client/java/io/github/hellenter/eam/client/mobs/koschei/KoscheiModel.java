@@ -516,6 +516,44 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				body.xRot += keys(t, times, 0.0F, -0.1F, 0.25F, 0.0F);
 				step(keys(t, times, 0.0F, 0.3F, 1.0F, 0.0F), false);
 			}
+			case TURTLE -> {
+				// The staff raised, then struck down on the ground before him as his shield bearers climb out.
+				float release = KoscheiAction.TURTLE_RELEASE;
+				float[] times = {0, release - 3, release, release + 4, KoscheiAction.TURTLE.length()};
+				leftArm.xRot = keys(t, times, restL, -1.9F, -0.9F, -0.9F, restL);
+				leftForearm.xRot = keys(t, times, restFl, -0.5F, -0.3F, -0.3F, restFl);
+				lean = keys(t, times, 0.0F, -0.4F, 0.9F, 0.9F, 0.0F);
+				body.xRot += keys(t, times, 0.0F, -0.12F, 0.25F, 0.2F, 0.0F);
+				rightArm.zRot = keys(t, times, restRz, 0.5F, 0.6F, 0.6F, restRz);
+				step(keys(t, times, 0.0F, 0.3F, 1.0F, 0.9F, 0.0F), false);
+			}
+			case ICE_COPIES -> {
+				// Arms spread wide and lifted, head thrown back; flung wider as the copies stand up.
+				float release = KoscheiAction.ICE_COPIES_RELEASE;
+				float[] times = {0, 6, release, release + 2, KoscheiAction.ICE_COPIES.length()};
+				float spread = keys(t, times, 0.0F, 0.8F, 0.9F, 1.0F, 0.0F);
+				rightArm.zRot = Mth.lerp(spread, restRz, 1.35F);
+				rightArm.xRot = Mth.lerp(spread, restR, -0.3F);
+				leftArm.zRot = Mth.lerp(spread, restLz, -1.1F);
+				leftArm.xRot = Mth.lerp(spread, restL, -0.6F);
+				head.xRot -= 0.35F * spread;
+				stance(0.4F * spread);
+			}
+			case DRAIN -> {
+				// Hanging in the air, the right hand reaching out to the draugr below, fingers clawing; legs hanging slack.
+				float in = Math.min(1.0F, t / 8.0F);
+				float pull = Mth.sin(t * 0.5F) * 0.05F;
+				rightArm.xRot = Mth.lerp(in, restR, -1.25F + pull);
+				rightArm.yRot = 0.2F * in;
+				rightForearm.xRot = Mth.lerp(in, restFr, -0.35F - pull);
+				leftArm.zRot = Mth.lerp(in, restLz, -0.35F);
+				head.xRot += 0.35F * in;
+				body.xRot += 0.1F * in;
+				rightLeg.xRot = Mth.lerp(in, rightLeg.xRot, 0.25F);
+				leftLeg.xRot = Mth.lerp(in, leftLeg.xRot, 0.1F);
+				rightShin.xRot = Mth.lerp(in, rightShin.xRot, 0.3F);
+				leftShin.xRot = Mth.lerp(in, leftShin.xRot, 0.2F);
+			}
 			case TRAP, TELEPORT -> {
 				// Arms spread low, head bowed as his eyes flicker.
 				float in = keys(t, new float[] {0, 3, 10}, 0.0F, 1.0F, 1.0F);
