@@ -23,7 +23,7 @@ import net.minecraft.world.entity.HumanoidArm;
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
- * The rest of the time they glow a cold pale blue. The crystal on his staff glows green. His lightning is drawn by
+ * The rest of the time they glow a cold pale blue. The crystal on his staff glows blue. His lightning is drawn by
  * {@link KoscheiBolts}.
  */
 public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderState, KoscheiModel> {

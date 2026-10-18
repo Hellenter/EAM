@@ -39,6 +39,10 @@ public class KoscheiOrb extends Projectile {
 	private static final DustParticleOptions PALE_BLUE = new DustParticleOptions(0xBFE0FF, 0.8F);
 	private static final DustParticleOptions GREEN = new DustParticleOptions(0x5CFF7A, 1.3F);
 	private static final DustParticleOptions PALE_GREEN = new DustParticleOptions(0xC8FFD0, 0.8F);
+	/** The bolt's two strands, wound about its white-blue core. */
+	private static final DustParticleOptions CYAN = new DustParticleOptions(0x3FE8FF, 0.9F);
+	private static final DustParticleOptions VIOLET = new DustParticleOptions(0xB066FF, 0.9F);
+	private static final DustParticleOptions WHITE = new DustParticleOptions(0xF4FAFF, 0.7F);
 	/** A soul falls this fast, blocks per tick per tick. */
 	public static final double SOUL_GRAVITY = 0.04;
 	private static final int LIFETIME = 80;
@@ -104,7 +108,11 @@ public class KoscheiOrb extends Projectile {
 	}
 
 	private void trail(Vec3 movement) {
-		boolean soul = kind() == Kind.SOUL;
+		if (kind() == Kind.BOLT) {
+			boltTrail(movement);
+			return;
+		}
+		boolean soul = true;
 		for (int i = 0; i < 4; i++) {
 			double t = i / 4.0;
 			level().addParticle(soul ? GREEN : BLUE, getX() - movement.x * t, getY() - movement.y * t, getZ() - movement.z * t, 0.0, 0.0, 0.0);
@@ -155,6 +163,37 @@ public class KoscheiOrb extends Projectile {
 		}
 	}
 
+	/**
+	 * The bolt: a white-blue core with a cyan and a violet strand winding round it, and sparks thrown off it now and
+	 * then.
+	 */
+	private void boltTrail(Vec3 movement) {
+		Vec3 along = movement.lengthSqr() < 1.0E-6 ? new Vec3(0.0, 0.0, 1.0) : movement.normalize();
+		Vec3 side = along.cross(new Vec3(0.0, 1.0, 0.0));
+		side = side.lengthSqr() < 1.0E-6 ? new Vec3(1.0, 0.0, 0.0) : side.normalize();
+		Vec3 up = side.cross(along);
+		for (int i = 0; i < 4; i++) {
+			double t = i / 4.0;
+			Vec3 at = position().subtract(movement.scale(t));
+			level().addParticle(i % 2 == 0 ? BLUE : WHITE, at.x, at.y, at.z, 0.0, 0.0, 0.0);
+			double angle = (tickCount - t) * 1.3;
+			for (int strand = 0; strand < 2; strand++) {
+				double a = angle + strand * Math.PI;
+				Vec3 off = side.scale(Math.cos(a) * 0.28).add(up.scale(Math.sin(a) * 0.28));
+				level().addParticle(strand == 0 ? CYAN : VIOLET, at.x + off.x, at.y + off.y, at.z + off.z, 0.0, 0.0, 0.0);
+			}
+		}
+		level().addParticle(PALE_BLUE, getX(), getY(), getZ(), 0.0, 0.0, 0.0);
+		if (random.nextInt(2) == 0) {
+			level().addParticle(ParticleTypes.ELECTRIC_SPARK, getX(), getY(), getZ(), (random.nextDouble() - 0.5) * 0.15,
+					(random.nextDouble() - 0.5) * 0.15, (random.nextDouble() - 0.5) * 0.15);
+		}
+		if (random.nextInt(4) == 0) {
+			level().addParticle(ParticleTypes.END_ROD, getX(), getY(), getZ(), (random.nextDouble() - 0.5) * 0.04, 0.02,
+					(random.nextDouble() - 0.5) * 0.04);
+		}
+	}
+
 	@Override
 	protected void onHit(HitResult hitResult) {
 		super.onHit(hitResult);
@@ -162,6 +201,12 @@ public class KoscheiOrb extends Projectile {
 			boolean soul = kind() == Kind.SOUL;
 			level.sendParticles(soul ? GREEN : BLUE, getX(), getY(), getZ(), 16, 0.25, 0.25, 0.25, 0.0);
 			level.sendParticles(soul ? ParticleTypes.SCULK_SOUL : ParticleTypes.ELECTRIC_SPARK, getX(), getY(), getZ(), 8, 0.2, 0.2, 0.2, 0.05);
+			if (!soul) {
+				// A bright burst of all its colours.
+				level.sendParticles(CYAN, getX(), getY(), getZ(), 12, 0.35, 0.35, 0.35, 0.0);
+				level.sendParticles(VIOLET, getX(), getY(), getZ(), 12, 0.35, 0.35, 0.35, 0.0);
+				level.sendParticles(ParticleTypes.END_ROD, getX(), getY(), getZ(), 6, 0.1, 0.1, 0.1, 0.08);
+			}
 			level.playSound(null, getX(), getY(), getZ(), soul ? SoundEvents.SOUL_ESCAPE.value() : SoundEvents.AMETHYST_BLOCK_BREAK,
 					SoundSource.HOSTILE, soul ? 1.5F : 0.8F, soul ? 0.7F : 1.5F);
 		}

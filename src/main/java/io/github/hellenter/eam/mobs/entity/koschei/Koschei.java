@@ -33,6 +33,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
@@ -510,6 +511,10 @@ public class Koschei extends Monster implements BuildingAware {
 		LivingEntity target = getTarget();
 		if (target == null && tickCount % 20 == 0 && getHealth() < getMaxHealth()) {
 			heal(settings().stats().regen());
+		}
+		if (action != KoscheiAction.DRAIN && isNoGravity()) {
+			// Only the drain holds him up: never left hanging after it, however it ended.
+			setNoGravity(false);
 		}
 		if (action == KoscheiAction.NONE) {
 			idleTicks++;
@@ -1332,7 +1337,10 @@ public class Koschei extends Monster implements BuildingAware {
 	 */
 	private void tickDrain(ServerLevel level, int t, PhaseTwoSettings.Drain drain) {
 		Draugr from = drained;
-		if (from == null || !from.isAlive() || from.distanceToSqr(this) > (drain.range() + 4.0) * (drain.range() + 4.0)) {
+		LivingEntity target = getTarget();
+		// With no one left to fight he comes down, rather than hang there drinking.
+		if (from == null || !from.isAlive() || from.distanceToSqr(this) > (drain.range() + 4.0) * (drain.range() + 4.0)
+				|| target == null || !target.isAlive()) {
 			endAction();
 			return;
 		}
@@ -1601,6 +1609,10 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 		draugr.snapTo(spot.x, spot.y, spot.z, random.nextFloat() * 360.0F, 0.0F);
 		draugr.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(spot)), EntitySpawnReason.MOB_SUMMONED, null);
+		if (draugr.getMainHandItem().is(ItemTags.SPEARS)) {
+			// His draugr fight with axes and swords only.
+			draugr.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(random.nextBoolean() ? EamItems.RUSTY_IRON_AXE : EamItems.RUSTY_IRON_SWORD));
+		}
 		if (shieldBearer) {
 			draugr.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(EamItems.RUSTY_IRON_SWORD));
 			draugr.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
@@ -2251,6 +2263,8 @@ public class Koschei extends Monster implements BuildingAware {
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
 		entityData.set(DATA_PHASE, input.getByteOr("Phase", (byte) 1));
+		// Saved in the middle of a drain: the drain is not saved, so he comes down.
+		setNoGravity(false);
 		applyStats(false);
 		bossEvent.setName(getDisplayName());
 		bossEvent.setColor(phase() >= 2 ? BossEvent.BossBarColor.GREEN : BossEvent.BossBarColor.PURPLE);

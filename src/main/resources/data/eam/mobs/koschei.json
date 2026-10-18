@@ -146,7 +146,7 @@
     },
     "bolt": {
       "damage": 4.0,
-      "speed": 0.9,
+      "speed": 0.45,
       "cooldown": 30,
       "max_range": 24.0
     },
@@ -172,7 +172,7 @@
     },
     "thralls": {
       "cap": 5,
-      "speed_multiplier": 1.75,
+      "speed_multiplier": 1.4,
       "health_multiplier": 0.5
     },
     "ball_lightning": {
