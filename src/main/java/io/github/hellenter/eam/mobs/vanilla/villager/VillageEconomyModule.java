@@ -94,7 +94,10 @@ public final class VillageEconomyModule {
 		enabled = true;
 		ServerPlayNetworking.registerGlobalReceiver(VillageEconomyOpenPayload.TYPE, (payload, context) -> {
 			Villager elder = elderFor(context.player(), payload.elderId());
-			if (elder != null) send(context.player(), elder);
+			if (elder == null) return;
+			// From the elder's trades: the trade menu closes for the upgrades menu.
+			if (context.player().containerMenu != context.player().inventoryMenu) context.player().closeContainer();
+			send(context.player(), elder);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(VillageOrderPayload.TYPE, (payload, context) -> {
 			Villager elder = elderFor(context.player(), payload.elderId());

@@ -23,6 +23,8 @@ abstract class MerchantScreenMixin extends AbstractContainerScreen<MerchantMenu>
 	private Button eam$inventoryButton;
 	@Unique
 	private Button eam$villageButton;
+	@Unique
+	private Button eam$upgradesButton;
 
 	private MerchantScreenMixin(MerchantMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -32,11 +34,12 @@ abstract class MerchantScreenMixin extends AbstractContainerScreen<MerchantMenu>
 	private void eam$addInventoryButton(CallbackInfo ci) {
 		eam$inventoryButton = addRenderableWidget(VillagerTradePanelScreen.button(leftPos, topPos));
 		eam$villageButton = addRenderableWidget(VillagerTradePanelScreen.villageButton(leftPos, topPos));
+		eam$upgradesButton = addRenderableWidget(VillagerTradePanelScreen.upgradesButton(menu, leftPos, topPos));
 	}
 
 	@Inject(method = "extractBackground", at = @At("TAIL"))
 	private void eam$extractPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-		VillagerTradePanelScreen.extract(menu, graphics, leftPos, topPos, mouseX, mouseY, eam$inventoryButton, eam$villageButton);
+		VillagerTradePanelScreen.extract(menu, graphics, leftPos, topPos, mouseX, mouseY, eam$inventoryButton, eam$villageButton, eam$upgradesButton);
 	}
 
 	@Override

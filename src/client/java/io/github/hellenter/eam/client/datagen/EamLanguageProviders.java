@@ -164,6 +164,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.economy.cancel", "Stop");
 			builder.add("gui.eam.village.economy.unavailable", "Not Now");
 			builder.add("gui.eam.village.economy.goal", "Saving up for: %s");
+			builder.add("gui.eam.village.economy.orders", "Orders");
 			builder.add("gui.eam.village.order.iron_golem", "Iron Golem");
 			for (String[] component : new String[][] {{"farmer", "Farmer"}, {"fisherman", "Fisherman"}, {"butcher", "Butcher"},
 					{"mason", "Mason"}, {"armorer", "Armorer"}, {"toolsmith", "Toolsmith"}, {"weaponsmith", "Weaponsmith"},
@@ -291,6 +292,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.blueprint.no_village", "Only in a village: within %s blocks of its elder");
 			builder.add("item.eam.blueprint.overlaps", "Another building is going up here");
 			builder.add("item.eam.blueprint.placed", "The villagers will come by day to build it");
+			builder.add("item.eam.blueprint.built", "Built (creative mode)");
 			builder.add("gui.eam.village.economy.take", "Take (%s)");
 			builder.add("gui.eam.village.order.house_small", "Small House");
 			builder.add("gui.eam.village.order.house_medium", "House");
@@ -945,6 +947,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.economy.cancel", "Отменить");
 			builder.add("gui.eam.village.economy.unavailable", "Нельзя");
 			builder.add("gui.eam.village.economy.goal", "Копим на: %s");
+			builder.add("gui.eam.village.economy.orders", "Заказы");
 			builder.add("gui.eam.village.order.iron_golem", "Железный голем");
 			for (String[] component : new String[][] {{"farmer", "фермера"}, {"fisherman", "рыбака"}, {"butcher", "мясника"},
 					{"mason", "каменщика"}, {"armorer", "бронника"}, {"toolsmith", "инструментальщика"}, {"weaponsmith", "оружейника"},
@@ -1072,6 +1075,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.blueprint.no_village", "Только в деревне: не дальше %s блоков от старосты");
 			builder.add("item.eam.blueprint.overlaps", "Здесь уже строится другое здание");
 			builder.add("item.eam.blueprint.placed", "Жители придут строить днём");
+			builder.add("item.eam.blueprint.built", "Построено (творческий режим)");
 			builder.add("gui.eam.village.economy.take", "Забрать (%s)");
 			builder.add("gui.eam.village.order.house_small", "Маленький дом");
 			builder.add("gui.eam.village.order.house_medium", "Дом");
