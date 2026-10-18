@@ -19,9 +19,14 @@ class VillagerGuardLogicTest {
 
 	@Test
 	void onlyJoblessArmedVillagersBecomeGuards() {
-		assertTrue(VillagerGuardLogic.becomesGuard(true, true));
-		assertFalse(VillagerGuardLogic.becomesGuard(false, true));
-		assertFalse(VillagerGuardLogic.becomesGuard(true, false));
+		assertTrue(VillagerGuardLogic.becomesGuard(true, true, false));
+		assertFalse(VillagerGuardLogic.becomesGuard(false, true, false));
+		assertFalse(VillagerGuardLogic.becomesGuard(true, false, false));
+	}
+
+	@Test
+	void dismissedGuardsStayJobless() {
+		assertFalse(VillagerGuardLogic.becomesGuard(true, true, true));
 	}
 
 	@Test

@@ -128,6 +128,7 @@ public final class EamLanguageProviders {
 			builder.add("container.eam.villager.trade", "Trade");
 			builder.add("container.eam.villager.inventory", "Inventory");
 			builder.add("container.eam.villager.make_guard", "Make Guard");
+			builder.add("container.eam.villager.dismiss_guard", "Make Ordinary Villager");
 			builder.add("entity.eam.villager.guard", "Guard");
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
@@ -821,6 +822,7 @@ public final class EamLanguageProviders {
 			builder.add("container.eam.villager.trade", "Торговать");
 			builder.add("container.eam.villager.inventory", "Инвентарь");
 			builder.add("container.eam.villager.make_guard", "Сделать стражником");
+			builder.add("container.eam.villager.dismiss_guard", "Сделать обычным жителем");
 			builder.add("entity.eam.villager.guard", "Стражник");
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
