@@ -23,6 +23,7 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -39,6 +40,8 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.Shapes;
 
@@ -118,7 +121,7 @@ public class DuergarVillageStructure extends Structure {
 			if (stub.isEmpty()) {
 				continue;
 			}
-			Settled village = settle(stub.get().getPiecesBuilder().build().pieces(), columns);
+			Settled village = settle(stub.get().getPiecesBuilder().build().pieces(), columns, context.structureTemplateManager());
 			if (village != null && (best == null || village.pieces().size() > best.pieces().size())) {
 				best = village;
 				bestPosition = stub.get().position();
@@ -238,12 +241,16 @@ public class DuergarVillageStructure extends Structure {
 	/**
 	 * Moves each piece down or up onto the floor under it. A piece the floor still walls in after its step (the cave
 	 * floor rises faster than the streets may climb) is left out together with everything joined on beyond it, so a
-	 * street ends at the foot of the rise instead of running on under the ground. {@code null} when too many pieces
-	 * would hang in the air or fewer than a third are left.
+	 * street ends at the foot of the rise instead of running on under the ground. A stair that climbs where the floor
+	 * drops (or the other way round) is turned round first, so the streets can go down as well as up. {@code null} when
+	 * too many pieces would hang in the air or fewer than a third are left.
 	 */
-	private Settled settle(List<StructurePiece> all, Columns columns) {
+	private Settled settle(List<StructurePiece> built, Columns columns, StructureTemplateManager templates) {
+		List<StructurePiece> all = new ArrayList<>(built);
 		int n = all.size();
 		int[] moves = new int[n];
+		// How far the pieces joined on beyond each piece move; more than the piece itself for a stair that was turned.
+		int[] carried = new int[n];
 		boolean[] dropped = new boolean[n];
 		int hanging = 0;
 		int kept = 0;
@@ -254,7 +261,10 @@ public class DuergarVillageStructure extends Structure {
 				dropped[i] = true;
 				continue;
 			}
-			int base = parent < 0 ? 0 : moves[parent];
+			int base = parent < 0 ? 0 : carried[parent];
+			int rise = parent < 0 ? 0 : turnStair(all, i, all.get(parent).getBoundingBox(), base, columns, templates);
+			// The near end of a turned stair is where its far end was, rise blocks higher or lower.
+			base -= rise;
 			int[][] samples = samples(box);
 			int[] found = new int[samples.length];
 			int count = 0;
@@ -266,6 +276,7 @@ public class DuergarVillageStructure extends Structure {
 			}
 			int wanted = count == 0 ? base : DuergarVillageLogic.median(Arrays.copyOf(found, count));
 			moves[i] = parent < 0 ? wanted : DuergarVillageLogic.step(wanted, base, maxStep);
+			carried[i] = moves[i] - rise;
 			int over = 0;
 			int under = 0;
 			for (int[] sample : samples) {
@@ -314,6 +325,46 @@ public class DuergarVillageStructure extends Structure {
 			}
 		}
 		return new Settled(pieces, moves[0]);
+	}
+
+	/**
+	 * Turns piece {@code index} round in place if it is a stair (two joins at different heights) that climbs away from
+	 * {@code parent} where the floor under it drops, or the other way round. Returns how many blocks it climbed away
+	 * from its parent before it was turned, or zero when it is left as it is.
+	 */
+	private static int turnStair(List<StructurePiece> pieces, int index, BoundingBox parent, int base, Columns columns,
+			StructureTemplateManager templates) {
+		if (!(pieces.get(index) instanceof PoolElementStructurePiece piece)) {
+			return 0;
+		}
+		List<StructureTemplate.JigsawBlockInfo> joins = piece.getElement().getShuffledJigsawBlocks(templates, piece.getPosition(),
+				piece.getRotation(), RandomSource.create(0));
+		if (joins.size() != 2 || joins.get(0).pos().getY() == joins.get(1).pos().getY()) {
+			return 0;
+		}
+		BoundingBox near = parent.inflatedBy(1);
+		BlockPos from = near.isInside(joins.get(0).pos()) ? joins.get(0).pos() : joins.get(1).pos();
+		BlockPos to = from == joins.get(0).pos() ? joins.get(1).pos() : joins.get(0).pos();
+		if (!near.isInside(from) || near.isInside(to)) {
+			return 0;
+		}
+		int fromFloor = DuergarVillageLogic.floorNear(columns.at(from.getX(), from.getZ()), from.getY() + base, SEARCH);
+		int toFloor = DuergarVillageLogic.floorNear(columns.at(to.getX(), to.getZ()), to.getY() + base, SEARCH);
+		int rise = to.getY() - from.getY();
+		if (fromFloor == DuergarVillageLogic.NONE || toFloor == DuergarVillageLogic.NONE
+				|| !DuergarVillageLogic.turnStair(rise, toFloor - fromFloor)) {
+			return 0;
+		}
+		// Half a turn swaps the two ends; the box is kept where it was.
+		BoundingBox box = piece.getBoundingBox();
+		Rotation turned = piece.getRotation().getRotated(Rotation.CLOCKWISE_180);
+		BoundingBox moved = piece.getElement().getBoundingBox(templates, piece.getPosition(), turned);
+		BlockPos position = piece.getPosition().offset(box.minX() - moved.minX(), 0, box.minZ() - moved.minZ());
+		PoolElementStructurePiece flipped = new PoolElementStructurePiece(templates, piece.getElement(), position,
+				piece.getGroundLevelDelta(), turned, box, LiquidSettings.IGNORE_WATERLOGGING);
+		piece.getJunctions().forEach(flipped::addJunction);
+		pieces.set(index, flipped);
+		return rise;
 	}
 
 	/** The pieces that stay, set down onto the floor, and how far the first one moved. */

@@ -83,4 +83,13 @@ public final class DuergarVillageLogic {
 	public static int step(int wanted, int parent, int maxStep) {
 		return Math.max(parent - maxStep, Math.min(parent + maxStep, wanted));
 	}
+
+	/**
+	 * Whether a stair piece should be turned round: it climbs {@code rise} blocks from the piece it joins to its far
+	 * end (less than zero when it goes down), while the floor under it climbs {@code slope} blocks over the same way.
+	 * A stair that climbs where the floor drops, or the other way round, is turned so it follows the floor.
+	 */
+	public static boolean turnStair(int rise, int slope) {
+		return rise != 0 && (long) rise * slope < 0;
+	}
 }

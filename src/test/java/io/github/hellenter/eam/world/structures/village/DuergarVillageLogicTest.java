@@ -65,4 +65,14 @@ class DuergarVillageLogicTest {
 		assertEquals(2, DuergarVillageLogic.step(2, 2, 1));
 		assertEquals(4, DuergarVillageLogic.median(new int[] {9, 4, 1, 4, 5}));
 	}
+
+	@Test
+	void turnsAStairThatGoesAgainstTheFloor() {
+		assertTrue(DuergarVillageLogic.turnStair(2, -3));
+		assertTrue(DuergarVillageLogic.turnStair(-2, 1));
+		assertFalse(DuergarVillageLogic.turnStair(2, 2));
+		assertFalse(DuergarVillageLogic.turnStair(-2, -1));
+		assertFalse(DuergarVillageLogic.turnStair(2, 0));
+		assertFalse(DuergarVillageLogic.turnStair(0, -4));
+	}
 }
