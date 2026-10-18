@@ -145,7 +145,7 @@ public class OutpostStructure extends Structure {
 			for (int z = fromZ; z <= toZ; z++) {
 				if (!OutpostLogic.inClearing(footprint.minX(), footprint.minZ(), footprint.maxX(), footprint.maxZ(), clearRadius, x, z)) continue;
 				boolean inFootprint = x >= footprint.minX() && x <= footprint.maxX() && z >= footprint.minZ() && z <= footprint.maxZ();
-				if (inFootprint) clearFootprintColumn(level, pos, x, z, outpost, footprint.minY() + OutpostPiece.GROUND);
+				if (inFootprint) clearFootprintColumn(level, pos, x, z, footprint.minY() + OutpostPiece.GROUND, footprint.maxY());
 				else clearColumn(level, pos, x, z);
 			}
 		}
@@ -171,14 +171,15 @@ public class OutpostStructure extends Structure {
 
 	/**
 	 * Removes the tree blocks of one column over the outpost down to its ground. A tree grown in a neighbouring chunk
-	 * after the outpost was placed puts its leaves and branches into the template's air, beside walls and under roofs,
-	 * so the whole height is searched, past the template's own blocks, and only the logs the template has stay.
+	 * after the outpost was placed puts its leaves into the template's air, beside walls and under roofs, so the whole
+	 * height is searched. Logs inside the template's box stay: the outpost is built of them, and trees from other chunks
+	 * only reach in with leaves.
 	 */
-	private static void clearFootprintColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z, OutpostPiece outpost, int ground) {
+	private static void clearFootprintColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z, int ground, int top) {
 		for (int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1; y >= ground; y--) {
 			pos.set(x, y, z);
 			BlockState state = level.getBlockState(pos);
-			if (isTreePart(state) && !(state.is(BlockTags.LOGS) && outpost.placesLog(pos))) {
+			if (isTreePart(state) && !(y <= top && state.is(BlockTags.LOGS))) {
 				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
 			}
 		}
