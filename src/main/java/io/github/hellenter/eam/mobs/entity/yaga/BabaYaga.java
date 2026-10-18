@@ -62,6 +62,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -77,10 +78,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import org.joml.Vector3f;
@@ -172,6 +175,10 @@ public class BabaYaga extends Monster {
 	private boolean diveLanded;
 	private float orbitAngle;
 	private int climbTicks;
+	/** Phase one: a flight path around whatever stands between her and where she flies, and when to plan it again. */
+	private @Nullable FlyingPathNavigation flightNavigation;
+	private @Nullable Path flightPath;
+	private int flightRepath;
 	private @Nullable Glyph lastGlyph;
 	private int pendingGlyph = -1;
 
@@ -360,8 +367,67 @@ public class BabaYaga extends Monster {
 		return false;
 	}
 
-	/** Flies towards {@code to} at up to {@code speed} blocks a tick. */
+	/**
+	 * Flies towards {@code to} at up to {@code speed} blocks a tick: straight while nothing is in the way, otherwise along
+	 * a flight path around it (out from under a roof, round a wall) rather than pushing into it.
+	 */
 	private void flyTowards(Vec3 to, double speed) {
+		Vec3 waypoint = null;
+		if (clearFlightTo(to)) {
+			// Plan afresh the next time something is in the way.
+			flightPath = null;
+			flightRepath = 0;
+		} else {
+			waypoint = flightWaypoint(to);
+		}
+		if (waypoint == null) {
+			flyStraight(to, speed);
+			return;
+		}
+		climbTicks = 0;
+		Vec3 delta = waypoint.subtract(position());
+		double length = delta.length();
+		setDeltaMovement(length > speed ? delta.scale(speed / length) : delta);
+	}
+
+	/** Whether her whole height has a clear line to {@code to}: feet, middle and head. */
+	private boolean clearFlightTo(Vec3 to) {
+		double height = getBbHeight();
+		for (double up : new double[] {0.1, height * 0.5, height - 0.1}) {
+			Vec3 from = position().add(0.0, up, 0.0);
+			if (level().clip(new ClipContext(from, to.add(0.0, up, 0.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
+					.getType() != HitResult.Type.MISS) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** The next point of a flight path to {@code to}, planned again every half second; null if no path is found. */
+	private @Nullable Vec3 flightWaypoint(Vec3 to) {
+		if (flightNavigation == null) {
+			flightNavigation = new FlyingPathNavigation(this, level());
+		}
+		if (--flightRepath <= 0) {
+			flightRepath = 10;
+			flightPath = flightNavigation.createPath(BlockPos.containing(to), 1);
+		}
+		if (flightPath == null || flightPath.isDone()) {
+			return null;
+		}
+		Vec3 next = flightPath.getNextEntityPos(this);
+		if (position().distanceToSqr(next) < 0.36) {
+			flightPath.advance();
+			if (flightPath.isDone()) {
+				return null;
+			}
+			next = flightPath.getNextEntityPos(this);
+		}
+		return next;
+	}
+
+	/** Straight at {@code to}; something low in the way, she goes up over it. */
+	private void flyStraight(Vec3 to, double speed) {
 		Vec3 delta = to.subtract(position());
 		double length = delta.length();
 		Vec3 velocity = length > speed ? delta.scale(speed / length) : delta;
