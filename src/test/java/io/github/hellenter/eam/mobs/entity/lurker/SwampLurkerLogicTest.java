@@ -65,4 +65,12 @@ class SwampLurkerLogicTest {
 		assertFalse(SwampLurkerLogic.emerges(4.0, true, S));
 		assertFalse(SwampLurkerLogic.emerges(6.0, false, S));
 	}
+
+	@Test
+	void stopsRisingOnlyPastItsHighestLeap() {
+		assertFalse(SwampLurkerLogic.risesTooHigh(5.5, 0.3, 5.0));
+		assertTrue(SwampLurkerLogic.risesTooHigh(6.5, 0.3, 5.0));
+		// Falling back already: left alone.
+		assertFalse(SwampLurkerLogic.risesTooHigh(9.0, -0.1, 5.0));
+	}
 }

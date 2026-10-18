@@ -1,10 +1,6 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
-      "additions": {
-        "sound": "eam:ambient.underworld.lake_caves.additions",
-        "tick_chance": 0.008
-      },
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
