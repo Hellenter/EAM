@@ -10,6 +10,9 @@
       "processor_type": "eam:empty_container_loot"
     },
     {
+      "processor_type": "eam:connect_fences"
+    },
+    {
       "processor_type": "minecraft:rule",
       "rules": [
         {

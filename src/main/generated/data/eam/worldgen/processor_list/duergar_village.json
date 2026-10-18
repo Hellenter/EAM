@@ -8,6 +8,9 @@
       "block": "minecraft:barrel",
       "loot_table": "eam:chests/light_potions",
       "processor_type": "eam:empty_container_loot"
+    },
+    {
+      "processor_type": "eam:connect_fences"
     }
   ]
 }
