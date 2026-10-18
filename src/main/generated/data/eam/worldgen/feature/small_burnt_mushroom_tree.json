@@ -1,0 +1,15 @@
+{
+  "type": "eam:giant_mushroom",
+  "cap": "eam:burnt_mushroom_cap",
+  "cap_radius": 1,
+  "height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
+  "light": "eam:smoldering_mushroom_cap",
+  "light_chance": 0.0,
+  "shape": "brown",
+  "stem": "eam:burnt_mushroom_stem",
+  "thick_above": 64
+}

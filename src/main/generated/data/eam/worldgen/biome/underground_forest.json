@@ -1,11 +1,6 @@
 {
   "attributes": {
     "minecraft:audio/ambient_sounds": {
-      "additions": {
-        "sound": "eam:ambient.underworld.underground_forest.additions",
-        "tick_chance": 0.008
-      },
-      "loop": "eam:ambient.underworld.underground_forest.loop",
       "mood": {
         "block_search_extent": 8,
         "offset": 2.0,
@@ -35,14 +30,6 @@
       },
       "modifier": "overlay"
     },
-    "minecraft:visual/ambient_particles": [
-      {
-        "particle": {
-          "type": "minecraft:glow"
-        },
-        "probability": 0.0015
-      }
-    ],
     "minecraft:visual/fog_color": "#122e28",
     "minecraft:visual/fog_end_distance": {
       "argument": 0.9,
@@ -85,6 +72,7 @@
       "eam:underworld/small_spruce",
       "eam:underworld/forest_moss",
       "eam:underworld/forest_plants",
+      "eam:underworld/forest_flowers",
       "eam:underworld/glowshroom_vines"
     ]
   ],

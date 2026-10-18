@@ -5,11 +5,15 @@
     "entries": [
       {
         "data": "minecraft:fern",
-        "weight": 8
+        "weight": 6
       },
       {
         "data": "minecraft:short_grass",
         "weight": 5
+      },
+      {
+        "data": "minecraft:tall_grass",
+        "weight": 7
       },
       {
         "data": "minecraft:large_fern",
@@ -17,7 +21,7 @@
       },
       {
         "data": "minecraft:moss_carpet",
-        "weight": 4
+        "weight": 3
       },
       {
         "data": "minecraft:sweet_berry_bush",
