@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.vanilla.villager;
 
+import io.github.hellenter.eam.Eam;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -152,7 +154,16 @@ public record EconomySettings(int periodTicks, double upkeep, double breedCost, 
 				"house_medium", new Order(Map.of(VillageResource.WOOD, 40.0, VillageResource.STONE, 20.0, VillageResource.METAL, 2.0,
 						VillageResource.MONEY, 8.0), houses("medium_house", Map.of("plains", 2, "desert", 2, "savanna", 2, "snowy", 3, "taiga", 4))),
 				"house_big", new Order(Map.of(VillageResource.WOOD, 64.0, VillageResource.STONE, 36.0, VillageResource.METAL, 4.0,
-						VillageResource.MONEY, 16.0), houses("big_house", Map.of("plains", 1))));
+						VillageResource.MONEY, 16.0), houses("big_house", Map.of("plains", 1))),
+				"wall", new Order(Map.of(VillageResource.WOOD, 16.0, VillageResource.STONE, 6.0), defense("wall")),
+				"gate", new Order(Map.of(VillageResource.WOOD, 18.0, VillageResource.STONE, 6.0, VillageResource.METAL, 1.0), defense("gate")),
+				"tower", new Order(Map.of(VillageResource.STONE, 48.0, VillageResource.WOOD, 12.0, VillageResource.METAL, 2.0,
+						VillageResource.MONEY, 4.0), defense("tower")));
+	}
+
+	/** Defences in the pillager outpost's style, the same in every village: {@code eam:village/<kind>}. */
+	private static Map<String, List<Identifier>> defense(String kind) {
+		return Map.of("default", List.of(Eam.id("village/" + kind)));
 	}
 
 	/**
