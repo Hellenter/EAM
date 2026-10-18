@@ -29,6 +29,21 @@ class ShieldWallLogicTest {
 	}
 
 	@Test
+	void stepsBackwardsAndSidewaysWithoutTurning() {
+		// Facing south (+z, yaw 0): a spot behind him is straight back, one to the east is to his left.
+		float[] back = LostLogic.stepInput(0.0F, 0.0, -2.0);
+		assertEquals(-1.0F, back[0], 1.0E-6F);
+		assertEquals(0.0F, back[1], 1.0E-6F);
+		float[] east = LostLogic.stepInput(0.0F, 0.5, 0.0);
+		assertEquals(0.0F, east[0], 1.0E-6F);
+		assertEquals(0.5F, east[1], 1.0E-6F);
+		// Facing east (+x, yaw -90): a spot to the west is behind him.
+		float[] west = LostLogic.stepInput(-90.0F, -3.0, 0.0);
+		assertEquals(-1.0F, west[0], 1.0E-6F);
+		assertEquals(0.0F, west[1], 1.0E-6F);
+	}
+
+	@Test
 	void rowHalfwayToACloseEnemy() {
 		double[][] spots = LostLogic.wallSpots(0.0, 0.0, 4.0, 0.0, new double[][] {{0.0, 0.0}}, 0.85, 3.0);
 		assertEquals(2.0, spots[0][0], 1.0E-9);
