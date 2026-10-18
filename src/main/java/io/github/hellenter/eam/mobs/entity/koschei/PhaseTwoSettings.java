@@ -203,7 +203,7 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param maxRange he shoots only at a target at most this far away
 	 */
 	public record Bolt(float damage, double speed, int cooldown, double maxRange) {
-		public static final Bolt DEFAULT = new Bolt(4.0F, 0.9, 30, 24.0);
+		public static final Bolt DEFAULT = new Bolt(4.0F, 0.45, 30, 24.0);
 
 		public static final Codec<Bolt> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Bolt::damage),
@@ -275,7 +275,7 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param healthMultiplier and have this share of a draugr's health
 	 */
 	public record Thralls(int cap, double speedMultiplier, double healthMultiplier) {
-		public static final Thralls DEFAULT = new Thralls(5, 1.75, 0.5);
+		public static final Thralls DEFAULT = new Thralls(5, 1.4, 0.5);
 
 		public static final Codec<Thralls> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 64).fieldOf("cap").orElse(DEFAULT.cap).forGetter(Thralls::cap),

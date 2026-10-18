@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
  * A raven of ice Koschei looses in his second phase: it leaves his hand at an angle and curves in after the target like the
  * undead warlock's missiles, and shatters on it, hurting it and slowing it a level more. A raised shield turned its way
  * takes it, except from the one with a dark heart, which knocks the shield out instead. An arrow or a blow brings one
- * down on its way. Never saved.
+ * down on its way. It flies over the ground and walls, never into them. Never saved.
  */
 public class KoscheiIceRaven extends Monster {
 	private static final EntityDataAccessor<Boolean> DATA_BREAKER = SynchedEntityData.defineId(KoscheiIceRaven.class,
@@ -107,6 +107,10 @@ public class KoscheiIceRaven extends Monster {
 		Vec3 v = getDeltaMovement();
 		double[] next = UndeadWarlockLogic.steer(v.x, v.y, v.z, to.x, to.y, to.z, settings.speed(), settings.turn());
 		setDeltaMovement(next[0], next[1], next[2]);
+		if (!level.noCollision(this, getBoundingBox().move(getDeltaMovement()).inflate(0.1))) {
+			// Never into the ground or a wall: it rises over them instead.
+			setDeltaMovement(next[0] * 0.6, Math.max(next[1], settings.speed() * 0.6), next[2] * 0.6);
+		}
 		face(getDeltaMovement());
 		if (getBoundingBox().inflate(REACH).intersects(target.getBoundingBox())) {
 			strike(level, target);
