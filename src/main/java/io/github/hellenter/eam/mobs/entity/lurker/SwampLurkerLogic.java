@@ -12,6 +12,8 @@ public final class SwampLurkerLogic {
 	private static final double MIN_ARC = 0.8;
 	/** Longest flight simulated, in ticks. */
 	private static final int MAX_TICKS = 80;
+	/** How far over its highest leap it may rise with nothing under it before it is made to fall. */
+	private static final double RISE_SLACK = 1.0;
 
 	public enum Move {
 		/** Three swipes at a target in reach. */
@@ -122,6 +124,18 @@ public final class SwampLurkerLogic {
 	/** The flat distance travelled in {@code ticks} from {@code horizontal} launch speed. */
 	static double flatRun(double horizontal, int ticks) {
 		return horizontal * (1.0 - Math.pow(AIR_DRAG, ticks)) / (1.0 - AIR_DRAG);
+	}
+
+	/**
+	 * Whether it is still going up with nothing carrying it, already higher above the last place it stood than its
+	 * highest leap: whatever pushed it there, it must fall back.
+	 *
+	 * @param rise          how far it is above the last place it stood, swam or climbed
+	 * @param verticalSpeed its speed upward
+	 * @param maxHeight     its highest leap
+	 */
+	public static boolean risesTooHigh(double rise, double verticalSpeed, double maxHeight) {
+		return verticalSpeed > 0.0 && rise > maxHeight + RISE_SLACK;
 	}
 
 	/** Whether a hidden lurker bursts out at a player this far away. */
