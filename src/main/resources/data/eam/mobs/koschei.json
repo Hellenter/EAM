@@ -121,5 +121,11 @@
     "cooldown": 400,
     "max_range": 16.0
   },
-  "mob_damage_multiplier": 4.0
+  "mob_damage_multiplier": 4.0,
+  "height": {
+    "above": 2.5,
+    "after": 30,
+    "spot_range": 3.0,
+    "force_rise": 10.0
+  }
 }

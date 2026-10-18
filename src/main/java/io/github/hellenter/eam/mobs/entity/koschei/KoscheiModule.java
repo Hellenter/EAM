@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.entity.koschei;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -35,6 +36,7 @@ public final class KoscheiModule {
 
 	public static void register() {
 		BossParry.register();
+		BossBuilding.register();
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI, Koschei.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.KOSCHEI_RAVEN, KoscheiRaven.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(KoscheiSettingsLoader.ID, new KoscheiSettingsLoader());

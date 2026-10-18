@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.king;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /**
@@ -23,14 +24,24 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param arrowParry  he knocks arrows from the front aside with an axe
  * @param dash        a few fast steps at the target
  * @param hop         a hop back from a player who crowds him, and a leap back when he loses health fast
- * @param mobDamageMultiplier his blows and thrown axes deal this many times their damage to anything but a player
+ * @param later       sections added after the top level filled up; their JSON keys stay at the top level
  */
 public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attackPause, double reach, Slash slash, Combo combo,
 		Onslaught onslaught, Tornado tornado, AxeThrow axeThrow, Boomerang boomerang, Charge charge, ArrowParry arrowParry, Dash dash,
-		Hop hop, float mobDamageMultiplier) {
+		Hop hop, Later later) {
 	public static final PillagerKingSettings DEFAULT = new PillagerKingSettings(Stats.DEFAULT, Run.DEFAULT, Totem.DEFAULT, 12, 3.33,
 			Slash.DEFAULT, Combo.DEFAULT, Onslaught.DEFAULT, Tornado.DEFAULT, AxeThrow.DEFAULT, Boomerang.DEFAULT, Charge.DEFAULT,
-			ArrowParry.DEFAULT, Dash.DEFAULT, Hop.DEFAULT, 5.0F);
+			ArrowParry.DEFAULT, Dash.DEFAULT, Hop.DEFAULT, Later.DEFAULT);
+
+	/** His blows and thrown axes deal this many times their damage to anything but a player. */
+	public float mobDamageMultiplier() {
+		return later.mobDamageMultiplier();
+	}
+
+	/** How he gets at a player who climbed out of his reach. */
+	public Height height() {
+		return later.height();
+	}
 
 	/**
 	 * @param health        his health
@@ -279,6 +290,52 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 		).apply(instance, Hop::new));
 	}
 
+	/**
+	 * @param mobDamageMultiplier his blows and thrown axes deal this many times their damage to anything but a player
+	 * @param height              how he gets at a player who climbed out of his reach
+	 */
+	public record Later(float mobDamageMultiplier, Height height) {
+		public static final Later DEFAULT = new Later(5.0F, Height.DEFAULT);
+
+		public static final MapCodec<Later> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier).forGetter(Later::mobDamageMultiplier),
+				Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(Later::height)
+		).apply(instance, Later::new));
+	}
+
+	/**
+	 * A player out of his reach above him, on a pillar or a ledge. Blocks the player put up by him he cuts down; up a
+	 * wall he climbs with his axes hooked in, and at the top cuts the player off it. The boomerang flies up at them too.
+	 *
+	 * @param above        the player's feet this much higher than his count as out of his reach
+	 * @param after        ticks out of reach above before he does something about it
+	 * @param climbMax     the highest he climbs, in blocks above where he started
+	 * @param climbSpeed   blocks a tick he climbs
+	 * @param climbCooldown ticks before he climbs again
+	 * @param topCutDamage the cut at the top of a climb
+	 * @param topCutPush   how hard it throws the player off
+	 * @param chopReach    he cuts down a pillar of placed blocks whose foot is at most this far from him, flat
+	 * @param chopCooldown ticks before he cuts at a pillar again
+	 * @param stunHit      a hit while he climbs knocks him down, dazed
+	 */
+	public record Height(double above, int after, int climbMax, double climbSpeed, int climbCooldown, float topCutDamage, double topCutPush,
+			double chopReach, int chopCooldown, boolean stunHit) {
+		public static final Height DEFAULT = new Height(2.5, 20, 8, 0.15, 80, 7.0F, 1.0, 3.0, 40, true);
+
+		public static final Codec<Height> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(1.0, 64.0).fieldOf("above").orElse(DEFAULT.above).forGetter(Height::above),
+				Codec.intRange(0, 2400).fieldOf("after").orElse(DEFAULT.after).forGetter(Height::after),
+				Codec.intRange(0, 64).fieldOf("climb_max").orElse(DEFAULT.climbMax).forGetter(Height::climbMax),
+				Codec.doubleRange(0.01, 1.0).fieldOf("climb_speed").orElse(DEFAULT.climbSpeed).forGetter(Height::climbSpeed),
+				Codec.intRange(0, 2400).fieldOf("climb_cooldown").orElse(DEFAULT.climbCooldown).forGetter(Height::climbCooldown),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("top_cut_damage").orElse(DEFAULT.topCutDamage).forGetter(Height::topCutDamage),
+				Codec.doubleRange(0.0, 4.0).fieldOf("top_cut_push").orElse(DEFAULT.topCutPush).forGetter(Height::topCutPush),
+				Codec.doubleRange(0.0, 8.0).fieldOf("chop_reach").orElse(DEFAULT.chopReach).forGetter(Height::chopReach),
+				Codec.intRange(0, 2400).fieldOf("chop_cooldown").orElse(DEFAULT.chopCooldown).forGetter(Height::chopCooldown),
+				Codec.BOOL.fieldOf("stun_hit").orElse(DEFAULT.stunHit).forGetter(Height::stunHit)
+		).apply(instance, Height::new));
+	}
+
 	public static final Codec<PillagerKingSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(PillagerKingSettings::stats),
 			Run.CODEC.fieldOf("run").orElse(DEFAULT.run).forGetter(PillagerKingSettings::run),
@@ -295,7 +352,6 @@ public record PillagerKingSettings(Stats stats, Run run, Totem totem, int attack
 			ArrowParry.CODEC.fieldOf("arrow_parry").orElse(DEFAULT.arrowParry).forGetter(PillagerKingSettings::arrowParry),
 			Dash.CODEC.fieldOf("dash").orElse(DEFAULT.dash).forGetter(PillagerKingSettings::dash),
 			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(PillagerKingSettings::hop),
-			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
-					.forGetter(PillagerKingSettings::mobDamageMultiplier)
+			Later.MAP_CODEC.forGetter(PillagerKingSettings::later)
 	).apply(instance, PillagerKingSettings::new));
 }

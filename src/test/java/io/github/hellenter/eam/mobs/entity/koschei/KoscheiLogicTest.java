@@ -190,4 +190,16 @@ class KoscheiLogicTest {
 		assertNull(KoscheiLogic.answerRetreat(8.0, true, 0, true, bolt));
 		assertNull(KoscheiLogic.answerRetreat(bolt.minRange() - 0.5, true, 0, false, bolt));
 	}
+
+	@Test
+	void aTargetUpOnAPillarFindsHimByItElseIsThrownOffElseGetsTheBolt() {
+		KoscheiSettings.Height height = KoscheiSettings.DEFAULT.height();
+		assertFalse(KoscheiLogic.outOfReachAbove(2.0, 100, height));
+		assertTrue(KoscheiLogic.outOfReachAbove(4.0, height.after(), height));
+		assertEquals(KoscheiLogic.HeightAnswer.TELEPORT, KoscheiLogic.answerHeight(true, true, true, true, true, true));
+		// Alone on a one-block pillar: no room to stand by it.
+		assertEquals(KoscheiLogic.HeightAnswer.FORCE, KoscheiLogic.answerHeight(true, false, true, true, true, true));
+		assertEquals(KoscheiLogic.HeightAnswer.BOLT, KoscheiLogic.answerHeight(true, false, true, false, true, true));
+		assertNull(KoscheiLogic.answerHeight(false, true, false, true, true, false));
+	}
 }

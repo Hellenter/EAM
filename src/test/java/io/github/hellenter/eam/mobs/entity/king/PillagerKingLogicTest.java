@@ -139,4 +139,24 @@ class PillagerKingLogicTest {
 		assertFalse(PillagerKingLogic.burstLeap(25.0F, 100.0F, 0.25F));
 		assertTrue(PillagerKingLogic.burstLeap(25.5F, 100.0F, 0.25F));
 	}
+
+	@Test
+	void aTargetUpOnAPillarGetsItCutDownThenTheBoomerangThenAClimb() {
+		PillagerKingSettings.Height height = SETTINGS.height();
+		assertFalse(PillagerKingLogic.outOfReachAbove(2.5, 100, height));
+		assertFalse(PillagerKingLogic.outOfReachAbove(4.0, height.after() - 1, height));
+		assertTrue(PillagerKingLogic.outOfReachAbove(4.0, height.after(), height));
+		assertEquals(PillagerKingLogic.HeightAnswer.CHOP,
+				PillagerKingLogic.answerHeight(true, 1.0, true, true, true, 4.0, true, true, SETTINGS));
+		// A natural ledge, or the pillar's foot out of reach: the boomerang up at them.
+		assertEquals(PillagerKingLogic.HeightAnswer.BOOMERANG,
+				PillagerKingLogic.answerHeight(false, 1.0, true, true, true, 4.0, true, true, SETTINGS));
+		assertEquals(PillagerKingLogic.HeightAnswer.BOOMERANG,
+				PillagerKingLogic.answerHeight(true, height.chopReach() + 1.0, true, true, true, 6.0, true, true, SETTINGS));
+		// Boomerang away or out of sight: up the wall he stands at.
+		assertEquals(PillagerKingLogic.HeightAnswer.CLIMB,
+				PillagerKingLogic.answerHeight(false, 1.0, true, false, true, 4.0, true, true, SETTINGS));
+		assertNull(PillagerKingLogic.answerHeight(false, 1.0, true, false, false, 4.0, true, false, SETTINGS));
+		assertNull(PillagerKingLogic.answerHeight(false, 1.0, true, true, true, SETTINGS.boomerang().maxRange() + 1.0, false, true, SETTINGS));
+	}
 }

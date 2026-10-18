@@ -2,7 +2,9 @@ package io.github.hellenter.eam.mobs.entity.king;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.DizzyStars;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
@@ -11,6 +13,8 @@ import io.github.hellenter.eam.mobs.entity.king.PillagerKingLogic.Attack;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -76,7 +80,7 @@ import java.util.Arrays;
  * and runs after one he could not reach for a while. A totem of undying saves him once. Numbers are in
  * {@code data/eam/mobs/pillager_king.json}.
  */
-public class PillagerKing extends Monster implements AxeThrower {
+public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(PillagerKing.class, EntityDataSerializers.BYTE);
 	private static final Identifier RUN_MODIFIER = Eam.id("pillager_king_run");
 	/** Slower after the first cut of a charge, to the end of it. */
@@ -118,6 +122,15 @@ public class PillagerKing extends Monster implements AxeThrower {
 	private @Nullable Vec3 leapFrom;
 	/** Ticks his target has stayed out of his reach. */
 	private int outOfReach;
+	/** Ticks his target has stood out of his reach above him, on a pillar or a ledge. */
+	private int highTicks;
+	private int climbCooldown;
+	private int chopCooldown;
+	/** Where a climb started, and which way the wall is. */
+	private double climbFrom;
+	private Vec3 climbDirection = Vec3.ZERO;
+	/** He came off a wall he climbed: no fall damage on landing. */
+	private boolean fellFromClimb;
 	/** Whether he has already decided how to reach the coming hit. */
 	private boolean hitChecked;
 	/** His axe knocked the target's shield out: the next attack starts at once. */
@@ -271,6 +284,156 @@ public class PillagerKing extends Monster implements AxeThrower {
 		return followUp;
 	}
 
+	// ---- A target above him ----
+
+	/**
+	 * A target that has stood out of his reach above him for a while: cuts its pillar of placed blocks down, throws the
+	 * boomerang up at it or climbs the wall in front of him. True if he started one of them.
+	 */
+	boolean answerHeight(LivingEntity target) {
+		PillagerKingSettings settings = settings();
+		PillagerKingSettings.Height height = settings.height();
+		if (!readyToAttack() || !PillagerKingLogic.outOfReachAbove(target.getY() - getY(), highTicks, height)) {
+			return false;
+		}
+		PillagerKingLogic.HeightAnswer answer = PillagerKingLogic.answerHeight(BossBuilding.anyPlacedIn(level(), pillarFoot(target)),
+				horizontalDistanceTo(target), chopCooldown <= 0, cooldowns[Attack.BOOMERANG.ordinal()] <= 0 && axeAway < 0,
+				hasLineOfSight(target), distanceTo(target), climbCooldown <= 0 && onGround(), wallAhead(towards(target)), settings);
+		if (answer == null) {
+			return false;
+		}
+		getMoveControl().strafe(0.0F, 0.0F);
+		switch (answer) {
+			case CHOP -> {
+				chopCooldown = height.chopCooldown();
+				actionTarget = target;
+				setAction(KingAction.CHOP);
+			}
+			case BOOMERANG -> startAttack(Attack.BOOMERANG, target);
+			case CLIMB -> {
+				climbCooldown = height.climbCooldown();
+				climbFrom = getY();
+				climbDirection = towards(target);
+				actionTarget = target;
+				setAction(KingAction.CLIMB);
+			}
+		}
+		return true;
+	}
+
+	/** Where the foot of the target's pillar would be: under it and a block round, from his feet up to his chest. */
+	private AABB pillarFoot(LivingEntity target) {
+		AABB under = target.getBoundingBox();
+		return new AABB(under.minX - 1.0, getY(), under.minZ - 1.0, under.maxX + 1.0, Math.min(getY() + 2.0, target.getY()), under.maxZ + 1.0);
+	}
+
+	/** Whether a block stands against him on the side {@code direction} points to, above a step. */
+	private boolean wallAhead(Vec3 direction) {
+		if (direction == Vec3.ZERO) {
+			return false;
+		}
+		AABB box = getBoundingBox().move(direction.x * 0.3, 0.0, direction.z * 0.3);
+		box = new AABB(box.minX, box.minY + 1.1, box.minZ, box.maxX, box.maxY - 0.2, box.maxZ);
+		return !level().noBlockCollision(this, box);
+	}
+
+	private Vec3 towards(LivingEntity target) {
+		return horizontal(target.position().subtract(position()));
+	}
+
+	/**
+	 * Up the wall with his axes hooked in, pressed to it. Over its top he cuts at the target if it is in reach, else steps
+	 * onto it; past {@code climb_max} he lets go.
+	 */
+	private void tickClimb(ServerLevel level, int t, LivingEntity target, PillagerKingSettings settings) {
+		PillagerKingSettings.Height height = settings.height();
+		Vec3 toTarget = towards(target);
+		if (toTarget != Vec3.ZERO) {
+			climbDirection = toTarget;
+		}
+		fallDistance = 0.0;
+		if (getY() - climbFrom > height.climbMax()) {
+			letGo();
+			return;
+		}
+		if (wallAhead(climbDirection)) {
+			setDeltaMovement(climbDirection.x * 0.05, height.climbSpeed(), climbDirection.z * 0.05);
+			if (t % 6 == 0) {
+				// An axe biting into the wall, right and left in turn.
+				playSound(SoundEvents.AXE_STRIP.value(), 1.0F, t % 12 == 0 ? 0.6F : 0.7F);
+				BlockPos wall = BlockPos.containing(position().add(climbDirection.scale(getBbWidth() * 0.5 + 0.3)).add(0.0, getBbHeight() * 0.8, 0.0));
+				level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(wall)), wall.getX() + 0.5,
+						wall.getY() + 0.5, wall.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.1);
+			}
+			return;
+		}
+		if (t < 3) {
+			// Nothing to climb after all.
+			endAction();
+			return;
+		}
+		// Over the top.
+		setDeltaMovement(climbDirection.x * 0.25, 0.3, climbDirection.z * 0.25);
+		if (horizontalDistanceTo(target) <= settings.reach() + 0.5 && Math.abs(target.getY() - getY()) < 2.5) {
+			LivingEntity cut = target;
+			setAction(KingAction.TOP_CUT);
+			actionTarget = cut;
+		} else {
+			endAction();
+		}
+	}
+
+	/** Comes off the wall he climbs. */
+	private void letGo() {
+		setDeltaMovement(-climbDirection.x * 0.2, 0.0, -climbDirection.z * 0.2);
+		endAction();
+	}
+
+	/** The cut at the top of a climb: it throws the target off its ledge. */
+	private void tickTopCut(ServerLevel level, int t, LivingEntity target, PillagerKingSettings settings) {
+		if (t < KingAction.TOP_CUT_HIT) {
+			setDeltaMovement(climbDirection.x * 0.15, getDeltaMovement().y, climbDirection.z * 0.15);
+			return;
+		}
+		if (t != KingAction.TOP_CUT_HIT) {
+			return;
+		}
+		PillagerKingSettings.Height height = settings.height();
+		playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.7F);
+		if (horizontalDistanceTo(target) <= settings.reach() + 0.8 && Math.abs(target.getY() - getY()) < 2.5 && hasLineOfSight(target)) {
+			target.damageCooldownTime = 0;
+			strike(level, target, damageSources().mobAttack(this), height.topCutDamage(), 0.0F);
+			Vec3 away = towards(target);
+			target.push(away.x * height.topCutPush(), 0.35, away.z * height.topCutPush());
+			target.syncVelocity = true;
+			target.needsSync = true;
+		}
+	}
+
+	/** Both axes swung low into the foot of the target's pillar: the placed blocks there break, and what stood on them falls. */
+	private void tickChop(ServerLevel level, int t, LivingEntity target) {
+		if (t < KingAction.CHOP_HIT && horizontalDistanceTo(target) > 1.6) {
+			Vec3 to = towards(target);
+			setDeltaMovement(to.x * 0.15, getDeltaMovement().y, to.z * 0.15);
+		}
+		if (t != KingAction.CHOP_HIT) {
+			return;
+		}
+		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.6F);
+		if (BossBuilding.breakPlacedIn(level, pillarFoot(target), this, true) > 0) {
+			level.playSound(null, getX(), getY(), getZ(), SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, getSoundSource(), 1.0F, 0.7F);
+		}
+	}
+
+	@Override
+	public boolean causeFallDamage(double fallDistance, float damageModifier, DamageSource source) {
+		if (fellFromClimb) {
+			fellFromClimb = false;
+			return false;
+		}
+		return super.causeFallDamage(fallDistance, damageModifier, source);
+	}
+
 	boolean isDashing() {
 		return dashTicks > 0;
 	}
@@ -285,6 +448,12 @@ public class PillagerKing extends Monster implements AxeThrower {
 		}
 		if (dashCooldown > 0) dashCooldown--;
 		if (hopCooldown > 0) hopCooldown--;
+		if (climbCooldown > 0) climbCooldown--;
+		if (chopCooldown > 0) chopCooldown--;
+		if (fellFromClimb && onGround() && action != KingAction.CLIMB) {
+			// Down safe: the next fall hurts again.
+			fellFromClimb = false;
+		}
 		if (leapFrom != null) {
 			leapBack(leapFrom);
 			leapFrom = null;
@@ -298,6 +467,7 @@ public class PillagerKing extends Monster implements AxeThrower {
 		} else {
 			outOfReach = 0;
 		}
+		highTicks = target != null && target.isAlive() && target.getY() - getY() > settings().height().above() ? highTicks + 1 : 0;
 		updateRunning();
 		if (target == null && tickCount % 20 == 0 && getHealth() < getMaxHealth()) {
 			heal(settings().stats().regen());
@@ -371,6 +541,10 @@ public class PillagerKing extends Monster implements AxeThrower {
 		if (speed != null && speed.hasModifier(CHARGE_SLOW_MODIFIER)) {
 			speed.removeModifier(CHARGE_SLOW_MODIFIER);
 		}
+		if (action == KingAction.CLIMB && next != KingAction.CLIMB) {
+			// Off the wall, however it ended: no fall damage on landing.
+			fellFromClimb = true;
+		}
 		action = next;
 		actionTicks = 0;
 		entityData.set(DATA_ACTION, (byte) next.ordinal());
@@ -440,6 +614,9 @@ public class PillagerKing extends Monster implements AxeThrower {
 					throwBoomerang(level, target, settings.boomerang());
 				}
 			}
+			case CLIMB -> tickClimb(level, t, target, settings);
+			case TOP_CUT -> tickTopCut(level, t, target, settings);
+			case CHOP -> tickChop(level, t, target);
 			default -> {
 			}
 		}
@@ -504,8 +681,10 @@ public class PillagerKing extends Monster implements AxeThrower {
 			return;
 		}
 		if (t > 0 && hitWall()) {
-			stun(level);
-			return;
+			if (!smashPlacedWall(level)) {
+				stun(level);
+				return;
+			}
 		}
 		if (horizontalDistanceTo(target) > CHARGE_CONTACT) {
 			Vec3 to = horizontal(target.position().subtract(position()));
@@ -527,13 +706,32 @@ public class PillagerKing extends Monster implements AxeThrower {
 		if (!horizontalCollision) {
 			return false;
 		}
+		return !level().noBlockCollision(this, wallProbe());
+	}
+
+	/** The space just ahead of his run, from above his knees to below his crown. */
+	private AABB wallProbe() {
 		Vec3 ahead = horizontal(getDeltaMovement());
 		if (ahead.lengthSqr() < 1.0E-4) {
 			ahead = horizontal(Vec3.directionFromRotation(0.0F, getYRot()));
 		}
 		AABB box = getBoundingBox().move(ahead.x * WALL_PROBE, 0.0, ahead.z * WALL_PROBE);
-		box = new AABB(box.minX, box.minY + 1.0, box.minZ, box.maxX, box.maxY - 0.2, box.maxZ);
-		return !level().noBlockCollision(this, box);
+		return new AABB(box.minX, box.minY + 1.0, box.minZ, box.maxX, box.maxY - 0.2, box.maxZ);
+	}
+
+	/**
+	 * The wall his charge ran into was put up by players around him: he smashes through it and runs on, slowed. False
+	 * for any other wall.
+	 */
+	private boolean smashPlacedWall(ServerLevel level) {
+		AABB ahead = wallProbe();
+		if (!BossBuilding.mayBreak(level) || !BossBuilding.onlyPlacedIn(level, ahead)) {
+			return false;
+		}
+		BossBuilding.breakPlacedIn(level, ahead, this, false);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, getSoundSource(), 1.2F, 0.7F);
+		setDeltaMovement(getDeltaMovement().multiply(0.6, 1.0, 0.6));
+		return true;
 	}
 
 	/** He slammed into a wall: a thud, sparks off his helm, and he stands dazed for a moment. */
@@ -869,6 +1067,13 @@ public class PillagerKing extends Monster implements AxeThrower {
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (parry && hurt && isAlive() && action != KingAction.TOTEM) {
 			parried(level, (Player) source.getEntity());
+		} else if (hurt && isAlive() && action == KingAction.CLIMB && settings().height().stunHit()) {
+			// Hit on the wall: he comes off it and lands dazed.
+			LivingEntity target = actionTarget;
+			Vec3 away = climbDirection.scale(-0.2);
+			stun(level);
+			actionTarget = target;
+			setDeltaMovement(away.x, getDeltaMovement().y, away.z);
 		}
 		return hurt;
 	}
@@ -1034,5 +1239,10 @@ public class PillagerKing extends Monster implements AxeThrower {
 	@Override
 	public float getVoicePitch() {
 		return super.getVoicePitch() * 0.7F;
+	}
+
+	@Override
+	public boolean isFighting() {
+		return getTarget() != null && getTarget().isAlive();
 	}
 }

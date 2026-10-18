@@ -3,7 +3,9 @@ package io.github.hellenter.eam.mobs.entity.koschei;
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
@@ -87,7 +89,7 @@ import java.util.UUID;
  * target, and he hops aside and back. Phases two and three are not built yet: for now he dies at the end of the first.
  * Numbers are in {@code data/eam/mobs/koschei.json}.
  */
-public class Koschei extends Monster {
+public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
 	/** The phase he fights in, from 1. */
 	private static final EntityDataAccessor<Byte> DATA_PHASE = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
@@ -164,6 +166,10 @@ public class Koschei extends Monster {
 	/** Hits a player landed on him while he raised the overhead blow under way. */
 	private int windupHits;
 	private int teleportCooldown;
+	/** Ticks his target has stood out of his reach above him, on a pillar or a ledge. */
+	private int highTicks;
+	/** Where the teleport under way takes him: room by a target above him, or null to stand behind it. */
+	private @Nullable Vec3 teleportSpot;
 	/** The phantom ravens he called up that are still about. */
 	private final List<KoscheiRaven> flock = new ArrayList<>();
 	/** Damage he took lately: when and how much, oldest first. */
@@ -415,6 +421,8 @@ public class Koschei extends Monster {
 			closeParry();
 		}
 		if (teleportCooldown > 0) teleportCooldown--;
+		LivingEntity current = getTarget();
+		highTicks = current != null && current.isAlive() && current.getY() - getY() > settings().height().above() ? highTicks + 1 : 0;
 		flock.removeIf(raven -> !raven.isAlive());
 		if (!flock.isEmpty()) {
 			// No new flock while one is about: the cooldown counts from when the last of it is gone.
@@ -602,7 +610,15 @@ public class Koschei extends Monster {
 				if (t == 0) {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.6F);
 				} else if (t == action.length() - 1 && target != null) {
-					teleportBehind(level, target, settings().teleport());
+					// Looked for again: the target may have come down or moved on up there meanwhile.
+					Vec3 spot = teleportSpot != null && target.getY() - getY() > settings().height().above()
+							? roomBy(level, target, settings().height().spotRange()) : null;
+					if (spot != null) {
+						teleportTo(level, spot, target);
+					} else {
+						teleportBehind(level, target, settings().teleport());
+					}
+					teleportSpot = null;
 				}
 			}
 			case SUMMON -> {
@@ -790,7 +806,8 @@ public class Koschei extends Monster {
 					.normalize().scale(0.6 + random.nextDouble() * 0.5);
 			level.sendParticles(EamParticles.KOSCHEI_FORCE, hand.x, hand.y, hand.z, 0, dir.x, dir.y, dir.z, 1.0);
 		}
-		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(force.range() + FORCE_AIMED_SLACK, 2.5, force.range() + FORCE_AIMED_SLACK),
+		double rise = Math.max(2.5, settings().height().forceRise());
+		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(force.range() + FORCE_AIMED_SLACK, rise, force.range() + FORCE_AIMED_SLACK),
 				e -> e != this && e.isAlive() && !(e instanceof ArmorStand) && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(e))) {
 			Vec3 to = victim.position().subtract(position());
 			Vec3 flat = horizontal(to);
@@ -798,8 +815,12 @@ public class Koschei extends Monster {
 				flat = facing;
 			}
 			// The one he casts at is caught unless a wall is between them, even a few steps out of range; others in front of him too.
-			boolean aimed = victim == target && horizontalDistanceTo(victim) <= force.range() + FORCE_AIMED_SLACK;
-			boolean inCone = horizontalDistanceTo(victim) <= force.range() + victim.getBbWidth() * 0.5 && flat.dot(facing) >= 0.4;
+			double up = victim.getY() - getY();
+			boolean aimed = victim == target && horizontalDistanceTo(victim) <= force.range() + FORCE_AIMED_SLACK && up > -2.5
+					&& up <= rise;
+			// Up on a pillar too: the one he casts at is thrown off it.
+			boolean inCone = horizontalDistanceTo(victim) <= force.range() + victim.getBbWidth() * 0.5 && flat.dot(facing) >= 0.4
+					&& Math.abs(victim.getY() - getY()) < 2.5;
 			if (!(aimed || inCone) || !hasLineOfSight(victim)) {
 				continue;
 			}
@@ -929,8 +950,60 @@ public class Koschei extends Monster {
 
 	void startTeleport(LivingEntity target) {
 		teleportCooldown = settings().teleport().cooldown();
+		teleportSpot = null;
 		actionTarget = target;
 		setAction(KoscheiAction.TELEPORT);
+	}
+
+	/**
+	 * A target that has stood out of his reach above him for a while: he vanishes and stands by it if there is room up
+	 * there, throws it off with the burst of force, or holds it in the bolt. True if he started one of them.
+	 */
+	boolean answerHeight(LivingEntity target) {
+		KoscheiSettings settings = settings();
+		KoscheiSettings.Height height = settings.height();
+		double rise = target.getY() - getY();
+		if (!readyToAttack() || !KoscheiLogic.outOfReachAbove(rise, highTicks, height) || !(level() instanceof ServerLevel level)) {
+			return false;
+		}
+		Vec3 spot = teleportReady() ? roomBy(level, target, height.spotRange()) : null;
+		boolean sees = hasLineOfSight(target);
+		boolean forceReaches = sees && rise <= height.forceRise() && horizontalDistanceTo(target) <= phaseOne().force().range() + FORCE_AIMED_SLACK;
+		KoscheiLogic.HeightAnswer answer = KoscheiLogic.answerHeight(teleportReady(), spot != null, cooldowns[Attack.FORCE.ordinal()] <= 0,
+				forceReaches, cooldowns[Attack.BOLT.ordinal()] <= 0 && !boltBlocked(target), sees && holdsBolt(target, phaseOne().bolt()));
+		if (answer == null) {
+			return false;
+		}
+		getMoveControl().strafe(0.0F, 0.0F);
+		switch (answer) {
+			case TELEPORT -> {
+				startTeleport(target);
+				teleportSpot = spot;
+			}
+			case FORCE -> startAttack(Attack.FORCE, target);
+			case BOLT -> startAttack(Attack.BOLT, target);
+		}
+		return true;
+	}
+
+	/** Room for him to stand by {@code target} at its height, nearest first, on any side; null when it stands alone up there. */
+	private @Nullable Vec3 roomBy(ServerLevel level, LivingEntity target, double range) {
+		for (double distance = 1.2; distance <= range; distance += 0.6) {
+			for (int i = 0; i < 12; i++) {
+				Vec3 dir = Vec3.directionFromRotation(0.0F, target.getYRot() + 180.0F + i * 30.0F);
+				Vec3 at = target.position().add(dir.scale(distance));
+				BlockPos feet = BlockPos.containing(at.x, target.getY() + 0.5, at.z);
+				if (!level.getBlockState(feet.below()).isFaceSturdy(level, feet.below(), Direction.UP)) {
+					continue;
+				}
+				Vec3 spot = new Vec3(at.x, feet.getY(), at.z);
+				AABB box = getDimensions(getPose()).makeBoundingBox(spot);
+				if (level.noCollision(this, box) && !level.containsAnyLiquid(box)) {
+					return spot;
+				}
+			}
+		}
+		return null;
 	}
 
 	/** Vanishes, leaving a cloud of purple and blue motes, and stands behind the target, facing it. */
@@ -942,17 +1015,23 @@ public class Koschei extends Monster {
 			if (spot == null) {
 				continue;
 			}
-			warpCloud(level, from, 1.0);
-			ravens(level, from);
-			level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.0F, 0.6F);
-			teleportTo(spot.x, spot.y, spot.z);
-			getNavigation().stop();
-			faceTowards(target);
-			setYHeadRot(getYRot());
-			warpCloud(level, spot, 0.4);
-			level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.7F);
+			teleportTo(level, spot, target);
 			return;
 		}
+	}
+
+	/** Vanishes where he stands in a burst of ravens and stands at {@code spot}, facing {@code target}. */
+	private void teleportTo(ServerLevel level, Vec3 spot, LivingEntity target) {
+		Vec3 from = position();
+		warpCloud(level, from, 1.0);
+		ravens(level, from);
+		level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.0F, 0.6F);
+		teleportTo(spot.x, spot.y, spot.z);
+		getNavigation().stop();
+		faceTowards(target);
+		setYHeadRot(getYRot());
+		warpCloud(level, spot, 0.4);
+		level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.5F, 0.7F);
 	}
 
 	/** A flock of ravens bursting out of where he stood, every way and upwards, with a few black feathers left drifting down. */
@@ -1451,5 +1530,10 @@ public class Koschei extends Monster {
 	@Override
 	public float getVoicePitch() {
 		return super.getVoicePitch() * 0.7F;
+	}
+
+	@Override
+	public boolean isFighting() {
+		return getTarget() != null && getTarget().isAlive();
 	}
 }

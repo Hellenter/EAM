@@ -195,6 +195,43 @@ public abstract class PillagerKingModel extends HumanoidModel<PillagerKingRender
 				rightArm.zRot = Mth.lerp(up, restRz, 0.6F);
 				head.xRot = Mth.lerp(up, head.xRot, -0.5F);
 			}
+			case CLIMB -> {
+				// Pressed to the wall, the axes hooked in over his head in turn, knees pulling up under him.
+				float pull = Mth.sin(t * Mth.PI / 6.0F);
+				rightArm.xRot = -2.7F + 0.45F * pull;
+				leftArm.xRot = -2.7F - 0.45F * pull;
+				rightForearm.xRot = -0.5F + 0.3F * pull;
+				leftForearm.xRot = -0.5F - 0.3F * pull;
+				body.xRot = 0.15F;
+				head.xRot -= 0.5F;
+				bendLeg(rightLeg, rightShin, 1.0F, -0.6F - 0.4F * pull, 0.9F + 0.4F * pull);
+				bendLeg(leftLeg, leftShin, 1.0F, -0.6F + 0.4F * pull, 0.9F - 0.4F * pull);
+			}
+			case TOP_CUT -> {
+				// Up over the edge with the right axe high, then one wide cut across.
+				float[] times = {0, 4, 6, 9, 14};
+				rightArm.xRot = keys(t, times, new float[] {-2.7F, -2.9F, -0.4F, -0.4F, restR});
+				rightArm.yRot = keys(t, times, new float[] {0.0F, -0.4F, 0.6F, 0.4F, 0.0F});
+				rightForearm.xRot = keys(t, times, new float[] {-0.5F, -1.2F, -0.1F, -0.2F, restFr});
+				leftArm.xRot = keys(t, times, new float[] {-2.7F, -1.6F, -0.8F, -0.6F, restL});
+				body.yRot = keys(t, times, new float[] {0.0F, -0.3F, 0.4F, 0.3F, 0.0F});
+			}
+			case CHOP -> {
+				// Both axes drawn back low to one side, then swung flat into the foot of the pillar.
+				float[] times = {0, 7, 10, 13, 18};
+				float swing = keys(t, times, new float[] {0.0F, -1.0F, 1.0F, 0.8F, 0.0F});
+				float low = keys(t, times, new float[] {0.0F, 1.0F, 1.0F, 1.0F, 0.0F});
+				rightArm.xRot = Mth.lerp(low, restR, -1.0F);
+				leftArm.xRot = Mth.lerp(low, restL, -1.0F);
+				rightForearm.xRot = Mth.lerp(low, restFr, -0.2F);
+				leftForearm.xRot = Mth.lerp(low, restFl, -0.2F);
+				body.yRot = 0.6F * swing;
+				rightArm.yRot = body.yRot;
+				leftArm.yRot = body.yRot;
+				body.xRot = 0.35F * low;
+				bendLeg(rightLeg, rightShin, low, -0.5F, 0.8F);
+				bendLeg(leftLeg, leftShin, low, 0.2F, 0.5F);
+			}
 			case NONE -> {
 			}
 		}

@@ -14,10 +14,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param hop                 short hops aside or back, and a leap back when he loses health fast
  * @param ravens              the flock of phantom ravens he calls up now and then
  * @param mobDamageMultiplier his blows deal this many times their damage to anything but a player
+ * @param height              how he gets at a player who climbed out of his reach above him
  */
-public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier) {
+public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier,
+		Height height) {
 	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
-			4.0F);
+			4.0F, Height.DEFAULT);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
@@ -26,8 +28,29 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 			Hop.CODEC.fieldOf("hop").orElse(DEFAULT.hop).forGetter(KoscheiSettings::hop),
 			Ravens.CODEC.fieldOf("ravens").orElse(DEFAULT.ravens).forGetter(KoscheiSettings::ravens),
 			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
-					.forGetter(KoscheiSettings::mobDamageMultiplier)
+					.forGetter(KoscheiSettings::mobDamageMultiplier),
+			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height)
 	).apply(instance, KoscheiSettings::new));
+
+	/**
+	 * A player out of his reach above him, on a pillar or a ledge: he stands by them up there if there is room, else
+	 * throws them off with the burst of force, else holds them in the bolt.
+	 *
+	 * @param above      the player's feet this much higher than his count as out of his reach
+	 * @param after      ticks out of reach above before he does something about it
+	 * @param spotRange  he looks for room to stand this far round the player, at the player's height
+	 * @param forceRise  the burst of force reaches a player at most this much higher than him
+	 */
+	public record Height(double above, int after, double spotRange, double forceRise) {
+		public static final Height DEFAULT = new Height(2.5, 30, 3.0, 10.0);
+
+		public static final Codec<Height> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(1.0, 64.0).fieldOf("above").orElse(DEFAULT.above).forGetter(Height::above),
+				Codec.intRange(0, 2400).fieldOf("after").orElse(DEFAULT.after).forGetter(Height::after),
+				Codec.doubleRange(1.0, 8.0).fieldOf("spot_range").orElse(DEFAULT.spotRange).forGetter(Height::spotRange),
+				Codec.doubleRange(0.0, 32.0).fieldOf("force_rise").orElse(DEFAULT.forceRise).forGetter(Height::forceRise)
+		).apply(instance, Height::new));
+	}
 
 	/**
 	 * @param health         his health in the first phase

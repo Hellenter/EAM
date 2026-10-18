@@ -223,4 +223,34 @@ public final class KoscheiLogic {
 	public static boolean windupSpammed(int hits, int allowed) {
 		return hits > allowed;
 	}
+
+	/** How he answers a target out of his reach above him. */
+	public enum HeightAnswer {
+		/** Vanishes and stands by the target up there. */
+		TELEPORT,
+		/** The burst of force throws the target off. */
+		FORCE,
+		/** The bolt holds the target where it stands. */
+		BOLT
+	}
+
+	/** Whether a target this much higher than him has been out of his reach above long enough for him to answer it. */
+	public static boolean outOfReachAbove(double rise, int ticks, KoscheiSettings.Height height) {
+		return rise > height.above() && ticks >= height.after();
+	}
+
+	/**
+	 * What he does about a target out of his reach above him: stands by it if there is room up there and the teleport is
+	 * ready, else the burst of force if it reaches, else the bolt; null when none is ready and he waits below.
+	 */
+	public static @Nullable HeightAnswer answerHeight(boolean teleportReady, boolean roomByTarget, boolean forceReady, boolean forceReaches,
+			boolean boltReady, boolean sees) {
+		if (teleportReady && roomByTarget) {
+			return HeightAnswer.TELEPORT;
+		}
+		if (forceReady && forceReaches) {
+			return HeightAnswer.FORCE;
+		}
+		return boltReady && sees ? HeightAnswer.BOLT : null;
+	}
 }

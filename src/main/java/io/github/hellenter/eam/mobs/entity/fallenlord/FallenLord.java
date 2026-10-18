@@ -4,7 +4,9 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
@@ -96,7 +98,7 @@ import java.util.UUID;
  * Each phase has its own health; the boss bar shows the current one. Attacks run here as {@link FallenLordAction}s;
  * {@link FallenLordFightGoal} moves him and picks them with {@link FallenLordLogic}.
  */
-public class FallenLord extends Monster {
+public class FallenLord extends Monster implements BuildingAware {
 	/**
 	 * His death, in ticks since it began (shared with the renderer): he sinks to his knees, the bones inside the armor
 	 * burn to ash ({@link #ASH_START} to {@link #ASH_END}), the empty armor falls to the ground
@@ -749,7 +751,7 @@ public class FallenLord extends Monster {
 		if (state.getCollisionShape(level, pos).isEmpty()) {
 			return false;
 		}
-		if (state.is(FallenLordModule.DASH_SMASHES)) {
+		if (state.is(FallenLordModule.DASH_SMASHES) || BossBuilding.isPlaced(level, pos)) {
 			return true;
 		}
 		return arena != null && arena.isInside(pos) && FallenLordLogic.breakableInArena(state.getDestroySpeed(level, pos));
@@ -758,6 +760,9 @@ public class FallenLord extends Monster {
 	private void smashWithin(ServerLevel level, AABB area) {
 		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ),
 				BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
+			if (BossBuilding.breakPlaced(level, pos.immutable(), this, false)) {
+				continue;
+			}
 			if (canSmash(level, pos, level.getBlockState(pos))) {
 				level.destroyBlock(pos, true, this);
 			}
@@ -2437,5 +2442,10 @@ public class FallenLord extends Monster {
 	@Override
 	public float getVoicePitch() {
 		return 0.6F;
+	}
+
+	@Override
+	public boolean isFighting() {
+		return getTarget() != null && getTarget().isAlive();
 	}
 }
