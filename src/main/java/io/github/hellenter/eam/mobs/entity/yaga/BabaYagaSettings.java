@@ -63,7 +63,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param xp             experience dropped on death
 	 */
 	public record Stats(float phaseOneHealth, float phaseTwoHealth, double armor, double speed, double followRange, int xp) {
-		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.42, 64.0, 300);
+		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.3675, 64.0, 300);
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_one_health").orElse(DEFAULT.phaseOneHealth).forGetter(Stats::phaseOneHealth),
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_two_health").orElse(DEFAULT.phaseTwoHealth).forGetter(Stats::phaseTwoHealth),
