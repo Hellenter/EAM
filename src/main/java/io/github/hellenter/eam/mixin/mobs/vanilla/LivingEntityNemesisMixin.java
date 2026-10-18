@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 abstract class LivingEntityNemesisMixin {
-	/** Before a dead player's things fall out, the monster that killed them takes the best piece of gear. */
+	/** The monster that killed a player becomes their nemesis. */
 	@Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
 	private void eam$nemesis(ServerLevel level, DamageSource source, CallbackInfo ci) {
 		NemesisModule.onDeathLoot((LivingEntity) (Object) this, level, source);
