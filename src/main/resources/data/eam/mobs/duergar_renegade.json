@@ -1,7 +1,7 @@
 {
-  "health": 26.0,
-  "leader_health": 36.0,
-  "speed": 0.19,
+  "health": 19.5,
+  "leader_health": 27.0,
+  "speed": 0.253,
   "attack_damage": 4.0,
   "extra_armor": 4.0,
   "armor_toughness": 4.0,

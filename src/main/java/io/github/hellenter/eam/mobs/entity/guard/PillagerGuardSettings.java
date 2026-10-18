@@ -31,16 +31,19 @@ public record PillagerGuardSettings(Stats stats, int decideEvery, Onslaught onsl
 	 * @param speed       movement speed attribute
 	 * @param followRange how far he notices and follows players
 	 * @param xp          experience dropped on death
+	 * @param meleeDamageMultiplier his plain axe blows, times their vanilla damage
 	 */
-	public record Stats(float health, int armor, double speed, double followRange, int xp) {
-		public static final Stats DEFAULT = new Stats(24.0F, 8, 0.35, 16.0, 10);
+	public record Stats(float health, int armor, double speed, double followRange, int xp, float meleeDamageMultiplier) {
+		public static final Stats DEFAULT = new Stats(20.0F, 8, 0.35, 16.0, 10, 0.8F);
 
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 1024.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(Stats::health),
 				Codec.intRange(0, 30).fieldOf("armor").orElse(DEFAULT.armor).forGetter(Stats::armor),
 				Codec.doubleRange(0.01, 2.0).fieldOf("speed").orElse(DEFAULT.speed).forGetter(Stats::speed),
 				Codec.doubleRange(1.0, 128.0).fieldOf("follow_range").orElse(DEFAULT.followRange).forGetter(Stats::followRange),
-				Codec.intRange(0, 100000).fieldOf("xp").orElse(DEFAULT.xp).forGetter(Stats::xp)
+				Codec.intRange(0, 100000).fieldOf("xp").orElse(DEFAULT.xp).forGetter(Stats::xp),
+				Codec.floatRange(0.0F, 10.0F).fieldOf("melee_damage_multiplier").orElse(DEFAULT.meleeDamageMultiplier)
+						.forGetter(Stats::meleeDamageMultiplier)
 		).apply(instance, Stats::new));
 	}
 
@@ -57,7 +60,7 @@ public record PillagerGuardSettings(Stats stats, int decideEvery, Onslaught onsl
 	 */
 	public record Onslaught(float damage, float shieldReduction, double rushSpeed, double reach, double from, double to, double chance,
 			int cooldown, float parryMultiplier) {
-		public static final Onslaught DEFAULT = new Onslaught(10.0F, 0.25F, 0.55, 2.6, 2.5, 7.0, 0.35, 300, 1.5F);
+		public static final Onslaught DEFAULT = new Onslaught(8.0F, 0.25F, 0.55, 2.6, 2.5, 7.0, 0.35, 300, 1.5F);
 
 		public static final Codec<Onslaught> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1024.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Onslaught::damage),
@@ -81,7 +84,7 @@ public record PillagerGuardSettings(Stats stats, int decideEvery, Onslaught onsl
 	 * @param speed    flight speed, blocks per tick
 	 */
 	public record AxeThrow(float damage, double minRange, double maxRange, double chance, int cooldown, double speed) {
-		public static final AxeThrow DEFAULT = new AxeThrow(5.0F, 5.0, 12.0, 0.3, 200, 1.3);
+		public static final AxeThrow DEFAULT = new AxeThrow(4.0F, 5.0, 12.0, 0.3, 200, 1.3);
 
 		public static final Codec<AxeThrow> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1024.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(AxeThrow::damage),

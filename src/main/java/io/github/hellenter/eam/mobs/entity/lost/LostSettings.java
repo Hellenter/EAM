@@ -46,7 +46,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 	 */
 	public record Squad(int minFollowers, int maxFollowers, double leaderHealth, double followerHealth, double spawnSpacing,
 			int spawnCooldownMin, int spawnCooldownMax, float leaderDropChance, float followerDropChance) {
-		public static final Squad DEFAULT = new Squad(2, 4, 35.0, 25.0, 64.0, 2400, 4800, 0.1F, 0.04F);
+		public static final Squad DEFAULT = new Squad(2, 4, 33.0, 23.0, 64.0, 2400, 4800, 0.1F, 0.04F);
 
 		public static final Codec<Squad> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 8).fieldOf("min_followers").orElse(DEFAULT.minFollowers).forGetter(Squad::minFollowers),
