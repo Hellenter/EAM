@@ -35,6 +35,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
 import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
@@ -238,6 +239,14 @@ public final class EamEntities {
 					.fireImmune()
 					.eyeHeight(0.25F)
 					.clientTrackingRange(8));
+
+	/** A bolt or a soul thrown from Koschei's staff in his second phase. */
+	public static final EntityType<KoscheiOrb> KOSCHEI_ORB = register("koschei_orb",
+			EntityType.Builder.<KoscheiOrb>of(KoscheiOrb::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3125F, 0.3125F)
+					.clientTrackingRange(8)
+					.updateInterval(2));
 
 	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */
 	public static final EntityType<DrownedSoldier> DROWNED_SOLDIER = register("drowned_soldier",

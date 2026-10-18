@@ -169,6 +169,21 @@ public final class EamLanguageProviders {
 					{"fletcher", "Fletcher"}, {"shepherd", "Shepherd"}, {"leatherworker", "Leatherworker"}, {"librarian", "Librarian"}}) {
 				builder.add(EconomySettings.componentsTag(component[0]), component[1] + " Components");
 			}
+			builder.add("gui.eam.village.hint", "Right-click a villager for details");
+			builder.add("gui.eam.village.back", "Back");
+			builder.add("gui.eam.village.level", "Level %s (%s)");
+			builder.add("gui.eam.village.xp", "XP %s/%s");
+			builder.add("gui.eam.village.xp_max", "XP %s (max)");
+			builder.add("gui.eam.village.job_site", "Job site: %s");
+			builder.add("gui.eam.village.home", "Bed: %s");
+			builder.add("gui.eam.village.chest", "Chest: %s");
+			builder.add("gui.eam.village.store", "Village store: %s");
+			builder.add("gui.eam.village.at", "%s, %s, %s");
+			builder.add("gui.eam.village.none", "none");
+			builder.add("gui.eam.village.inventory", "Inventory");
+			builder.add("gui.eam.village.chest_items", "In his chest");
+			builder.add("gui.eam.village.store_items", "In the village store");
+			builder.add("gui.eam.village.no_chest", "No locked chest");
 			builder.add(VillagerGearModule.WEAPONS, "Villager Weapons");
 			builder.add(VillagerGearModule.OFF_HAND, "Villager Off Hand");
 			builder.add(VillagerGearModule.GIFTS, "Villager Gifts");
@@ -312,7 +327,10 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.LOCKED_CHEST, "Locked Chest");
 			builder.add("container.eam.locked_chest.locked", "This chest is locked");
 			builder.add("container.eam.locked_chest.owner", "Owner: %s");
-			builder.add("container.eam.locked_chest.change", "Change Owner");
+			builder.add("container.eam.locked_chest.search", "Name or profession");
+			builder.add("container.eam.locked_chest.nobody_row", "Nobody");
+			builder.add("container.eam.locked_chest.level", "lvl %s, %sm");
+			builder.add("container.eam.locked_chest.no_match", "Nobody found");
 			builder.add("container.eam.locked_chest.village", "Village (elder's store)");
 			builder.add("container.eam.locked_chest.nobody", "nobody");
 			builder.add("container.eam.locked_chest.gone", "a villager who is gone");
@@ -471,6 +489,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_cleave.player", "%1$s was cut down by %2$s");
 			builder.add("death.attack.eam.koschei_lightning", "%1$s was struck by %2$s's lightning");
 			builder.add("death.attack.eam.koschei_lightning.player", "%1$s was struck by %2$s's lightning");
+			builder.add("death.attack.eam.koschei_sorcery", "%1$s was withered by %2$s's sorcery");
+			builder.add("death.attack.eam.koschei_sorcery.player", "%1$s was withered by %2$s's sorcery");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Koschei's blade glows orange");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Ravens scatter");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Phantom Raven");
@@ -482,6 +502,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.HAG_GLYPH, "Glyph");
 			builder.add(EamEntities.HAG_POTION, "Poison Flask");
 			builder.add(EamEntities.HAG_BOLT, "Witch Bolt");
+			builder.add(EamEntities.KOSCHEI_ORB, "Deathless Sorcery");
 			builder.add(EamEntities.HAG_THREAD, "Purple Thread");
 			builder.add("death.attack.eam.baba_yaga_curse", "%1$s was cursed to death by %2$s");
 			builder.add("death.attack.eam.baba_yaga_curse.player", "%1$s was cursed to death by %2$s");
@@ -909,6 +930,21 @@ public final class EamLanguageProviders {
 					{"fletcher", "лучника"}, {"shepherd", "пастуха"}, {"leatherworker", "кожевника"}, {"librarian", "библиотекаря"}}) {
 				builder.add(EconomySettings.componentsTag(component[0]), "Материалы " + component[1]);
 			}
+			builder.add("gui.eam.village.hint", "ПКМ по жителю: подробнее");
+			builder.add("gui.eam.village.back", "Назад");
+			builder.add("gui.eam.village.level", "Уровень %s (%s)");
+			builder.add("gui.eam.village.xp", "Опыт %s/%s");
+			builder.add("gui.eam.village.xp_max", "Опыт %s (максимум)");
+			builder.add("gui.eam.village.job_site", "Место работы: %s");
+			builder.add("gui.eam.village.home", "Кровать: %s");
+			builder.add("gui.eam.village.chest", "Сундук: %s");
+			builder.add("gui.eam.village.store", "Склад деревни: %s");
+			builder.add("gui.eam.village.at", "%s, %s, %s");
+			builder.add("gui.eam.village.none", "нет");
+			builder.add("gui.eam.village.inventory", "Инвентарь");
+			builder.add("gui.eam.village.chest_items", "В его сундуке");
+			builder.add("gui.eam.village.store_items", "На складе деревни");
+			builder.add("gui.eam.village.no_chest", "Запертого сундука нет");
 			builder.add(VillagerGearModule.WEAPONS, "Оружие жителей");
 			builder.add(VillagerGearModule.OFF_HAND, "Левая рука жителей");
 			builder.add(VillagerGearModule.GIFTS, "Подарки жителям");
@@ -1052,7 +1088,10 @@ public final class EamLanguageProviders {
 			builder.add(EamBlocks.LOCKED_CHEST, "Сундук с замком");
 			builder.add("container.eam.locked_chest.locked", "Сундук заперт");
 			builder.add("container.eam.locked_chest.owner", "Владелец: %s");
-			builder.add("container.eam.locked_chest.change", "Сменить владельца");
+			builder.add("container.eam.locked_chest.search", "Имя или профессия");
+			builder.add("container.eam.locked_chest.nobody_row", "Никто");
+			builder.add("container.eam.locked_chest.level", "ур. %s, %s м");
+			builder.add("container.eam.locked_chest.no_match", "Никого не нашлось");
 			builder.add("container.eam.locked_chest.village", "Деревня (склад старосты)");
 			builder.add("container.eam.locked_chest.nobody", "никто");
 			builder.add("container.eam.locked_chest.gone", "житель, которого нет");
@@ -1218,6 +1257,8 @@ public final class EamLanguageProviders {
 			builder.add("death.attack.eam.koschei_cleave.player", "%2$s зарубил %1$s");
 			builder.add("death.attack.eam.koschei_lightning", "%2$s испепелил %1$s молнией");
 			builder.add("death.attack.eam.koschei_lightning.player", "%2$s испепелил %1$s молнией");
+			builder.add("death.attack.eam.koschei_sorcery", "%2$s иссушил %1$s чародейством");
+			builder.add("death.attack.eam.koschei_sorcery.player", "%2$s иссушил %1$s чародейством");
 			builder.add("subtitles.eam.entity.koschei.orange_cue", "Меч Кощея раскаляется");
 			builder.add("subtitles.eam.entity.koschei.ravens", "Разлетаются вороны");
 			builder.add(EamEntities.KOSCHEI_RAVEN, "Призрачный ворон");
@@ -1229,6 +1270,7 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.HAG_GLYPH, "Глиф");
 			builder.add(EamEntities.HAG_POTION, "Ядовитая склянка");
 			builder.add(EamEntities.HAG_BOLT, "Колдовской заряд");
+			builder.add(EamEntities.KOSCHEI_ORB, "Кощеево чародейство");
 			builder.add(EamEntities.HAG_THREAD, "Фиолетовая нить");
 			builder.add("death.attack.eam.baba_yaga_curse", "%2$s прокляла %1$s до смерти");
 			builder.add("death.attack.eam.baba_yaga_curse.player", "%2$s прокляла %1$s до смерти");

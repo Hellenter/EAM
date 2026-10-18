@@ -11,11 +11,14 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The particles that go with Koschei's cues, spawned on the client from his synced action: orange sparks streaming off the
  * blade before the orange blow, red motes before the red ones, blue motes gathering in his right palm before the burst
- * of force and sparks crackling at the sword's point before the bolt. The glow of the blade and the eyes is the
+ * of force and sparks crackling at the sword's point before the bolt; in his second phase blue sparks at the staff's head
+ * before its bolt and green souls drawn to his hands before he throws them. The glow of the blade and the eyes is the
  * renderer's.
  */
 final class KoscheiEffects {
 	private static final DustParticleOptions RED = new DustParticleOptions(0xE8231C, 0.9F);
+	private static final DustParticleOptions BLUE = new DustParticleOptions(0x4C8CFF, 1.0F);
+	private static final DustParticleOptions GREEN = new DustParticleOptions(0x5CFF7A, 1.0F);
 
 	private KoscheiEffects() {
 	}
@@ -69,7 +72,33 @@ final class KoscheiEffects {
 					}
 				}
 			}
-			case TELEPORT -> {
+			case STAFF_BOLT -> {
+				if (t < KoscheiAction.STAFF_BOLT_RELEASE) {
+					// Blue sparks gathering at the staff's head.
+					Vec3 head = koschei.position().add(Koschei.staffHeadOffset(koschei.yBodyRot, koschei.getBbHeight()));
+					Vec3 from = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).scale(0.9);
+					level.addParticle(BLUE, head.x + from.x, head.y + from.y, head.z + from.z, -from.x * 0.15, -from.y * 0.15, -from.z * 0.15);
+					level.addParticle(ParticleTypes.ELECTRIC_SPARK, head.x, head.y, head.z, 0.0, 0.0, 0.0);
+				}
+			}
+			case SOULS -> {
+				if (t < KoscheiAction.SOULS_RELEASE) {
+					// Green souls drawn in to his raised hands.
+					Vec3 hand = koschei.raisedHand();
+					Vec3 from = new Vec3(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5).scale(1.8);
+					level.addParticle(GREEN, hand.x + from.x, hand.y + from.y, hand.z + from.z, -from.x * 0.12, -from.y * 0.12, -from.z * 0.12);
+					if (random.nextInt(3) == 0) {
+						level.addParticle(ParticleTypes.SCULK_SOUL, hand.x, hand.y, hand.z, 0.0, 0.03, 0.0);
+					}
+				}
+			}
+			case TRANSFORM -> {
+				if (t < KoscheiAction.TRANSFORM_STAFF && random.nextInt(2) == 0) {
+					level.addParticle(ParticleTypes.SOUL, koschei.getRandomX(1.2), koschei.getY() + random.nextDouble() * koschei.getBbHeight(),
+							koschei.getRandomZ(1.2), 0.0, 0.03, 0.0);
+				}
+			}
+			case TRAP, TELEPORT -> {
 				if (random.nextInt(2) == 0) {
 					level.addParticle(EamParticles.KOSCHEI_WARP, koschei.getRandomX(0.6), koschei.getY() + random.nextDouble() * 0.3,
 							koschei.getRandomZ(0.6), 0.0, 0.02, 0.0);

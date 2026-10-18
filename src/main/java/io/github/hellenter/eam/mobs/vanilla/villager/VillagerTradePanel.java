@@ -23,8 +23,9 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A villager's trades open with his gear beside them: his figure, his armor, his main hand (a weapon or a tool of his
- * trade) and his off hand, and a button to his whole inventory. The slots are in every trade menu, after the player's
- * inventory, so client and server always have the same; they only show once the server turned the panel on.
+ * trade) and his off hand, a button to his whole inventory and, for the elder, one to the village menu. The slots are
+ * in every trade menu, after the player's inventory, so client and server always have the same; they only show once
+ * the server turned the panel on.
  */
 public final class VillagerTradePanel {
 	/** The first panel slot: vanilla's trade menu has three trade slots and the player's 36. */
@@ -35,11 +36,14 @@ public final class VillagerTradePanel {
 	public static final int RIGHT = 351;
 	public static final int TOP = 0;
 	public static final int BOTTOM = 130;
+	/** The bottom of the elder's panel, which has the village button under the inventory button. */
+	public static final int ELDER_BOTTOM = 152;
 	public static final int ARMOR_X = LEFT + 6;
 	public static final int ARMOR_Y = 8;
 	public static final int HANDS_Y = 84;
 	public static final int SLOT = 18;
 	public static final int BUTTON_Y = 104;
+	public static final int VILLAGE_BUTTON_Y = 126;
 
 	private VillagerTradePanel() {
 	}
@@ -61,9 +65,15 @@ public final class VillagerTradePanel {
 	/** After the server opened the villager's trades for {@code player}: turns the panel on, here and on his client. */
 	static void show(Villager villager, ServerPlayer player) {
 		if (!(player.containerMenu instanceof MerchantMenu menu) || ((TradePanelMenu) menu).eam$trader() != villager) return;
-		VillagerTradePanelPayload payload = new VillagerTradePanelPayload(menu.containerId, villager.getId(), VillagerGearModule.tools(villager));
+		VillagerTradePanelPayload payload = new VillagerTradePanelPayload(menu.containerId, villager.getId(), VillagerGearModule.tools(villager),
+				VillagerElderModule.opensVillage(villager));
 		((TradePanelMenu) menu).eam$setPanel(payload.panel());
 		ServerPlayNetworking.send(player, payload);
+	}
+
+	/** Where the panel ends, relative to the trade screen's corner. */
+	public static int bottom(TradePanel panel) {
+		return panel.elder() ? ELDER_BOTTOM : BOTTOM;
 	}
 
 	/** The villager whose trades {@code player} has open with the panel, if any. */

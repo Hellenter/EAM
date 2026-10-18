@@ -56,8 +56,8 @@ public final class FallenLordModule {
 			return PillagerKingModule.settings().stats().armorPiercing();
 		}
 		if (source.getEntity() instanceof Koschei) {
-			// His lightning is all pure already.
-			return source.is(KoscheiModule.LIGHTNING_DAMAGE) ? 0.0 : KoscheiModule.settings().stats().armorPiercing();
+			// His lightning and sorcery are all pure already.
+			return source.is(KoscheiModule.LIGHTNING_DAMAGE) || source.is(KoscheiModule.SORCERY_DAMAGE) ? 0.0 : KoscheiModule.settings().stats().armorPiercing();
 		}
 		return source.getEntity() instanceof FallenLord ? settings.later().armorPiercing() : 0.0;
 	}

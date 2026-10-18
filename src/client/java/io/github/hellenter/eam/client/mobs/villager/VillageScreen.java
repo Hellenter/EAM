@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.mobs.villager;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageGuardPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageListPayload;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageResidentRequestPayload;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
@@ -10,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -21,7 +23,8 @@ import java.util.List;
 /**
  * The village menu the elder opens: a window like a chest's listing every villager within his reach, a row each, with
  * his profession and level, his health, his armor and what he holds, and a button that makes a grown villager a guard
- * or a guard an ordinary villager again. The wheel scrolls the rows.
+ * or a guard an ordinary villager again. The wheel scrolls the rows; a right click on a row opens that villager's page,
+ * {@link VillageResidentScreen}.
  */
 public class VillageScreen extends Screen {
 	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
@@ -30,6 +33,7 @@ public class VillageScreen extends Screen {
 	private static final int SHADOW = 0xFF555555;
 	private static final int BODY = 0xFFC6C6C6;
 	private static final int ROW_DARK = 0xFFB4B4B4;
+	private static final int ROW_HOVER = 0xFFD8D8D8;
 	private static final int TEXT = 0xFF404040;
 	private static final int MUTED = 0xFF707070;
 	private static final int HURT = 0xFFA02020;
@@ -37,7 +41,8 @@ public class VillageScreen extends Screen {
 	private static final int ROW = 22;
 	private static final int ROWS = 8;
 	private static final int LIST_TOP = 18;
-	private static final int HEIGHT = LIST_TOP + ROWS * ROW + 8;
+	private static final int HINT_Y = LIST_TOP + ROWS * ROW + 4;
+	private static final int HEIGHT = HINT_Y + 14;
 	private static final int TEXT_X = 8;
 	private static final int GEAR_X = 122;
 	private static final int SLOT = 18;
@@ -98,6 +103,28 @@ public class VillageScreen extends Screen {
 				.build());
 	}
 
+	int elderId() {
+		return village.elderId();
+	}
+
+	/** A right click on a row asks the server for that villager's page. */
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		if (super.mouseClicked(event, doubleClick)) return true;
+		int index = rowAt(event.x(), event.y());
+		if (event.button() != 1 || index < 0) return false;
+		ClientPlayNetworking.send(new VillageResidentRequestPayload(village.elderId(), village.villagers().get(index).id()));
+		return true;
+	}
+
+	/** The index of the villager whose row is under the mouse, or -1. */
+	private int rowAt(double x, double y) {
+		if (x < left + 5 || x >= left + WIDTH - 5 || y < top + LIST_TOP) return -1;
+		int row = (int) (y - top - LIST_TOP) / ROW;
+		int index = scroll + row;
+		return row < ROWS && index < village.villagers().size() ? index : -1;
+	}
+
 	@Override
 	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
 		int next = Mth.clamp(scroll - (int) Math.signum(scrollY), 0, maxScroll());
@@ -115,10 +142,11 @@ public class VillageScreen extends Screen {
 	@Override
 	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		super.extractBackground(graphics, mouseX, mouseY, a);
-		int x0 = left;
-		int y0 = top;
-		int x1 = left + WIDTH;
-		int y1 = top + HEIGHT;
+		frame(graphics, left, top, left + WIDTH, top + HEIGHT);
+	}
+
+	/** A window like a chest's, from {@code x0, y0} to {@code x1, y1}. */
+	static void frame(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1) {
 		graphics.fill(x0 + 1, y0, x1 - 1, y1, OUTLINE);
 		graphics.fill(x0, y0 + 1, x1, y1 - 1, OUTLINE);
 		graphics.fill(x0 + 1, y0 + 1, x1 - 2, y1 - 2, LIGHT);
@@ -134,11 +162,17 @@ public class VillageScreen extends Screen {
 				: Component.translatable("gui.eam.village.count", residents.size());
 		graphics.text(font, title, left + TEXT_X, top + 6, TEXT, false);
 		graphics.text(font, heading, left + WIDTH - 8 - font.width(heading), top + 6, MUTED, false);
+		graphics.text(font, Component.translatable("gui.eam.village.hint"), left + TEXT_X, top + HINT_Y, MUTED, false);
 		ItemStack hovered = ItemStack.EMPTY;
+		int hoveredRow = rowAt(mouseX, mouseY);
 		for (int row = 0; row < ROWS && scroll + row < residents.size(); row++) {
 			VillageListPayload.Resident resident = residents.get(scroll + row);
 			int y = top + LIST_TOP + row * ROW;
-			if (row % 2 == 1) graphics.fill(left + 5, y, left + WIDTH - 5, y + ROW, ROW_DARK);
+			if (scroll + row == hoveredRow) {
+				graphics.fill(left + 5, y, left + WIDTH - 5, y + ROW, ROW_HOVER);
+			} else if (row % 2 == 1) {
+				graphics.fill(left + 5, y, left + WIDTH - 5, y + ROW, ROW_DARK);
+			}
 			graphics.text(font, name(resident), left + TEXT_X, y + 2, TEXT, false);
 			graphics.text(font, details(resident), left + TEXT_X, y + 12, resident.health() < resident.maxHealth() ? HURT : MUTED, false);
 			for (int i = 0; i < resident.gear().size(); i++) {
@@ -156,7 +190,7 @@ public class VillageScreen extends Screen {
 	}
 
 	/** His profession, with his name if a player gave him one. */
-	private static Component name(VillageListPayload.Resident resident) {
+	static Component name(VillageListPayload.Resident resident) {
 		Component role = switch (resident.role()) {
 			case ELDER -> Component.translatable("gui.eam.village.elder");
 			case CHILD -> Component.translatable("gui.eam.village.child");

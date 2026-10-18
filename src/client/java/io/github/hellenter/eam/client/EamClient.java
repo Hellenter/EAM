@@ -80,6 +80,7 @@ import io.github.hellenter.eam.client.mobs.villager.VillagerFigureRenderer;
 import io.github.hellenter.eam.client.mobs.villager.VillagerGearScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillagerTradePanelScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillageEconomyScreen;
+import io.github.hellenter.eam.client.mobs.villager.VillageResidentScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillageScreen;
 import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
@@ -238,6 +239,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.HAG_GLYPH, HagGlyphRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_POTION, ThrownItemRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_BOLT, NoopRenderer::new);
+		EntityRendererRegistry.register(EamEntities.KOSCHEI_ORB, NoopRenderer::new);
 		EntityRendererRegistry.register(EamEntities.HAG_THREAD, HagThreadRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.CAMP_FIRE, CampFireRenderer::new);
 		BlockEntityRenderers.register(EamBlockEntities.FOOD_DRYER, FoodDryerRenderer::new);
@@ -250,6 +252,7 @@ public class EamClient implements ClientModInitializer {
 		VillagerTradePanelScreen.init();
 		VillageScreen.register();
 		VillageEconomyScreen.register();
+		VillageResidentScreen.register();
 		MenuScreens.register(FridgeModule.MENU, FridgeScreen::new);
 		MenuScreens.register(LockedChestModule.MENU, LockedChestScreen::new);
 		LockedChestScreen.register();
