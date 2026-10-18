@@ -610,8 +610,11 @@ public class Koschei extends Monster implements BuildingAware {
 				if (t == 0) {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.6F);
 				} else if (t == action.length() - 1 && target != null) {
-					if (teleportSpot != null && level.noCollision(this, getDimensions(getPose()).makeBoundingBox(teleportSpot))) {
-						teleportTo(level, teleportSpot, target);
+					// Looked for again: the target may have come down or moved on up there meanwhile.
+					Vec3 spot = teleportSpot != null && target.getY() - getY() > settings().height().above()
+							? roomBy(level, target, settings().height().spotRange()) : null;
+					if (spot != null) {
+						teleportTo(level, spot, target);
 					} else {
 						teleportBehind(level, target, settings().teleport());
 					}
@@ -812,7 +815,9 @@ public class Koschei extends Monster implements BuildingAware {
 				flat = facing;
 			}
 			// The one he casts at is caught unless a wall is between them, even a few steps out of range; others in front of him too.
-			boolean aimed = victim == target && horizontalDistanceTo(victim) <= force.range() + FORCE_AIMED_SLACK;
+			double up = victim.getY() - getY();
+			boolean aimed = victim == target && horizontalDistanceTo(victim) <= force.range() + FORCE_AIMED_SLACK && up > -2.5
+					&& up <= rise;
 			// Up on a pillar too: the one he casts at is thrown off it.
 			boolean inCone = horizontalDistanceTo(victim) <= force.range() + victim.getBbWidth() * 0.5 && flat.dot(facing) >= 0.4
 					&& Math.abs(victim.getY() - getY()) < 2.5;

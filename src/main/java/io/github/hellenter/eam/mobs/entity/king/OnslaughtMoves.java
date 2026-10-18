@@ -45,7 +45,7 @@ public final class OnslaughtMoves {
 			mob.setDeltaMovement(to.x * rushSpeed, mob.getDeltaMovement().y, to.z * rushSpeed);
 			if (mob.horizontalCollision) {
 				// Blocks players put up in the way are swept aside.
-				BossBuilding.breakPlacedIn(level, mob.getBoundingBox().move(to.x * 0.4, 0.0, to.z * 0.4).deflate(0.05, 0.0, 0.05), mob);
+				BossBuilding.breakPlacedIn(level, mob.getBoundingBox().move(to.x * 0.4, 0.0, to.z * 0.4).deflate(0.05, 0.0, 0.05), mob, false);
 			}
 		}
 		if (t == KingAction.ONSLAUGHT_LEAP) {

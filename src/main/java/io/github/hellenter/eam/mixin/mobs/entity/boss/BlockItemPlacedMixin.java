@@ -19,9 +19,7 @@ abstract class BlockItemPlacedMixin {
 			target = "Lnet/minecraft/world/item/BlockItem;placeBlock(Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
 	private boolean eam$rememberPlaced(BlockItem item, BlockPlaceContext context, BlockState state, Operation<Boolean> original) {
 		boolean placed = original.call(item, context, state);
-		if (placed) {
-			BossBuilding.placed(context.getLevel(), context.getClickedPos(), context.getPlayer());
-		}
+		BossBuilding.placed(context.getLevel(), context.getClickedPos(), context.getPlayer(), placed);
 		return placed;
 	}
 }

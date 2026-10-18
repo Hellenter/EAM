@@ -357,7 +357,7 @@ public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 			return;
 		}
 		if (wallAhead(climbDirection)) {
-			setDeltaMovement(climbDirection.x * 0.05, height.climbSpeed() + getGravity(), climbDirection.z * 0.05);
+			setDeltaMovement(climbDirection.x * 0.05, height.climbSpeed(), climbDirection.z * 0.05);
 			if (t % 6 == 0) {
 				// An axe biting into the wall, right and left in turn.
 				playSound(SoundEvents.AXE_STRIP.value(), 1.0F, t % 12 == 0 ? 0.6F : 0.7F);
@@ -420,7 +420,7 @@ public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 			return;
 		}
 		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.6F);
-		if (BossBuilding.breakPlacedIn(level, pillarFoot(target), this) > 0) {
+		if (BossBuilding.breakPlacedIn(level, pillarFoot(target), this, true) > 0) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, getSoundSource(), 1.0F, 0.7F);
 		}
 	}
@@ -450,6 +450,10 @@ public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 		if (hopCooldown > 0) hopCooldown--;
 		if (climbCooldown > 0) climbCooldown--;
 		if (chopCooldown > 0) chopCooldown--;
+		if (fellFromClimb && onGround() && action != KingAction.CLIMB) {
+			// Down safe: the next fall hurts again.
+			fellFromClimb = false;
+		}
 		if (leapFrom != null) {
 			leapBack(leapFrom);
 			leapFrom = null;
@@ -724,7 +728,7 @@ public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 		if (!BossBuilding.mayBreak(level) || !BossBuilding.onlyPlacedIn(level, ahead)) {
 			return false;
 		}
-		BossBuilding.breakPlacedIn(level, ahead, this);
+		BossBuilding.breakPlacedIn(level, ahead, this, false);
 		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, getSoundSource(), 1.2F, 0.7F);
 		setDeltaMovement(getDeltaMovement().multiply(0.6, 1.0, 0.6));
 		return true;
@@ -1066,9 +1070,10 @@ public class PillagerKing extends Monster implements AxeThrower, BuildingAware {
 		} else if (hurt && isAlive() && action == KingAction.CLIMB && settings().height().stunHit()) {
 			// Hit on the wall: he comes off it and lands dazed.
 			LivingEntity target = actionTarget;
-			letGo();
-			actionTarget = target;
+			Vec3 away = climbDirection.scale(-0.2);
 			stun(level);
+			actionTarget = target;
+			setDeltaMovement(away.x, getDeltaMovement().y, away.z);
 		}
 		return hurt;
 	}

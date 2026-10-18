@@ -2,7 +2,7 @@ package io.github.hellenter.eam.mobs.entity.boss;
 
 import io.github.hellenter.eam.Eam;
 
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -21,6 +21,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
@@ -42,8 +43,8 @@ public final class BossBuilding {
 	private static final int SWEEP_AT = 2048;
 
 	private static volatile BuildingRules rules = BuildingRules.DEFAULT;
-	/** Per level: packed block position to the game time it is forgotten at. */
-	private static final Map<ResourceKey<Level>, Long2LongOpenHashMap> PLACED = new HashMap<>();
+	/** Per level: packed block position to the block put there and the game time it is forgotten at. */
+	private static final Map<ResourceKey<Level>, Long2ObjectOpenHashMap<Placed>> PLACED = new HashMap<>();
 	private static boolean registered;
 
 	private BossBuilding() {
@@ -64,8 +65,8 @@ public final class BossBuilding {
 	}
 
 	/** A player placed a block: remembered when a boss near it is fighting. */
-	public static void placed(Level level, BlockPos pos, @Nullable Player player) {
-		if (!registered || player == null || !(level instanceof ServerLevel server)) {
+	public static void placed(Level level, BlockPos pos, @Nullable Player player, boolean placed) {
+		if (!placed || !registered || player == null || !(level instanceof ServerLevel server)) {
 			return;
 		}
 		double radius = rules.radius();
@@ -73,26 +74,24 @@ public final class BossBuilding {
 		if (server.getEntitiesOfClass(Mob.class, around, mob -> mob instanceof BuildingAware boss && boss.isFighting()).isEmpty()) {
 			return;
 		}
-		Long2LongOpenHashMap placed = PLACED.computeIfAbsent(server.dimension(), key -> new Long2LongOpenHashMap());
+		Long2ObjectOpenHashMap<Placed> remembered = PLACED.computeIfAbsent(server.dimension(), key -> new Long2ObjectOpenHashMap<>());
 		long now = server.getGameTime();
-		if (placed.size() >= SWEEP_AT) {
-			placed.long2LongEntrySet().removeIf(entry -> !BuildingRules.remembered(entry.getLongValue(), now));
+		if (remembered.size() >= SWEEP_AT) {
+			remembered.values().removeIf(entry -> !BuildingRules.remembered(entry.until(), now));
 		}
-		placed.put(pos.asLong(), now + rules.keepTicks());
+		remembered.put(pos.asLong(), new Placed(server.getBlockState(pos).getBlock(), now + rules.keepTicks()));
 	}
 
 	/** Whether a player put up the block at {@code pos} by a fighting boss a short while ago, and it still stands. */
 	public static boolean isPlaced(Level level, BlockPos pos) {
-		Long2LongOpenHashMap placed = PLACED.get(level.dimension());
-		if (placed == null) {
+		Long2ObjectOpenHashMap<Placed> remembered = PLACED.get(level.dimension());
+		Placed entry = remembered == null ? null : remembered.get(pos.asLong());
+		if (entry == null || !BuildingRules.remembered(entry.until(), level.getGameTime())) {
 			return false;
 		}
-		long until = placed.get(pos.asLong());
-		if (!BuildingRules.remembered(until, level.getGameTime())) {
-			return false;
-		}
-		if (level.getBlockState(pos).isAir()) {
-			placed.remove(pos.asLong());
+		if (!level.getBlockState(pos).is(entry.block())) {
+			// Mined, or something else stands there now.
+			remembered.remove(pos.asLong());
 			return false;
 		}
 		return true;
@@ -104,25 +103,28 @@ public final class BossBuilding {
 	}
 
 	/**
-	 * Breaks the player-placed block at {@code pos}, if it is one, and lets the player-placed blocks stacked on it fall:
-	 * a pillar cut at its foot comes down with whoever stands on it. True if it broke.
+	 * Breaks the player-placed block at {@code pos}, if it is one; with {@code topple} the player-placed blocks stacked
+	 * on it fall too: a pillar cut at its foot comes down with whoever stands on it. A wall is broken without it, or
+	 * its upper rows would drop into the gap. True if it broke.
 	 */
-	public static boolean breakPlaced(ServerLevel level, BlockPos pos, Entity breaker) {
+	public static boolean breakPlaced(ServerLevel level, BlockPos pos, Entity breaker, boolean topple) {
 		if (!mayBreak(level) || !isPlaced(level, pos)) {
 			return false;
 		}
 		forget(level, pos);
 		level.destroyBlock(pos, true, breaker);
-		topple(level, pos.above(), breaker);
+		if (topple) {
+			topple(level, pos.above(), breaker);
+		}
 		return true;
 	}
 
-	/** Breaks every player-placed block in {@code area}; how many it broke. */
-	public static int breakPlacedIn(ServerLevel level, AABB area, Entity breaker) {
+	/** Breaks every player-placed block in {@code area}, toppling what stands on them if asked; how many it broke. */
+	public static int breakPlacedIn(ServerLevel level, AABB area, Entity breaker, boolean topple) {
 		int broken = 0;
 		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ),
 				BlockPos.containing(area.maxX, area.maxY - 1.0E-4, area.maxZ))) {
-			if (breakPlaced(level, pos.immutable(), breaker)) {
+			if (breakPlaced(level, pos.immutable(), breaker, topple)) {
 				broken++;
 			}
 		}
@@ -175,10 +177,14 @@ public final class BossBuilding {
 	}
 
 	private static void forget(Level level, BlockPos pos) {
-		Long2LongOpenHashMap placed = PLACED.get(level.dimension());
-		if (placed != null) {
-			placed.remove(pos.asLong());
+		Long2ObjectOpenHashMap<Placed> remembered = PLACED.get(level.dimension());
+		if (remembered != null) {
+			remembered.remove(pos.asLong());
 		}
+	}
+
+	/** A block a player put up, and the game time it is forgotten at. */
+	private record Placed(Block block, long until) {
 	}
 
 	private static final class Loader extends SimpleJsonResourceReloadListener<BuildingRules> {

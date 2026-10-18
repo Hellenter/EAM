@@ -760,7 +760,7 @@ public class FallenLord extends Monster implements BuildingAware {
 	private void smashWithin(ServerLevel level, AABB area) {
 		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ),
 				BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
-			if (BossBuilding.breakPlaced(level, pos.immutable(), this)) {
+			if (BossBuilding.breakPlaced(level, pos.immutable(), this, false)) {
 				continue;
 			}
 			if (canSmash(level, pos, level.getBlockState(pos))) {
