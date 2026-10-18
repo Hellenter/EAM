@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
@@ -25,6 +26,8 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
@@ -77,6 +80,8 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 	/** How close, in blocks past its own width, an animal has to be to eat from the trough. */
 	private static final double REACH = 0.9;
 	private static final double WALK_SPEED = 1.0;
+	/** How much further than straight to the trough a path to it may wander, in blocks. */
+	private static final float PATH_DETOUR = 8.0F;
 	/** Ticks a found or missing water source is trusted before the feeder looks again. */
 	private static final int WATER_RECHECK = 1200;
 	/** Ticks of slowness a sick animal gets at each check, a little more than the checks are apart. */
@@ -300,12 +305,20 @@ public class FeederBlockEntity extends BlockEntity implements WorldlyContainer {
 		return dx <= REACH && dz <= REACH && dy <= REACH;
 	}
 
-	/** Sends the animal to the trough. False if it has no way there. */
+	/**
+	 * Sends the animal to the trough. False if it has no way there. Livestock plans paths only as far as its follow range
+	 * (16 blocks), shorter than a feeder calls from, so the path may reach a little past the trough to go round a pen.
+	 */
 	private static boolean walkTo(Animal animal, BlockPos pos) {
-		if (!animal.getNavigation().isDone() && pos.equals(animal.getNavigation().getTargetPos())) return true;
-		Path path = animal.getNavigation().createPath(pos, 1);
+		PathNavigation navigation = animal.getNavigation();
+		if (!navigation.isDone() && pos.equals(navigation.getTargetPos())) return true;
+		float range = (float) animal.getAttributeValue(Attributes.FOLLOW_RANGE);
+		float length = Math.max(range, (float) Math.sqrt(animal.distanceToSqr(Vec3.atCenterOf(pos))) + PATH_DETOUR);
+		navigation.setMaxVisitedNodesMultiplier(length / Math.max(1.0F, range));
+		Path path = navigation.createPath(pos, 1, Mth.ceil(length));
+		navigation.resetMaxVisitedNodesMultiplier();
 		if (path == null || !path.canReach()) return false;
-		return animal.getNavigation().moveTo(path, WALK_SPEED);
+		return navigation.moveTo(path, WALK_SPEED);
 	}
 
 	private void eat(ServerLevel level, Animal animal, long today, long now, FeederSettings settings) {
