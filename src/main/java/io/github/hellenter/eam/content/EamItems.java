@@ -28,6 +28,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
+import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintItem;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
@@ -210,6 +211,9 @@ public final class EamItems {
 	/** From the pillager outpost's red chest: in hand, it turns into a map to the Pillager King's castle. */
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+
+	/** From the village elder: in hand it shows its building's ghost, and set down the villagers build it. */
+	public static final Item BLUEPRINT = register("blueprint", BlueprintItem::new, new Item.Properties().stacksTo(1));
 
 	/** Sold by duergar elders: on the surface, in hand, it turns into a map to the nearest boss's lair. */
 	public static final Item LAIR_MAP = register("lair_map", LairMapItem::new,

@@ -39,6 +39,7 @@
 		"mobs.vanilla.villager.VillagerInvoker",
 		"mobs.vanilla.villager.VillagerMakeLoveMixin",
 		"mobs.vanilla.villager.VillagerMixin",
+		"mobs.vanilla.villager.StructureTemplateAccessor",
 		"mobs.vanilla.villager.VillagerPanicTriggerMixin",
 		"mobs.vanilla.MobAccessor",
 		"mobs.vanilla.MobSunBurnMixin",
