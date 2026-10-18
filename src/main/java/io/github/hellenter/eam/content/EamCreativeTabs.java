@@ -2,6 +2,7 @@ package io.github.hellenter.eam.content;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintItem;
 import io.github.hellenter.eam.survival.thirst.RawWater;
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -114,7 +115,8 @@ public final class EamCreativeTabs {
 			EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, EamItems.MITHRIL_ANVIL, EamItems.ADAMANTIUM_ANVIL, EamItems.OBSIDIAN_BLAST_FURNACE,
 			EamItems.SILVER_BREWING_STAND,
 			EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR,
-			EamItems.MITHRIL_BARS, EamItems.MITHRIL_DOOR, EamItems.MITHRIL_TRAPDOOR);
+			EamItems.MITHRIL_BARS, EamItems.MITHRIL_DOOR, EamItems.MITHRIL_TRAPDOOR,
+			(Supplier<List<ItemStack>>) BlueprintItem::creativeStacks);
 
 	public static final CreativeModeTab BREWING = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key("brewing"),
 			FabricCreativeModeTab.builder()
@@ -174,11 +176,13 @@ public final class EamCreativeTabs {
 				.icon(icon)
 				.displayItems((parameters, output) -> {
 					for (Object item : items) {
-						// An entry is an item, a list of items, such as all hollow logs, or a stack with components.
+						// An entry is an item, a list of items, such as all hollow logs, or stacks with components.
 						if (item instanceof List<?> list) {
 							list.forEach(each -> output.accept((ItemLike) each));
-						} else if (item instanceof Supplier<?> stack) {
-							output.accept((ItemStack) stack.get());
+						} else if (item instanceof Supplier<?> supplier) {
+							Object stacks = supplier.get();
+							if (stacks instanceof List<?> list) list.forEach(each -> output.accept((ItemStack) each));
+							else output.accept((ItemStack) stacks);
 						} else {
 							output.accept((ItemLike) item);
 						}

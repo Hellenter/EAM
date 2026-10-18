@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.mobs.villager;
 
 import io.github.hellenter.eam.mobs.vanilla.villager.TradePanel;
 import io.github.hellenter.eam.mobs.vanilla.villager.TradePanelMenu;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerInventoryPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerTradePanel;
@@ -72,12 +73,26 @@ public final class VillagerTradePanelScreen {
 		return button;
 	}
 
+	/** The elder's upgrades button under the village button, hidden until his panel shows. */
+	public static Button upgradesButton(MerchantMenu menu, int leftPos, int topPos) {
+		Button button = Button.builder(Component.translatable("gui.eam.village.upgrades"), pressed -> {
+					TradePanel panel = ((TradePanelMenu) menu).eam$panel();
+					if (panel != null) ClientPlayNetworking.send(new VillageEconomyOpenPayload(panel.villagerId()));
+				})
+				.bounds(leftPos + VillagerTradePanel.LEFT + 5, topPos + VillagerTradePanel.UPGRADES_BUTTON_Y,
+						VillagerTradePanel.RIGHT - VillagerTradePanel.LEFT - 10, 20)
+				.build();
+		button.visible = false;
+		return button;
+	}
+
 	/** Draws the panel under the slots' items, and shows its buttons with it. */
 	public static void extract(MerchantMenu menu, GuiGraphicsExtractor graphics, int leftPos, int topPos, int mouseX, int mouseY,
-			Button button, Button villageButton) {
+			Button button, Button villageButton, Button upgradesButton) {
 		TradePanel panel = ((TradePanelMenu) menu).eam$panel();
 		button.visible = panel != null;
 		villageButton.visible = panel != null && panel.elder();
+		upgradesButton.visible = villageButton.visible;
 		if (panel == null) return;
 		int x0 = leftPos + VillagerTradePanel.LEFT;
 		int y0 = topPos + VillagerTradePanel.TOP;

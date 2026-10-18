@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A villager's trades open with his gear beside them: his figure, his armor, his main hand (a weapon or a tool of his
- * trade) and his off hand, a button to his whole inventory and, for the elder, one to the village menu. The slots are
+ * trade) and his off hand, a button to his whole inventory and, for the elder, ones to the village menu and its upgrades. The slots are
  * in every trade menu, after the player's inventory, so client and server always have the same; they only show once
  * the server turned the panel on.
  */
@@ -36,14 +36,15 @@ public final class VillagerTradePanel {
 	public static final int RIGHT = 351;
 	public static final int TOP = 0;
 	public static final int BOTTOM = 130;
-	/** The bottom of the elder's panel, which has the village button under the inventory button. */
-	public static final int ELDER_BOTTOM = 152;
+	/** The bottom of the elder's panel, which has the village and upgrades buttons under the inventory button. */
+	public static final int ELDER_BOTTOM = 174;
 	public static final int ARMOR_X = LEFT + 6;
 	public static final int ARMOR_Y = 8;
 	public static final int HANDS_Y = 84;
 	public static final int SLOT = 18;
 	public static final int BUTTON_Y = 104;
 	public static final int VILLAGE_BUTTON_Y = 126;
+	public static final int UPGRADES_BUTTON_Y = 148;
 
 	private VillagerTradePanel() {
 	}
