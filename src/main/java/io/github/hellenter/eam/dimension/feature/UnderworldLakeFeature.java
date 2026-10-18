@@ -26,6 +26,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -39,9 +40,10 @@ import java.util.Set;
  * @param radius      lake radius
  * @param depth       depth at the middle
  * @param islandChance chance that a lake of radius 4 or more keeps an island of rock in its middle
+ * @param rim          if present, most of the ground round the lake's surface turns to it (magma round a lava pool)
  */
 public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float islandChance, float cascadeChance, int cascades,
-		int minY, int maxY, TagKey<Biome> lavaBiomes) implements Feature {
+		int minY, int maxY, TagKey<Biome> lavaBiomes, Optional<BlockState> rim) implements Feature {
 	public static final MapCodec<UnderworldLakeFeature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			IntProviders.codec(2, UnderworldLakeFeature.MAX_RADIUS).fieldOf("radius").forGetter(UnderworldLakeFeature::radius),
 			IntProviders.codec(1, 6).fieldOf("depth").forGetter(UnderworldLakeFeature::depth),
@@ -50,8 +52,14 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			Codec.intRange(0, 4).fieldOf("cascades").forGetter(UnderworldLakeFeature::cascades),
 			Codec.INT.fieldOf("min_y").forGetter(UnderworldLakeFeature::minY),
 			Codec.INT.fieldOf("max_y").forGetter(UnderworldLakeFeature::maxY),
-			TagKey.codec(Registries.BIOME).fieldOf("lava_biomes").forGetter(UnderworldLakeFeature::lavaBiomes)
+			TagKey.codec(Registries.BIOME).fieldOf("lava_biomes").forGetter(UnderworldLakeFeature::lavaBiomes),
+			BlockState.CODEC.optionalFieldOf("rim").forGetter(UnderworldLakeFeature::rim)
 	).apply(i, UnderworldLakeFeature::new));
+
+	public UnderworldLakeFeature(IntProvider radius, IntProvider depth, float islandChance, float cascadeChance, int cascades, int minY,
+			int maxY, TagKey<Biome> lavaBiomes) {
+		this(radius, depth, islandChance, cascadeChance, cascades, minY, maxY, lavaBiomes, Optional.empty());
+	}
 
 	/** How thick the rock round a lake is made. */
 	private static final int WALL = 2;
@@ -69,6 +77,8 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	/** How much higher than the lake below a cascade lake must be, and at most. */
 	private static final int CASCADE_MIN_RISE = 4;
 	private static final int CASCADE_MAX_RISE = 40;
+	/** The share of the ground round a lake's surface that turns to its rim. */
+	private static final float RIM_CHANCE = 0.6F;
 
 	@Override
 	public MapCodec<UnderworldLakeFeature> codec() {
@@ -261,6 +271,21 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				BlockState over = level.getBlockState(above);
 				if (!over.isAir() && (!over.isSolid() || over.getBlock() instanceof FallingBlock)) {
 					level.setBlock(above, Blocks.AIR.defaultBlockState(), 2);
+				}
+			}
+		}
+		if (this.rim.isPresent()) {
+			for (BlockPos cell : water) {
+				if (cell.getY() != surface.getY()) {
+					continue;
+				}
+				for (Direction side : Direction.Plane.HORIZONTAL) {
+					BlockPos near = cell.relative(side);
+					BlockState state = level.getBlockState(near);
+					if (!water.contains(near) && isGround(state) && !state.is(BlockTags.FEATURES_CANNOT_REPLACE) && !villages.touches(near)
+							&& random.nextFloat() < RIM_CHANCE) {
+						level.setBlock(near, this.rim.get(), 2);
+					}
 				}
 			}
 		}
