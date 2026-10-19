@@ -17,6 +17,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
+import io.github.hellenter.eam.mobs.vanilla.villager.DonationSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
@@ -145,6 +146,19 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				"leatherworker", "librarian")) {
 			elderGoods.forceAddTag(EconomySettings.componentsTag(profession));
 		}
+		builder(DonationSettings.tag("wood_logs")).forceAddTag(ItemTags.LOGS);
+		builder(DonationSettings.tag("wood_planks")).forceAddTag(ItemTags.PLANKS);
+		donation("metal_ingots", Items.IRON_INGOT, EamItems.ANCIENT_METAL_INGOT);
+		donation("metal_soft_ingots", Items.COPPER_INGOT, EamItems.SILVER_INGOT);
+		donation("metal_nuggets", Items.IRON_NUGGET, Items.COPPER_NUGGET, EamItems.SILVER_NUGGET);
+		donation("stone", Items.STONE, Items.STONE_BRICKS, Items.ANDESITE, Items.DIORITE, Items.GRANITE, Items.TUFF);
+		builder(DonationSettings.tag("stone")).forceAddTag(ItemTags.STONE_CRAFTING_MATERIALS);
+		donation("money_gems", Items.EMERALD);
+		donation("money_gold", Items.GOLD_INGOT);
+		donation("money_nuggets", Items.GOLD_NUGGET);
+		donation("provisions_meals", Items.BREAD, Items.BAKED_POTATO, Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_MUTTON,
+				Items.COOKED_CHICKEN, Items.COOKED_RABBIT, Items.COOKED_COD, Items.COOKED_SALMON);
+		donation("provisions_crops", Items.WHEAT, Items.POTATO, Items.CARROT, Items.BEETROOT, Items.APPLE);
 		builder(EamItems.FLASK_THREADS).add(EamItems.LEATHER_THREAD.builtInRegistryHolder().key(), Items.STRING.builtInRegistryHolder().key());
 		builder(CampFireModule.IGNITERS).add(
 				Items.FLINT_AND_STEEL.builtInRegistryHolder().key(),
@@ -377,6 +391,12 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	private static List<ResourceKey<Item>> keys(Item... items) {
 		return Arrays.stream(items).map(item -> BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow()).toList();
+	}
+
+	/** Items a player can give a village for its stock, at the worth {@code donations.json} sets for the tag. */
+	private void donation(String name, Item... items) {
+		var builder = builder(DonationSettings.tag(name));
+		for (Item item : items) builder.add(item.builtInRegistryHolder().key());
 	}
 
 	/** The components that raise a trade's share of the village economy. */

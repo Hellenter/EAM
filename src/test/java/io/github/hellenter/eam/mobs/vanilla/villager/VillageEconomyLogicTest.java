@@ -66,4 +66,14 @@ class VillageEconomyLogicTest {
 		assertEquals(4.0, treasury.pay(Map.of(VillageResource.WOOD, 6.0)).get(VillageResource.WOOD), 1.0E-9);
 		assertEquals(0.0, treasury.add(Map.of(VillageResource.PROVISIONS, -3.0)).get(VillageResource.PROVISIONS), 1.0E-9);
 	}
+
+	@Test
+	void donationsTakeTheMainInventoryBeforeTheHotbar() {
+		int[] slots = VillageEconomyLogic.donationSlots(36, 9);
+		assertEquals(36, slots.length);
+		assertEquals(9, slots[0]);
+		assertEquals(35, slots[26]);
+		assertEquals(0, slots[27]);
+		assertEquals(8, slots[35]);
+	}
 }
