@@ -30,9 +30,9 @@ import java.util.List;
  */
 public class EncyclopediaScreen extends Screen {
 	private static final Identifier WINDOW = Eam.id("textures/gui/encyclopedia/window.png");
-	private static final int WIDTH = 360;
+	private static final int WIDTH = 384;
 	private static final int HEIGHT = 210;
-	private static final int SPLIT = 128;
+	private static final int SPLIT = 144;
 	private static final int LIST_X = 11;
 	private static final int LIST_WIDTH = SPLIT - 5 - LIST_X;
 	private static final int LIST_TOP = 26;
