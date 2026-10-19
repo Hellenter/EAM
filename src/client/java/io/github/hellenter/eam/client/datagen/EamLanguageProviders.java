@@ -62,6 +62,7 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			EncyclopediaTexts.english(builder);
 			builder.add("commands.eam.villages.locked", "Only abandoned villages generate in new chunks");
 			builder.add("commands.eam.villages.unlocked", "Normal villages generate in new chunks");
 			builder.add("death.attack.eam.dehydration", "%1$s died of thirst");
@@ -899,6 +900,7 @@ public final class EamLanguageProviders {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registries, TranslationBuilder builder) {
+			EncyclopediaTexts.russian(builder);
 			builder.add("commands.eam.villages.locked", "В новых чанках появляются только заброшенные деревни");
 			builder.add("commands.eam.villages.unlocked", "В новых чанках появляются обычные деревни");
 			builder.add("death.attack.eam.dehydration", "%1$s умер от жажды");
