@@ -127,7 +127,9 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
 		// Koschei drops only experience until his last phase is built.
-		output.accept(EamEntities.KOSCHEI.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		// His needle, always.
+		output.accept(EamEntities.KOSCHEI.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool().add(LootItem.lootTableItem(EamItems.KOSCHEI_NEEDLE))));
 		output.accept(EamEntities.KOSCHEI_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_BALL_LIGHTNING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
