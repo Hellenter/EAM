@@ -484,7 +484,7 @@
   "item.eam.black_widow_spawn_egg": "Black Widow Spawn Egg",
   "item.eam.blueprint": "Blueprint",
   "item.eam.blueprint.blocked": "%s blocks are in the way",
-  "item.eam.blueprint.built": "Built (creative mode)",
+  "item.eam.blueprint.hint": "%1$s: build here   %2$s + %1$s: turn",
   "item.eam.blueprint.no_village": "Only in a village: within %s blocks of its elder",
   "item.eam.blueprint.of": "Blueprint: %s",
   "item.eam.blueprint.overlaps": "Another building is going up here",

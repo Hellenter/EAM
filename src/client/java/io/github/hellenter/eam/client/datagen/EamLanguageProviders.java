@@ -315,7 +315,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.blueprint.no_village", "Only in a village: within %s blocks of its elder");
 			builder.add("item.eam.blueprint.overlaps", "Another building is going up here");
 			builder.add("item.eam.blueprint.placed", "The villagers will come by day to build it");
-			builder.add("item.eam.blueprint.built", "Built (creative mode)");
+			builder.add("item.eam.blueprint.hint", "%1$s: build here   %2$s + %1$s: turn");
 			builder.add("gui.eam.village.economy.take", "Take (%s)");
 			builder.add("gui.eam.village.order.house_small", "Small House");
 			builder.add("gui.eam.village.order.house_medium", "House");
@@ -1153,7 +1153,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.blueprint.no_village", "Только в деревне: не дальше %s блоков от старосты");
 			builder.add("item.eam.blueprint.overlaps", "Здесь уже строится другое здание");
 			builder.add("item.eam.blueprint.placed", "Жители придут строить днём");
-			builder.add("item.eam.blueprint.built", "Построено (творческий режим)");
+			builder.add("item.eam.blueprint.hint", "%1$s — строить здесь   %2$s + %1$s — повернуть");
 			builder.add("gui.eam.village.economy.take", "Забрать (%s)");
 			builder.add("gui.eam.village.order.house_small", "Маленький дом");
 			builder.add("gui.eam.village.order.house_medium", "Дом");
