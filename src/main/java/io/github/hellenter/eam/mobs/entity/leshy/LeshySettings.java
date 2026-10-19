@@ -93,7 +93,7 @@ public record LeshySettings(Spawn spawn, Haunt haunt, Combat combat, Offering of
 	public record Combat(double health, double armor, double damage, double reach, int hitInterval, int treeRadius, int treeRegen,
 			float fireDamage, int rootCooldown, int rootWarning, float rootDamage, int rootHold, double rootMinRange, double rootMaxRange,
 			Wolves wolves, Teleport teleport) {
-		public static final Combat DEFAULT = new Combat(60.0, 4.0, 8.0, 3.2, 30, 2, 40, 2.0F, 160, 20, 6.0F, 40, 4.0, 20.0,
+		public static final Combat DEFAULT = new Combat(80.0, 4.0, 8.0, 3.2, 30, 2, 40, 2.0F, 160, 20, 6.0F, 40, 4.0, 20.0,
 				Wolves.DEFAULT, Teleport.DEFAULT);
 
 		public static final Codec<Combat> CODEC = RecordCodecBuilder.create(instance -> instance.group(
