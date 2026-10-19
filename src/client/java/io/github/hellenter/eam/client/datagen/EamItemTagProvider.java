@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.tools.KnifeModule;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
@@ -155,8 +156,11 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
 
-		// Axes take the melee weapon enchantments too: looting, knockback, fire aspect.
-		builder(ItemTags.MELEE_WEAPON_ENCHANTABLE).addOptionalTag(ItemTags.AXES);
+		// Axes take the melee weapon enchantments too: looting, knockback, fire aspect. Knives take all the sword ones
+		// but sweeping edge, since a knife never sweeps.
+		builder(KnifeModule.KNIVES).addTag(CraftingTags.KNIFE_TIERS.get(0)).addTag(CraftingTags.KNIFE_TIERS.get(1))
+				.addTag(CraftingTags.KNIFE_TIERS.get(2)).addTag(CraftingTags.KNIFE_TIERS.get(3)).addTag(CraftingTags.KNIFE_TIERS.get(4));
+		builder(ItemTags.MELEE_WEAPON_ENCHANTABLE).addOptionalTag(ItemTags.AXES).addTag(KnifeModule.KNIVES);
 		builder(ShieldModule.ENCHANTABLE).add(Items.SHIELD.builtInRegistryHolder().key());
 
 		// Logs break only with these; a battle axe goes here too.

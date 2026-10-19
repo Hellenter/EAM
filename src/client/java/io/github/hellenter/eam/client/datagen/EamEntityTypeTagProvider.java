@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.content.tools.KnifeModule;
 
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
@@ -61,6 +62,12 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(PredatorModule.HUNTERS).add(EntityTypeIds.WOLF);
 		builder(PredatorModule.RAIDERS).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
+		// Game and livestock: a knife kill drops more of their meat, leather, wool and feathers.
+		builder(KnifeModule.BUTCHERED)
+				.add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.PIG, EntityTypeIds.SHEEP, EntityTypeIds.CHICKEN,
+						EntityTypeIds.RABBIT, EntityTypeIds.GOAT, EntityTypeIds.HORSE, EntityTypeIds.DONKEY, EntityTypeIds.MULE,
+						EntityTypeIds.LLAMA, EntityTypeIds.TRADER_LLAMA, EntityTypeIds.CAMEL, EntityTypeIds.POLAR_BEAR,
+						EntityTypeIds.TURTLE, EntityTypeIds.PANDA);
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
