@@ -273,6 +273,14 @@ class KoscheiLogicTest {
 	}
 
 	@Test
+	void hisNeedleBoresThroughAllButPlainBedrock() {
+		assertTrue(KoscheiLogic.needlePierces(1.5F, false));
+		assertTrue(KoscheiLogic.needlePierces(50.0F, false));
+		assertFalse(KoscheiLogic.needlePierces(-1.0F, false));
+		assertTrue(KoscheiLogic.needlePierces(-1.0F, true));
+	}
+
+	@Test
 	void theSnowStormCatchesOnlyThoseInFrontOfHim() {
 		assertTrue(KoscheiLogic.inCone(5.0, 0.0, 1.0, 0.0, 9.0, 35.0F));
 		assertTrue(KoscheiLogic.inCone(5.0, 3.0, 1.0, 0.0, 9.0, 35.0F));

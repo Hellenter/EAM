@@ -16,11 +16,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param mobDamageMultiplier his blows deal this many times their damage to anything but a player
  * @param height              how he gets at a player who climbed out of his reach above him
  * @param phaseTwo            the second phase, the lord of the undead
+ * @param needle              the needle he drops on his death
  */
 public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier,
-		Height height, PhaseTwoSettings phaseTwo) {
+		Height height, PhaseTwoSettings phaseTwo, Needle needle) {
 	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
-			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT);
+			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT, Needle.DEFAULT);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
@@ -31,8 +32,31 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 			Codec.floatRange(0.0F, 100.0F).fieldOf("mob_damage_multiplier").orElse(DEFAULT.mobDamageMultiplier)
 					.forGetter(KoscheiSettings::mobDamageMultiplier),
 			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height),
-			PhaseTwoSettings.CODEC.fieldOf("phase_two").orElse(PhaseTwoSettings.DEFAULT).forGetter(KoscheiSettings::phaseTwo)
+			PhaseTwoSettings.CODEC.fieldOf("phase_two").orElse(PhaseTwoSettings.DEFAULT).forGetter(KoscheiSettings::phaseTwo),
+			Needle.CODEC.fieldOf("needle").orElse(Needle.DEFAULT).forGetter(KoscheiSettings::needle)
 	).apply(instance, KoscheiSettings::new));
+
+	/**
+	 * The needle that held his death. Used, it flies out of the hand, hangs spinning in the air in a pillar of light and
+	 * bursts; meanwhile the light bores a shaft straight down through everything to the bedrock, deep bedrock included.
+	 *
+	 * @param fuse            ticks it spins in the air before it bursts
+	 * @param explosionPower  how strong the burst is; a creeper's is 3, TNT's 4
+	 * @param shaftRadius     the shaft is this many blocks out from the needle each way: 1 makes it 3 by 3
+	 * @param layersPerTick   layers of the shaft bored each tick, from the top down
+	 * @param throwSpeed      how fast it flies out of the hand, blocks per tick
+	 */
+	public record Needle(int fuse, float explosionPower, int shaftRadius, int layersPerTick, double throwSpeed) {
+		public static final Needle DEFAULT = new Needle(60, 7.0F, 1, 8, 0.4);
+
+		public static final Codec<Needle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(1, 1200).fieldOf("fuse").orElse(DEFAULT.fuse).forGetter(Needle::fuse),
+				Codec.floatRange(0.0F, 20.0F).fieldOf("explosion_power").orElse(DEFAULT.explosionPower).forGetter(Needle::explosionPower),
+				Codec.intRange(0, 4).fieldOf("shaft_radius").orElse(DEFAULT.shaftRadius).forGetter(Needle::shaftRadius),
+				Codec.intRange(1, 64).fieldOf("layers_per_tick").orElse(DEFAULT.layersPerTick).forGetter(Needle::layersPerTick),
+				Codec.doubleRange(0.0, 2.0).fieldOf("throw_speed").orElse(DEFAULT.throwSpeed).forGetter(Needle::throwSpeed)
+		).apply(instance, Needle::new));
+	}
 
 	/**
 	 * A player out of his reach above him, on a pillar or a ledge: he stands by them up there if there is room, else

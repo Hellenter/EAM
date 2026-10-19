@@ -376,6 +376,14 @@ public final class KoscheiLogic {
 		return Math.max(0, Math.min(wanted, cap - alive));
 	}
 
+	/**
+	 * Whether the light of his needle bores through a block: through anything but blocks nothing can break, except the
+	 * deep bedrock of the underworld. Air is passed over.
+	 */
+	public static boolean needlePierces(float destroySpeed, boolean deepBedrock) {
+		return destroySpeed >= 0.0F || deepBedrock;
+	}
+
 	/** His health through the transformation: from {@code from} up to {@code full} as it goes, full at its end. */
 	public static float transformHealth(int t, int length, float from, float full) {
 		float progress = Math.clamp((float) t / Math.max(1, length), 0.0F, 1.0F);

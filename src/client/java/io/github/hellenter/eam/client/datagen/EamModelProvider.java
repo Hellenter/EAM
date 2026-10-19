@@ -765,6 +765,7 @@ public class EamModelProvider extends FabricModelProvider {
 		PillagerKingItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COMMANDER_HORN, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.KOSCHEI_NEEDLE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KING_CASTLE_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BLUEPRINT, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.YAGA_GRAVE_MAP, ModelTemplates.FLAT_ITEM);
