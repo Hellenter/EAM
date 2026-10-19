@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.content.lockedchest;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hellenter.eam.content.lockedchest.LockedChestMenu;
 import io.github.hellenter.eam.content.lockedchest.LockedChestOwnerNamePayload;
 import io.github.hellenter.eam.content.lockedchest.LockedChestOwnerPayload;
@@ -116,7 +117,7 @@ public class LockedChestScreen extends ContainerScreen {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		int index = rowAt(event.x(), event.y());
-		if (index >= 0 && event.button() == 0) {
+		if (index >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			ClientPlayNetworking.send(new LockedChestOwnerPayload(shown.get(index).owner()));
 			return true;
 		}
