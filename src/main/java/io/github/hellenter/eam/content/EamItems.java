@@ -243,6 +243,8 @@ public final class EamItems {
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 
+	/** A tine of the leshy's antlers, its trophy. */
+	public static final Item LESHY_ANTLER = register("leshy_antler", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 	/** Vampire bat drop, 15%: the core of the heart in a jar. */
 	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 
@@ -403,6 +405,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.DROWNED_SOLDIER));
 	public static final Item UPYR_SPAWN_EGG = register("upyr_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.UPYR));
+	public static final Item LESHY_SPAWN_EGG = register("leshy_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LESHY));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WIGHT));
 	public static final Item DRAUGR_SPAWN_EGG = register("draugr_spawn_egg", SpawnEggItem::new,

@@ -659,6 +659,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.PILLAGER_GUARD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.SWAMP_LURKER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WIGHT_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.LESHY_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DRAUGR_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_RENEGADE_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
@@ -773,6 +774,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CRYPT_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_BOMB, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_HEART, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.LESHY_ANTLER, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);
 		// The same talisman with its crystal glowing, shown while it lights a portal.
 		ModelTemplates.FLAT_ITEM.create(TALISMAN_GLOWING_MODEL, TextureMapping.layer0(new Material(TALISMAN_GLOWING_MODEL)), generators.modelOutput);

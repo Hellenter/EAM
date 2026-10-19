@@ -32,6 +32,21 @@ public final class EamSounds {
 	public static final SoundEvent WIGHT_HURT = register("entity.wight.hurt");
 	public static final SoundEvent WIGHT_DEATH = register("entity.wight.death");
 
+	/** The leshy's slow creaking groan, like a tree in the wind. */
+	public static final SoundEvent LESHY_AMBIENT = register("entity.leshy.ambient");
+	/** The rake of its twig claws. */
+	public static final SoundEvent LESHY_ATTACK = register("entity.leshy.attack");
+	/** Its bellow as it turns on a player, and as it calls the wolves. */
+	public static final SoundEvent LESHY_ROAR = register("entity.leshy.roar");
+	/** Roots tearing up out of the ground. */
+	public static final SoundEvent LESHY_ROOTS = register("entity.leshy.roots");
+	/** A flock of crows: its flight, and the cawing a player it haunts hears overhead. */
+	public static final SoundEvent LESHY_CROWS = register("entity.leshy.crows");
+	/** A dull knock of wood: a blow the tree beside it took. */
+	public static final SoundEvent LESHY_SHIELD = register("entity.leshy.shield");
+	public static final SoundEvent LESHY_HURT = register("entity.leshy.hurt");
+	public static final SoundEvent LESHY_DEATH = register("entity.leshy.death");
+
 	/** The screech of a vampire bat flock taking wing in the distance: get ready. */
 	public static final SoundEvent VAMPIRE_BAT_SWARM = register("entity.vampire_bat.swarm");
 

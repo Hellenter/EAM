@@ -50,6 +50,29 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.WIGHT_GROAN, wight(EamSounds.WIGHT_GROAN, "groan", "mob/husk/idle", 3, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_HURT, wight(EamSounds.WIGHT_HURT, "hurt", "mob/husk/hurt", 2, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_DEATH, wight(EamSounds.WIGHT_DEATH, "death", "mob/husk/death", 2, 0.5F, 1.0F));
+		// The leshy: vanilla creaking, creaking heart and ravager files pitched down into a voice of old wood; crows are the
+		// raven caws Koschei's ravens use.
+		exporter.add(EamSounds.LESHY_AMBIENT, leshy(EamSounds.LESHY_AMBIENT, "ambient", 0.55F, 1.0F, "mob/creaking/creaking_idle1",
+				"mob/creaking/creaking_idle2", "mob/creaking/creaking_idle3", "mob/creaking/creaking_idle4", "mob/creaking/creaking_idle5",
+				"mob/creaking/creaking_idle6"));
+		exporter.add(EamSounds.LESHY_ATTACK, leshy(EamSounds.LESHY_ATTACK, "attack", 0.7F, 1.0F, "mob/creaking/creaking_attack1",
+				"mob/creaking/creaking_attack2", "mob/creaking/creaking_attack3", "mob/creaking/creaking_attack4"));
+		exporter.add(EamSounds.LESHY_ROAR, leshy(EamSounds.LESHY_ROAR, "roar", 0.6F, 1.0F, "mob/ravager/roar1", "mob/ravager/roar2",
+				"mob/ravager/roar3", "mob/ravager/roar4"));
+		exporter.add(EamSounds.LESHY_ROOTS, leshy(EamSounds.LESHY_ROOTS, "roots", 0.7F, 1.0F, "block/rooted_dirt/break1", "block/rooted_dirt/break2",
+				"block/mangrove_roots/break1", "block/mangrove_roots/break2", "block/roots/break1", "block/roots/break2"));
+		exporter.add(EamSounds.LESHY_SHIELD, leshy(EamSounds.LESHY_SHIELD, "shield", 0.6F, 1.0F, "dig/wood1", "dig/wood2", "dig/wood3",
+				"dig/wood4"));
+		exporter.add(EamSounds.LESHY_HURT, leshy(EamSounds.LESHY_HURT, "hurt", 0.7F, 1.0F, "block/creaking_heart/hurt/trail1",
+				"block/creaking_heart/hurt/trail2", "block/creaking_heart/hurt/trail3", "block/creaking_heart/hurt/trail4"));
+		exporter.add(EamSounds.LESHY_DEATH, leshy(EamSounds.LESHY_DEATH, "death", 0.55F, 1.0F, "mob/creaking/creaking_death",
+				"mob/ravager/death1"));
+		exporter.add(EamSounds.LESHY_CROWS, SoundTypeBuilder.of(EamSounds.LESHY_CROWS)
+				.subtitle("subtitles.eam.entity.leshy.crows")
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/koschei/caw1")).pitch(1.1F).attenuationDistance(24))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/koschei/caw2")).pitch(1.1F).attenuationDistance(24))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/koschei/caw3")).pitch(1.1F).attenuationDistance(24))
+				.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Eam.id("entity/koschei/ravens")).attenuationDistance(24)));
 		// A vampire bat flock in the distance: vanilla bat take-off and squeaks pitched down into a harsh screech.
 		exporter.add(EamSounds.VAMPIRE_BAT_SWARM, SoundTypeBuilder.of(EamSounds.VAMPIRE_BAT_SWARM)
 				.subtitle("subtitles.eam.entity.vampire_bat.swarm")
@@ -146,6 +169,14 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		SoundTypeBuilder builder = SoundTypeBuilder.of(event).subtitle("subtitles.eam.entity.wight." + name);
 		for (int i = 1; i <= files; i++) {
 			builder.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file + i)).pitch(pitch).volume(volume));
+		}
+		return builder;
+	}
+
+	private static SoundTypeBuilder leshy(SoundEvent event, String name, float pitch, float volume, String... files) {
+		SoundTypeBuilder builder = SoundTypeBuilder.of(event).subtitle("subtitles.eam.entity.leshy." + name);
+		for (String file : files) {
+			builder.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file)).pitch(pitch).volume(volume));
 		}
 		return builder;
 	}
