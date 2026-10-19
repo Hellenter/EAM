@@ -18,6 +18,7 @@ import io.github.hellenter.eam.mobs.entity.king.ThrownKingAxe;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lost.LostCenturion;
+import io.github.hellenter.eam.mobs.entity.lost.LostLongbowman;
 import io.github.hellenter.eam.mobs.entity.lost.LostWallCommander;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
@@ -115,6 +116,14 @@ public final class EamEntities {
 	/** The commander of a shield wall: one of the Lost with a crossbow, who brings four spearmen with shields. */
 	public static final EntityType<LostWallCommander> LOST_WALL_COMMANDER = register("lost_wall_commander",
 			EntityType.Builder.of(LostWallCommander::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.25F)
+					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** The Lost longbowman: one of the Lost with a longbow who shoots from far off and marks the player for the others. */
+	public static final EntityType<LostLongbowman> LOST_LONGBOWMAN = register("lost_longbowman",
+			EntityType.Builder.of(LostLongbowman::new, MobCategory.MONSTER)
 					.sized(0.65F, 2.25F)
 					.eyeHeight(1.97F)
 					.clientTrackingRange(10)

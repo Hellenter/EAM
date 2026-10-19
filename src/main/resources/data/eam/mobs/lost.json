@@ -131,5 +131,36 @@
       "speed": 2.0,
       "inaccuracy": 2.0
     }
+  },
+  "longbowman": {
+    "squad_chance": 0.3,
+    "health": 23.0,
+    "follow_range": 96.0,
+    "min_range": 10.0,
+    "max_range": 40.0,
+    "draw_ticks": 40,
+    "aim_ticks": 8,
+    "cooldown": 25,
+    "damage_multiplier": 2.5,
+    "speed_multiplier": 2.0,
+    "inaccuracy": 1.5,
+    "retarget_ticks": 20,
+    "drop_chance": 0.1,
+    "mark": {
+      "every": 4,
+      "seconds": 7.0,
+      "damage_bonus": 0.2,
+      "priority_range": 32.0
+    },
+    "barrage": {
+      "range": 5.0,
+      "arrows": 4,
+      "interval": 3,
+      "cooldown": 120,
+      "damage": 1.5,
+      "speed": 2.4,
+      "knockback": 0.6,
+      "inaccuracy": 1.5
+    }
   }
 }

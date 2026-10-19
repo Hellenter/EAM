@@ -73,7 +73,7 @@ public final class LostLogic {
 	public static @Nullable Attack choose(LostRole role, double distance, boolean targetBlocking, int comboCooldown, int heavyCooldown,
 			SkeletonKnightSettings settings, double spearReach, double heavyRoll, double comboRoll) {
 		return switch (role) {
-			case ARCHER, WALL_COMMANDER -> null;
+			case ARCHER, WALL_COMMANDER, LONGBOWMAN -> null;
 			case SPEARMAN, CENTURION, WALL_SPEARMAN -> distance <= spearReach ? Attack.POKE : null;
 			default -> SkeletonKnightLogic.choose(distance, targetBlocking, comboCooldown, heavyCooldown, settings, heavyRoll, comboRoll);
 		};

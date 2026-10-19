@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -23,8 +24,8 @@ import net.minecraft.world.item.Items;
 
 /**
  * The Lost in their worn ancient metal, drawn by the vanilla armor layer on {@link LostModel}'s jointed armor models.
- * Sword and spear fighting plays the Fallen Lord's animations, like the skeleton knight; archers draw like skeletons, and
- * the shield wall's commander handles his crossbow like a player.
+ * Sword and spear fighting plays the Fallen Lord's animations, like the skeleton knight; archers draw bow and longbow like
+ * skeletons, and the shield wall's commander handles his crossbow like a player.
  */
 public class LostRenderer extends HumanoidMobRenderer<Lost, FallenLordRenderState, FallenLordModel> {
 	/** 2.25 blocks tall: the Fallen Lord's model is 2.4. */
@@ -50,7 +51,7 @@ public class LostRenderer extends HumanoidMobRenderer<Lost, FallenLordRenderStat
 	@Override
 	public void extractRenderState(Lost lost, FallenLordRenderState state, float partialTicks) {
 		super.extractRenderState(lost, state, partialTicks);
-		state.isHoldingBow = lost.getMainHandItem().is(Items.BOW);
+		state.isHoldingBow = lost.getMainHandItem().getItem() instanceof BowItem;
 		state.isAggressive = state.isHoldingBow && lost.isAggressive();
 		state.isShaking = false;
 		// The Lord's sword animations.
@@ -76,7 +77,7 @@ public class LostRenderer extends HumanoidMobRenderer<Lost, FallenLordRenderStat
 	/** A drawn bow and a crossbow are the vanilla poses; a shield is raised by the model itself. */
 	@Override
 	protected HumanoidModel.ArmPose getArmPose(Lost lost, HumanoidArm arm) {
-		if (lost.getMainArm() == arm && lost.isAggressive() && lost.getMainHandItem().is(Items.BOW)) {
+		if (lost.getMainArm() == arm && lost.isAggressive() && lost.getMainHandItem().getItem() instanceof BowItem) {
 			return HumanoidModel.ArmPose.BOW_AND_ARROW;
 		}
 		// The shield wall's commander loads his crossbow and holds it loaded at his shoulder, like a player.

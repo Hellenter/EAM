@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "eam:item/lost_longbowman_spawn_egg"
+  }
+}
