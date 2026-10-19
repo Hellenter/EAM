@@ -122,6 +122,7 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(FridgeModule.CHILLERS).add(BlockItemIds.SNOW, BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.ICE, BlockItemIds.PACKED_ICE,
 				BlockItemIds.BLUE_ICE);
 		builder(BlockTags.ANVIL).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(), EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.CLAY_OVEN.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
 		builder(BlockTags.NEEDS_STONE_TOOL).add(EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),

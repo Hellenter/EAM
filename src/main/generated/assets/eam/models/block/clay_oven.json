@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "eam:block/clay_oven_front",
+    "side": "eam:block/clay_oven_side",
+    "top": "eam:block/clay_oven_top"
+  }
+}

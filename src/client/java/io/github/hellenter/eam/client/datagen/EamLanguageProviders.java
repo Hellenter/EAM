@@ -776,6 +776,8 @@ public final class EamLanguageProviders {
 		private static void mithril(TranslationBuilder builder) {
 			builder.add(EamBlocks.OBSIDIAN_BLAST_FURNACE, "Obsidian Blast Furnace");
 			builder.add("container.eam.obsidian_blast_furnace", "Obsidian Blast Furnace");
+			builder.add(EamBlocks.CLAY_OVEN, "Clay Oven");
+			builder.add("container.eam.clay_oven", "Clay Oven");
 			builder.add(EamItems.MITHRIL_ORE, "Mithril Ore");
 			builder.add(EamItems.DEEPSLATE_MITHRIL_ORE, "Deepslate Mithril Ore");
 			builder.add(EamItems.MITHRIL_BLOCK, "Block of Mithril");
@@ -1610,6 +1612,8 @@ public final class EamLanguageProviders {
 		private static void mithril(TranslationBuilder builder) {
 			builder.add(EamBlocks.OBSIDIAN_BLAST_FURNACE, "Обсидиановая доменная печь");
 			builder.add("container.eam.obsidian_blast_furnace", "Обсидиановая доменная печь");
+			builder.add(EamBlocks.CLAY_OVEN, "Глиняная печка");
+			builder.add("container.eam.clay_oven", "Глиняная печка");
 			builder.add(EamItems.MITHRIL_ORE, "Мифриловая руда");
 			builder.add(EamItems.DEEPSLATE_MITHRIL_ORE, "Глубинносланцевая мифриловая руда");
 			builder.add(EamItems.MITHRIL_BLOCK, "Мифриловый блок");
