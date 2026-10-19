@@ -197,7 +197,7 @@ public class EncyclopediaScreen extends Screen {
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		if (super.mouseClicked(event, doubleClick)) return true;
 		int index = rowAt(event.x(), event.y());
-		if (event.button() != 0 || index < 0) return false;
+		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT || index < 0) return false;
 		if (index != entry || sheet != 0) {
 			open(index, 0);
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
