@@ -40,7 +40,7 @@ public class KingHelmBlock extends HorizontalDirectionalBlock {
 	public static final int LIGHT = 4;
 
 	/** The pike, and the helm on top of it, which rises above the block. */
-	private static final VoxelShape SHAPE = Shapes.or(Block.box(7, 0, 7, 9, 18, 9), Block.box(4, 17, 4, 12, 26, 12));
+	private static final VoxelShape SHAPE = Shapes.or(Block.box(7, 0, 7, 9, 18, 9), Block.box(3.6, 17, 2.4, 12.4, 26.6, 12.4));
 	/** Only the pike stops a walker: the helm is too high to step on. */
 	private static final VoxelShape COLLISION = Block.box(6.5, 0, 6.5, 9.5, 24, 9.5);
 
