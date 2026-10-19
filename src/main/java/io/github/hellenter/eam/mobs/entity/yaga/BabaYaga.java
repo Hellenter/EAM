@@ -2066,6 +2066,10 @@ public class BabaYaga extends Monster {
 					&& BabaYagaLogic.parries(shownTick, swoop.strikeTick(), penalty.window(swoop.parryWindow(), penalized))) {
 				return parryInAir(level, player, source, swoop);
 			}
+			// A creative player's own blow gets through, so the fight can be tested without parrying.
+			if (player != null && player.isCreative()) {
+				return super.hurtServer(level, source, damage);
+			}
 			// Nothing gets through to her in her mortar.
 			level.playSound(null, getX(), getY(0.5), getZ(), SoundEvents.AMETHYST_BLOCK_HIT, getSoundSource(), 1.0F, 0.6F);
 			level.sendParticles(ParticleTypes.WITCH, getX(), getY(0.5), getZ(), 6, 0.4, 0.5, 0.4, 0.0);
