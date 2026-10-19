@@ -26,7 +26,7 @@ record EncyclopediaPage(String key, Kind kind, ItemLike icon, List<ItemLike> ico
 	static final List<EncyclopediaPage> PAGES = List.of(
 			stage("stone_age", EamItems.FLINT_KNIFE, Eam.id("flint_knife"),
 					EamItems.PEBBLE, EamItems.FLINT_SHARD, EamItems.FLINT_KNIFE, EamItems.FLINT_HATCHET, Items.CRAFTING_TABLE,
-					EamItems.CAMP_FIRE, EamItems.CLAY_OVEN, EamItems.LEATHER_FLASK, EamItems.SLINGSHOT),
+					EamItems.CAMP_FIRE, EamItems.CLAY_OVEN, EamItems.LEATHER_FLASK),
 			stage("copper_silver", Items.COPPER_PICKAXE, Eam.id("copper_pickaxe"),
 					EamItems.SIEVE, Items.COPPER_NUGGET, Items.COPPER_PICKAXE, EamItems.COPPER_KNIFE, EamItems.COPPER_SAW,
 					EamItems.COPPER_ANVIL, EamItems.SILVER_INGOT, EamItems.SILVER_BREWING_STAND),
