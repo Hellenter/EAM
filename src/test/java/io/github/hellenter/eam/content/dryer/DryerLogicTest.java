@@ -20,11 +20,4 @@ class DryerLogicTest {
 		assertFalse(DryerLogic.done(99, SETTINGS));
 		assertTrue(DryerLogic.done(100, SETTINGS));
 	}
-
-	@Test
-	void onlyDryableFoodThatIsNotDriedYet() {
-		assertTrue(DryerLogic.canDry(true, false));
-		assertFalse(DryerLogic.canDry(true, true));
-		assertFalse(DryerLogic.canDry(false, false));
-	}
 }

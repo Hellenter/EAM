@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.content.swamp.BerryShrub;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.dryer.DriedFoods;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
@@ -131,9 +132,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.WILD_GARLIC, BlockModelGenerators.PlantType.NOT_TINTED);
 		// Four looks over eight ages, like carrots.
-		// Garlic is the crop's item, so its definition comes from here; dried garlic looks darker.
-		new BlockModelGenerators(generators.blockStateOutput, DriedItemModels.output(generators.itemModelOutput), generators.modelOutput)
-				.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
+		generators.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
 		// An evolved spider's web looks like cobweb and has no item.
@@ -637,11 +636,12 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
-		// Dryable food: a darker look while the stack is dried.
-		ItemModelGenerators dryable = new ItemModelGenerators(DriedItemModels.output(generators.itemModelOutput), generators.modelOutput);
-		dryable.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
-		dryable.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
-		dryable.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
+		for (Item item : DriedFoods.DRIED.values()) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
 		generators.generateFlatItem(EamItems.GLOWSHROOM, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,

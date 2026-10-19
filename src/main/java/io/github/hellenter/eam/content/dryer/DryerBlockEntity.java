@@ -15,6 +15,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -86,14 +87,15 @@ public class DryerBlockEntity extends BlockEntity {
 					continue;
 				}
 			}
-			if (!DryerLogic.canDry(stack.is(DryerModule.DRYABLE), stack.has(SpoilageModule.DRIED))) {
+			Item driedItem = DriedFoods.dried(stack.getItem());
+			if (driedItem == null) {
 				continue;
 			}
 			int before = dryer.progress[slot];
 			dryer.progress[slot] = DryerLogic.advance(before, wet);
 			dried |= dryer.progress[slot] != before;
 			if (DryerLogic.done(dryer.progress[slot], settings)) {
-				dryer.items.set(slot, SpoilageModule.dry(stack, now, settings.water()));
+				dryer.items.set(slot, SpoilageModule.dry(stack, driedItem, now, settings.water()));
 				dryer.progress[slot] = 0;
 				itemsChanged = true;
 			}
@@ -118,9 +120,9 @@ public class DryerBlockEntity extends BlockEntity {
 		return items;
 	}
 
-	/** Whether {@code stack} can go on the rack: dryable food that is not dried yet. */
+	/** Whether {@code stack} can go on the rack: food that has a dried item. */
 	public static boolean accepts(ItemStack stack) {
-		return DryerLogic.canDry(stack.is(DryerModule.DRYABLE), stack.has(SpoilageModule.DRIED));
+		return DriedFoods.dried(stack.getItem()) != null;
 	}
 
 	/** Puts one item from {@code stack} on a free slot; false when the rack is full or the item does not dry. */

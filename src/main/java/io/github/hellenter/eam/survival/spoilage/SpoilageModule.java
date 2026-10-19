@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.UseRemainder;
 import net.minecraft.world.level.Level;
@@ -144,11 +145,11 @@ public final class SpoilageModule {
 	}
 
 	/**
-	 * The dried version of {@code food}: it no longer quenches thirst, costs {@code water} when eaten instead, and each
-	 * item keeps the time it had left {@code dried_multiplier} times over.
+	 * {@code food} turned into its dried item: it no longer quenches thirst, costs {@code water} when eaten instead, and
+	 * each item keeps the time it had left {@code dried_multiplier} times over.
 	 */
-	public static ItemStack dry(ItemStack food, long now, int water) {
-		ItemStack dried = food.copy();
+	public static ItemStack dry(ItemStack food, Item driedItem, long now, int water) {
+		ItemStack dried = food.transmuteCopy(driedItem);
 		dried.remove(ThirstModule.HYDRATION);
 		dried.set(DRIED, new Dried(water));
 		SpoilageSettings.Rule rule = settings.rule(food);
