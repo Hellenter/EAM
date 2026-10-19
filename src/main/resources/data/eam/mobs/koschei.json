@@ -259,7 +259,9 @@
     "fuse": 60,
     "explosion_power": 7.0,
     "shaft_radius": 1,
-    "layers_per_tick": 8,
+    "chain_power": 3.5,
+    "chain_step": 4,
+    "chain_interval": 3,
     "throw_speed": 0.4
   }
 }
