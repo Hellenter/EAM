@@ -12,6 +12,7 @@ import io.github.hellenter.eam.client.content.talisman.TalismanActivation;
 import io.github.hellenter.eam.client.crafting.CraftProgress;
 import io.github.hellenter.eam.client.crafting.CraftingTableScreen;
 import io.github.hellenter.eam.client.enchanting.EnchantingClient;
+import io.github.hellenter.eam.client.encyclopedia.Encyclopedia;
 import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
@@ -137,6 +138,7 @@ public class EamClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		NutritionPanel.register();
+		Encyclopedia.register();
 		NockedArrow.register();
 		// The dense shrub's leaves take the biome's foliage colour, like the trees around it.
 		BlockColorRegistry.register(List.of(BlockTintSources.foliage()), EamBlocks.DENSE_SHRUB, EamBlocks.BIG_SHRUB_LEAVES);
