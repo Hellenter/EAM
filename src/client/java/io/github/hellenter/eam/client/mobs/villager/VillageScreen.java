@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyOpenPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageGuardPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageListPayload;
@@ -112,7 +113,7 @@ public class VillageScreen extends Screen {
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		if (super.mouseClicked(event, doubleClick)) return true;
 		int index = rowAt(event.x(), event.y());
-		if (event.button() != 1 || index < 0) return false;
+		if (event.button() != InputConstants.MOUSE_BUTTON_RIGHT || index < 0) return false;
 		ClientPlayNetworking.send(new VillageResidentRequestPayload(village.elderId(), village.villagers().get(index).id()));
 		return true;
 	}
