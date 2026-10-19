@@ -77,7 +77,12 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_thread", "Leather Thread");
 			builder.add(EamItems.FLASK_THREADS, "Threads");
 			builder.add("item.eam.slingshot", "Slingshot");
-			builder.add("item.eam.power_slingshot", "Power Slingshot");
+			builder.add("item.eam.copper_power_slingshot", "Copper Power Slingshot");
+			builder.add("item.eam.silver_power_slingshot", "Silver Power Slingshot");
+			builder.add("item.eam.iron_power_slingshot", "Iron Power Slingshot");
+			builder.add("item.eam.ancient_metal_power_slingshot", "Ancient Metal Power Slingshot");
+			builder.add("item.eam.mithril_power_slingshot", "Mithril Power Slingshot");
+			builder.add("item.eam.adamantium_power_slingshot", "Adamantium Power Slingshot");
 			builder.add("item.eam.leather_flask", "Leather Flask");
 			builder.add("item.eam.water_bowl", "Bowl of Water");
 			builder.add("item.eam.boiled_water_bowl", "Bowl of Boiled Water");
@@ -892,7 +897,12 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_thread", "Кожаная нить");
 			builder.add(EamItems.FLASK_THREADS, "Нитки");
 			builder.add("item.eam.slingshot", "Рогатка");
-			builder.add("item.eam.power_slingshot", "Мощная рогатка");
+			builder.add("item.eam.copper_power_slingshot", "Мощная медная рогатка");
+			builder.add("item.eam.silver_power_slingshot", "Мощная серебряная рогатка");
+			builder.add("item.eam.iron_power_slingshot", "Мощная железная рогатка");
+			builder.add("item.eam.ancient_metal_power_slingshot", "Мощная рогатка из древнего металла");
+			builder.add("item.eam.mithril_power_slingshot", "Мощная мифриловая рогатка");
+			builder.add("item.eam.adamantium_power_slingshot", "Мощная адамантиевая рогатка");
 			builder.add("item.eam.leather_flask", "Кожаная фляга");
 			builder.add("item.eam.water_bowl", "Миска воды");
 			builder.add("item.eam.boiled_water_bowl", "Миска кипячёной воды");

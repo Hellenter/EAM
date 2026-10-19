@@ -18,14 +18,18 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Predicate;
 
 /**
- * A slingshot with an iron fork: pebbles fly faster and hit harder, and a splash or lingering potion held in the
- * other hand is shot instead of a pebble. Potions in the bag are never taken, so pebbles don't waste them.
+ * A slingshot with a metal fork: pebbles fly faster and hit harder the better the metal, and a splash or lingering
+ * potion held in the other hand is shot instead of a pebble. Potions in the bag are never taken, so pebbles don't
+ * waste them.
  */
 public class PowerSlingshotItem extends SlingshotItem {
 	private static final Predicate<ItemStack> PEBBLE_OR_POTION = itemStack -> itemStack.is(EamItems.PEBBLE) || isPotion(itemStack);
 
-	public PowerSlingshotItem(Properties properties) {
+	private final SlingshotLogic.PowerTier tier;
+
+	public PowerSlingshotItem(SlingshotLogic.PowerTier tier, Properties properties) {
 		super(properties);
+		this.tier = tier;
 	}
 
 	private static boolean isPotion(ItemStack itemStack) {
@@ -52,7 +56,7 @@ public class PowerSlingshotItem extends SlingshotItem {
 	protected void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float power, float uncertainty, float angle,
 			@Nullable LivingEntity target) {
 		if (projectile instanceof AbstractThrownPotion) {
-			float speed = power / fullSpeed() * SlingshotLogic.POTION_FULL_SPEED;
+			float speed = power / fullSpeed() * tier.potionSpeed();
 			projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot() + angle, 0.0F, speed, uncertainty);
 			return;
 		}
@@ -61,12 +65,12 @@ public class PowerSlingshotItem extends SlingshotItem {
 
 	@Override
 	protected float fullSpeed() {
-		return SlingshotLogic.POWER_FULL_SPEED;
+		return tier.pebbleSpeed();
 	}
 
 	@Override
 	protected float damageScale() {
-		return SlingshotLogic.POWER_DAMAGE_SCALE;
+		return tier.damageScale();
 	}
 
 	@Override

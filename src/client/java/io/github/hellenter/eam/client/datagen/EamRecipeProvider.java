@@ -203,17 +203,12 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.PEBBLE), has(EamItems.PEBBLE))
 						.save(output);
 
-				// The plain slingshot on an iron fork, a copper-wire grip and a silver pin through the crotch.
-				shaped(RecipeCategory.COMBAT, EamItems.POWER_SLINGSHOT)
-						.define('I', Items.IRON_INGOT)
-						.define('X', EamItems.SLINGSHOT)
-						.define('C', Items.COPPER_INGOT)
-						.define('S', EamItems.SILVER_INGOT)
-						.pattern("IXI")
-						.pattern("CSC")
-						.pattern(" C ")
-						.unlockedBy(getHasName(EamItems.SLINGSHOT), has(EamItems.SLINGSHOT))
-						.save(output);
+				powerSlingshot(EamItems.COPPER_POWER_SLINGSHOT, Items.COPPER_INGOT);
+				powerSlingshot(EamItems.SILVER_POWER_SLINGSHOT, EamItems.SILVER_INGOT);
+				powerSlingshot(EamItems.IRON_POWER_SLINGSHOT, Items.IRON_INGOT);
+				powerSlingshot(EamItems.ANCIENT_METAL_POWER_SLINGSHOT, EamItems.ANCIENT_METAL_INGOT);
+				powerSlingshot(EamItems.MITHRIL_POWER_SLINGSHOT, EamItems.MITHRIL_INGOT);
+				powerSlingshot(EamItems.ADAMANTIUM_POWER_SLINGSHOT, EamItems.ADAMANTIUM_INGOT);
 
 				shapeless(RecipeCategory.DECORATIONS, EamItems.CAMP_FIRE)
 						.requires(Items.STICK, 3)
@@ -449,6 +444,17 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.pattern("S")
 						.pattern("F")
 						.unlockedBy(getHasName(head), has(head))
+						.save(output);
+			}
+
+			/** A plain slingshot on a fork of three ingots. */
+			private void powerSlingshot(Item slingshot, Item ingot) {
+				shaped(RecipeCategory.COMBAT, slingshot)
+						.define('I', ingot)
+						.define('X', EamItems.SLINGSHOT)
+						.pattern("IXI")
+						.pattern(" I ")
+						.unlockedBy(getHasName(ingot), has(ingot))
 						.save(output);
 			}
 
