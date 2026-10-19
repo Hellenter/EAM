@@ -19,6 +19,7 @@ import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -146,6 +147,10 @@ public final class EamItems {
 
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
+
+	/** Iron-forked slingshot: harder pebbles, and shoots splash or lingering potions held in the other hand. */
+	public static final Item POWER_SLINGSHOT = register("power_slingshot", PowerSlingshotItem::new,
+			new Item.Properties().durability(384).repairable(Items.IRON_INGOT));
 
 	/** The sieve block; its damage is how many gravel it has sifted. */
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
