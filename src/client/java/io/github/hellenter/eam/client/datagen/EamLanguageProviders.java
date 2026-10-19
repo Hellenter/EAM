@@ -284,6 +284,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
 			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
 			builder.add(EamItems.COMMANDER_HORN, "Commander's Horn");
+			builder.add(EamItems.KOSCHEI_NEEDLE, "Koschei's Needle");
 			builder.add("item.eam.commander_horn.desc", "The Lost serve whoever carries it");
 			builder.add("item.eam.commander_horn.usage", "Use: call the wave. Sneak + use: choose the wave");
 			builder.add("item.eam.commander_horn.wave", "Wave: %s");
@@ -1084,6 +1085,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
 			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
 			builder.add(EamItems.COMMANDER_HORN, "Командирский горн");
+			builder.add(EamItems.KOSCHEI_NEEDLE, "Кощеева игла");
 			builder.add("item.eam.commander_horn.desc", "Потерянные служат тому, кто его носит");
 			builder.add("item.eam.commander_horn.usage", "ПКМ: призвать волну. Shift + ПКМ: выбрать волну");
 			builder.add("item.eam.commander_horn.wave", "Волна: %s");

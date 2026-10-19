@@ -25,6 +25,7 @@ import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedleItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
@@ -261,6 +262,9 @@ public final class EamItems {
 	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
 	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
+	/** The needle that held Koschei's death, dropped by him; used, it bores to the bedrock and bursts. */
+	public static final Item KOSCHEI_NEEDLE = register("koschei_needle", KoscheiNeedleItem::new, new Item.Properties().stacksTo(1)
+			.rarity(Rarity.EPIC).fireResistant().component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
 	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
 	public static final Item CHANTERELLE_CAP = blockItem("chanterelle_cap", EamBlocks.CHANTERELLE_CAP);
 	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);

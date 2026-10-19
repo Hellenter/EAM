@@ -37,6 +37,7 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiBallLightning;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceCopy;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedle;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceRaven;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
@@ -268,6 +269,16 @@ public final class EamEntities {
 					.noSave()
 					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
+
+	/** Koschei's needle, used: it spins in a pillar of light, bores a shaft to the bedrock and bursts. */
+	public static final EntityType<KoscheiNeedle> KOSCHEI_NEEDLE = register("koschei_needle",
+			EntityType.Builder.<KoscheiNeedle>of(KoscheiNeedle::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.4F, 0.4F)
+					.fireImmune()
+					.noSave()
+					.clientTrackingRange(16)
+					.updateInterval(1));
 
 	/** A bolt or a soul thrown from Koschei's staff in his second phase. */
 	public static final EntityType<KoscheiOrb> KOSCHEI_ORB = register("koschei_orb",
