@@ -40,6 +40,8 @@ import java.util.List;
  * <p>
  * Later phases also teach some monsters new tricks: skeletons in {@link #SWORDSMEN} carry a blade and fight with it up
  * close ({@link SwapWeaponGoal}), spiders in {@link #WEB_SPINNERS} spit webs at players ({@link ShootWebGoal}).
+ * <p>
+ * Phantoms keep away from a young world: they begin to spawn only on the evolution's phantom day.
  */
 public final class MonsterEvolutionModule {
 	/** Monsters that put on armor as the world ages. */
@@ -109,6 +111,12 @@ public final class MonsterEvolutionModule {
 
 	static void setSettings(EvolutionSettings value) {
 		settings = value;
+	}
+
+	/** Whether phantoms may spawn in {@code level}'s world yet; always with the module off. */
+	public static boolean phantomsAllowed(ServerLevel level) {
+		return !enabled || EvolutionLogic.phantomsAwake(
+				EvolutionLogic.daysPassed(level.getServer().overworld().getOverworldClockTime()), settings.phantomDay());
 	}
 
 	/**

@@ -18,6 +18,13 @@ class EvolutionLogicTest {
 	}
 
 	@Test
+	void phantomsWaitForTheirDay() {
+		assertFalse(EvolutionLogic.phantomsAwake(14, 15));
+		assertTrue(EvolutionLogic.phantomsAwake(15, 15));
+		assertTrue(EvolutionLogic.phantomsAwake(0, 0));
+	}
+
+	@Test
 	void phaseBeginsOnItsDay() {
 		assertEquals(-1, EvolutionLogic.phase(PHASES, 9));
 		assertEquals(0, EvolutionLogic.phase(PHASES, 10));
