@@ -16,5 +16,6 @@
   "weapon_weights": [35.0, 35.0, 30.0],
   "weapon_drop_chance": 0.05,
   "climb_height": 24.0,
-  "climb_reach": 12.0
+  "climb_reach": 12.0,
+  "shield_disable_multiplier": 1.0
 }

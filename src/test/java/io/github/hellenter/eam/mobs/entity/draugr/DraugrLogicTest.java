@@ -86,4 +86,11 @@ class DraugrLogicTest {
 		assertEquals(Faction.NORSE.piece(Slot.HEAD), DraugrGear.piece(gear, Slot.HEAD));
 		assertEquals(10 - 8, DraugrGear.armor(gear));
 	}
+
+	@Test
+	void axeKnocksShieldDownLikeAPlayers() {
+		assertEquals(100, DraugrLogic.shieldKnockedTicks(5.0F, 1.0F));
+		assertEquals(50, DraugrLogic.shieldKnockedTicks(5.0F, 0.5F));
+		assertEquals(0, DraugrLogic.shieldKnockedTicks(0.0F, 1.0F));
+	}
 }
