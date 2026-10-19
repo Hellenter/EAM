@@ -42,7 +42,7 @@
   ],
   "village": {
     "abandoned_villages_after_iron_age": 0.25,
-    "chance_after_iron_age": 1.0,
-    "chance_before_iron_age": 0.33
+    "chance_after_iron_age": 0.33333334,
+    "chance_before_iron_age": 0.16666667
   }
 }

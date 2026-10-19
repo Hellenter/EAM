@@ -36,9 +36,9 @@ public class EamCryptProvider extends FabricDynamicRegistryProvider {
 	}
 
 	public static void bootstrap(BootstrapContext<Structure> context) {
-		// 33% of villages before the iron age, when all of them are abandoned; after it every abandoned village, which
-		// is one in four.
-		CryptStructure.VillageRule villages = new CryptStructure.VillageRule(0.33F, 1F, 0.25F);
+		// One village in six before the iron age, when all of them are abandoned; after it one abandoned village in
+		// three (a quarter of villages stay abandoned).
+		CryptStructure.VillageRule villages = new CryptStructure.VillageRule(1F / 6F, 1F / 3F, 0.25F);
 		context.register(CryptModule.STRUCTURE, crypt(context, Optional.of(villages)));
 		context.register(CryptModule.TEST_STRUCTURE, crypt(context, Optional.empty()));
 	}
