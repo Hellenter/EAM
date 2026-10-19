@@ -15,6 +15,7 @@
     "minecraft:camel",
     "minecraft:polar_bear",
     "minecraft:turtle",
-    "minecraft:panda"
+    "minecraft:panda",
+    "eam:boar"
   ]
 }

@@ -5,6 +5,7 @@
     "minecraft:sheep",
     "minecraft:pig",
     "minecraft:chicken",
-    "minecraft:goat"
+    "minecraft:goat",
+    "eam:boar"
   ]
 }

@@ -14,6 +14,7 @@ import io.github.hellenter.eam.survival.spoilage.SpoilageSettings;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
+import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
@@ -535,6 +536,9 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.WARG_LEADER, "Warg Pack Leader");
 			builder.add(EamItems.WARG_SPAWN_EGG, "Warg Spawn Egg");
 			builder.add(EamItems.WARG_LEADER_SPAWN_EGG, "Warg Pack Leader Spawn Egg");
+			builder.add(EamEntities.BOAR, "Underground Boar");
+			builder.add(EamItems.BOAR_SPAWN_EGG, "Underground Boar Spawn Egg");
+			builder.add(BoarModule.FOOD, "Boar Food");
 			builder.add(EamItems.WOLF_MEAT, "Raw Wolf Meat");
 			builder.add(EamItems.COOKED_WOLF_MEAT, "Cooked Wolf Meat");
 			builder.add(EamEntities.KOSCHEI, "Koschei the Deathless");
@@ -1362,6 +1366,9 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.WARG_LEADER, "Вожак варгов");
 			builder.add(EamItems.WARG_SPAWN_EGG, "Яйцо призыва варга");
 			builder.add(EamItems.WARG_LEADER_SPAWN_EGG, "Яйцо призыва вожака варгов");
+			builder.add(EamEntities.BOAR, "Подземный кабан");
+			builder.add(EamItems.BOAR_SPAWN_EGG, "Яйцо призыва подземного кабана");
+			builder.add(BoarModule.FOOD, "Корм кабанов");
 			builder.add(EamItems.WOLF_MEAT, "Сырая волчатина");
 			builder.add(EamItems.COOKED_WOLF_MEAT, "Жареная волчатина");
 			builder.add(EamEntities.KOSCHEI, "Кощей Бессмертный");

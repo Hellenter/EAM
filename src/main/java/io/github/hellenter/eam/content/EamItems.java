@@ -425,6 +425,8 @@ public final class EamItems {
 	/** Brings the leader with his whole pack. */
 	public static final Item WARG_LEADER_SPAWN_EGG = register("warg_leader_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WARG_LEADER));
+	public static final Item BOAR_SPAWN_EGG = register("boar_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.BOAR));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);

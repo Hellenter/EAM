@@ -18,6 +18,7 @@ import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
+import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.DonationSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
@@ -78,6 +79,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(LeshyModule.OFFERINGS).add(Items.BREAD.builtInRegistryHolder().key());
 		builder(FeederModule.FEED).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
 				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key());
+		// Underground boars root for mushrooms and tubers: they breed on these and follow a player holding them.
+		builder(BoarModule.FOOD).addAll(keys(Items.BROWN_MUSHROOM, Items.RED_MUSHROOM, Items.CARROT, Items.POTATO, Items.BEETROOT));
 		// Food spoilage: raw meat and fish keep five days; fruit, vegetables and cooked food ten.
 		builder(SpoilageSettings.SPOILS_FAST).addAll(keys(Items.BEEF, Items.PORKCHOP, Items.MUTTON, Items.CHICKEN, Items.RABBIT,
 				EamItems.WOLF_MEAT, Items.COD, Items.SALMON, Items.TROPICAL_FISH, Items.PUFFERFISH));
