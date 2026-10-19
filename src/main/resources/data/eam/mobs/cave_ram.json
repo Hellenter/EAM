@@ -1,0 +1,8 @@
+{
+  "health": 12.0,
+  "speed": 0.27,
+  "damage": 3.0,
+  "knockback": 1.5,
+  "chase_speed": 1.45,
+  "spawn_chance": 0.5
+}

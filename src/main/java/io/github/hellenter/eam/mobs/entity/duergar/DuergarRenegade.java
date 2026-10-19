@@ -132,7 +132,8 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 			return true;
 		}
 		return DuergarLogic.darkEnough(level.getBrightness(LightLayer.BLOCK, pos), level.getBrightness(LightLayer.SKY, pos))
-				&& level.getEntitiesOfClass(DuergarRenegade.class, new AABB(pos).inflate(settings().spawnSpacing())).isEmpty();
+				&& level.getEntitiesOfClass(DuergarRenegade.class, new AABB(pos).inflate(settings().spawnSpacing())).isEmpty()
+				&& level.getEntitiesOfClass(DuergarRamRider.class, new AABB(pos).inflate(settings().spawnSpacing())).isEmpty();
 	}
 
 	@Override
@@ -153,7 +154,7 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 		goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 		// A squad mate's wild swing does not turn him on his own.
-		targetSelector.addGoal(1, new HurtByTargetGoal(this, DuergarRenegade.class).setAlertOthers());
+		targetSelector.addGoal(1, new HurtByTargetGoal(this, DuergarRenegade.class, DuergarRamRider.class).setAlertOthers());
 		targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 		targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, DuergarVillager.class, true));
 	}
@@ -272,7 +273,7 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 
 	@Override
 	protected boolean considersEntityAsAlly(Entity other) {
-		return other instanceof DuergarRenegade || super.considersEntityAsAlly(other);
+		return other instanceof DuergarRenegade || other instanceof DuergarRamRider || super.considersEntityAsAlly(other);
 	}
 
 	// ---- Squad ----
@@ -340,11 +341,13 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 
 	// ---- Special attacks ----
 
+	@Override
 	public RenegadeAction action() {
 		return RenegadeAction.byId(entityData.get(DATA_ACTION));
 	}
 
 	/** Client: how far into his current action he is, in ticks. */
+	@Override
 	public float actionTime(float partialTicks) {
 		return clientActionTicks + partialTicks;
 	}

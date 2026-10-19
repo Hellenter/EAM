@@ -19,6 +19,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
+import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.DonationSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
@@ -81,6 +82,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key());
 		// Underground boars root for mushrooms and tubers: they breed on these and follow a player holding them.
 		builder(BoarModule.FOOD).addAll(keys(Items.BROWN_MUSHROOM, Items.RED_MUSHROOM, Items.CARROT, Items.POTATO, Items.BEETROOT));
+		// Cave rams graze like sheep, and pick at cave mushrooms.
+		builder(CaveRamModule.FOOD).addAll(keys(Items.WHEAT, Items.BROWN_MUSHROOM, Items.RED_MUSHROOM));
 		// Food spoilage: raw meat and fish keep five days; fruit, vegetables and cooked food ten.
 		builder(SpoilageSettings.SPOILS_FAST).addAll(keys(Items.BEEF, Items.PORKCHOP, Items.MUTTON, Items.CHICKEN, Items.RABBIT,
 				EamItems.WOLF_MEAT, Items.COD, Items.SALMON, Items.TROPICAL_FISH, Items.PUFFERFISH));
@@ -175,6 +178,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(FlintTools.REPAIR_MATERIALS).add(Items.FLINT.builtInRegistryHolder().key());
 		builder(ItemTags.AXES).add(EamItems.FLINT_HATCHET.builtInRegistryHolder().key(), EamItems.FLINT_AXE.builtInRegistryHolder().key(),
 				EamItems.SILVER_AXE.builtInRegistryHolder().key());
+		// The ram riders' tomahawk is a light axe: it chops, and takes the axe enchantments.
+		builder(ItemTags.AXES).add(EamItems.TOMAHAWK.builtInRegistryHolder().key());
 
 		// Axes take the melee weapon enchantments too: looting, knockback, fire aspect. Knives take all the sword ones
 		// but sweeping edge, since a knife never sweeps.

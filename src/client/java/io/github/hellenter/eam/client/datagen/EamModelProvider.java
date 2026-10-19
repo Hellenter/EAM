@@ -670,6 +670,8 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.WARG_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WARG_LEADER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BOAR_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CAVE_RAM_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BABA_YAGA_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KOSCHEI_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DROWNED_SOLDIER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
@@ -776,6 +778,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.LAIR_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CRYPT_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_BOMB, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.TOMAHAWK, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_HEART, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LESHY_ANTLER, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);

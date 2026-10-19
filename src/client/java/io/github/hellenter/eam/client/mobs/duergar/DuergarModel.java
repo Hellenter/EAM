@@ -79,7 +79,7 @@ public class DuergarModel extends HumanoidModel<DuergarRenderState> {
 		}
 	}
 
-	/** A renegade's special attacks, each with a wind-up the player can read. */
+	/** A fighter's special attacks, each with a wind-up the player can read. */
 	private void poseAction(RenegadeAction action, float t) {
 		switch (action) {
 			case CHARGE -> {
@@ -118,6 +118,31 @@ public class DuergarModel extends HumanoidModel<DuergarRenderState> {
 				leftArm.xRot = -1.2F - flail;
 				rightArm.zRot = 0.9F;
 				leftArm.zRot = -0.9F;
+			}
+			case TOMAHAWK_THROW -> {
+				// The tomahawk drawn back over his shoulder, then flung forward.
+				if (t < RenegadeAction.TOMAHAWK_RELEASE) {
+					float p = ease(t / RenegadeAction.TOMAHAWK_RELEASE);
+					rightArm.xRot = Mth.lerp(p, rightArm.xRot, -2.8F);
+					rightArm.zRot = Mth.lerp(p, rightArm.zRot, -0.25F);
+					leftArm.xRot = Mth.lerp(p, leftArm.xRot, -0.9F);
+				} else {
+					float p = Math.min(1.0F, (t - RenegadeAction.TOMAHAWK_RELEASE) / 3.0F);
+					rightArm.xRot = Mth.lerp(p, -2.8F, -0.7F);
+					leftArm.xRot = -0.9F;
+				}
+			}
+			case NET_THROW -> {
+				// The net whirled round over his head, then cast forward.
+				if (t < RenegadeAction.NET_RELEASE) {
+					float p = ease(Math.min(1.0F, t / 4.0F));
+					leftArm.xRot = Mth.lerp(p, leftArm.xRot, -2.9F);
+					leftArm.zRot = Mth.lerp(p, leftArm.zRot, 0.0F) + Mth.sin(t * 1.1F) * 0.35F * p;
+					leftArm.yRot = Mth.cos(t * 1.1F) * 0.35F * p;
+				} else {
+					float p = Math.min(1.0F, (t - RenegadeAction.NET_RELEASE) / 3.0F);
+					leftArm.xRot = Mth.lerp(p, -2.9F, -1.2F);
+				}
 			}
 			case FLYING -> {
 				// Fist first at the player.

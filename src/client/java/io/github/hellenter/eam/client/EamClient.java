@@ -40,6 +40,9 @@ import io.github.hellenter.eam.client.mobs.spider.SmallSpiderRenderer;
 import io.github.hellenter.eam.client.mobs.bat.VampireBatRenderer;
 import io.github.hellenter.eam.client.mobs.boar.BoarModel;
 import io.github.hellenter.eam.client.mobs.boar.BoarRenderer;
+import io.github.hellenter.eam.client.mobs.duergar.TomahawkRenderer;
+import io.github.hellenter.eam.client.mobs.ram.CaveRamModel;
+import io.github.hellenter.eam.client.mobs.ram.CaveRamRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
 import io.github.hellenter.eam.client.mobs.centurion.LostCenturionGearModel;
@@ -49,6 +52,7 @@ import io.github.hellenter.eam.client.mobs.draugr.DraugrRenderer;
 import io.github.hellenter.eam.client.mobs.duergar.DuergarModel;
 import io.github.hellenter.eam.client.mobs.duergar.DuergarRenderer;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
@@ -241,6 +245,10 @@ public class EamClient implements ClientModInitializer {
 				context -> new DuergarRenderer<>(context, "duergar_renegade", DuergarRenegade.SKINS));
 		EntityRendererRegistry.register(EamEntities.DUERGAR_VILLAGER,
 				context -> new DuergarRenderer<>(context, "duergar_villager", DuergarVillager.SKINS));
+		// Ram riders are outcasts too: the renegades' faces.
+		EntityRendererRegistry.register(EamEntities.DUERGAR_RAM_RIDER,
+				context -> new DuergarRenderer<>(context, "duergar_renegade", DuergarRamRider.SKINS));
+		EntityRendererRegistry.register(EamEntities.TOMAHAWK, TomahawkRenderer::new);
 		ModelLayerRegistry.registerModelLayer(SmallSpiderRenderer.WOOD_SPIDER, SmallSpiderRenderer::createLayer);
 		ModelLayerRegistry.registerModelLayer(SmallSpiderRenderer.BLACK_WIDOW, SmallSpiderRenderer::createLayer);
 		EntityRendererRegistry.register(EamEntities.WOOD_SPIDER, SmallSpiderRenderer::woodSpider);
@@ -253,6 +261,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.WARG_LEADER, WargRenderer::new);
 		ModelLayerRegistry.registerModelLayer(BoarModel.LAYER, BoarModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.BOAR, BoarRenderer::new);
+		ModelLayerRegistry.registerModelLayer(CaveRamModel.LAYER, CaveRamModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.CAVE_RAM, CaveRamRenderer::new);
 		ModelLayerRegistry.registerModelLayer(BabaYagaModel.LAYER, BabaYagaModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.BABA_YAGA, BabaYagaRenderer::new);
 		ModelLayerRegistry.registerModelLayer(DrownedSoldierModel.LAYER, DrownedSoldierModel::createLayer);

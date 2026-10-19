@@ -4,6 +4,9 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.boar.Boar;
+import io.github.hellenter.eam.mobs.entity.ram.CaveRam;
+import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
+import io.github.hellenter.eam.content.tools.ThrownTomahawk;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
 import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
@@ -256,6 +259,31 @@ public final class EamEntities {
 					.sized(1.0F, 1.0F)
 					.eyeHeight(0.8F)
 					.clientTrackingRange(10));
+
+	/** A cave ram: a big, shaggy, curl-horned wild sheep of the underworld's rocky and frozen caves; duergar outcasts ride it. */
+	public static final EntityType<CaveRam> CAVE_RAM = register("cave_ram",
+			EntityType.Builder.of(CaveRam::new, MobCategory.CREATURE)
+					.sized(1.0F, 1.3F)
+					.eyeHeight(1.15F)
+					.passengerAttachments(1.1F)
+					.clientTrackingRange(10));
+
+	/** A duergar outcast on a cave ram, with tomahawks and a net. */
+	public static final EntityType<DuergarRamRider> DUERGAR_RAM_RIDER = register("duergar_ram_rider",
+			EntityType.Builder.of(DuergarRamRider::new, MobCategory.MONSTER)
+					.sized(0.8F, 1.4F)
+					.eyeHeight(1.15F)
+					.ridingOffset(-0.3F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** A thrown tomahawk: a ram rider's, or a player's own. */
+	public static final EntityType<ThrownTomahawk> TOMAHAWK = register("tomahawk",
+			EntityType.Builder.<ThrownTomahawk>of(ThrownTomahawk::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.5F, 0.5F)
+					.clientTrackingRange(4)
+					.updateInterval(20));
 
 	/** Baba Yaga: a hunched old witch with a staff, flying in her mortar until it breaks. Fire does not touch her in it. */
 	public static final EntityType<BabaYaga> BABA_YAGA = register("baba_yaga",
