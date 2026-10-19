@@ -245,7 +245,7 @@
       "resource": "metal"
     }
   },
-  "ticks_per_block": 12,
+  "ticks_per_block": 4,
   "tool_tiers": {
     "minecraft:incorrect_for_copper_tool": 1.5,
     "minecraft:incorrect_for_diamond_tool": 3.0,

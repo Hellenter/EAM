@@ -1,8 +1,15 @@
 package io.github.hellenter.eam.mobs.vanilla.villager;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import net.minecraft.core.BlockPos;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Set;
 
 class BlueprintLogicTest {
 	@Test
@@ -29,5 +36,24 @@ class BlueprintLogicTest {
 	@Test
 	void standsCentredOnTheLookedAtBlock() {
 		assertArrayEquals(new int[] {7, 64, -3}, BlueprintLogic.origin(10, 64, 0, 7, 7));
+	}
+
+	@Test
+	void oneBlockHasTwelveEdges() {
+		assertEquals(12, BlueprintLogic.outline(Set.of(BlockPos.ZERO)).size());
+	}
+
+	@Test
+	void aRowOfBlocksShowsOnlyItsOutline() {
+		List<BlueprintLogic.Edge> edges = BlueprintLogic.outline(Set.of(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), new BlockPos(2, 0, 0)));
+		assertEquals(12, edges.size());
+		assertTrue(edges.contains(new BlueprintLogic.Edge(0, 0, 0, 0, 3)));
+	}
+
+	@Test
+	void anInnerCornerIsOutlinedToo() {
+		// An L of three blocks: the crease inside the L is an edge as well.
+		List<BlueprintLogic.Edge> edges = BlueprintLogic.outline(Set.of(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1)));
+		assertTrue(edges.contains(new BlueprintLogic.Edge(1, 1, 0, 1, 1)));
 	}
 }
