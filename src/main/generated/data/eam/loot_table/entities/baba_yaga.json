@@ -32,6 +32,15 @@
         }
       ],
       "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "eam:yaga_staff_skull"
+        }
+      ],
+      "rolls": 1
     }
   ]
 }

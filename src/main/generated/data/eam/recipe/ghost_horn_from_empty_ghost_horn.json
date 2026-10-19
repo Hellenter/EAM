@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "eam:empty_ghost_horn",
+    "eam:mithril_ingot",
+    "eam:mithril_ingot"
+  ],
+  "result": {
+    "id": "eam:ghost_horn"
+  }
+}

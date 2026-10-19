@@ -21,6 +21,7 @@
 		"dimension.PortalForcerMixin",
 		"mobs.entity.PlayerArmorPiercingMixin",
 		"mobs.entity.lost.LivingEntityMarkMixin",
+		"mobs.entity.ghosthorse.LivingEntityGhostRiderMixin",
 		"mobs.entity.boss.BlockItemPlacedMixin",
 		"mobs.entity.crossbowman.NaturalSpawnerEliteMixin",
 		"mobs.entity.yaga.NaturalSpawnerYagaMixin",
