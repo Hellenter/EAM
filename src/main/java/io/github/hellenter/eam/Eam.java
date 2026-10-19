@@ -77,6 +77,7 @@ import io.github.hellenter.eam.world.darkness.DarknessModule;
 import io.github.hellenter.eam.world.enchanting.EnchantingModule;
 import io.github.hellenter.eam.world.farming.FarmingModule;
 import io.github.hellenter.eam.world.farming.HarvestModule;
+import io.github.hellenter.eam.content.tools.KnifeModule;
 import io.github.hellenter.eam.world.forging.AnvilRepair;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.items.StackSizeModule;
@@ -184,6 +185,7 @@ public class Eam implements ModInitializer {
 		BrewingModule.register();
 		FarmingModule.register();
 		HarvestModule.register();
+		KnifeModule.register();
 		VillagerGearModule.register();
 		VillagerGuardModule.register();
 		VillagerRepairModule.register();
@@ -228,6 +230,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) UpyrModule.init();
 		if (config.mobs()) WargModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
+		if (config.mobDrops()) KnifeModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();
 		if (config.mobs() && config.monsterEvolution()) MonsterEvolutionModule.init();
 		if (config.mobs() && config.nemesis()) NemesisModule.init();

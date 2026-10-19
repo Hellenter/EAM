@@ -111,6 +111,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.COPPER_KNIFE, "Copper Knife");
 			builder.add(EamItems.SILVER_KNIFE, "Silver Knife");
 			builder.add(EamItems.IRON_KNIFE, "Iron Knife");
+			builder.add("item.eam.knife.animal_loot", "+%s%% loot from animals killed with it");
 			builder.add(EamBlocks.COPPER_ANVIL, "Copper Anvil");
 			builder.add(EamBlocks.SILVER_ANVIL, "Silver Anvil");
 			builder.add("block.minecraft.anvil", "Iron Anvil");
@@ -902,6 +903,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.COPPER_KNIFE, "Медный нож");
 			builder.add(EamItems.SILVER_KNIFE, "Серебряный нож");
 			builder.add(EamItems.IRON_KNIFE, "Железный нож");
+			builder.add("item.eam.knife.animal_loot", "+%s%% добычи с убитых им животных");
 			builder.add(EamBlocks.COPPER_ANVIL, "Медная наковальня");
 			builder.add(EamBlocks.SILVER_ANVIL, "Серебряная наковальня");
 			builder.add("block.minecraft.anvil", "Железная наковальня");

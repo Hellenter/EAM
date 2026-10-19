@@ -3,6 +3,7 @@
     {
       "id": "#minecraft:axes",
       "required": false
-    }
+    },
+    "#eam:knives"
   ]
 }

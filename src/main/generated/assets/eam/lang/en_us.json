@@ -526,6 +526,7 @@
   "item.eam.iron_saw": "Iron Saw",
   "item.eam.king_castle_map": "Map to the Pillager King's Castle",
   "item.eam.king_castle_map.not_found": "The Pillager King's castle is nowhere to be found",
+  "item.eam.knife.animal_loot": "+%s%% loot from animals killed with it",
   "item.eam.koschei_spawn_egg": "Koschei Spawn Egg",
   "item.eam.lair_map": "Map to a Lair",
   "item.eam.lair_map.not_found": "No lair is near enough to mark",
