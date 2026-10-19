@@ -3,6 +3,7 @@
 	"package": "io.github.hellenter.eam.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"mobs.entity.leshy.MapItemSavedDataLeshyMixin",
 		"content.arrows.AbstractArrowDamageMixin",
 		"content.arrows.AbstractArrowStuckMixin",
 		"content.bucket.CauldronDispatcherInvoker",

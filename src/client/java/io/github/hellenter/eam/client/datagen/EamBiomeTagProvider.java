@@ -15,9 +15,11 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
+import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 
 import net.minecraft.core.HolderLookup;
@@ -85,6 +87,13 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(EamWorldgen.HAS_WILD_GARLIC).forceAddTag(BiomeTags.IS_FOREST);
 		// Warg packs hunt the snowy taiga and the snowy groves above it.
 		builder(WargModule.SPAWNS_IN).add(Biomes.SNOWY_TAIGA, Biomes.GROVE);
+		// Underground boar herds graze the underworld's lake and river caves and its forest.
+		builder(BoarModule.SPAWNS_IN).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES, UnderworldDimension.UNDERGROUND_FOREST);
+		// The leshy haunts forests and taiga; the spawn rules keep it to one region in four, among the trees.
+		builder(LeshyModule.SPAWNS_IN)
+				.forceAddTag(BiomeTags.IS_FOREST)
+				.forceAddTag(BiomeTags.IS_TAIGA)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		builder(WightModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_JUNGLE)
 				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)

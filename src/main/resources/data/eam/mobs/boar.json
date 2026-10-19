@@ -1,0 +1,6 @@
+{
+  "damage": 2.0,
+  "knockback": 0.5,
+  "chase_speed": 1.4,
+  "spawn_chance": 0.5
+}

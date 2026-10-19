@@ -15,6 +15,20 @@ public final class SlingshotLogic {
 	/** Distance in blocks over which the damage falls linearly from point-blank to far. */
 	public static final double FALLOFF_DISTANCE = 24.0;
 
+	/**
+	 * A power slingshot's metal fork: pebble speed at full draw, how much harder than a plain slingshot its pebbles
+	 * hit, and the speed of a fully drawn potion (a hand throw is 0.5). Durability lives on the item.
+	 */
+	public record PowerTier(float pebbleSpeed, float damageScale, float potionSpeed) {
+	}
+
+	public static final PowerTier COPPER = new PowerTier(2.7F, 1.25F, 1.2F);
+	public static final PowerTier SILVER = COPPER;
+	public static final PowerTier IRON = new PowerTier(3.0F, 1.5F, 1.4F);
+	public static final PowerTier ANCIENT_METAL = new PowerTier(3.2F, 1.75F, 1.6F);
+	public static final PowerTier MITHRIL = new PowerTier(3.4F, 2.0F, 1.8F);
+	public static final PowerTier ADAMANTIUM = new PowerTier(3.6F, 2.5F, 2.0F);
+
 	private SlingshotLogic() {
 	}
 
@@ -26,8 +40,13 @@ public final class SlingshotLogic {
 
 	/** Damage of a pebble shot with the given power that hits after flying the given distance. */
 	public static float damage(float power, double distance) {
+		return damage(power, distance, 1.0F);
+	}
+
+	/** Damage of a pebble shot with the given power and distance from a slingshot that hits {@code scale} times as hard. */
+	public static float damage(float power, double distance, float scale) {
 		double t = Math.clamp(distance / FALLOFF_DISTANCE, 0.0, 1.0);
 		float full = (float) (POINT_BLANK_DAMAGE + (FAR_DAMAGE - POINT_BLANK_DAMAGE) * t);
-		return full * Math.clamp(power, 0.0F, 1.0F);
+		return full * Math.clamp(power, 0.0F, 1.0F) * scale;
 	}
 }

@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
+import io.github.hellenter.eam.mobs.entity.boar.Boar;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
 import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
@@ -27,6 +28,8 @@ import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
 import io.github.hellenter.eam.mobs.entity.warg.Warg;
+import io.github.hellenter.eam.mobs.entity.leshy.Leshy;
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyRoot;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
@@ -38,6 +41,7 @@ import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiBallLightning;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceCopy;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedle;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceRaven;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
@@ -205,6 +209,23 @@ public final class EamEntities {
 					.clientTrackingRange(10)
 					.notInPeaceful());
 
+	/** The leshy: a towering shape of bark and moss under a stag's skull that leads players astray in the deep woods. */
+	public static final EntityType<Leshy> LESHY = register("leshy",
+			EntityType.Builder.of(Leshy::new, MobCategory.MONSTER)
+					.sized(0.9F, 2.9F)
+					.eyeHeight(2.55F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** A root the leshy calls up out of the ground at a player. */
+	public static final EntityType<LeshyRoot> LESHY_ROOT = register("leshy_root",
+			EntityType.Builder.<LeshyRoot>of(LeshyRoot::new, MobCategory.MISC)
+					.noLootTable()
+					.noSave()
+					.sized(0.8F, 1.6F)
+					.clientTrackingRange(10)
+					.updateInterval(2));
+
 	/** A bloodsucking corpse in a burial shirt that crawls out at night by abandoned villages. */
 	public static final EntityType<Upyr> UPYR = register("upyr",
 			EntityType.Builder.of(Upyr::new, MobCategory.MONSTER)
@@ -228,6 +249,13 @@ public final class EamEntities {
 					.eyeHeight(1.0F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
+
+	/** An underground boar: a brown, tusked wild pig of the underworld's lake caves and forests, a bit bigger than a pig. */
+	public static final EntityType<Boar> BOAR = register("boar",
+			EntityType.Builder.of(Boar::new, MobCategory.CREATURE)
+					.sized(1.0F, 1.0F)
+					.eyeHeight(0.8F)
+					.clientTrackingRange(10));
 
 	/** Baba Yaga: a hunched old witch with a staff, flying in her mortar until it breaks. Fire does not touch her in it. */
 	public static final EntityType<BabaYaga> BABA_YAGA = register("baba_yaga",
@@ -277,6 +305,16 @@ public final class EamEntities {
 					.noSave()
 					.eyeHeight(2.2F)
 					.clientTrackingRange(10));
+
+	/** Koschei's needle, used: it spins in a pillar of light, bores a shaft to the bedrock and bursts. */
+	public static final EntityType<KoscheiNeedle> KOSCHEI_NEEDLE = register("koschei_needle",
+			EntityType.Builder.<KoscheiNeedle>of(KoscheiNeedle::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.4F, 0.4F)
+					.fireImmune()
+					.noSave()
+					.clientTrackingRange(16)
+					.updateInterval(1));
 
 	/** A bolt or a soul thrown from Koschei's staff in his second phase. */
 	public static final EntityType<KoscheiOrb> KOSCHEI_ORB = register("koschei_orb",

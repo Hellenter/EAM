@@ -20,12 +20,15 @@ import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.longbow.LongbowItem;
+import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
+import io.github.hellenter.eam.content.slingshot.SlingshotLogic;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedleItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
@@ -238,6 +241,8 @@ public final class EamItems {
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 
+	/** A tine of the leshy's antlers, its trophy. */
+	public static final Item LESHY_ANTLER = register("leshy_antler", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 	/** Vampire bat drop, 15%: the core of the heart in a jar. */
 	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 
@@ -262,6 +267,9 @@ public final class EamItems {
 	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
 	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
+	/** The needle that held Koschei's death, dropped by him; used, it bores to the bedrock and bursts. */
+	public static final Item KOSCHEI_NEEDLE = register("koschei_needle", KoscheiNeedleItem::new, new Item.Properties().stacksTo(1)
+			.rarity(Rarity.EPIC).fireResistant().component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
 	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
 	public static final Item CHANTERELLE_CAP = blockItem("chanterelle_cap", EamBlocks.CHANTERELLE_CAP);
 	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);
@@ -397,6 +405,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.DROWNED_SOLDIER));
 	public static final Item UPYR_SPAWN_EGG = register("upyr_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.UPYR));
+	public static final Item LESHY_SPAWN_EGG = register("leshy_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LESHY));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WIGHT));
 	public static final Item DRAUGR_SPAWN_EGG = register("draugr_spawn_egg", SpawnEggItem::new,
@@ -418,6 +428,8 @@ public final class EamItems {
 	/** Brings the leader with his whole pack. */
 	public static final Item WARG_LEADER_SPAWN_EGG = register("warg_leader_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WARG_LEADER));
+	public static final Item BOAR_SPAWN_EGG = register("boar_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.BOAR));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);
@@ -441,6 +453,19 @@ public final class EamItems {
 	/** An ancient metal ingot heated in a blast furnace; cools back into an ingot after a minute, like hot iron. */
 	public static final Item HOT_ANCIENT_METAL_INGOT = register("hot_ancient_metal_ingot", p -> new HotIronItem(ANCIENT_METAL_INGOT, p),
 			new Item.Properties());
+
+	/**
+	 * Metal-forked slingshots: harder pebbles by tier, and they shoot splash or lingering potions held in the other hand.
+	 * Declared after every ingot they repair with.
+	 */
+	public static final Item COPPER_POWER_SLINGSHOT = powerSlingshot("copper", SlingshotLogic.COPPER, 256, Items.COPPER_INGOT);
+	public static final Item SILVER_POWER_SLINGSHOT = powerSlingshot("silver", SlingshotLogic.SILVER, 256, SILVER_INGOT);
+	public static final Item IRON_POWER_SLINGSHOT = powerSlingshot("iron", SlingshotLogic.IRON, 384, Items.IRON_INGOT);
+	public static final Item ANCIENT_METAL_POWER_SLINGSHOT = powerSlingshot("ancient_metal", SlingshotLogic.ANCIENT_METAL, 640,
+			ANCIENT_METAL_INGOT);
+	public static final Item MITHRIL_POWER_SLINGSHOT = powerSlingshot("mithril", SlingshotLogic.MITHRIL, 1200, MITHRIL_INGOT);
+	public static final Item ADAMANTIUM_POWER_SLINGSHOT = powerSlingshot("adamantium", SlingshotLogic.ADAMANTIUM, 1600, ADAMANTIUM_INGOT);
+
 	/** Forged from hot ancient metal on an iron or mithril anvil; ancient metal armor is made of these. */
 	public static final Item ANCIENT_METAL_PLATE = register("ancient_metal_plate", Item::new, new Item.Properties().stacksTo(16));
 
@@ -731,6 +756,11 @@ public final class EamItems {
 
 	private static Item armor(String name, ArmorMaterial material, ArmorType type) {
 		return register(name, Item::new, new Item.Properties().humanoidArmor(material, type));
+	}
+
+	private static Item powerSlingshot(String metal, SlingshotLogic.PowerTier tier, int durability, Item ingot) {
+		return register(metal + "_power_slingshot", properties -> new PowerSlingshotItem(tier, properties),
+				new Item.Properties().durability(durability).repairable(ingot));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

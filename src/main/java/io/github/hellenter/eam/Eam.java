@@ -25,6 +25,7 @@ import io.github.hellenter.eam.content.underworld.GlowshroomModule;
 import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
+import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
@@ -39,6 +40,7 @@ import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarModule;
@@ -139,6 +141,7 @@ public class Eam implements ModInitializer {
 		SwampLurkerModule.register();
 		SwampyForestModule.register();
 		WightModule.register();
+		LeshyModule.register();
 		LostModule.register();
 		DraugrModule.register();
 		DuergarModule.register();
@@ -148,6 +151,7 @@ public class Eam implements ModInitializer {
 		VampireBatModule.register();
 		UpyrModule.register();
 		WargModule.register();
+		BoarModule.register();
 		BabaYagaModule.register();
 		KoscheiModule.register();
 		BleedingModule.register();
@@ -221,6 +225,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) ThroughLeavesModule.init();
 		if (config.mobs()) SwampLurkerModule.init();
 		if (config.mobs()) WightModule.init();
+		if (config.mobs()) LeshyModule.init();
 		if (config.mobs()) LostModule.init();
 		if (config.mobs()) DuergarModule.init();
 		if (config.mobs()) SpiderModule.init();
@@ -231,6 +236,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) VampireBatModule.init();
 		if (config.mobs()) UpyrModule.init();
 		if (config.mobs()) WargModule.init();
+		if (config.mobs()) BoarModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobDrops()) KnifeModule.init();
 		if (config.mobs() && config.mobRunning()) RunningModule.init();

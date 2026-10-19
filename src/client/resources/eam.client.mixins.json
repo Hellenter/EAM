@@ -5,6 +5,7 @@
 	"client": [
 		"content.longbow.AbstractClientPlayerLongbowMixin",
 		"content.longbow.FirstPersonHandsAndItemsLongbowMixin",
+		"mobs.leshy.CompassAngleStateMixin",
 		"content.talisman.FirstPersonHandsAndItemsMixin",
 		"survival.hunger.AbstractContainerScreenAccessor",
 		"survival.hunger.HudMixin",

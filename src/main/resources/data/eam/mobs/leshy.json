@@ -1,0 +1,53 @@
+{
+  "spawn": {
+    "min_day": 20,
+    "region_size": 512,
+    "region_chance": 0.25,
+    "spawn_chance": 0.04,
+    "spacing": 256.0,
+    "tree_radius": 4
+  },
+  "haunt": {
+    "keep_min": 14.0,
+    "keep_max": 26.0,
+    "notice_distance": 6.0,
+    "haunt_time": 2400,
+    "bewilder_radius": 40.0,
+    "bewilder_duration": 200,
+    "footstep_interval": 160,
+    "overgrowth_interval": 50,
+    "give_up_distance": 64.0
+  },
+  "combat": {
+    "health": 60.0,
+    "armor": 4.0,
+    "damage": 8.0,
+    "reach": 3.2,
+    "hit_interval": 30,
+    "tree_radius": 2,
+    "tree_regen": 40,
+    "fire_damage": 2.0,
+    "root_cooldown": 160,
+    "root_warning": 20,
+    "root_damage": 6.0,
+    "root_hold": 40,
+    "root_min_range": 4.0,
+    "root_max_range": 20.0,
+    "wolves": {
+      "cooldown": 1200,
+      "count": 2,
+      "lifetime": 1200
+    },
+    "crow_flight": {
+      "cooldown": 600,
+      "distance": 18.0,
+      "health": 0.5,
+      "duration": 30
+    }
+  },
+  "offering": {
+    "count": 3,
+    "search": 24.0,
+    "peace_days": 3
+  }
+}
