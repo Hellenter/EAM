@@ -14,7 +14,11 @@ public enum RenegadeAction {
 	/** Lifted over a squad mate's head; ends when he is thrown or put down. */
 	HELD(200),
 	/** Thrown through the air; ends when he lands. */
-	FLYING(100);
+	FLYING(100),
+	/** A ram rider's tomahawk: drawn back over his shoulder and thrown at {@link #TOMAHAWK_RELEASE}. */
+	TOMAHAWK_THROW(16),
+	/** A ram rider's net: whirled over his head and cast at {@link #NET_RELEASE}. */
+	NET_THROW(24);
 
 	public static final int CHARGE_HIT = 16;
 	public static final int BOMB_TAKE_OUT = 8;
@@ -24,6 +28,8 @@ public enum RenegadeAction {
 	public static final int BOMB_THROW = 34;
 	public static final int ALLY_LIFT = 6;
 	public static final int ALLY_THROW_RELEASE = 24;
+	public static final int TOMAHAWK_RELEASE = 10;
+	public static final int NET_RELEASE = 18;
 
 	private final int length;
 

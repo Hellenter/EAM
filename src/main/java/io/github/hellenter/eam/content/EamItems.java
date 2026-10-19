@@ -26,6 +26,7 @@ import io.github.hellenter.eam.content.slingshot.SlingshotLogic;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
+import io.github.hellenter.eam.content.tools.TomahawkItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedleItem;
@@ -236,6 +237,9 @@ public final class EamItems {
 
 	/** A duergar renegade's iron bomb: lit and thrown, it bursts a moment after it lands. */
 	public static final Item DUERGAR_BOMB = register("duergar_bomb", DuergarBombItem::new, new Item.Properties().stacksTo(16));
+	/** A ram rider's light axe: hits and chops, and is thrown like a trident. */
+	public static final Item TOMAHAWK = register("tomahawk", TomahawkItem::new, new Item.Properties()
+			.axe(TomahawkItem.MATERIAL, TomahawkItem.ATTACK_DAMAGE, TomahawkItem.ATTACK_SPEED));
 
 	/** Baba Yaga's drop: read, it raises her grave in her swamp and turns into a map marking it. */
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
@@ -430,6 +434,11 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.WARG_LEADER));
 	public static final Item BOAR_SPAWN_EGG = register("boar_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.BOAR));
+	public static final Item CAVE_RAM_SPAWN_EGG = register("cave_ram_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.CAVE_RAM));
+	/** Brings the leader with his whole squad, each on his ram. */
+	public static final Item DUERGAR_RAM_RIDER_SPAWN_EGG = register("duergar_ram_rider_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.DUERGAR_RAM_RIDER));
 
 	public static final Item RUSTY_CHAINMAIL_HELMET = armor("rusty_chainmail_helmet", RustyGear.CHAINMAIL_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_CHAINMAIL_CHESTPLATE = armor("rusty_chainmail_chestplate", RustyGear.CHAINMAIL_ARMOR, ArmorType.CHESTPLATE);

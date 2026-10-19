@@ -74,7 +74,7 @@ public final class EamCreativeTabs {
 
 	public static final CreativeModeTab TOOLS = register("tools", () -> new ItemStack(EamItems.MITHRIL_PICKAXE),
 			EamItems.COPPER_KNIFE, EamItems.SILVER_KNIFE, EamItems.IRON_KNIFE, EamItems.ANCIENT_METAL_KNIFE, EamItems.MITHRIL_KNIFE,
-			EamItems.ADAMANTIUM_KNIFE,
+			EamItems.ADAMANTIUM_KNIFE, EamItems.TOMAHAWK,
 			EamItems.COPPER_SAW, EamItems.SILVER_SAW, EamItems.IRON_SAW, EamItems.ANCIENT_METAL_SAW, EamItems.MITHRIL_SAW, EamItems.ADAMANTIUM_SAW,
 			EamItems.COPPER_HAMMER, EamItems.SILVER_HAMMER, EamItems.IRON_HAMMER, EamItems.ANCIENT_METAL_HAMMER, EamItems.MITHRIL_HAMMER,
 			EamItems.ADAMANTIUM_HAMMER,
@@ -111,6 +111,8 @@ public final class EamCreativeTabs {
 			EamItems.SWAMP_LURKER_SPAWN_EGG,
 			EamItems.WIGHT_SPAWN_EGG, EamItems.LESHY_SPAWN_EGG, EamItems.DRAUGR_SPAWN_EGG, EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, EamItems.DUERGAR_RENEGADE_SPAWN_EGG, EamItems.DUERGAR_VILLAGER_SPAWN_EGG, EamItems.WOOD_SPIDER_SPAWN_EGG, EamItems.BLACK_WIDOW_SPAWN_EGG,
 			EamItems.VAMPIRE_BAT_SPAWN_EGG, EamItems.UPYR_SPAWN_EGG, EamItems.WARG_SPAWN_EGG, EamItems.WARG_LEADER_SPAWN_EGG, EamItems.BOAR_SPAWN_EGG,
+			EamItems.CAVE_RAM_SPAWN_EGG, EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG,
+			EamItems.CAVE_RAM_SPAWN_EGG, EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, EamItems.TOMAHAWK,
 			EamItems.BABA_YAGA_SPAWN_EGG, EamItems.DROWNED_SOLDIER_SPAWN_EGG, EamItems.KOSCHEI_SPAWN_EGG);
 
 	public static final CreativeModeTab WORKSHOP = register("workshop", () -> new ItemStack(EamItems.COPPER_ANVIL),

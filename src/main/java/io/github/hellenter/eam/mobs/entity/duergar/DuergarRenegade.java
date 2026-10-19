@@ -340,11 +340,13 @@ public class DuergarRenegade extends Monster implements DuergarLook {
 
 	// ---- Special attacks ----
 
+	@Override
 	public RenegadeAction action() {
 		return RenegadeAction.byId(entityData.get(DATA_ACTION));
 	}
 
 	/** Client: how far into his current action he is, in ticks. */
+	@Override
 	public float actionTime(float partialTicks) {
 		return clientActionTicks + partialTicks;
 	}

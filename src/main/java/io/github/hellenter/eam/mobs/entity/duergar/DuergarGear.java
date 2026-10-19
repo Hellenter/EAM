@@ -131,6 +131,27 @@ public final class DuergarGear {
 		return withLooks(gear, random, baldChance);
 	}
 
+	/** Ram rider pieces per armor slot, in {@link #ARMOR_SLOTS} order, 0 for none: light, so the ram can carry him. */
+	private static final int[][] RIDER_PIECES = {{1, 2, 4}, {1, 3, 4}, {0, 4, 4}, {1, 3, 3}, {3, 3, 0}};
+	private static final int[] RIDER_BELTS = {2, 3};
+	/** The rider leader: horned helm, scale shirt, mail mantle, bracers, boots and a buckled belt. */
+	private static final int[] RIDER_LEADER_PIECES = {6, 4, 3, 1, 3};
+	private static final int RIDER_LEADER_BELT = 3;
+
+	/**
+	 * A ram rider's outfit: an outcast travelling light, in a cap or coif, mail, a jerkin or scales, leather and wraps.
+	 * The leader's horned helm marks him out from his riders.
+	 */
+	public static int rider(DoubleSupplier random, boolean leader, double baldChance) {
+		int gear = 0;
+		for (int i = 0; i < ARMOR_SLOTS.size(); i++) {
+			int[] pool = RIDER_PIECES[i];
+			gear = with(gear, ARMOR_SLOTS.get(i), leader ? RIDER_LEADER_PIECES[i] : pool[index(random, pool.length)]);
+		}
+		gear = with(gear, Slot.BELT, leader ? RIDER_LEADER_BELT : RIDER_BELTS[index(random, RIDER_BELTS.length)]);
+		return withLooks(gear, random, baldChance);
+	}
+
 	static final int MINER_HELM = 3;
 	static final int HOOD = 7;
 	static final int MINER_JERKIN = 3;

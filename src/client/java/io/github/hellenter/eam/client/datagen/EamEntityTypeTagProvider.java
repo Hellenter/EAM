@@ -61,7 +61,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// Farm animals that eat from feeders.
 		builder(FeederModule.LIVESTOCK).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.SHEEP, EntityTypeIds.PIG,
 				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT)
-				.add(EamEntities.BOAR.builtInRegistryHolder().key());
+				.add(EamEntities.BOAR.builtInRegistryHolder().key(), EamEntities.CAVE_RAM.builtInRegistryHolder().key());
 		// Predators raid livestock every night: wolves wherever they reach it, zombies only in an open, dark pen.
 		builder(PredatorModule.HUNTERS).add(EntityTypeIds.WOLF);
 		builder(PredatorModule.RAIDERS).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
@@ -72,7 +72,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EntityTypeIds.RABBIT, EntityTypeIds.GOAT, EntityTypeIds.HORSE, EntityTypeIds.DONKEY, EntityTypeIds.MULE,
 						EntityTypeIds.LLAMA, EntityTypeIds.TRADER_LLAMA, EntityTypeIds.CAMEL, EntityTypeIds.POLAR_BEAR,
 						EntityTypeIds.TURTLE, EntityTypeIds.PANDA)
-				.add(EamEntities.BOAR.builtInRegistryHolder().key());
+				.add(EamEntities.BOAR.builtInRegistryHolder().key(), EamEntities.CAVE_RAM.builtInRegistryHolder().key());
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
@@ -146,7 +146,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EamEntities.LOST_WALL_COMMANDER.builtInRegistryHolder().key(), EamEntities.LOST_LONGBOWMAN.builtInRegistryHolder().key(),
 						EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
 						EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
-						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key());
+						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key(), EamEntities.DUERGAR_RAM_RIDER.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
@@ -164,6 +164,6 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
 						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key(), EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(),
 						EamEntities.BLACK_WIDOW.builtInRegistryHolder().key(), EamEntities.WIGHT.builtInRegistryHolder().key(),
-						EamEntities.LOST.builtInRegistryHolder().key());
+						EamEntities.LOST.builtInRegistryHolder().key(), EamEntities.DUERGAR_RAM_RIDER.builtInRegistryHolder().key());
 	}
 }

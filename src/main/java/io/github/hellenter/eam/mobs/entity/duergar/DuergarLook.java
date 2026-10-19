@@ -7,4 +7,14 @@ public interface DuergarLook {
 
 	/** Which of his kind's skins. */
 	int skin();
+
+	/** The special attack he is busy with, posed by the model; only fighters have any. */
+	default RenegadeAction action() {
+		return RenegadeAction.NONE;
+	}
+
+	/** Client: how far into that action he is, in ticks. */
+	default float actionTime(float partialTicks) {
+		return 0.0F;
+	}
 }

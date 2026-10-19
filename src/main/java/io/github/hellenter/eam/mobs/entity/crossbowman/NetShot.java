@@ -26,7 +26,7 @@ public class NetShot extends ThrowableItemProjectile {
 		super(type, level);
 	}
 
-	NetShot(Level level, LivingEntity owner) {
+	public NetShot(Level level, LivingEntity owner) {
 		super(EamEntities.NET_SHOT, owner, level, EamItems.NET.getDefaultInstance());
 	}
 

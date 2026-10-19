@@ -61,4 +61,23 @@ class DuergarGearTest {
 		assertEquals(5, DuergarGear.armor(gear));
 		assertEquals(2, DuergarGear.armorPieces(gear));
 	}
+
+	@Test
+	void ridersTravelLighterThanRenegadesAndTheLeaderWearsTheHornedHelm() {
+		Random random = new Random(11);
+		int light = 0;
+		for (int i = 0; i < 500; i++) {
+			int rider = DuergarGear.rider(random::nextDouble, false, 0.5);
+			if (DuergarGear.armorPieces(rider) < DuergarGear.armorPieces(DuergarGear.armored(random::nextDouble, false, 0.5))) {
+				light++;
+			}
+			assertTrue(DuergarGear.piece(rider, Slot.HEAD) != 6, "only the leader wears the horned helm");
+			assertTrue(DuergarGear.piece(rider, Slot.BEARD) >= 1);
+		}
+		// More than half ride without shoulder pieces or boots; a renegade never goes without.
+		assertTrue(light > 200, "light: " + light);
+		int leader = DuergarGear.rider(random::nextDouble, true, 0.5);
+		assertEquals(6, DuergarGear.piece(leader, Slot.HEAD));
+		assertEquals(5, DuergarGear.armorPieces(leader));
+	}
 }

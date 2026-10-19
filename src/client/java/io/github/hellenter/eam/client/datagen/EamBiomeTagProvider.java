@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
+import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
@@ -77,6 +78,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
 		// Renegade duergar squads roam every part of the upper underworld.
 		builder(DuergarModule.RENEGADES_SPAWN_IN).addAll(UnderworldDimension.UPPER_BIOMES);
+		// Ram riders need room to ride: the open stone wastes, mushroom and underground forests and frozen caves.
+		builder(DuergarModule.RAM_RIDERS_SPAWN_IN).add(UnderworldDimension.STONE_WASTES, UnderworldDimension.MUSHROOM_FOREST,
+				UnderworldDimension.UNDERGROUND_FOREST, UnderworldDimension.FROZEN_CAVES);
 		// Each duergar village style stands in its own biome; none in the lava or ice caves.
 		builder(DuergarVillage.Style.STONE.biomes()).add(UnderworldDimension.STONE_WASTES);
 		builder(DuergarVillage.Style.MUSHROOM.biomes()).add(UnderworldDimension.MUSHROOM_FOREST);
@@ -89,6 +93,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(WargModule.SPAWNS_IN).add(Biomes.SNOWY_TAIGA, Biomes.GROVE);
 		// Underground boar herds graze the underworld's lake and river caves and its forest.
 		builder(BoarModule.SPAWNS_IN).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES, UnderworldDimension.UNDERGROUND_FOREST);
+		// Cave rams keep to the rocky and cold caves: the stone wastes and the frozen and ice caves.
+		builder(CaveRamModule.SPAWNS_IN).add(UnderworldDimension.STONE_WASTES, UnderworldDimension.FROZEN_CAVES, UnderworldDimension.ICE_CAVES);
 		// The leshy haunts forests and taiga; the spawn rules keep it to one region in four, among the trees.
 		builder(LeshyModule.SPAWNS_IN)
 				.forceAddTag(BiomeTags.IS_FOREST)
