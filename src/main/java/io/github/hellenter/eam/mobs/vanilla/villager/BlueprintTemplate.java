@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.vanilla.villager;
 import io.netty.buffer.ByteBuf;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -30,8 +31,9 @@ import java.util.List;
  * foundation: it takes the place of the ground and keeps the ground where the template has air.
  *
  * @param blocks every block of the template but structure voids, air included
+ * @param front  the side the building faces in the unturned template: its entrance, toward the street
  */
-public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, List<Entry> blocks) {
+public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, List<Entry> blocks, Direction front) {
 	/** What the foundation may take the place of besides air and plants: dirt, sand, stone and the like. */
 	public static final TagKey<Block> GROUND = TagKey.create(Registries.BLOCK, Eam.id("blueprint_ground"));
 	/** How far a player can look to set a blueprint down. */
@@ -43,6 +45,7 @@ public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, 
 			ByteBufCodecs.VAR_INT, BlueprintTemplate::sizeY,
 			ByteBufCodecs.VAR_INT, BlueprintTemplate::sizeZ,
 			Entry.STREAM_CODEC.apply(ByteBufCodecs.list()), BlueprintTemplate::blocks,
+			Direction.STREAM_CODEC, BlueprintTemplate::front,
 			BlueprintTemplate::new);
 
 	/** One block, at its place in the unturned template. */
@@ -78,6 +81,11 @@ public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, 
 		int[] size = BlueprintLogic.turnedSize(sizeX, sizeZ, turns);
 		int[] origin = BlueprintLogic.origin(look.getX(), look.getY(), look.getZ(), size[0], size[1]);
 		return new BlockPos(origin[0], origin[1], origin[2]);
+	}
+
+	/** The side the building faces once turned {@code turns} times. */
+	public Direction front(int turns) {
+		return rotation(turns).rotate(front);
 	}
 
 	/** The box the building fills, placed from {@code origin}. */

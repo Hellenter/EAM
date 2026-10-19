@@ -19,7 +19,7 @@
     "give_up_distance": 64.0
   },
   "combat": {
-    "health": 60.0,
+    "health": 80.0,
     "armor": 4.0,
     "damage": 8.0,
     "reach": 3.2,

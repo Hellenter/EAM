@@ -46,7 +46,7 @@ public class BlueprintItem extends Item {
 
 	/**
 	 * A blueprint of every building the default orders offer, for the creative tab: each house of each style and the
-	 * defences. In creative mode a blueprint builds at once, without a village.
+	 * defences. In creative mode a blueprint needs no village, only villagers near enough to build it.
 	 */
 	public static List<ItemStack> creativeStacks() {
 		List<ItemStack> stacks = new ArrayList<>();

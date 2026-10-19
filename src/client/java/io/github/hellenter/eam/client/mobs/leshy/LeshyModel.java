@@ -16,7 +16,7 @@ import net.minecraft.util.Mth;
 /**
  * The leshy, after the leshen of the old tales (and of the Witcher games): a gaunt, towering body of bark, its ribs of
  * root standing out over a hollow chest, wrapped in rotten rags and a rope belt, a bone stuck through its shoulder and a
- * little skull hung off the other; the bleached skull of a stag for a head, hung low on a short neck, with a long toothed
+ * little skull hung off the other; the bleached skull of a stag for a head, set straight on the shoulders, with a long toothed
  * muzzle, a loose jaw and a wide crown of antlers; arms so long the hooked claws hang to its knees, and thin legs like
  * gnarled saplings splaying into root toes. The torso leans from the hips, the head and arms ride on it.
  */
@@ -144,23 +144,21 @@ public class LeshyModel extends EntityModel<LeshyRenderState> {
 				PartPose.offset(0.0F, 3.0F, 0.0F));
 
 		PartDefinition head = body.addOrReplaceChild("head", CubeListBuilder.create()
-						// The neck, knotted vertebrae of wood.
-						.texOffs(0, 36).addBox(-1.5F, -1.5F, -2.0F, 3.0F, 3.0F, 3.0F)
 						// The skull of a stag: crown, brow ridge, long muzzle and the end of the nose.
-						.texOffs(0, 24).addBox(-3.0F, -4.0F, -7.0F, 6.0F, 5.0F, 6.0F)
-						.texOffs(83, 55).addBox(-3.5F, -4.5F, -8.0F, 7.0F, 1.0F, 2.0F)
-						.texOffs(41, 24).addBox(-2.0F, -3.0F, -13.0F, 4.0F, 3.0F, 6.0F)
-						.texOffs(26, 55).addBox(-1.5F, -2.5F, -15.0F, 3.0F, 2.0F, 2.0F)
+						.texOffs(0, 24).addBox(-3.0F, -4.0F, -3.5F, 6.0F, 5.0F, 6.0F)
+						.texOffs(83, 55).addBox(-3.5F, -4.5F, -4.5F, 7.0F, 1.0F, 2.0F)
+						.texOffs(41, 24).addBox(-2.0F, -3.0F, -9.5F, 4.0F, 3.0F, 6.0F)
+						.texOffs(26, 55).addBox(-1.5F, -2.5F, -11.5F, 3.0F, 2.0F, 2.0F)
 						// The upper teeth.
-						.texOffs(19, 36).addBox(-1.5F, 0.0F, -14.0F, 3.0F, 1.0F, 6.0F),
-				PartPose.offset(0.0F, -17.5F, -2.0F));
+						.texOffs(19, 36).addBox(-1.5F, 0.0F, -10.5F, 3.0F, 1.0F, 6.0F),
+				PartPose.offset(0.0F, -18.5F, 0.0F));
 		head.addOrReplaceChild("jaw", CubeListBuilder.create()
 						.texOffs(64, 24).addBox(-1.5F, 0.0F, -7.5F, 3.0F, 1.0F, 7.0F)
 						.texOffs(0, 46).addBox(-1.0F, -1.0F, -7.0F, 2.0F, 1.0F, 5.0F),
-				PartPose.offset(0.0F, 1.0F, -7.0F));
+				PartPose.offset(0.0F, 1.0F, -3.5F));
 		// Moss hanging off the back of the skull.
 		head.addOrReplaceChild("moss", CubeListBuilder.create().texOffs(101, 46).addBox(-3.0F, 0.0F, 0.0F, 6.0F, 7.0F, 0.0F),
-				PartPose.offset(0.0F, -2.0F, -1.5F));
+				PartPose.offset(0.0F, -2.0F, 2.0F));
 		antler(head, -1.0F);
 		antler(head, 1.0F);
 
@@ -184,7 +182,7 @@ public class LeshyModel extends EntityModel<LeshyRenderState> {
 		String name = side < 0 ? "right" : "left";
 		PartDefinition beam = head.addOrReplaceChild(name + "_antler",
 				CubeListBuilder.create().texOffs(89, 24).addBox(-1.0F, -6.0F, -1.0F, 2.0F, 6.0F, 2.0F),
-				PartPose.offsetAndRotation(side * 2.0F, -4.0F, -3.5F, -0.4F, 0.0F, side * 1.25F));
+				PartPose.offsetAndRotation(side * 2.0F, -4.0F, 0.0F, -0.4F, 0.0F, side * 1.25F));
 		beam.addOrReplaceChild("brow", tine(4.0F), PartPose.offsetAndRotation(0.0F, -1.5F, -0.5F, 1.25F, 0.0F, -side * 0.5F));
 		beam.addOrReplaceChild("bez", tine(5.0F), PartPose.offsetAndRotation(0.0F, -5.0F, 0.0F, 0.35F, 0.0F, -side * 1.15F));
 		PartDefinition middle = beam.addOrReplaceChild("middle", tine(7.0F),

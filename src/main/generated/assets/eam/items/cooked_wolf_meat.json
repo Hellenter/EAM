@@ -1,21 +1,6 @@
 {
   "model": {
-    "type": "minecraft:condition",
-    "component": "eam:dried",
-    "on_false": {
-      "type": "minecraft:model",
-      "model": "eam:item/cooked_wolf_meat"
-    },
-    "on_true": {
-      "type": "minecraft:model",
-      "model": "eam:item/cooked_wolf_meat",
-      "tints": [
-        {
-          "type": "minecraft:constant",
-          "value": -4022148
-        }
-      ]
-    },
-    "property": "minecraft:has_component"
+    "type": "minecraft:model",
+    "model": "eam:item/cooked_wolf_meat"
   }
 }

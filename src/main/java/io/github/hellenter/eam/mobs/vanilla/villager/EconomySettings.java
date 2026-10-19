@@ -84,7 +84,7 @@ public record EconomySettings(int periodTicks, double upkeep, double breedCost, 
 	public static final String IRON_GOLEM = "iron_golem";
 
 	public static final EconomySettings DEFAULT = new EconomySettings(12_000, 0.25, 6.0, 8, 600, 8, 0.25, 0.15, 4, 16,
-			defaultProfessions(), defaultToolTiers(), 1.5, defaultOrders(), 3, 12);
+			defaultProfessions(), defaultToolTiers(), 1.5, defaultOrders(), 3, 4);
 
 	public static final Codec<EconomySettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(200, 1_000_000).fieldOf("period_ticks").orElse(DEFAULT.periodTicks).forGetter(EconomySettings::periodTicks),

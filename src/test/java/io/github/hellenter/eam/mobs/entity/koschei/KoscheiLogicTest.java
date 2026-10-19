@@ -311,4 +311,18 @@ class KoscheiLogicTest {
 		assertEquals(120.0F, KoscheiLogic.transformHealth(60, 60, 1.0F, 120.0F));
 		assertEquals(120.0F, KoscheiLogic.transformHealth(90, 60, 1.0F, 120.0F));
 	}
+
+	@Test
+	void hitsCloseTogetherCountUpAndALateOneStartsAgain() {
+		assertEquals(1, KoscheiLogic.hitStreak(0, 0L, 1000L, 60));
+		assertEquals(2, KoscheiLogic.hitStreak(1, 1000L, 1060L, 60));
+		assertEquals(1, KoscheiLogic.hitStreak(1, 1000L, 1061L, 60));
+	}
+
+	@Test
+	void blizzardFrostBuildsUpToItsCapAndNeverThaws() {
+		assertEquals(6, KoscheiLogic.frost(0, 6, 130));
+		assertEquals(130, KoscheiLogic.frost(127, 6, 130));
+		assertEquals(140, KoscheiLogic.frost(140, 6, 130));
+	}
 }

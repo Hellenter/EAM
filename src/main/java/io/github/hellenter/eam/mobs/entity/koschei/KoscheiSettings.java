@@ -37,23 +37,28 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 	).apply(instance, KoscheiSettings::new));
 
 	/**
-	 * The needle that held his death. Used, it flies out of the hand, hangs spinning in the air in a pillar of light and
-	 * bursts; meanwhile the light bores a shaft straight down through everything to the bedrock, deep bedrock included.
+	 * The needle that held his death. Used, it flies out of the hand and hangs spinning in the air in a pillar of light
+	 * wound round with a spiral, then bursts; after it a chain of blasts drives straight down the light's path through
+	 * everything to the bedrock, deep bedrock included.
 	 *
-	 * @param fuse            ticks it spins in the air before it bursts
-	 * @param explosionPower  how strong the burst is; a creeper's is 3, TNT's 4
-	 * @param shaftRadius     the shaft is this many blocks out from the needle each way: 1 makes it 3 by 3
-	 * @param layersPerTick   layers of the shaft bored each tick, from the top down
-	 * @param throwSpeed      how fast it flies out of the hand, blocks per tick
+	 * @param fuse           ticks it spins in the air before it bursts
+	 * @param explosionPower how strong the burst is; a creeper's is 3, TNT's 4
+	 * @param shaftRadius    the shaft the blasts clear is this many blocks out from the needle each way: 1 makes it 3 by 3
+	 * @param chainPower     how strong each blast of the chain down is
+	 * @param chainStep      blocks between two blasts of the chain
+	 * @param chainInterval  ticks between two blasts of the chain
+	 * @param throwSpeed     how fast it flies out of the hand, blocks per tick
 	 */
-	public record Needle(int fuse, float explosionPower, int shaftRadius, int layersPerTick, double throwSpeed) {
-		public static final Needle DEFAULT = new Needle(60, 7.0F, 1, 8, 0.4);
+	public record Needle(int fuse, float explosionPower, int shaftRadius, float chainPower, int chainStep, int chainInterval, double throwSpeed) {
+		public static final Needle DEFAULT = new Needle(60, 7.0F, 1, 3.5F, 4, 3, 0.4);
 
 		public static final Codec<Needle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 1200).fieldOf("fuse").orElse(DEFAULT.fuse).forGetter(Needle::fuse),
 				Codec.floatRange(0.0F, 20.0F).fieldOf("explosion_power").orElse(DEFAULT.explosionPower).forGetter(Needle::explosionPower),
 				Codec.intRange(0, 4).fieldOf("shaft_radius").orElse(DEFAULT.shaftRadius).forGetter(Needle::shaftRadius),
-				Codec.intRange(1, 64).fieldOf("layers_per_tick").orElse(DEFAULT.layersPerTick).forGetter(Needle::layersPerTick),
+				Codec.floatRange(0.0F, 20.0F).fieldOf("chain_power").orElse(DEFAULT.chainPower).forGetter(Needle::chainPower),
+				Codec.intRange(1, 32).fieldOf("chain_step").orElse(DEFAULT.chainStep).forGetter(Needle::chainStep),
+				Codec.intRange(1, 200).fieldOf("chain_interval").orElse(DEFAULT.chainInterval).forGetter(Needle::chainInterval),
 				Codec.doubleRange(0.0, 2.0).fieldOf("throw_speed").orElse(DEFAULT.throwSpeed).forGetter(Needle::throwSpeed)
 		).apply(instance, Needle::new));
 	}

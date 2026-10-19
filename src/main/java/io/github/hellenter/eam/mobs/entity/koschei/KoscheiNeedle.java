@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -27,20 +28,24 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Koschei's needle, used: it flies a little way out of the hand, stops and hangs spinning in the air in a pillar of light
- * that reaches up into the sky and down through the ground, then bursts. The light bores a shaft straight down beneath
- * it through everything to the bedrock, through the underworld's deep bedrock too. Whoever used it has the time it spins
- * to get away. Not saved: unloaded, it is gone.
+ * that reaches up into the sky and down through the ground, wound round with a spiral running down it, then bursts.
+ * After the burst a chain of blasts drives straight down the light's path, one under another, through everything to the
+ * bedrock, through the underworld's deep bedrock too. Whoever used it has the time it spins to get away. Not saved:
+ * unloaded, it is gone.
  */
 public class KoscheiNeedle extends Entity implements ItemSupplier {
-	/** How deep the shaft is bored, in blocks under the needle; the light reaches down that far. */
+	/** How far down under it the chain of blasts has gone, in blocks; the light reaches down that far after the burst. */
 	private static final EntityDataAccessor<Integer> DATA_DEPTH = SynchedEntityData.defineId(KoscheiNeedle.class, EntityDataSerializers.INT);
+	/** It has burst: the needle is gone, only the light stays while the blasts go down it. */
+	private static final EntityDataAccessor<Boolean> DATA_BURST = SynchedEntityData.defineId(KoscheiNeedle.class, EntityDataSerializers.BOOLEAN);
 	/** It slows to a stop in the air over this many ticks after leaving the hand. */
-	private static final int FLIGHT_TICKS = 10;
+	public static final int FLIGHT_TICKS = 10;
 
-	private int fuse = KoscheiSettings.Needle.DEFAULT.fuse();
-	/** The next layer of the shaft to bore, as a block height; below the world's floor once the shaft is done. */
-	private int nextLayer = Integer.MAX_VALUE;
-	private boolean shaftDone;
+	/** The next layer the chain clears, as a block height. */
+	private int nextLayer;
+	/** The block height where it burst. */
+	private int burstY;
+	private int nextBlast;
 
 	public KoscheiNeedle(EntityType<? extends KoscheiNeedle> type, Level level) {
 		super(type, level);
@@ -56,11 +61,17 @@ public class KoscheiNeedle extends Entity implements ItemSupplier {
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		builder.define(DATA_DEPTH, 0);
+		builder.define(DATA_BURST, false);
 	}
 
-	/** Client: how far down under it the light reaches. */
+	/** Client: how far down under it the blasts have gone. */
 	public int depth() {
 		return entityData.get(DATA_DEPTH);
+	}
+
+	/** Client: it has burst, and only its light is left. */
+	public boolean burst() {
+		return entityData.get(DATA_BURST);
 	}
 
 	/** Client: ticks since it was used, for the spin. */
@@ -85,43 +96,56 @@ public class KoscheiNeedle extends Entity implements ItemSupplier {
 		}
 		if (level() instanceof ServerLevel level) {
 			serverTick(level);
-		} else if (tickCount >= FLIGHT_TICKS) {
+		} else if (tickCount >= FLIGHT_TICKS && !burst()) {
 			clientEffects();
 		}
 	}
 
 	private void serverTick(ServerLevel level) {
 		KoscheiSettings.Needle settings = KoscheiModule.settings().needle();
-		fuse = settings.fuse();
+		int burstAt = FLIGHT_TICKS + settings.fuse();
 		if (tickCount == FLIGHT_TICKS) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL, 3.0F, 0.6F);
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.TRIDENT_THUNDER.value(), SoundSource.NEUTRAL, 2.0F, 1.4F);
-			nextLayer = BlockPos.containing(position()).getY();
 		}
-		if (tickCount >= FLIGHT_TICKS && !shaftDone) {
-			bore(level, settings);
-		}
-		if (tickCount > FLIGHT_TICKS && tickCount % 10 == 0) {
+		if (tickCount > FLIGHT_TICKS && tickCount < burstAt && tickCount % 10 == 0) {
 			level.playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_AMBIENT, SoundSource.NEUTRAL, 2.0F, 1.0F + (tickCount - FLIGHT_TICKS) / 60.0F);
 		}
-		if (tickCount >= FLIGHT_TICKS + fuse) {
-			discard();
+		if (tickCount == burstAt) {
+			entityData.set(DATA_BURST, true);
+			burstY = BlockPos.containing(position()).getY();
+			nextLayer = burstY;
+			nextBlast = tickCount + settings.chainInterval();
 			level.explode(this, getX(), getY(), getZ(), settings.explosionPower(), Level.ExplosionInteraction.TNT);
+		} else if (tickCount > burstAt && tickCount >= nextBlast) {
+			nextBlast = tickCount + settings.chainInterval();
+			if (!blastDown(level, settings)) {
+				discard();
+			}
 		}
 	}
 
-	/** A few more layers of the shaft beneath it, down to the bedrock or the floor of the world. */
-	private void bore(ServerLevel level, KoscheiSettings.Needle settings) {
+	@Override
+	public boolean ignoreExplosion(Explosion explosion) {
+		return true;
+	}
+
+	/**
+	 * The next blast of the chain: clears the shaft one step further down and goes off at its bottom. False once the
+	 * chain has reached plain bedrock or the floor of the world.
+	 */
+	private boolean blastDown(ServerLevel level, KoscheiSettings.Needle settings) {
 		int radius = settings.shaftRadius();
 		int x0 = BlockPos.containing(position()).getX();
 		int z0 = BlockPos.containing(position()).getZ();
-		for (int i = 0; i < settings.layersPerTick() && !shaftDone; i++) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		boolean blocked = false;
+		int bottom = nextLayer;
+		for (int i = 0; i < settings.chainStep() && !blocked; i++) {
 			if (nextLayer < level.getMinY()) {
-				shaftDone = true;
+				blocked = true;
 				break;
 			}
-			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-			boolean blocked = false;
 			for (int dx = -radius; dx <= radius; dx++) {
 				for (int dz = -radius; dz <= radius; dz++) {
 					pos.set(x0 + dx, nextLayer, z0 + dz);
@@ -130,23 +154,26 @@ public class KoscheiNeedle extends Entity implements ItemSupplier {
 						continue;
 					}
 					if (!KoscheiLogic.needlePierces(state.getDestroySpeed(level, pos), state.is(EamBlocks.DEEP_BEDROCK))) {
-						// Plain bedrock: the shaft ends here.
+						// Plain bedrock: the chain ends here.
 						blocked = true;
 						continue;
 					}
 					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-					if (random.nextInt(4) == 0) {
-						level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, 0.3, 0.3, 0.3, 0.02);
-					}
 				}
 			}
-			entityData.set(DATA_DEPTH, (int) Math.ceil(getY()) - nextLayer);
-			if (blocked) {
-				shaftDone = true;
-				break;
+			bottom = nextLayer;
+			if (!blocked) {
+				nextLayer--;
 			}
-			nextLayer--;
 		}
+		if (bottom < level.getMinY()) {
+			return false;
+		}
+		Vec3 at = new Vec3(x0 + 0.5, bottom + 0.5, z0 + 0.5);
+		entityData.set(DATA_DEPTH, (int) Math.ceil(getY()) - bottom);
+		level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z, 20, 0.6, 0.6, 0.6, 0.15);
+		level.explode(this, at.x, at.y, at.z, settings.chainPower(), Level.ExplosionInteraction.TNT);
+		return !blocked;
 	}
 
 	private void clientEffects() {
