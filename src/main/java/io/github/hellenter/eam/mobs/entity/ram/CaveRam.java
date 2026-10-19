@@ -39,6 +39,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -48,6 +50,9 @@ import org.jspecify.annotations.Nullable;
  * them; under a rider a ram goes where he steers it.
  */
 public class CaveRam extends Animal {
+	/** Brought by a rider: it despawns like a monster even after he is gone, until it is bred or leashed. */
+	private boolean mount;
+
 	public CaveRam(EntityType<? extends CaveRam> type, Level level) {
 		super(type, level);
 	}
@@ -168,7 +173,33 @@ public class CaveRam extends Animal {
 	 */
 	@Override
 	public boolean removeWhenFarAway(double distSqr) {
-		return getFirstPassenger() instanceof Mob rider && !rider.isPersistenceRequired();
+		if (getFirstPassenger() instanceof Mob rider) {
+			return !rider.isPersistenceRequired();
+		}
+		return mount && !isLeashed();
+	}
+
+	/** Marks a ram that came under a rider, so it does not stay behind for good when he is gone. */
+	public void setMount() {
+		mount = true;
+	}
+
+	@Override
+	public void setInLove(@Nullable Player player) {
+		super.setInLove(player);
+		mount = false;
+	}
+
+	@Override
+	protected void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		output.putBoolean("Mount", mount);
+	}
+
+	@Override
+	protected void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		mount = input.getBooleanOr("Mount", false);
 	}
 
 	/** Its rider is thrown off as it falls, not when the body vanishes a second later. */

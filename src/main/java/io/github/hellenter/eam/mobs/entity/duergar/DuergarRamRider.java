@@ -236,6 +236,7 @@ public class DuergarRamRider extends Monster implements DuergarLook {
 		}
 		ram.snapTo(getX(), getY(), getZ(), getYRot(), 0.0F);
 		ram.finalizeSpawn(level, difficulty, EntitySpawnReason.MOB_SUMMONED, new AgeableMob.AgeableMobGroupData(false));
+		ram.setMount();
 		if (isPersistenceRequired()) {
 			ram.setPersistenceRequired();
 		}

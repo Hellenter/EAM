@@ -83,7 +83,7 @@ public class DuergarBomb extends ThrowableItemProjectile {
 
 	@Override
 	protected boolean canHitEntity(Entity entity) {
-		if (hitSomeone || getOwner() instanceof DuergarRenegade && entity instanceof DuergarRenegade) {
+		if (hitSomeone || getOwner() instanceof DuergarRenegade && (entity instanceof DuergarRenegade || entity instanceof DuergarRamRider)) {
 			return false;
 		}
 		return super.canHitEntity(entity);
@@ -129,7 +129,7 @@ public class DuergarBomb extends ThrowableItemProjectile {
 		DamageSource source = damageSources().explosion(this, owner);
 		AABB area = new AABB(centre, centre).inflate(radius);
 		for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, area, LivingEntity::isAlive)) {
-			if (owner instanceof DuergarRenegade && living instanceof DuergarRenegade) {
+			if (owner instanceof DuergarRenegade && (living instanceof DuergarRenegade || living instanceof DuergarRamRider)) {
 				continue;
 			}
 			double distance = Math.sqrt(living.getBoundingBox().distanceToSqr(centre));

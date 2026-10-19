@@ -89,6 +89,9 @@ public class ThrownTomahawk extends AbstractArrow {
 		}
 		dealtDamage = true;
 		boolean hurt = target.hurtOrSimulate(source, amount);
+		if (hurt && level() instanceof ServerLevel level) {
+			EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(level, target, source, getWeaponItem(), weapon -> kill(level));
+		}
 		if (hurt && target instanceof LivingEntity living) {
 			doKnockback(living, source);
 			doPostHurtEffects(living);
