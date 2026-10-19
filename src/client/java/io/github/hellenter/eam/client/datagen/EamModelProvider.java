@@ -8,12 +8,14 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.content.swamp.BerryShrub;
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.dryer.DriedFoods;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 import io.github.hellenter.eam.content.swamp.DuckweedBlock;
 import io.github.hellenter.eam.content.swamp.HollowLogBlock;
+import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
@@ -131,9 +133,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.WILD_GARLIC, BlockModelGenerators.PlantType.NOT_TINTED);
 		// Four looks over eight ages, like carrots.
-		// Garlic is the crop's item, so its definition comes from here; dried garlic looks darker.
-		new BlockModelGenerators(generators.blockStateOutput, DriedItemModels.output(generators.itemModelOutput), generators.modelOutput)
-				.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
+		generators.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
 		// An evolved spider's web looks like cobweb and has no item.
@@ -385,48 +385,68 @@ public class EamModelProvider extends FabricModelProvider {
 		return element;
 	}
 
-	/** Two bracket shelves against the log to the north, turned to face whichever side the log is on. */
+	/**
+	 * Bracket shelves against the log to the north, turned to face whichever side the log is on: one wide shelf, or the
+	 * wide one lower down with a smaller one above. The item is a flat sprite of the pair.
+	 */
 	private static void shelfMushroom(BlockModelGenerators generators) {
 		Block block = EamBlocks.SHELF_MUSHROOM;
 		String texture = TextureMapping.getBlockTexture(block).sprite().toString();
-		Identifier model = ModelLocationUtils.getModelLocation(block);
-		generators.modelOutput.accept(model, () -> {
-			JsonObject textures = new JsonObject();
-			textures.addProperty("particle", texture);
-			textures.addProperty("shelf", texture);
-			JsonArray elements = new JsonArray();
-			elements.add(shelf(2, 5, 14, 8, 6, 0));
-			elements.add(shelf(5, 10, 12, 12, 4, 8));
-			JsonObject json = new JsonObject();
-			json.addProperty("parent", "minecraft:block/block");
-			json.add("textures", textures);
-			json.add("elements", elements);
-			return json;
-		});
-		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(model))
-				.with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
-		generators.registerSimpleItemModel(block.asItem(), model);
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(
+				PropertyDispatch.initial(ShelfMushroomBlock.MUSHROOMS).generate(count -> {
+					Identifier model = ModelLocationUtils.getModelLocation(block, "_" + count);
+					generators.modelOutput.accept(model, () -> {
+						JsonObject textures = new JsonObject();
+						textures.addProperty("particle", texture);
+						textures.addProperty("shelf", texture);
+						JsonArray elements = new JsonArray();
+						if (count == 1) {
+							shelf(elements, 2, 14, 5, 6);
+						} else {
+							shelf(elements, 2, 14, 3, 6);
+							shelf(elements, 4, 11, 9, 5);
+						}
+						JsonObject json = new JsonObject();
+						json.addProperty("parent", "minecraft:block/block");
+						json.add("textures", textures);
+						json.add("elements", elements);
+						return json;
+					});
+					return BlockModelGenerators.plainVariant(model);
+				})).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+		generators.registerSimpleFlatItemModel(block.asItem());
 	}
 
 	/**
-	 * One shelf from the log's face (z 0) out to {@code depth}: the top of the texture's upper half is its cap, the
-	 * lower half its rim and underside; {@code v} picks which rows of the texture this shelf uses.
+	 * One shelf from the log's face (z 0) out to {@code depth}, {@code y} its bottom: a two-pixel slab with a one-pixel
+	 * smaller cap on top, so the edge steps down like a real bracket. The texture's rows 0-6 are the cap from the log out
+	 * to the orange rim, rows 7-9 the side band and rows 10-15 the pale pores underneath.
 	 */
-	private static JsonObject shelf(double x0, double y0, double x1, double y1, double depth, double v) {
+	private static void shelf(JsonArray out, double x0, double x1, double y, double depth) {
+		out.add(shelfLayer(x0, x1, y, y + 2, depth, 6, 8, true));
+		out.add(shelfLayer(x0 + 1, x1 - 1, y + 2, y + 3, depth - 1, 5, 7, false));
+	}
+
+	private static JsonObject shelfLayer(double x0, double x1, double y0, double y1, double depth, double capRow, double sideRow,
+			boolean underside) {
 		JsonObject faces = new JsonObject();
 		for (Direction direction : Direction.values()) {
-			if (direction == Direction.NORTH) {
+			if (direction == Direction.DOWN && !underside) {
 				continue;
 			}
 			JsonObject face = new JsonObject();
 			JsonArray uv = switch (direction) {
-				case UP -> vector4(x0, v, x1, v + depth);
-				case DOWN -> vector4(x0, 16 - depth, x1, 16);
-				case SOUTH -> vector4(x0, 16 - depth - (y1 - y0), x1, 16 - depth);
-				default -> vector4(0, v, depth, v + (y1 - y0));
+				case UP -> vector4(x0, capRow + 1 - depth, x1, capRow + 1);
+				case DOWN -> vector4(x0, 10, x1, 10 + depth);
+				case SOUTH -> vector4(x0, sideRow, x1, sideRow + (y1 - y0));
+				case NORTH -> vector4(16 - x1, sideRow, 16 - x0, sideRow + (y1 - y0));
+				default -> vector4(0, sideRow, depth, sideRow + (y1 - y0));
 			};
 			face.add("uv", uv);
 			face.addProperty("texture", "#shelf");
+			if (direction == Direction.NORTH) {
+				face.addProperty("cullface", "north");
+			}
 			faces.add(direction.getSerializedName(), face);
 		}
 		JsonObject element = new JsonObject();
@@ -637,11 +657,12 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
-		// Dryable food: a darker look while the stack is dried.
-		ItemModelGenerators dryable = new ItemModelGenerators(DriedItemModels.output(generators.itemModelOutput), generators.modelOutput);
-		dryable.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
-		dryable.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
-		dryable.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
+		for (Item item : DriedFoods.ALL_DRIED) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
 		generators.generateFlatItem(EamItems.GLOWSHROOM, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,

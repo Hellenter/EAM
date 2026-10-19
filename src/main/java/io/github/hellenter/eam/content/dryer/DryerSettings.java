@@ -9,11 +9,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * Balance numbers for the food dryer, read from {@code data/eam/food_dryer/settings.json} so datapacks can override
  * them. How much longer dried food keeps is in the spoilage settings ({@code dried_multiplier}).
  *
- * @param dryTicks ticks food lies on the dryer before it is dried (12000 = half a Minecraft day)
+ * @param dryTicks ticks food lies on the dryer before it is dried (60000 = two and a half Minecraft days)
  * @param water    thirst points eating one dried item costs (2 points = one droplet)
  */
 public record DryerSettings(int dryTicks, int water) {
-	public static final DryerSettings DEFAULT = new DryerSettings(12000, 1);
+	public static final DryerSettings DEFAULT = new DryerSettings(60000, 1);
 
 	public static final Codec<DryerSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("dry_ticks").orElse(DEFAULT.dryTicks).forGetter(DryerSettings::dryTicks),

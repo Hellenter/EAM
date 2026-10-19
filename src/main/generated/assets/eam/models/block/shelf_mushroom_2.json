@@ -1,0 +1,267 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#shelf",
+          "uv": [
+            2.0,
+            10.0,
+            14.0,
+            16.0
+          ]
+        },
+        "east": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            8.0,
+            6.0,
+            10.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#shelf",
+          "uv": [
+            2.0,
+            8.0,
+            14.0,
+            10.0
+          ]
+        },
+        "south": {
+          "texture": "#shelf",
+          "uv": [
+            2.0,
+            8.0,
+            14.0,
+            10.0
+          ]
+        },
+        "up": {
+          "texture": "#shelf",
+          "uv": [
+            2.0,
+            1.0,
+            14.0,
+            7.0
+          ]
+        },
+        "west": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            8.0,
+            6.0,
+            10.0
+          ]
+        }
+      },
+      "from": [
+        2.0,
+        3.0,
+        0.0
+      ],
+      "to": [
+        14.0,
+        5.0,
+        6.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            7.0,
+            5.0,
+            8.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#shelf",
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            8.0
+          ]
+        },
+        "south": {
+          "texture": "#shelf",
+          "uv": [
+            3.0,
+            7.0,
+            13.0,
+            8.0
+          ]
+        },
+        "up": {
+          "texture": "#shelf",
+          "uv": [
+            3.0,
+            1.0,
+            13.0,
+            6.0
+          ]
+        },
+        "west": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            7.0,
+            5.0,
+            8.0
+          ]
+        }
+      },
+      "from": [
+        3.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        13.0,
+        6.0,
+        5.0
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#shelf",
+          "uv": [
+            4.0,
+            10.0,
+            11.0,
+            15.0
+          ]
+        },
+        "east": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            8.0,
+            5.0,
+            10.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#shelf",
+          "uv": [
+            5.0,
+            8.0,
+            12.0,
+            10.0
+          ]
+        },
+        "south": {
+          "texture": "#shelf",
+          "uv": [
+            4.0,
+            8.0,
+            11.0,
+            10.0
+          ]
+        },
+        "up": {
+          "texture": "#shelf",
+          "uv": [
+            4.0,
+            2.0,
+            11.0,
+            7.0
+          ]
+        },
+        "west": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            8.0,
+            5.0,
+            10.0
+          ]
+        }
+      },
+      "from": [
+        4.0,
+        9.0,
+        0.0
+      ],
+      "to": [
+        11.0,
+        11.0,
+        5.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            7.0,
+            4.0,
+            8.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#shelf",
+          "uv": [
+            6.0,
+            7.0,
+            11.0,
+            8.0
+          ]
+        },
+        "south": {
+          "texture": "#shelf",
+          "uv": [
+            5.0,
+            7.0,
+            10.0,
+            8.0
+          ]
+        },
+        "up": {
+          "texture": "#shelf",
+          "uv": [
+            5.0,
+            2.0,
+            10.0,
+            6.0
+          ]
+        },
+        "west": {
+          "texture": "#shelf",
+          "uv": [
+            0.0,
+            7.0,
+            4.0,
+            8.0
+          ]
+        }
+      },
+      "from": [
+        5.0,
+        11.0,
+        0.0
+      ],
+      "to": [
+        10.0,
+        12.0,
+        4.0
+      ]
+    }
+  ],
+  "textures": {
+    "particle": "eam:block/shelf_mushroom",
+    "shelf": "eam:block/shelf_mushroom"
+  }
+}

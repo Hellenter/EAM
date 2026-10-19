@@ -560,21 +560,13 @@ public final class EamItems {
 			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 2))
 			.component(ThirstModule.HYDRATION, new Hydration(1)));
 	/** Picked from big swamp shrubs, and poisonous: eating one poisons and sickens. */
-	public static final Item WOLFBERRY = register("wolfberry", Item::new, new Item.Properties()
-			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.0F).alwaysEdible().build(),
-					Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
-							new MobEffectInstance(MobEffects.POISON, 200), new MobEffectInstance(MobEffects.NAUSEA, 200)))).build())
-			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1)));
+	public static final Item WOLFBERRY = register("wolfberry", Item::new, wolfberry());
 	/**
 	 * A garlic bulb: planted on farmland like a carrot, or eaten raw. Eaten, it wards off bloodsuckers for a while: upyrs
 	 * and vampire bats hit for less and upyrs will not drink.
 	 */
-	public static final Item GARLIC = register("garlic", p -> new BlockItem(EamBlocks.GARLIC_CROP, p), new Item.Properties()
+	public static final Item GARLIC = register("garlic", p -> new BlockItem(EamBlocks.GARLIC_CROP, p), garlic()
 			.useItemDescriptionPrefix()
-			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).alwaysEdible().build(),
-					Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(
-							new MobEffectInstance(UpyrModule.GARLIC, GARLIC_WARD_TICKS))).build())
-			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1))
 			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
 	public static final Item WILD_GARLIC = plantItem("wild_garlic", EamBlocks.WILD_GARLIC, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final Item STRIPPED_POPLAR_FENCE = blockItem("stripped_poplar_fence", EamBlocks.STRIPPED_POPLAR_FENCE);
@@ -688,6 +680,32 @@ public final class EamItems {
 	/** What spoiled fruit, vegetables and cooked food turn into: not food any more, but good compost. */
 	public static final Item ROTTEN_FOOD = register("rotten_food", Item::new, new Item.Properties().compostable(ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH));
 
+	/**
+	 * Food taken off a food dryer: it keeps longer and costs a little water when eaten (the dryer module gives each the
+	 * {@code eam:dried} component), but feeds as much as the fresh food. The hunger module copies the fresh food's MITE
+	 * values onto the vanilla ones; ours copy them here. Dried wolfberries still poison and dried garlic still wards.
+	 */
+	public static final Item DRIED_APPLE = driedFood("dried_apple", Foods.APPLE);
+	public static final Item DRIED_CARROT = driedFood("dried_carrot", Foods.CARROT);
+	public static final Item DRIED_BEETROOT = driedFood("dried_beetroot", Foods.BEETROOT);
+	public static final Item DRIED_MELON_SLICE = driedFood("dried_melon_slice", Foods.MELON_SLICE);
+	public static final Item DRIED_SWEET_BERRIES = driedFood("dried_sweet_berries", Foods.SWEET_BERRIES);
+	public static final Item DRIED_GLOW_BERRIES = driedFood("dried_glow_berries", Foods.GLOW_BERRIES);
+	public static final Item DRIED_CRANBERRY = register("dried_cranberry", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 2)));
+	public static final Item DRIED_WOLFBERRY = register("dried_wolfberry", Item::new, wolfberry());
+	public static final Item DRIED_GARLIC = register("dried_garlic", Item::new, garlic());
+	public static final Item DRIED_BREAD = driedFood("dried_bread", Foods.BREAD);
+	public static final Item DRIED_BEEF = driedFood("dried_beef", Foods.COOKED_BEEF);
+	public static final Item DRIED_PORKCHOP = driedFood("dried_porkchop", Foods.COOKED_PORKCHOP);
+	public static final Item DRIED_MUTTON = driedFood("dried_mutton", Foods.COOKED_MUTTON);
+	public static final Item DRIED_CHICKEN = driedFood("dried_chicken", Foods.COOKED_CHICKEN);
+	public static final Item DRIED_RABBIT = driedFood("dried_rabbit", Foods.COOKED_RABBIT);
+	public static final Item DRIED_WOLF_MEAT = driedFood("dried_wolf_meat", Foods.COOKED_MUTTON);
+	public static final Item DRIED_COD = driedFood("dried_cod", Foods.COOKED_COD);
+	public static final Item DRIED_SALMON = driedFood("dried_salmon", Foods.COOKED_SALMON);
+
 	/** A bowl of plain or boiled water, for soup recipes. */
 	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));
 
@@ -718,6 +736,28 @@ public final class EamItems {
 				.nutrition(CampFireLogic.burntValue(cooked.nutrition()))
 				.saturationModifier(cooked.saturation() / (cooked.nutrition() * 2.0F))
 				.build()));
+	}
+
+	/** Poisonous berries: eating one poisons and sickens. */
+	private static Item.Properties wolfberry() {
+		return new Item.Properties()
+				.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.0F).alwaysEdible().build(),
+						Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
+								new MobEffectInstance(MobEffects.POISON, 200), new MobEffectInstance(MobEffects.NAUSEA, 200)))).build())
+				.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1));
+	}
+
+	/** Garlic eaten wards off bloodsuckers for a while. */
+	private static Item.Properties garlic() {
+		return new Item.Properties()
+				.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).alwaysEdible().build(),
+						Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(
+								new MobEffectInstance(UpyrModule.GARLIC, GARLIC_WARD_TICKS))).build())
+				.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1));
+	}
+
+	private static Item driedFood(String name, FoodProperties fresh) {
+		return register(name, Item::new, new Item.Properties().food(fresh));
 	}
 
 	private static Item blockItem(String name, Block block) {

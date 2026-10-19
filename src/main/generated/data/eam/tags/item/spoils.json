@@ -39,6 +39,24 @@
     "eam:ice_cream",
     "eam:sorbet",
     "eam:porridge",
-    "eam:cereal"
+    "eam:cereal",
+    "eam:dried_apple",
+    "eam:dried_carrot",
+    "eam:dried_beetroot",
+    "eam:dried_melon_slice",
+    "eam:dried_sweet_berries",
+    "eam:dried_glow_berries",
+    "eam:dried_cranberry",
+    "eam:dried_wolfberry",
+    "eam:dried_garlic",
+    "eam:dried_bread",
+    "eam:dried_beef",
+    "eam:dried_porkchop",
+    "eam:dried_mutton",
+    "eam:dried_chicken",
+    "eam:dried_rabbit",
+    "eam:dried_wolf_meat",
+    "eam:dried_cod",
+    "eam:dried_salmon"
   ]
 }

@@ -53,7 +53,8 @@ public record ShelfMushroomFeature(int tries) implements Feature {
 			for (int n = 0; n < count && y < ground + MAX_HEIGHT; n++, y += 1 + random.nextInt(2)) {
 				BlockPos log = new BlockPos(x, y, z);
 				BlockPos spot = log.relative(side);
-				BlockState shelf = EamBlocks.SHELF_MUSHROOM.defaultBlockState().setValue(ShelfMushroomBlock.FACING, side.getOpposite());
+				BlockState shelf = EamBlocks.SHELF_MUSHROOM.defaultBlockState().setValue(ShelfMushroomBlock.FACING, side.getOpposite())
+						.setValue(ShelfMushroomBlock.MUSHROOMS, 1 + random.nextInt(ShelfMushroomBlock.MAX_MUSHROOMS));
 				if (level.getBlockState(log).is(BlockTags.LOGS) && level.isEmptyBlock(spot)) {
 					level.setBlock(spot, shelf, 2);
 					placed = true;

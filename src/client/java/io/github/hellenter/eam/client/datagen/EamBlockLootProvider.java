@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.swamp.BerryShrub;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
+import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
@@ -86,7 +87,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.SWAMP_GRASS, this::createGrassDrops);
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
-		dropSelf(EamBlocks.SHELF_MUSHROOM);
+		// One shelf mushroom per shelf.
+		add(EamBlocks.SHELF_MUSHROOM, block -> LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ContextIntProviders.exactly(1))
+				.add(applyExplosionDecay(block, LootItem.lootTableItem(block).apply(List.of(2),
+						count -> SetItemCountFunction.setCount(ContextIntProviders.exactly(count))
+								.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(ShelfMushroomBlock.MUSHROOMS, count))))))));
 		dropSelf(EamBlocks.PILLAGER_KING_HELM);
 		// Garlic drops like carrots: one bulb back, and two to five from a ripe plant. Wild garlic gives one or two bulbs.
 		add(EamBlocks.GARLIC_CROP, block -> applyExplosionDecay(block, LootTable.lootTable()

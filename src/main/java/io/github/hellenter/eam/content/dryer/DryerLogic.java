@@ -14,9 +14,4 @@ public final class DryerLogic {
 	public static boolean done(int progress, DryerSettings settings) {
 		return progress >= settings.dryTicks();
 	}
-
-	/** Whether a slot holds food the dryer can still work on: dryable and not dried yet. */
-	public static boolean canDry(boolean dryable, boolean dried) {
-		return dryable && !dried;
-	}
 }

@@ -34,7 +34,6 @@ public class EamClientItemProvider extends FabricCodecDataProvider<ClientItem> {
 				Identifier.withDefaultNamespace("item/crossbow_arrow"), ItemModelUtils.constantTint(0xFFFF3A22)), ClientItem.Properties.DEFAULT));
 		provider.accept(TalismanActivation.GLOWING,
 				new ClientItem(ItemModelUtils.plainModel(EamModelProvider.TALISMAN_GLOWING_MODEL), ClientItem.Properties.DEFAULT));
-		DriedItemModels.vanilla(provider);
 	}
 
 	@Override
