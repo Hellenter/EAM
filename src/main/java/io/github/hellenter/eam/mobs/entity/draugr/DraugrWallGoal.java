@@ -12,7 +12,8 @@ import java.util.EnumSet;
 
 /**
  * A thrall in his master's row of shields: he takes the spot his master gives him, faces the enemy with his shield up
- * and stands there, lowering it only to swing at the enemy when it comes into his reach.
+ * and stands there, lowering it only to swing at the enemy when it comes into his reach, or while an axe has knocked it
+ * out of the guard.
  */
 final class DraugrWallGoal extends Goal {
 	/** Further than this from his spot he walks there by path. */
@@ -89,7 +90,8 @@ final class DraugrWallGoal extends Goal {
 			draugr.doHurtTarget(level, enemy);
 			attackCooldown = ATTACK_INTERVAL;
 			shieldDown = SHIELD_DOWN;
-		} else if (shieldDown <= 0 && !draugr.isUsingItem() && draugr.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS)) {
+		} else if (shieldDown <= 0 && !draugr.shieldKnocked() && !draugr.isUsingItem()
+				&& draugr.getOffhandItem().has(DataComponents.BLOCKS_ATTACKS)) {
 			draugr.startUsingItem(InteractionHand.OFF_HAND);
 		}
 	}

@@ -24,10 +24,12 @@ import java.util.List;
  * @param weaponDropChance chance his weapon drops
  * @param climbHeight     he climbs only toward a target at most this many blocks above him, and never higher than it
  * @param climbReach      and only toward a target at most this many blocks across
+ * @param shieldDisableMultiplier an axe that would disable a player's shield for N seconds knocks his down for N times
+ *                        this
  */
 public record DraugrSettings(double health, double speed, float fireMultiplier, double waitRadius, List<Wave> waves, int wakeStagger,
 		int riseTicks, List<Double> pieceWeights, double ownPieceChance, double beltChance, List<Double> weaponWeights,
-		float weaponDropChance, double climbHeight, double climbReach) {
+		float weaponDropChance, double climbHeight, double climbReach, float shieldDisableMultiplier) {
 	/**
 	 * @param delay  ticks after the waiting draugr rose
 	 * @param radius sleepers this close to where he lay wake
@@ -41,7 +43,7 @@ public record DraugrSettings(double health, double speed, float fireMultiplier, 
 
 	public static final DraugrSettings DEFAULT = new DraugrSettings(22.0, 0.255, 2.0F, 10.0,
 			List.of(new Wave(0, 15.0), new Wave(100, 30.0), new Wave(200, 50.0)), 20, 30, List.of(2.0, 3.0, 3.0, 2.0), 0.75, 0.4,
-			List.of(35.0, 35.0, 30.0), 0.05F, 24.0, 12.0);
+			List.of(35.0, 35.0, 30.0), 0.05F, 24.0, 12.0, 1.0F);
 
 	public static final Codec<DraugrSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.doubleRange(1.0, 1024.0).fieldOf("health").orElse(DEFAULT.health).forGetter(DraugrSettings::health),
@@ -58,7 +60,9 @@ public record DraugrSettings(double health, double speed, float fireMultiplier, 
 			Codec.floatRange(0.0F, 1.0F).fieldOf("weapon_drop_chance").orElse(DEFAULT.weaponDropChance)
 					.forGetter(DraugrSettings::weaponDropChance),
 			Codec.doubleRange(0.0, 64.0).fieldOf("climb_height").orElse(DEFAULT.climbHeight).forGetter(DraugrSettings::climbHeight),
-			Codec.doubleRange(0.0, 64.0).fieldOf("climb_reach").orElse(DEFAULT.climbReach).forGetter(DraugrSettings::climbReach)
+			Codec.doubleRange(0.0, 64.0).fieldOf("climb_reach").orElse(DEFAULT.climbReach).forGetter(DraugrSettings::climbReach),
+			Codec.floatRange(0.0F, 10.0F).fieldOf("shield_disable_multiplier").orElse(DEFAULT.shieldDisableMultiplier)
+					.forGetter(DraugrSettings::shieldDisableMultiplier)
 	).apply(instance, DraugrSettings::new));
 
 	double[] pieceWeightArray() {

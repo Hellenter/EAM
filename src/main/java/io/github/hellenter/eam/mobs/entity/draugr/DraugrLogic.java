@@ -13,6 +13,14 @@ public final class DraugrLogic {
 	}
 
 	/**
+	 * Ticks an axe that would disable a player's shield for {@code seconds} keeps his shield down: {@code multiplier}
+	 * times as long. 0 for anything that does not disable shields.
+	 */
+	public static int shieldKnockedTicks(float seconds, float multiplier) {
+		return Math.max(0, Math.round(seconds * multiplier * 20.0F));
+	}
+
+	/**
 	 * The waves of a call that are due {@code elapsed} ticks after it went out, from wave {@code next} on: returns the
 	 * index after the last one due (equal to {@code next} if none is).
 	 */

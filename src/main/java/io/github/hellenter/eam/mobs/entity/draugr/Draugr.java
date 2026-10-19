@@ -109,6 +109,8 @@ public class Draugr extends Monster {
 	private long wallOrderTime;
 	/** Game time until which something holds him where he stands. */
 	private long heldUntil;
+	/** Game time until which an axe has knocked his shield out of the guard. */
+	private long shieldKnockedUntil;
 
 	public Draugr(EntityType<? extends Draugr> type, Level level) {
 		super(type, level);
@@ -390,6 +392,23 @@ public class Draugr extends Monster {
 	}
 
 	record WallOrder(Vec3 spot, LivingEntity facing, double reach) {
+	}
+
+	/** Whether an axe has knocked his shield down: he cannot raise it again until it wears off. */
+	boolean shieldKnocked() {
+		return level().getGameTime() < shieldKnockedUntil;
+	}
+
+	/** An axe knocks his raised shield down for a while, as it does a player's. */
+	@Override
+	protected void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage, boolean fullyBlocked) {
+		super.blockUsingItem(level, attacker, source, damage, fullyBlocked);
+		int ticks = DraugrLogic.shieldKnockedTicks(attacker.getSecondsToDisableBlocking(), settings().shieldDisableMultiplier());
+		if (ticks > 0) {
+			shieldKnockedUntil = level.getGameTime() + ticks;
+			stopUsingItem();
+			level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 1.0F, 0.8F);
+		}
 	}
 
 	/** Holds him where he stands for {@code ticks}: his master draws on him. */
