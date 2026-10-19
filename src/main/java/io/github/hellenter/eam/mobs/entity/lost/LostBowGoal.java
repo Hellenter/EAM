@@ -6,15 +6,17 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
+import java.util.function.Supplier;
 
 /**
  * An archer of the Lost keeps the player at bow range: he backs away when the player comes close, walks closer when
  * the player is far or out of sight, and otherwise stands and steps to the side now and then. Before each shot he stops,
- * turns to face the player and holds still for a moment.
+ * turns to face the player and holds still for a moment. The longbowman fights the same way with his own numbers.
  */
 final class LostBowGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
@@ -27,6 +29,9 @@ final class LostBowGoal extends Goal {
 	private static final float AIM_TOLERANCE = 12.0F;
 
 	private final Lost lost;
+	private final LostRole role;
+	private final Item bow;
+	private final Supplier<LostSettings.Archer> numbers;
 	private int cooldown;
 	private int repath;
 	private int blind;
@@ -35,15 +40,23 @@ final class LostBowGoal extends Goal {
 	/** Ticks he has stood aiming with the bow fully drawn, or -1 while he is not aiming. */
 	private int aimTicks = -1;
 
+	/** A squad archer with his bow. */
 	LostBowGoal(Lost lost) {
+		this(lost, LostRole.ARCHER, Items.BOW, () -> LostModule.settings().archer());
+	}
+
+	LostBowGoal(Lost lost, LostRole role, Item bow, Supplier<LostSettings.Archer> numbers) {
 		this.lost = lost;
+		this.role = role;
+		this.bow = bow;
+		this.numbers = numbers;
 		setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
 	}
 
 	@Override
 	public boolean canUse() {
 		LivingEntity target = lost.getTarget();
-		return lost.role() == LostRole.ARCHER && target != null && target.isAlive() && lost.isHolding(Items.BOW);
+		return lost.role() == role && target != null && target.isAlive() && lost.isHolding(bow);
 	}
 
 	@Override
@@ -72,7 +85,7 @@ final class LostBowGoal extends Goal {
 		if (target == null) {
 			return;
 		}
-		LostSettings.Archer archer = LostModule.settings().archer();
+		LostSettings.Archer archer = numbers.get();
 		double distance = lost.distanceTo(target);
 		boolean sees = lost.getSensing().hasLineOfSight(target);
 		lost.getLookControl().setLookAt(target, 30.0F, 30.0F);
@@ -136,7 +149,8 @@ final class LostBowGoal extends Goal {
 		if (aimTicks >= archer.aimTicks() && Mth.degreesDifferenceAbs(lost.getYRot(), yaw) <= AIM_TOLERANCE) {
 			int drawn = lost.getTicksUsingItem();
 			lost.stopUsingItem();
-			lost.performRangedAttack(target, BowItem.getPowerForTime(drawn));
+			// His full draw is a full-power shot, however long his bow takes.
+			lost.performRangedAttack(target, BowItem.getPowerForTime(drawn * BowItem.MAX_DRAW_DURATION / archer.drawTicks()));
 			cooldown = archer.cooldown();
 			aimTicks = -1;
 		}
@@ -151,7 +165,7 @@ final class LostBowGoal extends Goal {
 			}
 		} else if (--cooldown <= 0 && sees && distance <= archer.maxRange() + 4.0) {
 			blind = 0;
-			lost.startUsingItem(ProjectileUtil.getWeaponHoldingHand(lost, Items.BOW));
+			lost.startUsingItem(ProjectileUtil.getWeaponHoldingHand(lost, bow));
 		}
 	}
 }

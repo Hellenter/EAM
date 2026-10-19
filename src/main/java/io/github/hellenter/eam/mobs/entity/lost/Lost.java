@@ -196,14 +196,18 @@ public class Lost extends SkeletonKnight {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, drop);
 		}
-		// A centurion from his egg comes alone.
-		if (leader == null && !(role == LostRole.CENTURION && fromEgg(reason))) {
+		if (leader == null && !comesAlone(reason)) {
 			spawnFollowers(level, difficulty, settings, reason);
 			if (reason == EntitySpawnReason.NATURAL) {
 				LostSpawnCooldowns.start(level.getLevel(), blockPosition(), settings.squad(), getRandom());
 			}
 		}
 		return data;
+	}
+
+	/** Whether he comes without followers, spawned on his own: a centurion from his egg does. */
+	protected boolean comesAlone(EntitySpawnReason reason) {
+		return role == LostRole.CENTURION && fromEgg(reason);
 	}
 
 	@Override
@@ -228,6 +232,10 @@ public class Lost extends SkeletonKnight {
 		if (role == LostRole.LEADER && bringsCenturion && !fromEgg(reason)
 				&& random.nextDouble() < settings.centurion().chance()) {
 			spawnMember(level, difficulty, EamEntities.LOST_CENTURION.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), LostRole.CENTURION);
+		}
+		// And a longbowman far behind, who marks the player for the others; his own egg is for him too.
+		if (role == LostRole.LEADER && bringsCenturion && !fromEgg(reason) && random.nextDouble() < settings.longbowman().squadChance()) {
+			spawnMember(level, difficulty, EamEntities.LOST_LONGBOWMAN.create(level.getLevel(), EntitySpawnReason.MOB_SUMMONED), LostRole.LONGBOWMAN);
 		}
 		UndeadWarlockModule.maybeJoinSquad(level, difficulty, this);
 	}
@@ -296,6 +304,7 @@ public class Lost extends SkeletonKnight {
 			squad = level.getEntitiesOfClass(Lost.class, getBoundingBox().inflate(SQUAD_RANGE),
 					mate -> mate != this && mate.isAlive() && id.equals(mate.squadId()));
 			shareTarget();
+			LostMark.preferMarked(this);
 		}
 	}
 

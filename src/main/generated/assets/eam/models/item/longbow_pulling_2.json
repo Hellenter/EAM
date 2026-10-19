@@ -1,0 +1,6 @@
+{
+  "parent": "eam:item/longbow_base",
+  "textures": {
+    "layer0": "eam:item/longbow_pulling_2"
+  }
+}

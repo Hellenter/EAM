@@ -20,6 +20,7 @@
 		"dimension.NetherPortalBlockMixin",
 		"dimension.PortalForcerMixin",
 		"mobs.entity.PlayerArmorPiercingMixin",
+		"mobs.entity.lost.LivingEntityMarkMixin",
 		"mobs.entity.boss.BlockItemPlacedMixin",
 		"mobs.entity.crossbowman.NaturalSpawnerEliteMixin",
 		"mobs.entity.yaga.NaturalSpawnerYagaMixin",

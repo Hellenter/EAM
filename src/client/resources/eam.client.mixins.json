@@ -3,6 +3,8 @@
 	"package": "io.github.hellenter.eam.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"content.longbow.AbstractClientPlayerLongbowMixin",
+		"content.longbow.FirstPersonHandsAndItemsLongbowMixin",
 		"mobs.leshy.CompassAngleStateMixin",
 		"content.talisman.FirstPersonHandsAndItemsMixin",
 		"survival.hunger.AbstractContainerScreenAccessor",

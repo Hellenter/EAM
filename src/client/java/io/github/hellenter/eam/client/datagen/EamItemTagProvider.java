@@ -192,6 +192,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		// Bows, crossbows and dispensers take anything in this tag as arrows.
 		builder(ItemTags.ARROWS).addAll(keys(EamItems.COPPER_ARROW, EamItems.SILVER_ARROW, EamItems.IRON_ARROW, EamItems.ANCIENT_METAL_ARROW,
 				EamItems.MITHRIL_ARROW));
+		// The longbow takes a bow's enchantments.
+		builder(ItemTags.BOW_ENCHANTABLE).add(EamItems.LONGBOW.builtInRegistryHolder().key());
+		builder(ItemTags.DURABILITY_ENCHANTABLE).add(EamItems.LONGBOW.builtInRegistryHolder().key());
 
 		builder(SilverGear.TOOL_MATERIALS).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());

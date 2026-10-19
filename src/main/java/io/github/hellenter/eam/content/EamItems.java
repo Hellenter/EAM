@@ -19,6 +19,7 @@ import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.longbow.LongbowItem;
 import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotLogic;
@@ -382,6 +383,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.LOST_CENTURION));
 	public static final Item LOST_WALL_COMMANDER_SPAWN_EGG = register("lost_wall_commander_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_WALL_COMMANDER));
+	public static final Item LOST_LONGBOWMAN_SPAWN_EGG = register("lost_longbowman_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LOST_LONGBOWMAN));
 	public static final Item LOST_CAVALRYMAN_SPAWN_EGG = register("lost_cavalryman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_CAVALRYMAN));
 	public static final Item UNDEAD_WARLOCK_SPAWN_EGG = register("undead_warlock_spawn_egg", SpawnEggItem::new,
@@ -439,6 +442,9 @@ public final class EamItems {
 			.component(SilverModule.UNDEAD_DAMAGE_BONUS, SilverGear.UNDEAD_DAMAGE_BONUS));
 	public static final Item IRON_ARROW = arrow("iron_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.IRON));
 	public static final Item MITHRIL_ARROW = arrow("mithril_arrow", new Item.Properties().component(ArrowHeadModule.ARROW_HEAD, ArrowHeads.MITHRIL));
+
+	/** The Lost longbowman's bow: drawn twice as long, shoots twice as fast and hits two and a half times as hard. */
+	public static final Item LONGBOW = register("longbow", LongbowItem::new, new Item.Properties().durability(384).enchantable(1));
 
 	/** Ancient metal sits between iron and mithril; it has no source yet and will come from another dimension. */
 	public static final Item ANCIENT_METAL_BLOCK = blockItem("ancient_metal_block", EamBlocks.ANCIENT_METAL_BLOCK);

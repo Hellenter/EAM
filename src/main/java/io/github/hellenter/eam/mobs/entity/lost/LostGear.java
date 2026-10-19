@@ -45,7 +45,7 @@ public final class LostGear {
 		// The shield wall's commander is dressed like a squad's leader.
 		boolean leader = role == LostRole.LEADER || role == LostRole.WALL_COMMANDER;
 		int look = leader ? 0 : 1 + random.nextInt(WORN.size() - 1);
-		boolean archer = role == LostRole.ARCHER;
+		boolean archer = role == LostRole.ARCHER || role == LostRole.LONGBOWMAN;
 		mob.setItemSlot(EquipmentSlot.CHEST, worn(EamItems.ANCIENT_METAL_CHESTPLATE, look));
 		if (leader || random.nextFloat() < (archer ? 0.85F : 0.95F)) {
 			mob.setItemSlot(EquipmentSlot.HEAD, worn(EamItems.ANCIENT_METAL_HELMET, look));
@@ -61,6 +61,7 @@ public final class LostGear {
 			case SPEARMAN, WALL_SPEARMAN -> arm(mob, Items.IRON_SPEAR, Items.SHIELD);
 			case ARCHER -> arm(mob, Items.BOW, null);
 			case WALL_COMMANDER -> arm(mob, Items.CROSSBOW, null);
+			case LONGBOWMAN -> arm(mob, EamItems.LONGBOW, null);
 		}
 	}
 
