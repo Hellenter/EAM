@@ -96,6 +96,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.GLOWSHROOM_LAMP);
 		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
+		generators.createFurnace(EamBlocks.CLAY_OVEN, TexturedModel.ORIENTABLE_ONLY_TOP);
 		generators.createHorizontallyRotatedBlock(EamBlocks.SMALL_FRIDGE, TexturedModel.ORIENTABLE);
 		generators.createHorizontallyRotatedBlock(EamBlocks.LARGE_FRIDGE, TexturedModel.ORIENTABLE);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {

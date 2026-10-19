@@ -160,6 +160,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		dropSelf(EamBlocks.ADAMANTIUM_BLOCK);
 		dropSelf(EamBlocks.ANCIENT_METAL_BLOCK);
 		add(EamBlocks.OBSIDIAN_BLAST_FURNACE, this::createNameableBlockEntityTable);
+		add(EamBlocks.CLAY_OVEN, this::createNameableBlockEntityTable);
 		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL, EamBlocks.ADAMANTIUM_ANVIL)) {
 			add(anvil, LootTable.lootTable().withPool(applyExplosionCondition(anvil, LootPool.lootPool()
 					.setRolls(ContextIntProviders.exactly(1))

@@ -382,7 +382,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 						Items.WARPED_FUNGUS_ON_A_STICK, Items.BOW, Items.CROSSBOW, Items.SHIELD, Items.MACE, Items.BRUSH, Items.SPYGLASS,
 						Items.COMPASS, Items.RECOVERY_COMPASS, Items.CLOCK))
 				// Fires.
-				.addAll(keys(EamBlocks.CAMP_FIRE.asItem(), Items.CAMPFIRE, Items.SOUL_CAMPFIRE))
+				.addAll(keys(EamBlocks.CAMP_FIRE.asItem(), Items.CAMPFIRE, Items.SOUL_CAMPFIRE, EamItems.CLAY_OVEN))
 				// Workstations and containers.
 				.addAll(keys(Items.FURNACE, Items.BLAST_FURNACE, Items.SMOKER, Items.CHEST, Items.TRAPPED_CHEST, Items.BARREL,
 						Items.ENDER_CHEST, Items.SHULKER_BOX, Items.SMITHING_TABLE, Items.FLETCHING_TABLE, Items.CARTOGRAPHY_TABLE,

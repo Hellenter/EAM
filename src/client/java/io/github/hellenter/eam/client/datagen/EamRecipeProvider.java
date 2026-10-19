@@ -248,6 +248,16 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.GLOWSHROOM), has(EamItems.GLOWSHROOM))
 						.save(output);
 
+				// Clay daubed around a camp fire: an oven that cooks food only.
+				shaped(RecipeCategory.DECORATIONS, EamItems.CLAY_OVEN)
+						.define('C', Items.CLAY_BALL)
+						.define('F', EamItems.CAMP_FIRE)
+						.pattern("CCC")
+						.pattern("CFC")
+						.pattern("CCC")
+						.unlockedBy(getHasName(Items.CLAY_BALL), has(Items.CLAY_BALL))
+						.save(output);
+
 				// Twine strung over a frame of sticks: a rack to dry food on.
 				shaped(RecipeCategory.DECORATIONS, EamItems.FOOD_DRYER)
 						.define('T', EamItems.FLASK_THREADS)

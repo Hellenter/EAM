@@ -8,6 +8,7 @@ import io.github.hellenter.eam.content.feeder.FeederBlockEntity;
 import io.github.hellenter.eam.content.fridge.FridgeBlockEntity;
 import io.github.hellenter.eam.content.lockedchest.LockedChestBlockEntity;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlockEntity;
+import io.github.hellenter.eam.content.oven.ClayOvenBlockEntity;
 import io.github.hellenter.eam.content.sieve.SieveBlockEntity;
 
 import net.minecraft.core.Registry;
@@ -32,6 +33,9 @@ public final class EamBlockEntities {
 
 	public static final BlockEntityType<ObsidianBlastFurnaceBlockEntity> OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace",
 			new BlockEntityType<>(ObsidianBlastFurnaceBlockEntity::new, Set.of(EamBlocks.OBSIDIAN_BLAST_FURNACE)));
+
+	public static final BlockEntityType<ClayOvenBlockEntity> CLAY_OVEN = register("clay_oven",
+			new BlockEntityType<>(ClayOvenBlockEntity::new, Set.of(EamBlocks.CLAY_OVEN)));
 
 	public static final BlockEntityType<FeederBlockEntity> FEEDER = register("feeder",
 			new BlockEntityType<>(FeederBlockEntity::new, Set.of(EamBlocks.FEEDER, EamBlocks.METAL_FEEDER)));

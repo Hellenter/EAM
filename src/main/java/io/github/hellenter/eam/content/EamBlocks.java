@@ -12,6 +12,7 @@ import io.github.hellenter.eam.content.fridge.FridgeBlock;
 import io.github.hellenter.eam.content.lockedchest.LockedChestBlock;
 import io.github.hellenter.eam.content.fridge.FridgeMenu;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
+import io.github.hellenter.eam.content.oven.ClayOvenBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
@@ -95,6 +96,14 @@ public final class EamBlocks {
 			.noOcclusion()
 			.ignitedByLava()
 			.pushReaction(PushReaction.POPPED));
+
+	/** An early-game oven of clay that cooks food only; see {@link ClayOvenBlock}. Breaks by hand and keeps itself. */
+	public static final Block CLAY_OVEN = register("clay_oven", ClayOvenBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.TERRACOTTA_ORANGE)
+			.instrument(NoteBlockInstrument.BASEDRUM)
+			.strength(1.5F)
+			.sound(SoundType.MUD_BRICKS)
+			.lightLevel(state -> state.getValue(ClayOvenBlock.LIT) ? 13 : 0));
 
 	/** A torch the rain has put out; see {@link UnlitTorchBlock}. */
 	public static final Block UNLIT_TORCH = register("unlit_torch", UnlitTorchBlock::new, BlockBehaviour.Properties.of()
