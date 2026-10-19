@@ -51,8 +51,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Buildings from blueprints. A player holding a blueprint sees a ghost of the building where he looks; sneak and use
  * turns it, use sets it down where nothing is in the way, in an elder's village. Then villagers of that village come by
  * day and build it block by block, bottom up, a few at a time: each walks up to the edge of the building and places its
- * blocks from there, reach or no reach. In creative mode a blueprint builds at once, anywhere. While placing blocks, a villager's brain waits; on his way it runs, so he opens
- * doors and flees as ever. What players placed in the way after the site was set down is left alone.
+ * blocks from there, reach or no reach. In creative mode a blueprint needs no village, only villagers near enough. While
+ * placing blocks, a villager's brain waits; on his way it runs, so he opens doors and flees as ever. What players placed in the way after the site was set down is left alone.
  */
 public final class VillageBuildModule {
 	/** A building set down and not yet finished. */
@@ -165,13 +165,8 @@ public final class VillageBuildModule {
 			player.sendOverlayMessage(Component.translatable("item.eam.blueprint.blocked", blocked));
 			return;
 		}
-		if (player.getAbilities().instabuild) {
-			buildAtOnce(level, template, origin, data.turns());
-			player.sendOverlayMessage(Component.translatable("item.eam.blueprint.built"));
-			level.playSound(null, look, SoundEvents.BOOK_PUT, SoundSource.PLAYERS, 1.0F, 1.0F);
-			return;
-		}
-		if (elderNear(level, box.getCenter()) == null) {
+		// In creative mode any villagers near enough build it, village or none.
+		if (!player.getAbilities().instabuild && elderNear(level, box.getCenter()) == null) {
 			player.sendOverlayMessage(Component.translatable("item.eam.blueprint.no_village", VillagerElderModule.radius()));
 			return;
 		}
@@ -190,15 +185,7 @@ public final class VillageBuildModule {
 		level.playSound(null, look, SoundEvents.BOOK_PUT, SoundSource.PLAYERS, 1.0F, 1.0F);
 	}
 
-	/** In creative mode the building stands at once, in the same order villagers would build it. */
-	private static void buildAtOnce(ServerLevel level, BlueprintTemplate template, BlockPos origin, int turns) {
-		Site site = new Site(UUID.randomUUID(), template.id(), origin, turns, 0);
-		for (BlueprintTemplate.Placed block : buildingOrder(template, site)) {
-			if (!done(level, block)) level.setBlock(block.pos(), block.state(), FLAGS);
-		}
-	}
-
-		private static @Nullable Villager elderNear(ServerLevel level, Vec3 pos) {
+	private static @Nullable Villager elderNear(ServerLevel level, Vec3 pos) {
 		int radius = VillagerElderModule.radius();
 		return level.getEntitiesOfClass(Villager.class, new AABB(pos, pos).inflate(radius),
 						villager -> VillagerElderModule.isElder(villager) && villager.distanceToSqr(pos) <= (double) radius * radius)
