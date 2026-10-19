@@ -149,6 +149,7 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key(), EamEntities.DUERGAR_RAM_RIDER.builtInRegistryHolder().key());
 		// Wolves hunt him like any skeleton.
 		// Pillager guards are illagers and raiders: they join raids and side with the other illagers.
+		builder(EntityTypeTags.CAN_WEAR_HORSE_ARMOR).add(EamEntities.GHOST_HORSE.builtInRegistryHolder().key());
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		builder(EntityTypeTags.RAIDERS).add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key());
 		builder(EntityTypeTags.SKELETONS).add(EamEntities.SKELETON_KNIGHT.builtInRegistryHolder().key());

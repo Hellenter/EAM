@@ -82,6 +82,25 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.LEATHER), has(Items.LEATHER))
 						.save(output);
 
+				// The enchanted horn: any goat horn bound with the trophies of Baba Yaga and the leshy; the empty one is
+				// enchanted again with mithril.
+				shaped(RecipeCategory.TOOLS, EamItems.GHOST_HORN)
+						.define('A', EamItems.LESHY_ANTLER)
+						.define('E', Items.ENDER_EYE)
+						.define('M', EamItems.MITHRIL_INGOT)
+						.define('H', Items.GOAT_HORN)
+						.define('S', EamItems.YAGA_STAFF_SKULL)
+						.pattern("AEA")
+						.pattern("MHM")
+						.pattern(" S ")
+						.unlockedBy(getHasName(EamItems.YAGA_STAFF_SKULL), has(EamItems.YAGA_STAFF_SKULL))
+						.save(output);
+				shapeless(RecipeCategory.TOOLS, EamItems.GHOST_HORN)
+						.requires(EamItems.EMPTY_GHOST_HORN)
+						.requires(EamItems.MITHRIL_INGOT, 2)
+						.unlockedBy(getHasName(EamItems.EMPTY_GHOST_HORN), has(EamItems.EMPTY_GHOST_HORN))
+						.save(output, "eam:ghost_horn_from_empty_ghost_horn");
+
 				shapeless(RecipeCategory.TOOLS, EamItems.LEATHER_FLASK)
 						.requires(Items.LEATHER, 3)
 						.requires(EamItems.FLASK_THREADS)

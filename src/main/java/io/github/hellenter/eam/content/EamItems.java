@@ -13,6 +13,8 @@ import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.heart.HeartInJarItem;
 import io.github.hellenter.eam.content.horn.CommanderHornItem;
+import io.github.hellenter.eam.content.horn.GhostHorn;
+import io.github.hellenter.eam.content.horn.GhostHornItem;
 import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
@@ -272,6 +274,16 @@ public final class EamItems {
 	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
 	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
+	/** Baba Yaga's drop: the skull off her staff, still warm with her witchcraft. Goes into the enchanted horn. */
+	public static final Item YAGA_STAFF_SKULL = register("yaga_staff_skull", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)
+			.fireResistant());
+	/** Calls the ghost horse out and back in; it holds the horse's health and armor while the horse rests in it. */
+	public static final Item GHOST_HORN = register("ghost_horn", GhostHornItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)
+			.fireResistant().component(GhostHornItem.HORSE, GhostHorn.FRESH).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
+	/** The enchanted horn after its ghost horse was killed; two mithril ingots enchant it again. */
+	public static final Item EMPTY_GHOST_HORN = register("empty_ghost_horn", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE)
+			.fireResistant().component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("item.eam.empty_ghost_horn.desc")
+					.withStyle(style -> style.withColor(ChatFormatting.GRAY).withItalic(false))))));
 	/** The needle that held Koschei's death, dropped by him; used, it bores to the bedrock and bursts. */
 	public static final Item KOSCHEI_NEEDLE = register("koschei_needle", KoscheiNeedleItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));

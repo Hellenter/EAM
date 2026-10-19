@@ -13,6 +13,7 @@ import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
 import io.github.hellenter.eam.mobs.entity.crossbowman.RedBolt;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
+import io.github.hellenter.eam.mobs.entity.ghosthorse.GhostHorse;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLord;
 import io.github.hellenter.eam.mobs.entity.fallenlord.LordShield;
 import io.github.hellenter.eam.mobs.entity.fallenlord.ThrownLordSpear;
@@ -156,6 +157,15 @@ public final class EamEntities {
 					.passengerAttachments(1.31875F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
+
+	/** The ghost horse from the enchanted horn: a gaunt black horse, a horse's size. */
+	public static final EntityType<GhostHorse> GHOST_HORSE = register("ghost_horse",
+			EntityType.Builder.of(GhostHorse::new, MobCategory.CREATURE)
+					.noLootTable()
+					.sized(1.3964844F, 1.6F)
+					.eyeHeight(1.52F)
+					.passengerAttachments(1.31875F)
+					.clientTrackingRange(10));
 
 	/** A withered body in a monk's robe that hides in swamp mud; hunched on all fours. */
 	public static final EntityType<SwampLurker> SWAMP_LURKER = register("swamp_lurker",

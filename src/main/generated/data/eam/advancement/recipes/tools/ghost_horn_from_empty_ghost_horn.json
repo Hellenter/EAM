@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_empty_ghost_horn": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:empty_ghost_horn"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:ghost_horn_from_empty_ghost_horn"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_empty_ghost_horn"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:ghost_horn_from_empty_ghost_horn"
+    ]
+  }
+}

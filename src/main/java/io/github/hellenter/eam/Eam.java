@@ -34,6 +34,7 @@ import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnightModule;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryModule;
+import io.github.hellenter.eam.mobs.entity.ghosthorse.GhostHorseModule;
 import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
@@ -149,6 +150,7 @@ public class Eam implements ModInitializer {
 		DuergarModule.register();
 		UndeadWarlockModule.register();
 		LostCavalryModule.register();
+		GhostHorseModule.register();
 		SpiderModule.register();
 		VampireBatModule.register();
 		UpyrModule.register();
