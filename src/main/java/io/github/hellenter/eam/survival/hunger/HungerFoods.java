@@ -3,6 +3,7 @@ package io.github.hellenter.eam.survival.hunger;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.campfire.CampFireLogic;
 import io.github.hellenter.eam.content.campfire.Overcooking;
+import io.github.hellenter.eam.content.dryer.DriedFoods;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 
@@ -106,7 +107,7 @@ final class HungerFoods {
 			Map.entry(Items.RABBIT_STEW, food(6, 0.5F, 12, 4, 9))
 	);
 
-	private static final Map<Item, Values> VALUES = withBurntFood(COMMON);
+	private static final Map<Item, Values> VALUES = withDriedFood(withBurntFood(COMMON));
 
 	private HungerFoods() {
 	}
@@ -120,6 +121,21 @@ final class HungerFoods {
 			all.put(burnt, food(CampFireLogic.burntValue(food.nutrition()), food.saturationModifier(),
 					CampFireLogic.burntValue(nutrients.protein()), CampFireLogic.burntValue(nutrients.fat()),
 					CampFireLogic.burntValue(nutrients.carbs())));
+		});
+		return Map.copyOf(all);
+	}
+
+	/**
+	 * Dried food feeds as much as the fresh food (cooked meat, not raw, for jerky); ours (berries, garlic) set their
+	 * values on the item.
+	 */
+	private static Map<Item, Values> withDriedFood(Map<Item, Values> values) {
+		Map<Item, Values> all = new HashMap<>(values);
+		DriedFoods.DRIED.forEach((fresh, dried) -> {
+			Values food = values.get(fresh);
+			if (food != null) {
+				all.putIfAbsent(dried, food);
+			}
 		});
 		return Map.copyOf(all);
 	}
