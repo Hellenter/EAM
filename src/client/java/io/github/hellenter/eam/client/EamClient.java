@@ -38,6 +38,8 @@ import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerModel;
 import io.github.hellenter.eam.client.mobs.lurker.SwampLurkerRenderer;
 import io.github.hellenter.eam.client.mobs.spider.SmallSpiderRenderer;
 import io.github.hellenter.eam.client.mobs.bat.VampireBatRenderer;
+import io.github.hellenter.eam.client.mobs.boar.BoarModel;
+import io.github.hellenter.eam.client.mobs.boar.BoarRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
 import io.github.hellenter.eam.client.mobs.centurion.LostCenturionGearModel;
@@ -240,6 +242,8 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(WargModel.LAYER, WargModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.WARG, WargRenderer::new);
 		EntityRendererRegistry.register(EamEntities.WARG_LEADER, WargRenderer::new);
+		ModelLayerRegistry.registerModelLayer(BoarModel.LAYER, BoarModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.BOAR, BoarRenderer::new);
 		ModelLayerRegistry.registerModelLayer(BabaYagaModel.LAYER, BabaYagaModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.BABA_YAGA, BabaYagaRenderer::new);
 		ModelLayerRegistry.registerModelLayer(DrownedSoldierModel.LAYER, DrownedSoldierModel::createLayer);

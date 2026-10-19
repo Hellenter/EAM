@@ -3,6 +3,7 @@ package io.github.hellenter.eam.content;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
+import io.github.hellenter.eam.mobs.entity.boar.Boar;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
 import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
@@ -220,6 +221,13 @@ public final class EamEntities {
 					.eyeHeight(1.0F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
+
+	/** An underground boar: a brown, tusked wild pig of the underworld's lake caves and forests, a bit bigger than a pig. */
+	public static final EntityType<Boar> BOAR = register("boar",
+			EntityType.Builder.of(Boar::new, MobCategory.CREATURE)
+					.sized(1.0F, 1.0F)
+					.eyeHeight(0.8F)
+					.clientTrackingRange(10));
 
 	/** Baba Yaga: a hunched old witch with a staff, flying in her mortar until it breaks. Fire does not touch her in it. */
 	public static final EntityType<BabaYaga> BABA_YAGA = register("baba_yaga",

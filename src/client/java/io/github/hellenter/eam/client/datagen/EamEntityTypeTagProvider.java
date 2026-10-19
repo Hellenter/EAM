@@ -60,7 +60,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(BlockBreakingModule.RAID_TARGETS).add(EntityTypeIds.VILLAGER, EntityTypeIds.WANDERING_TRADER);
 		// Farm animals that eat from feeders.
 		builder(FeederModule.LIVESTOCK).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.SHEEP, EntityTypeIds.PIG,
-				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT);
+				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT)
+				.add(EamEntities.BOAR.builtInRegistryHolder().key());
 		// Predators raid livestock every night: wolves wherever they reach it, zombies only in an open, dark pen.
 		builder(PredatorModule.HUNTERS).add(EntityTypeIds.WOLF);
 		builder(PredatorModule.RAIDERS).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
@@ -70,7 +71,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				.add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.PIG, EntityTypeIds.SHEEP, EntityTypeIds.CHICKEN,
 						EntityTypeIds.RABBIT, EntityTypeIds.GOAT, EntityTypeIds.HORSE, EntityTypeIds.DONKEY, EntityTypeIds.MULE,
 						EntityTypeIds.LLAMA, EntityTypeIds.TRADER_LLAMA, EntityTypeIds.CAMEL, EntityTypeIds.POLAR_BEAR,
-						EntityTypeIds.TURTLE, EntityTypeIds.PANDA);
+						EntityTypeIds.TURTLE, EntityTypeIds.PANDA)
+				.add(EamEntities.BOAR.builtInRegistryHolder().key());
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
