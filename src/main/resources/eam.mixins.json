@@ -41,6 +41,7 @@
 		"mobs.vanilla.villager.VillagerPanicTriggerMixin",
 		"mobs.vanilla.MobAccessor",
 		"mobs.vanilla.MobSunBurnMixin",
+		"mobs.vanilla.PhantomSpawnerMixin",
 		"mobs.vanilla.ServerLevelEvolutionMixin",
 		"mobs.vanilla.TargetGoalAccessor",
 		"mobs.vanilla.TrialSpawnerMixin",

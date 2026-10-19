@@ -29,6 +29,11 @@ public final class EvolutionLogic {
 		return phase;
 	}
 
+	/** Whether phantoms may spawn after {@code days} days in a world where they begin on {@code phantomDay}. */
+	public static boolean phantomsAwake(long days, int phantomDay) {
+		return days >= phantomDay;
+	}
+
 	/**
 	 * One roll over outcomes that exclude each other, each with its own chance: the index of the outcome {@code roll}
 	 * (0 to 1) lands in, or -1 for nothing. Chances add up, so 0.2 and 0.125 give 20% the first, 12.5% the second.

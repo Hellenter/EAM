@@ -1,5 +1,6 @@
 {
 	"piece_chance": 0.6,
+	"phantom_day": 15,
 	"phases": [
 		{
 			"day": 10,
