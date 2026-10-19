@@ -26,6 +26,8 @@ import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
 import io.github.hellenter.eam.mobs.entity.warg.Warg;
+import io.github.hellenter.eam.mobs.entity.leshy.Leshy;
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyRoot;
 import io.github.hellenter.eam.mobs.entity.wight.Wight;
 import io.github.hellenter.eam.mobs.entity.draugr.Draugr;
 import io.github.hellenter.eam.mobs.entity.drowned.DrownedSoldier;
@@ -195,6 +197,23 @@ public final class EamEntities {
 					.eyeHeight(1.55F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
+
+	/** The leshy: a towering shape of bark and moss under a stag's skull that leads players astray in the deep woods. */
+	public static final EntityType<Leshy> LESHY = register("leshy",
+			EntityType.Builder.of(Leshy::new, MobCategory.MONSTER)
+					.sized(0.9F, 2.9F)
+					.eyeHeight(2.55F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** A root the leshy calls up out of the ground at a player. */
+	public static final EntityType<LeshyRoot> LESHY_ROOT = register("leshy_root",
+			EntityType.Builder.<LeshyRoot>of(LeshyRoot::new, MobCategory.MISC)
+					.noLootTable()
+					.noSave()
+					.sized(0.8F, 1.6F)
+					.clientTrackingRange(10)
+					.updateInterval(2));
 
 	/** A bloodsucking corpse in a burial shirt that crawls out at night by abandoned villages. */
 	public static final EntityType<Upyr> UPYR = register("upyr",
