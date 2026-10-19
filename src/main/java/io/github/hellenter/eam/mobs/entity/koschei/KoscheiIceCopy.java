@@ -63,6 +63,17 @@ public class KoscheiIceCopy extends Koschei {
 		return false;
 	}
 
+	@Override
+	boolean vanishesWhenHit() {
+		return false;
+	}
+
+	/** Frail as it is, an arrow breaks it. */
+	@Override
+	boolean iceField() {
+		return false;
+	}
+
 	/** Only the bolt. */
 	@Override
 	@Nullable StaffAttack chooseStaff(LivingEntity target, double distance, boolean sees, boolean rushing) {

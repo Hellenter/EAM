@@ -151,6 +151,22 @@ public final class KoscheiLogic {
 	}
 
 	/**
+	 * Hits taken in a row after one more: a hit within {@code window} ticks of the last adds to the count, a later one
+	 * starts it again.
+	 */
+	public static int hitStreak(int streak, long lastHit, long now, int window) {
+		return now - lastHit <= window ? streak + 1 : 1;
+	}
+
+	/**
+	 * Frost after a tick in his blizzard: {@code perTick} more, up to {@code max}; never less than it was, so powder snow
+	 * on top still counts.
+	 */
+	public static int frost(int frozen, int perTick, int max) {
+		return Math.max(frozen, Math.min(max, frozen + perTick));
+	}
+
+	/**
 	 * Horizontal speed that carries a thrown target {@code distance} blocks in {@code ticks} ticks in the air, with the
 	 * air slowing it to 0.91 of its speed each tick.
 	 */

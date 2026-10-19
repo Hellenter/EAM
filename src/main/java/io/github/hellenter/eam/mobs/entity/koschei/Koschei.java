@@ -221,6 +221,9 @@ public class Koschei extends Monster implements BuildingAware {
 	private int trapWait;
 	/** Second phase: the teleport under way takes him away from the target rather than behind it. */
 	private boolean teleportAway;
+	/** Second phase: hits taken in a row, and the game time of the last; enough of them and he vanishes. */
+	private int hitStreak;
+	private long lastHitAt;
 	/** His draugr up, counted now and then. */
 	private int thrallCount;
 	/** His ball of lightning while it is about. */
@@ -1397,8 +1400,8 @@ public class Koschei extends Monster implements BuildingAware {
 	}
 
 	/**
-	 * The icy blast from his hands: everyone in front of him is pushed slowly back, and burnt a little each second unless
-	 * they hold a shield up to it.
+	 * The blizzard from his hands: everyone in a wide fan in front of him is pushed slowly back, and unless they hold a
+	 * shield up to it, burnt a little each second and frozen over as in powder snow.
 	 */
 	private void tickStorm(ServerLevel level, int t, PhaseTwoSettings.Storm storm) {
 		if (t == 0) {
@@ -1413,15 +1416,25 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 		Vec3 facing = Vec3.directionFromRotation(0.0F, yBodyRot);
 		Vec3 hands = position().add(facing.scale(0.9)).add(0.0, getBbHeight() * 0.6, 0.0);
-		// Snow and frost blown out in a wide fan.
-		for (int i = 0; i < 6; i++) {
+		// A blizzard of small flakes blown out in a wide fan, swirling as they go.
+		double reachSpeed = storm.range() / 18.0;
+		for (int i = 0; i < 36; i++) {
 			float spread = (random.nextFloat() - 0.5F) * 2.0F * storm.angle();
-			Vec3 dir = Vec3.directionFromRotation((random.nextFloat() - 0.5F) * 20.0F, yBodyRot + spread);
-			double speed = 0.5 + random.nextDouble() * 0.4;
-			level.sendParticles(ParticleTypes.SNOWFLAKE, hands.x, hands.y, hands.z, 0, dir.x, dir.y, dir.z, speed);
-			if (i % 2 == 0) {
-				level.sendParticles(ParticleTypes.CLOUD, hands.x, hands.y, hands.z, 0, dir.x, dir.y, dir.z, speed * 0.6);
+			Vec3 dir = Vec3.directionFromRotation((random.nextFloat() - 0.6F) * 24.0F, yBodyRot + spread);
+			double speed = reachSpeed * (0.6 + random.nextDouble() * 0.7);
+			level.sendParticles(EamParticles.KOSCHEI_SNOWFLAKE, hands.x + (random.nextDouble() - 0.5) * 0.4, hands.y + (random.nextDouble() - 0.5) * 0.4,
+					hands.z + (random.nextDouble() - 0.5) * 0.4, 0, dir.x, dir.y, dir.z, speed);
+			if (i % 9 == 0) {
+				level.sendParticles(ParticleTypes.SNOWFLAKE, hands.x, hands.y, hands.z, 0, dir.x, dir.y, dir.z, speed * 0.8);
 			}
+		}
+		// A ring of frost spinning round his hands.
+		double swirl = t * 0.5;
+		for (int i = 0; i < 3; i++) {
+			double a = swirl + i * Math.PI * 2.0 / 3.0;
+			Vec3 side = Vec3.directionFromRotation(0.0F, yBodyRot - 90.0F);
+			Vec3 at = hands.add(side.scale(Math.cos(a) * 0.6)).add(0.0, Math.sin(a) * 0.6, 0.0);
+			level.sendParticles(EamParticles.KOSCHEI_ICE_FIELD, at.x, at.y, at.z, 1, 0.0, 0.0, 0.0, 0.0);
 		}
 		boolean burn = (t - KoscheiAction.STORM_START) % 20 == 0;
 		double push = storm.pushPerSecond() / 20.0;
@@ -1441,10 +1454,15 @@ public class Koschei extends Monster implements BuildingAware {
 			if (random.nextInt(4) == 0) {
 				level.sendParticles(ParticleTypes.SNOWFLAKE, victim.getX(), victim.getY(0.6), victim.getZ(), 2, 0.3, 0.4, 0.3, 0.02);
 			}
+			boolean shielded = blockingShield(victim) != null;
+			if (!shielded && victim.canFreeze()) {
+				// Frost over the eyes and stiff limbs, as in powder snow.
+				victim.setTicksFrozen(KoscheiLogic.frost(victim.getTicksFrozen(), storm.freezePerTick(), storm.freezeMax()));
+			}
 			if (!burn) {
 				continue;
 			}
-			if (blockingShield(victim) != null) {
+			if (shielded) {
 				level.playSound(null, victim.getX(), victim.getY(), victim.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 0.6F, 1.5F);
 				continue;
 			}
@@ -1950,6 +1968,9 @@ public class Koschei extends Monster implements BuildingAware {
 		if (!(projectile instanceof AbstractArrow) || projectile.getOwner() == this || level().isClientSide()) {
 			return super.deflection(projectile);
 		}
+		if (iceField()) {
+			return this::iceFieldTurns;
+		}
 		Vec3 motion = projectile.getDeltaMovement();
 		if (!FallenLordLogic.shieldCovers(yBodyRot, -motion.x, -motion.z) || !guarding()
 				|| random.nextDouble() >= phaseOne().arrowParryChance()) {
@@ -1969,6 +1990,37 @@ public class Koschei extends Monster implements BuildingAware {
 			actionTarget = getTarget();
 			setAction(KoscheiAction.PARRY_ARROW);
 		}
+	}
+
+	/**
+	 * Runs on the server only. The arrow strikes his ice field, unseen till then: a shell of ice panes flashes up round
+	 * him for a moment, with a crack and frost where it struck, and the arrow drops away.
+	 */
+	private void iceFieldTurns(Projectile projectile, @Nullable Entity by, RandomSource random, Vec3 power) {
+		Vec3 motion = projectile.getDeltaMovement();
+		projectile.setDeltaMovement(motion.scale(-0.12).add(0.0, 0.1, 0.0));
+		projectile.needsSync = true;
+		if (!(level() instanceof ServerLevel level)) {
+			return;
+		}
+		Vec3 centre = position().add(0.0, getBbHeight() * 0.5, 0.0);
+		double radius = getBbHeight() * 0.62;
+		// The shell: panes spread evenly over a sphere round him (a Fibonacci lattice).
+		int panes = 70;
+		double golden = Math.PI * (3.0 - Math.sqrt(5.0));
+		for (int i = 0; i < panes; i++) {
+			double y = 1.0 - (i + 0.5) * 2.0 / panes;
+			double ring = Math.sqrt(1.0 - y * y);
+			double angle = i * golden;
+			level.sendParticles(EamParticles.KOSCHEI_ICE_FIELD, centre.x + Math.cos(angle) * ring * radius * 0.75, centre.y + y * radius,
+					centre.z + Math.sin(angle) * ring * radius * 0.75, 1, 0.0, 0.0, 0.0, 0.0);
+		}
+		Vec3 hit = centre.add(motion.normalize().scale(-radius * 0.8));
+		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PACKED_ICE.defaultBlockState()), hit.x, hit.y, hit.z, 12,
+				0.15, 0.15, 0.15, 0.1);
+		level.sendParticles(EamParticles.KOSCHEI_SNOWFLAKE, hit.x, hit.y, hit.z, 10, 0.2, 0.2, 0.2, 0.05);
+		level.playSound(null, hit.x, hit.y, hit.z, SoundEvents.AMETHYST_BLOCK_HIT, getSoundSource(), 1.5F, 1.4F + random.nextFloat() * 0.2F);
+		level.playSound(null, hit.x, hit.y, hit.z, SoundEvents.GLASS_HIT, getSoundSource(), 1.0F, 1.6F);
 	}
 
 	/** Whether his sword is free to turn blows and arrows aside: not while he is thrown off balance, casting or vanishing. */
@@ -2113,6 +2165,39 @@ public class Koschei extends Monster implements BuildingAware {
 		if (isAlive()) {
 			leapIfHurtFast(level, source, before - getHealth());
 		}
+		if (isAlive() && phase() >= 2) {
+			vanishIfHitAgain(level, source);
+		}
+	}
+
+	/** Second phase: a couple of hits in a row and he vanishes at once, ready or not, to stand far off. */
+	private void vanishIfHitAgain(ServerLevel level, DamageSource source) {
+		if (!(source.getEntity() instanceof LivingEntity attacker) || !vanishesWhenHit()) {
+			return;
+		}
+		PhaseTwoSettings.Teleport teleport = phaseTwo().teleport();
+		long now = level.getGameTime();
+		hitStreak = KoscheiLogic.hitStreak(hitStreak, lastHitAt, now, teleport.hitsWindow());
+		lastHitAt = now;
+		if (teleport.hits() <= 0 || hitStreak < teleport.hits()
+				|| action == KoscheiAction.TELEPORT || action == KoscheiAction.DRAIN || action == KoscheiAction.TRANSFORM) {
+			return;
+		}
+		hitStreak = 0;
+		if (action != KoscheiAction.NONE) {
+			endAction();
+		}
+		startTeleportAway(attacker);
+	}
+
+	/** Whether a couple of hits in a row make him vanish; not his copies in ice. */
+	boolean vanishesWhenHit() {
+		return true;
+	}
+
+	/** Whether his ice field turns arrows aside: all round him in his second phase; not round his copies in ice. */
+	boolean iceField() {
+		return phase() >= 2;
 	}
 
 	/** Losing health fast, he breaks off whatever he is doing and leaps back away from who hurts him. */

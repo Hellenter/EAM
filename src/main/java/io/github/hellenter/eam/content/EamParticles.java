@@ -57,6 +57,10 @@ public final class EamParticles {
 	public static final SimpleParticleType KOSCHEI_RAVEN = register("koschei_raven");
 	/** Blue motes of Koschei's burst of force, rushing out from his palm. */
 	public static final SimpleParticleType KOSCHEI_FORCE = register("koschei_force");
+	/** Small spinning snowflakes of Koschei's blizzard; sent with count 0 so the "velocity" is their flight. */
+	public static final SimpleParticleType KOSCHEI_SNOWFLAKE = register("koschei_snowflake");
+	/** Panes of the ice field round Koschei, that show for a moment where it turns an arrow. */
+	public static final SimpleParticleType KOSCHEI_ICE_FIELD = register("koschei_ice_field");
 
 	/**
 	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the

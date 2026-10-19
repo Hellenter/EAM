@@ -185,14 +185,18 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param cooldown ticks between two teleports
 	 * @param chance   chance each tick he teleports while it is ready
 	 * @param distance how far from the target he stands after it
+	 * @param hits     this many hits taken in a row and he vanishes at once, ready or not
+	 * @param hitsWindow ticks a hit counts toward the next one; a longer gap starts the count again
 	 */
-	public record Teleport(int cooldown, float chance, double distance) {
-		public static final Teleport DEFAULT = new Teleport(140, 0.03F, 9.0);
+	public record Teleport(int cooldown, float chance, double distance, int hits, int hitsWindow) {
+		public static final Teleport DEFAULT = new Teleport(140, 0.03F, 9.0, 2, 60);
 
 		public static final Codec<Teleport> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Teleport::cooldown),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Teleport::chance),
-				Codec.doubleRange(2.0, 32.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(Teleport::distance)
+				Codec.doubleRange(2.0, 32.0).fieldOf("distance").orElse(DEFAULT.distance).forGetter(Teleport::distance),
+				Codec.intRange(0, 100).fieldOf("hits").orElse(DEFAULT.hits).forGetter(Teleport::hits),
+				Codec.intRange(1, 24000).fieldOf("hits_window").orElse(DEFAULT.hitsWindow).forGetter(Teleport::hitsWindow)
 		).apply(instance, Teleport::new));
 	}
 
@@ -203,7 +207,7 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param maxRange he shoots only at a target at most this far away
 	 */
 	public record Bolt(float damage, double speed, int cooldown, double maxRange) {
-		public static final Bolt DEFAULT = new Bolt(4.0F, 0.45, 30, 24.0);
+		public static final Bolt DEFAULT = new Bolt(4.0F, 0.55, 30, 24.0);
 
 		public static final Codec<Bolt> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Bolt::damage),
@@ -220,7 +224,7 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param cooldown ticks before he swings again
 	 */
 	public record Strike(float damage, double push, double reach, int cooldown) {
-		public static final Strike DEFAULT = new Strike(7.0F, 1.5, 2.8, 30);
+		public static final Strike DEFAULT = new Strike(7.0F, 3.5, 2.8, 30);
 
 		public static final Codec<Strike> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Strike::damage),
@@ -323,9 +327,12 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 	 * @param angle           and this many degrees to either side
 	 * @param pushPerSecond   it pushes those in it back this many blocks a second
 	 * @param damagePerSecond pure damage to one in it who does not hold a shield up to it
+	 * @param freezePerTick   frost it adds each tick to those in it, as powder snow does (which thaws 2 a tick)
+	 * @param freezeMax       frost it builds up to at most; 140 is fully frozen, when vanilla frost starts to hurt
 	 */
-	public record Storm(float chance, int cooldown, double range, float angle, double pushPerSecond, float damagePerSecond) {
-		public static final Storm DEFAULT = new Storm(0.15F, 240, 9.0, 35.0F, 0.33, 1.0F);
+	public record Storm(float chance, int cooldown, double range, float angle, double pushPerSecond, float damagePerSecond, int freezePerTick,
+			int freezeMax) {
+		public static final Storm DEFAULT = new Storm(0.15F, 240, 12.0, 50.0F, 0.33, 1.0F, 6, 130);
 
 		public static final Codec<Storm> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Storm::chance),
@@ -333,7 +340,9 @@ public record PhaseTwoSettings(float health, double speedMultiplier, int attackP
 				Codec.doubleRange(1.0, 32.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Storm::range),
 				Codec.floatRange(1.0F, 180.0F).fieldOf("angle").orElse(DEFAULT.angle).forGetter(Storm::angle),
 				Codec.doubleRange(0.0, 10.0).fieldOf("push_per_second").orElse(DEFAULT.pushPerSecond).forGetter(Storm::pushPerSecond),
-				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage_per_second").orElse(DEFAULT.damagePerSecond).forGetter(Storm::damagePerSecond)
+				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage_per_second").orElse(DEFAULT.damagePerSecond).forGetter(Storm::damagePerSecond),
+				Codec.intRange(0, 140).fieldOf("freeze_per_tick").orElse(DEFAULT.freezePerTick).forGetter(Storm::freezePerTick),
+				Codec.intRange(0, 140).fieldOf("freeze_max").orElse(DEFAULT.freezeMax).forGetter(Storm::freezeMax)
 		).apply(instance, Storm::new));
 	}
 
