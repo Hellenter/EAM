@@ -28,6 +28,7 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.content.trophy.KingHelmBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
@@ -377,6 +378,15 @@ public final class EamBlocks {
 			}
 		});
 	}
+
+	/** The Pillager King's helm on a pike: while lit, no raid starts around it; a right click turns that on and off. */
+	public static final Block PILLAGER_KING_HELM = register("pillager_king_helm", KingHelmBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_BLACK)
+			.lightLevel(state -> state.getValue(KingHelmBlock.ENABLED) ? KingHelmBlock.LIGHT : 0)
+			.sound(SoundType.LANTERN)
+			.strength(2.0F, 6.0F)
+			.noOcclusion()
+			.pushReaction(PushReaction.POPPED));
 
 	/** The elite crossbowman's net: slows whoever stands in it and falls apart after a while; see {@link NetBlock}. */
 	public static final Block NET = register("net", NetBlock::new, BlockBehaviour.Properties.of()

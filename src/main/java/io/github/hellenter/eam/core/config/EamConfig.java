@@ -74,10 +74,11 @@ public record EamConfig(
 		boolean deathPenalty,
 		boolean villagerChests,
 		boolean villageEconomy,
-		boolean villageBuildings
+		boolean villageBuildings,
+		boolean villageRaids
 ) {
 	public static final EamConfig DEFAULT = new EamConfig(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
+			true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
 
 	/**
 	 * A codec group takes at most 16 fields, so flags after {@code iron_plates} go in this second map codec. It reads
@@ -144,7 +145,8 @@ public record EamConfig(
 	}
 
 	/** The fourth map codec, nested in {@link LastFlags} for flags after {@code villager_elder}: add new flags here. */
-	private record ExtraFlags(boolean mobNoise, boolean nemesis, boolean villagerAlarm, boolean deathPenalty, boolean villagerChests, boolean villageEconomy, boolean villageBuildings) {
+	private record ExtraFlags(boolean mobNoise, boolean nemesis, boolean villagerAlarm, boolean deathPenalty, boolean villagerChests, boolean villageEconomy, boolean villageBuildings,
+			boolean villageRaids) {
 		private static final MapCodec<ExtraFlags> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("mob_noise", DEFAULT.mobNoise).forGetter(ExtraFlags::mobNoise),
 				Codec.BOOL.optionalFieldOf("nemesis", DEFAULT.nemesis).forGetter(ExtraFlags::nemesis),
@@ -152,11 +154,12 @@ public record EamConfig(
 				Codec.BOOL.optionalFieldOf("death_penalty", DEFAULT.deathPenalty).forGetter(ExtraFlags::deathPenalty),
 				Codec.BOOL.optionalFieldOf("villager_chests", DEFAULT.villagerChests).forGetter(ExtraFlags::villagerChests),
 				Codec.BOOL.optionalFieldOf("village_economy", DEFAULT.villageEconomy).forGetter(ExtraFlags::villageEconomy),
-				Codec.BOOL.optionalFieldOf("village_buildings", DEFAULT.villageBuildings).forGetter(ExtraFlags::villageBuildings)
+				Codec.BOOL.optionalFieldOf("village_buildings", DEFAULT.villageBuildings).forGetter(ExtraFlags::villageBuildings),
+				Codec.BOOL.optionalFieldOf("village_raids", DEFAULT.villageRaids).forGetter(ExtraFlags::villageRaids)
 		).apply(instance, ExtraFlags::new));
 
 		private static ExtraFlags of(EamConfig config) {
-			return new ExtraFlags(config.mobNoise, config.nemesis, config.villagerAlarm, config.deathPenalty, config.villagerChests, config.villageEconomy, config.villageBuildings);
+			return new ExtraFlags(config.mobNoise, config.nemesis, config.villagerAlarm, config.deathPenalty, config.villagerChests, config.villageEconomy, config.villageBuildings, config.villageRaids);
 		}
 	}
 
@@ -184,7 +187,7 @@ public record EamConfig(
 			later.anvilTiers, later.slowCrops, later.slowAnimals, later.mithril, later.anvilRepair,
 			later.safeSleep, later.bloodMoon, later.enchanting, later.arrowHeads, later.swampyForest,
 			last.talismanPortal, last.arrowRecovery, last.underworld, last.livestockFeeding, last.monsterEvolution, last.blueMoon,
-			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.extra.mobNoise, last.extra.nemesis, last.extra.villagerAlarm, last.extra.deathPenalty, last.extra.villagerChests, last.extra.villageEconomy, last.extra.villageBuildings)));
+			last.foodSpoilage, last.rainDousesFires, last.villagerGear, last.villagerGuards, last.villagerRepair, last.villagerFood, last.villagerButcher, last.villagerCleric, last.villagerElder, last.extra.mobNoise, last.extra.nemesis, last.extra.villagerAlarm, last.extra.deathPenalty, last.extra.villagerChests, last.extra.villageEconomy, last.extra.villageBuildings, last.extra.villageRaids)));
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

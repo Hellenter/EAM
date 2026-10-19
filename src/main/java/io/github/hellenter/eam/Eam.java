@@ -50,6 +50,7 @@ import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.raid.VillageRaidsModule;
 import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageBuildModule;
@@ -201,6 +202,7 @@ public class Eam implements ModInitializer {
 		ShieldModule.register();
 		SafeRoomModule.register();
 		BloodMoonModule.register();
+		VillageRaidsModule.register();
 		BlueMoonModule.register();
 		BucketModule.register();
 		TalismanModule.register();
@@ -271,6 +273,7 @@ public class Eam implements ModInitializer {
 		if (config.enchanting()) ShieldModule.init();
 		if (config.safeSleep()) SafeRoomModule.init();
 		if (config.bloodMoon()) BloodMoonModule.init();
+		if (config.villageRaids()) VillageRaidsModule.init();
 		if (config.blueMoon()) BlueMoonModule.init();
 		if (config.talismanPortal()) TalismanModule.init();
 		if (config.swampyForest()) SwampyForestModule.init();

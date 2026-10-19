@@ -293,6 +293,10 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Heavy cavalry");
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
+			builder.add(EamBlocks.PILLAGER_KING_HELM, "Pillager King's Helm");
+			builder.add("block.eam.pillager_king_helm.desc", "Set it up as a trophy; right click turns raid protection within 200 blocks on and off");
+			builder.add("block.eam.pillager_king_helm.on", "Raid protection is on: no raids within 200 blocks");
+			builder.add("block.eam.pillager_king_helm.off", "Raid protection is off");
 			builder.add(EamItems.BLUEPRINT, "Blueprint");
 			builder.add("item.eam.blueprint.of", "Blueprint: %s");
 			builder.add("item.eam.blueprint.usage", "Use to set it down where you look");
@@ -817,6 +821,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "The room needs lighting");
 			builder.add("block.eam.bed.blood_moon", "You can't sleep under a blood moon");
 			builder.add("event.eam.blood_moon.title", "Blood Moon");
+			builder.add("event.eam.random_raid", "Pillagers are coming for the village!");
 			builder.add("event.eam.blood_moon.start", "The blood moon is rising. Monsters are coming out in armor and won't let you sleep.");
 			builder.add("event.eam.blood_moon.end", "The blood moon has set.");
 			builder.add("commands.eam.blood_moon.active", "Day %s: the blood moon is up");
@@ -1085,6 +1090,10 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Тяжёлая кавалерия");
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
+			builder.add(EamBlocks.PILLAGER_KING_HELM, "Шлем короля");
+			builder.add("block.eam.pillager_king_helm.desc", "Поставь как трофей; ПКМ включает и выключает защиту от рейдов в радиусе 200 блоков");
+			builder.add("block.eam.pillager_king_helm.on", "Защита от рейдов включена: в радиусе 200 блоков рейдов не будет");
+			builder.add("block.eam.pillager_king_helm.off", "Защита от рейдов выключена");
 			builder.add(EamItems.BLUEPRINT, "Чертёж");
 			builder.add("item.eam.blueprint.of", "Чертёж: %s");
 			builder.add("item.eam.blueprint.usage", "ПКМ: поставить туда, куда смотришь");
@@ -1616,6 +1625,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "Требуется освещение");
 			builder.add("block.eam.bed.blood_moon", "Под кровавой луной не уснуть");
 			builder.add("event.eam.blood_moon.title", "Кровавая луна");
+			builder.add("event.eam.random_raid", "Разбойники идут на деревню!");
 			builder.add("event.eam.blood_moon.start", "Восходит кровавая луна. Монстры выходят в броне и не дадут уснуть.");
 			builder.add("event.eam.blood_moon.end", "Кровавая луна зашла.");
 			builder.add("commands.eam.blood_moon.active", "День %s: сейчас кровавая луна");

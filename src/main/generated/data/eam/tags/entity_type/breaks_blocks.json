@@ -8,12 +8,17 @@
     "minecraft:spider",
     "minecraft:cave_spider",
     "minecraft:vindicator",
+    "minecraft:pillager",
+    "minecraft:evoker",
+    "minecraft:illusioner",
     "minecraft:skeleton",
     "minecraft:stray",
     "minecraft:bogged",
     "minecraft:parched",
     "minecraft:wither_skeleton",
     "eam:pillager_guard",
+    "eam:elite_crossbowman",
+    "eam:pillager_king",
     "eam:zombie_duergar",
     "eam:duergar_renegade"
   ]

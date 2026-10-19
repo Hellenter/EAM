@@ -12,7 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param decideEvery   ticks between his checks for an onslaught or a throw
  * @param onslaught     the king's onslaught, weakened, with one axe
  * @param axeThrow      his axe thrown; it flies back to his hand
- * @param spawnShare    share of pillagers in patrols, outposts and raids that come as guards
+ * @param spawnShare    share of pillagers in patrols and outposts that come as guards
  */
 public record PillagerGuardSettings(Stats stats, int decideEvery, Onslaught onslaught, AxeThrow axeThrow, float spawnShare) {
 	public static final PillagerGuardSettings DEFAULT = new PillagerGuardSettings(Stats.DEFAULT, 10, Onslaught.DEFAULT, AxeThrow.DEFAULT, 0.2F);

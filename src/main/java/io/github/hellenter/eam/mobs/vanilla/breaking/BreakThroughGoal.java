@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -251,7 +252,8 @@ final class BreakThroughGoal extends Goal {
 	}
 
 	private boolean validTarget(LivingEntity entity) {
-		if (entity == null || !entity.isAlive() || entity.level() != mob.level() || !entity.is(BlockBreakingModule.TARGETS)) {
+		if (entity == null || !entity.isAlive() || entity.level() != mob.level()
+				|| !entity.is(BlockBreakingModule.TARGETS) && !(raiding() && entity.is(BlockBreakingModule.RAID_TARGETS))) {
 			return false;
 		}
 		ServerLevel level = getServerLevel(mob);
@@ -260,6 +262,10 @@ final class BreakThroughGoal extends Goal {
 		}
 		int radius = BlockBreakingModule.settings().searchRadius();
 		return mob.distanceToSqr(entity) <= (double) radius * radius;
+	}
+
+	private boolean raiding() {
+		return mob instanceof Raider raider && raider.hasActiveRaid();
 	}
 
 	/** An archer that sees its target (skeletons see through leaves) shoots instead of digging. */

@@ -63,6 +63,7 @@ public class EamModelProvider extends FabricModelProvider {
 		LockedChestModels.generate(generators);
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
+		KingHelmModels.generate(generators);
 		FeederModels.generate(generators);
 		generators.new BlockFamilyProvider(TextureMapping.cube(Blocks.STRIPPED_POPLAR_LOG)).fence(EamBlocks.STRIPPED_POPLAR_FENCE);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
@@ -617,6 +618,7 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateItemModels(ItemModelGenerators generators) {
 		generators.generateFlatItem(EamItems.LEATHER_THREAD, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PILLAGER_KING_HELM, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BOILED_WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.MILK_BOWL, ModelTemplates.FLAT_ITEM);
