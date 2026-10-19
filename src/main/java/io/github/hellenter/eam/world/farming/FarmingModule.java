@@ -1,6 +1,8 @@
 package io.github.hellenter.eam.world.farming;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.feeder.FeederModule;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -12,7 +14,9 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -23,7 +27,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * and get ready to breed again several times slower. Numbers are in {@code data/eam/farming/growth.json}.
  */
 public final class FarmingModule {
-	/** Crops in a chunk that got bone meal. Kept until the crop is broken by a player. */
+	/** Crops in a chunk that got bone meal. Kept until the crop is broken by a player or a new one is planted there. */
 	public static final AttachmentType<BoostedCrops> BOOSTED_CROPS = AttachmentRegistry.create(Eam.id("boosted_crops"),
 			builder -> builder.persistent(BoostedCrops.CODEC));
 
@@ -52,12 +56,16 @@ public final class FarmingModule {
 		animals = true;
 	}
 
-	/** Bound of a crop's vanilla growth roll at {@code pos}, stretched by the slowdown and the bone meal boost. */
+	/**
+	 * Bound of a crop's vanilla growth roll at {@code pos}, stretched by the slowdown and shortened by the bone meal boost
+	 * and a blue moon.
+	 */
 	public static int growthBound(LevelReader level, BlockPos pos, int vanillaBound) {
-		if (!crops) return vanillaBound;
+		double moon = BlueMoonModule.growthMultiplier(level);
+		if (!crops) return moon == 1.0 ? vanillaBound : FarmingLogic.growthBound(vanillaBound, 1.0, moon);
 		FarmingSettings current = settings;
 		double boost = isBoosted(level, pos) ? current.boneMealBoost() : 1.0;
-		return FarmingLogic.growthBound(vanillaBound, current.cropSlowdown(), boost);
+		return FarmingLogic.growthBound(vanillaBound, current.cropSlowdown(), boost * moon);
 	}
 
 	/** Whether bone meal can be used on the crop at {@code pos}: a crop takes the boost once. */
@@ -73,14 +81,29 @@ public final class FarmingModule {
 		return true;
 	}
 
+	/**
+	 * A plant was just set into an empty spot: whatever got bone meal there before is gone (trampled, harvested by a
+	 * villager or water, blown up), so the new one starts without the boost.
+	 */
+	public static void onPlaced(Level level, BlockPos pos, BlockState state, BlockState oldState) {
+		if (crops && state.getBlock() instanceof BonemealableBlock && oldState.canBeReplaced()) {
+			forget(level.getChunk(pos), pos);
+		}
+	}
+
 	/** The block a pitcher plant's growth is keyed by: its lower half. */
 	public static BlockPos pitcherRoot(BlockPos pos, BlockState state) {
 		return state.getValueOrElse(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER) == DoubleBlockHalf.LOWER ? pos : pos.below();
 	}
 
-	/** Whether {@code mob} ages on this tick. Only animals are slowed, villagers grow up as in vanilla. */
-	public static boolean agesThisTick(AgeableMob mob) {
-		return !animals || !(mob instanceof Animal) || FarmingLogic.agesThisTick(mob.tickCount, settings.animalSlowdown());
+	/**
+	 * The age {@code mob} has after this tick, given the age vanilla would set. Only animals are slowed, villagers grow up as in vanilla; livestock kept at a
+	 * feeder ages faster.
+	 */
+	public static int nextAge(AgeableMob mob, int vanillaAge) {
+		if (!(mob instanceof Animal)) return vanillaAge;
+		int steps = FarmingLogic.ageSteps(mob.tickCount, animals ? settings.animalSlowdown() : 1, FeederModule.growthSpeed(mob));
+		return FarmingLogic.stepAge(mob.getAge(), steps);
 	}
 
 	private static boolean isBoosted(LevelReader level, BlockPos pos) {

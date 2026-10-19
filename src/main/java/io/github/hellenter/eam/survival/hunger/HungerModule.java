@@ -3,6 +3,7 @@ package io.github.hellenter.eam.survival.hunger;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.survival.hunger.FoodDataAccessor;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -10,24 +11,35 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
 
 /**
  * MITE hunger: a food bar that grows with the XP level (see {@link ProgressionModule}), passive hunger, slow natural regeneration that
  * does not use saturation, starvation that kills on every difficulty, and weaker food. On top of that, food
- * carries protein, fat and carbs; keeping all three high slows hunger and speeds up regeneration.
+ * carries protein, fat and carbs; keeping all three high slows hunger and speeds up regeneration, while running out of
+ * one gives its own deficiency: protein weakens hits and mining, fat speeds up hunger, carbs cut sprints short.
  */
 public final class HungerModule {
 	/**
@@ -52,9 +64,26 @@ public final class HungerModule {
 			DataComponentType.<Nutrients>builder().persistent(Nutrients.CODEC).networkSynchronized(Nutrients.STREAM_CODEC).build()
 	);
 
-	/** Given while any nutrient is at zero. */
-	public static final Holder<MobEffect> MALNOURISHED = Registry.registerForHolder(
-			BuiltInRegistries.MOB_EFFECT, Eam.id("malnourished"), new MalnourishedEffect());
+	/** Present while the player is winded from running without carbs and cannot sprint; synced for client-side sprinting. */
+	public static final AttachmentType<Boolean> WINDED = AttachmentRegistry.create(
+			Eam.id("winded"),
+			builder -> builder.syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.targetOnly())
+	);
+
+	/** Sprint endurance counters while carbs are deficient. Server-only, not saved. */
+	private static final AttachmentType<HungerLogic.Stamina> STAMINA = AttachmentRegistry.create(Eam.id("stamina"));
+
+	/** Given while protein is deficient: weaker hits and slower mining. */
+	public static final Holder<MobEffect> PROTEIN_DEFICIENCY = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, Eam.id("protein_deficiency"), new DeficiencyEffect(0xB5413B));
+	/** Given while fat is deficient: hunger drains faster. */
+	public static final Holder<MobEffect> FAT_DEFICIENCY = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, Eam.id("fat_deficiency"), new DeficiencyEffect(0xC9A43A));
+	/** Given while carbs are deficient: sprinting gives out. */
+	public static final Holder<MobEffect> CARBS_DEFICIENCY = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, Eam.id("carbs_deficiency"), new DeficiencyEffect(0x6E9A3C));
+
+	private static final Identifier PROTEIN_MODIFIER = Eam.id("protein_deficiency");
 
 	private static boolean enabled;
 	private static volatile HungerRules rules = HungerRules.DEFAULT;
@@ -98,6 +127,7 @@ public final class HungerModule {
 			player.setAttached(STATS, stats);
 		}
 		Nutrition nutrition = nutrition(player, current);
+		boolean paused = ProgressionModule.inGracePeriod(player) || exempt(player);
 
 		ServerLevel level = player.level();
 		FoodDataAccessor accessor = (FoodDataAccessor) foodData;
@@ -114,8 +144,10 @@ public final class HungerModule {
 						level.getGameRules().get(GameRules.NATURAL_HEALTH_REGENERATION),
 						level.getDifficulty() == Difficulty.PEACEFUL,
 						HungerLogic.balanced(nutrition, current.balanceThreshold()),
-						ProgressionModule.inGracePeriod(player) || exempt(player),
-						HungerLogic.malnourished(nutrition)
+						paused,
+						HungerLogic.deficiencies(nutrition, current.deficiency().threshold()),
+						RestedModule.drainFactor(player),
+						RestedModule.regenFactor(player)
 				),
 				current
 		);
@@ -130,7 +162,9 @@ public final class HungerModule {
 			nutrition = HungerLogic.decay(nutrition, current.nutrientDecay());
 			setNutrition(player, nutrition);
 		}
-		updateMalnourished(player, HungerLogic.malnourished(nutrition));
+		HungerLogic.Deficiencies deficiencies = HungerLogic.deficiencies(nutrition, current.deficiency().threshold());
+		updateDeficiencies(player, deficiencies, current.deficiency());
+		updateStamina(player, deficiencies.carbs() && !paused, current.deficiency());
 		if (result.heal() > 0.0F) {
 			player.heal(result.heal());
 		}
@@ -152,13 +186,54 @@ public final class HungerModule {
 		}
 	}
 
-	/** Keeps the effect on while a nutrient is at zero, so milk only clears it for a tick. */
-	private static void updateMalnourished(ServerPlayer player, boolean malnourished) {
-		boolean has = player.hasEffect(MALNOURISHED);
-		if (malnourished && !has) {
-			player.addEffect(new MobEffectInstance(MALNOURISHED, MobEffectInstance.INFINITE_DURATION, 0, false, true, true));
-		} else if (!malnourished && has) {
-			player.removeEffect(MALNOURISHED);
+	/** Keeps each deficiency effect and its penalties on while the nutrient is low, so milk only clears the icon for a tick. */
+	private static void updateDeficiencies(ServerPlayer player, HungerLogic.Deficiencies deficiencies, DeficiencyRules rules) {
+		updateEffect(player, PROTEIN_DEFICIENCY, deficiencies.protein(), "protein");
+		updateEffect(player, FAT_DEFICIENCY, deficiencies.fat(), "fat");
+		updateEffect(player, CARBS_DEFICIENCY, deficiencies.carbs(), "carbs");
+		updateModifier(player, Attributes.ATTACK_DAMAGE, deficiencies.protein(), -rules.proteinAttackPenalty());
+		updateModifier(player, Attributes.BLOCK_BREAK_SPEED, deficiencies.protein(), -rules.proteinMiningPenalty());
+	}
+
+	private static void updateEffect(ServerPlayer player, Holder<MobEffect> effect, boolean deficient, String nutrient) {
+		boolean has = player.hasEffect(effect);
+		if (deficient && !has) {
+			player.addEffect(new MobEffectInstance(effect, MobEffectInstance.INFINITE_DURATION, 0, false, true, true));
+			player.sendOverlayMessage(Component.translatable("eam.hunger.deficiency." + nutrient).withStyle(ChatFormatting.RED));
+		} else if (!deficient && has) {
+			player.removeEffect(effect);
+		}
+	}
+
+	private static void updateModifier(ServerPlayer player, Holder<Attribute> attribute, boolean deficient, double amount) {
+		AttributeInstance instance = player.getAttribute(attribute);
+		if (instance == null) {
+			return;
+		}
+		AttributeModifier current = instance.getModifier(PROTEIN_MODIFIER);
+		if (!deficient || amount == 0.0) {
+			if (current != null) {
+				instance.removeModifier(PROTEIN_MODIFIER);
+			}
+		} else if (current == null || current.amount() != amount) {
+			instance.addOrUpdateTransientModifier(
+					new AttributeModifier(PROTEIN_MODIFIER, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+		}
+	}
+
+	/** Without carbs, sprinting gives out after a while and the player must rest before running again. */
+	private static void updateStamina(ServerPlayer player, boolean carbsDeficient, DeficiencyRules rules) {
+		HungerLogic.Stamina before = player.getAttachedOrElse(STAMINA, HungerLogic.Stamina.FRESH);
+		HungerLogic.Stamina after = HungerLogic.stamina(before, carbsDeficient, player.isSprinting(), rules);
+		if (!after.equals(before)) {
+			player.setAttached(STAMINA, after);
+		}
+		if (after.winded() && !before.winded()) {
+			player.setAttached(WINDED, true);
+			player.setSprinting(false);
+			player.sendOverlayMessage(Component.translatable("eam.hunger.winded").withStyle(ChatFormatting.YELLOW));
+		} else if (!after.winded() && player.hasAttached(WINDED)) {
+			player.removeAttached(WINDED);
 		}
 	}
 
@@ -183,10 +258,24 @@ public final class HungerModule {
 		return stats == null ? vanilla : HungerLogic.needsFood(player.getFoodData().getFoodLevel(), stats.maxFood());
 	}
 
+	/**
+	 * Whether a food can be eaten past a full bar because it gives a nutrient the player lacks: on both sides, from the
+	 * synced deficiency effects.
+	 */
+	public static boolean fixesDeficiency(LivingEntity user, ItemStack stack) {
+		Nutrients nutrients = stack.get(NUTRIENTS);
+		if (nutrients == null || !(user instanceof Player player) || !player.hasAttached(STATS)) {
+			return false;
+		}
+		HungerLogic.Deficiencies deficiencies = new HungerLogic.Deficiencies(
+				player.hasEffect(PROTEIN_DEFICIENCY), player.hasEffect(FAT_DEFICIENCY), player.hasEffect(CARBS_DEFICIENCY));
+		return HungerLogic.fixesDeficiency(deficiencies, nutrients);
+	}
+
 	/** Whether the player has enough food to sprint: on both sides, from the synced food bar size. */
 	public static boolean canSprint(Player player, boolean vanilla) {
 		HungerStats stats = player.getAttached(STATS);
-		return stats == null ? vanilla : HungerLogic.canSprint(player.getFoodData().getFoodLevel(), stats.maxFood());
+		return stats == null ? vanilla : HungerLogic.canSprint(player.getFoodData().getFoodLevel(), stats.maxFood()) && !player.hasAttached(WINDED);
 	}
 
 	/** Number of shank icons the HUD draws. */

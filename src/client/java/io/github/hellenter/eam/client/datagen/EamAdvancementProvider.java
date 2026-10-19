@@ -73,7 +73,7 @@ public class EamAdvancementProvider extends FabricAdvancementProvider {
 		AdvancementHolder copperNugget = obtain(out, "copper_nugget", sieve, Items.COPPER_NUGGET, Items.COPPER_NUGGET);
 		AdvancementHolder copperPickaxe = obtain(out, "copper_pickaxe", copperNugget, Items.COPPER_PICKAXE, Items.COPPER_PICKAXE);
 		obtain(out, "metal_anvil", copperPickaxe, EamItems.COPPER_ANVIL,
-				EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, Items.ANVIL, EamItems.MITHRIL_ANVIL);
+				EamItems.COPPER_ANVIL, EamItems.SILVER_ANVIL, Items.ANVIL, EamItems.MITHRIL_ANVIL, EamItems.ADAMANTIUM_ANVIL);
 		AdvancementHolder silver = obtain(out, "silver", copperPickaxe, EamItems.SILVER_INGOT, EamItems.SILVER_INGOT);
 		AdvancementHolder holyWater = advancement("holy_water", silver, EamItems.SILVER_BREWING_STAND, AdvancementType.TASK)
 				.addCriterion("holy_water", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
@@ -98,6 +98,7 @@ public class EamAdvancementProvider extends FabricAdvancementProvider {
 		AdvancementHolder mithril = obtain(out, "mithril", obsidianFurnace, EamItems.MITHRIL_INGOT, EamItems.MITHRIL_INGOT);
 		fullSet(out, "mithril_armor", mithril, AdvancementType.CHALLENGE,
 				EamItems.MITHRIL_HELMET, EamItems.MITHRIL_CHESTPLATE, EamItems.MITHRIL_LEGGINGS, EamItems.MITHRIL_BOOTS);
+		obtain(out, "adamantium", mithril, EamItems.ADAMANTIUM_INGOT, EamItems.ADAMANTIUM_INGOT);
 		out.accept(advancement("fallen_lord", ironAge, EamItems.MITHRIL_SWORD, AdvancementType.CHALLENGE)
 				.addCriterion("fallen_lord", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity()
 						.of(registries.lookupOrThrow(Registries.ENTITY_TYPE), EamEntities.FALLEN_LORD)))

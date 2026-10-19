@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mushroom_grower/level_3",
+  "trades": [
+    "eam:duergar/mushroom_grower/3/glow_lichen_emerald",
+    "eam:duergar/mushroom_grower/3/emerald_shroomlight",
+    "eam:duergar/mushroom_grower/3/emerald_rabbit_stew"
+  ]
+}

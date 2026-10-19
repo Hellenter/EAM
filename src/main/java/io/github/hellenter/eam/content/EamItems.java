@@ -13,6 +13,7 @@ import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.ground.PebbleItem;
 import io.github.hellenter.eam.content.heart.HeartInJarItem;
 import io.github.hellenter.eam.content.horn.CommanderHornItem;
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
@@ -27,6 +28,7 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
+import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintItem;
 import io.github.hellenter.eam.survival.hunger.HungerModule;
 import io.github.hellenter.eam.survival.hunger.Nutrients;
 import io.github.hellenter.eam.survival.thirst.FlaskItem;
@@ -41,6 +43,7 @@ import io.github.hellenter.eam.world.structures.outpost.KingCastleMapItem;
 import io.github.hellenter.eam.world.structures.village.LairMapItem;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -59,6 +62,7 @@ import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
@@ -86,14 +90,22 @@ public final class EamItems {
 
 	public static final Item LEATHER_THREAD = register("leather_thread", Item::new, new Item.Properties());
 
-	public static final Item LEATHER_FLASK = register("leather_flask", FlaskItem::new, new Item.Properties()
+	public static final Item LEATHER_FLASK = register("leather_flask", p -> new FlaskItem(FlaskLogic.LEATHER, p), new Item.Properties()
 			.stacksTo(1)
 			.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY));
 
-	public static final Item FILTERED_LEATHER_FLASK = register("filtered_leather_flask", FlaskItem::new, new Item.Properties()
-			.stacksTo(1)
-			.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
-			.component(ThirstModule.FILTER, FlaskLogic.FILTER_USES));
+	public static final Item FILTERED_LEATHER_FLASK = register("filtered_leather_flask", p -> new FlaskItem(FlaskLogic.LEATHER, p),
+			new Item.Properties()
+					.stacksTo(1)
+					.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
+					.component(ThirstModule.FILTER, FlaskLogic.LEATHER.filterUses()));
+
+	/** Glass flask with a charcoal-silver filter: holds and pours half as much again as the leather one. */
+	public static final Item FILTERED_GLASS_FLASK = register("filtered_glass_flask", p -> new FlaskItem(FlaskLogic.GLASS, p),
+			new Item.Properties()
+					.stacksTo(1)
+					.component(ThirstModule.FLASK_WATER, FlaskWater.EMPTY)
+					.component(ThirstModule.FILTER, FlaskLogic.GLASS.filterUses()));
 
 	/** Thrown like a snowball; sneak-use lays it on the ground. */
 	public static final Item PEBBLE = register("pebble", p -> new PebbleItem(EamBlocks.PEBBLE, p),
@@ -103,6 +115,12 @@ public final class EamItems {
 			new Item.Properties().useBlockDescriptionPrefix());
 
 	public static final Item CAMP_FIRE = register("camp_fire", p -> new BlockItem(EamBlocks.CAMP_FIRE, p),
+			new Item.Properties().useBlockDescriptionPrefix());
+
+	public static final Item FOOD_DRYER = blockItem("food_dryer", EamBlocks.FOOD_DRYER);
+
+	public static final Item UNLIT_TORCH = register("unlit_torch",
+			p -> new StandingAndWallBlockItem(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH, Direction.DOWN, p),
 			new Item.Properties().useBlockDescriptionPrefix());
 
 	public static final Item FLINT_HATCHET = register("flint_hatchet", Item::new, new Item.Properties()
@@ -138,6 +156,10 @@ public final class EamItems {
 	/** The metal feeder block. */
 	public static final Item METAL_FEEDER = register("metal_feeder", p -> new BlockItem(EamBlocks.METAL_FEEDER, p),
 			new Item.Properties().useBlockDescriptionPrefix());
+
+	public static final Item SMALL_FRIDGE = blockItem("small_fridge", EamBlocks.SMALL_FRIDGE);
+	public static final Item LOCKED_CHEST = blockItem("locked_chest", EamBlocks.LOCKED_CHEST);
+	public static final Item LARGE_FRIDGE = blockItem("large_fridge", EamBlocks.LARGE_FRIDGE);
 
 	/** An iron ingot heated in a furnace; forged into plates on an anvil, cools back into an ingot after a minute. */
 	public static final Item HOT_IRON_INGOT = register("hot_iron_ingot", p -> new HotIronItem(Items.IRON_INGOT, p), new Item.Properties());
@@ -190,11 +212,14 @@ public final class EamItems {
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
-	/** Dropped by the Pillager King: his helm on a pike. Set up in a village, it keeps raids away. */
-	public static final Item PILLAGER_KING_TROPHY = register("pillager_king_trophy", p -> new BlockItem(EamBlocks.PILLAGER_KING_TROPHY, p),
+	/** Dropped by the Pillager King: his helm, set up on a pike as a trophy that keeps raids away. */
+	public static final Item PILLAGER_KING_HELM = register("pillager_king_helm", p -> new BlockItem(EamBlocks.PILLAGER_KING_HELM, p),
 			new Item.Properties().useBlockDescriptionPrefix().stacksTo(1).rarity(Rarity.RARE).fireResistant()
 					.component(DataComponents.LORE, new ItemLore(List.of(
-							Component.translatable("block.eam.pillager_king_trophy.desc").withStyle(ChatFormatting.GRAY)))));
+							Component.translatable("block.eam.pillager_king_helm.desc").withStyle(ChatFormatting.GRAY)))));
+
+	/** From the village elder: in hand it shows its building's ghost, and set down the villagers build it. */
+	public static final Item BLUEPRINT = register("blueprint", BlueprintItem::new, new Item.Properties().stacksTo(1));
 
 	/** Sold by duergar elders: on the surface, in hand, it turns into a map to the nearest boss's lair. */
 	public static final Item LAIR_MAP = register("lair_map", LairMapItem::new,
@@ -240,6 +265,12 @@ public final class EamItems {
 	public static final Item BURNT_MUSHROOM_STEM = blockItem("burnt_mushroom_stem", EamBlocks.BURNT_MUSHROOM_STEM);
 	public static final Item SMOLDERING_MUSHROOM_CAP = blockItem("smoldering_mushroom_cap", EamBlocks.SMOLDERING_MUSHROOM_CAP);
 	public static final Item GLOWSHROOM_VINES = blockItem("glowshroom_vines", EamBlocks.GLOWSHROOM_VINES);
+	/** A cap cut from a ripe glowshroom tip: eaten raw, a little protein and sugar, or packed into a lamp. */
+	public static final Item GLOWSHROOM = register("glowshroom", Item::new, new Item.Properties()
+			.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.2F).build())
+			.component(HungerModule.NUTRIENTS, new Nutrients(1, 0, 1))
+			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
+	public static final Item GLOWSHROOM_LAMP = blockItem("glowshroom_lamp", EamBlocks.GLOWSHROOM_LAMP);
 
 	public static final Item COPPER_ANVIL = blockItem("copper_anvil", EamBlocks.COPPER_ANVIL);
 	public static final Item SILVER_ANVIL = blockItem("silver_anvil", EamBlocks.SILVER_ANVIL);
@@ -284,6 +315,36 @@ public final class EamItems {
 	public static final Item MITHRIL_HAMMER = register("mithril_hammer", Item::new, new Item.Properties().stacksTo(1));
 	public static final Item MITHRIL_ANVIL = blockItem("mithril_anvil", EamBlocks.MITHRIL_ANVIL);
 
+	public static final Item ADAMANTIUM_ORE = blockItem("adamantium_ore", EamBlocks.ADAMANTIUM_ORE);
+	public static final Item DEEPSLATE_ADAMANTIUM_ORE = blockItem("deepslate_adamantium_ore", EamBlocks.DEEPSLATE_ADAMANTIUM_ORE);
+	public static final Item ADAMANTIUM_BLOCK = blockItem("adamantium_block", EamBlocks.ADAMANTIUM_BLOCK);
+	public static final Item RAW_ADAMANTIUM = register("raw_adamantium", Item::new, new Item.Properties());
+	public static final Item ADAMANTIUM_INGOT = register("adamantium_ingot", Item::new, new Item.Properties());
+	public static final Item ADAMANTIUM_NUGGET = register("adamantium_nugget", Item::new, new Item.Properties());
+	/** An adamantium ingot heated in the obsidian blast furnace; cools back into an ingot after a minute, like hot iron. */
+	public static final Item HOT_ADAMANTIUM_INGOT = register("hot_adamantium_ingot", p -> new HotIronItem(ADAMANTIUM_INGOT, p), new Item.Properties());
+	/** Forged from hot adamantium on the adamantium anvil; adamantium armor is made of these. */
+	public static final Item ADAMANTIUM_PLATE = register("adamantium_plate", Item::new, new Item.Properties().stacksTo(16));
+
+	/** Adamantium tools hit and last like vanilla netherite ones; netherite is their smithing upgrade. */
+	public static final Item ADAMANTIUM_SWORD = register("adamantium_sword", Item::new, new Item.Properties().sword(AdamantiumGear.TOOL, 3.0F, -2.4F));
+	public static final Item ADAMANTIUM_SHOVEL = register("adamantium_shovel", Item::new, new Item.Properties().shovel(AdamantiumGear.TOOL, 1.5F, -3.0F));
+	public static final Item ADAMANTIUM_PICKAXE = register("adamantium_pickaxe", Item::new, new Item.Properties().pickaxe(AdamantiumGear.TOOL, 1.0F, -2.8F));
+	public static final Item ADAMANTIUM_AXE = register("adamantium_axe", Item::new, new Item.Properties().axe(AdamantiumGear.TOOL, 5.0F, -3.0F));
+	public static final Item ADAMANTIUM_HOE = register("adamantium_hoe", Item::new, new Item.Properties().hoe(AdamantiumGear.TOOL, -4.0F, 0.0F));
+
+	/** Adamantium armor protects and lasts like vanilla netherite, before the gear module's cut. */
+	public static final Item ADAMANTIUM_HELMET = armor("adamantium_helmet", AdamantiumGear.ARMOR, ArmorType.HELMET);
+	public static final Item ADAMANTIUM_CHESTPLATE = armor("adamantium_chestplate", AdamantiumGear.ARMOR, ArmorType.CHESTPLATE);
+	public static final Item ADAMANTIUM_LEGGINGS = armor("adamantium_leggings", AdamantiumGear.ARMOR, ArmorType.LEGGINGS);
+	public static final Item ADAMANTIUM_BOOTS = armor("adamantium_boots", AdamantiumGear.ARMOR, ArmorType.BOOTS);
+
+	public static final Item ADAMANTIUM_KNIFE = register("adamantium_knife", KnifeItem::new, new Item.Properties()
+			.sword(AdamantiumGear.KNIFE, AdamantiumGear.KNIFE_DAMAGE, FlintTools.KNIFE_ATTACK_SPEED));
+	public static final Item ADAMANTIUM_SAW = register("adamantium_saw", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ADAMANTIUM_HAMMER = register("adamantium_hammer", Item::new, new Item.Properties().stacksTo(1));
+	public static final Item ADAMANTIUM_ANVIL = blockItem("adamantium_anvil", EamBlocks.ADAMANTIUM_ANVIL);
+
 	public static final Item OBSIDIAN_BLAST_FURNACE = blockItem("obsidian_blast_furnace", EamBlocks.OBSIDIAN_BLAST_FURNACE);
 
 	/** Rusty iron gear is found in dungeons, never crafted: a little worse than iron, mended with iron like it. */
@@ -320,6 +381,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.PILLAGER_GUARD));
 	public static final Item SWAMP_LURKER_SPAWN_EGG = register("swamp_lurker_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.SWAMP_LURKER));
+	public static final Item KOSCHEI_SPAWN_EGG = register("koschei_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.KOSCHEI));
 	public static final Item BABA_YAGA_SPAWN_EGG = register("baba_yaga_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.BABA_YAGA));
 	public static final Item DROWNED_SOLDIER_SPAWN_EGG = register("drowned_soldier_spawn_egg", SpawnEggItem::new,
@@ -456,6 +519,7 @@ public final class EamItems {
 			.component(HungerModule.NUTRIENTS, new Nutrients(0, 0, 1))
 			.compostable(ContextIntProviders.COMPOSTABLE_MEDIUM));
 	public static final Item WILD_GARLIC = plantItem("wild_garlic", EamBlocks.WILD_GARLIC, ContextIntProviders.COMPOSTABLE_MEDIUM);
+	public static final Item STRIPPED_POPLAR_FENCE = blockItem("stripped_poplar_fence", EamBlocks.STRIPPED_POPLAR_FENCE);
 	public static final Item SHELF_MUSHROOM = plantItem("shelf_mushroom", EamBlocks.SHELF_MUSHROOM, ContextIntProviders.COMPOSTABLE_MEDIUM);
 	public static final List<Item> HOLLOW_LOGS = EamBlocks.HOLLOW_LOGS.values().stream()
 			.map(block -> blockItem(BuiltInRegistries.BLOCK.getKey(block).getPath(), block)).toList();
@@ -563,6 +627,8 @@ public final class EamItems {
 	public static final Item BURNT_POTATO = burntFood("burnt_potato", Foods.BAKED_POTATO);
 	public static final Item BURNT_WOLF_MEAT = burntFood("burnt_wolf_meat", Foods.COOKED_MUTTON);
 	public static final Item ASH = register("ash", Item::new, new Item.Properties());
+	/** What spoiled fruit, vegetables and cooked food turn into: not food any more, but good compost. */
+	public static final Item ROTTEN_FOOD = register("rotten_food", Item::new, new Item.Properties().compostable(ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH));
 
 	/** A bowl of plain or boiled water, for soup recipes. */
 	public static final TagKey<Item> WATER_BOWLS = TagKey.create(Registries.ITEM, Eam.id("water_bowls"));

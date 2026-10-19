@@ -69,6 +69,7 @@ public class CampFireBlockEntity extends BlockEntity {
 		ServerLevel serverLevel = (ServerLevel) level;
 		CampFireSettings settings = CampFireModule.settings();
 		boolean itemsChanged = false;
+		int sticks = state.getValue(CampFireBlock.STICKS);
 
 		for (int slot = 0; slot < SLOTS; slot++) {
 			ItemStack stack = fire.items.get(slot);
@@ -76,7 +77,7 @@ public class CampFireBlockEntity extends BlockEntity {
 				continue;
 			}
 			fire.progress[slot]++;
-			switch (CampFireLogic.foodStep(fire.cooked[slot], fire.progress[slot], settings)) {
+			switch (CampFireLogic.foodStep(fire.cooked[slot], fire.progress[slot], settings, sticks)) {
 				case COOK -> {
 					SingleRecipeInput input = new SingleRecipeInput(stack);
 					ItemStack result = serverLevel.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, input, serverLevel)
@@ -190,9 +191,14 @@ public class CampFireBlockEntity extends BlockEntity {
 		return items;
 	}
 
+	/** Whether the item has a recipe on a fire, components included. */
+	public static boolean cooks(ServerLevel level, ItemStack stack) {
+		return level.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), level).isPresent();
+	}
+
 	/** Puts one item from {@code stack} on a free slot; false when the fire is full or the item does not cook. */
 	public boolean placeFood(ServerLevel level, @Nullable LivingEntity source, ItemStack stack) {
-		if (level.recipeAccess().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), level).isEmpty()) {
+		if (!cooks(level, stack)) {
 			return false;
 		}
 		for (int slot = 0; slot < SLOTS; slot++) {

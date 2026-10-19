@@ -2,6 +2,7 @@ package io.github.hellenter.eam.mobs.vanilla.breaking;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.mixin.mobs.vanilla.MobAccessor;
+import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -91,6 +92,8 @@ public final class BlockBreakingModule {
 		}
 		GoalSelector targets = ((MobAccessor) mob).eam$targetSelector();
 		targets.addGoal(SENSE_PRIORITY, new SensePlayerGoal(mob));
+		// Before the target goals are collected: a breaker digging toward a player it heard must not forget him.
+		NoiseModule.addGoal(mob);
 		List<TargetGoal> targetGoals = targets.getAvailableGoals().stream()
 				.map(WrappedGoal::getGoal)
 				.filter(TargetGoal.class::isInstance)

@@ -27,14 +27,18 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamWorldgenProvider::new);
 		pack.addProvider(EamCryptProvider::new);
 		pack.addProvider(EamOutpostProvider::new);
+		pack.addProvider(EamCastleProvider::new);
 		pack.addProvider(EamYagaHutProvider::new);
 		pack.addProvider(EamUnderworldMineProvider::new);
 		pack.addProvider(EamUnderworldMineLootProvider::new);
 		pack.addProvider(EamDuergarVillageProvider::new);
+		pack.addProvider(EamDuergarTradeProvider::new);
 		pack.addProvider(EamDuergarVillageLootProvider::new);
 		pack.addProvider(EamOutpostLootProvider::new);
+		pack.addProvider(EamCastleLootProvider::new);
 		pack.addProvider(EamCryptLootProvider::new);
 		pack.addProvider(EamYagaGraveLootProvider::new);
+		pack.addProvider(EamHutLootProvider::new);
 		pack.addProvider(EamCryptSpawnerProvider::new);
 		pack.addProvider(EamCryptGearProvider::new);
 		pack.addProvider(EamEarlyLootProvider::new);
@@ -43,9 +47,26 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamEquipmentAssetProvider::new);
 		pack.addProvider(EamThirstSettingsProvider::new);
 		pack.addProvider(EamCampFireSettingsProvider::new);
+		pack.addProvider(EamFoodDryerSettingsProvider::new);
+		pack.addProvider(EamRainDousingSettingsProvider::new);
+		pack.addProvider(EamGlowshroomSettingsProvider::new);
+		pack.addProvider(EamGlowshroomHarvestProvider::new);
+		pack.addProvider(EamTimelineProvider::new);
+		pack.addProvider(EamTimelineTagProvider::new);
 		pack.addProvider(EamSieveSettingsProvider::new);
 		pack.addProvider(EamSieveLootProvider::new);
 		pack.addProvider(EamFeederSettingsProvider::new);
+		pack.addProvider(EamVillagerWorkProvider::new);
+		pack.addProvider(EamGuardSettingsProvider::new);
+		pack.addProvider(EamRepairSettingsProvider::new);
+		pack.addProvider(EamFoodSettingsProvider::new);
+		pack.addProvider(EamButcherSettingsProvider::new);
+		pack.addProvider(EamClericSettingsProvider::new);
+		pack.addProvider(EamAlarmSettingsProvider::new);
+		pack.addProvider(EamElderSettingsProvider::new);
+		pack.addProvider(EamEconomySettingsProvider::new);
+		pack.addProvider(EamChestSettingsProvider::new);
+		pack.addProvider(EamSpoilageSettingsProvider::new);
 		pack.addProvider(EamEntityLootProvider::new);
 		pack.addProvider(EamCraftTimesProvider::new);
 		pack.addProvider(EamSoundsProvider::new);
@@ -66,6 +87,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.MATERIAL_RULE, UnderworldWorldgen::bootstrapMaterialRules);
 		registryBuilder.add(Registries.NOISE_SETTINGS, UnderworldWorldgen::bootstrapNoiseSettings);
 		registryBuilder.add(Registries.DIMENSION_TYPE, UnderworldWorldgen::bootstrapDimensionTypes);
+		registryBuilder.add(Registries.TIMELINE, EamTimelineProvider::bootstrap);
 		registryBuilder.add(Registries.PROCESSOR_LIST, context -> {
 			EamUnderworldMineProvider.bootstrapProcessors(context);
 			EamDuergarVillageProvider.bootstrapProcessors(context);
@@ -77,6 +99,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.STRUCTURE, context -> {
 			EamCryptProvider.bootstrap(context);
 			EamOutpostProvider.bootstrap(context);
+			EamCastleProvider.bootstrap(context);
 			EamYagaHutProvider.bootstrap(context);
 			EamUnderworldMineProvider.bootstrap(context);
 			EamDuergarVillageProvider.bootstrap(context);
@@ -84,12 +107,13 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		registryBuilder.add(Registries.STRUCTURE_SET, context -> {
 			EamCryptProvider.bootstrapSets(context);
 			EamOutpostProvider.bootstrapSets(context);
+			EamCastleProvider.bootstrapSets(context);
 			EamYagaHutProvider.bootstrapSets(context);
 			EamUnderworldMineProvider.bootstrapSets(context);
 			EamDuergarVillageProvider.bootstrapSets(context);
 		});
-		registryBuilder.add(Registries.VILLAGER_TRADE, EamDuergarVillageProvider::bootstrapTrades);
-		registryBuilder.add(Registries.TRADE_SET, EamDuergarVillageProvider::bootstrapTradeSets);
+		registryBuilder.add(Registries.VILLAGER_TRADE, EamDuergarTradeProvider::bootstrapTrades);
+		registryBuilder.add(Registries.TRADE_SET, EamDuergarTradeProvider::bootstrapTradeSets);
 		registryBuilder.add(Registries.TRIAL_SPAWNER_CONFIG, EamCryptSpawnerProvider::bootstrap);
 	}
 }

@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "count": 4,
+    "id": "minecraft:obsidian"
+  },
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 6,
+    "id": "minecraft:emerald"
+  },
+  "xp": 30
+}

@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.swamp.BerryShrub;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -58,10 +59,18 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 				.add(applyExplosionDecay(block, LootItem.lootTableItem(berry).apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, max)))));
 	}
 
+	/** Vanilla's nether vines table: the vine item to shears or silk touch, else a third of the time (more with fortune). */
+	private LootTable.Builder glowshroomVines() {
+		return createSilkTouchOrShearsDispatchTable(EamBlocks.GLOWSHROOM_VINES, LootItem.lootTableItem(EamBlocks.GLOWSHROOM_VINES)
+				.when(BonusLevelTableCondition.bonusLevelFlatChance(enchantments.getOrThrow(Enchantments.FORTUNE), 0.33F, 0.55F, 0.77F, 1.0F)));
+	}
+
 	@Override
 	public void generate() {
 		dropSelf(EamBlocks.PEBBLE);
+		dropSelf(EamBlocks.FOOD_DRYER);
 		dropSelf(EamBlocks.FLINT_SHARD);
+		dropSelf(EamBlocks.UNLIT_TORCH);
 		dropOther(EamBlocks.GROUND_STICK, Items.STICK);
 		// Swampy forest plants drop like their vanilla look-alikes.
 		add(EamBlocks.DUCKWEED, this::createSegmentedBlockDrops);
@@ -78,7 +87,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
 		dropSelf(EamBlocks.SHELF_MUSHROOM);
-		dropSelf(EamBlocks.PILLAGER_KING_TROPHY);
+		dropSelf(EamBlocks.PILLAGER_KING_HELM);
 		// Garlic drops like carrots: one bulb back, and two to five from a ripe plant. Wild garlic gives one or two bulbs.
 		add(EamBlocks.GARLIC_CROP, block -> applyExplosionDecay(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().add(LootItem.lootTableItem(EamItems.GARLIC)))
@@ -98,8 +107,14 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 			add(burnt, block -> createSilkTouchDispatchTable(block, applyExplosionCondition(block,
 					LootItem.lootTableItem(EamItems.ASH).when(LootItemRandomChanceCondition.randomChance(0.3F)))));
 		}
-		addNetherVinesDropTable(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT);
+		// Glowshroom vines drop like weeping vines; a ripe tip also lets fall one of its caps.
+		add(EamBlocks.GLOWSHROOM_VINES_PLANT, glowshroomVines());
+		add(EamBlocks.GLOWSHROOM_VINES, glowshroomVines().withPool(LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
+				.when(matches(EamBlocks.GLOWSHROOM_VINES, StatePropertiesPredicate.Builder.properties().hasProperty(GlowshroomVinesBlock.RIPE, true)))
+				.add(applyExplosionDecay(EamBlocks.GLOWSHROOM_VINES, LootItem.lootTableItem(EamItems.GLOWSHROOM)))));
+		dropSelf(EamBlocks.GLOWSHROOM_LAMP);
 		EamBlocks.HOLLOW_LOGS.values().forEach(this::dropSelf);
+		dropSelf(EamBlocks.STRIPPED_POPLAR_FENCE);
 		// A dense shrub gives itself to shears or silk touch, otherwise a stick now and then.
 		add(EamBlocks.DENSE_SHRUB, block -> createSilkTouchOrShearsDispatchTable(block, applyExplosionDecay(block,
 				LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))))
@@ -110,6 +125,9 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		// The feeder drops its feed from its block entity.
 		dropSelf(EamBlocks.FEEDER);
 		dropSelf(EamBlocks.METAL_FEEDER);
+		dropSelf(EamBlocks.SMALL_FRIDGE);
+		dropSelf(EamBlocks.LOCKED_CHEST);
+		dropSelf(EamBlocks.LARGE_FRIDGE);
 		// The sieve keeps its wear as item damage.
 		add(EamBlocks.SIEVE, LootTable.lootTable().withPool(applyExplosionCondition(EamBlocks.SIEVE, LootPool.lootPool()
 				.setRolls(ContextIntProviders.exactly(1))
@@ -137,9 +155,12 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
 		add(EamBlocks.DEEPSLATE_MITHRIL_ORE, block -> createOreDrop(block, EamItems.RAW_MITHRIL));
 		dropSelf(EamBlocks.MITHRIL_BLOCK);
+		add(EamBlocks.ADAMANTIUM_ORE, block -> createOreDrop(block, EamItems.RAW_ADAMANTIUM));
+		add(EamBlocks.DEEPSLATE_ADAMANTIUM_ORE, block -> createOreDrop(block, EamItems.RAW_ADAMANTIUM));
+		dropSelf(EamBlocks.ADAMANTIUM_BLOCK);
 		dropSelf(EamBlocks.ANCIENT_METAL_BLOCK);
 		add(EamBlocks.OBSIDIAN_BLAST_FURNACE, this::createNameableBlockEntityTable);
-		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL)) {
+		for (Block anvil : List.of(EamBlocks.COPPER_ANVIL, EamBlocks.SILVER_ANVIL, EamBlocks.MITHRIL_ANVIL, EamBlocks.ADAMANTIUM_ANVIL)) {
 			add(anvil, LootTable.lootTable().withPool(applyExplosionCondition(anvil, LootPool.lootPool()
 					.setRolls(ContextIntProviders.exactly(1))
 					.add(LootItem.lootTableItem(anvil).apply(CopyBlockState.copyState(anvil).copy(MetalAnvilBlock.WEAR))))));

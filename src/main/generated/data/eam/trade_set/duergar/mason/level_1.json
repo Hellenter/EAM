@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/mason/level_1",
+  "trades": [
+    "eam:duergar/mason/1/clay_ball_emerald",
+    "eam:duergar/mason/1/emerald_brick"
+  ]
+}

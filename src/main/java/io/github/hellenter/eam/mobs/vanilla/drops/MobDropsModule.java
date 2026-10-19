@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.vanilla.drops;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -79,10 +80,12 @@ public final class MobDropsModule {
 		if (enabled) mob.setAttached(SUN_IGNITION, mob.level().getGameTime());
 	}
 
-	/** False if {@code entity} burned to death from daylight and must leave nothing behind. */
+	/** False if {@code entity} burned to death from daylight and must leave nothing behind but a nemesis's trophies. */
 	public static boolean dropsOnDeath(LivingEntity entity, DamageSource source) {
 		if (!enabled) return true;
 		Long ignition = entity.getAttached(SUN_IGNITION);
-		return !MobDropsLogic.burnedBySun(source.is(DamageTypes.ON_FIRE), ignition == null ? -1 : ignition, entity.level().getGameTime());
+		boolean drops = !MobDropsLogic.burnedBySun(source.is(DamageTypes.ON_FIRE), ignition == null ? -1 : ignition, entity.level().getGameTime());
+		if (!drops) NemesisModule.dropTrophies(entity);
+		return drops;
 	}
 }

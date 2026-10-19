@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "id": "eam:iron_hammer"
+  },
+  "max_uses": 3,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 10,
+    "id": "minecraft:emerald"
+  },
+  "xp": 15
+}

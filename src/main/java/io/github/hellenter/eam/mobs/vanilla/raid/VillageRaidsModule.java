@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.trophy.KingHelmBlock;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -31,6 +32,8 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
@@ -39,16 +42,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Village raids. A Pillager King's trophy standing in a village keeps every raid away from it, the ominous ones too.
+ * Village raids. A lit Pillager King's helm keeps every raid away from around it, the ominous ones too.
  * Raids also come on their own, every 15 to 25 days, to a village a player is in. Each wave brings the vanilla raiders
  * plus pillager guards and elite crossbowmen, and raiders of a wave that drags on past two minutes glow. Numbers are in
  * {@code data/eam/events/village_raids.json}; the random raid calendar is saved on the overworld.
  */
 public final class VillageRaidsModule {
-	/** The trophy block is a point of interest, so villages find it without scanning blocks. */
-	public static final ResourceKey<PoiType> TROPHY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE, Eam.id("pillager_king_trophy"));
+	/**
+	 * A lit King's helm is a point of interest, so raids find it without scanning blocks; turning it off changes its state
+	 * and the game drops the point of interest.
+	 */
+	public static final ResourceKey<PoiType> HELM = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE, Eam.id("pillager_king_helm"));
 
 	/**
 	 * The random raid calendar, stored on the overworld.
@@ -72,18 +79,31 @@ public final class VillageRaidsModule {
 	/** The wave each raid is on and when it began, to make raiders glow; a reloaded raid restarts its count. */
 	private static final Map<Raid, Wave> WAVES = Collections.synchronizedMap(new WeakHashMap<>());
 
+	/** How long a "guarded" answer for a chunk is kept, and how many are kept at most. */
+	private static final int GUARD_CACHE_TICKS = 40;
+	private static final int GUARD_CACHE_SIZE = 1024;
+	private static final Map<GuardKey, Guard> GUARDED = new ConcurrentHashMap<>();
+
 	private static volatile VillageRaidsSettings settings = VillageRaidsSettings.DEFAULT;
 	private static volatile boolean enabled;
 
 	private record Wave(int number, long start) {
 	}
 
+	private record GuardKey(ResourceKey<Level> dimension, long chunk) {
+	}
+
+	private record Guard(long time, boolean guarded) {
+	}
+
 	private VillageRaidsModule() {
 	}
 
-	/** The trophy point of interest and the settings exist whatever the config says. */
+	/** The helm point of interest and the settings exist whatever the config says. */
 	public static void register() {
-		PoiHelper.register(TROPHY.identifier(), 0, 1, EamBlocks.PILLAGER_KING_TROPHY);
+		PoiHelper.register(HELM.identifier(), 0, 1, EamBlocks.PILLAGER_KING_HELM.getStateDefinition().getPossibleStates().stream()
+				.filter(state -> state.getValue(KingHelmBlock.ENABLED))
+				.toList());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(VillageRaidsSettingsLoader.ID, new VillageRaidsSettingsLoader());
 	}
 
@@ -100,15 +120,29 @@ public final class VillageRaidsModule {
 		settings = value;
 	}
 
-	// --- Trophy ---
+	// --- King's helm ---
 
-	/** A trophy in a village within {@code trophy_radius} of {@code pos} keeps raids away. */
+	/**
+	 * A lit King's helm within {@code helm_radius} of {@code pos} keeps raids away. Bad Omen asks this every tick, so the
+	 * answer is kept for a couple of seconds per chunk.
+	 */
 	public static boolean guarded(ServerLevel level, BlockPos pos) {
 		if (!enabled) {
 			return false;
 		}
-		return level.getPoiManager().getInRange(type -> type.is(TROPHY), pos, settings.trophyRadius(), PoiManager.Occupancy.ANY)
-				.anyMatch(record -> level.isVillage(record.getPos()));
+		long now = level.getGameTime();
+		GuardKey key = new GuardKey(level.dimension(), ChunkPos.pack(pos));
+		Guard cached = GUARDED.get(key);
+		if (cached != null && now - cached.time() < GUARD_CACHE_TICKS) {
+			return cached.guarded();
+		}
+		boolean guarded = level.getPoiManager().getInRange(type -> type.is(HELM), pos, settings.helmRadius(), PoiManager.Occupancy.ANY)
+				.findAny().isPresent();
+		if (GUARDED.size() > GUARD_CACHE_SIZE) {
+			GUARDED.clear();
+		}
+		GUARDED.put(key, new Guard(now, guarded));
+		return guarded;
 	}
 
 	// --- Random raids ---

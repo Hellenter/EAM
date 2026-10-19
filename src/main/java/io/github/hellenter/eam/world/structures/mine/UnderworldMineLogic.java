@@ -22,6 +22,14 @@ public final class UnderworldMineLogic {
 	public static final int CLEARANCE = 12;
 	/** Headroom of the adit above its floor, like the mine's own tunnels. */
 	public static final int HEIGHT = 3;
+	/** How far above the cave floor an adit has to come out of the wall to end in a tower instead of a staircase. */
+	public static final int TOWER_DROP = 6;
+	/** The tallest tower: an adit that comes out higher than this over the floor finds another way. */
+	public static final int TOWER_MAX = 48;
+	/** Cells of the tower along the adit (and across it): three, the ladder in the middle one. */
+	public static final int TOWER_SIZE = 3;
+	/** {@link Adit#towerBottom()} of an adit that ends on the cave floor. */
+	public static final int NO_TOWER = Integer.MIN_VALUE;
 
 	private UnderworldMineLogic() {
 	}
@@ -49,9 +57,19 @@ public final class UnderworldMineLogic {
 	/**
 	 * An adit: cells {@code 0..length} from {@code start} along ({@code stepX}, {@code stepZ}), three wide. Its floor
 	 * starts at {@code startFloor} and climbs or drops one block per cell to {@code endFloor}; cell {@code length} is the
-	 * cave floor it comes out on.
+	 * cave floor it comes out on. An adit that comes out of the wall high above the cave floor stays level and ends in a
+	 * tower instead: the {@link #TOWER_SIZE} cells after {@code length}, standing on the floor down to
+	 * {@code towerBottom}, its top level with the adit.
 	 */
-	public record Adit(int startX, int startFloor, int startZ, int stepX, int stepZ, int endFloor, int length) {
+	public record Adit(int startX, int startFloor, int startZ, int stepX, int stepZ, int endFloor, int length, int towerBottom) {
+		public Adit(int startX, int startFloor, int startZ, int stepX, int stepZ, int endFloor, int length) {
+			this(startX, startFloor, startZ, stepX, stepZ, endFloor, length, NO_TOWER);
+		}
+
+		public boolean hasTower() {
+			return towerBottom != NO_TOWER;
+		}
+
 		/** The floor of cell {@code i}. */
 		public int floor(int i) {
 			return UnderworldMineLogic.floor(startFloor, endFloor, i);
@@ -104,6 +122,11 @@ public final class UnderworldMineLogic {
 	public static Adit find(Terrain terrain, List<Box> pieces, int x, int floor, int z, int stepX, int stepZ,
 			int maxLength, int minFloor, int maxFloor) {
 		for (int length = 2; length <= maxLength; length++) {
+			int bottom = tower(terrain, pieces, x + stepX * length, floor, z + stepZ * length, stepX, stepZ, minFloor);
+			if (bottom != NO_TOWER) {
+				Adit adit = new Adit(x, floor, z, stepX, stepZ, floor, length - 1, bottom);
+				return clear(terrain, pieces, adit) ? adit : null;
+			}
 			int end = caveFloor(terrain, pieces, x + stepX * length, z + stepZ * length, stepX, stepZ, floor, length - 1,
 					minFloor, maxFloor);
 			if (end != Integer.MIN_VALUE) {
@@ -151,13 +174,54 @@ public final class UnderworldMineLogic {
 		return true;
 	}
 
-	/** Whether the adit's floor and headroom stay out of water, lava and the mine's other pieces. */
+	/**
+	 * The lowest block of a tower whose near row starts at ({@code x}, {@code z}) heading ({@code stepX},
+	 * {@code stepZ}), its top level with {@code floor}, or {@link #NO_TOWER}. A tower stands where the adit comes out of
+	 * the wall into open cave (every cell of the tower open from the cave floor up to the adit's headroom, clear of the
+	 * mine) at least {@link #TOWER_DROP} and at most {@link #TOWER_MAX} blocks above the floor under the ladder.
+	 */
+	static int tower(Terrain terrain, List<Box> pieces, int x, int floor, int z, int stepX, int stepZ, int minFloor) {
+		int bottom = floor;
+		for (int k = 0; k < TOWER_SIZE; k++) {
+			for (int side = -1; side <= 1; side++) {
+				int cx = x + stepX * k - stepZ * side;
+				int cz = z + stepZ * k + stepX * side;
+				int y = floor + HEIGHT;
+				while (y > floor - TOWER_MAX && y > minFloor && terrain.kind(cx, y, cz) == AIR) {
+					for (Box box : pieces) {
+						if (box.distanceSqr(cx, y, cz) < CLEARANCE * CLEARANCE) {
+							return NO_TOWER;
+						}
+					}
+					y--;
+				}
+				// The column has to reach below the adit's floor and stand on rock.
+				if (y >= floor || terrain.kind(cx, y, cz) != SOLID) {
+					return NO_TOWER;
+				}
+				if (k == 1 && side == 0 && floor - y < TOWER_DROP) {
+					return NO_TOWER;
+				}
+				bottom = Math.min(bottom, y + 1);
+			}
+		}
+		return bottom;
+	}
+
+	/**
+	 * Whether the adit's floor and headroom stay out of water, lava and the mine's other pieces, and none of its stairs
+	 * hangs high over the cave floor (that is what towers are for).
+	 */
 	private static boolean clear(Terrain terrain, List<Box> pieces, Adit adit) {
 		for (int i = 0; i <= adit.length(); i++) {
 			int f = adit.floor(i);
+			boolean stair = stair(adit, i) != 0;
 			for (int side = -1; side <= 1; side++) {
 				int x = adit.x(i, side);
 				int z = adit.z(i, side);
+				if (stair && drop(terrain, x, f, z) >= TOWER_DROP) {
+					return false;
+				}
 				for (int y = f; y <= f + HEIGHT; y++) {
 					int kind = terrain.kind(x, y, z);
 					if (kind == WATER || kind == OTHER) {
@@ -172,5 +236,14 @@ public final class UnderworldMineLogic {
 			}
 		}
 		return true;
+	}
+
+	/** How many blocks of open air there are under a floor block at ({@code x}, {@code y}, {@code z}). */
+	private static int drop(Terrain terrain, int x, int y, int z) {
+		int drop = 0;
+		while (drop < TOWER_DROP && terrain.kind(x, y - drop, z) == AIR) {
+			drop++;
+		}
+		return drop;
 	}
 }

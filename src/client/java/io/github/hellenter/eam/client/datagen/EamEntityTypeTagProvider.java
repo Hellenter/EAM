@@ -6,9 +6,14 @@ import io.github.hellenter.eam.content.feeder.FeederModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.vanilla.cows.CowDefenseModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
+import io.github.hellenter.eam.mobs.vanilla.evolution.MonsterEvolutionModule;
 import io.github.hellenter.eam.mobs.vanilla.feud.PillagerFeudModule;
+import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
+import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.mobs.vanilla.running.RunningModule;
+import io.github.hellenter.eam.survival.death.DeathModule;
 import io.github.hellenter.eam.world.bloodmoon.BloodMoonModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -55,6 +60,9 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// Farm animals that eat from feeders.
 		builder(FeederModule.LIVESTOCK).add(EntityTypeIds.COW, EntityTypeIds.MOOSHROOM, EntityTypeIds.SHEEP, EntityTypeIds.PIG,
 				EntityTypeIds.CHICKEN, EntityTypeIds.GOAT);
+		// Predators raid livestock every night: wolves wherever they reach it, zombies only in an open, dark pen.
+		builder(PredatorModule.HUNTERS).add(EntityTypeIds.WOLF);
+		builder(PredatorModule.RAIDERS).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(MobDropsModule.SMALL_LEATHER).add(EntityTypeIds.SHEEP, EntityTypeIds.PIG);
 		// Melee hostiles run after their target. Creepers and ranged mobs keep their vanilla pace.
 		builder(RunningModule.RUNNERS)
@@ -66,6 +74,25 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		builder(BloodMoonModule.ARMORED)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER)
 				.add(SKELETONS);
+		// Monster evolution: zombies and skeletons of the overworld put on armor as the world ages; zombies take up weapons.
+		builder(MonsterEvolutionModule.ARMORED)
+				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
+						EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
+		// Bosses: a player they kill keeps their things while the game rule is on.
+		builder(DeathModule.BOSSES)
+				.add(EamEntities.FALLEN_LORD.builtInRegistryHolder().key(), EamEntities.BABA_YAGA.builtInRegistryHolder().key(),
+						EamEntities.KOSCHEI.builtInRegistryHolder().key(), EamEntities.PILLAGER_KING.builtInRegistryHolder().key())
+				.add(EntityTypeIds.WITHER, EntityTypeIds.ENDER_DRAGON);
+		// Bosses keep their own name and fight; they never become a player's nemesis.
+		builder(NemesisModule.EXCLUDED).addTag(DeathModule.BOSSES);
+		builder(MonsterEvolutionModule.ARMED)
+				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER);
+		// Later phases: skeletons carry a blade for close quarters, spiders spit webs.
+		builder(MonsterEvolutionModule.SWORDSMEN)
+				.add(EntityTypeIds.SKELETON, EntityTypeIds.STRAY, EntityTypeIds.BOGGED, EntityTypeIds.PARCHED);
+		builder(MonsterEvolutionModule.WEB_SPINNERS)
+				.add(EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER)
+				.add(EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(), EamEntities.BLACK_WIDOW.builtInRegistryHolder().key());
 		builder(BloodMoonModule.ARMED).add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.ZOMBIE_VILLAGER);
 		builder(BloodMoonModule.HUNTERS)
 				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
@@ -119,5 +146,15 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 		// The elite crossbowman is a pillager: he joins raids and counts as an illager.
 		builder(EntityTypeTags.ILLAGER).add(EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key());
 		builder(EntityTypeTags.RAIDERS).add(EamEntities.ELITE_CROSSBOWMAN.builtInRegistryHolder().key());
+		// Common monsters hear a noisy player. Bosses, squads with their own orders and brain-driven mobs do not.
+		builder(NoiseModule.HEARERS)
+				.add(EntityTypeIds.ZOMBIE, EntityTypeIds.HUSK, EntityTypeIds.DROWNED, EntityTypeIds.ZOMBIE_VILLAGER,
+						EntityTypeIds.ZOMBIFIED_PIGLIN, EntityTypeIds.SPIDER, EntityTypeIds.CAVE_SPIDER, EntityTypeIds.CREEPER,
+						EntityTypeIds.WITCH, EntityTypeIds.VINDICATOR, EntityTypeIds.PILLAGER, EntityTypeIds.SILVERFISH)
+				.add(SKELETONS)
+				.add(EamEntities.PILLAGER_GUARD.builtInRegistryHolder().key(), EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(),
+						EamEntities.DUERGAR_RENEGADE.builtInRegistryHolder().key(), EamEntities.WOOD_SPIDER.builtInRegistryHolder().key(),
+						EamEntities.BLACK_WIDOW.builtInRegistryHolder().key(), EamEntities.WIGHT.builtInRegistryHolder().key(),
+						EamEntities.LOST.builtInRegistryHolder().key());
 	}
 }

@@ -25,7 +25,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 public record DuergarRenegadeSettings(double health, double leaderHealth, double speed, double attackDamage, double extraArmor,
 		double armorToughness, int minFollowers, int maxFollowers, double spawnSpacing, double baldChance, float weaponDropChance,
 		DuergarRenegadeAttacks attacks) {
-	public static final DuergarRenegadeSettings DEFAULT = new DuergarRenegadeSettings(26.0, 36.0, 0.19, 4.0, 4.0, 4.0, 3, 4, 64.0, 0.5,
+	public static final DuergarRenegadeSettings DEFAULT = new DuergarRenegadeSettings(19.5, 27.0, 0.253, 4.0, 4.0, 4.0, 3, 4, 64.0, 0.5,
 			0.05F, DuergarRenegadeAttacks.DEFAULT);
 
 	public static final Codec<DuergarRenegadeSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(

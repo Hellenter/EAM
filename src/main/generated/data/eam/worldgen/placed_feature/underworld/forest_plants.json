@@ -3,7 +3,7 @@
   "placement": [
     {
       "type": "minecraft:count",
-      "count": 10
+      "count": 16
     },
     {
       "type": "minecraft:in_square"
@@ -81,6 +81,10 @@
           }
         ]
       }
+    },
+    {
+      "type": "eam:outside_structure",
+      "structures": "eam:duergar_villages"
     }
   ]
 }

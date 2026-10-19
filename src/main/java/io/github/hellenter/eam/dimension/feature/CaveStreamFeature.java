@@ -3,6 +3,8 @@ package io.github.hellenter.eam.dimension.feature;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.hellenter.eam.world.structures.village.VillageArea;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -50,6 +52,8 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 	/** How far a step down may drop, and how many times a stream may turn away from a wall before it ends. */
 	private static final int MAX_DROP = 3;
 	private static final int TURNS = 4;
+	/** How far beside a duergar village no stream runs higher than its streets. */
+	private static final int VILLAGE_MARGIN = 16;
 
 	@Override
 	public MapCodec<CaveStreamFeature> codec() {
@@ -118,6 +122,18 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 				}
 			}
 		}
+		// A stream may run into a neighbouring chunk that was decorated already: never through a duergar village, and
+		// never on a ledge above one, where it would pour over the edge into the streets.
+		VillageArea villages = VillageArea.around(level, origin, 2);
+		VillageArea overlooked = VillageArea.around(level, origin, VILLAGE_MARGIN);
+		if (!overlooked.isEmpty()) {
+			for (Map.Entry<Long, Integer> column : channel.entrySet()) {
+				BlockPos at = new BlockPos(ChunkPos.getX(column.getKey()), column.getValue(), ChunkPos.getZ(column.getKey()));
+				if (villages.touches(at) || overlooked.overlooks(at, 2)) {
+					return false;
+				}
+			}
+		}
 		for (BlockPos point : course) {
 			cut(level, point, width, depth, channel, pos);
 		}
@@ -145,7 +161,7 @@ public record CaveStreamFeature(IntProvider width, IntProvider depth, IntProvide
 
 	private static boolean isFloor(WorldGenLevel level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		return state.isSolid() && state.getFluidState().isEmpty() && !state.is(BlockTags.FEATURES_CANNOT_REPLACE)
+		return UnderworldLakeFeature.isGround(state) && state.getFluidState().isEmpty() && !state.is(BlockTags.FEATURES_CANNOT_REPLACE)
 				&& !(state.getBlock() instanceof FallingBlock);
 	}
 

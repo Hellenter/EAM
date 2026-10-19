@@ -26,7 +26,7 @@ public final class OutpostModule {
 	public static final ResourceKey<Structure> STRUCTURE = ResourceKey.create(Registries.STRUCTURE, Eam.id("pillager_outpost"));
 	public static final ResourceKey<StructureSet> STRUCTURE_SET = ResourceKey.create(Registries.STRUCTURE_SET, Eam.id("pillager_outposts"));
 	public static final TagKey<Biome> HAS_OUTPOST = TagKey.create(Registries.BIOME, Eam.id("has_structure/pillager_outpost"));
-	/** Where the castle map leads. Empty until the castle is built. */
+	/** Where the castle map leads: the Pillager King's castle. */
 	public static final TagKey<Structure> KING_CASTLE = TagKey.create(Registries.STRUCTURE, Eam.id("pillager_king_castle"));
 
 	public static final ResourceKey<LootTable> ARROWS_LOOT = loot("arrows");

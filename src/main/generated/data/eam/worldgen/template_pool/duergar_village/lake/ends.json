@@ -5,7 +5,7 @@
         "element_type": "minecraft:single_pool_element",
         "location": "eam:duergar_village/lake/end/1",
         "override_liquid_settings": "ignore_waterlogging",
-        "processors": "eam:duergar_village",
+        "processors": "eam:duergar_village_lake_street",
         "projection": "rigid"
       },
       "weight": 2
@@ -15,7 +15,7 @@
         "element_type": "minecraft:single_pool_element",
         "location": "eam:duergar_village/lake/end/2",
         "override_liquid_settings": "ignore_waterlogging",
-        "processors": "eam:duergar_village",
+        "processors": "eam:duergar_village_lake_street",
         "projection": "rigid"
       },
       "weight": 1

@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/armorer/level_1",
+  "trades": [
+    "eam:duergar/armorer/1/coal_emerald",
+    "eam:duergar/armorer/1/emerald_copper_helmet",
+    "eam:duergar/armorer/1/emerald_copper_boots"
+  ]
+}

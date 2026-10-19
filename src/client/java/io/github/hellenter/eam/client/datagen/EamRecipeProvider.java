@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.arrows.ArrowHeads;
 import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.content.brewing.SilverBrewingRecipe;
 import io.github.hellenter.eam.survival.thirst.FilterFlaskRecipe;
+import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.world.tools.DiamondGearModule;
 import io.github.hellenter.eam.world.forging.ForgingModule;
 import io.github.hellenter.eam.world.smelting.BlastFurnaceModule;
@@ -32,8 +33,11 @@ import net.minecraft.world.item.crafting.PotionIngredient;
 import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -42,9 +46,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.SmokingRecipe;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -93,6 +102,20 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.LEATHER_FLASK), has(EamItems.LEATHER_FLASK))
 						.save(output, "eam:filtered_leather_flask_from_flask");
 
+				shapeless(RecipeCategory.TOOLS, EamItems.FILTERED_GLASS_FLASK)
+						.requires(Items.GLASS, 3)
+						.requires(ItemTags.COALS)
+						.requires(EamItems.SILVER_NUGGET, 3)
+						.unlockedBy(getHasName(EamItems.SILVER_NUGGET), has(EamItems.SILVER_NUGGET))
+						.save(output);
+				// A spent charcoal-silver filter is replaced with the same coal and silver; the water stays.
+				CustomCraftingRecipeBuilder.customCrafting(RecipeCategory.TOOLS, (common, book) -> new FilterFlaskRecipe(common, book,
+								new ItemStackTemplate(EamItems.FILTERED_GLASS_FLASK),
+								List.of(Ingredient.of(EamItems.FILTERED_GLASS_FLASK), tag(ItemTags.COALS), Ingredient.of(EamItems.SILVER_NUGGET),
+										Ingredient.of(EamItems.SILVER_NUGGET), Ingredient.of(EamItems.SILVER_NUGGET))))
+						.unlockedBy(getHasName(EamItems.FILTERED_GLASS_FLASK), has(EamItems.FILTERED_GLASS_FLASK))
+						.save(output, "eam:filtered_glass_flask_new_filter");
+
 				shapeless(RecipeCategory.MISC, Items.FLINT)
 						.requires(EamItems.FLINT_SHARD, 4)
 						.unlockedBy(getHasName(EamItems.FLINT_SHARD), has(EamItems.FLINT_SHARD))
@@ -118,16 +141,19 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				knife(EamItems.IRON_KNIFE, Items.IRON_INGOT);
 				knife(EamItems.ANCIENT_METAL_KNIFE, EamItems.ANCIENT_METAL_INGOT);
 				knife(EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_INGOT);
+				knife(EamItems.ADAMANTIUM_KNIFE, EamItems.ADAMANTIUM_INGOT);
 
 				// Anvils like the vanilla one, from their own metal; hammers: two ingots across a stick handle.
 				anvil(EamItems.COPPER_ANVIL, Items.COPPER_BLOCK.weathering().unaffected(), Items.COPPER_INGOT);
 				anvil(EamItems.SILVER_ANVIL, EamItems.SILVER_BLOCK, EamItems.SILVER_INGOT);
 				anvil(EamItems.MITHRIL_ANVIL, EamItems.MITHRIL_BLOCK, EamItems.MITHRIL_INGOT);
+				anvil(EamItems.ADAMANTIUM_ANVIL, EamItems.ADAMANTIUM_BLOCK, EamItems.ADAMANTIUM_INGOT);
 				hammer(EamItems.COPPER_HAMMER, Items.COPPER_INGOT);
 				hammer(EamItems.SILVER_HAMMER, EamItems.SILVER_INGOT);
 				hammer(EamItems.IRON_HAMMER, Items.IRON_INGOT);
 				hammer(EamItems.ANCIENT_METAL_HAMMER, EamItems.ANCIENT_METAL_INGOT);
 				hammer(EamItems.MITHRIL_HAMMER, EamItems.MITHRIL_INGOT);
+				hammer(EamItems.ADAMANTIUM_HAMMER, EamItems.ADAMANTIUM_INGOT);
 
 				// Bars, doors and trapdoors like the iron ones; copper has its own in vanilla.
 				metalBuilding(EamItems.SILVER_BARS, EamItems.SILVER_DOOR, EamItems.SILVER_TRAPDOOR, EamItems.SILVER_INGOT);
@@ -143,6 +169,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				saw(EamItems.IRON_SAW, Items.IRON_INGOT);
 				saw(EamItems.ANCIENT_METAL_SAW, EamItems.ANCIENT_METAL_INGOT);
 				saw(EamItems.MITHRIL_SAW, EamItems.MITHRIL_INGOT);
+				saw(EamItems.ADAMANTIUM_SAW, EamItems.ADAMANTIUM_INGOT);
 				// Chainmail: a ring of four nuggets, rings in the shapes ingot armor takes ingots. Iron chainmail is the vanilla one.
 				chainmail(Items.COPPER_NUGGET, EamItems.COPPER_RING, EamItems.COPPER_CHAINMAIL_HELMET, EamItems.COPPER_CHAINMAIL_CHESTPLATE,
 						EamItems.COPPER_CHAINMAIL_LEGGINGS, EamItems.COPPER_CHAINMAIL_BOOTS);
@@ -204,6 +231,35 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Items.GRAVEL), has(Items.GRAVEL))
 						.save(output);
 
+				// Glowshroom caps packed around a pane of glass: a light rain does not put out.
+				shaped(RecipeCategory.DECORATIONS, EamItems.GLOWSHROOM_LAMP)
+						.define('G', EamItems.GLOWSHROOM)
+						.define('X', Items.GLASS)
+						.pattern(" G ")
+						.pattern("GXG")
+						.pattern(" G ")
+						.unlockedBy(getHasName(EamItems.GLOWSHROOM), has(EamItems.GLOWSHROOM))
+						.save(output);
+
+				// Twine strung over a frame of sticks: a rack to dry food on.
+				shaped(RecipeCategory.DECORATIONS, EamItems.FOOD_DRYER)
+						.define('T', EamItems.FLASK_THREADS)
+						.define('S', Items.STICK)
+						.pattern("SSS")
+						.pattern("TTT")
+						.pattern("S S")
+						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+						.save(output);
+
+				// Like a fence, but of stripped logs: the posts of the underworld mines' supports.
+				shaped(RecipeCategory.DECORATIONS, EamItems.STRIPPED_POPLAR_FENCE, 3)
+						.define('L', Items.STRIPPED_POPLAR_LOG)
+						.define('S', Items.STICK)
+						.pattern("LSL")
+						.pattern("LSL")
+						.unlockedBy(getHasName(Items.STRIPPED_POPLAR_LOG), has(Items.STRIPPED_POPLAR_LOG))
+						.save(output);
+
 				// A trough of planks under a rack of sticks.
 				shaped(RecipeCategory.DECORATIONS, EamItems.FEEDER)
 						.define('P', ItemTags.PLANKS)
@@ -224,6 +280,35 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 							.save(output, "eam:metal_feeder_from_" + BuiltInRegistries.ITEM.getKey(ingot).getPath());
 				}
 
+				// Planks round an iron lock.
+				shaped(RecipeCategory.DECORATIONS, EamItems.LOCKED_CHEST)
+						.define('P', ItemTags.PLANKS)
+						.define('I', Items.IRON_INGOT)
+						.pattern("PPP")
+						.pattern("PIP")
+						.pattern("PPP")
+						.unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
+						.save(output);
+
+				// A wooden box lined with wool, and a bigger iron one with a bucket to catch the melt water.
+				shaped(RecipeCategory.DECORATIONS, EamItems.SMALL_FRIDGE)
+						.define('P', ItemTags.PLANKS)
+						.define('W', ItemTags.WOOL)
+						.pattern("PPP")
+						.pattern("W W")
+						.pattern("PPP")
+						.unlockedBy(getHasName(Items.ICE), has(Items.ICE))
+						.save(output);
+				shaped(RecipeCategory.DECORATIONS, EamItems.LARGE_FRIDGE)
+						.define('I', EamItems.IRON_PLATE)
+						.define('W', ItemTags.WOOL)
+						.define('B', ConventionalItemTags.EMPTY_BUCKETS)
+						.pattern("IWI")
+						.pattern("WBW")
+						.pattern("IWI")
+						.unlockedBy(getHasName(EamItems.IRON_PLATE), has(EamItems.IRON_PLATE))
+						.save(output);
+
 				bowlFoodRecipes();
 				ashRecipes();
 				silverRecipes();
@@ -231,6 +316,10 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				mithrilRecipes();
 				mithrilPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				mithrilIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				adamantiumRecipes();
+				adamantiumPlateRecipes(withConditions(output, ForgingModule.ENABLED));
+				adamantiumIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
+				netheriteUpgradeRecipes();
 				ancientMetalRecipes();
 				ancientMetalPlateRecipes(withConditions(output, ForgingModule.ENABLED));
 				ancientMetalIngotArmorRecipes(withConditions(output, ResourceConditions.not(ForgingModule.ENABLED)));
@@ -559,6 +648,112 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.save(output);
 			}
 
+			/**
+			 * Adamantium: smelts only in the obsidian blast furnace like mithril, packs into blocks and makes tools of the
+			 * usual shapes. Its armor is in {@link #adamantiumPlateRecipes}.
+			 */
+			private void adamantiumRecipes() {
+				for (Item smeltable : List.of(EamItems.ADAMANTIUM_ORE, EamItems.DEEPSLATE_ADAMANTIUM_ORE, EamItems.RAW_ADAMANTIUM)) {
+					SimpleCookingRecipeBuilder.blasting(Ingredient.of(smeltable), RecipeCategory.MISC, CookingBookCategory.MISC,
+									EamItems.ADAMANTIUM_INGOT, 2.0F, 200)
+							.group("adamantium_ingot")
+							.unlockedBy(getHasName(smeltable), has(smeltable))
+							.save(output, "eam:adamantium_ingot_from_blasting_" + getItemName(smeltable));
+				}
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ADAMANTIUM_INGOT, RecipeCategory.BUILDING_BLOCKS, EamItems.ADAMANTIUM_BLOCK,
+						"eam:adamantium_block", null, "eam:adamantium_ingot_from_adamantium_block", "adamantium_ingot");
+				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ADAMANTIUM_NUGGET, RecipeCategory.MISC, EamItems.ADAMANTIUM_INGOT,
+						"eam:adamantium_ingot_from_nuggets", "adamantium_ingot", "eam:adamantium_nugget", null);
+				adamantium(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, "X", "X", "#");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, "X", "#", "#");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, "XXX", " # ", " # ");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, "XX", "X#", " #");
+				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_HOE, "XX", " #", " #");
+			}
+
+			private void adamantium(RecipeCategory category, Item result, String... pattern) {
+				var recipe = shaped(category, result)
+						.define('X', EamItems.ADAMANTIUM_INGOT)
+						.define('#', Items.STICK);
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT))
+						.save(output);
+			}
+
+			/** Adamantium ingot to hot adamantium in the obsidian blast furnace, and adamantium armor from plates and ingots. */
+			private void adamantiumPlateRecipes(RecipeOutput enabled) {
+				SimpleCookingRecipeBuilder.blasting(Ingredient.of(EamItems.ADAMANTIUM_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
+								EamItems.HOT_ADAMANTIUM_INGOT, 0.0F, 200)
+						.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT))
+						.save(enabled, "eam:hot_adamantium_ingot_from_blasting");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_HELMET, "", "PPP", "I I");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_CHESTPLATE, "", "I I", "PPP", "IPI");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_LEGGINGS, "", "PIP", "P P", "I I");
+				adamantiumArmor(enabled, EamItems.ADAMANTIUM_BOOTS, "", "I I", "P P");
+			}
+
+			/** With the plates off, adamantium armor takes ingots only, like vanilla armor. */
+			private void adamantiumIngotArmorRecipes(RecipeOutput disabled) {
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_HELMET, "_from_ingots", "III", "I I");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_CHESTPLATE, "_from_ingots", "I I", "III", "III");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_LEGGINGS, "_from_ingots", "III", "I I", "I I");
+				adamantiumArmor(disabled, EamItems.ADAMANTIUM_BOOTS, "_from_ingots", "I I", "I I");
+			}
+
+			private void adamantiumArmor(RecipeOutput output, Item result, String suffix, String... pattern) {
+				var recipe = shaped(RecipeCategory.COMBAT, result)
+						.define('I', EamItems.ADAMANTIUM_INGOT);
+				if (String.join("", pattern).contains("P")) {
+					recipe.define('P', EamItems.ADAMANTIUM_PLATE);
+				}
+				for (String row : pattern) {
+					recipe.pattern(row);
+				}
+				recipe.unlockedBy(getHasName(EamItems.ADAMANTIUM_INGOT), has(EamItems.ADAMANTIUM_INGOT));
+				if (suffix.isEmpty()) {
+					recipe.save(output);
+				} else {
+					recipe.save(output, "eam:" + getItemName(result) + suffix);
+				}
+			}
+
+			/**
+			 * Netherite is the upgrade of adamantium: the vanilla smithing recipes, saved under their vanilla ids, take
+			 * adamantium gear instead of diamond gear (the spear keeps diamond, which cannot be crafted). The upgrade
+			 * template can only be found: its copying recipe is saved under the vanilla id with a condition that never
+			 * holds, so neither it nor the vanilla one loads.
+			 */
+			private void netheriteUpgradeRecipes() {
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, Items.NETHERITE_SWORD);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, Items.NETHERITE_SHOVEL);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, Items.NETHERITE_PICKAXE);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, Items.NETHERITE_AXE);
+				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_HOE, Items.NETHERITE_HOE);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_HELMET, Items.NETHERITE_HELMET);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_CHESTPLATE, Items.NETHERITE_CHESTPLATE);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_LEGGINGS, Items.NETHERITE_LEGGINGS);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_BOOTS, Items.NETHERITE_BOOTS);
+
+				shaped(RecipeCategory.MISC, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, 2)
+						.define('#', Items.DIAMOND)
+						.define('C', Items.NETHERRACK)
+						.define('S', Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+						.pattern("#S#")
+						.pattern("#C#")
+						.pattern("###")
+						.unlockedBy(getHasName(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), has(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE))
+						.save(withConditions(output, ResourceConditions.alwaysFalse()));
+			}
+
+			private void netheriteUpgrade(RecipeCategory category, Item adamantium, Item netherite) {
+				SmithingTransformRecipeBuilder.smithing(Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(adamantium),
+								tag(ItemTags.NETHERITE_TOOL_MATERIALS), category, netherite)
+						.unlocks(getHasName(Items.NETHERITE_INGOT), has(Items.NETHERITE_INGOT))
+						.save(output, "minecraft:" + getItemName(netherite) + "_smithing");
+			}
+
 			/** Mithril ingot to hot mithril in the obsidian blast furnace, and mithril armor from plates and ingots like iron's. */
 			private void mithrilPlateRecipes(RecipeOutput enabled) {
 				SimpleCookingRecipeBuilder.blasting(Ingredient.of(EamItems.MITHRIL_INGOT), RecipeCategory.MISC, CookingBookCategory.MISC,
@@ -688,6 +883,8 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.WATER_BOWL), has(EamItems.WATER_BOWL))
 						.save(output, "eam:boiled_water_bowl_from_campfire_cooking");
 
+				boiledWaterBottleRecipes();
+
 				// Warg meat cooks like mutton.
 				Ingredient wolfMeat = Ingredient.of(EamItems.WOLF_MEAT);
 				SimpleCookingRecipeBuilder.smelting(wolfMeat, RecipeCategory.FOOD, CookingBookCategory.FOOD, EamItems.COOKED_WOLF_MEAT, 0.35F, 200)
@@ -725,10 +922,41 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				emptyBowlDish(EamItems.SORBET, Items.APPLE, Items.SUGAR, Items.SNOWBALL);
 			}
 
+			/**
+			 * A water bottle must be boiled before it is safe to drink: 5 seconds in a furnace, smoker or blast furnace,
+			 * 30 on a campfire like a bowl of water. Boiled water is still water, named by its potion {@code custom_name}.
+			 */
+			private void boiledWaterBottleRecipes() {
+				Ingredient raw = rawWaterBottle();
+				ItemStackTemplate boiled = new ItemStackTemplate(Items.POTION,
+						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, RawWater.boiledWater()).build());
+				cooking(raw, boiled, 100, SmeltingRecipe::new, "eam:boiled_water_bottle");
+				cooking(raw, boiled, 100, SmokingRecipe::new, "eam:boiled_water_bottle_from_smoking");
+				cooking(raw, boiled, 100, BlastingRecipe::new, "eam:boiled_water_bottle_from_blasting");
+				cooking(raw, boiled, 600, CampfireCookingRecipe::new, "eam:boiled_water_bottle_from_campfire_cooking");
+			}
+
+			/** A plain water bottle; a boiled one has another potion {@code custom_name}, so it does not match. */
+			private Ingredient rawWaterBottle() {
+				return DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
+						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER)).build());
+			}
+
+			/** A cooking recipe whose result carries components, which {@link SimpleCookingRecipeBuilder} cannot make. */
+			private void cooking(Ingredient ingredient, ItemStackTemplate result, int ticks, AbstractCookingRecipe.Factory<?> factory, String id) {
+				ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, Identifier.parse(id));
+				RecipeUnlockAdvancementBuilder advancement = new RecipeUnlockAdvancementBuilder();
+				advancement.unlockedBy("has_potion", has(Items.POTION));
+				output.accept(key, factory.create(RecipeBuilder.createCraftingCommonInfo(true),
+								new AbstractCookingRecipe.CookingBookInfo(CookingBookCategory.FOOD, ""), ingredient, result, 0.0F, ticks),
+						advancement.build(output, key, RecipeCategory.FOOD));
+			}
+
 			/** Ash from overcooked food and a water bottle make black dye; the bottle comes back empty. */
 			private void ashRecipes() {
-				Ingredient waterBottle = DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
-						DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER)).build());
+				Ingredient waterBottle = DefaultCustomIngredients.any(rawWaterBottle(),
+						DefaultCustomIngredients.components(Ingredient.of(Items.POTION),
+								DataComponentPatch.builder().set(DataComponents.POTION_CONTENTS, RawWater.boiledWater()).build()));
 				shapeless(RecipeCategory.MISC, Items.DYE.pick(DyeColor.BLACK))
 						.requires(EamItems.ASH)
 						.requires(waterBottle)

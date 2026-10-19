@@ -14,12 +14,14 @@ import io.github.hellenter.eam.content.ground.GroundItemBlock;
 import io.github.hellenter.eam.content.ground.GroundItemLogic;
 import io.github.hellenter.eam.content.swamp.DuckweedBlock;
 import io.github.hellenter.eam.content.swamp.HollowLogBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.MultiVariant;
@@ -27,13 +29,16 @@ import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -54,10 +59,13 @@ public class EamModelProvider extends FabricModelProvider {
 		groundItem(generators, EamBlocks.FLINT_SHARD, ModelLocationUtils.getModelLocation(EamBlocks.FLINT_SHARD));
 		groundItem(generators, EamBlocks.GROUND_STICK, Identifier.withDefaultNamespace("block/oak_log"));
 		CampFireModels.generate(generators);
+		FoodDryerModels.generate(generators);
+		LockedChestModels.generate(generators);
+		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
-		KingTrophyModels.generate(generators);
+		KingHelmModels.generate(generators);
 		FeederModels.generate(generators);
-		MetalFeederModels.generate(generators);
+		generators.new BlockFamilyProvider(TextureMapping.cube(Blocks.STRIPPED_POPLAR_LOG)).fence(EamBlocks.STRIPPED_POPLAR_FENCE);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_SILVER_ORE);
 		generators.createTrivialCube(EamBlocks.SILVER_BLOCK);
@@ -66,18 +74,30 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createTrivialCube(EamBlocks.MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.DEEPSLATE_MITHRIL_ORE);
 		generators.createTrivialCube(EamBlocks.MITHRIL_BLOCK);
+		generators.createTrivialCube(EamBlocks.ADAMANTIUM_ORE);
+		generators.createTrivialCube(EamBlocks.DEEPSLATE_ADAMANTIUM_ORE);
+		generators.createTrivialCube(EamBlocks.ADAMANTIUM_BLOCK);
 		generators.createTrivialCube(EamBlocks.ANCIENT_METAL_BLOCK);
 		generators.createTrivialCube(EamBlocks.DEEP_BEDROCK);
+		generators.createTrivialCube(EamBlocks.KOSCHEI_ICE);
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_CAP);
 		generators.createMushroomBlock(EamBlocks.CHANTERELLE_STEM);
 		generators.createMushroomBlock(EamBlocks.CHAMPIGNON_CAP);
 		generators.createMushroomBlock(EamBlocks.GLOWING_CHAMPIGNON_CAP);
-		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_CAP);
-		generators.createMushroomBlock(EamBlocks.BURNT_MUSHROOM_STEM);
+		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_CAP, "_cracked", "_ashy", "_charred");
+		variedMushroomBlock(generators, EamBlocks.BURNT_MUSHROOM_STEM, "_cracked", "_ashy");
 		generators.createMushroomBlock(EamBlocks.SMOLDERING_MUSHROOM_CAP);
-		generators.createGrowingPlant(EamBlocks.GLOWSHROOM_VINES, EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
+		// The tip shows its bright caps while ripe; cut, it is a bare dim thread.
+		MultiVariant ripeTip = BlockModelGenerators.plainVariant(generators.createSuffixedVariant(EamBlocks.GLOWSHROOM_VINES, "", ModelTemplates.CROSS, TextureMapping::cross));
+		MultiVariant bareTip = BlockModelGenerators.plainVariant(generators.createSuffixedVariant(EamBlocks.GLOWSHROOM_VINES, "_bare", ModelTemplates.CROSS, TextureMapping::cross));
+		generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(EamBlocks.GLOWSHROOM_VINES)
+				.with(BlockModelGenerators.createBooleanModelDispatch(GlowshroomVinesBlock.RIPE, ripeTip, bareTip)));
+		generators.createCrossBlock(EamBlocks.GLOWSHROOM_VINES_PLANT, BlockModelGenerators.PlantType.NOT_TINTED);
+		generators.createTrivialCube(EamBlocks.GLOWSHROOM_LAMP);
 		generators.registerSimpleFlatItemModel(EamBlocks.GLOWSHROOM_VINES, "_plant");
 		generators.createFurnace(EamBlocks.OBSIDIAN_BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
+		generators.createHorizontallyRotatedBlock(EamBlocks.SMALL_FRIDGE, TexturedModel.ORIENTABLE);
+		generators.createHorizontallyRotatedBlock(EamBlocks.LARGE_FRIDGE, TexturedModel.ORIENTABLE);
 		for (Block bars : List.of(EamBlocks.SILVER_BARS, EamBlocks.MITHRIL_BARS)) {
 			generators.createBarsAndItem(bars);
 		}
@@ -110,9 +130,13 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createCrossBlockWithDefaultItem(EamBlocks.MARSH_MARIGOLD, BlockModelGenerators.PlantType.NOT_TINTED);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.WILD_GARLIC, BlockModelGenerators.PlantType.NOT_TINTED);
 		// Four looks over eight ages, like carrots.
-		generators.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
+		// Garlic is the crop's item, so its definition comes from here; dried garlic looks darker.
+		new BlockModelGenerators(generators.blockStateOutput, DriedItemModels.output(generators.itemModelOutput), generators.modelOutput)
+				.createCropBlock(EamBlocks.GARLIC_CROP, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
 		cattail(generators);
 		generators.createCrossBlockWithDefaultItem(EamBlocks.NET, BlockModelGenerators.PlantType.NOT_TINTED);
+		// An evolved spider's web looks like cobweb and has no item.
+		generators.createCrossBlock(EamBlocks.SPIDER_WEB, BlockModelGenerators.PlantType.NOT_TINTED, TextureMapping.cross(Blocks.COBWEB));
 		bigShrub(generators);
 		for (Block tall : List.of(EamBlocks.TALL_SWAMP_GRASS, EamBlocks.FIREWEED)) {
 			generators.createDoublePlantWithDefaultItem(tall, BlockModelGenerators.PlantType.NOT_TINTED);
@@ -497,6 +521,12 @@ public class EamModelProvider extends FabricModelProvider {
 		return element;
 	}
 
+	/**
+	 * Height of the duckweed sheet in its own block. A still water block's surface is drawn at 8/9 of a block, 16/9 pixels
+	 * below the duckweed's block; the sheet lies a hair above it so it does not flicker with the water.
+	 */
+	private static final double DUCKWEED_SHEET_Y = -1.7;
+
 	private static JsonObject floatingSheet(Identifier texture) {
 		JsonObject textures = new JsonObject();
 		textures.addProperty("particle", texture.toString());
@@ -511,8 +541,8 @@ public class EamModelProvider extends FabricModelProvider {
 		up.addProperty("texture", "#texture");
 		faces.add("up", up);
 		JsonObject element = new JsonObject();
-		element.add("from", vector(0, 0.25, 0));
-		element.add("to", vector(16, 0.25, 16));
+		element.add("from", vector(0, DUCKWEED_SHEET_Y, 0));
+		element.add("to", vector(16, DUCKWEED_SHEET_Y, 16));
 		element.add("faces", faces);
 		JsonArray elements = new JsonArray();
 		elements.add(element);
@@ -588,7 +618,7 @@ public class EamModelProvider extends FabricModelProvider {
 	@Override
 	public void generateItemModels(ItemModelGenerators generators) {
 		generators.generateFlatItem(EamItems.LEATHER_THREAD, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.PILLAGER_KING_TROPHY, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.PILLAGER_KING_HELM, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BOILED_WATER_BOWL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.MILK_BOWL, ModelTemplates.FLAT_ITEM);
@@ -606,11 +636,15 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CEREAL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHOCOLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CHEESE, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		// Dryable food: a darker look while the stack is dried.
+		ItemModelGenerators dryable = new ItemModelGenerators(DriedItemModels.output(generators.itemModelOutput), generators.modelOutput);
+		dryable.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
+		dryable.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
+		dryable.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.GLOWSHROOM, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.BURNT_BEEF, EamItems.BURNT_PORKCHOP, EamItems.BURNT_MUTTON, EamItems.BURNT_CHICKEN,
 				EamItems.BURNT_RABBIT, EamItems.BURNT_COD, EamItems.BURNT_SALMON, EamItems.BURNT_POTATO, EamItems.BURNT_WOLF_MEAT, EamItems.ASH,
-				EamItems.WOLF_MEAT, EamItems.COOKED_WOLF_MEAT)) {
+				EamItems.ROTTEN_FOOD, EamItems.WOLF_MEAT)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		generators.generateFlatItem(EamItems.FALLEN_LORD_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
@@ -633,12 +667,14 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.WARG_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WARG_LEADER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BABA_YAGA_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.KOSCHEI_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DROWNED_SOLDIER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WOOD_SPIDER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_BAT_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BLACK_WIDOW_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FILTERED_LEATHER_FLASK, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.FILTERED_GLASS_FLASK, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_HATCHET, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.BEDROCK_BREAKER, ModelTemplates.FLAT_HANDHELD_ITEM);
 		generators.generateFlatItem(EamItems.FLINT_AXE, ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -674,6 +710,15 @@ public class EamModelProvider extends FabricModelProvider {
 		}
 		for (Item item : List.of(EamItems.MITHRIL_SWORD, EamItems.MITHRIL_SHOVEL, EamItems.MITHRIL_PICKAXE, EamItems.MITHRIL_AXE,
 				EamItems.MITHRIL_HOE, EamItems.MITHRIL_KNIFE, EamItems.MITHRIL_SAW, EamItems.MITHRIL_HAMMER)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
+		}
+		for (Item item : List.of(EamItems.RAW_ADAMANTIUM, EamItems.ADAMANTIUM_NUGGET, EamItems.ADAMANTIUM_INGOT, EamItems.HOT_ADAMANTIUM_INGOT,
+				EamItems.ADAMANTIUM_PLATE, EamItems.ADAMANTIUM_HELMET, EamItems.ADAMANTIUM_CHESTPLATE, EamItems.ADAMANTIUM_LEGGINGS,
+				EamItems.ADAMANTIUM_BOOTS)) {
+			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
+		}
+		for (Item item : List.of(EamItems.ADAMANTIUM_SWORD, EamItems.ADAMANTIUM_SHOVEL, EamItems.ADAMANTIUM_PICKAXE, EamItems.ADAMANTIUM_AXE,
+				EamItems.ADAMANTIUM_HOE, EamItems.ADAMANTIUM_KNIFE, EamItems.ADAMANTIUM_SAW, EamItems.ADAMANTIUM_HAMMER)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_HANDHELD_ITEM);
 		}
 		// Metal buckets, each with every content.
@@ -716,10 +761,12 @@ public class EamModelProvider extends FabricModelProvider {
 		PotionModels.generate(generators);
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);
+		WornGearItemModels.generate(generators);
 		PillagerKingItemModels.generate(generators);
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COMMANDER_HORN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KING_CASTLE_MAP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.BLUEPRINT, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.YAGA_GRAVE_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LAIR_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_BOMB, ModelTemplates.FLAT_ITEM);
@@ -727,8 +774,36 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);
 		// The same talisman with its crystal glowing, shown while it lights a portal.
 		ModelTemplates.FLAT_ITEM.create(TALISMAN_GLOWING_MODEL, TextureMapping.layer0(new Material(TALISMAN_GLOWING_MODEL)), generators.modelOutput);
-		// generateBow expects the idle model to exist already, as vanilla's hand-written bow.json does.
-		ModelTemplates.BOW.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT), TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
-		generators.generateBow(EamItems.SLINGSHOT);
+		SlingshotModels.generate(generators);
+	}
+
+	/**
+	 * A giant mushroom block like vanilla's, but each block picks one of several skins at random by its position, so a wide
+	 * cap doesn't read as one endless texture. The plain skin comes up as often as all the others together.
+	 */
+	private static void variedMushroomBlock(BlockModelGenerators generators, Block block, String... suffixes) {
+		WeightedList.Builder<Variant> skins = WeightedList.<Variant>builder()
+				.add(BlockModelGenerators.plainModel(ModelTemplates.SINGLE_FACE.create(block, TextureMapping.defaultTexture(block), generators.modelOutput)),
+						suffixes.length);
+		for (String suffix : suffixes) {
+			skins.add(BlockModelGenerators.plainModel(ModelTemplates.SINGLE_FACE.createWithSuffix(block, suffix,
+					TextureMapping.defaultTexture(TextureMapping.getBlockTexture(block, suffix)), generators.modelOutput)), 1);
+		}
+		MultiVariant skin = new MultiVariant(skins.build());
+		MultiVariant skinless = BlockModelGenerators.plainVariant(ModelLocationUtils.decorateBlockModelLocation("mushroom_block_inside"));
+		generators.blockStateOutput.accept(MultiPartGenerator.multiPart(block)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.NORTH, true), skin)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.EAST, true), skin.with(BlockModelGenerators.Y_ROT_90).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.SOUTH, true), skin.with(BlockModelGenerators.Y_ROT_180).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.WEST, true), skin.with(BlockModelGenerators.Y_ROT_270).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.UP, true), skin.with(BlockModelGenerators.X_ROT_270).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.DOWN, true), skin.with(BlockModelGenerators.X_ROT_90).with(BlockModelGenerators.UV_LOCK))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.NORTH, false), skinless)
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.EAST, false), skinless.with(BlockModelGenerators.Y_ROT_90))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.SOUTH, false), skinless.with(BlockModelGenerators.Y_ROT_180))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.WEST, false), skinless.with(BlockModelGenerators.Y_ROT_270))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.UP, false), skinless.with(BlockModelGenerators.X_ROT_270))
+				.with(BlockModelGenerators.condition().term(BlockStateProperties.DOWN, false), skinless.with(BlockModelGenerators.X_ROT_90)));
+		generators.registerSimpleItemModel(block, TexturedModel.CUBE.createWithSuffix(block, "_inventory", generators.modelOutput));
 	}
 }

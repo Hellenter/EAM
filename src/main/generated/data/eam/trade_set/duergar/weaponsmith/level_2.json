@@ -1,0 +1,9 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/weaponsmith/level_2",
+  "trades": [
+    "eam:duergar/weaponsmith/2/iron_ingot_emerald",
+    "eam:duergar/weaponsmith/2/emerald_silver_sword",
+    "eam:duergar/weaponsmith/2/emerald_silver_knife"
+  ]
+}

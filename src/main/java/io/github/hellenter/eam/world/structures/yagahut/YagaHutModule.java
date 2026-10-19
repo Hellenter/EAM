@@ -14,6 +14,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
  * Baba Yaga's hut from Maxim's template {@code eam:yaga_hut}: one in the middle of every swampy forest, on ground
@@ -23,6 +24,8 @@ public final class YagaHutModule {
 	public static final Identifier TEMPLATE = Eam.id("yaga_hut");
 
 	public static final ResourceKey<Structure> STRUCTURE = ResourceKey.create(Registries.STRUCTURE, Eam.id("yaga_hut"));
+	/** Her chests: valuables and the potion ingredients of the surface world. */
+	public static final ResourceKey<LootTable> CHEST_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Eam.id("chests/yaga_hut"));
 	public static final ResourceKey<StructureSet> STRUCTURE_SET = ResourceKey.create(Registries.STRUCTURE_SET, Eam.id("yaga_huts"));
 
 	public static final StructureType<YagaHutStructure> HUT =

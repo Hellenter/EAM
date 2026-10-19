@@ -3,10 +3,12 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
 import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.mobs.entity.lost.LostGear;
+import io.github.hellenter.eam.mobs.vanilla.evolution.WornLooks;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 
@@ -34,6 +36,7 @@ public class EamEquipmentAssetProvider implements DataProvider {
 		return DataProvider.saveAll(cache, EquipmentClientInfo.CODEC, pathProvider::json, worn(Map.of(
 				SilverGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("silver")).build(),
 				MithrilGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("mithril")).build(),
+				AdamantiumGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("adamantium")).build(),
 				RustyGear.IRON_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_iron")).build(),
 				RustyGear.CHAINMAIL_ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("rusty_chainmail")).build(),
 				AncientMetalGear.ASSET, EquipmentClientInfo.builder().addHumanoidLayers(Eam.id("ancient_metal")).build(),
@@ -44,8 +47,8 @@ public class EamEquipmentAssetProvider implements DataProvider {
 	}
 
 	/**
-	 * Adds the Lost's worn ancient metal looks: each its own helmet, chestplate and boots texture, all sharing one pair of
-	 * worn leggings.
+	 * Adds the worn looks: the Lost's worn ancient metal (each its own helmet, chestplate and boots texture, all sharing one
+	 * pair of worn leggings) and the armor of evolved monsters.
 	 */
 	private static Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> worn(Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> assets) {
 		Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> all = new HashMap<>(assets);
@@ -54,6 +57,10 @@ public class EamEquipmentAssetProvider implements DataProvider {
 					.addLayers(EquipmentClientInfo.LayerType.HUMANOID, new EquipmentClientInfo.Layer(asset.identifier()))
 					.addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, new EquipmentClientInfo.Layer(Eam.id("worn_ancient_metal")))
 					.build());
+		}
+		// Evolved monsters' scuffed, torn and holed armor, with its own baby layer for baby zombies.
+		for (ResourceKey<EquipmentAsset> asset : WornLooks.ARMOR.values()) {
+			all.put(asset, EquipmentClientInfo.builder().addHumanoidLayers(asset.identifier()).build());
 		}
 		return all;
 	}

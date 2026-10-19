@@ -3,7 +3,7 @@
     "phase_one_health": 50.0,
     "phase_two_health": 100.0,
     "armor": 4.0,
-    "speed": 0.42,
+    "speed": 0.3675,
     "follow_range": 64.0,
     "xp": 300
   },
@@ -52,6 +52,25 @@
     "fade_ticks": 200,
     "health_multiplier": 0.7
   },
+  "crowd": {
+    "radius": 64.0,
+    "soldier_health_multiplier": 1.0,
+    "tiers": [
+      {
+        "players": 2,
+        "sub_waves": [3, 3]
+      },
+      {
+        "players": 3,
+        "sub_waves": [3, 3, 2]
+      },
+      {
+        "players": 4,
+        "sub_waves": [3, 3, 3],
+        "health_multiplier": 0.9
+      }
+    ]
+  },
   "potion": {
     "cooldown": 300,
     "range": 28.0,
@@ -61,7 +80,10 @@
     "nausea_level": 0,
     "weakness_ticks": 0,
     "weakness_level": 0,
-    "flight_ticks": 24
+    "flight_ticks": 24,
+    "reflect_window": 5,
+    "reflect_speed": 1.2,
+    "daze_ticks": 100
   },
   "spell": {
     "cooldown": 120,
@@ -174,6 +196,7 @@
     "radius": 100.0,
     "lightning_odds": 120,
     "lightning_reach": 60.0,
-    "lost_ticks": 3600
+    "lost_ticks": 3600,
+    "hut_wake_radius": 8.0
   }
 }

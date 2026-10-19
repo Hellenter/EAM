@@ -1,14 +1,15 @@
 {
   "stats": {
-    "health": 24.0,
+    "health": 20.0,
     "armor": 8,
     "speed": 0.35,
     "follow_range": 16.0,
-    "xp": 10
+    "xp": 10,
+    "melee_damage_multiplier": 0.8
   },
   "decide_every": 10,
   "onslaught": {
-    "damage": 10.0,
+    "damage": 8.0,
     "shield_reduction": 0.25,
     "rush_speed": 0.55,
     "reach": 2.6,
@@ -19,7 +20,7 @@
     "parry_multiplier": 1.5
   },
   "throw": {
-    "damage": 5.0,
+    "damage": 4.0,
     "min_range": 5.0,
     "max_range": 12.0,
     "chance": 0.3,

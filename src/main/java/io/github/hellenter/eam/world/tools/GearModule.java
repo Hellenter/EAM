@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.tools;
 
+import io.github.hellenter.eam.content.adamantium.AdamantiumGear;
 import io.github.hellenter.eam.content.ancient.AncientMetalGear;
 import io.github.hellenter.eam.content.chainmail.ChainmailGear;
 import io.github.hellenter.eam.content.mithril.MithrilGear;
@@ -28,7 +29,8 @@ import java.util.Set;
 
 /**
  * Weaker gear: copper and iron tools wear out sooner, player armor gives less protection and copper armor wears out
- * twice as fast (silver copies copper, and so do their chainmail). Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
+ * twice as fast (silver copies copper, and so do their chainmail). Netherite gear, the upgrade of adamantium, lasts three
+ * times as long as vanilla netherite. Adamantium and netherite armor keep vanilla netherite's 20 points. Edits the {@code max_damage} and {@code attribute_modifiers} item components; numbers are in
  * {@link GearLogic}.
  */
 public final class GearModule {
@@ -44,6 +46,7 @@ public final class GearModule {
 			ArmorMaterials.NETHERITE,
 			SilverGear.ARMOR,
 			MithrilGear.ARMOR,
+			AdamantiumGear.ARMOR,
 			RustyGear.IRON_ARMOR,
 			RustyGear.CHAINMAIL_ARMOR,
 			AncientMetalGear.ARMOR,
@@ -56,6 +59,9 @@ public final class GearModule {
 	/** Sets that wear out twice as fast: copper and silver armor and chainmail. */
 	private static final Set<ResourceKey<EquipmentAsset>> HALF_DURABILITY = Set.of(EquipmentAssets.COPPER, SilverGear.ASSET,
 			ChainmailGear.COPPER_ASSET, ChainmailGear.SILVER_ASSET);
+
+	/** Sets that keep their full vanilla armor, 20 for a full set: adamantium and netherite, its upgrade. */
+	private static final Set<ResourceKey<EquipmentAsset>> FULL_ARMOR = Set.of(AdamantiumGear.ASSET, EquipmentAssets.NETHERITE);
 
 	/** Set order used by {@link GearLogic#scaleSet}. */
 	private static final ArmorType[] SET = {ArmorType.HELMET, ArmorType.CHESTPLATE, ArmorType.LEGGINGS, ArmorType.BOOTS};
@@ -90,6 +96,9 @@ public final class GearModule {
 			if (HALF_DURABILITY.contains(asset) && maxDamage != null) {
 				builder.set(DataComponents.MAX_DAMAGE, GearLogic.copperArmorDurability(maxDamage));
 			}
+			if (asset == EquipmentAssets.NETHERITE && maxDamage != null) {
+				builder.set(DataComponents.MAX_DAMAGE, GearLogic.netheriteArmorDurability(maxDamage));
+			}
 		}));
 	}
 
@@ -100,7 +109,7 @@ public final class GearModule {
 			for (int i = 0; i < SET.length; i++) {
 				vanilla[i] = material.defense().getOrDefault(SET[i], 0);
 			}
-			int[] scaled = GearLogic.scaleSet(vanilla, GearLogic.ARMOR_FACTOR);
+			int[] scaled = GearLogic.scaleSet(vanilla, FULL_ARMOR.contains(material.assetId()) ? 1.0 : GearLogic.ARMOR_FACTOR);
 			Map<ArmorType, Integer> set = new HashMap<>();
 			for (int i = 0; i < SET.length; i++) {
 				set.put(SET[i], scaled[i]);

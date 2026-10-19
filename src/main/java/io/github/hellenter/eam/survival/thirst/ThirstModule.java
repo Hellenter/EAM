@@ -4,12 +4,14 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.bucket.BucketContent;
 import io.github.hellenter.eam.content.bucket.MetalBuckets;
 import io.github.hellenter.eam.survival.progression.ProgressionModule;
+import io.github.hellenter.eam.survival.sleep.RestedModule;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
+import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -67,7 +69,7 @@ public final class ThirstModule {
 			Eam.id("hydration"),
 			DataComponentType.<Hydration>builder().persistent(Hydration.CODEC).networkSynchronized(Hydration.STREAM_CODEC).build());
 
-	/** Unboiled water in a bowl: drinking it may poison like a sip from a source. */
+	/** Unboiled water in a bowl or a bottle: drinking it may poison like a sip from a source. */
 	public static final DataComponentType<RawWater> RAW_WATER = Registry.register(
 			BuiltInRegistries.DATA_COMPONENT_TYPE,
 			Eam.id("raw_water"),
@@ -124,9 +126,12 @@ public final class ThirstModule {
 	 * server agree on registries whatever their config files say.
 	 */
 	public static void register() {
+		RainWater.register();
 		PayloadTypeRegistry.serverboundPlay().register(DrinkFromSourcePayload.TYPE, DrinkFromSourcePayload.STREAM_CODEC);
 		DefaultItemComponentEvents.MODIFY.register(context -> {
 			DRINKS.forEach((item, water) -> context.modify(item, components -> components.set(HYDRATION, new Hydration(water))));
+			// A water bottle must be boiled first; the component checks the potion, so brewed potions stay safe.
+			context.modify(Items.POTION, components -> components.set(RAW_WATER, RawWater.INSTANCE));
 			// Milk in a metal bucket quenches thirst like milk in the vanilla one.
 			Hydration milk = new Hydration(DRINKS.get(Items.MILK_BUCKET));
 			MetalBuckets.metalSets().forEach(set -> context.modify(set.get(BucketContent.MILK), components -> components.set(HYDRATION, milk)));
@@ -143,6 +148,8 @@ public final class ThirstModule {
 	/** Turns the mechanic on: drain, damage, drinking. */
 	public static void init() {
 		enabled = true;
+		RainWater.init();
+		ItemComponentTooltipProviderRegistry.addLast(RAW_WATER);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(ThirstSettingsLoader.ID, new ThirstSettingsLoader());
 		ServerTickEvents.END_SERVER_TICK.register(ThirstModule::tick);
 		ServerPlayNetworking.registerGlobalReceiver(DrinkFromSourcePayload.TYPE, (payload, context) -> sipFromSource(context.player()));
@@ -167,9 +174,10 @@ public final class ThirstModule {
 		ServerLevel level = player.level();
 		ThirstLogic.Environment environment = new ThirstLogic.Environment(
 				level.getDifficulty() == Difficulty.PEACEFUL,
-				level.getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature(),
+				level.getBiome(player.blockPosition()).value().getBaseTemperature(),
 				player.hasEffect(FOOD_POISONING),
-				ProgressionModule.inGracePeriod(player));
+				ProgressionModule.inGracePeriod(player),
+				RestedModule.drainFactor(player));
 
 		Thirst thirst = player.getAttachedOrCreate(THIRST);
 		int max = ProgressionModule.capacity(player);
@@ -210,9 +218,9 @@ public final class ThirstModule {
 	public static void addPassiveDrain(ServerPlayer player, float factor) {
 		if (enabled && factor > 0.0F && !ProgressionModule.inGracePeriod(player)) {
 			ThirstSettings settings = ThirstModule.settings;
-			boolean hot = player.level().getBiome(player.blockPosition()).value().getBaseTemperature() > settings.hotTemperature();
+			float temperature = player.level().getBiome(player.blockPosition()).value().getBaseTemperature();
 			player.setAttached(COUNTERS, ThirstLogic.addPassive(player.getAttachedOrCreate(COUNTERS), settings,
-					hot ? factor * settings.hotMultiplier() : factor));
+					factor * ThirstLogic.climateMultiplier(settings, temperature)));
 		}
 	}
 
@@ -227,15 +235,15 @@ public final class ThirstModule {
 	}
 
 	/** Fills a flask from a water source; the server rolls whether the water is dirty. */
-	public static void fillFlask(ServerPlayer player, ItemStack flask) {
+	public static void fillFlask(ServerPlayer player, ItemStack flask, FlaskLogic.Type type) {
 		FlaskWater current = flask.getOrDefault(FLASK_WATER, FlaskWater.EMPTY);
-		flask.set(FLASK_WATER, FlaskLogic.fill(current, settings.flask(), player.getRandom().nextFloat()));
+		flask.set(FLASK_WATER, FlaskLogic.fill(current, type, settings.flask(), player.getRandom().nextFloat()));
 	}
 
 	/** One drink from a flask: water for the player, wear for the filter, maybe food poisoning. */
-	public static void drinkFromFlask(ServerPlayer player, ItemStack flask) {
+	public static void drinkFromFlask(ServerPlayer player, ItemStack flask, FlaskLogic.Type type) {
 		FlaskWater current = flask.getOrDefault(FLASK_WATER, FlaskWater.EMPTY);
-		FlaskLogic.Drink drink = FlaskLogic.drink(current, flask.getOrDefault(FILTER, -1));
+		FlaskLogic.Drink drink = FlaskLogic.drink(current, type, flask.getOrDefault(FILTER, -1));
 
 		flask.set(FLASK_WATER, drink.remaining());
 		if (drink.filter() >= 0) {
@@ -247,7 +255,7 @@ public final class ThirstModule {
 		}
 	}
 
-	/** Drinking unboiled water out of a bowl: the same chance of food poisoning as a sip from a source. */
+	/** Drinking unboiled water out of a bowl or a bottle: the same chance of food poisoning as a sip from a source. */
 	static void drinkRawWater(ServerPlayer player) {
 		PoisoningSettings poisoning = settings.poisoning();
 		if (enabled && player.getRandom().nextFloat() < poisoning.chance()) {
@@ -266,6 +274,11 @@ public final class ThirstModule {
 		if (player.getAttachedOrCreate(COUNTERS).immunity() == 0) {
 			player.addEffect(new MobEffectInstance(FOOD_POISONING, duration));
 		}
+	}
+
+	/** Eating something dry: costs {@code water} points. */
+	public static void drain(ServerPlayer player, int water) {
+		drink(player, -water);
 	}
 
 	static void drink(ServerPlayer player, int water) {

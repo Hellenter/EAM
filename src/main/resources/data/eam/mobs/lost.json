@@ -48,8 +48,8 @@
   "squad": {
     "min_followers": 2,
     "max_followers": 4,
-    "leader_health": 35.0,
-    "follower_health": 25.0,
+    "leader_health": 33.0,
+    "follower_health": 23.0,
     "spawn_spacing": 64.0,
     "spawn_cooldown_min": 2400,
     "spawn_cooldown_max": 4800,
@@ -65,7 +65,7 @@
   },
   "centurion": {
     "chance": 0.25,
-    "health": 35.0,
+    "health": 29.0,
     "extra_armor": 4.0,
     "spear_reach": 3.9,
     "drop_chance": 0.08,

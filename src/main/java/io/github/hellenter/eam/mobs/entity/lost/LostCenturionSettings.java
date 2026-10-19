@@ -23,7 +23,7 @@ public record LostCenturionSettings(double chance, double health, double extraAr
 			0.0, 400, 0.6F, 0.0, 0.0,
 			400, 1.5F, 0.5, 0.5F, 3.0F,
 			0.5, new SkeletonKnightSettings.Dash(240, 4, 0.85));
-	public static final LostCenturionSettings DEFAULT = new LostCenturionSettings(0.25, 35.0, 4.0, 3.9, 0.08F, FIGHT_DEFAULT,
+	public static final LostCenturionSettings DEFAULT = new LostCenturionSettings(0.25, 29.0, 4.0, 3.9, 0.08F, FIGHT_DEFAULT,
 			Horn.DEFAULT, Defend.DEFAULT);
 
 	/**

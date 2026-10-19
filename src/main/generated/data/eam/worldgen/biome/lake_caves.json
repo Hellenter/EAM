@@ -38,7 +38,11 @@
         "probability": 0.006
       }
     ],
-    "minecraft:visual/fog_color": "#1c2a2e"
+    "minecraft:visual/fog_color": "#1a3238",
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.8,
+      "modifier": "multiply"
+    }
   },
   "carvers": [],
   "downfall": 0.0,

@@ -1,7 +1,8 @@
 {
   "values": [
-    "eam:pillager_king_trophy",
+    "eam:pillager_king_helm",
     "eam:metal_feeder",
+    "eam:large_fridge",
     "eam:silver_ore",
     "eam:deepslate_silver_ore",
     "eam:silver_block",
@@ -14,6 +15,10 @@
     "eam:mithril_anvil",
     "eam:obsidian_blast_furnace",
     "eam:ancient_metal_block",
+    "eam:adamantium_ore",
+    "eam:deepslate_adamantium_ore",
+    "eam:adamantium_block",
+    "eam:adamantium_anvil",
     "eam:silver_bars",
     "eam:silver_door",
     "eam:silver_trapdoor",

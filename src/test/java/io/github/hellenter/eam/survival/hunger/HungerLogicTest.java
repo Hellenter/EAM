@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.hellenter.eam.survival.hunger.HungerLogic.Deficiencies;
 import io.github.hellenter.eam.survival.hunger.HungerLogic.FoodState;
+import io.github.hellenter.eam.survival.hunger.HungerLogic.Stamina;
 import io.github.hellenter.eam.survival.hunger.HungerLogic.TickContext;
 import io.github.hellenter.eam.survival.hunger.HungerLogic.TickResult;
 
@@ -12,13 +14,22 @@ import org.junit.jupiter.api.Test;
 
 class HungerLogicTest {
 	private static final HungerRules RULES = HungerRules.DEFAULT;
-	private static final TickContext HEALTHY = new TickContext(20, false, true, false, false, false, false);
-	private static final TickContext HURT = new TickContext(20, true, true, false, false, false, false);
+	private static final TickContext HEALTHY = new TickContext(20, false, true, false, false, false, Deficiencies.NONE);
+	private static final TickContext HURT = new TickContext(20, true, true, false, false, false, Deficiencies.NONE);
 
 	@Test
 	void eatingStopsAtTheFoodBarSize() {
 		assertTrue(HungerLogic.needsFood(5, 6));
 		assertFalse(HungerLogic.needsFood(6, 6));
+	}
+
+	@Test
+	void onlyFoodWithTheMissingNutrientGoesPastAFullBar() {
+		Deficiencies noProtein = new Deficiencies(true, false, false);
+		assertTrue(HungerLogic.fixesDeficiency(noProtein, new Nutrients(10, 5, 0)));
+		assertFalse(HungerLogic.fixesDeficiency(noProtein, new Nutrients(0, 5, 20)));
+		assertFalse(HungerLogic.fixesDeficiency(Deficiencies.NONE, new Nutrients(10, 10, 10)));
+		assertTrue(HungerLogic.fixesDeficiency(new Deficiencies(false, false, true), new Nutrients(0, 0, 1)));
 	}
 
 	@Test
@@ -38,7 +49,7 @@ class HungerLogicTest {
 
 	@Test
 	void foodAboveTheBarIsClamped() {
-		TickResult result = HungerLogic.tick(new FoodState(20, 10.0F, 0.0F, 0), new TickContext(6, false, true, false, false, false, false), RULES);
+		TickResult result = HungerLogic.tick(new FoodState(20, 10.0F, 0.0F, 0), new TickContext(6, false, true, false, false, false, Deficiencies.NONE), RULES);
 		assertEquals(6, result.state().food());
 		assertEquals(6.0F, result.state().saturation());
 	}
@@ -64,8 +75,9 @@ class HungerLogicTest {
 
 	@Test
 	void peacefulNeverDrainsFood() {
-		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 4.0F, 0), new TickContext(20, false, true, true, false, false, false), RULES);
+		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 4.0F, 0), new TickContext(20, false, true, true, false, false, Deficiencies.NONE), RULES);
 		assertEquals(10, result.state().food());
+		assertFalse(result.pointSpent(), "nutrients drained in peaceful");
 	}
 
 	@Test
@@ -89,7 +101,7 @@ class HungerLogicTest {
 
 	@Test
 	void noRegenerationWithoutTheGameRule() {
-		TickContext noRegen = new TickContext(20, true, false, false, false, false, false);
+		TickContext noRegen = new TickContext(20, true, false, false, false, false, Deficiencies.NONE);
 		TickResult result = HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, RULES.regenIntervalTicks() - 1), noRegen, RULES);
 		assertEquals(0.0F, result.heal());
 		assertEquals(0, result.state().tickTimer());
@@ -110,7 +122,7 @@ class HungerLogicTest {
 
 	@Test
 	void balancedDietHalvesHunger() {
-		TickContext balanced = new TickContext(20, false, true, false, true, false, false);
+		TickContext balanced = new TickContext(20, false, true, false, true, false, Deficiencies.NONE);
 		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 7.0F, 0), balanced, RULES);
 		assertEquals(10, result.state().food());
 		assertFalse(result.pointSpent());
@@ -122,7 +134,7 @@ class HungerLogicTest {
 
 	@Test
 	void balancedDietSpeedsUpRegeneration() {
-		TickContext balancedHurt = new TickContext(20, true, true, false, true, false, false);
+		TickContext balancedHurt = new TickContext(20, true, true, false, true, false, Deficiencies.NONE);
 		int interval = Math.round(RULES.regenIntervalTicks() / RULES.balancedRegenFactor());
 		assertEquals(400, interval);
 		TickResult result = HungerLogic.tick(new FoodState(10, 0.0F, 0.0F, interval - 1), balancedHurt, RULES);
@@ -145,7 +157,7 @@ class HungerLogicTest {
 
 	@Test
 	void gracePeriodStopsHunger() {
-		TickContext grace = new TickContext(20, false, true, false, false, true, false);
+		TickContext grace = new TickContext(20, false, true, false, false, true, Deficiencies.NONE);
 		FoodState state = new FoodState(10, 0.0F, 3.9F, 0);
 		for (int i = 0; i < 10_000; i++) {
 			state = HungerLogic.tick(state, grace, RULES).state();
@@ -155,20 +167,73 @@ class HungerLogicTest {
 	}
 
 	@Test
-	void malnourishedWhenAnyNutrientRunsOut() {
-		assertFalse(HungerLogic.malnourished(Nutrition.of(0.5F)));
-		assertTrue(HungerLogic.malnourished(new Nutrition(50, 0, 50)));
-		assertTrue(HungerLogic.malnourished(HungerLogic.decay(new Nutrition(50, 50, 0.25F), RULES.nutrientDecay())));
+	void eachNutrientIsDeficientOnItsOwn() {
+		assertEquals(Deficiencies.NONE, HungerLogic.deficiencies(Nutrition.of(0.5F), 0));
+		assertEquals(new Deficiencies(false, true, false), HungerLogic.deficiencies(new Nutrition(50, 0, 50), 0));
+		assertEquals(new Deficiencies(false, false, true),
+				HungerLogic.deficiencies(HungerLogic.decay(new Nutrition(50, 50, 0.25F), RULES.nutrientDecay()), 0));
+		assertEquals(new Deficiencies(true, false, true), HungerLogic.deficiencies(new Nutrition(10, 11, 3), 10));
 	}
 
 	@Test
-	void malnutritionSlowsRegenerationByAThird() {
-		TickContext malnourished = new TickContext(20, true, true, false, false, false, true);
+	void fatDeficiencyDrainsHungerFasterByTheFactor() {
+		TickContext noFat = new TickContext(20, false, true, false, false, false, new Deficiencies(false, true, false));
+		float perPoint = RULES.exhaustionPerPoint() / RULES.deficiency().fatHungerFactor();
+		TickResult under = HungerLogic.tick(new FoodState(10, 0.0F, perPoint - 0.01F, 0), noFat, RULES);
+		assertFalse(under.pointSpent());
+		TickResult over = HungerLogic.tick(new FoodState(10, 0.0F, perPoint + 0.01F, 0), noFat, RULES);
+		assertTrue(over.pointSpent());
+		assertEquals(9, over.state().food());
+		TickResult healthy = HungerLogic.tick(new FoodState(10, 0.0F, perPoint + 0.01F, 0), HEALTHY, RULES);
+		assertFalse(healthy.pointSpent());
+	}
+
+	@Test
+	void sprintGivesOutWithoutCarbsAndNeedsRest() {
+		DeficiencyRules rules = RULES.deficiency();
+		Stamina stamina = Stamina.FRESH;
+		for (int i = 0; i < rules.carbsSprintTicks() - 1; i++) {
+			stamina = HungerLogic.stamina(stamina, true, true, rules);
+			assertFalse(stamina.winded());
+		}
+		stamina = HungerLogic.stamina(stamina, true, true, rules);
+		assertTrue(stamina.winded());
+		for (int i = 0; i < rules.carbsRestTicks() - 1; i++) {
+			stamina = HungerLogic.stamina(stamina, true, true, rules);
+			assertTrue(stamina.winded());
+		}
+		stamina = HungerLogic.stamina(stamina, true, false, rules);
+		assertEquals(Stamina.FRESH, stamina);
+	}
+
+	@Test
+	void walkingRecoversAndCarbsResetStamina() {
+		DeficiencyRules rules = RULES.deficiency();
+		Stamina ran = new Stamina(100, 0);
+		assertEquals(new Stamina(99, 0), HungerLogic.stamina(ran, true, false, rules));
+		assertEquals(Stamina.FRESH, HungerLogic.stamina(new Stamina(0, 50), false, true, rules));
+	}
+
+	@Test
+	void anyDeficiencySlowsRegenerationByAThird() {
+		TickContext malnourished = new TickContext(20, true, true, false, false, false, new Deficiencies(true, false, false));
 		int interval = Math.round(RULES.regenIntervalTicks() * RULES.malnourishedRegenFactor());
 		assertEquals(900, interval);
 		TickResult early = HungerLogic.tick(new FoodState(10, 0.0F, 0.0F, RULES.regenIntervalTicks() - 1), malnourished, RULES);
 		assertEquals(0.0F, early.heal());
 		TickResult due = HungerLogic.tick(new FoodState(10, 0.0F, 0.0F, interval - 1), malnourished, RULES);
 		assertEquals(1.0F, due.heal());
+	}
+
+	@Test
+	void restedHungerDrainsSlowerAndHealsFaster() {
+		TickContext rested = new TickContext(20, true, true, false, false, false, Deficiencies.NONE, 0.9F, 1.1F);
+		float perPoint = RULES.exhaustionPerPoint();
+		// Just over the normal threshold spends a point, but not when rested.
+		assertTrue(HungerLogic.tick(new FoodState(20, 0.0F, perPoint, 0), HURT, RULES).pointSpent());
+		assertFalse(HungerLogic.tick(new FoodState(20, 0.0F, perPoint, 0), rested, RULES).pointSpent());
+		int restedInterval = Math.round(RULES.regenIntervalTicks() / 1.1F);
+		assertEquals(1.0F, HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, restedInterval - 1), rested, RULES).heal());
+		assertEquals(0.0F, HungerLogic.tick(new FoodState(20, 0.0F, 0.0F, restedInterval - 1), HURT, RULES).heal());
 	}
 }

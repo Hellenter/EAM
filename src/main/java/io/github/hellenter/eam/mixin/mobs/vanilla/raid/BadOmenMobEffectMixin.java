@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** In a village guarded by the trophy, Bad Omen does not turn into Raid Omen: the player keeps it for another village. */
+/** Near a lit King's helm, Bad Omen does not turn into Raid Omen: the player keeps it for another village. */
 @Mixin(targets = "net.minecraft.world.effect.BadOmenMobEffect")
 abstract class BadOmenMobEffectMixin {
 	@WrapOperation(method = "applyEffectTick", at = @At(value = "INVOKE",

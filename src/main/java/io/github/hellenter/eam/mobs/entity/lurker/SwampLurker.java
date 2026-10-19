@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -80,6 +81,8 @@ public class SwampLurker extends Monster {
 	private int leapCooldown;
 	private int noTargetTicks;
 	private int rehideCooldown;
+	/** Its height when it last stood on a block, swam or climbed; NaN until then. */
+	private double groundY = Double.NaN;
 	/** Mirrors {@link #DATA_HIDDEN}, which is not there yet when the constructor asks for the dimensions. */
 	private boolean hidden;
 	/** Client: the tick count when the current action started. */
@@ -204,9 +207,20 @@ public class SwampLurker extends Monster {
 		return leapCooldown;
 	}
 
-	/** It can push off for a leap from the ground or out of water. */
+	/**
+	 * It can push off for a leap from a block under its feet or out of water around them. Not from a block it only
+	 * brushed with its head, nor from water it only touched from below: mid-air pushes like those sent it up and up.
+	 */
 	boolean canLeap() {
-		return onGround() || isInWater();
+		return standsOnBlock() || feetInWater();
+	}
+
+	private boolean standsOnBlock() {
+		return onGround() && mainSupportingBlockPos.isPresent();
+	}
+
+	private boolean feetInWater() {
+		return isInWater() && level().getFluidState(blockPosition()).is(FluidTags.WATER);
 	}
 
 	@Override
@@ -289,6 +303,15 @@ public class SwampLurker extends Monster {
 		return super.causeFallDamage(Math.max(0.0, fallDistance - settings().leap().maxHeight()), damageModifier, source);
 	}
 
+	/** On the server, after the push of a jump or a swim stroke and before it moves. */
+	@Override
+	public void travel(Vec3 input) {
+		if (!hidden && level() instanceof ServerLevel) {
+			keepDown();
+		}
+		super.travel(input);
+	}
+
 	@Override
 	public void aiStep() {
 		if (hidden) {
@@ -327,12 +350,20 @@ public class SwampLurker extends Monster {
 	/** Bursts out of its mud, at {@code player} if there is one. */
 	private void emerge(ServerLevel level, @Nullable Player player, boolean breakBlock) {
 		BlockPos pos = blockPosition();
+		boolean roofed = level.getBlockState(pos.above()).isSolid();
 		if (breakBlock) {
-			level.destroyBlock(pos, false, this);
+			if (roofed) {
+				// Something was built on top: it breaks the mud to have room to come out.
+				level.destroyBlock(pos, false, this);
+			} else {
+				// The mud stays where it lay, so its burrows never sink into pits.
+				level.levelEvent(2001, pos, Block.getId(level.getBlockState(pos)));
+			}
 		}
 		setHidden(false);
-		// Out of the hole first: its walls would stop the leap dead. Unless something was built on top of it.
-		if (!level.getBlockState(pos.above()).isSolid()) {
+		groundY = pos.getY() + 1.0;
+		// Out of the mud first: it would stop the leap dead. Unless something was built on top of it.
+		if (!roofed) {
 			setPos(getX(), pos.getY() + 1.0, getZ());
 		}
 		noTargetTicks = 0;
@@ -382,6 +413,22 @@ public class SwampLurker extends Monster {
 			}
 		} else {
 			tickAction(level);
+		}
+	}
+
+	/**
+	 * Its leaps never take it higher than {@link SwampLurkerSettings.Leap#maxHeight()} above where it stood; if
+	 * something keeps lifting it beyond that, with nothing to stand on, swim in or climb, it stops rising and falls.
+	 */
+	private void keepDown() {
+		if (Double.isNaN(groundY) || standsOnBlock() || feetInWater() || onClimbable() || hasEffect(MobEffects.LEVITATION)) {
+			groundY = getY();
+			return;
+		}
+		Vec3 motion = getDeltaMovement();
+		if (SwampLurkerLogic.risesTooHigh(getY() - groundY, motion.y, settings().leap().maxHeight())) {
+			setDeltaMovement(motion.x, 0.0, motion.z);
+			needsSync = true;
 		}
 	}
 
@@ -463,7 +510,7 @@ public class SwampLurker extends Monster {
 		switch (action) {
 			case LEAP -> {
 				getNavigation().stop();
-				if (t > 2 && (onGround() || isInWater()) || t >= action.length()) {
+				if (t > 2 && canLeap() || t >= action.length()) {
 					landed(target);
 				}
 			}

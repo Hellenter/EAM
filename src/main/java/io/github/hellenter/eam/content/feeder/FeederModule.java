@@ -101,7 +101,18 @@ public final class FeederModule {
 
 	/** Today's overworld day, so sleeping through the night counts as a day. */
 	public static long today(Level level) {
-		return FeederLogic.day(level.getOverworldClockTime());
+		return FeederLogic.day(now(level));
+	}
+
+	/** Overworld clock time, which days are counted in. */
+	public static long now(Level level) {
+		return level.getOverworldClockTime();
+	}
+
+	/** How many times as fast {@code entity} grows up and gets ready to breed again: faster while kept at a feeder. */
+	public static double growthSpeed(Entity entity) {
+		if (!enabled || !isLivestock(entity)) return 1.0;
+		return FeederLogic.growthSpeed(entity.getAttached(LIVESTOCK_STATE), now(entity.level()), settings.fedGrowthBoost());
 	}
 
 	public static boolean isLivestock(Entity entity) {

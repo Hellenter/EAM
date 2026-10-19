@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
+import org.jspecify.annotations.Nullable;
+
 /** Baba Yaga's decisions, free of the game so they can be unit tested. */
 public final class BabaYagaLogic {
 	private BabaYagaLogic() {
@@ -123,6 +125,89 @@ public final class BabaYagaLogic {
 		return List.of(List.copyOf(shuffled.subList(0, first)), List.copyOf(shuffled.subList(first, shuffled.size())));
 	}
 
+	/** The tier of a fight with this many players: the one with the most players, at most {@code players}; null if none. */
+	public static BabaYagaSettings.Crowd.@Nullable Tier tier(int players, BabaYagaSettings.Crowd crowd) {
+		BabaYagaSettings.Crowd.@Nullable Tier best = null;
+		for (BabaYagaSettings.Crowd.Tier tier : crowd.tiers()) {
+			if (tier.players() <= players && (best == null || tier.players() > best.players())) {
+				best = tier;
+			}
+		}
+		return best;
+	}
+
+	/** The sub-waves of each group of a phase-one wave, one entry per group, for this many players. */
+	public static List<Integer> waveShape(int players, BabaYagaSettings.Summon summon, BabaYagaSettings.Crowd crowd) {
+		BabaYagaSettings.Crowd.@Nullable Tier tier = tier(players, crowd);
+		if (tier != null) {
+			return tier.subWaves();
+		}
+		List<Integer> shape = new ArrayList<>(summon.groups());
+		for (int g = 0; g < summon.groups(); g++) {
+			shape.add(2);
+		}
+		return shape;
+	}
+
+	/** The creatures' share of their usual health in a fight with this many players; drowned soldiers have their own. */
+	public static double healthMultiplier(Creature creature, int players, BabaYagaSettings.Summon summon, BabaYagaSettings.Crowd crowd) {
+		if (creature == Creature.SOLDIER) {
+			return crowd.soldierHealthMultiplier();
+		}
+		BabaYagaSettings.Crowd.@Nullable Tier tier = tier(players, crowd);
+		return tier != null ? tier.healthMultiplier().orElse(summon.healthMultiplier()) : summon.healthMultiplier();
+	}
+
+	/**
+	 * A phase-one group in {@code subWaves} parts that rise one after another: the group's two halves, then for every part
+	 * past the second the first half of another group of the same kind. One part is the whole group.
+	 */
+	public static List<List<Creature>> waveParts(GroupKind kind, int subWaves, BabaYagaSettings.Summon summon, DoubleSupplier random) {
+		List<Creature> group = waveGroup(kind, summon, random);
+		if (subWaves <= 1) {
+			return List.of(group);
+		}
+		List<List<Creature>> parts = new ArrayList<>(halves(group, random));
+		for (int i = 2; i < subWaves; i++) {
+			parts.add(halves(waveGroup(kind, summon, random), random).get(0));
+		}
+		return parts;
+	}
+
+	/**
+	 * A whole wave, group by group and part by part, with the wights past {@code maxWights} turned into drowned soldiers,
+	 * the earliest parts keeping theirs.
+	 */
+	public static List<List<List<Creature>>> capWights(List<List<List<Creature>>> wave, int maxWights) {
+		int maxParts = 0;
+		for (List<List<Creature>> group : wave) {
+			maxParts = Math.max(maxParts, group.size());
+		}
+		List<List<List<Creature>>> capped = new ArrayList<>(wave.size());
+		for (List<List<Creature>> group : wave) {
+			List<List<Creature>> parts = new ArrayList<>(group.size());
+			for (List<Creature> part : group) {
+				parts.add(new ArrayList<>(part));
+			}
+			capped.add(parts);
+		}
+		int wights = 0;
+		for (int p = 0; p < maxParts; p++) {
+			for (List<List<Creature>> group : capped) {
+				if (p >= group.size()) {
+					continue;
+				}
+				List<Creature> part = group.get(p);
+				for (int i = 0; i < part.size(); i++) {
+					if (part.get(i) == Creature.WIGHT && ++wights > maxWights) {
+						part.set(i, Creature.SOLDIER);
+					}
+				}
+			}
+		}
+		return capped;
+	}
+
 	/** How many creatures go in a group, from {@code min} to {@code max}. */
 	public static int groupSize(int min, int max, DoubleSupplier random) {
 		int low = Math.min(min, max);
@@ -169,6 +254,11 @@ public final class BabaYagaLogic {
 			return two.capLockout();
 		}
 		return Math.max(0, lockout - 1);
+	}
+
+	/** Whether a player {@code distanceSqr} (squared) from her hut's door wakes her up there. */
+	public static boolean wakesAtHut(double distanceSqr, BabaYagaSettings.Storm storm) {
+		return distanceSqr <= storm.hutWakeRadius() * storm.hutWakeRadius();
 	}
 
 	/** Phase two: whether she may raise creatures now. */
@@ -235,5 +325,14 @@ public final class BabaYagaLogic {
 	/** Height of the spell's arc over the straight line, at {@code s} from 0 (staff) to 1 (group). */
 	public static double arc(double s, double height) {
 		return 4.0 * height * s * (1.0 - s);
+	}
+
+	/**
+	 * Whether a player sends her flask back: they hit or raised a shield {@code actedAgo} ticks ago (-1: neither), and the
+	 * flask reaches them in {@code ticksToReach}. Only what was done in the last {@code window} ticks before it reaches
+	 * them counts, give or take a tick; a shield held up long before does not.
+	 */
+	public static boolean reflects(double ticksToReach, int actedAgo, int window) {
+		return actedAgo >= 0 && ticksToReach <= window && actedAgo + ticksToReach <= window + 1;
 	}
 }

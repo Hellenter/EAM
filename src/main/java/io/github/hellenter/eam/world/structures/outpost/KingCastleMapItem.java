@@ -18,8 +18,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * The map from the outpost's red chest. It stays blank until a player takes it in hand; then it looks for the nearest
- * structure in {@link OutpostModule#KING_CASTLE} and turns into a filled map marking it. While nothing is found (the
- * castle is not built yet) it tells the player so and stays blank.
+ * structure in {@link OutpostModule#KING_CASTLE} and turns into a filled map marking it. While nothing is found it
+ * tells the player so and stays blank.
  */
 public class KingCastleMapItem extends Item {
 	/** How far the map looks, in chunks, as for the explorer maps of cartographers. */

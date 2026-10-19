@@ -4,7 +4,9 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.BuildingAware;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Attack;
@@ -13,6 +15,7 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.HitStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic.Wound;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -75,6 +78,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
 
@@ -94,7 +98,7 @@ import java.util.UUID;
  * Each phase has its own health; the boss bar shows the current one. Attacks run here as {@link FallenLordAction}s;
  * {@link FallenLordFightGoal} moves him and picks them with {@link FallenLordLogic}.
  */
-public class FallenLord extends Monster {
+public class FallenLord extends Monster implements BuildingAware {
 	/**
 	 * His death, in ticks since it began (shared with the renderer): he sinks to his knees, the bones inside the armor
 	 * burn to ash ({@link #ASH_START} to {@link #ASH_END}), the empty armor falls to the ground
@@ -225,6 +229,9 @@ public class FallenLord extends Monster {
 	private Vec3 climbDirection = Vec3.ZERO;
 	/** Climbing a bank out of water: he rises straight up until this height, then is pushed over it. */
 	private double waterClimbTop = Double.NaN;
+	/** Ticks left of a hop backwards onto a ledge while he drinks, and the way he hops. */
+	private int backClimbTicks;
+	private Vec3 backClimbDirection = Vec3.ZERO;
 	/** Ticks he has been pushing against a wall he cannot jump; past {@link #STUCK_TICKS} he breaks through it. */
 	private int stuckTicks;
 	/** His boss room: inside it he breaks every block weaker than obsidian. Null for a lord spawned elsewhere. */
@@ -599,6 +606,78 @@ public class FallenLord extends Monster {
 		return !level().getBlockState(pos).getCollisionShape(level(), pos).isEmpty();
 	}
 
+	/** Ticks he is pushed back onto the ledge he hops up while drinking. */
+	private static final int BACK_CLIMB_TICKS = 10;
+	/** Push back onto the ledge, blocks per tick. */
+	private static final double BACK_CLIMB_PUSH = 0.2;
+
+	/**
+	 * Backing away while he drinks with a ledge or wall right behind him no higher than {@code regen.climb_back}, and
+	 * room on top of it: hops up onto it and goes on backing away. True while the hop moves him, so the strafe stays off.
+	 */
+	private boolean climbBack(@Nullable LivingEntity target) {
+		if (backClimbTicks > 0) {
+			backClimbTicks--;
+			if (onGround() && backClimbTicks < BACK_CLIMB_TICKS - 2) {
+				backClimbTicks = 0;
+				return false;
+			}
+			setDeltaMovement(backClimbDirection.x * BACK_CLIMB_PUSH, getDeltaMovement().y, backClimbDirection.z * BACK_CLIMB_PUSH);
+			return true;
+		}
+		if (target == null || !onGround()) {
+			return false;
+		}
+		Vec3 away = horizontal(position().subtract(target.position()));
+		if (away == Vec3.ZERO) {
+			return false;
+		}
+		double rise = ledgeRise(away);
+		if (!FallenLordLogic.canClimbBack(rise, settings().regen().climbBack())) {
+			return false;
+		}
+		backClimbDirection = away;
+		backClimbTicks = BACK_CLIMB_TICKS;
+		getMoveControl().strafe(0.0F, 0.0F);
+		setDeltaMovement(away.x * 0.1, FallenLordLogic.jumpSpeed(rise + 0.2), away.z * 0.1);
+		playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.0F, 0.6F);
+		return true;
+	}
+
+	/**
+	 * How far the ledge right next to him in {@code direction} rises above his feet, by the real shapes of its blocks
+	 * (a slab on a block is 1.5); 0 when nothing is there or there is no room for him on top of it.
+	 */
+	private double ledgeRise(Vec3 direction) {
+		double ahead = getBbWidth() * 0.5 + 0.3;
+		double feet = getY();
+		BlockPos base = BlockPos.containing(getX() + direction.x * ahead, feet + 0.01, getZ() + direction.z * ahead);
+		double top = feet;
+		for (int i = 0; i <= 2; i++) {
+			BlockPos pos = base.above(i);
+			VoxelShape shape = level().getBlockState(pos).getCollisionShape(level(), pos);
+			if (shape.isEmpty()) {
+				break;
+			}
+			double blockTop = pos.getY() + shape.max(Direction.Axis.Y);
+			if (blockTop <= top + 1.0E-4) {
+				break;
+			}
+			top = blockTop;
+			if (shape.max(Direction.Axis.Y) < 1.0) {
+				break;
+			}
+		}
+		double rise = top - feet;
+		if (rise <= 0.0) {
+			return 0.0;
+		}
+		// Room over his head to rise, and on the ledge to stand.
+		AABB raised = getBoundingBox().move(0.0, rise + 0.01, 0.0);
+		AABB onTop = raised.move(direction.x * (getBbWidth() + 0.3), 0.0, direction.z * (getBbWidth() + 0.3));
+		return level().noCollision(this, raised) && level().noCollision(this, onTop) ? rise : 0.0;
+	}
+
 	/** Pushes him on over the wall he jumped while he is in the air. */
 	private void tickClimb() {
 		if (climbCooldown > 0) {
@@ -672,7 +751,7 @@ public class FallenLord extends Monster {
 		if (state.getCollisionShape(level, pos).isEmpty()) {
 			return false;
 		}
-		if (state.is(FallenLordModule.DASH_SMASHES)) {
+		if (state.is(FallenLordModule.DASH_SMASHES) || BossBuilding.isPlaced(level, pos)) {
 			return true;
 		}
 		return arena != null && arena.isInside(pos) && FallenLordLogic.breakableInArena(state.getDestroySpeed(level, pos));
@@ -681,6 +760,9 @@ public class FallenLord extends Monster {
 	private void smashWithin(ServerLevel level, AABB area) {
 		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(area.minX, area.minY, area.minZ),
 				BlockPos.containing(area.maxX, area.maxY, area.maxZ))) {
+			if (BossBuilding.breakPlaced(level, pos.immutable(), this, false)) {
+				continue;
+			}
 			if (canSmash(level, pos, level.getBlockState(pos))) {
 				level.destroyBlock(pos, true, this);
 			}
@@ -842,6 +924,7 @@ public class FallenLord extends Monster {
 		dashHits.clear();
 		dashSpans.clear();
 		dashSpent = false;
+		backClimbTicks = 0;
 		getNavigation().stop();
 		// The duel strafe would otherwise keep sliding him sideways.
 		getMoveControl().strafe(0.0F, 0.0F);
@@ -1073,9 +1156,11 @@ public class FallenLord extends Monster {
 				}
 			}
 			case DRINK -> {
-				if (target != null && horizontalDistanceTo(target) < settings().regen().keepAway()) {
-					// Backs away from the player as he drinks.
-					getMoveControl().strafe(-0.8F, 0.0F);
+				if (backClimbTicks > 0 || target != null && horizontalDistanceTo(target) < settings().regen().keepAway()) {
+					// Backs away from the player as he drinks, up onto a low ledge behind him rather than stuck against it.
+					if (!climbBack(target)) {
+						getMoveControl().strafe(-0.8F, 0.0F);
+					}
 				}
 				if (tickDrink(level, t)) {
 					endAction();
@@ -1980,7 +2065,10 @@ public class FallenLord extends Monster {
 		}
 		boolean hurt = super.hurtServer(level, source, damage);
 		if (parrying != null) {
-			parried(level, parrying);
+			// Only a hit that lands parries: not one swallowed by hurt frames, nor the killing blow.
+			if (hurt && isAlive()) {
+				parried(level, parrying);
+			}
 			return hurt;
 		}
 		if (hurt && action == FallenLordAction.DRINK && source.getEntity() instanceof Player player) {
@@ -2354,5 +2442,10 @@ public class FallenLord extends Monster {
 	@Override
 	public float getVoicePitch() {
 		return 0.6F;
+	}
+
+	@Override
+	public boolean isFighting() {
+		return getTarget() != null && getTarget().isAlive();
 	}
 }

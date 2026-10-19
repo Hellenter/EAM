@@ -3,6 +3,7 @@ package io.github.hellenter.eam.mobs.entity.draugr;
 import io.github.hellenter.eam.content.EamItems;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -64,6 +66,11 @@ public class Draugr extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_STATE = SynchedEntityData.defineId(Draugr.class, EntityDataSerializers.BYTE);
 	private static final EntityDataAccessor<Integer> DATA_GEAR = SynchedEntityData.defineId(Draugr.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_RISE_TICKS = SynchedEntityData.defineId(Draugr.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Boolean> DATA_THRALL = SynchedEntityData.defineId(Draugr.class, EntityDataSerializers.BOOLEAN);
+	/** A thrall checks this often, in ticks, that his master is still about. */
+	private static final int MASTER_CHECK = 20;
+	/** A thrall whose master is further than this, or gone, falls to dust. */
+	private static final double MASTER_RANGE = 64.0;
 	/** He lies in a column of ice or snow this many blocks deep, the floor's top block the top of it. */
 	public static final int DEPTH = 3;
 	/**
@@ -95,6 +102,13 @@ public class Draugr extends Monster {
 	private boolean climbing;
 	/** Client: the tick count when he began to rise. */
 	private int clientRiseStart;
+	/** Who raised him, if a sorcerer did; he lives only as long as his master does. */
+	private @Nullable UUID master;
+	/** His place in a row of shields his master keeps him in, renewed each tick; null when he stands in none. */
+	private @Nullable WallOrder wallOrder;
+	private long wallOrderTime;
+	/** Game time until which something holds him where he stands. */
+	private long heldUntil;
 
 	public Draugr(EntityType<? extends Draugr> type, Level level) {
 		super(type, level);
@@ -121,11 +135,13 @@ public class Draugr extends Monster {
 		builder.define(DATA_STATE, (byte) DraugrState.AWAKE.ordinal());
 		builder.define(DATA_GEAR, 0);
 		builder.define(DATA_RISE_TICKS, DraugrSettings.DEFAULT.riseTicks());
+		builder.define(DATA_THRALL, false);
 	}
 
 	@Override
 	protected void registerGoals() {
 		goalSelector.addGoal(0, new FloatGoal(this));
+		goalSelector.addGoal(1, new DraugrWallGoal(this));
 		goalSelector.addGoal(2, new SpearUseGoal<>(this, 1.0, 1.0, 10.0F, 2.0F));
 		goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.0, true));
 		goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.8));
@@ -274,7 +290,7 @@ public class Draugr extends Monster {
 
 	@Override
 	protected boolean isImmobile() {
-		return state != DraugrState.AWAKE || super.isImmobile();
+		return state != DraugrState.AWAKE || level().getGameTime() < heldUntil || super.isImmobile();
 	}
 
 	@Override
@@ -303,15 +319,109 @@ public class Draugr extends Monster {
 		return false;
 	}
 
-	/** A pack fights as one. */
+	/** A pack fights as one, and a thrall at his master's side. */
 	@Override
 	protected boolean considersEntityAsAlly(Entity other) {
-		return other instanceof Draugr || super.considersEntityAsAlly(other);
+		return other instanceof Draugr || other.getUUID().equals(master) || super.considersEntityAsAlly(other);
 	}
 
 	@Override
 	public boolean removeWhenFarAway(double distanceSquared) {
-		return !state.buried() && super.removeWhenFarAway(distanceSquared);
+		return !state.buried() && !isThrall() && super.removeWhenFarAway(distanceSquared);
+	}
+
+	// ---- Thralls ----
+
+	/** Whether a sorcerer raised him: his eyes burn green, and he goes to dust when his master is gone. */
+	public boolean isThrall() {
+		return entityData.get(DATA_THRALL);
+	}
+
+	/** Whether {@code entity} raised him. */
+	public boolean servedBy(Entity entity) {
+		return isThrall() && entity.getUUID().equals(master);
+	}
+
+	/**
+	 * Raises him, already spawned with his gear, as {@code by}'s thrall out of the ground under {@code feet}: he climbs up
+	 * through the floor as from a grave and goes for {@code target}, faster than a draugr of the caves and frailer. He
+	 * gives no experience and drops nothing.
+	 */
+	public void raiseAsThrall(ServerLevel level, LivingEntity by, @Nullable LivingEntity target, Vec3 feet, double speedMultiplier,
+			double healthMultiplier) {
+		DraugrSettings settings = settings();
+		setBase(Attributes.MAX_HEALTH, Math.max(1.0, settings.health() * healthMultiplier));
+		setBase(Attributes.MOVEMENT_SPEED, settings.speed() * speedMultiplier);
+		setHealth(getMaxHealth());
+		entityData.set(DATA_THRALL, true);
+		master = by.getUUID();
+		xpReward = 0;
+		setPersistenceRequired();
+		for (EquipmentSlot slot : EquipmentSlot.values()) {
+			setDropChance(slot, 0.0F);
+		}
+		snapTo(feet.x, Mth.floor(feet.y) - DEPTH, feet.z, random.nextFloat() * 360.0F, 0.0F);
+		sealed = true;
+		wakeTarget = target == null ? null : target.getUUID();
+		startRising(level);
+	}
+
+	@Override
+	protected boolean shouldDropLoot(ServerLevel level) {
+		return !isThrall() && super.shouldDropLoot(level);
+	}
+
+	/**
+	 * Where his master wants him this tick: at {@code spot} in a row of shields turned to {@code facing}, swinging at it
+	 * when it comes within {@code reach}. Given again each tick he is to stay there; he goes back to fighting as usual a
+	 * tick after it stops.
+	 */
+	public void holdWall(Vec3 spot, LivingEntity facing, double reach) {
+		wallOrder = new WallOrder(spot, facing, reach);
+		wallOrderTime = level().getGameTime();
+	}
+
+	/** His place in a row of shields, or null when his master keeps him in none now. */
+	@Nullable WallOrder wallOrder() {
+		if (wallOrder != null && (level().getGameTime() - wallOrderTime > 1 || !wallOrder.facing().isAlive())) {
+			wallOrder = null;
+		}
+		return wallOrder;
+	}
+
+	record WallOrder(Vec3 spot, LivingEntity facing, double reach) {
+	}
+
+	/** Holds him where he stands for {@code ticks}: his master draws on him. */
+	public void hold(int ticks) {
+		heldUntil = level().getGameTime() + ticks;
+		getNavigation().stop();
+	}
+
+	/** Whether his master still stands near: a thrall only lives as long as the one who raised him. */
+	private boolean masterNear(ServerLevel level) {
+		Entity by = master == null ? null : level.getEntity(master);
+		return by instanceof LivingEntity living && living.isAlive() && living.distanceToSqr(this) < MASTER_RANGE * MASTER_RANGE;
+	}
+
+	/** He falls to dust where he stands. */
+	public void crumble(ServerLevel level) {
+		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.BONE_BLOCK.defaultBlockState()), getX(), getY() + 1.0, getZ(),
+				30, 0.3, 0.6, 0.3, 0.1);
+		level.sendParticles(ParticleTypes.SOUL, getX(), getY() + 1.2, getZ(), 6, 0.3, 0.5, 0.3, 0.02);
+		level.playSound(null, getX(), getY(), getZ(), SoundEvents.SKELETON_DEATH, SoundSource.HOSTILE, 1.0F, 0.6F);
+		discard();
+	}
+
+	/** A thrall fights whoever his master fights. */
+	private void followMaster(ServerLevel level) {
+		if (!(level.getEntity(master) instanceof Mob by)) {
+			return;
+		}
+		LivingEntity wanted = by.getTarget();
+		if (wanted != null && wanted.isAlive() && wanted != getTarget() && !(wanted instanceof Draugr)) {
+			setTarget(wanted);
+		}
 	}
 
 	/**
@@ -328,7 +438,7 @@ public class Draugr extends Monster {
 			return false;
 		}
 		// Draugr do not hurt each other: a spear thrust or a swing at the player that catches a packmate does nothing.
-		if (source.getEntity() instanceof Draugr) {
+		if (source.getEntity() instanceof Draugr || source.getEntity() != null && servedBy(source.getEntity())) {
 			return false;
 		}
 		return super.hurtServer(level, source, DraugrLogic.damageTaken(damage, source.is(DamageTypeTags.IS_FIRE), settings().fireMultiplier()));
@@ -345,6 +455,13 @@ public class Draugr extends Monster {
 			return;
 		}
 		super.tick();
+		if (isThrall() && state == DraugrState.AWAKE && level() instanceof ServerLevel level && (tickCount + getId()) % MASTER_CHECK == 0) {
+			if (!masterNear(level)) {
+				crumble(level);
+				return;
+			}
+			followMaster(level);
+		}
 		if (!level().isClientSide()) {
 			LivingEntity target = getTarget();
 			climbing = state == DraugrState.AWAKE && target != null && horizontalCollision && DraugrLogic.climbs(target.getY() - getY(),
@@ -523,6 +640,10 @@ public class Draugr extends Monster {
 		output.putInt("RiseTick", riseTick);
 		output.putDouble("RiseFrom", riseFrom);
 		output.putBoolean("Sealed", sealed);
+		output.putBoolean("Thrall", isThrall());
+		if (master != null) {
+			output.store("Master", UUIDUtil.CODEC, master);
+		}
 	}
 
 	@Override
@@ -534,5 +655,7 @@ public class Draugr extends Monster {
 		riseTick = input.getIntOr("RiseTick", 0);
 		riseFrom = input.getDoubleOr("RiseFrom", getY());
 		sealed = input.getBooleanOr("Sealed", false);
+		entityData.set(DATA_THRALL, input.getBooleanOr("Thrall", false));
+		master = input.read("Master", UUIDUtil.CODEC).orElse(null);
 	}
 }

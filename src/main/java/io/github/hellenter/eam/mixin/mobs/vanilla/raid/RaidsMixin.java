@@ -13,11 +13,11 @@ import net.minecraft.world.entity.raid.Raids;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
-/** No raid starts in a village guarded by the Pillager King's trophy. */
+/** No raid starts near a lit Pillager King's helm. */
 @Mixin(Raids.class)
 abstract class RaidsMixin {
 	@WrapMethod(method = "createOrExtendRaid")
-	private @Nullable Raid eam$trophyGuards(ServerPlayer player, BlockPos raidPosition, Operation<Raid> original) {
+	private @Nullable Raid eam$helmGuards(ServerPlayer player, BlockPos raidPosition, Operation<Raid> original) {
 		return VillageRaidsModule.guarded(player.level(), raidPosition) ? null : original.call(player, raidPosition);
 	}
 }

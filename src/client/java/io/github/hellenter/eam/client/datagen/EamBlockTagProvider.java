@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamBlocks;
+import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
 import io.github.hellenter.eam.dimension.feature.GiantMushroomFeature;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
@@ -8,9 +9,13 @@ import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.vanilla.breaking.BlockBreakingModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintTemplate;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
+import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
+import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
+import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.world.structures.VillageModule;
 import io.github.hellenter.eam.world.swamp.SwampPondFeature;
 
@@ -23,6 +28,7 @@ import net.minecraft.references.BlockIds;
 import net.minecraft.references.BlockItemIds;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -89,15 +95,28 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.PEBBLE.builtInRegistryHolder().key(),
 				EamBlocks.FLINT_SHARD.builtInRegistryHolder().key(),
 				EamBlocks.GROUND_STICK.builtInRegistryHolder().key(),
-				EamBlocks.SIEVE.builtInRegistryHolder().key());
-		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key());
+				EamBlocks.SIEVE.builtInRegistryHolder().key(),
+				EamBlocks.FOOD_DRYER.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_AXE).add(EamBlocks.SIEVE.builtInRegistryHolder().key(), EamBlocks.FOOD_DRYER.builtInRegistryHolder().key(), EamBlocks.FEEDER.builtInRegistryHolder().key(),
+				EamBlocks.SMALL_FRIDGE.builtInRegistryHolder().key(), EamBlocks.LOCKED_CHEST.builtInRegistryHolder().key(), EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
+		builder(BlockTags.WOODEN_FENCES).add(EamBlocks.STRIPPED_POPLAR_FENCE.builtInRegistryHolder().key());
+		// Ground a blueprint's foundation may replace: natural soil, sand and stone.
+		builder(BlueprintTemplate.GROUND).forceAddTag(BlockTags.SUBSTRATE_OVERWORLD).forceAddTag(BlockTags.SAND).forceAddTag(BlockTags.BASE_STONE_OVERWORLD)
+				.forceAddTag(BlockTags.TERRACOTTA).add(Blocks.GRAVEL.builtInRegistryHolder().key(), Blocks.SNOW_BLOCK.builtInRegistryHolder().key(),
+						Blocks.CLAY.builtInRegistryHolder().key(), Blocks.DIRT_PATH.builtInRegistryHolder().key(), Blocks.FARMLAND.builtInRegistryHolder().key(),
+						Blocks.SANDSTONE.builtInRegistryHolder().key(), Blocks.RED_SANDSTONE.builtInRegistryHolder().key());
+		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
+		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 
-		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.PILLAGER_KING_TROPHY.builtInRegistryHolder().key());
-		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.PILLAGER_KING_HELM.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(),
+				EamBlocks.LARGE_FRIDGE.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_BREWING_STAND.builtInRegistryHolder().key());
 		// Like copper ore and the iron block: a copper pickaxe or better.
 		// Our anvils are anvils: the menu accepts them, they fall and hurt like the vanilla one.
+		builder(FridgeModule.CHILLERS).add(BlockItemIds.SNOW, BlockItemIds.SNOW_BLOCK, BlockItemIds.POWDER_SNOW, BlockItemIds.ICE, BlockItemIds.PACKED_ICE,
+				BlockItemIds.BLUE_ICE);
 		builder(BlockTags.ANVIL).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(), EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.COPPER_ANVIL.builtInRegistryHolder().key(),
 				EamBlocks.SILVER_ANVIL.builtInRegistryHolder().key());
@@ -119,6 +138,13 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		diamondTool.setReplace(true);
 		diamondTool.add(BlockItemIds.CRYING_OBSIDIAN, BlockItemIds.NETHERITE_BLOCK, BlockItemIds.RESPAWN_ANCHOR, BlockItemIds.ANCIENT_DEBRIS);
 		builder(BlockTags.ANVIL).add(EamBlocks.MITHRIL_ANVIL.builtInRegistryHolder().key());
+		// Adamantium: a mithril pickaxe or better.
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.ADAMANTIUM_ORE.builtInRegistryHolder().key(),
+				EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.builtInRegistryHolder().key(), EamBlocks.ADAMANTIUM_BLOCK.builtInRegistryHolder().key(),
+				EamBlocks.ADAMANTIUM_ANVIL.builtInRegistryHolder().key());
+		diamondTool.add(EamBlocks.ADAMANTIUM_ORE.builtInRegistryHolder().key(), EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.builtInRegistryHolder().key(),
+				EamBlocks.ADAMANTIUM_BLOCK.builtInRegistryHolder().key());
+		builder(BlockTags.ANVIL).add(EamBlocks.ADAMANTIUM_ANVIL.builtInRegistryHolder().key());
 
 		// Silver and mithril bars, doors and trapdoors: tagged like the iron ones, so safe rooms count the doors as doors.
 		builder(BlockTags.BARS).add(EamBlocks.SILVER_BARS.builtInRegistryHolder().key(), EamBlocks.MITHRIL_BARS.builtInRegistryHolder().key());
@@ -171,6 +197,14 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Garlic is a crop like carrots: bees tend it and it keeps its farmland moist.
 		builder(BlockTags.CROPS).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
 		builder(BlockTags.MAINTAINS_FARMLAND).add(EamBlocks.GARLIC_CROP.builtInRegistryHolder().key());
+		// Plants whose harvest grows under a blue moon; a placed pumpkin is left out so it cannot be broken over and over.
+		BlockItemTagAppender<Block> harvest = builder(BlueMoonModule.HARVEST_BLOCKS);
+		harvest.forceAddTag(BlockTags.CROPS);
+		harvest.forceAddTag(BlockTags.CAVE_VINES);
+		harvest.add(BlockItemIds.MELON, BlockItemIds.SWEET_BERRY_CROP, BlockItemIds.COCOA_CROP);
+		BlockItemTagAppender<Block> harvestCrops = builder(HarvestModule.CROPS);
+		harvestCrops.forceAddTag(BlockTags.CROPS);
+		harvestCrops.add(BlockItemIds.MELON, BlockItemIds.SWEET_BERRY_CROP, BlockItemIds.COCOA_CROP);
 		builder(BlockTags.REPLACEABLE_BY_TREES).add(EamBlocks.SWAMP_GRASS.builtInRegistryHolder().key(),
 				EamBlocks.TALL_SWAMP_GRASS.builtInRegistryHolder().key(), EamBlocks.SWAMP_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.CATTAIL.builtInRegistryHolder().key(), EamBlocks.FIREWEED.builtInRegistryHolder().key(),
@@ -183,6 +217,10 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				EamBlocks.CHANTERELLE_STEM.builtInRegistryHolder().key(), EamBlocks.CHAMPIGNON_CAP.builtInRegistryHolder().key(),
 				EamBlocks.GLOWING_CHAMPIGNON_CAP.builtInRegistryHolder().key());
 		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.BURNT_MUSHROOM_CAP.builtInRegistryHolder().key(), EamBlocks.BURNT_MUSHROOM_STEM.builtInRegistryHolder().key(), EamBlocks.SMOLDERING_MUSHROOM_CAP.builtInRegistryHolder().key());
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.GLOWSHROOM_LAMP.builtInRegistryHolder().key());
+		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.GLOWSHROOM_LAMP.builtInRegistryHolder().key());
+		// A player caught in a crossbowman's net tears it by hand, slowly; a sword or shears cut it at once.
+		builder(HandBreakingModule.HAND_BREAKABLE).add(EamBlocks.NET.builtInRegistryHolder().key());
 		builder(BlockTags.CLIMBABLE).add(EamBlocks.GLOWSHROOM_VINES.builtInRegistryHolder().key(), EamBlocks.GLOWSHROOM_VINES_PLANT.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_HOE).add(EamBlocks.DENSE_SHRUB.builtInRegistryHolder().key(),
 				EamBlocks.BIG_SHRUB_LEAVES.builtInRegistryHolder().key());

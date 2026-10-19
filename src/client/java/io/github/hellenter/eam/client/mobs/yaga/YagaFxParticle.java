@@ -37,7 +37,11 @@ public class YagaFxParticle extends SingleQuadParticle {
 		ACID(16, 26, 0.06F, 0.1F, 0.8F, 0.98F, 0.0F, false, true, false, 0.0F, true),
 		THREAD(18, 28, 0.14F, 0.22F, -0.005F, 0.88F, 0.25F, false, true, false, 0.2F, false),
 		EMBER(10, 22, 0.05F, 0.09F, -0.03F, 0.92F, 0.0F, true, true, false, -0.4F, false),
-		CLAW(7, 7, 0.55F, 0.65F, 0.0F, 0.0F, 0.0F, true, true, false, 0.15F, false);
+		CLAW(7, 7, 0.55F, 0.65F, 0.0F, 0.0F, 0.0F, true, true, false, 0.15F, false),
+		// Koschei's cues share this body: embers off his orange blade, the motes he leaves when he vanishes, his burst of force.
+		SPARK(8, 16, 0.05F, 0.08F, -0.02F, 0.9F, 0.0F, true, true, false, -0.5F, false),
+		WARP(30, 50, 0.08F, 0.14F, -0.003F, 0.92F, 0.1F, true, true, false, -0.3F, false),
+		FORCE(8, 14, 0.12F, 0.2F, 0.0F, 0.84F, 0.2F, true, true, false, 0.8F, false);
 
 		final int minLife;
 		final int maxLife;

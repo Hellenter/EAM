@@ -3,6 +3,9 @@ package io.github.hellenter.eam.mobs.entity.yaga;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Balance numbers for Baba Yaga, read from {@code data/eam/mobs/baba_yaga.json} so datapacks can override them. A missing
  * or invalid field falls back to its default. Times are in ticks (20 a second), distances in blocks, damage and healing
@@ -12,6 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param flight   phase one: how she circles over the player in her mortar
  * @param swoop    phase one: the rare dive with her staff, the only moment she can be hurt (by a parry)
  * @param summon   the groups of swamp creatures she raises around the player
+ * @param crowd    how her waves and her creatures' health grow with the players in the fight
  * @param potion   the poison flasks she throws
  * @param spell    the spell she casts on one of her groups: absorption, speed or strength
  * @param glyphs   the glowing glyphs she lays on the ground under the player
@@ -22,12 +26,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param beam     phase two: a fire beam a shield blocks
  * @param claws    phase two: she blinks behind the player and rakes them with her claws
  * @param eat      phase two: she eats one of her creatures to heal
- * @param storm    her own thunderstorm around her while she fights, and her way home once nobody is left to fight
+ * @param storm    her own thunderstorm around her while she fights, her way home once nobody is left to fight, and the
+ *                 hut she waits in until a player comes up to it
  */
-public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon summon, Potion potion, Spell spell, Glyphs glyphs,
-		PhaseTwo phaseTwo, Escape escape, Acid acid, Threads threads, Beam beam, Claws claws, Eat eat, Storm storm) {
+public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon summon, Crowd crowd, Potion potion, Spell spell,
+		Glyphs glyphs, PhaseTwo phaseTwo, Escape escape, Acid acid, Threads threads, Beam beam, Claws claws, Eat eat, Storm storm) {
 	public static final BabaYagaSettings DEFAULT = new BabaYagaSettings(Stats.DEFAULT, Flight.DEFAULT, Swoop.DEFAULT, Summon.DEFAULT,
-			Potion.DEFAULT, Spell.DEFAULT, Glyphs.DEFAULT, PhaseTwo.DEFAULT, Escape.DEFAULT, Acid.DEFAULT, Threads.DEFAULT, Beam.DEFAULT,
+			Crowd.DEFAULT, Potion.DEFAULT, Spell.DEFAULT, Glyphs.DEFAULT, PhaseTwo.DEFAULT, Escape.DEFAULT, Acid.DEFAULT, Threads.DEFAULT, Beam.DEFAULT,
 			Claws.DEFAULT, Eat.DEFAULT, Storm.DEFAULT);
 
 	public static final Codec<BabaYagaSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -35,6 +40,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 			Flight.CODEC.fieldOf("flight").orElse(Flight.DEFAULT).forGetter(BabaYagaSettings::flight),
 			Swoop.CODEC.fieldOf("swoop").orElse(Swoop.DEFAULT).forGetter(BabaYagaSettings::swoop),
 			Summon.CODEC.fieldOf("summon").orElse(Summon.DEFAULT).forGetter(BabaYagaSettings::summon),
+			Crowd.CODEC.fieldOf("crowd").orElse(Crowd.DEFAULT).forGetter(BabaYagaSettings::crowd),
 			Potion.CODEC.fieldOf("potion").orElse(Potion.DEFAULT).forGetter(BabaYagaSettings::potion),
 			Spell.CODEC.fieldOf("spell").orElse(Spell.DEFAULT).forGetter(BabaYagaSettings::spell),
 			Glyphs.CODEC.fieldOf("glyphs").orElse(Glyphs.DEFAULT).forGetter(BabaYagaSettings::glyphs),
@@ -57,7 +63,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param xp             experience dropped on death
 	 */
 	public record Stats(float phaseOneHealth, float phaseTwoHealth, double armor, double speed, double followRange, int xp) {
-		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.42, 64.0, 300);
+		public static final Stats DEFAULT = new Stats(50.0F, 100.0F, 4.0, 0.3675, 64.0, 300);
 		public static final Codec<Stats> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_one_health").orElse(DEFAULT.phaseOneHealth).forGetter(Stats::phaseOneHealth),
 				Codec.floatRange(1.0F, 2048.0F).fieldOf("phase_two_health").orElse(DEFAULT.phaseTwoHealth).forGetter(Stats::phaseTwoHealth),
@@ -116,7 +122,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param halfDelay     each group of a wave rises in two halves: the first at once, the second this many ticks later
 	 * @param lurkerGroup   a phase-one group of swamp lurkers: how many lurkers and how many drowned soldiers go with them
 	 * @param wightGroup    a phase-one group of wights: how many wights and how many drowned soldiers go with them
-	 * @param maxWights     wights in one phase-two group, at most
+	 * @param maxWights     wights in one phase-one wave, at most, whatever its size
 	 * @param minRadius     groups appear at least this far from the player
 	 * @param maxRadius     and at most this far
 	 * @param firstDelay    ticks after she notices a player before she raises her first wave
@@ -127,7 +133,7 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param glowAfter     a phase-one group still alive this long after it rose starts to glow
 	 * @param fadeAfter     and this long after it rose it starts to die
 	 * @param fadeTicks     dying takes this long: each creature loses its full health over it, then falls
-	 * @param healthMultiplier every creature she raises has this share of its usual health
+	 * @param healthMultiplier every creature she raises has this share of its usual health; see also {@link Crowd}
 	 */
 	public record Summon(int groups, int halfDelay, Mix lurkerGroup, Mix wightGroup, int maxWights, double minRadius, double maxRadius,
 			int firstDelay, int lurkerWeight, int wightWeight, int soldierWeight, double followRange,
@@ -172,6 +178,40 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	}
 
 	/**
+	 * Her waves grow with the players in the fight. The tier with the most players, at most as many as there are, sets the
+	 * wave; with fewer players than any tier a wave is {@link Summon#groups()} groups of two sub-waves.
+	 *
+	 * @param radius                  players this close to her count as in the fight
+	 * @param soldierHealthMultiplier the drowned soldiers' share of their usual health, instead of {@link Summon#healthMultiplier()}
+	 * @param tiers                   the waves for bigger fights
+	 */
+	public record Crowd(double radius, double soldierHealthMultiplier, List<Tier> tiers) {
+		public static final Crowd DEFAULT = new Crowd(64.0, 1.0, List.of(new Tier(2, List.of(3, 3), Optional.empty()),
+				new Tier(3, List.of(3, 3, 2), Optional.empty()), new Tier(4, List.of(3, 3, 3), Optional.of(0.9))));
+		public static final Codec<Crowd> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(4.0, 256.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Crowd::radius),
+				Codec.doubleRange(0.05, 4.0).fieldOf("soldier_health_multiplier").orElse(DEFAULT.soldierHealthMultiplier)
+						.forGetter(Crowd::soldierHealthMultiplier),
+				Tier.CODEC.listOf().fieldOf("tiers").orElse(DEFAULT.tiers).forGetter(Crowd::tiers)
+		).apply(instance, Crowd::new));
+
+		/**
+		 * One size of fight.
+		 *
+		 * @param players          this many players or more
+		 * @param subWaves         one entry per group of the wave: how many sub-waves it rises in
+		 * @param healthMultiplier the creatures' share of their usual health, if not {@link Summon#healthMultiplier()}
+		 */
+		public record Tier(int players, List<Integer> subWaves, Optional<Double> healthMultiplier) {
+			public static final Codec<Tier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+					Codec.intRange(1, 100).fieldOf("players").forGetter(Tier::players),
+					Codec.intRange(1, 6).listOf(1, 8).fieldOf("sub_waves").forGetter(Tier::subWaves),
+					Codec.doubleRange(0.05, 4.0).optionalFieldOf("health_multiplier").forGetter(Tier::healthMultiplier)
+			).apply(instance, Tier::new));
+		}
+	}
+
+	/**
 	 * @param cooldown      ticks between two flasks
 	 * @param range         she throws at a player this close
 	 * @param radius        the splash reaches this far (a vanilla splash potion: 4)
@@ -181,10 +221,13 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param weaknessTicks weakness (none by default)
 	 * @param weaknessLevel weakness's level
 	 * @param flightTicks   the flask is in the air at least this long, so a player can step out from under it
+	 * @param reflectWindow a hit or a raised shield this many ticks or less before the flask reaches a player sends it back
+	 * @param reflectSpeed  blocks a tick the flask flies back to her at
+	 * @param dazeTicks     reaching her, the flask sent back stuns her: no attack for this long, but no damage either
 	 */
 	public record Potion(int cooldown, double range, double radius, int poisonTicks, int nauseaTicks, int nauseaLevel, int weaknessTicks,
-			int weaknessLevel, int flightTicks) {
-		public static final Potion DEFAULT = new Potion(300, 28.0, 4.0, 200, 50, 0, 0, 0, 24);
+			int weaknessLevel, int flightTicks, int reflectWindow, double reflectSpeed, int dazeTicks) {
+		public static final Potion DEFAULT = new Potion(300, 28.0, 4.0, 200, 50, 0, 0, 0, 24, 5, 1.2, 100);
 		public static final Codec<Potion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(10, 12000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Potion::cooldown),
 				Codec.doubleRange(2.0, 64.0).fieldOf("range").orElse(DEFAULT.range).forGetter(Potion::range),
@@ -194,7 +237,10 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 				Codec.intRange(0, 9).fieldOf("nausea_level").orElse(DEFAULT.nauseaLevel).forGetter(Potion::nauseaLevel),
 				Codec.intRange(0, 12000).fieldOf("weakness_ticks").orElse(DEFAULT.weaknessTicks).forGetter(Potion::weaknessTicks),
 				Codec.intRange(0, 9).fieldOf("weakness_level").orElse(DEFAULT.weaknessLevel).forGetter(Potion::weaknessLevel),
-				Codec.intRange(5, 100).fieldOf("flight_ticks").orElse(DEFAULT.flightTicks).forGetter(Potion::flightTicks)
+				Codec.intRange(5, 100).fieldOf("flight_ticks").orElse(DEFAULT.flightTicks).forGetter(Potion::flightTicks),
+				Codec.intRange(0, 40).fieldOf("reflect_window").orElse(DEFAULT.reflectWindow).forGetter(Potion::reflectWindow),
+				Codec.doubleRange(0.2, 4.0).fieldOf("reflect_speed").orElse(DEFAULT.reflectSpeed).forGetter(Potion::reflectSpeed),
+				Codec.intRange(0, 1200).fieldOf("daze_ticks").orElse(DEFAULT.dazeTicks).forGetter(Potion::dazeTicks)
 		).apply(instance, Potion::new));
 	}
 
@@ -439,14 +485,16 @@ public record BabaYagaSettings(Stats stats, Flight flight, Swoop swoop, Summon s
 	 * @param lightningOdds while the storm lasts, a lightning flash strikes near her on average once in this many ticks
 	 * @param lightningReach the flashes strike at most this far from her
 	 * @param lostTicks     once she has seen no player for this long, her storm ends and she goes back where she started
+	 * @param hutWakeRadius a hut's Baba Yaga waits in it, unseen, until a player is within this many blocks of its door
 	 */
-	public record Storm(double radius, int lightningOdds, double lightningReach, int lostTicks) {
-		public static final Storm DEFAULT = new Storm(100.0, 120, 60.0, 3600);
+	public record Storm(double radius, int lightningOdds, double lightningReach, int lostTicks, double hutWakeRadius) {
+		public static final Storm DEFAULT = new Storm(100.0, 120, 60.0, 3600, 8.0);
 		public static final Codec<Storm> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(8.0, 512.0).fieldOf("radius").orElse(DEFAULT.radius).forGetter(Storm::radius),
 				Codec.intRange(1, 72000).fieldOf("lightning_odds").orElse(DEFAULT.lightningOdds).forGetter(Storm::lightningOdds),
 				Codec.doubleRange(0.0, 512.0).fieldOf("lightning_reach").orElse(DEFAULT.lightningReach).forGetter(Storm::lightningReach),
-				Codec.intRange(20, 720000).fieldOf("lost_ticks").orElse(DEFAULT.lostTicks).forGetter(Storm::lostTicks)
+				Codec.intRange(20, 720000).fieldOf("lost_ticks").orElse(DEFAULT.lostTicks).forGetter(Storm::lostTicks),
+				Codec.doubleRange(1.0, 64.0).fieldOf("hut_wake_radius").orElse(DEFAULT.hutWakeRadius).forGetter(Storm::hutWakeRadius)
 		).apply(instance, Storm::new));
 	}
 }

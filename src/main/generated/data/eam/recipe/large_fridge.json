@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": "#c:buckets/empty",
+    "I": "eam:iron_plate",
+    "W": "#minecraft:wool"
+  },
+  "pattern": [
+    "IWI",
+    "WBW",
+    "IWI"
+  ],
+  "result": {
+    "id": "eam:large_fridge"
+  }
+}

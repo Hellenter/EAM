@@ -50,10 +50,29 @@ class DuergarVillageLogicTest {
 	}
 
 	@Test
+	void buriedWhenTheFloorStandsTwoBlocksHigher() {
+		assertTrue(DuergarVillageLogic.buried(TWO_CAVES, 78));
+		assertFalse(DuergarVillageLogic.buried(TWO_CAVES, 79));
+		assertFalse(DuergarVillageLogic.buried(TWO_CAVES, 80));
+		IntUnaryOperator pond = y -> y <= 80 ? SOLID : y <= 82 ? WATER : AIR;
+		assertFalse(DuergarVillageLogic.buried(pond, 80));
+	}
+
+	@Test
 	void stepsAtMostMaxStepFromItsParent() {
 		assertEquals(3, DuergarVillageLogic.step(7, 2, 1));
 		assertEquals(-1, DuergarVillageLogic.step(-5, 0, 1));
 		assertEquals(2, DuergarVillageLogic.step(2, 2, 1));
 		assertEquals(4, DuergarVillageLogic.median(new int[] {9, 4, 1, 4, 5}));
+	}
+
+	@Test
+	void turnsAStairThatGoesAgainstTheFloor() {
+		assertTrue(DuergarVillageLogic.turnStair(2, -3));
+		assertTrue(DuergarVillageLogic.turnStair(-2, 1));
+		assertFalse(DuergarVillageLogic.turnStair(2, 2));
+		assertFalse(DuergarVillageLogic.turnStair(-2, -1));
+		assertFalse(DuergarVillageLogic.turnStair(2, 0));
+		assertFalse(DuergarVillageLogic.turnStair(0, -4));
 	}
 }

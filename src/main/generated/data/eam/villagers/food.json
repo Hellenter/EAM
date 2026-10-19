@@ -1,0 +1,8 @@
+{
+  "feeder_radius": 8,
+  "fish_interval_ticks": 1200,
+  "fish_max": 16,
+  "fish_water_blocks": 4,
+  "fish_water_radius": 8,
+  "livestock_share": 0.5
+}

@@ -4,10 +4,10 @@ import java.util.List;
 
 /**
  * Pure rules for crafting with metals. Every material and table tool has a tier: flint 1, copper and silver 2, iron and ancient metal 3,
- * mithril 4.
+ * mithril 4, adamantium (and netherite, its upgrade) 5.
  * Crafting with a material of tier N needs a knife of tier N - 1 or better in the crafting table; tools in the table
  * also make crafting faster, each by its tier's bonus: knives every craft, saws wooden and decorative results, hammers
- * metalwork.
+ * metalwork. Tools below the wear-free tier (flint, copper, silver) lose a point of durability for each craft they help.
  */
 public final class CraftingTierLogic {
 	/** No tier: the item is no metal and no table tool. */
@@ -24,6 +24,11 @@ public final class CraftingTierLogic {
 	/** Whether tools whose best tier is {@code bestToolTier} may craft with materials of {@code materialTier}. */
 	public static boolean canCraft(int materialTier, int bestToolTier) {
 		return bestToolTier >= requiredToolTier(materialTier);
+	}
+
+	/** Whether a table tool of {@code tier} loses durability when it helps a craft. */
+	public static boolean wears(int tier, int wearFreeTier) {
+		return tier > NONE && tier < wearFreeTier;
 	}
 
 	/** Speed tools add: each tool of tier N adds {@code bonuses[N - 1]}. Tiers outside the list add nothing. */

@@ -47,12 +47,13 @@ public final class EliteCrossbowmanModule {
 	public static void register() {
 		FabricDefaultAttributeRegistry.register(EamEntities.ELITE_CROSSBOWMAN, EliteCrossbowman.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(EliteCrossbowmanSettingsLoader.ID, new EliteCrossbowmanSettingsLoader());
-		// Whatever cuts cobweb quickly (swords, shears) cuts the net as quickly.
+		// Whatever cuts cobweb quickly (swords, shears) cuts the net, and evolved spiders' webs, as quickly.
 		DefaultItemComponentEvents.MODIFY.register(context -> context.modify(item -> true, (builder, item) -> {
 			Tool tool = builder.get(DataComponents.TOOL);
 			if (tool != null && cutsCobweb(tool)) {
 				List<Tool.Rule> rules = new ArrayList<>(tool.rules().size() + 1);
-				rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(EamBlocks.NET.builtInRegistryHolder()), NET_CUT_SPEED));
+				rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(EamBlocks.NET.builtInRegistryHolder(),
+						EamBlocks.SPIDER_WEB.builtInRegistryHolder()), NET_CUT_SPEED));
 				rules.addAll(tool.rules());
 				builder.set(DataComponents.TOOL, new Tool(rules, tool.defaultMiningSpeed(), tool.damagePerBlock(),
 						tool.canDestroyBlocksInCreative()));

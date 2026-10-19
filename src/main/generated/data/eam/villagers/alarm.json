@@ -1,0 +1,13 @@
+{
+  "alarm_ticks": 1200,
+  "bell_radius": 48,
+  "cleric_heal": 4.0,
+  "cleric_rest_ticks": 40,
+  "gather_distance": 5.0,
+  "gather_speed": 0.8,
+  "ring_interval_ticks": 15,
+  "ring_reach": 2.5,
+  "rings": 3,
+  "run_speed": 0.8,
+  "run_timeout_ticks": 400
+}

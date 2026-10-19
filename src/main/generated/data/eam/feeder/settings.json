@@ -1,11 +1,16 @@
 {
-  "animal_radius": 16,
+  "animal_radius": 24,
   "breeding": true,
-  "farmer_keeps_points": 24,
-  "farmer_keeps_seeds": 16,
+  "crowd_limit": 6,
+  "crowd_radius": 2,
+  "farmer_keeps_points": 12,
+  "farmer_keeps_seeds": 8,
   "farmer_radius": 8,
+  "fed_growth_boost": 1.5,
   "heads_per_feeder": 10,
   "metal_scale": 1.5,
+  "sick_after_days": 2,
   "slots_per_feeder": 8,
-  "thin_after_days": 7
+  "thin_after_days": 7,
+  "water_radius": 8
 }

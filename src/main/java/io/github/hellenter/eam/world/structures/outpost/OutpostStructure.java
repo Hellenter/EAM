@@ -4,16 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.hellenter.eam.world.structures.GroundWork;
+
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -36,17 +34,6 @@ public class OutpostStructure extends Structure {
 			Codec.intRange(0, 24).optionalFieldOf("clear_radius", 15).forGetter(outpost -> outpost.clearRadius),
 			Codec.intRange(0, 32).optionalFieldOf("max_slope", 10).forGetter(outpost -> outpost.maxSlope)
 	).apply(instance, OutpostStructure::new));
-
-	/**
-	 * How far the leaves of a tree growing outside the clearing may reach into it. Each chunk clears this far beyond
-	 * its edges, so trees grown in a neighbouring chunk after it are cleared by that chunk, leaves and all. A fancy
-	 * oak's branches with their leaves reach about this far from its trunk.
-	 */
-	private static final int LEAF_REACH = 12;
-	/** How far out the bank of earth around a raised outpost reaches; as far as the steepest site rises. */
-	private static final int BANK = 10;
-	/** How deep earth is filled under a raised outpost or its bank at most. */
-	private static final int FOUNDATION_DEPTH = 16;
 
 	private final int clearRadius;
 	private final int maxSlope;
@@ -91,7 +78,7 @@ public class OutpostStructure extends Structure {
 	/** Every chunk the clearing and the leaves reaching into it touch takes part in placing the outpost. */
 	@Override
 	public BoundingBox adjustBoundingBox(BoundingBox box) {
-		int reach = clearRadius + LEAF_REACH;
+		int reach = clearRadius + GroundWork.LEAF_REACH;
 		return super.adjustBoundingBox(box).inflatedBy(reach, 0, reach);
 	}
 
@@ -100,94 +87,10 @@ public class OutpostStructure extends Structure {
 			BoundingBox chunkBox, ChunkPos chunk, PiecesContainer pieces) {
 		for (StructurePiece piece : pieces.pieces()) {
 			if (!(piece instanceof OutpostPiece outpost)) continue;
-			if (clearRadius > 0) clearTrees(level, chunkBox, outpost);
-			bank(level, chunkBox, outpost.templateBox());
+			BoundingBox footprint = outpost.templateBox();
+			if (clearRadius > 0) GroundWork.clearTrees(level, chunkBox, footprint, footprint.minY() + OutpostPiece.GROUND, clearRadius);
+			GroundWork.bank(level, chunkBox, footprint, footprint.minY() + OutpostPiece.GROUND, false);
 		}
-	}
-
-	/**
-	 * Where the outpost stands above the ground, fills earth under it down to the ground and banks earth around it,
-	 * sloping one block down for each block out, so it neither floats nor sits on a cliff.
-	 */
-	private static void bank(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint) {
-		int grass = footprint.minY() + OutpostPiece.GROUND;
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-		for (int x = Math.max(chunkBox.minX(), footprint.minX() - BANK); x <= Math.min(chunkBox.maxX(), footprint.maxX() + BANK); x++) {
-			for (int z = Math.max(chunkBox.minZ(), footprint.minZ() - BANK); z <= Math.min(chunkBox.maxZ(), footprint.maxZ() + BANK); z++) {
-				int distance = OutpostLogic.distance(footprint.minX(), footprint.minZ(), footprint.maxX(), footprint.maxZ(), x, z);
-				if (distance > BANK) continue;
-				int top = distance == 0 ? footprint.minY() - 1 : OutpostLogic.bankTop(grass, distance);
-				for (int y = top; y > top - FOUNDATION_DEPTH; y--) {
-					pos.set(x, y, z);
-					BlockState state = level.getBlockState(pos);
-					// The bank stops at water: a lake beside the outpost keeps its shore.
-					if (!state.getFluidState().isEmpty()) break;
-					if (!state.isAir() && !state.is(BlockTags.REPLACEABLE)) {
-						// Grass buried under the bank turns to dirt.
-						if (y < top && state.is(Blocks.GRASS_BLOCK)) level.setBlock(pos, Blocks.DIRT.defaultBlockState(), Block.UPDATE_CLIENTS);
-						break;
-					}
-					BlockState fill = distance > 0 && y == top ? Blocks.GRASS_BLOCK.defaultBlockState() : Blocks.DIRT.defaultBlockState();
-					level.setBlock(pos, fill, Block.UPDATE_CLIENTS);
-				}
-			}
-		}
-	}
-
-	private void clearTrees(WorldGenLevel level, BoundingBox chunkBox, OutpostPiece outpost) {
-		BoundingBox footprint = outpost.templateBox();
-		int fromX = Math.max(chunkBox.minX() - LEAF_REACH, footprint.minX() - clearRadius);
-		int toX = Math.min(chunkBox.maxX() + LEAF_REACH, footprint.maxX() + clearRadius);
-		int fromZ = Math.max(chunkBox.minZ() - LEAF_REACH, footprint.minZ() - clearRadius);
-		int toZ = Math.min(chunkBox.maxZ() + LEAF_REACH, footprint.maxZ() + clearRadius);
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-		for (int x = fromX; x <= toX; x++) {
-			for (int z = fromZ; z <= toZ; z++) {
-				if (!OutpostLogic.inClearing(footprint.minX(), footprint.minZ(), footprint.maxX(), footprint.maxZ(), clearRadius, x, z)) continue;
-				boolean inFootprint = x >= footprint.minX() && x <= footprint.maxX() && z >= footprint.minZ() && z <= footprint.maxZ();
-				if (inFootprint) clearFootprintColumn(level, pos, x, z, outpost, footprint.minY() + OutpostPiece.GROUND);
-				else clearColumn(level, pos, x, z);
-			}
-		}
-	}
-
-	/** Removes the tree blocks of one column from the top down to the ground, which keeps grass where a trunk stood. */
-	private static void clearColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z) {
-		boolean trunk = false;
-		for (int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1; y >= level.getMinY(); y--) {
-			pos.set(x, y, z);
-			BlockState state = level.getBlockState(pos);
-			if (isTreePart(state)) {
-				trunk = state.is(BlockTags.LOGS);
-				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-			} else if (state.isAir() || state.is(BlockTags.REPLACEABLE_BY_TREES)) {
-				trunk = false;
-			} else {
-				if (trunk && state.is(Blocks.DIRT)) level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), Block.UPDATE_CLIENTS);
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Removes the tree blocks of one column over the outpost down to its ground. A tree grown in a neighbouring chunk
-	 * after the outpost was placed puts its leaves and branches into the template's air, beside walls and under roofs,
-	 * so the whole height is searched, past the template's own blocks, and only the logs the template has stay.
-	 */
-	private static void clearFootprintColumn(WorldGenLevel level, BlockPos.MutableBlockPos pos, int x, int z, OutpostPiece outpost, int ground) {
-		for (int y = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1; y >= ground; y--) {
-			pos.set(x, y, z);
-			BlockState state = level.getBlockState(pos);
-			if (isTreePart(state) && !(state.is(BlockTags.LOGS) && outpost.placesLog(pos))) {
-				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-			}
-		}
-	}
-
-	private static boolean isTreePart(BlockState state) {
-		return state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || state.is(Blocks.VINE) || state.is(Blocks.BEE_NEST)
-				|| state.is(Blocks.COCOA) || state.is(Blocks.BROWN_MUSHROOM_BLOCK) || state.is(Blocks.RED_MUSHROOM_BLOCK)
-				|| state.is(Blocks.MUSHROOM_STEM);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package io.github.hellenter.eam.world.structures.yagahut;
 
 import io.github.hellenter.eam.content.EamEntities;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
+import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -25,11 +27,14 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 /**
  * Maxim's hut template, turned about its middle. Its bottom layer is the ground it stands on; its door faces the
- * template's north. Once the chunk with the spot in front of the door is placed, Baba Yaga is put there.
+ * template's north. Once the chunk with the spot in front of the door is placed, Baba Yaga is put there, waiting unseen
+ * until a player comes up to the door.
  */
 public class YagaHutPiece extends TemplateStructurePiece {
 	/** Where Baba Yaga stands in the template: on the ground two blocks out from the steps before the door. */
 	static final BlockPos YAGA_SPOT = new BlockPos(11, 1, 12);
+	/** The lower half of the hut's own door in the template (not the shed's). */
+	static final BlockPos HUT_DOOR = new BlockPos(11, 2, 16);
 
 	private final Rotation rotation;
 
@@ -57,7 +62,9 @@ public class YagaHutPiece extends TemplateStructurePiece {
 				.setLiquidSettings(LiquidSettings.IGNORE_WATERLOGGING)
 				// Already shaped in the template; reshaping chunk by chunk would break doors and chests split across chunks.
 				.setKnownShape(true)
-				.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+				.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
+				.addProcessor(new EmptyContainerLoot(Blocks.CHEST, YagaHutModule.CHEST_LOOT))
+				.addProcessor(new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS));
 	}
 
 	/** The whole template's box. */
@@ -90,11 +97,11 @@ public class YagaHutPiece extends TemplateStructurePiece {
 			BoundingBox box, ChunkPos chunk, BlockPos reference) {
 		super.postProcess(level, structures, generator, random, box, chunk, reference);
 		BlockPos spot = StructureTemplate.calculateRelativePosition(placeSettings, YAGA_SPOT).offset(templatePosition);
-		if (box.isInside(spot)) spawnYaga(level, spot);
+		if (box.isInside(spot)) spawnYaga(level, spot, StructureTemplate.calculateRelativePosition(placeSettings, HUT_DOOR).offset(templatePosition));
 	}
 
-	/** Baba Yaga, waiting in front of her door, facing out. */
-	private void spawnYaga(WorldGenLevel level, BlockPos spot) {
+	/** Baba Yaga, in front of her door, facing out; unseen until a player comes up to the door. */
+	private void spawnYaga(WorldGenLevel level, BlockPos spot, BlockPos door) {
 		BabaYaga yaga = EamEntities.BABA_YAGA.create(level.getLevel(), EntitySpawnReason.STRUCTURE);
 		if (yaga == null) return;
 		yaga.setPersistenceRequired();
@@ -103,6 +110,7 @@ public class YagaHutPiece extends TemplateStructurePiece {
 		yaga.setYHeadRot(yaw);
 		yaga.setYBodyRot(yaw);
 		yaga.finalizeSpawn(level, level.getCurrentDifficultyAt(spot), EntitySpawnReason.STRUCTURE, null);
+		yaga.waitInHut(door);
 		level.addFreshEntityWithPassengers(yaga);
 	}
 }

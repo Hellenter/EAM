@@ -1,0 +1,254 @@
+{
+  "stats": {
+    "health": 100.0,
+    "armor": 6,
+    "speed": 0.384,
+    "follow_range": 32.0,
+    "xp": 300,
+    "regen": 1.0,
+    "armor_piercing": 0.15,
+    "physical_resist": 0.2,
+    "attack_speed": 1.75
+  },
+  "phase_one": {
+    "reach": 3.2,
+    "strike": {
+      "damage": 8.0,
+      "weight": 4.0,
+      "cooldown": 0
+    },
+    "double_strike": {
+      "damage": 6.0,
+      "weight": 2.0,
+      "cooldown": 50
+    },
+    "orange": {
+      "damage": 10.0,
+      "shield_seconds": 5.0,
+      "weight": 1.5,
+      "cooldown": 100
+    },
+    "red": {
+      "damage": 12.0,
+      "shield_reduction": 0.5,
+      "weight": 1.5,
+      "cooldown": 100,
+      "parry_window": 0
+    },
+    "overhead": {
+      "damage": 12.0,
+      "shield_reduction": 0.5,
+      "weight": 3.0,
+      "cooldown": 60,
+      "parry_window": 7
+    },
+    "lunge": {
+      "damage": 10.0,
+      "min_range": 3.5,
+      "max_range": 5.0,
+      "chance": 0.3,
+      "cooldown": 140,
+      "parry_window": 7,
+      "max_fails": 2,
+      "shield_seconds": 5.0,
+      "shield_parry_window": 11
+    },
+    "kick": {
+      "damage": 5.0,
+      "knockback": 0.8,
+      "shield_seconds": 5.0,
+      "reach": 2.2,
+      "shield_ticks": 8,
+      "weight": 1.5,
+      "cooldown": 80
+    },
+    "force": {
+      "push": 10.0,
+      "shield_push": 6.0,
+      "range": 5.0,
+      "lift": 0.45,
+      "air_ticks": 13,
+      "chance": 0.1,
+      "cooldown": 160
+    },
+    "bolt": {
+      "damage_per_second": 8.0,
+      "pulse": 5,
+      "min_range": 6.0,
+      "max_range": 18.0,
+      "chance": 0.03,
+      "cooldown": 400,
+      "shield_back": 10,
+      "hunger_ticks": 300,
+      "hunger_chance": 5.0,
+      "hunger_min_range": 3.0
+    },
+    "parry": {
+      "multiplier": 1.5,
+      "windup_hits": 2
+    },
+    "arrow_parry_chance": 1.0
+  },
+  "teleport": {
+    "cooldown": 180,
+    "chance": 0.08,
+    "distance": 6.0,
+    "max_angle": 70.0,
+    "retreat_ticks": 60
+  },
+  "hop": {
+    "cooldown": 50,
+    "chance": 0.15,
+    "speed": 0.6,
+    "burst_share": 0.25,
+    "burst_window": 100,
+    "burst_speed": 1.1,
+    "in_chance": 0.06,
+    "in_from": 4.5,
+    "in_min": 2.0,
+    "in_max": 3.5,
+    "flank_chance": 0.4,
+    "flank_cooldown": 55,
+    "flank_range": 6.0
+  },
+  "ravens": {
+    "count": 3,
+    "health": 1.0,
+    "damage": 1.0,
+    "lifetime": 300,
+    "speed": 0.45,
+    "chance": 0.02,
+    "cooldown": 400,
+    "max_range": 16.0
+  },
+  "mob_damage_multiplier": 4.0,
+  "height": {
+    "above": 2.5,
+    "after": 30,
+    "spot_range": 3.0,
+    "force_rise": 10.0
+  },
+  "phase_two": {
+    "health": 120.0,
+    "speed_multiplier": 1.15,
+    "attack_pause": 14,
+    "kite": {
+      "min_distance": 6.0,
+      "max_distance": 13.0,
+      "flee_distance": 3.5,
+      "flee_speed": 1.3,
+      "hop_chance": 0.08
+    },
+    "teleport": {
+      "cooldown": 140,
+      "chance": 0.03,
+      "distance": 9.0
+    },
+    "bolt": {
+      "damage": 4.0,
+      "speed": 0.45,
+      "cooldown": 30,
+      "max_range": 24.0
+    },
+    "strike": {
+      "damage": 7.0,
+      "push": 1.5,
+      "reach": 2.8,
+      "cooldown": 30
+    },
+    "souls": {
+      "count": 3,
+      "chance": 0.2,
+      "cooldown": 260,
+      "spread": 9.0
+    },
+    "trap": {
+      "chance": 0.12,
+      "cooldown": 420,
+      "wait_ticks": 120,
+      "trigger_range": 2.2,
+      "count": 3,
+      "radius": 3.5
+    },
+    "thralls": {
+      "cap": 5,
+      "speed_multiplier": 1.4,
+      "health_multiplier": 0.5
+    },
+    "ball_lightning": {
+      "chance": 0.04,
+      "cooldown": 600,
+      "unstable_after": 140,
+      "lifetime": 400,
+      "speed": 0.13,
+      "radius": 2.0,
+      "damage_per_second": 1.0,
+      "burst_damage": 5.0,
+      "burst_radius": 2.5,
+      "dart_chance": 0.02,
+      "dart_distance": 2.5
+    },
+    "snow_storm": {
+      "chance": 0.15,
+      "cooldown": 240,
+      "range": 9.0,
+      "angle": 35.0,
+      "push_per_second": 0.33,
+      "damage_per_second": 1.0
+    },
+    "ice_ravens": {
+      "chance": 0.12,
+      "cooldown": 300,
+      "count": 3,
+      "health": 2.0,
+      "damage": 2.0,
+      "slowness_seconds": 4.0,
+      "speed": 0.55,
+      "turn": 0.12,
+      "lifetime": 160,
+      "shield_seconds": 5.0,
+      "max_range": 20.0
+    },
+    "ice_wall": {
+      "chance": 0.25,
+      "cooldown": 400,
+      "rush_speed": 0.15,
+      "min_distance": 4.0,
+      "max_distance": 10.0,
+      "ahead": 2.0,
+      "size": 3,
+      "lifetime": 200
+    },
+    "turtle": {
+      "chance": 0.1,
+      "cooldown": 600,
+      "count": 3,
+      "min_room": 2,
+      "duration": 300,
+      "spacing": 1.0,
+      "front_distance": 2.5,
+      "reach": 2.6
+    },
+    "ice_copies": {
+      "chance": 0.1,
+      "cooldown": 600,
+      "count": 2,
+      "health": 8.0,
+      "lifetime": 300,
+      "bolt_cooldown": 45,
+      "distance": 3.0
+    },
+    "drain": {
+      "below": 0.7,
+      "uses": 2,
+      "chance": 0.3,
+      "cooldown": 800,
+      "range": 16.0,
+      "damage_per_second": 2.0,
+      "heal_start": 10.0,
+      "heal_step": 1.0,
+      "heal_min": 7.0,
+      "height": 3.0
+    }
+  }
+}

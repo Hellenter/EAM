@@ -79,8 +79,12 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int MITHRIL_RICH_VEIN_RARITY = 20;
 	private static final int MITHRIL_TOP = -32;
 	private static final float MITHRIL_DISCARD_ON_AIR = 0.5F;
-	private static final int WILD_GARLIC_RARITY = 12;
-	private static final int WILD_GARLIC_TRIES = 16;
+	private static final int ADAMANTIUM_VEIN_SIZE = 4;
+	/** Most adamantium touching air is gone: it is found by digging, not by looking at cave walls. */
+	private static final float ADAMANTIUM_DISCARD_ON_AIR = 0.7F;
+	private static final int WILD_GARLIC_RARITY = 8;
+	private static final int WILD_GARLIC_MIN_BUSHES = 1;
+	private static final int WILD_GARLIC_MAX_BUSHES = 3;
 
 	public EamWorldgenProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
@@ -115,6 +119,10 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.MITHRIL_ORE.defaultBlockState()),
 				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_MITHRIL_ORE.defaultBlockState())
 		), MITHRIL_VEIN_SIZE, MITHRIL_DISCARD_ON_AIR));
+		context.register(EamWorldgen.ORE_ADAMANTIUM, new OreFeature(List.of(
+				BlockReplacement.replace(new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), EamBlocks.ADAMANTIUM_ORE.defaultBlockState()),
+				BlockReplacement.replace(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), EamBlocks.DEEPSLATE_ADAMANTIUM_ORE.defaultBlockState())
+		), ADAMANTIUM_VEIN_SIZE, ADAMANTIUM_DISCARD_ON_AIR));
 	}
 
 	/** Every EAM biome: the swampy forest and the underworld. */
@@ -154,14 +162,14 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				InSquarePlacement.spread(),
 				HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)),
 				BiomeFilter.biome()));
-		// A patch of up to a dozen plants once in 12 chunks on average, wherever the plant can root.
+		// A small group of one to three bushes once in 8 chunks on average, wherever the plant can root.
 		PlacementUtils.register(context, EamWorldgen.WILD_GARLIC_PATCH, features.getOrThrow(EamWorldgen.WILD_GARLIC), List.of(
 				RarityFilter.onAverageOnceEvery(WILD_GARLIC_RARITY),
 				InSquarePlacement.spread(),
 				PlacementUtils.HEIGHTMAP_NO_LEAVES,
 				BiomeFilter.biome(),
-				CountPlacement.of(WILD_GARLIC_TRIES),
-				OffsetPlacement.ofTriangle(4, 2),
+				CountPlacement.of(UniformInt.of(WILD_GARLIC_MIN_BUSHES, WILD_GARLIC_MAX_BUSHES)),
+				OffsetPlacement.ofTriangle(2, 1),
 				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 						BlockPredicate.wouldSurvive(EamBlocks.WILD_GARLIC)))));
 		PlacementUtils.register(context, EamWorldgen.ORE_SILVER_PLACED, silver, silverOre());
@@ -265,6 +273,7 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(features, EamWorldgen.ORE_COPPER);
 		entries.add(features, EamWorldgen.ORE_SILVER);
 		entries.add(features, EamWorldgen.ORE_MITHRIL);
+		entries.add(features, EamWorldgen.ORE_ADAMANTIUM);
 		entries.add(features, EamWorldgen.WILD_GARLIC);
 		var placedFeatures = registries.lookupOrThrow(Registries.PLACED_FEATURE);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_FOREST);

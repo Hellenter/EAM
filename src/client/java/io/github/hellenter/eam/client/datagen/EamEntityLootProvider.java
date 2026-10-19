@@ -29,6 +29,7 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
 import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
@@ -125,11 +126,17 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
-		// The Pillager King: his trophy, the helm on a pike, which keeps raids away from a village.
+		// Koschei drops only experience until his last phase is built.
+		output.accept(EamEntities.KOSCHEI.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_BALL_LIGHTNING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_ICE_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		output.accept(EamEntities.KOSCHEI_ICE_COPY.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
+		// The Pillager King: his helm, a trophy that keeps raids away.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()
 						.setRolls(ContextIntProviders.exactly(1))
-						.add(LootItem.lootTableItem(EamItems.PILLAGER_KING_TROPHY))));
+						.add(LootItem.lootTableItem(EamItems.PILLAGER_KING_HELM))));
 
 		// The elite crossbowman: a few bolts from his quiver; his crossbow drops by the mob's own drop chance, like a pillager's.
 		output.accept(EamEntities.ELITE_CROSSBOWMAN.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
@@ -290,11 +297,11 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 1)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
-		// The vampire bat: its heart, one kill in seven or so; Looting adds nothing.
+		// The vampire bat: its heart, one kill in four; each Looting level adds 11.33%.
 		output.accept(EamEntities.VAMPIRE_BAT.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()
 						.setRolls(ContextIntProviders.exactly(1))
-						.when(LootItemRandomChanceCondition.randomChance(0.15F))
+						.when(LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(enchantments, 0.25F, 0.1133F))
 						.add(LootItem.lootTableItem(EamItems.VAMPIRE_HEART))));
 
 		// The small spiders: a string four times in ten, as in MITE.

@@ -1,0 +1,8 @@
+{
+  "amount": 2,
+  "random_sequence": "eam:trade_set/duergar/brewer/level_5",
+  "trades": [
+    "eam:duergar/brewer/5/emerald_herbal_honey",
+    "eam:duergar/brewer/5/emerald_fermented_ender_eye"
+  ]
+}

@@ -97,4 +97,34 @@ class UnderworldMineLogicTest {
 		assertFalse(UnderworldMineLogic.frame(ramp, 3));
 		assertTrue(UnderworldMineLogic.frame(ramp, 13));
 	}
+
+	/** Rock up to {@code caveX}, then a tall cave whose floor is at {@code floor}, open up to y 120. */
+	private static UnderworldMineLogic.Terrain tallCaveFrom(int caveX, int floor) {
+		return (x, y, z) -> x >= caveX && y > floor && y < 120 ? AIR : SOLID;
+	}
+
+	@Test
+	void endsInATowerHighAboveTheCaveFloor() {
+		UnderworldMineLogic.Adit adit = UnderworldMineLogic.find(tallCaveFrom(8, 60), MINE, 0, 80, 0, 1, 0, 40, 57, 180);
+		assertNotNull(adit);
+		assertTrue(adit.hasTower());
+		// The adit stays level up to the first cell clear of the mine; the tower stands on the floor at y 60.
+		assertEquals(10, adit.length());
+		assertEquals(80, adit.endFloor());
+		assertEquals(61, adit.towerBottom());
+	}
+
+	@Test
+	void walksDownWhenTheFloorIsClose() {
+		UnderworldMineLogic.Adit adit = UnderworldMineLogic.find(tallCaveFrom(14, 76), MINE, 0, 80, 0, 1, 0, 40, 57, 180);
+		assertNotNull(adit);
+		assertFalse(adit.hasTower());
+		assertEquals(76, adit.endFloor());
+	}
+
+	@Test
+	void neverHangsStairsOrTowersFarAboveTheFloor() {
+		// The floor is 70 blocks down: too tall for a tower, too deep for stairs.
+		assertNull(UnderworldMineLogic.find(tallCaveFrom(8, 10), MINE, 0, 80, 0, 1, 0, 40, 0, 180));
+	}
 }

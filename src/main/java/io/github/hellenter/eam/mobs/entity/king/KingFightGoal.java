@@ -9,7 +9,7 @@ import java.util.EnumSet;
 
 /**
  * Walks the Pillager King up to his target, dashes in from a few blocks off, sidesteps while in reach, hops back now
- * and then and starts his attacks.
+ * and then and starts his attacks. A target up on a pillar or a ledge gets the pillar cut down, the boomerang or a climb.
  */
 final class KingFightGoal extends Goal {
 	private static final int REPATH_INTERVAL = 10;
@@ -70,6 +70,20 @@ final class KingFightGoal extends Goal {
 		PillagerKingSettings settings = PillagerKingModule.settings();
 		boolean sees = king.getSensing().hasLineOfSight(target);
 		boolean inReach = distance <= settings.reach();
+		if (king.answerHeight(target)) {
+			// Out of his reach above him: the pillar cut down, the boomerang, or a climb.
+			return;
+		}
+		if (target.getY() - king.getY() > settings.height().above()) {
+			// Up to the foot of the pillar or the wall the target stands on, straight at it when there is no path.
+			if (king.tickCount % REPATH_INTERVAL == 0 || king.getNavigation().isDone()) {
+				if (!king.getNavigation().moveTo(target, 1.0) || distance < 3.0) {
+					king.getNavigation().stop();
+					king.getMoveControl().setWantedPosition(target.getX(), king.getY(), target.getZ(), 1.0);
+				}
+			}
+			return;
+		}
 
 		if (sees && king.readyToAttack() && Math.abs(target.getY() - king.getY()) < 2.5) {
 			if (inReach && !king.followUp() && king.hopCooldown() <= 0 && king.getRandom().nextDouble() < settings.hop().chance()) {

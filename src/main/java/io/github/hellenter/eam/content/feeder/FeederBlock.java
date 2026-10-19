@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.Nullable;
@@ -39,11 +40,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A feeder: a wooden trough under a hay rack. Feeders placed in a row join into one trough up to
+ * A feeder: a trough on legs with a tall back wall and a low front lip. Feeders placed in a row join into one trough up to
  * {@link FeederLogic#MAX_LENGTH} long. Each block holds its own feed and feeds {@link FeederSettings#headsPerFeeder()}
  * heads a day, see {@link FeederBlockEntity}. Feed goes in through the trough's inventory, from hoppers or from farmer
  * villagers nearby; each block adds {@link FeederSettings#slotsPerFeeder()} slots. The metal feeder, a
- * galvanized V-shaped hay rack over a trough, has {@link FeederSettings#metalScale()} times as many slots and heads; metal and
+ * galvanized sheet trough, has {@link FeederSettings#metalScale()} times as many slots and heads; metal and
  * wooden feeders do not join.
  */
 public class FeederBlock extends BaseEntityBlock {
@@ -52,11 +53,31 @@ public class FeederBlock extends BaseEntityBlock {
 	public static final BooleanProperty NEGATIVE = BooleanProperty.create("negative");
 	/** Joined to the feeder on the positive side of {@link #AXIS} (east or south). */
 	public static final BooleanProperty POSITIVE = BooleanProperty.create("positive");
+	/**
+	 * The tall back wall stands on the positive side across the trough: south of one along X, east of one along Z.
+	 * Joined feeders share it.
+	 */
+	public static final BooleanProperty BACK_POSITIVE = BooleanProperty.create("back_positive");
 	/** How full the trough looks, see {@link FeederLogic#fill}. */
 	public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, FeederLogic.MAX_FILL);
 
-	private static final VoxelShape SHAPE_X = Block.box(0, 0, 1, 16, 14, 15);
-	private static final VoxelShape SHAPE_Z = Block.box(1, 0, 0, 15, 14, 16);
+	private static final VoxelShape SHAPE_X = Block.box(0, 0, 1, 16, 15, 15);
+	private static final VoxelShape SHAPE_Z = Block.box(1, 0, 0, 15, 15, 16);
+	/** As tall as a fence, so livestock can neither jump over a trough nor plan a path over it. */
+	private static final VoxelShape COLLISION_X = Block.box(0, 0, 1, 16, 24, 15);
+	private static final VoxelShape COLLISION_Z = Block.box(1, 0, 0, 15, 24, 16);
+	/**
+	 * Full faces at both ends and behind the back wall, so fences, walls and panes join a trough there and it can stand in a
+	 * pen's fence line. The top and the front lip stay open.
+	 */
+	private static final VoxelShape SUPPORT_X_BACK_NEGATIVE = Shapes.or(Block.box(0, 0, 0, 1, 16, 16), Block.box(15, 0, 0, 16, 16, 16),
+			Block.box(0, 0, 0, 16, 16, 1));
+	private static final VoxelShape SUPPORT_X_BACK_POSITIVE = Shapes.or(Block.box(0, 0, 0, 1, 16, 16), Block.box(15, 0, 0, 16, 16, 16),
+			Block.box(0, 0, 15, 16, 16, 16));
+	private static final VoxelShape SUPPORT_Z_BACK_NEGATIVE = Shapes.or(Block.box(0, 0, 0, 16, 16, 1), Block.box(0, 0, 15, 16, 16, 16),
+			Block.box(0, 0, 0, 1, 16, 16));
+	private static final VoxelShape SUPPORT_Z_BACK_POSITIVE = Shapes.or(Block.box(0, 0, 0, 16, 16, 1), Block.box(0, 0, 15, 16, 16, 16),
+			Block.box(15, 0, 0, 16, 16, 16));
 
 	private final boolean metal;
 
@@ -64,12 +85,12 @@ public class FeederBlock extends BaseEntityBlock {
 		super(properties);
 		this.metal = metal;
 		registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.X).setValue(NEGATIVE, false)
-				.setValue(POSITIVE, false).setValue(FILL, 0));
+				.setValue(POSITIVE, false).setValue(BACK_POSITIVE, false).setValue(FILL, 0));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(AXIS, NEGATIVE, POSITIVE, FILL);
+		builder.add(AXIS, NEGATIVE, POSITIVE, BACK_POSITIVE, FILL);
 	}
 
 	/** Meals one block of this feeder gives a day. */
@@ -82,7 +103,10 @@ public class FeederBlock extends BaseEntityBlock {
 		return metal ? (int) Math.round(settings.slotsPerFeeder() * settings.metalScale()) : settings.slotsPerFeeder();
 	}
 
-	/** Lies across the player's view, unless it can continue a trough beside it along the other axis. */
+	/**
+	 * Lies across the player's view with its back wall away from them, unless it can continue a trough beside it along
+	 * the other axis. A feeder joining a trough takes its back wall side.
+	 */
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		Level level = context.getLevel();
@@ -93,10 +117,25 @@ public class FeederBlock extends BaseEntityBlock {
 			boolean[] join = FeederLogic.join(run(level, pos, axis, Direction.AxisDirection.NEGATIVE),
 					run(level, pos, axis, Direction.AxisDirection.POSITIVE));
 			if (join[0] || join[1]) {
-				return defaultBlockState().setValue(AXIS, axis).setValue(NEGATIVE, join[0]).setValue(POSITIVE, join[1]);
+				BlockState neighbour = level.getBlockState(pos.relative(Direction.fromAxisAndDirection(axis,
+						join[0] ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE)));
+				return defaultBlockState().setValue(AXIS, axis).setValue(NEGATIVE, join[0]).setValue(POSITIVE, join[1])
+						.setValue(BACK_POSITIVE, neighbour.getValue(BACK_POSITIVE));
 			}
 		}
-		return defaultBlockState().setValue(AXIS, across);
+		return withBack(defaultBlockState().setValue(AXIS, across), context.getHorizontalDirection());
+	}
+
+	/** The side across the trough its back wall stands on. */
+	private static Direction back(BlockState state) {
+		Direction.Axis across = state.getValue(AXIS) == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+		return Direction.fromAxisAndDirection(across,
+				state.getValue(BACK_POSITIVE) ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE);
+	}
+
+	/** The back wall on side {@code back}, which lies across the trough. */
+	private static BlockState withBack(BlockState state, Direction back) {
+		return state.setValue(BACK_POSITIVE, back.getAxisDirection() == Direction.AxisDirection.POSITIVE);
 	}
 
 	/** Feeders in a row on one side of {@code pos}, joined to each other and lying along {@code axis}. */
@@ -150,12 +189,13 @@ public class FeederBlock extends BaseEntityBlock {
 	@Override
 	protected BlockState rotate(BlockState state, Rotation rotation) {
 		boolean alongX = state.getValue(AXIS) == Direction.Axis.X;
-		return switch (rotation) {
+		BlockState turned = switch (rotation) {
 			case CLOCKWISE_90 -> turn(state, !alongX);
 			case COUNTERCLOCKWISE_90 -> turn(state, alongX);
 			case CLOCKWISE_180 -> swapSides(state);
 			default -> state;
 		};
+		return withBack(turned, rotation.rotate(back(state)));
 	}
 
 	private static BlockState turn(BlockState state, boolean swap) {
@@ -167,7 +207,7 @@ public class FeederBlock extends BaseEntityBlock {
 	protected BlockState mirror(BlockState state, Mirror mirror) {
 		Direction.Axis axis = state.getValue(AXIS);
 		boolean flips = mirror == Mirror.LEFT_RIGHT && axis == Direction.Axis.Z || mirror == Mirror.FRONT_BACK && axis == Direction.Axis.X;
-		return flips ? swapSides(state) : state;
+		return withBack(flips ? swapSides(state) : state, mirror.mirror(back(state)));
 	}
 
 	private static BlockState swapSides(BlockState state) {
@@ -201,6 +241,18 @@ public class FeederBlock extends BaseEntityBlock {
 	@Override
 	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return state.getValue(AXIS) == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
+	}
+
+	@Override
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return state.getValue(AXIS) == Direction.Axis.X ? COLLISION_X : COLLISION_Z;
+	}
+
+	@Override
+	protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+		boolean backPositive = state.getValue(BACK_POSITIVE);
+		if (state.getValue(AXIS) == Direction.Axis.X) return backPositive ? SUPPORT_X_BACK_POSITIVE : SUPPORT_X_BACK_NEGATIVE;
+		return backPositive ? SUPPORT_Z_BACK_POSITIVE : SUPPORT_Z_BACK_NEGATIVE;
 	}
 
 	@Override

@@ -1,4 +1,5 @@
 {
+  "milk_interval_ticks": 24000,
   "lava_melt_chance": {
     "eam:copper_bucket": 0.16,
     "eam:silver_bucket": 0.16,

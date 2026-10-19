@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Repair on the anvil: free of experience and without raising the item's prior work cost, so later enchanting and
  * combining cost what they would on a new item. Metal gear takes nuggets (or ingots, worth nine), as many for 75%
- * durability as its recipe takes ingots and plates; other gear takes its vanilla repair item, a quarter each. The numbers
+ * durability as its recipe takes ingots and plates (tools and weapons one more); other gear takes its vanilla repair item, a quarter each. The numbers
  * are in {@link RepairLogic}.
  */
 public final class AnvilRepair {
@@ -70,7 +70,7 @@ public final class AnvilRepair {
 		}
 		int damage = input.getDamageValue();
 		float perItem = isMetal(input)
-				? RepairLogic.perNugget(input.getMaxDamage(), ingots(level.recipeAccess(), input.getItem())) * worth
+				? RepairLogic.perNugget(input.getMaxDamage(), ingots(level.recipeAccess(), input.getItem()), isTool(input)) * worth
 				: input.getMaxDamage() * RepairLogic.OTHER_SHARE;
 		int used = RepairLogic.itemsUsed(damage, perItem, addition.getCount());
 		ItemStack result = input.copy();
@@ -125,6 +125,11 @@ public final class AnvilRepair {
 			}
 		}
 		return false;
+	}
+
+	/** Tools and weapons (pickaxes, swords, knives...) take a nugget more than their recipe's ingots. */
+	private static boolean isTool(ItemStack input) {
+		return input.has(DataComponents.TOOL) || input.has(DataComponents.WEAPON);
 	}
 
 	/** The nugget of an ingot by name: {@code iron_ingot} to {@code iron_nugget}; null when there is none. */

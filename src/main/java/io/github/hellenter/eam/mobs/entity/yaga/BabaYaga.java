@@ -6,6 +6,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.EamSounds;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
+import io.github.hellenter.eam.mobs.entity.boss.DizzyStars;
 import io.github.hellenter.eam.mobs.entity.boss.ParryPenalty;
 import io.github.hellenter.eam.mobs.entity.boss.ParryStreak;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
@@ -35,6 +36,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
@@ -60,6 +62,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -72,11 +75,15 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import org.joml.Vector3f;
@@ -93,7 +100,7 @@ import java.util.UUID;
 
 /**
  * Baba Yaga, the swamp witch. Phase one: she circles high over the player in her mortar, untouchable by blade, arrow or
- * spell, and fights through others: groups of swamp creatures raised around the player, half at once and half later, poison flasks,
+ * spell, and fights through others: groups of swamp creatures raised around the player, in sub-waves a while apart, poison flasks,
  * spells that strengthen one group (absorption, speed or strength, picked by what the group needs) and glyphs on the
  * ground that curse the player and help her creatures. Only once a wave is dead does she dive at the player with her
  * staff; just before it strikes she lights up, and a hit then parries her for a fixed share of her health. A dive that
@@ -112,6 +119,8 @@ public class BabaYaga extends Monster {
 	private static final EntityDataAccessor<Byte> DATA_GLOW = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BYTE);
 	/** Where her fire beam hits, from her feet; zero while it is not burning. */
 	private static final EntityDataAccessor<Vector3fc> DATA_BEAM = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.VECTOR3);
+	/** Set while she waits in her hut, unseen, for a player to come up to its door. */
+	private static final EntityDataAccessor<Boolean> DATA_WAITING = SynchedEntityData.defineId(BabaYaga.class, EntityDataSerializers.BOOLEAN);
 	private static final Identifier FOLLOW_MODIFIER = Eam.id("baba_yaga_minion_follow");
 	private static final Identifier HEALTH_MODIFIER = Eam.id("baba_yaga_minion_health");
 
@@ -152,11 +161,13 @@ public class BabaYaga extends Monster {
 	private int spellCooldown;
 	private int glyphCooldown;
 	private int castGap;
+	/** Ticks left stunned by her own flask sent back at her: she only flies, starting no attack. */
+	private int dazed;
 	/** Ticks until she raises the next wave, or -1 while one is out. */
 	private int nextWave = -1;
-	/** The second halves of the current wave's groups, still to rise, and ticks until they do. */
-	private final List<LaterHalf> laterHalves = new ArrayList<>();
-	private int laterHalvesTimer;
+	/** The later sub-waves of the current wave's groups, still to rise, and ticks until the next of them do. */
+	private final List<LaterPart> laterParts = new ArrayList<>();
+	private int laterPartsTimer;
 	private float waveAngle;
 	private GroupKind waveFirstKind = GroupKind.LURKERS;
 	private int clearedTicks;
@@ -164,6 +175,10 @@ public class BabaYaga extends Monster {
 	private boolean diveLanded;
 	private float orbitAngle;
 	private int climbTicks;
+	/** Phase one: a flight path around whatever stands between her and where she flies, and when to plan it again. */
+	private @Nullable FlyingPathNavigation flightNavigation;
+	private @Nullable Path flightPath;
+	private int flightRepath;
 	private @Nullable Glyph lastGlyph;
 	private int pendingGlyph = -1;
 
@@ -191,6 +206,8 @@ public class BabaYaga extends Monster {
 	/** Where she started; she goes back there once she has lost the players. */
 	private @Nullable BlockPos home;
 	private boolean returningHome;
+	/** Her hut's door, which she bursts out of once a player comes up to it. */
+	private @Nullable BlockPos hutDoor;
 	/** Loaded from a save made while her storm was still the whole world's weather: that weather goes back once. */
 	private @Nullable LegacyWeather legacyWeather;
 
@@ -235,6 +252,7 @@ public class BabaYaga extends Monster {
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_GLOW, (byte) 0);
 		builder.define(DATA_BEAM, new Vector3f());
+		builder.define(DATA_WAITING, false);
 	}
 
 	@Override
@@ -349,8 +367,67 @@ public class BabaYaga extends Monster {
 		return false;
 	}
 
-	/** Flies towards {@code to} at up to {@code speed} blocks a tick. */
+	/**
+	 * Flies towards {@code to} at up to {@code speed} blocks a tick: straight while nothing is in the way, otherwise along
+	 * a flight path around it (out from under a roof, round a wall) rather than pushing into it.
+	 */
 	private void flyTowards(Vec3 to, double speed) {
+		Vec3 waypoint = null;
+		if (clearFlightTo(to)) {
+			// Plan afresh the next time something is in the way.
+			flightPath = null;
+			flightRepath = 0;
+		} else {
+			waypoint = flightWaypoint(to);
+		}
+		if (waypoint == null) {
+			flyStraight(to, speed);
+			return;
+		}
+		climbTicks = 0;
+		Vec3 delta = waypoint.subtract(position());
+		double length = delta.length();
+		setDeltaMovement(length > speed ? delta.scale(speed / length) : delta);
+	}
+
+	/** Whether her whole height has a clear line to {@code to}: feet, middle and head. */
+	private boolean clearFlightTo(Vec3 to) {
+		double height = getBbHeight();
+		for (double up : new double[] {0.1, height * 0.5, height - 0.1}) {
+			Vec3 from = position().add(0.0, up, 0.0);
+			if (level().clip(new ClipContext(from, to.add(0.0, up, 0.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
+					.getType() != HitResult.Type.MISS) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** The next point of a flight path to {@code to}, planned again every half second; null if no path is found. */
+	private @Nullable Vec3 flightWaypoint(Vec3 to) {
+		if (flightNavigation == null) {
+			flightNavigation = new FlyingPathNavigation(this, level());
+		}
+		if (--flightRepath <= 0) {
+			flightRepath = 10;
+			flightPath = flightNavigation.createPath(BlockPos.containing(to), 1);
+		}
+		if (flightPath == null || flightPath.isDone()) {
+			return null;
+		}
+		Vec3 next = flightPath.getNextEntityPos(this);
+		if (position().distanceToSqr(next) < 0.36) {
+			flightPath.advance();
+			if (flightPath.isDone()) {
+				return null;
+			}
+			next = flightPath.getNextEntityPos(this);
+		}
+		return next;
+	}
+
+	/** Straight at {@code to}; something low in the way, she goes up over it. */
+	private void flyStraight(Vec3 to, double speed) {
 		Vec3 delta = to.subtract(position());
 		double length = delta.length();
 		Vec3 velocity = length > speed ? delta.scale(speed / length) : delta;
@@ -414,6 +491,88 @@ public class BabaYaga extends Monster {
 		return new Vec3(0.0, height + (inMortar ? 0.2 : 0.35), 0.0).add(forward.scale(0.5)).add(right.scale(-0.45));
 	}
 
+	// ---- Waiting in her hut ----
+
+	/**
+	 * She waits in her hut: unseen, untouchable and still, until a player comes within
+	 * {@link BabaYagaSettings.Storm#hutWakeRadius()} of {@code door}. Then the door bursts open and she is out, laughing.
+	 */
+	public void waitInHut(BlockPos door) {
+		hutDoor = door.immutable();
+		setWaiting(true);
+	}
+
+	/** Whether she is still waiting in her hut, unseen. */
+	public boolean waiting() {
+		return entityData.get(DATA_WAITING);
+	}
+
+	private void setWaiting(boolean waiting) {
+		entityData.set(DATA_WAITING, waiting);
+		bossEvent.setVisible(!waiting);
+	}
+
+	@Override
+	public void aiStep() {
+		if (!waiting()) {
+			super.aiStep();
+			return;
+		}
+		setDeltaMovement(Vec3.ZERO);
+		if (level() instanceof ServerLevel level && tickCount % 5 == 0) {
+			Player player = playerAtDoor(level);
+			if (player != null) {
+				burstOut(level, player);
+			}
+		}
+	}
+
+	/** A player close enough to her hut's door to wake her; spectators don't. */
+	private @Nullable Player playerAtDoor(ServerLevel level) {
+		Vec3 door = hutDoor != null ? Vec3.atCenterOf(hutDoor) : position();
+		for (Player player : level.players()) {
+			if (player.isAlive() && !player.isSpectator()
+					&& BabaYagaLogic.wakesAtHut(player.distanceToSqr(door), settings().storm())) {
+				return player;
+			}
+		}
+		return null;
+	}
+
+	/** The door flies open and she is there in a cloud of ink, cackling; a player she can fight is her first target. */
+	private void burstOut(ServerLevel level, Player player) {
+		setWaiting(false);
+		if (hutDoor != null) {
+			BlockState door = level.getBlockState(hutDoor);
+			level.playSound(null, hutDoor, SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.BLOCKS, 2.0F, 0.8F);
+			if (door.getBlock() instanceof DoorBlock doorBlock) {
+				doorBlock.setOpen(this, level, door, hutDoor, true);
+			}
+			level.sendParticles(ParticleTypes.CLOUD, hutDoor.getX() + 0.5, hutDoor.getY() + 1.0, hutDoor.getZ() + 0.5, 12, 0.3, 0.6, 0.3, 0.05);
+		}
+		YagaFx.blink(level, this);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_CELEBRATE, getSoundSource(), 4.0F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_AMBIENT, getSoundSource(), 3.0F, 0.5F);
+		if (EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
+			setTarget(player);
+		}
+	}
+
+	@Override
+	public boolean isPickable() {
+		return !waiting() && super.isPickable();
+	}
+
+	@Override
+	public boolean isPushable() {
+		return !waiting() && super.isPushable();
+	}
+
+	@Override
+	public boolean canBeSeenAsEnemy() {
+		return !waiting() && super.canBeSeenAsEnemy();
+	}
+
 	// ---- Server tick ----
 
 	@Override
@@ -427,6 +586,10 @@ public class BabaYaga extends Monster {
 		if (summonCooldown > 0) summonCooldown--;
 		if (escapeCooldown > 0) escapeCooldown--;
 		if (eatCooldown > 0) eatCooldown--;
+		if (dazed > 0) {
+			dazed--;
+			DizzyStars.show(level, this);
+		}
 		for (int i = 0; i < attackCooldowns.length; i++) {
 			if (attackCooldowns[i] > 0) attackCooldowns[i]--;
 		}
@@ -587,6 +750,9 @@ public class BabaYaga extends Monster {
 		flyTowards(orbitPoint(target, settings.flight().orbitRadius()), settings.flight().speed());
 		getLookControl().setLookAt(target, 30.0F, 30.0F);
 		faceTowards(target);
+		if (dazed > 0) {
+			return;
+		}
 
 		boolean waveOut = nextWave < 0;
 		if (!waveOut) {
@@ -595,7 +761,7 @@ public class BabaYaga extends Monster {
 			}
 			return;
 		}
-		if (aliveMinions() == 0 && laterHalves.isEmpty()) {
+		if (aliveMinions() == 0 && laterParts.isEmpty()) {
 			if (++clearedTicks >= settings.swoop().delay()) {
 				startAction(YagaAction.SWOOP, target);
 			}
@@ -629,7 +795,7 @@ public class BabaYaga extends Monster {
 		idleTicks++;
 		getLookControl().setLookAt(target, 30.0F, 30.0F);
 		keepDistance(target, settings.phaseTwo());
-		if (idleTicks < settings.phaseTwo().attackPause()) {
+		if (dazed > 0 || idleTicks < settings.phaseTwo().attackPause()) {
 			return;
 		}
 		Mob meal = nearestMinion(settings.eat().range());
@@ -877,9 +1043,9 @@ public class BabaYaga extends Monster {
 	}
 
 	/**
-	 * Phase one: every group of the wave is rolled at once, each a good way off on its own side, and splits in two: the
-	 * first half of every group rises at once, the second halves together a while later in the same spots. Lurker and
-	 * wight groups take turns, so a wave of two has one of each.
+	 * Phase one: every group of the wave is rolled at once, each a good way off on its own side, and rises in sub-waves:
+	 * the first of every group at once, the next ones together a while apart in the same spots. Lurker and wight groups
+	 * take turns, so a wave of two has one of each. More players in the fight make more groups and sub-waves.
 	 */
 	private void raiseWave(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings settings = settings();
@@ -887,20 +1053,27 @@ public class BabaYaga extends Monster {
 		groups.removeIf(group -> group.alive(level) == 0);
 		waveAngle = random.nextFloat() * 360.0F;
 		waveFirstKind = random.nextBoolean() ? GroupKind.LURKERS : GroupKind.WIGHTS;
-		laterHalves.clear();
-		for (int g = 0; g < summon.groups(); g++) {
-			Vec3 center = waveGroupCenter(level, target, g);
+		laterParts.clear();
+		List<Integer> shape = BabaYagaLogic.waveShape(playersInFight(level), summon, settings.crowd());
+		List<List<List<Creature>>> wave = new ArrayList<>(shape.size());
+		for (int g = 0; g < shape.size(); g++) {
+			wave.add(BabaYagaLogic.waveParts(BabaYagaLogic.waveGroupKind(g, waveFirstKind), shape.get(g), summon, random::nextDouble));
+		}
+		wave = BabaYagaLogic.capWights(wave, summon.maxWights());
+		for (int g = 0; g < wave.size(); g++) {
+			Vec3 center = waveGroupCenter(level, target, g, wave.size());
 			if (center == null) {
 				continue;
 			}
-			GroupKind kind = BabaYagaLogic.waveGroupKind(g, waveFirstKind);
-			List<List<Creature>> halves = BabaYagaLogic.halves(BabaYagaLogic.waveGroup(kind, summon, random::nextDouble), random::nextDouble);
-			raiseGroup(level, target, center, halves.get(0));
-			if (!halves.get(1).isEmpty()) {
-				laterHalves.add(new LaterHalf(center, halves.get(1)));
+			List<List<Creature>> parts = wave.get(g);
+			raiseGroup(level, target, center, parts.get(0));
+			for (int p = 1; p < parts.size(); p++) {
+				if (!parts.get(p).isEmpty()) {
+					laterParts.add(new LaterPart(center, parts.get(p), p));
+				}
 			}
 		}
-		laterHalvesTimer = summon.halfDelay();
+		laterPartsTimer = summon.halfDelay();
 		nextWave = -1;
 		clearedTicks = 0;
 		glyphCooldown = Math.max(glyphCooldown, settings.glyphs().firstDelay());
@@ -908,27 +1081,47 @@ public class BabaYaga extends Monster {
 		potionCooldown = Math.max(potionCooldown, 40);
 	}
 
-	/** Phase one: raises the second halves of the wave's groups when their time comes, whatever she is busy with. */
+	/** Phase one: raises the wave's next sub-waves when their time comes, whatever she is busy with. */
 	private void tickWaveGroups(ServerLevel level, @Nullable LivingEntity target) {
-		if (laterHalves.isEmpty() || phase() != 1 || --laterHalvesTimer > 0) {
+		if (laterParts.isEmpty() || phase() != 1 || --laterPartsTimer > 0) {
 			return;
 		}
 		if (target == null) {
-			laterHalvesTimer = 1;
+			laterPartsTimer = 1;
 			return;
 		}
 		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 2.0F, 0.6F);
 		Vec3 tip = staffTip();
 		level.sendParticles(new DustParticleOptions(YagaGlow.SUMMON.color, 1.4F), tip.x, tip.y, tip.z, 20, 0.3, 0.3, 0.3, 0.0);
-		for (LaterHalf half : laterHalves) {
-			raiseGroup(level, target, half.center(), half.creatures());
+		int next = Integer.MAX_VALUE;
+		for (LaterPart part : laterParts) {
+			next = Math.min(next, part.round());
 		}
-		laterHalves.clear();
+		for (LaterPart part : laterParts) {
+			if (part.round() == next) {
+				raiseGroup(level, target, part.center(), part.creatures());
+			}
+		}
+		int raised = next;
+		laterParts.removeIf(part -> part.round() == raised);
+		laterPartsTimer = settings().summon().halfDelay();
 	}
 
-	private @Nullable Vec3 waveGroupCenter(ServerLevel level, LivingEntity target, int g) {
+	/** Players in the fight: alive, not in creative or spectator mode, and near her. */
+	private int playersInFight(ServerLevel level) {
+		double radius = settings().crowd().radius();
+		int count = 0;
+		for (Player player : level.players()) {
+			if (player.isAlive() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player) && distanceToSqr(player) <= radius * radius) {
+				count++;
+			}
+		}
+		return Math.max(1, count);
+	}
+
+	private @Nullable Vec3 waveGroupCenter(ServerLevel level, LivingEntity target, int g, int count) {
 		BabaYagaSettings.Summon summon = settings().summon();
-		double angle = Math.toRadians(waveAngle + 360.0 * g / summon.groups() + (random.nextDouble() - 0.5) * 50.0);
+		double angle = Math.toRadians(waveAngle + 360.0 * g / count + (random.nextDouble() - 0.5) * 50.0);
 		Vec3 center = null;
 		for (int attempt = 0; attempt < 6 && center == null; attempt++) {
 			double distance = Mth.lerp(random.nextDouble(), summon.minRadius(), Math.max(summon.minRadius(), summon.maxRadius()));
@@ -943,8 +1136,8 @@ public class BabaYaga extends Monster {
 		return center;
 	}
 
-	/** The part of a wave group still to rise, and where. */
-	private record LaterHalf(Vec3 center, List<Creature> creatures) {
+	/** A sub-wave of a wave group still to rise, where, and its turn: 1 for the second sub-wave, 2 for the third. */
+	private record LaterPart(Vec3 center, List<Creature> creatures, int round) {
 	}
 
 	/** Phase two: one group between her and the player. */
@@ -1001,6 +1194,7 @@ public class BabaYaga extends Monster {
 
 	private void raiseGroup(ServerLevel level, LivingEntity target, Vec3 center, List<Creature> creatures) {
 		Group group = new Group();
+		int players = playersInFight(level);
 		for (Creature creature : creatures) {
 			EntityType<? extends Mob> type = switch (creature) {
 				case LURKER -> EamEntities.SWAMP_LURKER;
@@ -1010,7 +1204,8 @@ public class BabaYaga extends Monster {
 			double angle = random.nextDouble() * Math.PI * 2.0;
 			double spread = 0.8 + random.nextDouble() * 1.8;
 			Vec3 at = ground(level, center.x + Math.cos(angle) * spread, center.y, center.z + Math.sin(angle) * spread, type);
-			Mob mob = raise(level, type, at != null ? at : center, target);
+			Mob mob = raise(level, type, at != null ? at : center, target, BabaYagaLogic.healthMultiplier(creature, players,
+					settings().summon(), settings().crowd()));
 			if (mob != null) {
 				group.add(mob);
 			}
@@ -1025,7 +1220,7 @@ public class BabaYaga extends Monster {
 	}
 
 	/** One creature, risen out of the ground: it is hers, knows where the player is and goes for them at once. */
-	private @Nullable Mob raise(ServerLevel level, EntityType<? extends Mob> type, Vec3 at, LivingEntity target) {
+	private @Nullable Mob raise(ServerLevel level, EntityType<? extends Mob> type, Vec3 at, LivingEntity target, double healthMultiplier) {
 		Mob mob = type.create(level, EntitySpawnReason.MOB_SUMMONED);
 		if (mob == null) {
 			return null;
@@ -1034,11 +1229,13 @@ public class BabaYaga extends Monster {
 		// Tagged first: a wight raised by her never cloaks, a lurker never hides.
 		mob.addTag(BabaYagaModule.MINION_TAG);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(at)), EntitySpawnReason.MOB_SUMMONED, null);
-		// Her creatures are weaker than their wild kin, but rise at full health.
+		// Her creatures may be weaker than their wild kin, but rise at full health.
 		AttributeInstance health = mob.getAttribute(Attributes.MAX_HEALTH);
 		if (health != null) {
-			health.addOrReplacePermanentModifier(new AttributeModifier(HEALTH_MODIFIER, settings().summon().healthMultiplier() - 1.0,
-					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			if (healthMultiplier != 1.0) {
+				health.addOrReplacePermanentModifier(new AttributeModifier(HEALTH_MODIFIER, healthMultiplier - 1.0,
+						AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			}
 			mob.setHealth(mob.getMaxHealth());
 		}
 		AttributeInstance follow = mob.getAttribute(Attributes.FOLLOW_RANGE);
@@ -1303,6 +1500,19 @@ public class BabaYaga extends Monster {
 
 	// ---- Flasks ----
 
+	/**
+	 * Her own flask, sent back by a player, burst on her: it does her no harm, but she starts no attack for a while and
+	 * flies round dazed, stars circling her head. A spell or a throw she was casting is lost.
+	 */
+	public void dazeByFlask(ServerLevel level) {
+		dazed = Math.max(dazed, settings().potion().dazeTicks());
+		if (action == YagaAction.THROW || action == YagaAction.SPELL || action == YagaAction.GLYPH) {
+			endAction();
+		}
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITCH_HURT, getSoundSource(), 3.0F, 0.6F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.SPLASH_POTION_BREAK, getSoundSource(), 2.0F, 0.8F);
+	}
+
 	private void throwFlask(ServerLevel level, LivingEntity target) {
 		BabaYagaSettings.Potion potion = settings().potion();
 		HagPotion flask = new HagPotion(level, this);
@@ -1455,7 +1665,7 @@ public class BabaYaga extends Monster {
 		bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
 		bossEvent.setProgress(1.0F);
 		spells.clear();
-		laterHalves.clear();
+		laterParts.clear();
 		LivingEntity target = getTarget();
 		setAction(YagaAction.SHATTER);
 		actionTarget = target;
@@ -1836,6 +2046,9 @@ public class BabaYaga extends Monster {
 
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+		if (waiting() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			return false;
+		}
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			return super.hurtServer(level, source, damage);
 		}
@@ -2041,6 +2254,10 @@ public class BabaYaga extends Monster {
 		if (home != null) {
 			output.putLong("Home", home.asLong());
 		}
+		output.putBoolean("WaitingInHut", waiting());
+		if (hutDoor != null) {
+			output.putLong("HutDoor", hutDoor.asLong());
+		}
 	}
 
 	@Override
@@ -2060,6 +2277,8 @@ public class BabaYaga extends Monster {
 		unseenTicks = input.getIntOr("Unseen", 0);
 		returningHome = input.getBooleanOr("ReturningHome", false);
 		home = input.getLong("Home").map(BlockPos::of).orElse(null);
+		hutDoor = input.getLong("HutDoor").map(BlockPos::of).orElse(null);
+		setWaiting(input.getBooleanOr("WaitingInHut", false));
 		// Saved while her storm was the whole world's weather, recently enough that it still thunders: put the old back.
 		long stormSavedAt = input.getLongOr("StormSavedAt", level().getGameTime());
 		if (input.getBooleanOr("StormOwner", false) && level().getGameTime() - stormSavedAt <= LEGACY_STORM_TICKS) {
@@ -2069,15 +2288,15 @@ public class BabaYaga extends Monster {
 		}
 		// A wave in progress is not saved: she raises a fresh one.
 		nextWave = settings().summon().firstDelay();
-		laterHalves.clear();
+		laterParts.clear();
 		adoptMinions = true;
 	}
 
 	// ---- Sounds: a witch's voice, older ----
 
 	@Override
-	protected SoundEvent getAmbientSound() {
-		return SoundEvents.WITCH_AMBIENT;
+	protected @Nullable SoundEvent getAmbientSound() {
+		return waiting() ? null : SoundEvents.WITCH_AMBIENT;
 	}
 
 	@Override

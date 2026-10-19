@@ -3,7 +3,7 @@
   "interval_max_days": 25,
   "check_ticks": 200,
   "villager_radius": 48,
-  "trophy_radius": 96,
+  "helm_radius": 200,
   "glow_seconds": 120,
   "guards_per_wave": [1, 1, 2, 2, 3, 3, 3, 4],
   "elites_per_wave": [0, 1, 1, 2, 2, 3, 3, 3]

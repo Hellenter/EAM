@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.github.hellenter.eam.world.structures.village.VillageArea;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,9 +40,10 @@ import java.util.Set;
  * @param radius      lake radius
  * @param depth       depth at the middle
  * @param islandChance chance that a lake of radius 4 or more keeps an island of rock in its middle
+ * @param rim          if present, most of the ground round the lake's surface turns to it (magma round a lava pool)
  */
 public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float islandChance, float cascadeChance, int cascades,
-		int minY, int maxY, TagKey<Biome> lavaBiomes) implements Feature {
+		int minY, int maxY, TagKey<Biome> lavaBiomes, Optional<BlockState> rim) implements Feature {
 	public static final MapCodec<UnderworldLakeFeature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			IntProviders.codec(2, UnderworldLakeFeature.MAX_RADIUS).fieldOf("radius").forGetter(UnderworldLakeFeature::radius),
 			IntProviders.codec(1, 6).fieldOf("depth").forGetter(UnderworldLakeFeature::depth),
@@ -48,8 +52,14 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			Codec.intRange(0, 4).fieldOf("cascades").forGetter(UnderworldLakeFeature::cascades),
 			Codec.INT.fieldOf("min_y").forGetter(UnderworldLakeFeature::minY),
 			Codec.INT.fieldOf("max_y").forGetter(UnderworldLakeFeature::maxY),
-			TagKey.codec(Registries.BIOME).fieldOf("lava_biomes").forGetter(UnderworldLakeFeature::lavaBiomes)
+			TagKey.codec(Registries.BIOME).fieldOf("lava_biomes").forGetter(UnderworldLakeFeature::lavaBiomes),
+			BlockState.CODEC.optionalFieldOf("rim").forGetter(UnderworldLakeFeature::rim)
 	).apply(i, UnderworldLakeFeature::new));
+
+	public UnderworldLakeFeature(IntProvider radius, IntProvider depth, float islandChance, float cascadeChance, int cascades, int minY,
+			int maxY, TagKey<Biome> lavaBiomes) {
+		this(radius, depth, islandChance, cascadeChance, cascades, minY, maxY, lavaBiomes, Optional.empty());
+	}
 
 	/** How thick the rock round a lake is made. */
 	private static final int WALL = 2;
@@ -60,11 +70,15 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	private static final int MAX_RADIUS = 10;
 	/** A lake is given up when more than this share of its surface has no ground under it. */
 	private static final float MAX_OVERHANG = 0.25F;
+	/** How far beside a duergar village no lake stands higher than its streets. */
+	private static final int VILLAGE_MARGIN = 16;
 	/** How far beside the lake below a cascade lake may stand, centre to centre. */
 	private static final int CASCADE_OFFSET = 8;
 	/** How much higher than the lake below a cascade lake must be, and at most. */
 	private static final int CASCADE_MIN_RISE = 4;
 	private static final int CASCADE_MAX_RISE = 40;
+	/** The share of the ground round a lake's surface that turns to its rim. */
+	private static final float RIM_CHANCE = 0.6F;
 
 	@Override
 	public MapCodec<UnderworldLakeFeature> codec() {
@@ -79,11 +93,15 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		}
 		int minX = origin.getX() & ~15;
 		int minZ = origin.getZ() & ~15;
-		Lake below = lake(level, random, floor, this.radius.sample(random));
+		VillageArea villages = VillageArea.around(level, origin, WALL + 2);
+		VillageArea overlooked = VillageArea.around(level, origin, VILLAGE_MARGIN);
+		Lake below = lake(level, random, floor, this.radius.sample(random), villages, overlooked);
 		if (below == null) {
 			return false;
 		}
-		for (int i = 0; i < this.cascades && random.nextFloat() < this.cascadeChance; i++) {
+		// A cascade spills down its rim, and the water may run on past the lake below: none near a duergar village.
+		int cascades = overlooked.isEmpty() ? this.cascades : 0;
+		for (int i = 0; i < cascades && random.nextFloat() < this.cascadeChance; i++) {
 			Lake above = null;
 			int radius = this.radius.sample(random);
 			// How far outside the chunk the cascade lake's centre may be, so it stays inside the area a feature may change.
@@ -95,13 +113,13 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				int z = Mth.clamp(below.centre.getZ() + Math.round(Mth.sin(angle) * distance), minZ - reach, minZ + 15 + reach);
 				BlockPos higher = floorAbove(level, x, below.centre.getY() + CASCADE_MIN_RISE, below.centre.getY() + CASCADE_MAX_RISE, z);
 				if (higher != null) {
-					above = lake(level, random, higher, radius);
+					above = lake(level, random, higher, radius, villages, overlooked);
 				}
 			}
 			if (above == null) {
 				break;
 			}
-			spill(level, above, below, minX, minZ);
+			spill(level, above, below, minX, minZ, villages);
 			below = above;
 		}
 		return true;
@@ -119,6 +137,19 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 		return state.is(Blocks.WATER) || state.is(Blocks.LAVA);
 	}
 
+	/**
+	 * Ground a lake may lie in: solid, but not a tree or a mushroom. A lake reaching into a neighbouring chunk that was
+	 * decorated already would otherwise take a crown of leaves or a mushroom cap for a floor.
+	 */
+	static boolean isGround(BlockState state) {
+		return state.isSolid() && !isPlantMatter(state);
+	}
+
+	/** Leaves, logs, mushroom caps and stems, and the planks of mine supports. */
+	static boolean isPlantMatter(BlockState state) {
+		return state.is(BlockTags.LEAVES) || state.is(BlockTags.MINEABLE_WITH_AXE);
+	}
+
 	/** The top block of the lowest ground with air above it in this column, or null. */
 	private @Nullable BlockPos lowestFloor(WorldGenLevel level, int x, int z) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, this.minY, z);
@@ -131,7 +162,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 					return pos.below().immutable();
 				}
 			} else {
-				solidBelow = state.isSolid();
+				solidBelow = isGround(state);
 			}
 		}
 		return null;
@@ -149,14 +180,19 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 					return pos.below().immutable();
 				}
 			} else {
-				solidBelow = state.isSolid();
+				solidBelow = isGround(state);
 			}
 		}
 		return null;
 	}
 
-	/** Digs a lake whose water surface is the ground at {@code surface}, or digs nothing and returns null. */
-	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface, int radius) {
+	/**
+	 * Digs a lake whose water surface is the ground at {@code surface}, or digs nothing and returns null: also when it
+	 * would touch a duergar village or lie on a ledge above one, where any water that got over its rim would run down
+	 * into the streets.
+	 */
+	private @Nullable Lake lake(WorldGenLevel level, RandomSource random, BlockPos surface, int radius, VillageArea villages,
+			VillageArea overlooked) {
 		int depth = this.depth.sample(random);
 		boolean island = radius >= 4 && random.nextFloat() < this.islandChance;
 		float phase = random.nextFloat() * Mth.TWO_PI;
@@ -176,11 +212,17 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				int cellDepth = Math.max(1, (int) Math.round(depth * (1.0 - (d / edge) * (d / edge)) + 0.4));
 				surfaceCells++;
 				pos.set(surface.getX() + dx, surface.getY(), surface.getZ() + dz);
-				if (!level.getBlockState(pos).isSolid() && !isFluid(level.getBlockState(pos))) {
+				if (!isGround(level.getBlockState(pos)) && !isFluid(level.getBlockState(pos))) {
 					overhang++;
 				}
 				for (int y = 0; y < cellDepth; y++) {
 					water.add(new BlockPos(surface.getX() + dx, surface.getY() - y, surface.getZ() + dz));
+				}
+				// Nor round a tree or a mushroom: the water would stand in its crown or its cap.
+				for (int y = 1; y <= 2; y++) {
+					if (isPlantMatter(level.getBlockState(pos.setY(surface.getY() + y)))) {
+						return null;
+					}
 				}
 			}
 		}
@@ -188,7 +230,9 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 			return null;
 		}
 		for (BlockPos cell : water) {
-			if (level.getBlockState(cell).is(BlockTags.FEATURES_CANNOT_REPLACE)) {
+			BlockState state = level.getBlockState(cell);
+			if (state.is(BlockTags.FEATURES_CANNOT_REPLACE) || isPlantMatter(state) || villages.touches(cell)
+					|| overlooked.overlooks(cell, 2)) {
 				return null;
 			}
 		}
@@ -230,6 +274,21 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				}
 			}
 		}
+		if (this.rim.isPresent()) {
+			for (BlockPos cell : water) {
+				if (cell.getY() != surface.getY()) {
+					continue;
+				}
+				for (Direction side : Direction.Plane.HORIZONTAL) {
+					BlockPos near = cell.relative(side);
+					BlockState state = level.getBlockState(near);
+					if (!water.contains(near) && isGround(state) && !state.is(BlockTags.FEATURES_CANNOT_REPLACE) && !villages.touches(near)
+							&& random.nextFloat() < RIM_CHANCE) {
+						level.setBlock(near, this.rim.get(), 2);
+					}
+				}
+			}
+		}
 		return new Lake(surface, radius, fluid);
 	}
 
@@ -237,7 +296,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 	 * Opens the rim of {@code from} on the side facing {@code to}, so its water runs over the edge and down. The channel
 	 * stops where it would read or write outside the chunks around {@code minX}, {@code minZ} that a feature may touch.
 	 */
-	private static void spill(WorldGenLevel level, Lake from, Lake to, int minX, int minZ) {
+	private static void spill(WorldGenLevel level, Lake from, Lake to, int minX, int minZ, VillageArea villages) {
 		int dx = to.centre.getX() - from.centre.getX();
 		int dz = to.centre.getZ() - from.centre.getZ();
 		double length = Math.sqrt(dx * dx + dz * dz);
@@ -258,7 +317,7 @@ public record UnderworldLakeFeature(IntProvider radius, IntProvider depth, float
 				inWater = true;
 				continue;
 			}
-			if (!inWater || state.is(BlockTags.FEATURES_CANNOT_REPLACE) || channel > WALL) {
+			if (!inWater || state.is(BlockTags.FEATURES_CANNOT_REPLACE) || channel > WALL || villages.touches(pos)) {
 				return;
 			}
 			// Cut a channel through the rim, one source at a time, until it reaches open air to pour into.

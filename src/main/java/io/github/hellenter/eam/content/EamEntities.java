@@ -5,6 +5,7 @@ import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetShot;
+import io.github.hellenter.eam.mobs.vanilla.evolution.WebShot;
 import io.github.hellenter.eam.mobs.entity.crossbowman.RedBolt;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostCavalryman;
 import io.github.hellenter.eam.mobs.entity.cavalry.LostWarhorse;
@@ -33,6 +34,12 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarRenegade;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYaga;
+import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiBallLightning;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceCopy;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceRaven;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiOrb;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiRaven;
 import io.github.hellenter.eam.mobs.entity.yaga.HagBolt;
 import io.github.hellenter.eam.mobs.entity.yaga.HagGlyph;
 import io.github.hellenter.eam.mobs.entity.yaga.HagPotion;
@@ -220,6 +227,56 @@ public final class EamEntities {
 					.eyeHeight(1.85F)
 					.clientTrackingRange(10));
 
+	/** Koschei the Deathless: a gaunt old man in a spiked crown and dark armor, two and a half blocks tall, with a long sword. */
+	public static final EntityType<Koschei> KOSCHEI = register("koschei",
+			EntityType.Builder.of(Koschei::new, MobCategory.MONSTER)
+					.sized(0.8F, 2.5F)
+					.fireImmune()
+					.eyeHeight(2.2F)
+					.clientTrackingRange(10));
+
+	/** One of the see-through black ravens Koschei calls up, flying through walls at his target. */
+	public static final EntityType<KoscheiRaven> KOSCHEI_RAVEN = register("koschei_raven",
+			EntityType.Builder.of(KoscheiRaven::new, MobCategory.MONSTER)
+					.sized(0.5F, 0.4F)
+					.fireImmune()
+					.eyeHeight(0.25F)
+					.clientTrackingRange(8));
+
+	/** Koschei's ball of lightning, drifting after his target. */
+	public static final EntityType<KoscheiBallLightning> KOSCHEI_BALL_LIGHTNING = register("koschei_ball_lightning",
+			EntityType.Builder.of(KoscheiBallLightning::new, MobCategory.MONSTER)
+					.sized(0.8F, 0.8F)
+					.fireImmune()
+					.noSave()
+					.clientTrackingRange(10));
+
+	/** A raven of ice Koschei looses at his target. */
+	public static final EntityType<KoscheiIceRaven> KOSCHEI_ICE_RAVEN = register("koschei_ice_raven",
+			EntityType.Builder.of(KoscheiIceRaven::new, MobCategory.MONSTER)
+					.sized(0.5F, 0.4F)
+					.fireImmune()
+					.noSave()
+					.eyeHeight(0.25F)
+					.clientTrackingRange(8));
+
+	/** A copy of Koschei in ice, standing up at his side in his second phase. */
+	public static final EntityType<KoscheiIceCopy> KOSCHEI_ICE_COPY = register("koschei_ice_copy",
+			EntityType.Builder.of(KoscheiIceCopy::new, MobCategory.MONSTER)
+					.sized(0.8F, 2.5F)
+					.fireImmune()
+					.noSave()
+					.eyeHeight(2.2F)
+					.clientTrackingRange(10));
+
+	/** A bolt or a soul thrown from Koschei's staff in his second phase. */
+	public static final EntityType<KoscheiOrb> KOSCHEI_ORB = register("koschei_orb",
+			EntityType.Builder.<KoscheiOrb>of(KoscheiOrb::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3125F, 0.3125F)
+					.clientTrackingRange(8)
+					.updateInterval(2));
+
 	/** A bloated corpse in a rusted soldier's kit, raised from a bog by Baba Yaga. */
 	public static final EntityType<DrownedSoldier> DROWNED_SOLDIER = register("drowned_soldier",
 			EntityType.Builder.of(DrownedSoldier::new, MobCategory.MONSTER)
@@ -340,6 +397,14 @@ public final class EamEntities {
 			EntityType.Builder.<NetShot>of(NetShot::new, MobCategory.MISC)
 					.noLootTable()
 					.sized(0.4F, 0.4F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
+
+	/** An evolved spider's web in flight. */
+	public static final EntityType<WebShot> WEB_SHOT = register("web_shot",
+			EntityType.Builder.<WebShot>of(WebShot::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.3F, 0.3F)
 					.clientTrackingRange(4)
 					.updateInterval(10));
 

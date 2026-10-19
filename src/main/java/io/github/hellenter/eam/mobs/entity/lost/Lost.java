@@ -75,6 +75,12 @@ public class Lost extends SkeletonKnight {
 	public Lost(EntityType<? extends Lost> type, Level level) {
 		super(type, level);
 		xpReward = 8;
+		moveControl = new LostMoveControl(this);
+	}
+
+	/** Stepping without turning, for the shield wall. */
+	LostMoveControl stepControl() {
+		return (LostMoveControl) moveControl;
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {

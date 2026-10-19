@@ -1,0 +1,6 @@
+{
+  "clients_per_master": 12,
+  "interval_ticks": 1200,
+  "repair_share": 0.25,
+  "village_radius": 48
+}

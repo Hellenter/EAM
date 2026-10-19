@@ -160,4 +160,36 @@ public final class PillagerKingLogic {
 	public static boolean burstLeap(float taken, float maxHealth, float share) {
 		return taken > maxHealth * share;
 	}
+
+	/** How he answers a target out of his reach above him. */
+	public enum HeightAnswer {
+		/** Cuts down the pillar of placed blocks the target stands on. */
+		CHOP,
+		/** The boomerang flies up at the target. */
+		BOOMERANG,
+		/** Climbs the wall in front of him with his axes hooked in. */
+		CLIMB
+	}
+
+	/**
+	 * What he does about a target that has been out of his reach above him long enough: a pillar of placed blocks in
+	 * reach is cut down, else the boomerang if it is ready and the target in sight and range, else a climb up the wall
+	 * in front of him; null when none of them can be done yet, and he walks on at the target.
+	 */
+	public static @Nullable HeightAnswer answerHeight(boolean placedPillar, double flat, boolean chopReady, boolean boomerangReady,
+			boolean sees, double distance, boolean climbReady, boolean wallAhead, PillagerKingSettings settings) {
+		PillagerKingSettings.Height height = settings.height();
+		if (placedPillar && chopReady && flat <= height.chopReach()) {
+			return HeightAnswer.CHOP;
+		}
+		if (boomerangReady && sees && distance <= settings.boomerang().maxRange()) {
+			return HeightAnswer.BOOMERANG;
+		}
+		return climbReady && wallAhead && height.climbMax() > 0 ? HeightAnswer.CLIMB : null;
+	}
+
+	/** Whether a target this much higher than him has been out of his reach above long enough for him to answer it. */
+	public static boolean outOfReachAbove(double rise, int ticks, PillagerKingSettings.Height height) {
+		return rise > height.above() && ticks >= height.after();
+	}
 }

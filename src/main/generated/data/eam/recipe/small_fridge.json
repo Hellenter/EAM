@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "P": "#minecraft:planks",
+    "W": "#minecraft:wool"
+  },
+  "pattern": [
+    "PPP",
+    "W W",
+    "PPP"
+  ],
+  "result": {
+    "id": "eam:small_fridge"
+  }
+}

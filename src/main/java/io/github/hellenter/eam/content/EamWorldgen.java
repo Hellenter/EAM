@@ -25,6 +25,8 @@ public final class EamWorldgen {
 	public static final ResourceKey<Feature> ORE_COPPER = feature("ore_copper");
 	public static final ResourceKey<Feature> ORE_SILVER = feature("ore_silver");
 	public static final ResourceKey<Feature> ORE_MITHRIL = feature("ore_mithril");
+	/** Small adamantium veins; placed only in the underworld's lower level (see UnderworldWorldgen). */
+	public static final ResourceKey<Feature> ORE_ADAMANTIUM = feature("ore_adamantium");
 	public static final ResourceKey<Feature> WILD_GARLIC = feature("wild_garlic");
 
 	/** Pebbles on the forest floor. */
@@ -39,7 +41,7 @@ public final class EamWorldgen {
 	/** Sticks on the ground next to trees, in any biome that has them. */
 	public static final ResourceKey<PlacedFeature> GROUND_STICK_NEAR_TREES = placed("ground_stick_near_trees");
 	public static final ResourceKey<PlacedFeature> ORE_COPPER_PLACED = placed("ore_copper");
-	/** Small patches of wild garlic in plains and forests. */
+	/** Rare groups of one to three wild garlic bushes in forests. */
 	public static final ResourceKey<PlacedFeature> WILD_GARLIC_PATCH = placed("wild_garlic_patch");
 	/** Silver veins in every overworld biome, 2.5 times fewer than copper. */
 	public static final ResourceKey<PlacedFeature> ORE_SILVER_PLACED = placed("ore_silver");

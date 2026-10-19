@@ -4,10 +4,12 @@
     "#eam:crafting_table_knives/tier_2",
     "#eam:crafting_table_knives/tier_3",
     "#eam:crafting_table_knives/tier_4",
+    "#eam:crafting_table_knives/tier_5",
     "#eam:crafting_table_saws/tier_1",
     "#eam:crafting_table_saws/tier_2",
     "#eam:crafting_table_saws/tier_3",
     "#eam:crafting_table_saws/tier_4",
+    "#eam:crafting_table_saws/tier_5",
     "#eam:anvil_hammers"
   ]
 }

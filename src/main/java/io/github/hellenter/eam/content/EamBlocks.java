@@ -4,7 +4,13 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.anvil.MetalAnvilBlock;
 import io.github.hellenter.eam.content.brewing.SilverBrewingStandBlock;
 import io.github.hellenter.eam.content.campfire.CampFireBlock;
+import io.github.hellenter.eam.content.dryer.DryerBlock;
+import io.github.hellenter.eam.content.torch.UnlitTorchBlock;
+import io.github.hellenter.eam.content.torch.UnlitWallTorchBlock;
 import io.github.hellenter.eam.content.feeder.FeederBlock;
+import io.github.hellenter.eam.content.fridge.FridgeBlock;
+import io.github.hellenter.eam.content.lockedchest.LockedChestBlock;
+import io.github.hellenter.eam.content.fridge.FridgeMenu;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlock;
 import io.github.hellenter.eam.content.garlic.GarlicCropBlock;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
@@ -22,11 +28,14 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
-import io.github.hellenter.eam.content.trophy.KingTrophyBlock;
+import io.github.hellenter.eam.content.trophy.KingHelmBlock;
+import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesPlantBlock;
 import io.github.hellenter.eam.dimension.DeepBedrockBlock;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiIceBlock;
 import io.github.hellenter.eam.mobs.entity.crossbowman.NetBlock;
+import io.github.hellenter.eam.mobs.vanilla.evolution.SpiderWebBlock;
 
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
@@ -40,6 +49,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.HugeMushroomBlock;
@@ -77,6 +87,24 @@ public final class EamBlocks {
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
 
+	/** A wooden rack food dries on; see {@link DryerBlock}. */
+	public static final Block FOOD_DRYER = register("food_dryer", DryerBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.strength(1.0F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava()
+			.pushReaction(PushReaction.POPPED));
+
+	/** A torch the rain has put out; see {@link UnlitTorchBlock}. */
+	public static final Block UNLIT_TORCH = register("unlit_torch", UnlitTorchBlock::new, BlockBehaviour.Properties.of()
+			.noCollision().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.POPPED));
+
+	/** The wall variant of {@link #UNLIT_TORCH}; drops and names itself as the standing one, like vanilla's wall torch. */
+	public static final Block UNLIT_WALL_TORCH = register("unlit_wall_torch", UnlitWallTorchBlock::new, BlockBehaviour.Properties.of()
+			.overrideLootTable(UNLIT_TORCH.getLootTable()).overrideDescription(UNLIT_TORCH.getDescriptionId())
+			.noCollision().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.POPPED));
+
 	/** Sifts gravel; see {@link SieveBlock}. Drops itself with its wear as item damage. */
 	public static final Block SIEVE = register("sieve", SieveBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.WOOD)
@@ -101,6 +129,30 @@ public final class EamBlocks {
 			.strength(3.0F, 6.0F)
 			.sound(SoundType.METAL)
 			.noOcclusion());
+
+	/** A wooden fridge lined with wool: two ice slots and two rows of food; see {@link FridgeBlock}. */
+	public static final Block SMALL_FRIDGE = register("small_fridge", p -> new FridgeBlock(FridgeMenu.Size.SMALL, p), BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS)
+			.strength(2.5F)
+			.sound(SoundType.WOOD)
+			.ignitedByLava());
+
+	/** A villager's box with an iron lock, or the village's store; see {@link LockedChestBlock}. */
+	public static final Block LOCKED_CHEST = register("locked_chest", LockedChestBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS)
+			.strength(3.5F)
+			.sound(SoundType.WOOD)
+			.noOcclusion()
+			.ignitedByLava());
+
+	/** An iron fridge lined with wool: four ice slots and four rows of food. */
+	public static final Block LARGE_FRIDGE = register("large_fridge", p -> new FridgeBlock(FridgeMenu.Size.LARGE, p), BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.requiresCorrectToolForDrops()
+			.strength(3.0F, 6.0F)
+			.sound(SoundType.METAL));
 
 	/** Silver ore: like copper ore, a bit rarer and more common in the mountains. */
 	public static final Block SILVER_ORE = register("silver_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
@@ -157,6 +209,19 @@ public final class EamBlocks {
 			.pushReaction(PushReaction.IMMOVEABLE)
 			.isValidSpawn((state, level, pos, type) -> false));
 
+	/** The ice of the wall Koschei raises: it melts away on its own and drops nothing. */
+	public static final Block KOSCHEI_ICE = register("koschei_ice", KoscheiIceBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.ICE)
+			.strength(0.5F)
+			.friction(0.98F)
+			.sound(SoundType.GLASS)
+			.noOcclusion()
+			.noLootTable()
+			.isValidSpawn((state, level, pos, type) -> false)
+			.isRedstoneConductor((state, level, pos) -> false)
+			.isSuffocating((state, level, pos) -> false)
+			.pushReaction(PushReaction.IMMOVEABLE));
+
 	/** Underworld mushrooms: a chanterelle (orange funnel cap) and a champignon (white dome, some cap blocks glow blue). */
 	public static final Block CHANTERELLE_CAP = mushroomBlock("chanterelle_cap", MapColor.COLOR_ORANGE, 0);
 	public static final Block CHANTERELLE_STEM = mushroomBlock("chanterelle_stem", MapColor.TERRACOTTA_YELLOW, 0);
@@ -173,7 +238,7 @@ public final class EamBlocks {
 			.noCollision()
 			.instabreak()
 			.sound(SoundType.WEEPING_VINES)
-			.lightLevel(state -> 10)
+			.lightLevel(state -> GlowshroomLogic.light(state.getValue(GlowshroomVinesBlock.RIPE)))
 			.pushReaction(PushReaction.POPPED));
 	public static final Block GLOWSHROOM_VINES_PLANT = register("glowshroom_vines_plant", GlowshroomVinesPlantBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_CYAN)
@@ -182,10 +247,34 @@ public final class EamBlocks {
 			.sound(SoundType.WEEPING_VINES)
 			.lightLevel(state -> 5)
 			.pushReaction(PushReaction.POPPED));
+	/** Glowshroom caps packed behind glass: a steady light that rain does not put out. */
+	public static final Block GLOWSHROOM_LAMP = register("glowshroom_lamp", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.strength(1.0F)
+			.sound(SoundType.SHROOMLIGHT)
+			.lightLevel(state -> 13));
 
 	/** Repairs everything and forges mithril plates; wears like the vanilla anvil. */
 	public static final Block MITHRIL_ANVIL = register("mithril_anvil", p -> new MetalAnvilBlock(4, p),
 			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.ICE));
+
+	/**
+	 * Adamantium ore: only in the underworld's lower level, rarer than mithril; mined with a mithril pickaxe or better.
+	 * Mostly the deepslate kind, since the depths are deepslate.
+	 */
+	public static final Block ADAMANTIUM_ORE = register("adamantium_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.IRON_ORE).strength(5.0F, 6.0F));
+	public static final Block DEEPSLATE_ADAMANTIUM_ORE = register("deepslate_adamantium_ore", p -> new DropExperienceBlock(ConstantInt.of(0), p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.DEEPSLATE_IRON_ORE).strength(6.5F, 6.0F));
+	public static final Block ADAMANTIUM_BLOCK = register("adamantium_block", Block::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_CYAN)
+			.instrument(NoteBlockInstrument.BELL)
+			.requiresCorrectToolForDrops()
+			.strength(10.0F, 1200.0F)
+			.sound(SoundType.METAL));
+	/** Repairs everything, adamantium and netherite gear too, and forges adamantium plates. */
+	public static final Block ADAMANTIUM_ANVIL = register("adamantium_anvil", p -> new MetalAnvilBlock(5, p),
+			BlockBehaviour.Properties.ofLegacyCopy(Blocks.ANVIL).mapColor(MapColor.COLOR_CYAN));
 
 	/** A blast furnace that also smelts mithril; see {@link ObsidianBlastFurnaceBlock}. */
 	public static final Block OBSIDIAN_BLAST_FURNACE = register("obsidian_blast_furnace", ObsidianBlastFurnaceBlock::new,
@@ -267,9 +356,12 @@ public final class EamBlocks {
 	/** Garlic growing on farmland, planted from a garlic bulb. */
 	public static final Block GARLIC_CROP = register("garlic_crop", GarlicCropBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.PLANT).noCollision().randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.POPPED));
-	/** Wild garlic (ramsons) in plains and forests: the only source of garlic bulbs before the first harvest. */
+	/** Wild garlic bush in forests: the only source of garlic bulbs before the first harvest. */
 	public static final Block WILD_GARLIC = register("wild_garlic", p -> new BushBlock(p, 10), plant().replaceable()
 			.offsetType(BlockBehaviour.OffsetType.XZ));
+	/** A fence of stripped poplar: the thin posts of the underworld mines' timber supports. */
+	public static final Block STRIPPED_POPLAR_FENCE = register("stripped_poplar_fence", FenceBlock::new,
+			BlockBehaviour.Properties.ofFullCopy(Blocks.POPLAR_FENCE));
 
 	private EamBlocks() {
 	}
@@ -279,6 +371,7 @@ public final class EamBlocks {
 		FlammableBlockRegistry.getDefaultInstance().add(DENSE_SHRUB, 30, 60);
 		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_LEAVES, 30, 60);
 		FlammableBlockRegistry.getDefaultInstance().add(BIG_SHRUB_STEM, 5, 5);
+		FlammableBlockRegistry.getDefaultInstance().add(STRIPPED_POPLAR_FENCE, 5, 20);
 		HOLLOW_LOGS.forEach((log, hollow) -> {
 			if (log != Blocks.CRIMSON_STEM && log != Blocks.WARPED_STEM) {
 				FlammableBlockRegistry.getDefaultInstance().add(hollow, 5, 5);
@@ -286,15 +379,16 @@ public final class EamBlocks {
 		});
 	}
 
-	/** The elite crossbowman's net: slows whoever stands in it and falls apart after a while; see {@link NetBlock}. */
-	/** The Pillager King's helm on a pike: keeps raids away from the village it stands in. */
-	public static final Block PILLAGER_KING_TROPHY = register("pillager_king_trophy", KingTrophyBlock::new, BlockBehaviour.Properties.of()
+	/** The Pillager King's helm on a pike: while lit, no raid starts around it; a right click turns that on and off. */
+	public static final Block PILLAGER_KING_HELM = register("pillager_king_helm", KingHelmBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_BLACK)
+			.lightLevel(state -> state.getValue(KingHelmBlock.ENABLED) ? KingHelmBlock.LIGHT : 0)
 			.sound(SoundType.LANTERN)
 			.strength(2.0F, 6.0F)
 			.noOcclusion()
 			.pushReaction(PushReaction.POPPED));
 
+	/** The elite crossbowman's net: slows whoever stands in it and falls apart after a while; see {@link NetBlock}. */
 	public static final Block NET = register("net", NetBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.WOOL)
 			.sound(SoundType.COBWEB)
@@ -302,6 +396,16 @@ public final class EamBlocks {
 			.noCollision()
 			.requiresCorrectToolForDrops()
 			.strength(2.0F)
+			.noLootTable()
+			.pushReaction(PushReaction.POPPED));
+
+	/** An evolved spider's web: holds like cobweb and falls apart after a few seconds; see {@link SpiderWebBlock}. */
+	public static final Block SPIDER_WEB = register("spider_web", SpiderWebBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.WOOL)
+			.sound(SoundType.COBWEB)
+			.forceSolidOn()
+			.noCollision()
+			.strength(1.0F)
 			.noLootTable()
 			.pushReaction(PushReaction.POPPED));
 

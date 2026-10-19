@@ -3,6 +3,10 @@
     "eam:mithril_ore",
     "eam:deepslate_mithril_ore",
     "eam:raw_mithril",
-    "eam:mithril_ingot"
+    "eam:mithril_ingot",
+    "eam:adamantium_ore",
+    "eam:deepslate_adamantium_ore",
+    "eam:raw_adamantium",
+    "eam:adamantium_ingot"
   ]
 }

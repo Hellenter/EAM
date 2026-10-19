@@ -1,10 +1,7 @@
 package io.github.hellenter.eam.world.structures.outpost;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -25,9 +22,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.HashSet;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The outpost template, turned about its middle so it keeps its footprint. Its bottom {@link #GROUND} layers are the
@@ -40,8 +37,6 @@ public class OutpostPiece extends TemplateStructurePiece {
 	public static final int GROUND = 3;
 
 	private final Rotation rotation;
-	/** Where the template places logs of its own; worked out on first use. */
-	private volatile Set<BlockPos> templateLogs;
 
 	public OutpostPiece(StructureTemplateManager manager, BlockPos corner, Rotation rotation) {
 		super(OutpostModule.PIECE, 0, manager, OutpostModule.TEMPLATE, OutpostModule.TEMPLATE.toString(),
@@ -79,23 +74,6 @@ public class OutpostPiece extends TemplateStructurePiece {
 		return template.getBoundingBox(placeSettings, templatePosition);
 	}
 
-	/** Whether the template places a log of its own at {@code pos}, which the tree clearing must keep. */
-	public boolean placesLog(BlockPos pos) {
-		Set<BlockPos> logs = templateLogs;
-		if (logs == null) {
-			logs = new HashSet<>();
-			for (Holder<Block> log : BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.LOGS)) {
-				// Relative positions: placing the template narrows the settings' box to the chunk being placed, and the
-				// absolute lookup would then leave out every log outside that one chunk.
-				for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, log.value(), false)) {
-					logs.add(StructureTemplate.calculateRelativePosition(placeSettings, info.pos()).offset(templatePosition));
-				}
-			}
-			templateLogs = logs;
-		}
-		return logs.contains(pos);
-	}
-
 	private void cutBox() {
 		BoundingBox whole = templateBox();
 		boundingBox = new BoundingBox(whole.minX(), whole.minY() + GROUND, whole.minZ(), whole.maxX(), whole.maxY(), whole.maxZ());
@@ -124,11 +102,13 @@ public class OutpostPiece extends TemplateStructurePiece {
 		}
 	}
 
-	private static void spawn(WorldGenLevel level, EntityType<?> type, BlockPos pos, RandomSource random) {
-		if (!(type.create(level.getLevel(), EntitySpawnReason.STRUCTURE) instanceof Mob mob)) return;
+	/** Puts a persistent {@code type} mob standing on {@code pos}, facing a random way; null if it is not a mob. */
+	public static @Nullable Mob spawn(WorldGenLevel level, EntityType<?> type, BlockPos pos, RandomSource random) {
+		if (!(type.create(level.getLevel(), EntitySpawnReason.STRUCTURE) instanceof Mob mob)) return null;
 		mob.setPersistenceRequired();
 		mob.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
 		mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.STRUCTURE, null);
 		level.addFreshEntityWithPassengers(mob);
+		return mob;
 	}
 }

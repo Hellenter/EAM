@@ -9,8 +9,12 @@
 		"survival.thirst.GuiGraphicsExtractorMixin",
 		"world.bloodmoon.FogRendererMixin",
 		"world.bloodmoon.SkyRendererMixin",
+		"world.bluemoon.FogRendererMixin",
+		"world.bluemoon.SkyRendererMixin",
+		"world.darkness.LightmapRenderStateExtractorMixin",
 		"mobs.yaga.YagaStormLevelMixin",
-		"world.forging.AnvilScreenMixin"
+		"world.forging.AnvilScreenMixin",
+		"mobs.villager.MerchantScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

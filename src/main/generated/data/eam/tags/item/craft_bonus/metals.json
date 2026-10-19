@@ -3,12 +3,14 @@
     "#eam:crafting_materials/tier_2",
     "#eam:crafting_materials/tier_3",
     "#eam:crafting_materials/tier_4",
+    "#eam:crafting_materials/tier_5",
     {
       "id": "#minecraft:metal_nuggets",
       "required": false
     },
     "eam:silver_nugget",
     "eam:mithril_nugget",
+    "eam:adamantium_nugget",
     "eam:ancient_metal_nugget",
     "minecraft:gold_ingot",
     "minecraft:gold_nugget",

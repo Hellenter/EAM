@@ -54,7 +54,8 @@
     "retreat": 8.5,
     "keep_away": 9.0,
     "first_second_heal": 12.5,
-    "min_gap": 250
+    "min_gap": 250,
+    "climb_back": 1.5
   },
   "burst": {
     "health_share": 0.3,

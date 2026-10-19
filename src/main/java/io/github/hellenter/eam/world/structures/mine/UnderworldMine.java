@@ -34,6 +34,8 @@ public final class UnderworldMine {
 
 	public static final ResourceKey<LootTable> CHEST_LOOT = loot("chest");
 	public static final ResourceKey<LootTable> BARREL_LOOT = loot("barrel");
+	/** Chest minecarts left on the rails ({@link MinePieceElement}). */
+	public static final ResourceKey<LootTable> MINECART_LOOT = loot("minecart");
 
 	private UnderworldMine() {
 	}

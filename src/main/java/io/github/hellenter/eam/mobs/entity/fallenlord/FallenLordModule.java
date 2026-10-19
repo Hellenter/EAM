@@ -2,8 +2,11 @@ package io.github.hellenter.eam.mobs.entity.fallenlord;
 
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.mobs.entity.boss.BossBuilding;
 import io.github.hellenter.eam.mobs.entity.boss.BossParry;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
+import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -42,6 +45,7 @@ public final class FallenLordModule {
 
 	public static void register() {
 		BossParry.register();
+		BossBuilding.register();
 		FabricDefaultAttributeRegistry.register(EamEntities.FALLEN_LORD, FallenLord.createAttributes());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FallenLordSettingsLoader.ID, new FallenLordSettingsLoader());
 	}
@@ -50,6 +54,10 @@ public final class FallenLordModule {
 	public static double armorPiercing(DamageSource source) {
 		if (source.getEntity() instanceof PillagerKing) {
 			return PillagerKingModule.settings().stats().armorPiercing();
+		}
+		if (source.getEntity() instanceof Koschei) {
+			// His lightning and sorcery are all pure already.
+			return source.is(KoscheiModule.LIGHTNING_DAMAGE) || source.is(KoscheiModule.SORCERY_DAMAGE) ? 0.0 : KoscheiModule.settings().stats().armorPiercing();
 		}
 		return source.getEntity() instanceof FallenLord ? settings.later().armorPiercing() : 0.0;
 	}
