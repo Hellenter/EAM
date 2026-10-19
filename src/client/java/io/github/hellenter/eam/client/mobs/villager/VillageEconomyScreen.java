@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageDonatePayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageOrderPayload;
@@ -294,7 +295,7 @@ public class VillageEconomyScreen extends Screen {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		int card = card(event.x(), event.y());
-		if (card >= 0 && event.button() == 0) {
+		if (card >= 0 && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			if (economy.donatable().get(card) > 0) {
 				ClientPlayNetworking.send(new VillageDonatePayload(economy.elderId(), VillageResource.values()[card], event.hasShiftDown()));
 				AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
