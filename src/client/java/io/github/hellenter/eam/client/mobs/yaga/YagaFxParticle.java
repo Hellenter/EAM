@@ -41,7 +41,10 @@ public class YagaFxParticle extends SingleQuadParticle {
 		// Koschei's cues share this body: embers off his orange blade, the motes he leaves when he vanishes, his burst of force.
 		SPARK(8, 16, 0.05F, 0.08F, -0.02F, 0.9F, 0.0F, true, true, false, -0.5F, false),
 		WARP(30, 50, 0.08F, 0.14F, -0.003F, 0.92F, 0.1F, true, true, false, -0.3F, false),
-		FORCE(8, 14, 0.12F, 0.2F, 0.0F, 0.84F, 0.2F, true, true, false, 0.8F, false);
+		FORCE(8, 14, 0.12F, 0.2F, 0.0F, 0.84F, 0.2F, true, true, false, 0.8F, false),
+		// His second phase: the blizzard's small flakes, blown out fast and spinning, and the panes of his ice field.
+		FLAKE(24, 40, 0.035F, 0.07F, 0.01F, 0.95F, 0.25F, false, true, true, 0.0F, true),
+		ICE_FIELD(7, 10, 0.2F, 0.26F, 0.0F, 0.0F, 0.0F, false, true, false, 0.25F, false);
 
 		final int minLife;
 		final int maxLife;
