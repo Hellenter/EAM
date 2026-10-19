@@ -94,7 +94,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(SpoilageSettings.SOURS).addAll(keys(Items.MILK_BUCKET, EamItems.COPPER_MILK_BUCKET, EamItems.SILVER_MILK_BUCKET,
 				EamItems.GOLDEN_MILK_BUCKET, EamItems.MITHRIL_MILK_BUCKET, EamItems.MILK_BOWL));
 		// Dried food keeps dried_multiplier times as long as fresh food.
-		builder(SpoilageSettings.SPOILS).addAll(keys(DriedFoods.DRIED.values().toArray(Item[]::new)));
+		builder(SpoilageSettings.SPOILS).addAll(keys(DriedFoods.ALL_DRIED.toArray(Item[]::new)));
 		builder(FridgeModule.ICE).addAll(keys(Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE));
 		// Produce that drops more under a blue moon; seeds stay as they are.
 		builder(BlueMoonModule.HARVEST_ITEMS).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),

@@ -9,12 +9,16 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** Food that dries on a food dryer and what it becomes: fruit, berries, root vegetables, bread and cooked meat and fish. */
+/**
+ * Food that dries on a food dryer and what it becomes: fruit, berries, root vegetables, bread and meat and fish, cooked
+ * or raw. Raw meat dries into the same jerky as cooked meat.
+ */
 public final class DriedFoods {
-	/** Fresh food and its dried item, in creative tab order. */
+	/** Fresh food and its dried item; cooked meat comes before raw, so each dried item's first source is the cooked one. */
 	public static final Map<Item, Item> DRIED;
 
 	static {
@@ -37,10 +41,19 @@ public final class DriedFoods {
 		dried.put(EamItems.COOKED_WOLF_MEAT, EamItems.DRIED_WOLF_MEAT);
 		dried.put(Items.COOKED_COD, EamItems.DRIED_COD);
 		dried.put(Items.COOKED_SALMON, EamItems.DRIED_SALMON);
+		dried.put(Items.BEEF, EamItems.DRIED_BEEF);
+		dried.put(Items.PORKCHOP, EamItems.DRIED_PORKCHOP);
+		dried.put(Items.MUTTON, EamItems.DRIED_MUTTON);
+		dried.put(Items.CHICKEN, EamItems.DRIED_CHICKEN);
+		dried.put(Items.RABBIT, EamItems.DRIED_RABBIT);
+		dried.put(EamItems.WOLF_MEAT, EamItems.DRIED_WOLF_MEAT);
+		dried.put(Items.COD, EamItems.DRIED_COD);
+		dried.put(Items.SALMON, EamItems.DRIED_SALMON);
 		DRIED = Collections.unmodifiableMap(dried);
 	}
 
-	private static final Set<Item> ALL_DRIED = Set.copyOf(DRIED.values());
+	/** Every dried item once, in creative tab order. */
+	public static final Set<Item> ALL_DRIED = Collections.unmodifiableSet(new LinkedHashSet<>(DRIED.values()));
 
 	private DriedFoods() {
 	}

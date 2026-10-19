@@ -125,13 +125,16 @@ final class HungerFoods {
 		return Map.copyOf(all);
 	}
 
-	/** Dried food feeds as much as the fresh food; ours (berries, garlic) set their values on the item. */
+	/**
+	 * Dried food feeds as much as the fresh food (cooked meat, not raw, for jerky); ours (berries, garlic) set their
+	 * values on the item.
+	 */
 	private static Map<Item, Values> withDriedFood(Map<Item, Values> values) {
 		Map<Item, Values> all = new HashMap<>(values);
 		DriedFoods.DRIED.forEach((fresh, dried) -> {
 			Values food = values.get(fresh);
 			if (food != null) {
-				all.put(dried, food);
+				all.putIfAbsent(dried, food);
 			}
 		});
 		return Map.copyOf(all);

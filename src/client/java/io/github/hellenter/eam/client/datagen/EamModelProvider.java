@@ -639,7 +639,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CRANBERRY, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.WOLFBERRY, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COOKED_WOLF_MEAT, ModelTemplates.FLAT_ITEM);
-		for (Item item : DriedFoods.DRIED.values()) {
+		for (Item item : DriedFoods.ALL_DRIED) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		generators.generateFlatItem(EamItems.GLOWSHROOM, ModelTemplates.FLAT_ITEM);
