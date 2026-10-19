@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "eam:block/shelf_mushroom",
+    "facing=east,mushrooms=1": {
+      "model": "eam:block/shelf_mushroom_1",
       "y": 90
     },
-    "facing=north": {
-      "model": "eam:block/shelf_mushroom"
+    "facing=east,mushrooms=2": {
+      "model": "eam:block/shelf_mushroom_2",
+      "y": 90
     },
-    "facing=south": {
-      "model": "eam:block/shelf_mushroom",
+    "facing=north,mushrooms=1": {
+      "model": "eam:block/shelf_mushroom_1"
+    },
+    "facing=north,mushrooms=2": {
+      "model": "eam:block/shelf_mushroom_2"
+    },
+    "facing=south,mushrooms=1": {
+      "model": "eam:block/shelf_mushroom_1",
       "y": 180
     },
-    "facing=west": {
-      "model": "eam:block/shelf_mushroom",
+    "facing=south,mushrooms=2": {
+      "model": "eam:block/shelf_mushroom_2",
+      "y": 180
+    },
+    "facing=west,mushrooms=1": {
+      "model": "eam:block/shelf_mushroom_1",
+      "y": 270
+    },
+    "facing=west,mushrooms=2": {
+      "model": "eam:block/shelf_mushroom_2",
       "y": 270
     }
   }
