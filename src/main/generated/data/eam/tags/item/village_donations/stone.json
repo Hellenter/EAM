@@ -1,0 +1,11 @@
+{
+  "values": [
+    "minecraft:stone",
+    "minecraft:stone_bricks",
+    "minecraft:andesite",
+    "minecraft:diorite",
+    "minecraft:granite",
+    "minecraft:tuff",
+    "#minecraft:stone_crafting_materials"
+  ]
+}
