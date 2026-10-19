@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * override them. A missing or invalid field falls back to its default.
  *
  * @param stats         health, armor and the like
- * @param replaceChance share of pillagers in patrols, outposts and raids that spawn as elite crossbowmen instead
+ * @param replaceChance share of pillagers in patrols and outposts that spawn as elite crossbowmen instead
  * @param minRange      closer than this he backs away from his target
  * @param maxRange      further than this, or out of sight, he walks closer
  * @param pauseMin      fewest ticks between one shot and loading the next

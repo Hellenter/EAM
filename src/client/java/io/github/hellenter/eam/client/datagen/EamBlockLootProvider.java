@@ -87,6 +87,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 		add(EamBlocks.TALL_SWAMP_GRASS, block -> createDoublePlantWithSeedDrops(block, EamBlocks.SWAMP_GRASS));
 		add(EamBlocks.SWAMP_SHRUB, block -> createShearsOnlyDrop(block));
 		dropSelf(EamBlocks.SHELF_MUSHROOM);
+		dropSelf(EamBlocks.PILLAGER_KING_HELM);
 		// Garlic drops like carrots: one bulb back, and two to five from a ripe plant. Wild garlic gives one or two bulbs.
 		add(EamBlocks.GARLIC_CROP, block -> applyExplosionDecay(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().add(LootItem.lootTableItem(EamItems.GARLIC)))

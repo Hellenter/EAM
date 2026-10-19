@@ -111,6 +111,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.COPPER_KNIFE, "Copper Knife");
 			builder.add(EamItems.SILVER_KNIFE, "Silver Knife");
 			builder.add(EamItems.IRON_KNIFE, "Iron Knife");
+			builder.add("item.eam.knife.animal_loot", "+%s%% loot from animals killed with it");
 			builder.add(EamBlocks.COPPER_ANVIL, "Copper Anvil");
 			builder.add(EamBlocks.SILVER_ANVIL, "Silver Anvil");
 			builder.add("block.minecraft.anvil", "Iron Anvil");
@@ -165,6 +166,14 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.economy.unavailable", "Not Now");
 			builder.add("gui.eam.village.economy.goal", "Saving up for: %s");
 			builder.add("gui.eam.village.economy.orders", "Orders");
+			builder.add("gui.eam.village.donate.hint", "Click: give one stack. Shift-click: give all.");
+			builder.add("gui.eam.village.donate.have", "Your items are worth %s");
+			builder.add("gui.eam.village.donate.none", "You have nothing of this to give");
+			builder.add("gui.eam.village.donate.accepts.wood", "Takes logs and planks");
+			builder.add("gui.eam.village.donate.accepts.metal", "Takes iron, copper and silver ingots and nuggets");
+			builder.add("gui.eam.village.donate.accepts.stone", "Takes cobblestone, stone and stone bricks");
+			builder.add("gui.eam.village.donate.accepts.money", "Takes emeralds, gold ingots and nuggets");
+			builder.add("gui.eam.village.donate.accepts.provisions", "Takes bread, cooked meat and fish, crops");
 			builder.add("gui.eam.village.order.iron_golem", "Iron Golem");
 			for (String[] component : new String[][] {{"farmer", "Farmer"}, {"fisherman", "Fisherman"}, {"butcher", "Butcher"},
 					{"mason", "Mason"}, {"armorer", "Armorer"}, {"toolsmith", "Toolsmith"}, {"weaponsmith", "Weaponsmith"},
@@ -284,6 +293,10 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Heavy cavalry");
 			builder.add("item.eam.commander_horn.wave.centurion", "Centurion with a squad");
 			builder.add(EamItems.KING_CASTLE_MAP, "Map to the Pillager King's Castle");
+			builder.add(EamBlocks.PILLAGER_KING_HELM, "Pillager King's Helm");
+			builder.add("block.eam.pillager_king_helm.desc", "Set it up as a trophy; right click turns raid protection within 200 blocks on and off");
+			builder.add("block.eam.pillager_king_helm.on", "Raid protection is on: no raids within 200 blocks");
+			builder.add("block.eam.pillager_king_helm.off", "Raid protection is off");
 			builder.add(EamItems.BLUEPRINT, "Blueprint");
 			builder.add("item.eam.blueprint.of", "Blueprint: %s");
 			builder.add("item.eam.blueprint.usage", "Use to set it down where you look");
@@ -811,6 +824,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "The room needs lighting");
 			builder.add("block.eam.bed.blood_moon", "You can't sleep under a blood moon");
 			builder.add("event.eam.blood_moon.title", "Blood Moon");
+			builder.add("event.eam.random_raid", "Pillagers are coming for the village!");
 			builder.add("event.eam.blood_moon.start", "The blood moon is rising. Monsters are coming out in armor and won't let you sleep.");
 			builder.add("event.eam.blood_moon.end", "The blood moon has set.");
 			builder.add("commands.eam.blood_moon.active", "Day %s: the blood moon is up");
@@ -897,6 +911,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.COPPER_KNIFE, "Медный нож");
 			builder.add(EamItems.SILVER_KNIFE, "Серебряный нож");
 			builder.add(EamItems.IRON_KNIFE, "Железный нож");
+			builder.add("item.eam.knife.animal_loot", "+%s%% добычи с убитых им животных");
 			builder.add(EamBlocks.COPPER_ANVIL, "Медная наковальня");
 			builder.add(EamBlocks.SILVER_ANVIL, "Серебряная наковальня");
 			builder.add("block.minecraft.anvil", "Железная наковальня");
@@ -948,6 +963,14 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.economy.order", "Заказать");
 			builder.add("gui.eam.village.economy.save_up", "Копить");
 			builder.add("gui.eam.village.economy.cancel", "Отменить");
+			builder.add("gui.eam.village.donate.hint", "Клик: внести одну стопку. Shift+клик: внести всё.");
+			builder.add("gui.eam.village.donate.have", "Ваши предметы стоят %s");
+			builder.add("gui.eam.village.donate.none", "Вам нечего внести");
+			builder.add("gui.eam.village.donate.accepts.wood", "Принимает брёвна и доски");
+			builder.add("gui.eam.village.donate.accepts.metal", "Принимает железные, медные и серебряные слитки и самородки");
+			builder.add("gui.eam.village.donate.accepts.stone", "Принимает булыжник, камень и каменные кирпичи");
+			builder.add("gui.eam.village.donate.accepts.money", "Принимает изумруды, золотые слитки и самородки");
+			builder.add("gui.eam.village.donate.accepts.provisions", "Принимает хлеб, жареное мясо и рыбу, урожай");
 			builder.add("gui.eam.village.economy.unavailable", "Нельзя");
 			builder.add("gui.eam.village.economy.goal", "Копим на: %s");
 			builder.add("gui.eam.village.economy.orders", "Заказы");
@@ -1070,6 +1093,10 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.commander_horn.wave.cavalry", "Тяжёлая кавалерия");
 			builder.add("item.eam.commander_horn.wave.centurion", "Центурион с отрядом");
 			builder.add(EamItems.KING_CASTLE_MAP, "Карта к замку короля разбойников");
+			builder.add(EamBlocks.PILLAGER_KING_HELM, "Шлем короля");
+			builder.add("block.eam.pillager_king_helm.desc", "Поставь как трофей; ПКМ включает и выключает защиту от рейдов в радиусе 200 блоков");
+			builder.add("block.eam.pillager_king_helm.on", "Защита от рейдов включена: в радиусе 200 блоков рейдов не будет");
+			builder.add("block.eam.pillager_king_helm.off", "Защита от рейдов выключена");
 			builder.add(EamItems.BLUEPRINT, "Чертёж");
 			builder.add("item.eam.blueprint.of", "Чертёж: %s");
 			builder.add("item.eam.blueprint.usage", "ПКМ: поставить туда, куда смотришь");
@@ -1604,6 +1631,7 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.bed.needs_light", "Требуется освещение");
 			builder.add("block.eam.bed.blood_moon", "Под кровавой луной не уснуть");
 			builder.add("event.eam.blood_moon.title", "Кровавая луна");
+			builder.add("event.eam.random_raid", "Разбойники идут на деревню!");
 			builder.add("event.eam.blood_moon.start", "Восходит кровавая луна. Монстры выходят в броне и не дадут уснуть.");
 			builder.add("event.eam.blood_moon.end", "Кровавая луна зашла.");
 			builder.add("commands.eam.blood_moon.active", "День %s: сейчас кровавая луна");

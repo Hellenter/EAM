@@ -61,4 +61,17 @@ public final class VillageEconomyLogic {
 		// More of a trade first, then less experience.
 		return 2 + (long) (1000 - Math.min(999, sameTrade)) * 1_000_000L + Math.min(999_999, xp);
 	}
+
+	/**
+	 * The inventory slots a player gives from, in order: the main inventory first, so what is at hand on the hotbar goes
+	 * last.
+	 *
+	 * @param size    slots of the inventory, the hotbar included
+	 * @param hotbar  hotbar slots, the first of the inventory
+	 */
+	public static int[] donationSlots(int size, int hotbar) {
+		int[] slots = new int[size];
+		for (int i = 0; i < size; i++) slots[i] = (i + hotbar) % size;
+		return slots;
+	}
 }

@@ -213,6 +213,12 @@ public final class EamItems {
 	public static final Item KING_CASTLE_MAP = register("king_castle_map", KingCastleMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
+	/** Dropped by the Pillager King: his helm, set up on a pike as a trophy that keeps raids away. */
+	public static final Item PILLAGER_KING_HELM = register("pillager_king_helm", p -> new BlockItem(EamBlocks.PILLAGER_KING_HELM, p),
+			new Item.Properties().useBlockDescriptionPrefix().stacksTo(1).rarity(Rarity.RARE).fireResistant()
+					.component(DataComponents.LORE, new ItemLore(List.of(
+							Component.translatable("block.eam.pillager_king_helm.desc").withStyle(ChatFormatting.GRAY)))));
+
 	/** Dropped by the Pillager King: in hand, it turns into a map to the nearest crypt. */
 	public static final Item CRYPT_MAP = register("crypt_map", CryptMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));

@@ -31,6 +31,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.block.Block;
@@ -54,7 +55,8 @@ import java.util.Optional;
  * used up. With the stock the player orders an iron golem from the elder's upgrades menu, or has the village save up for
  * one. Villagers have no children while the village lacks a bed for the child or provisions to feed him. The elder also
  * appoints guards, one for each eight grown villagers: nitwits first, then the jobless, then one of the most numerous
- * trade. Numbers are in {@code data/eam/villagers/economy.json}.
+ * trade. A player may also give the elder his own items for the stock, at the worth {@code donations.json} sets. Numbers
+ * are in {@code data/eam/villagers/economy.json}.
  */
 public final class VillageEconomyModule {
 	/** The elder's store of resources and the order the village saves up for. */
@@ -70,6 +72,7 @@ public final class VillageEconomyModule {
 	private static final byte HAPPY_PARTICLES = 14;
 
 	private static volatile EconomySettings settings = EconomySettings.DEFAULT;
+	private static volatile DonationSettings donations = DonationSettings.DEFAULT;
 	private static boolean enabled;
 
 	private VillageEconomyModule() {
@@ -85,8 +88,10 @@ public final class VillageEconomyModule {
 	/** Settings and payloads register whatever the config says, so the data is always valid and client and server match. */
 	public static void register() {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(EconomySettingsLoader.ID, new EconomySettingsLoader());
+		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(DonationSettingsLoader.ID, new DonationSettingsLoader());
 		PayloadTypeRegistry.serverboundPlay().register(VillageEconomyOpenPayload.TYPE, VillageEconomyOpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(VillageOrderPayload.TYPE, VillageOrderPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(VillageDonatePayload.TYPE, VillageDonatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(VillageEconomyPayload.TYPE, VillageEconomyPayload.STREAM_CODEC);
 	}
 
@@ -111,6 +116,16 @@ public final class VillageEconomyModule {
 			}
 			send(context.player(), elder);
 		});
+		ServerPlayNetworking.registerGlobalReceiver(VillageDonatePayload.TYPE, (payload, context) -> {
+			Villager elder = elderFor(context.player(), payload.elderId());
+			if (elder == null) return;
+			donate(elder, context.player(), payload.resource(), payload.all());
+			send(context.player(), elder);
+		});
+	}
+
+	static void setDonations(DonationSettings value) {
+		donations = value;
 	}
 
 	static void setSettings(EconomySettings value) {
@@ -252,6 +267,44 @@ public final class VillageEconomyModule {
 		return villager.getBrain().getMemory(MemoryModuleType.JOB_SITE)
 				.filter(site -> site.dimension() == level.dimension())
 				.map(GlobalPos::pos).orElse(null);
+	}
+
+	/**
+	 * The player gives the elder his items that count as {@code resource}: the first stack of them, the main inventory
+	 * before the hotbar, or with {@code all} every one. The village then sees whether its goal is met.
+	 */
+	private static void donate(Villager elder, ServerPlayer player, VillageResource resource, boolean all) {
+		Inventory inventory = player.getInventory();
+		DonationSettings current = donations;
+		double total = 0;
+		for (int slot : VillageEconomyLogic.donationSlots(Inventory.INVENTORY_SIZE, Inventory.SELECTION_SIZE)) {
+			ItemStack stack = inventory.getItem(slot);
+			Optional<DonationSettings.Donation> donation = current.of(stack).filter(entry -> entry.resource() == resource && entry.value() > 0);
+			if (donation.isEmpty()) continue;
+			total += donation.get().value() * stack.getCount();
+			inventory.setItem(slot, ItemStack.EMPTY);
+			if (!all) break;
+		}
+		if (total <= 0) return;
+		elder.setAttached(TREASURY, treasury(elder).add(Map.of(resource, total)));
+		ServerLevel level = player.level();
+		level.broadcastEntityEvent(elder, HAPPY_PARTICLES);
+		elder.makeSound(SoundEvents.VILLAGER_YES);
+		meetGoal(elder, level, settings);
+	}
+
+	/** What all the player's items would bring the village, in {@link VillageResource} order. */
+	private static List<Double> donatable(ServerPlayer player) {
+		DonationSettings current = donations;
+		double[] totals = new double[VillageResource.values().length];
+		Inventory inventory = player.getInventory();
+		for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+			ItemStack stack = inventory.getItem(slot);
+			current.of(stack).ifPresent(donation -> totals[donation.resource().ordinal()] += donation.value() * stack.getCount());
+		}
+		List<Double> list = new ArrayList<>();
+		for (double total : totals) list.add(total);
+		return list;
 	}
 
 	/** Carries the village's goal out once the stock covers it. */
@@ -446,6 +499,7 @@ public final class VillageEconomyModule {
 			int ready = (int) treasury.ready().stream().filter(entry.getKey()::equals).count();
 			orders.add(new VillageEconomyPayload.OrderView(entry.getKey(), cost, available(elder, level, entry.getKey(), current), ready));
 		});
-		ServerPlayNetworking.send(player, new VillageEconomyPayload(elder.getId(), stock, incomes, status, treasury.goal(), orders));
+		ServerPlayNetworking.send(player, new VillageEconomyPayload(elder.getId(), stock, incomes, status, treasury.goal(), orders,
+				donatable(player)));
 	}
 }

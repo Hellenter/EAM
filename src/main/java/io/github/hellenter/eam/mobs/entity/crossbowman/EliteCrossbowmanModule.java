@@ -28,8 +28,8 @@ import java.util.List;
 
 /**
  * Elite crossbowmen: pillagers in a cuirass and a round helmet who shoot a plain bolt, a burst of three, a red bolt
- * that goes through a shield and, now and then, a net that holds a player in place. Some pillagers of patrols, outposts
- * and raids spawn as them; there is a spawn egg too. Numbers are in {@code data/eam/mobs/elite_crossbowman.json}.
+ * that goes through a shield and, now and then, a net that holds a player in place. Some pillagers of patrols and
+ * outposts spawn as them, raid waves get them on top of their pillagers; there is a spawn egg too. Numbers are in {@code data/eam/mobs/elite_crossbowman.json}.
  */
 public final class EliteCrossbowmanModule {
 	/** The red bolt: it goes through a shield, which takes part of the damage itself. */
@@ -61,7 +61,7 @@ public final class EliteCrossbowmanModule {
 		}));
 	}
 
-	/** Pillagers of patrols, outposts and raids may spawn as elite crossbowmen. */
+	/** Pillagers of patrols and outposts may spawn as elite crossbowmen. */
 	public static void init() {
 		enabled = true;
 	}
@@ -76,7 +76,7 @@ public final class EliteCrossbowmanModule {
 	}
 
 	/**
-	 * A pillager just created for a patrol, an outpost or a raid: by chance an elite crossbowman takes its place. Any
+	 * A pillager just created for a patrol or an outpost: by chance an elite crossbowman takes its place. Any
 	 * other entity is returned as it is.
 	 */
 	public static @Nullable Entity promote(@Nullable Entity created, Level level, EntitySpawnReason reason) {

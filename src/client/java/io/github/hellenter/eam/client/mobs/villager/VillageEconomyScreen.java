@@ -1,6 +1,6 @@
 package io.github.hellenter.eam.client.mobs.villager;
 
-import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillageDonatePayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageEconomyPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageOrderPayload;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillageResource;
@@ -9,12 +9,14 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +64,12 @@ public class VillageEconomyScreen extends Screen {
 	private static final int COSTS_LEFT = 108;
 	private static final int COSTS_WIDTH = 160;
 	private static final int BUTTON_WIDTH = 60;
-	private static final Identifier[] ICONS = new Identifier[VillageResource.values().length];
+	private static final int CARD_HOVER = 0xFFCFCFCF;
 
-	static {
-		for (VillageResource resource : VillageResource.values()) {
-			ICONS[resource.ordinal()] = Eam.id("textures/gui/village/" + resource.getSerializedName() + ".png");
-		}
-	}
-
+	/** The items that stand for the resources, in {@link VillageResource} order. */
+	private final ItemStack[] icons = {
+			new ItemStack(Items.OAK_LOG), new ItemStack(Items.IRON_INGOT), new ItemStack(Items.COBBLESTONE),
+			new ItemStack(Items.EMERALD), new ItemStack(Items.BREAD)};
 	private VillageEconomyPayload economy;
 	private int scroll;
 	private int left;
@@ -176,22 +176,33 @@ public class VillageEconomyScreen extends Screen {
 		if (tooltip != null) graphics.setTooltipForNextFrame(font, font.split(tooltip, 200), mouseX, mouseY);
 	}
 
-	/** A sunken card per resource: its icon, the stock and what it gains or loses each half a day. */
+	/**
+	 * A sunken card per resource: its icon, the stock and what it gains or loses each half a day. A click on it gives the
+	 * village the player's items of that resource; a green plus marks the cards he has something for.
+	 */
 	private Component resources(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		Component tooltip = null;
 		VillageResource[] resources = VillageResource.values();
 		for (int i = 0; i < resources.length; i++) {
 			int x = left + PAD + i * (CARD_WIDTH + CARD_GAP);
 			int y = top + RESOURCES_TOP;
-			inset(graphics, x, y, x + CARD_WIDTH, y + CARD_HEIGHT, CARD);
+			boolean hover = card(mouseX, mouseY) == i;
+			double donatable = economy.donatable().get(i);
+			inset(graphics, x, y, x + CARD_WIDTH, y + CARD_HEIGHT, hover ? CARD_HOVER : CARD);
 			icon(graphics, i, x + 4, y + 5);
+			if (donatable > 0) graphics.text(font, "+", x + CARD_WIDTH - 8, y + 2, GOOD, false);
 			graphics.text(font, amount(economy.stock().get(i)), x + 23, y + 4, TEXT, false);
 			double income = economy.income().get(i);
 			String signed = (income > 0 ? "+" : "") + amount(income);
 			graphics.text(font, signed, x + 23, y + 15, income < 0 ? BAD : income > 0 ? GOOD : MUTED, false);
-			if (mouseX >= x && mouseX < x + CARD_WIDTH && mouseY >= y && mouseY < y + CARD_HEIGHT) {
-				tooltip = Component.translatable("gui.eam.village.resource." + resources[i].getSerializedName()).append("\n")
-						.append(Component.translatable("gui.eam.village.economy.income", signed));
+			if (hover) {
+				String name = resources[i].getSerializedName();
+				tooltip = Component.translatable("gui.eam.village.resource." + name).append("\n")
+						.append(Component.translatable("gui.eam.village.economy.income", signed)).append("\n\n")
+						.append(Component.translatable("gui.eam.village.donate.accepts." + name)).append("\n")
+						.append(donatable > 0 ? Component.translatable("gui.eam.village.donate.have", amount(donatable)).append("\n")
+								.append(Component.translatable("gui.eam.village.donate.hint"))
+								: Component.translatable("gui.eam.village.donate.none"));
 			}
 		}
 		return tooltip;
@@ -265,8 +276,32 @@ public class VillageEconomyScreen extends Screen {
 		}
 	}
 
-	private static void icon(GuiGraphicsExtractor graphics, int resource, int x, int y) {
-		graphics.blit(RenderPipelines.GUI_TEXTURED, ICONS[resource], x, y, 0.0F, 0.0F, 16, 16, 16, 16);
+	private void icon(GuiGraphicsExtractor graphics, int resource, int x, int y) {
+		graphics.item(icons[resource], x, y);
+	}
+
+	/** The resource card under the mouse, or -1. */
+	private int card(double mouseX, double mouseY) {
+		int y = top + RESOURCES_TOP;
+		if (mouseY < y || mouseY >= y + CARD_HEIGHT) return -1;
+		for (int i = 0; i < icons.length; i++) {
+			int x = left + PAD + i * (CARD_WIDTH + CARD_GAP);
+			if (mouseX >= x && mouseX < x + CARD_WIDTH) return i;
+		}
+		return -1;
+	}
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		int card = card(event.x(), event.y());
+		if (card >= 0 && event.button() == 0) {
+			if (economy.donatable().get(card) > 0) {
+				ClientPlayNetworking.send(new VillageDonatePayload(economy.elderId(), VillageResource.values()[card], event.hasShiftDown()));
+				AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
+			}
+			return true;
+		}
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	/** A sunken box: dark top and left edges, light bottom and right. */

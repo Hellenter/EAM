@@ -1,0 +1,59 @@
+{
+  "donations": [
+    {
+      "items": "eam:village_donations/wood_logs",
+      "resource": "wood",
+      "value": 1.0
+    },
+    {
+      "items": "eam:village_donations/wood_planks",
+      "resource": "wood",
+      "value": 0.25
+    },
+    {
+      "items": "eam:village_donations/metal_ingots",
+      "resource": "metal",
+      "value": 1.0
+    },
+    {
+      "items": "eam:village_donations/metal_soft_ingots",
+      "resource": "metal",
+      "value": 0.5
+    },
+    {
+      "items": "eam:village_donations/metal_nuggets",
+      "resource": "metal",
+      "value": 0.1
+    },
+    {
+      "items": "eam:village_donations/stone",
+      "resource": "stone",
+      "value": 0.25
+    },
+    {
+      "items": "eam:village_donations/money_gems",
+      "resource": "money",
+      "value": 2.0
+    },
+    {
+      "items": "eam:village_donations/money_gold",
+      "resource": "money",
+      "value": 1.0
+    },
+    {
+      "items": "eam:village_donations/money_nuggets",
+      "resource": "money",
+      "value": 0.1
+    },
+    {
+      "items": "eam:village_donations/provisions_meals",
+      "resource": "provisions",
+      "value": 1.0
+    },
+    {
+      "items": "eam:village_donations/provisions_crops",
+      "resource": "provisions",
+      "value": 0.25
+    }
+  ]
+}

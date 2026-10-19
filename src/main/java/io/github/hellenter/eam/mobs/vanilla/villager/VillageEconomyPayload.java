@@ -19,9 +19,10 @@ import java.util.Optional;
  * @param status   villagers, beds, guards and golems
  * @param goal     the order the village saves up for, if any
  * @param orders   what can be ordered
+ * @param donatable what the player's items would bring the village, in {@link VillageResource} order
  */
 public record VillageEconomyPayload(int elderId, List<Double> stock, List<Double> income, Status status, Optional<String> goal,
-		List<OrderView> orders) implements CustomPacketPayload {
+		List<OrderView> orders, List<Double> donatable) implements CustomPacketPayload {
 	public static final Type<VillageEconomyPayload> TYPE = new Type<>(Eam.id("village_economy"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, VillageEconomyPayload> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), VillageEconomyPayload::stock,
@@ -30,7 +31,9 @@ public record VillageEconomyPayload(int elderId, List<Double> stock, List<Double
 			ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), VillageEconomyPayload::goal,
 			OrderView.STREAM_CODEC.apply(ByteBufCodecs.list()), VillageEconomyPayload::orders,
 			ByteBufCodecs.VAR_INT, VillageEconomyPayload::elderId,
-			(stock, income, status, goal, orders, elderId) -> new VillageEconomyPayload(elderId, stock, income, status, goal, orders));
+			ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), VillageEconomyPayload::donatable,
+			(stock, income, status, goal, orders, elderId, donatable) -> new VillageEconomyPayload(elderId, stock, income, status, goal, orders,
+					donatable));
 
 	@Override
 	public Type<VillageEconomyPayload> type() {

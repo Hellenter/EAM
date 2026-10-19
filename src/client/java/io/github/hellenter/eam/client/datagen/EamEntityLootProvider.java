@@ -132,8 +132,11 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 		output.accept(EamEntities.KOSCHEI_BALL_LIGHTNING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_COPY.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
-		// The Pillager King: a map to the nearest crypt, and a little of his treasure.
+		// The Pillager King: his helm, a trophy that keeps raids away; a map to the nearest crypt; a little of his treasure.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.PILLAGER_KING_HELM)))
 				.withPool(LootPool.lootPool()
 						.setRolls(ContextIntProviders.exactly(1))
 						.add(LootItem.lootTableItem(EamItems.CRYPT_MAP)))

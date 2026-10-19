@@ -108,6 +108,7 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
 		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 
+		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.PILLAGER_KING_HELM.builtInRegistryHolder().key());
 		builder(BlockTags.MINEABLE_WITH_PICKAXE).add(EamBlocks.METAL_FEEDER.builtInRegistryHolder().key(),
 				EamBlocks.LARGE_FRIDGE.builtInRegistryHolder().key(), EamBlocks.SILVER_ORE.builtInRegistryHolder().key(),
 				EamBlocks.DEEPSLATE_SILVER_ORE.builtInRegistryHolder().key(), EamBlocks.SILVER_BLOCK.builtInRegistryHolder().key(),
