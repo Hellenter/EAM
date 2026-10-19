@@ -21,6 +21,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
+import io.github.hellenter.eam.content.slingshot.SlingshotLogic;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
@@ -148,10 +149,6 @@ public final class EamItems {
 
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
-
-	/** Iron-forked slingshot: harder pebbles, and shoots splash or lingering potions held in the other hand. */
-	public static final Item POWER_SLINGSHOT = register("power_slingshot", PowerSlingshotItem::new,
-			new Item.Properties().durability(384).repairable(Items.IRON_INGOT));
 
 	/** The sieve block; its damage is how many gravel it has sifted. */
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
@@ -448,6 +445,19 @@ public final class EamItems {
 	/** An ancient metal ingot heated in a blast furnace; cools back into an ingot after a minute, like hot iron. */
 	public static final Item HOT_ANCIENT_METAL_INGOT = register("hot_ancient_metal_ingot", p -> new HotIronItem(ANCIENT_METAL_INGOT, p),
 			new Item.Properties());
+
+	/**
+	 * Metal-forked slingshots: harder pebbles by tier, and they shoot splash or lingering potions held in the other hand.
+	 * Declared after every ingot they repair with.
+	 */
+	public static final Item COPPER_POWER_SLINGSHOT = powerSlingshot("copper", SlingshotLogic.COPPER, 256, Items.COPPER_INGOT);
+	public static final Item SILVER_POWER_SLINGSHOT = powerSlingshot("silver", SlingshotLogic.SILVER, 256, SILVER_INGOT);
+	public static final Item IRON_POWER_SLINGSHOT = powerSlingshot("iron", SlingshotLogic.IRON, 384, Items.IRON_INGOT);
+	public static final Item ANCIENT_METAL_POWER_SLINGSHOT = powerSlingshot("ancient_metal", SlingshotLogic.ANCIENT_METAL, 640,
+			ANCIENT_METAL_INGOT);
+	public static final Item MITHRIL_POWER_SLINGSHOT = powerSlingshot("mithril", SlingshotLogic.MITHRIL, 1200, MITHRIL_INGOT);
+	public static final Item ADAMANTIUM_POWER_SLINGSHOT = powerSlingshot("adamantium", SlingshotLogic.ADAMANTIUM, 1600, ADAMANTIUM_INGOT);
+
 	/** Forged from hot ancient metal on an iron or mithril anvil; ancient metal armor is made of these. */
 	public static final Item ANCIENT_METAL_PLATE = register("ancient_metal_plate", Item::new, new Item.Properties().stacksTo(16));
 
@@ -738,6 +748,11 @@ public final class EamItems {
 
 	private static Item armor(String name, ArmorMaterial material, ArmorType type) {
 		return register(name, Item::new, new Item.Properties().humanoidArmor(material, type));
+	}
+
+	private static Item powerSlingshot(String metal, SlingshotLogic.PowerTier tier, int durability, Item ingot) {
+		return register(metal + "_power_slingshot", properties -> new PowerSlingshotItem(tier, properties),
+				new Item.Properties().durability(durability).repairable(ingot));
 	}
 
 	private static Item register(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {

@@ -15,12 +15,19 @@ public final class SlingshotLogic {
 	/** Distance in blocks over which the damage falls linearly from point-blank to far. */
 	public static final double FALLOFF_DISTANCE = 24.0;
 
-	/** The power slingshot's iron fork throws a pebble faster... */
-	public static final float POWER_FULL_SPEED = 3.0F;
-	/** ...and it hits half as hard again: three hearts point-blank, three quarters of a heart far off. */
-	public static final float POWER_DAMAGE_SCALE = 1.5F;
-	/** Speed of a fully drawn splash or lingering potion: three times a hand throw (0.5). */
-	public static final float POTION_FULL_SPEED = 1.5F;
+	/**
+	 * A power slingshot's metal fork: pebble speed at full draw, how much harder than a plain slingshot its pebbles
+	 * hit, and the speed of a fully drawn potion (a hand throw is 0.5). Durability lives on the item.
+	 */
+	public record PowerTier(float pebbleSpeed, float damageScale, float potionSpeed) {
+	}
+
+	public static final PowerTier COPPER = new PowerTier(2.7F, 1.25F, 1.2F);
+	public static final PowerTier SILVER = COPPER;
+	public static final PowerTier IRON = new PowerTier(3.0F, 1.5F, 1.4F);
+	public static final PowerTier ANCIENT_METAL = new PowerTier(3.2F, 1.75F, 1.6F);
+	public static final PowerTier MITHRIL = new PowerTier(3.4F, 2.0F, 1.8F);
+	public static final PowerTier ADAMANTIUM = new PowerTier(3.6F, 2.5F, 2.0F);
 
 	private SlingshotLogic() {
 	}

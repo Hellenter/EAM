@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "eam:item/power_slingshot"
+    "layer0": "eam:item/copper_power_slingshot"
   }
 }
