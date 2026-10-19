@@ -38,6 +38,7 @@ import io.github.hellenter.eam.survival.thirst.Hydration;
 import io.github.hellenter.eam.survival.thirst.RawWater;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.forging.HotIronItem;
+import io.github.hellenter.eam.world.structures.crypt.CryptMapItem;
 import io.github.hellenter.eam.world.structures.crypt.FermentedEnderEyeItem;
 import io.github.hellenter.eam.world.structures.outpost.KingCastleMapItem;
 import io.github.hellenter.eam.world.structures.village.LairMapItem;
@@ -217,6 +218,10 @@ public final class EamItems {
 			new Item.Properties().useBlockDescriptionPrefix().stacksTo(1).rarity(Rarity.RARE).fireResistant()
 					.component(DataComponents.LORE, new ItemLore(List.of(
 							Component.translatable("block.eam.pillager_king_helm.desc").withStyle(ChatFormatting.GRAY)))));
+
+	/** Dropped by the Pillager King: in hand, it turns into a map to the nearest crypt. */
+	public static final Item CRYPT_MAP = register("crypt_map", CryptMapItem::new,
+			new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
 
 	/** From the village elder: in hand it shows its building's ghost, and set down the villagers build it. */
 	public static final Item BLUEPRINT = register("blueprint", BlueprintItem::new, new Item.Properties().stacksTo(1));

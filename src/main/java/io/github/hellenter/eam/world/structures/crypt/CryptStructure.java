@@ -139,10 +139,11 @@ public class CryptStructure extends Structure {
 		RandomSource random = context.random();
 		List<BoundingBox> buildings = List.of();
 		if (village.isPresent()) {
-			Optional<List<BoundingBox>> abandoned = CryptVillages.abandonedVillage(context);
-			if (abandoned.isEmpty()) return Optional.empty();
+			// The chance first: re-running the village is the slow part, and maps and /locate probe many cells.
 			float chance = VillageModule.villagesUnlocked() ? village.get().chanceAfterIronAge() : village.get().chanceBeforeIronAge();
 			if (random.nextFloat() >= chance) return Optional.empty();
+			Optional<List<BoundingBox>> abandoned = CryptVillages.abandonedVillage(context);
+			if (abandoned.isEmpty()) return Optional.empty();
 			buildings = abandoned.get();
 		}
 		CryptPieces.Entrance entrance = pieces.entrances().get(random.nextInt(pieces.entrances().size()));

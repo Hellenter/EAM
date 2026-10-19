@@ -769,6 +769,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.BLUEPRINT, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.YAGA_GRAVE_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.LAIR_MAP, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.CRYPT_MAP, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_BOMB, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.VAMPIRE_HEART, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.HEART_IN_JAR, ModelTemplates.FLAT_ITEM);

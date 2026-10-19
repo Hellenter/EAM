@@ -315,6 +315,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.tower", "Watchtower");
 			builder.add(BlueprintTemplate.GROUND, "Blueprint Ground");
 			builder.add("item.eam.king_castle_map.not_found", "The Pillager King's castle is nowhere to be found");
+			builder.add(EamItems.CRYPT_MAP, "Map to a Crypt");
+			builder.add("item.eam.crypt_map.surface", "The map shows the surface; take it up there");
+			builder.add("item.eam.crypt_map.not_found", "No crypt is near enough to mark");
 			builder.add("message.eam.milked_today", "This animal has already been milked today");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Map to Baba Yaga's Grave");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "This map is of another world");
@@ -1112,6 +1115,9 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.tower", "Сторожевая башня");
 			builder.add(BlueprintTemplate.GROUND, "Земля под чертёж");
 			builder.add("item.eam.king_castle_map.not_found", "Замок короля разбойников не найден");
+			builder.add(EamItems.CRYPT_MAP, "Карта к крипте");
+			builder.add("item.eam.crypt_map.surface", "На карте поверхность: поднимитесь наверх");
+			builder.add("item.eam.crypt_map.not_found", "Поблизости нет крипты");
 			builder.add("message.eam.milked_today", "Сегодня это животное уже подоили");
 			builder.add(EamItems.YAGA_GRAVE_MAP, "Карта к могиле Бабы Яги");
 			builder.add("item.eam.yaga_grave_map.wrong_world", "Эта карта другого мира");

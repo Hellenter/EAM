@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.datagen;
 import io.github.hellenter.eam.world.structures.StructureRemovalModule;
 import io.github.hellenter.eam.world.structures.castle.CastleModule;
 import io.github.hellenter.eam.world.structures.crypt.CryptLocator;
+import io.github.hellenter.eam.world.structures.crypt.CryptMapItem;
 import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage;
@@ -47,6 +48,10 @@ public class EamStructureTagProvider extends FabricTagsProvider<Structure> {
 				.addTag(OutpostModule.KING_CASTLE);
 		builder(DuergarVillage.VILLAGES)
 				.add(DuergarVillage.Style.STONE.structure(), DuergarVillage.Style.MUSHROOM.structure(), DuergarVillage.Style.LAKE.structure());
+
+		// The Pillager King's map leads to the nearest crypt.
+		builder(CryptMapItem.CRYPTS)
+				.add(CryptModule.STRUCTURE);
 
 		builder(CryptLocator.LOCATED_BY_EYE)
 				.add(CryptModule.STRUCTURE);

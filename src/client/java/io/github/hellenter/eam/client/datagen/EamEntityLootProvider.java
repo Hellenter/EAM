@@ -132,11 +132,22 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 		output.accept(EamEntities.KOSCHEI_BALL_LIGHTNING.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_RAVEN.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
 		output.accept(EamEntities.KOSCHEI_ICE_COPY.getDefaultLootTable().orElseThrow(), LootTable.lootTable());
-		// The Pillager King: his helm, a trophy that keeps raids away.
+		// The Pillager King: his helm, a trophy that keeps raids away; a map to the nearest crypt; a little of his treasure.
 		output.accept(EamEntities.PILLAGER_KING.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()
 						.setRolls(ContextIntProviders.exactly(1))
-						.add(LootItem.lootTableItem(EamItems.PILLAGER_KING_HELM))));
+						.add(LootItem.lootTableItem(EamItems.PILLAGER_KING_HELM)))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.CRYPT_MAP)))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.EMERALD)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(2, 5)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.DIAMOND)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))));
 
 		// The elite crossbowman: a few bolts from his quiver; his crossbow drops by the mob's own drop chance, like a pillager's.
 		output.accept(EamEntities.ELITE_CROSSBOWMAN.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
