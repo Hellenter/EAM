@@ -77,6 +77,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_thread", "Leather Thread");
 			builder.add(EamItems.FLASK_THREADS, "Threads");
 			builder.add("item.eam.slingshot", "Slingshot");
+			builder.add("item.eam.power_slingshot", "Power Slingshot");
 			builder.add("item.eam.leather_flask", "Leather Flask");
 			builder.add("item.eam.water_bowl", "Bowl of Water");
 			builder.add("item.eam.boiled_water_bowl", "Bowl of Boiled Water");
@@ -878,6 +879,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.leather_thread", "Кожаная нить");
 			builder.add(EamItems.FLASK_THREADS, "Нитки");
 			builder.add("item.eam.slingshot", "Рогатка");
+			builder.add("item.eam.power_slingshot", "Мощная рогатка");
 			builder.add("item.eam.leather_flask", "Кожаная фляга");
 			builder.add("item.eam.water_bowl", "Миска воды");
 			builder.add("item.eam.boiled_water_bowl", "Миска кипячёной воды");

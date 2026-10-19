@@ -15,6 +15,13 @@ public final class SlingshotLogic {
 	/** Distance in blocks over which the damage falls linearly from point-blank to far. */
 	public static final double FALLOFF_DISTANCE = 24.0;
 
+	/** The power slingshot's iron fork throws a pebble faster... */
+	public static final float POWER_FULL_SPEED = 3.0F;
+	/** ...and it hits half as hard again: three hearts point-blank, three quarters of a heart far off. */
+	public static final float POWER_DAMAGE_SCALE = 1.5F;
+	/** Speed of a fully drawn splash or lingering potion: three times a hand throw (0.5). */
+	public static final float POTION_FULL_SPEED = 1.5F;
+
 	private SlingshotLogic() {
 	}
 
@@ -26,8 +33,13 @@ public final class SlingshotLogic {
 
 	/** Damage of a pebble shot with the given power that hits after flying the given distance. */
 	public static float damage(float power, double distance) {
+		return damage(power, distance, 1.0F);
+	}
+
+	/** Damage of a pebble shot with the given power and distance from a slingshot that hits {@code scale} times as hard. */
+	public static float damage(float power, double distance, float scale) {
 		double t = Math.clamp(distance / FALLOFF_DISTANCE, 0.0, 1.0);
 		float full = (float) (POINT_BLANK_DAMAGE + (FAR_DAMAGE - POINT_BLANK_DAMAGE) * t);
-		return full * Math.clamp(power, 0.0F, 1.0F);
+		return full * Math.clamp(power, 0.0F, 1.0F) * scale;
 	}
 }

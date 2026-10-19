@@ -14,6 +14,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 
 /**
  * The slingshot is a flat icon in the inventory, on the ground and in frames, and a 3D model in the hand: a forked
@@ -21,7 +22,6 @@ import net.minecraft.resources.Identifier;
  * holds a pebble and comes back in three stages, the band stretching after it, at the bow's thresholds.
  */
 final class SlingshotModels {
-	private static final String TEXTURE = "eam:item/slingshot_model";
 	/** Pouch distance behind the fork, idle first, then the three draw stages. */
 	private static final double[] PULL = {0.0, 3.0, 5.5, 8.0};
 	/** Prong lean from upright, degrees. */
@@ -49,16 +49,23 @@ final class SlingshotModels {
 	}
 
 	static void generate(ItemModelGenerators generators) {
-		Identifier icon = ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(EamItems.SLINGSHOT),
-				TextureMapping.layer0(EamItems.SLINGSHOT), generators.modelOutput);
+		generate(generators, EamItems.SLINGSHOT, "slingshot");
+		// Same shape on an iron fork with a copper-wire grip and silver tips.
+		generate(generators, EamItems.POWER_SLINGSHOT, "power_slingshot");
+	}
+
+	private static void generate(ItemModelGenerators generators, Item item, String name) {
+		Identifier icon = ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(item),
+				generators.modelOutput);
+		String texture = "eam:item/" + name + "_model";
 		Identifier[] inHand = new Identifier[PULL.length];
 		for (int stage = 0; stage < PULL.length; stage++) {
-			inHand[stage] = Eam.id(stage == 0 ? "item/slingshot_in_hand" : "item/slingshot_in_hand_pulling_" + (stage - 1));
+			inHand[stage] = Eam.id(stage == 0 ? "item/" + name + "_in_hand" : "item/" + name + "_in_hand_pulling_" + (stage - 1));
 			double pull = PULL[stage];
-			generators.modelOutput.accept(inHand[stage], () -> model(pull));
+			generators.modelOutput.accept(inHand[stage], () -> model(pull, texture));
 		}
 		// Vanilla's bow thresholds: the first stage at once, the second at 65% of a full draw, the third at 90%.
-		generators.itemModelOutput.accept(EamItems.SLINGSHOT, ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(icon),
+		generators.itemModelOutput.accept(item, ItemModelGenerators.createFlatModelDispatch(ItemModelUtils.plainModel(icon),
 				ItemModelUtils.conditional(ItemModelUtils.isUsingItem(),
 						ItemModelUtils.rangeSelect(new UseDuration(false), 0.05F, ItemModelUtils.plainModel(inHand[1]),
 								ItemModelUtils.override(ItemModelUtils.plainModel(inHand[2]), 0.65F),
@@ -66,8 +73,8 @@ final class SlingshotModels {
 						ItemModelUtils.plainModel(inHand[0]))));
 	}
 
-	/** The slingshot with its pouch {@code pull} pixels behind the fork (towards +z); 0 is the band hanging straight. */
-	private static JsonObject model(double pull) {
+	/** The slingshot with its pouch {@code pull} pixels behind the fork (towards +z), painted with {@code texture}; 0 is the band hanging straight. */
+	private static JsonObject model(double pull, String texture) {
 		JsonArray elements = new JsonArray();
 		// Handle, with the leather grip wound round its middle.
 		elements.add(box(CENTRE - 1, 0, CENTRE - 1, CENTRE + 1, CROTCH + 0.5, CENTRE + 1, BARK, 0));
@@ -99,8 +106,8 @@ final class SlingshotModels {
 		}
 
 		JsonObject textures = new JsonObject();
-		textures.addProperty("all", TEXTURE);
-		textures.addProperty("particle", TEXTURE);
+		textures.addProperty("all", texture);
+		textures.addProperty("particle", texture);
 		JsonObject model = new JsonObject();
 		model.add("textures", textures);
 		model.add("elements", elements);
