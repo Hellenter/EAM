@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_slingshot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "eam:slingshot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "eam:power_slingshot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_slingshot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "eam:power_slingshot"
+    ]
+  }
+}

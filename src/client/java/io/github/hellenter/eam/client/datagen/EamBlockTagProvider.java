@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyModule;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.fridge.FridgeModule;
 import io.github.hellenter.eam.content.swamp.CattailBlock;
@@ -105,6 +106,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 				.forceAddTag(BlockTags.TERRACOTTA).add(Blocks.GRAVEL.builtInRegistryHolder().key(), Blocks.SNOW_BLOCK.builtInRegistryHolder().key(),
 						Blocks.CLAY.builtInRegistryHolder().key(), Blocks.DIRT_PATH.builtInRegistryHolder().key(), Blocks.FARMLAND.builtInRegistryHolder().key(),
 						Blocks.SANDSTONE.builtInRegistryHolder().key(), Blocks.RED_SANDSTONE.builtInRegistryHolder().key());
+		// What grows over the path behind a player a leshy leads astray.
+		builder(LeshyModule.OVERGROWTH).add(Blocks.BUSH.builtInRegistryHolder().key(), Blocks.FERN.builtInRegistryHolder().key(),
+				Blocks.SWEET_BERRY_BUSH.builtInRegistryHolder().key());
 		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
 		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 

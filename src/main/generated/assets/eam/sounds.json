@@ -490,6 +490,185 @@
     ],
     "subtitle": "subtitles.eam.entity.koschei_raven.caw"
   },
+  "entity.leshy.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/creaking/creaking_idle1",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_idle2",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_idle3",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_idle4",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_idle5",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_idle6",
+        "pitch": 0.55
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.ambient"
+  },
+  "entity.leshy.attack": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/creaking/creaking_attack1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_attack2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_attack3",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/creaking/creaking_attack4",
+        "pitch": 0.7
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.attack"
+  },
+  "entity.leshy.crows": {
+    "sounds": [
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/koschei/caw1",
+        "pitch": 1.1
+      },
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/koschei/caw2",
+        "pitch": 1.1
+      },
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/koschei/caw3",
+        "pitch": 1.1
+      },
+      {
+        "attenuation_distance": 24,
+        "name": "eam:entity/koschei/ravens"
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.crows"
+  },
+  "entity.leshy.death": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/creaking/creaking_death",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/ravager/death1",
+        "pitch": 0.55
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.death"
+  },
+  "entity.leshy.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:block/creaking_heart/hurt/trail1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/creaking_heart/hurt/trail2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/creaking_heart/hurt/trail3",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/creaking_heart/hurt/trail4",
+        "pitch": 0.7
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.hurt"
+  },
+  "entity.leshy.roar": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/ravager/roar1",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:mob/ravager/roar2",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:mob/ravager/roar3",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:mob/ravager/roar4",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.roar"
+  },
+  "entity.leshy.roots": {
+    "sounds": [
+      {
+        "name": "minecraft:block/rooted_dirt/break1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/rooted_dirt/break2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/mangrove_roots/break1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/mangrove_roots/break2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/roots/break1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:block/roots/break2",
+        "pitch": 0.7
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.roots"
+  },
+  "entity.leshy.shield": {
+    "sounds": [
+      {
+        "name": "minecraft:dig/wood1",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:dig/wood2",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:dig/wood3",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:dig/wood4",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.leshy.shield"
+  },
   "entity.vampire_bat.swarm": {
     "sounds": [
       {

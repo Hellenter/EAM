@@ -33,4 +33,11 @@ class SlingshotLogicTest {
 		assertEquals(2.0F, SlingshotLogic.damage(0.5F, 0.0), 1e-6);
 		assertEquals(0.5F, SlingshotLogic.damage(0.5F, 24.0), 1e-6);
 	}
+
+	@Test
+	void powerSlingshotHitsHalfAsHardAgain() {
+		assertEquals(6.0F, SlingshotLogic.damage(1.0F, 0.0, SlingshotLogic.POWER_DAMAGE_SCALE), 1e-6);
+		assertEquals(1.5F, SlingshotLogic.damage(1.0F, 24.0, SlingshotLogic.POWER_DAMAGE_SCALE), 1e-6);
+		assertEquals(3.0F, SlingshotLogic.damage(0.5F, 0.0, SlingshotLogic.POWER_DAMAGE_SCALE), 1e-6);
+	}
 }

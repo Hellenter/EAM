@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.client.datagen;
 
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyModule;
 import io.github.hellenter.eam.content.EamBlocks;
 import io.github.hellenter.eam.content.tools.KnifeModule;
 import io.github.hellenter.eam.content.EamItems;
@@ -74,6 +75,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		for (Map<BucketContent, Item> set : MetalBuckets.metalSets()) {
 			set.forEach((content, item) -> builder(bucketTags.get(content)).add(item.builtInRegistryHolder().key()));
 		}
+		// Laid on a stump, it buys off a leshy.
+		builder(LeshyModule.OFFERINGS).add(Items.BREAD.builtInRegistryHolder().key());
 		builder(FeederModule.FEED).add(Items.WHEAT.builtInRegistryHolder().key(), Items.POTATO.builtInRegistryHolder().key(),
 				Items.CARROT.builtInRegistryHolder().key(), Items.BEETROOT.builtInRegistryHolder().key());
 		// Underground boars root for mushrooms and tubers: they breed on these and follow a player holding them.

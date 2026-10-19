@@ -40,6 +40,7 @@ import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
+import io.github.hellenter.eam.mobs.entity.leshy.LeshyModule;
 import io.github.hellenter.eam.mobs.entity.wight.WightModule;
 import io.github.hellenter.eam.mobs.entity.draugr.DraugrModule;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarModule;
@@ -140,6 +141,7 @@ public class Eam implements ModInitializer {
 		SwampLurkerModule.register();
 		SwampyForestModule.register();
 		WightModule.register();
+		LeshyModule.register();
 		LostModule.register();
 		DraugrModule.register();
 		DuergarModule.register();
@@ -223,6 +225,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) ThroughLeavesModule.init();
 		if (config.mobs()) SwampLurkerModule.init();
 		if (config.mobs()) WightModule.init();
+		if (config.mobs()) LeshyModule.init();
 		if (config.mobs()) LostModule.init();
 		if (config.mobs()) DuergarModule.init();
 		if (config.mobs()) SpiderModule.init();

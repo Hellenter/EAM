@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot",
+    "S": "eam:silver_ingot",
+    "X": "eam:slingshot"
+  },
+  "pattern": [
+    "IXI",
+    "CSC",
+    " C "
+  ],
+  "result": {
+    "id": "eam:power_slingshot"
+  }
+}

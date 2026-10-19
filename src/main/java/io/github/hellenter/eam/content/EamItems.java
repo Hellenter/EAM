@@ -19,6 +19,7 @@ import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
@@ -148,6 +149,10 @@ public final class EamItems {
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
 
+	/** Iron-forked slingshot: harder pebbles, and shoots splash or lingering potions held in the other hand. */
+	public static final Item POWER_SLINGSHOT = register("power_slingshot", PowerSlingshotItem::new,
+			new Item.Properties().durability(384).repairable(Items.IRON_INGOT));
+
 	/** The sieve block; its damage is how many gravel it has sifted. */
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
@@ -238,6 +243,8 @@ public final class EamItems {
 	public static final Item YAGA_GRAVE_MAP = register("yaga_grave_map", YagaGraveMapItem::new,
 			new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 
+	/** A tine of the leshy's antlers, its trophy. */
+	public static final Item LESHY_ANTLER = register("leshy_antler", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 	/** Vampire bat drop, 15%: the core of the heart in a jar. */
 	public static final Item VAMPIRE_HEART = register("vampire_heart", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 
@@ -398,6 +405,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.DROWNED_SOLDIER));
 	public static final Item UPYR_SPAWN_EGG = register("upyr_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.UPYR));
+	public static final Item LESHY_SPAWN_EGG = register("leshy_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LESHY));
 	public static final Item WIGHT_SPAWN_EGG = register("wight_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WIGHT));
 	public static final Item DRAUGR_SPAWN_EGG = register("draugr_spawn_egg", SpawnEggItem::new,
