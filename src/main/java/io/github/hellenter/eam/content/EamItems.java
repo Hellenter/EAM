@@ -19,12 +19,14 @@ import io.github.hellenter.eam.content.rusty.RustyGear;
 import io.github.hellenter.eam.content.sieve.SieveLogic;
 import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.silver.SilverModule;
+import io.github.hellenter.eam.content.slingshot.PowerSlingshotItem;
 import io.github.hellenter.eam.content.slingshot.SlingshotItem;
 import io.github.hellenter.eam.content.talisman.BlackTalismanItem;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.content.tools.KnifeItem;
 import io.github.hellenter.eam.content.tools.MetalKnives;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarBombItem;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiNeedleItem;
 import io.github.hellenter.eam.mobs.entity.lost.LostWave;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
 import io.github.hellenter.eam.mobs.entity.yaga.grave.YagaGraveMapItem;
@@ -147,6 +149,10 @@ public final class EamItems {
 	/** Drawn like a bow, shoots pebbles. */
 	public static final Item SLINGSHOT = register("slingshot", SlingshotItem::new, new Item.Properties().durability(128));
 
+	/** Iron-forked slingshot: harder pebbles, and shoots splash or lingering potions held in the other hand. */
+	public static final Item POWER_SLINGSHOT = register("power_slingshot", PowerSlingshotItem::new,
+			new Item.Properties().durability(384).repairable(Items.IRON_INGOT));
+
 	/** The sieve block; its damage is how many gravel it has sifted. */
 	public static final Item SIEVE = register("sieve", p -> new BlockItem(EamBlocks.SIEVE, p),
 			new Item.Properties().useBlockDescriptionPrefix().durability(SieveLogic.USES));
@@ -263,6 +269,9 @@ public final class EamItems {
 	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
 	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
+	/** The needle that held Koschei's death, dropped by him; used, it bores to the bedrock and bursts. */
+	public static final Item KOSCHEI_NEEDLE = register("koschei_needle", KoscheiNeedleItem::new, new Item.Properties().stacksTo(1)
+			.rarity(Rarity.EPIC).fireResistant().component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
 	public static final Item DEEP_BEDROCK = blockItem("deep_bedrock", EamBlocks.DEEP_BEDROCK);
 	public static final Item CHANTERELLE_CAP = blockItem("chanterelle_cap", EamBlocks.CHANTERELLE_CAP);
 	public static final Item CHANTERELLE_STEM = blockItem("chanterelle_stem", EamBlocks.CHANTERELLE_STEM);

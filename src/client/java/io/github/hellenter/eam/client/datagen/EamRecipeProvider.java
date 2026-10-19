@@ -203,6 +203,18 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.PEBBLE), has(EamItems.PEBBLE))
 						.save(output);
 
+				// The plain slingshot on an iron fork, a copper-wire grip and a silver pin through the crotch.
+				shaped(RecipeCategory.COMBAT, EamItems.POWER_SLINGSHOT)
+						.define('I', Items.IRON_INGOT)
+						.define('X', EamItems.SLINGSHOT)
+						.define('C', Items.COPPER_INGOT)
+						.define('S', EamItems.SILVER_INGOT)
+						.pattern("IXI")
+						.pattern("CSC")
+						.pattern(" C ")
+						.unlockedBy(getHasName(EamItems.SLINGSHOT), has(EamItems.SLINGSHOT))
+						.save(output);
+
 				shapeless(RecipeCategory.DECORATIONS, EamItems.CAMP_FIRE)
 						.requires(Items.STICK, 3)
 						.unlockedBy(getHasName(Items.STICK), has(Items.STICK))

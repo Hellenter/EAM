@@ -250,5 +250,12 @@
       "heal_min": 7.0,
       "height": 3.0
     }
+  },
+  "needle": {
+    "fuse": 60,
+    "explosion_power": 7.0,
+    "shaft_radius": 1,
+    "layers_per_tick": 8,
+    "throw_speed": 0.4
   }
 }

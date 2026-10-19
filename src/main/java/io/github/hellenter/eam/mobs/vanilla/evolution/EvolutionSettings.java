@@ -17,9 +17,10 @@ import java.util.Map;
  * @param tiers       named sets of gear the phases roll for
  * @param melee       how evolved skeletons switch between bow and blade
  * @param web         how evolved spiders shoot webs
+ * @param phantomDay  day count (0 = the first day) phantoms begin to spawn on
  */
-public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<String, Tier> tiers, Melee melee, Web web) {
-	public static final EvolutionSettings DEFAULT = new EvolutionSettings(0.6F, List.of(), Map.of(), Melee.DEFAULT, Web.DEFAULT);
+public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<String, Tier> tiers, Melee melee, Web web, int phantomDay) {
+	public static final EvolutionSettings DEFAULT = new EvolutionSettings(0.6F, List.of(), Map.of(), Melee.DEFAULT, Web.DEFAULT, 0);
 
 	/**
 	 * One phase of evolution.
@@ -104,6 +105,7 @@ public record EvolutionSettings(float pieceChance, List<Phase> phases, Map<Strin
 			Phase.CODEC.listOf().optionalFieldOf("phases", DEFAULT.phases).forGetter(EvolutionSettings::phases),
 			Codec.unboundedMap(Codec.STRING, Tier.CODEC).optionalFieldOf("tiers", DEFAULT.tiers).forGetter(EvolutionSettings::tiers),
 			Melee.CODEC.optionalFieldOf("skeleton_melee", DEFAULT.melee).forGetter(EvolutionSettings::melee),
-			Web.CODEC.optionalFieldOf("spider_web", DEFAULT.web).forGetter(EvolutionSettings::web)
+			Web.CODEC.optionalFieldOf("spider_web", DEFAULT.web).forGetter(EvolutionSettings::web),
+			Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("phantom_day", DEFAULT.phantomDay).forGetter(EvolutionSettings::phantomDay)
 	).apply(instance, EvolutionSettings::new));
 }

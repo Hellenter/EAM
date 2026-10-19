@@ -4,6 +4,7 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -45,20 +46,22 @@ public class SlingshotItem extends ProjectileWeaponItem {
 		if (!(entity instanceof Player player)) {
 			return false;
 		}
-		ItemStack pebble = player.getProjectile(itemStack);
-		if (pebble.isEmpty()) {
+		ItemStack ammo = player.getProjectile(itemStack);
+		if (ammo.isEmpty()) {
 			return false;
 		}
 		float power = SlingshotLogic.powerForTime(getUseDuration(itemStack, entity) - remainingTime);
 		if (power < SlingshotLogic.MIN_POWER) {
 			return false;
 		}
-		List<ItemStack> drawn = draw(itemStack, pebble, player);
+		// Picked before drawing, which may use up the last of the stack.
+		SoundEvent sound = shotSound(ammo);
+		List<ItemStack> drawn = draw(itemStack, ammo, player);
 		if (level instanceof ServerLevel serverLevel && !drawn.isEmpty()) {
 			// The speed carries the draw power to shootProjectile, which hands it to the pebble.
-			shoot(serverLevel, player, player.getUsedItemHand(), itemStack, drawn, power * SlingshotLogic.FULL_SPEED, 1.0F, power == 1.0F, null);
+			shoot(serverLevel, player, player.getUsedItemHand(), itemStack, drawn, power * fullSpeed(), 1.0F, power == 1.0F, null);
 		}
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS,
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.PLAYERS,
 				1.0F, 1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + power * 0.5F);
 		player.awardStat(Stats.ITEM_USED.get(this));
 		return true;
@@ -76,8 +79,23 @@ public class SlingshotItem extends ProjectileWeaponItem {
 			@Nullable LivingEntity target) {
 		projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot() + angle, 0.0F, power, uncertainty);
 		if (projectile instanceof ThrownPebble pebble) {
-			pebble.fromSlingshot(power / SlingshotLogic.FULL_SPEED);
+			pebble.fromSlingshot(power / fullSpeed(), damageScale());
 		}
+	}
+
+	/** Pebble speed at full draw, blocks per tick. */
+	protected float fullSpeed() {
+		return SlingshotLogic.FULL_SPEED;
+	}
+
+	/** How much harder than {@link SlingshotLogic#damage(float, double)} this slingshot's pebbles hit. */
+	protected float damageScale() {
+		return 1.0F;
+	}
+
+	/** The sound of shooting {@code ammo}. */
+	protected SoundEvent shotSound(ItemStack ammo) {
+		return SoundEvents.SNOWBALL_THROW;
 	}
 
 	@Override

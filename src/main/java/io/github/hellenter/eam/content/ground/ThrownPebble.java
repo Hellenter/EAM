@@ -35,6 +35,8 @@ public class ThrownPebble extends ThrowableItemProjectile {
 	private float slingshotPower;
 	/** Where the slingshot shot it from, for damage falloff. */
 	private Vec3 shotFrom = Vec3.ZERO;
+	/** How much harder than a plain slingshot the one that shot it hits. */
+	private float damageScale = 1.0F;
 
 	public ThrownPebble(EntityType<? extends ThrownPebble> type, Level level) {
 		super(type, level);
@@ -45,8 +47,9 @@ public class ThrownPebble extends ThrowableItemProjectile {
 	}
 
 	/** Marks this pebble as shot from a slingshot drawn to the given power, from where it is now. */
-	public void fromSlingshot(float power) {
+	public void fromSlingshot(float power, float damageScale) {
 		slingshotPower = power;
+		this.damageScale = damageScale;
 		shotFrom = position();
 	}
 
@@ -70,7 +73,7 @@ public class ThrownPebble extends ThrowableItemProjectile {
 		super.onHitEntity(hitResult);
 		if (level() instanceof ServerLevel serverLevel) {
 			float damage = slingshotPower > 0.0F
-					? SlingshotLogic.damage(slingshotPower, shotFrom.distanceTo(hitResult.getEntity().position()))
+					? SlingshotLogic.damage(slingshotPower, shotFrom.distanceTo(hitResult.getEntity().position()), damageScale)
 					: DAMAGE;
 			hitResult.getEntity().hurtServer(serverLevel, damageSources().thrown(this, getOwner()), damage);
 		}
@@ -94,6 +97,7 @@ public class ThrownPebble extends ThrowableItemProjectile {
 		if (slingshotPower > 0.0F) {
 			output.putFloat("SlingshotPower", slingshotPower);
 			output.store("ShotFrom", Vec3.CODEC, shotFrom);
+			output.putFloat("SlingshotDamageScale", damageScale);
 		}
 	}
 
@@ -102,5 +106,6 @@ public class ThrownPebble extends ThrowableItemProjectile {
 		super.readAdditionalSaveData(input);
 		slingshotPower = input.getFloatOr("SlingshotPower", 0.0F);
 		shotFrom = input.read("ShotFrom", Vec3.CODEC).orElse(Vec3.ZERO);
+		damageScale = input.getFloatOr("SlingshotDamageScale", 1.0F);
 	}
 }
