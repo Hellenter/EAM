@@ -15,12 +15,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 
 import io.github.hellenter.eam.Eam;
-
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +32,13 @@ import java.util.List;
 public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, List<Entry> blocks, Direction front) {
 	/** What the foundation may take the place of besides air and plants: dirt, sand, stone and the like. */
 	public static final TagKey<Block> GROUND = TagKey.create(Registries.BLOCK, Eam.id("blueprint_ground"));
-	/** How far a player can look to set a blueprint down. */
-	public static final double REACH = 32.0;
+	/** How far from a player the near side of a blueprint's building stands. */
+	public static final double DISTANCE = 4.0;
+	/** How high a blueprint rises off the ground at most as its player looks up. */
+	public static final int MAX_LIFT = 16;
+	/** How far above and below a player's feet the ground under a blueprint is looked for. */
+	private static final int GROUND_UP = 4;
+	private static final int GROUND_DOWN = 8;
 
 	public static final StreamCodec<ByteBuf, BlueprintTemplate> STREAM_CODEC = StreamCodec.composite(
 			Identifier.STREAM_CODEC, BlueprintTemplate::id,
@@ -115,13 +116,24 @@ public record BlueprintTemplate(Identifier id, int sizeX, int sizeY, int sizeZ, 
 	}
 
 	/**
-	 * The block a player looks at to set a blueprint down, within {@link #REACH}; under a plant, the ground it grows on.
-	 * {@code null} when he looks at nothing.
+	 * The corner a player's blueprint is placed from, turned {@code turns} times: the building straight ahead of him,
+	 * its near side {@link #DISTANCE} blocks away, standing on the ground there, or above it as he looks up.
 	 */
-	public static @Nullable BlockPos target(Player player, float partialTicks) {
-		HitResult hit = player.pick(REACH, partialTicks, false);
-		if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) return null;
-		BlockPos pos = blockHit.getBlockPos();
-		return player.level().getBlockState(pos).canBeReplaced() ? pos.below() : pos;
+	public BlockPos placement(Player player, int turns, float partialTicks) {
+		int[] size = BlueprintLogic.turnedSize(sizeX, sizeZ, turns);
+		int[] ahead = BlueprintLogic.ahead(player.getX(), player.getZ(), player.getViewYRot(partialTicks),
+				player.getViewXRot(partialTicks), size[0], size[1], DISTANCE, MAX_LIFT);
+		BlockPos ground = ground(player.level(), new BlockPos(ahead[0], player.getBlockY(), ahead[1]));
+		return origin(ground.above(ahead[2]), turns);
+	}
+
+	/** The ground block under {@code column}: the highest one near its height that a plant or air does not fill. */
+	private static BlockPos ground(BlockGetter level, BlockPos column) {
+		BlockPos.MutableBlockPos pos = column.mutable().move(0, GROUND_UP, 0);
+		for (int i = 0; i <= GROUND_UP + GROUND_DOWN; i++, pos.move(0, -1, 0)) {
+			BlockState state = level.getBlockState(pos);
+			if (!state.isAir() && !state.canBeReplaced()) return pos.immutable();
+		}
+		return column.below();
 	}
 }
