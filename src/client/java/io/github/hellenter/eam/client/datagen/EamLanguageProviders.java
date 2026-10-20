@@ -330,7 +330,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.house_small", "Small House");
 			builder.add("gui.eam.village.order.house_medium", "House");
 			builder.add("gui.eam.village.order.house_big", "Big House");
-			builder.add("gui.eam.village.order.wall", "Palisade Wall");
+			builder.add("gui.eam.village.order.wall", "Wall");
 			builder.add("gui.eam.village.order.gate", "Wall Gate");
 			builder.add("gui.eam.village.order.tower", "Watchtower");
 			builder.add(BlueprintTemplate.GROUND, "Blueprint Ground");
@@ -1196,7 +1196,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.order.house_small", "Маленький дом");
 			builder.add("gui.eam.village.order.house_medium", "Дом");
 			builder.add("gui.eam.village.order.house_big", "Большой дом");
-			builder.add("gui.eam.village.order.wall", "Частокол");
+			builder.add("gui.eam.village.order.wall", "Стена");
 			builder.add("gui.eam.village.order.gate", "Ворота");
 			builder.add("gui.eam.village.order.tower", "Сторожевая башня");
 			builder.add(BlueprintTemplate.GROUND, "Земля под чертёж");

@@ -34,12 +34,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The ghost of a blueprint's building: while the player holds a blueprint, every block of the building shows as a pale
  * translucent cube where he looks, red where something stands in the way, with the building's outline drawn sharp and an
- * arrow on the ground out of the side it faces. Above the hotbar a hint names the keys that build and turn it. The
- * template comes from the server once and is kept until the player leaves the world.
+ * arrow on the ground out of the side it faces. Above the hotbar a hint names the keys that build and turn it. Once set
+ * down, a building shows as a dimmer silhouette of what is left to build until the villagers finish it. Templates come
+ * from the server once and are kept until the player leaves the world.
  */
 public final class BlueprintGhost {
 	private static final int FREE = ARGB.colorFromFloat(0.22F, 0.55F, 0.8F, 1.0F);
@@ -49,6 +51,12 @@ public final class BlueprintGhost {
 	private static final float EDGE_WIDTH = 2.5F;
 	private static final float ARROW_WIDTH = 6.0F;
 	private static final double ARROW_LENGTH = 4.0;
+	private static final int PLANNED_FILL = ARGB.colorFromFloat(0.1F, 0.75F, 0.85F, 1.0F);
+	private static final int PLANNED_EDGE = ARGB.colorFromFloat(0.4F, 0.6F, 0.75F, 0.9F);
+	private static final float PLANNED_EDGE_WIDTH = 1.5F;
+	/** How far away a planned building's silhouette shows. */
+	private static final double PLANNED_RANGE = 96.0;
+	private static final int PLANNED_RECHECK_TICKS = 20;
 	private static final int HINT = 0xFFFFFFFF;
 	private static final int HINT_BLOCKED = 0xFFFF5555;
 	private static final int RECHECK_TICKS = 10;
@@ -70,6 +78,13 @@ public final class BlueprintGhost {
 
 	private record Ghost(BlockPos pos, boolean air, boolean blocked) {
 	}
+
+	/** A planned building's silhouette: the blocks still to build and the outline of the whole building. */
+	private record Silhouette(List<BlockPos> left, List<BlueprintLogic.Edge> edges) {
+	}
+
+	private static final Map<UUID, Silhouette> SILHOUETTES = new HashMap<>();
+	private static int plannedAge;
 
 	private BlueprintGhost() {
 	}
@@ -102,9 +117,11 @@ public final class BlueprintGhost {
 		if (player == null || minecraft.level == null) {
 			TEMPLATES.clear();
 			ASKED.clear();
+			SILHOUETTES.clear();
 			clear();
 			return;
 		}
+		planned(minecraft, player);
 		BlueprintData data = held(player);
 		holding = data != null;
 		if (data == null) {
@@ -157,6 +174,49 @@ public final class BlueprintGhost {
 		}
 	}
 
+	/** Draws the silhouettes of the buildings set down near the player, refreshing what is left to build now and then. */
+	private static void planned(Minecraft minecraft, Player player) {
+		List<VillageBuildModule.Planned> planned = minecraft.level.getAttachedOrElse(VillageBuildModule.PLANNED, List.of());
+		if (planned.isEmpty()) {
+			SILHOUETTES.clear();
+			return;
+		}
+		boolean recheck = ++plannedAge >= PLANNED_RECHECK_TICKS;
+		if (recheck) plannedAge = 0;
+		Set<UUID> present = new HashSet<>();
+		for (VillageBuildModule.Planned site : planned) {
+			present.add(site.id());
+			if (site.origin().distToCenterSqr(player.position()) > PLANNED_RANGE * PLANNED_RANGE) continue;
+			BlueprintTemplate template = TEMPLATES.get(site.template());
+			if (template == null) {
+				if (ASKED.add(site.template())) ClientPlayNetworking.send(new BlueprintTemplatePayloads.Request(site.template()));
+				continue;
+			}
+			Silhouette silhouette = SILHOUETTES.get(site.id());
+			if (silhouette == null || recheck) {
+				List<BlueprintLogic.Edge> edges = silhouette == null ? null : silhouette.edges();
+				List<BlockPos> left = new ArrayList<>();
+				Set<BlockPos> solid = edges == null ? new HashSet<>() : null;
+				for (BlueprintTemplate.Placed block : template.placed(site.origin(), site.turns())) {
+					if (block.state().isAir()) continue;
+					if (solid != null) solid.add(block.pos());
+					if (!minecraft.level.getBlockState(block.pos()).equals(block.state())) left.add(block.pos());
+				}
+				silhouette = new Silhouette(List.copyOf(left), edges == null ? BlueprintLogic.outline(solid) : edges);
+				SILHOUETTES.put(site.id(), silhouette);
+			}
+			for (BlockPos pos : silhouette.left()) Gizmos.cuboid(pos, 0.0F, GizmoStyle.fill(PLANNED_FILL));
+			for (BlueprintLogic.Edge edge : silhouette.edges()) line(edge, PLANNED_EDGE, PLANNED_EDGE_WIDTH);
+		}
+		SILHOUETTES.keySet().retainAll(present);
+	}
+
+	private static void line(BlueprintLogic.Edge edge, int color, float width) {
+		Vec3 start = new Vec3(edge.x(), edge.y(), edge.z());
+		Vec3 end = start.add(edge.axis() == 0 ? edge.length() : 0, edge.axis() == 1 ? edge.length() : 0, edge.axis() == 2 ? edge.length() : 0);
+		Gizmos.line(start, end, color, width);
+	}
+
 	private static BlueprintData held(Player player) {
 		for (InteractionHand hand : InteractionHand.values()) {
 			ItemStack stack = player.getItemInHand(hand);
@@ -181,11 +241,7 @@ public final class BlueprintGhost {
 		for (Ghost block : blocks) {
 			Gizmos.cuboid(block.pos(), block.blocked() ? 0.02F : 0.0F, GizmoStyle.fill(block.blocked() ? BLOCKED : FREE));
 		}
-		for (BlueprintLogic.Edge edge : edges) {
-			Vec3 start = new Vec3(edge.x(), edge.y(), edge.z());
-			Vec3 end = start.add(edge.axis() == 0 ? edge.length() : 0, edge.axis() == 1 ? edge.length() : 0, edge.axis() == 2 ? edge.length() : 0);
-			Gizmos.line(start, end, EDGE, EDGE_WIDTH);
-		}
+		for (BlueprintLogic.Edge edge : edges) line(edge, EDGE, EDGE_WIDTH);
 		arrow(shownTemplate.box(shownOrigin, shownTurns), shownTemplate.front(shownTurns));
 	}
 
