@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.ghosthorse;
 
+import net.minecraft.util.Mth;
+
 /** Pure ghost horse rules, unit tested: its speed and jump, its health over time and what its rider deals and takes. */
 public final class GhostHorseLogic {
 	/** The fastest a bred horse can be: {@code AbstractHorse.generateSpeed} with every roll at its top. */
@@ -75,6 +77,11 @@ public final class GhostHorseLogic {
 	public static float rested(float stored, float base, float regen, long ticksInHorn) {
 		float healed = Math.max(0L, ticksInHorn) / 20.0F * regen;
 		return Math.min(base, Math.min(stored, base) + healed);
+	}
+
+	/** The fall damage it takes: what the fall would deal, at most {@code cap}. */
+	public static int fallDamage(int damage, float cap) {
+		return Math.min(damage, Mth.floor(cap));
 	}
 
 	/** Damage {@code amount} scaled by a rider's {@code factor}, taken (0.8) or dealt (1.15). */

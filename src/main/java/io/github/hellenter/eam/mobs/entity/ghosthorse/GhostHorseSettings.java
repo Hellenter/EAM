@@ -20,11 +20,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param frostRadius     radius of the water it freezes under its hooves, like Frost Walker
  * @param leashDistance   blocks from its master past which it goes back into the horn
  * @param followDistance  blocks from its master past which it trots after him when nobody rides it
+ * @param maxFallDamage   the most a single fall can hurt it
  */
 public record GhostHorseSettings(float health, float overflowHealth, float regen, int regenDelay, float overflowDecay, float lifesteal,
-		float riderTaken, float riderDealt, double speedBonus, double jumpBonus, int frostRadius, double leashDistance, double followDistance) {
-	public static final GhostHorseSettings DEFAULT = new GhostHorseSettings(30.0F, 50.0F, 1.0F, 100, 0.25F, 0.25F, 0.8F, 1.15F, 0.2, 0.2, 4, 64.0,
-			8.0);
+		float riderTaken, float riderDealt, double speedBonus, double jumpBonus, int frostRadius, double leashDistance, double followDistance,
+		float maxFallDamage) {
+	public static final GhostHorseSettings DEFAULT = new GhostHorseSettings(30.0F, 50.0F, 1.0F, 100, 0.25F, 0.25F, 0.8F, 1.15F, 0.2, 0.2, 4, 64.0, 8.0,
+			15.0F);
 
 	public static final Codec<GhostHorseSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(1.0F, 1024.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(GhostHorseSettings::health),
@@ -39,6 +41,7 @@ public record GhostHorseSettings(float health, float overflowHealth, float regen
 			Codec.doubleRange(-0.9, 5.0).fieldOf("jump_bonus").orElse(DEFAULT.jumpBonus).forGetter(GhostHorseSettings::jumpBonus),
 			Codec.intRange(0, 16).fieldOf("frost_radius").orElse(DEFAULT.frostRadius).forGetter(GhostHorseSettings::frostRadius),
 			Codec.doubleRange(8.0, 512.0).fieldOf("leash_distance").orElse(DEFAULT.leashDistance).forGetter(GhostHorseSettings::leashDistance),
-			Codec.doubleRange(2.0, 64.0).fieldOf("follow_distance").orElse(DEFAULT.followDistance).forGetter(GhostHorseSettings::followDistance)
+			Codec.doubleRange(2.0, 64.0).fieldOf("follow_distance").orElse(DEFAULT.followDistance).forGetter(GhostHorseSettings::followDistance),
+			Codec.floatRange(0.0F, 1024.0F).fieldOf("max_fall_damage").orElse(DEFAULT.maxFallDamage).forGetter(GhostHorseSettings::maxFallDamage)
 	).apply(instance, GhostHorseSettings::new));
 }

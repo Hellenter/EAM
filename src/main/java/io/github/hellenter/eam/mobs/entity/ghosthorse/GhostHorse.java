@@ -59,13 +59,15 @@ import java.util.EnumSet;
  */
 public class GhostHorse extends AbstractHorse {
 	private static final Identifier OVERFLOW = Eam.id("ghost_horse_overflow");
-	/** The water's surface it stands on, a little under the top of the water block, as the water is drawn. */
-	private static final VoxelShape WATER_SURFACE = Block.column(16.0, 0.0, 14.0);
+	/** Still water bears it at the very top of the block, where the ice it leaves will be, so it never stands inside it. */
+	private static final VoxelShape WATER_SURFACE = Block.column(16.0, 0.0, 16.0);
 	/** How many ticks ahead at its pace it freezes the water. */
 	private static final double FROST_LEAD = 5.0;
 	private static final ParticleOptions BLACK_MOTE = new DustParticleOptions(0x050407, 1.4F);
 
 	private int lastHurtTick = -10000;
+	/** Set while it takes a blow, so the blow does not make it rear. */
+	private boolean takingBlow;
 
 	public GhostHorse(EntityType<? extends GhostHorse> type, Level level) {
 		super(type, level);
@@ -187,6 +189,9 @@ public class GhostHorse extends AbstractHorse {
 	@Override
 	public void tick() {
 		super.tick();
+		if (canSimulateMovement()) {
+			climbOutOfSurface();
+		}
 		if (isInWater()) {
 			// Sunk in somehow: it rises back to stand on the water.
 			setDeltaMovement(getDeltaMovement().scale(0.5).add(0.0, 0.08, 0.0));
@@ -218,6 +223,26 @@ public class GhostHorse extends AbstractHorse {
 		}
 	}
 
+	/**
+	 * Caught inside the top block of still water or of the ice it froze (it came down into the water, or the ice formed
+	 * round its hooves), it steps up onto it. Done where its movement is decided: its rider's client, or the server.
+	 */
+	private void climbOutOfSurface() {
+		BlockPos feet = blockPosition();
+		if (getY() <= feet.getY() || !level().getBlockState(feet.above()).getCollisionShape(level(), feet.above()).isEmpty()) {
+			return;
+		}
+		BlockState state = level().getBlockState(feet);
+		boolean ice = state.is(Blocks.FROSTED_ICE) || state.is(Blocks.ICE);
+		boolean water = state.getFluidState().is(FluidTags.WATER) && state.getFluidState().isSource()
+				&& !level().getFluidState(feet.above()).is(FluidTags.WATER);
+		if (ice || water) {
+			setPos(getX(), feet.getY() + 1.0, getZ());
+			setDeltaMovement(getDeltaMovement().multiply(1.0, 0.0, 1.0));
+			setOnGround(true);
+		}
+	}
+
 	/** It stands on still water as on ground, so it never waits for the ice. */
 	@Override
 	public boolean canStandOnFluid(FluidState fluid) {
@@ -227,6 +252,30 @@ public class GhostHorse extends AbstractHorse {
 	@Override
 	public VoxelShape getLiquidCollisionShape() {
 		return WATER_SURFACE;
+	}
+
+	/** Hurt, it keeps all four hooves down: no rearing at a blow. */
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+		takingBlow = true;
+		try {
+			return super.hurtServer(level, source, damage);
+		} finally {
+			takingBlow = false;
+		}
+	}
+
+	@Override
+	public void standIfPossible() {
+		if (!takingBlow) {
+			super.standIfPossible();
+		}
+	}
+
+	/** A fall hurts it at most {@code max_fall_damage}. */
+	@Override
+	protected int calculateFallDamage(double fallDistance, float damageModifier) {
+		return GhostHorseLogic.fallDamage(super.calculateFallDamage(fallDistance, damageModifier), GhostHorseModule.settings().maxFallDamage());
 	}
 
 	/** It heals only once it has gone a while unhurt. */

@@ -11,5 +11,6 @@
   "jump_bonus": 0.2,
   "frost_radius": 4,
   "leash_distance": 64.0,
-  "follow_distance": 8.0
+  "follow_distance": 8.0,
+  "max_fall_damage": 15.0
 }
