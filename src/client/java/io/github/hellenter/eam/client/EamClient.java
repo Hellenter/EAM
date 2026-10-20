@@ -46,6 +46,7 @@ import io.github.hellenter.eam.client.mobs.ram.CaveRamModel;
 import io.github.hellenter.eam.client.mobs.ram.CaveRamRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
+import io.github.hellenter.eam.client.mobs.ghosthorse.GhostHorseModel;
 import io.github.hellenter.eam.client.mobs.ghosthorse.GhostHorseRenderer;
 import io.github.hellenter.eam.client.mobs.centurion.LostCenturionGearModel;
 import io.github.hellenter.eam.client.mobs.centurion.LostCenturionRenderer;
@@ -215,7 +216,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.LOST_CAVALRYMAN, LostCavalrymanRenderer::new);
 		ModelLayerRegistry.registerModelLayer(LostWarhorseRenderer.BARDING, LostWarhorseRenderer::createBardingLayer);
 		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);
-		ModelLayerRegistry.registerModelLayer(GhostHorseRenderer.LAYER, GhostHorseRenderer::createLayer);
+		ModelLayerRegistry.registerModelLayer(GhostHorseRenderer.LAYER, GhostHorseModel::createLayer);
+		ModelLayerRegistry.registerModelLayer(GhostHorseRenderer.ARMOR_LAYER, GhostHorseModel::createArmorLayer);
 		EntityRendererRegistry.register(EamEntities.GHOST_HORSE, GhostHorseRenderer::new);
 		ModelLayerRegistry.registerModelLayer(UndeadWarlockModel.LAYER, UndeadWarlockModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.UNDEAD_WARLOCK, UndeadWarlockRenderer::new);
