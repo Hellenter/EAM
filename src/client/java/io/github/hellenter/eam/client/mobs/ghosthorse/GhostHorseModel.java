@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.entity.state.EquineRenderState;
 
 /**
  * The ghost horse: a horse's frame starved thin, a narrow barrel of ribs, a thin neck, a bare skull with a hanging jaw,
- * a rat's tail, and legs in two parts that bend at the knee as it walks. The parts keep the vanilla horse's names and
+ * a rat's tail, and legs in two parts, heavy hooves under them, that bend at the knee as it walks. The parts keep the vanilla horse's names and
  * pivots, so the horse animation drives it; {@link #createArmorLayer()} shrinks vanilla horse armor onto it.
  */
 public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
@@ -77,12 +77,16 @@ public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
 		return LayerDefinition.create(mesh, 64, 64).apply(MeshTransformer.scaling(LIVING_HORSE_SCALE));
 	}
 
-	/** A thin leg in two parts: the forearm or gaskin down to the knee, then the shin and hoof, ground at y 24. */
+	/**
+	 * A leg in two parts: the forearm or gaskin down to the knee, then the shin, as thick as the forearm, ending in a wider
+	 * hoof under a fringe of hair, ground at y 24.
+	 */
 	private static void leg(PartDefinition root, String name, float x, float z, boolean mirror) {
 		PartDefinition upper = root.addOrReplaceChild(name, CubeListBuilder.create().texOffs(16, 12).mirror(mirror)
 				.addBox(-1.5F, -1.0F, -1.5F, 3.0F, 6.0F, 3.0F), PartPose.offset(x, 12.0F, z));
-		upper.addOrReplaceChild(LOWER_LEG, CubeListBuilder.create().texOffs(28, 12).mirror(mirror).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 7.0F, 2.0F),
-				PartPose.offset(0.0F, 5.0F, 0.0F));
+		upper.addOrReplaceChild(LOWER_LEG, CubeListBuilder.create().mirror(mirror)
+				.texOffs(0, 17).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 4.0F, 3.0F)
+				.texOffs(0, 24).addBox(-2.0F, 4.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
 	}
 
 	/**

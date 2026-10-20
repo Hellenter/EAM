@@ -31,6 +31,8 @@ public class GhostHorseRenderer extends AbstractHorseRenderer<GhostHorse, Equine
 	private static final Identifier TEXTURE = Eam.id("textures/entity/ghost_horse/ghost_horse.png");
 	/** Its hitbox is 1.85 blocks tall where a horse's is 1.6. */
 	private static final float SCALE = 1.85F / 1.6F;
+	/** How much faster its legs swing than a horse's. */
+	private static final float STRIDE = 1.6F;
 	private static final RenderType EYES = RenderTypes.eyes(Eam.id("textures/entity/ghost_horse/ghost_horse_eyes.png"));
 
 	public GhostHorseRenderer(EntityRendererProvider.Context context) {
@@ -51,6 +53,13 @@ public class GhostHorseRenderer extends AbstractHorseRenderer<GhostHorse, Equine
 	protected void scale(EquineRenderState state, PoseStack poseStack) {
 		super.scale(state, poseStack);
 		poseStack.scale(SCALE, SCALE, SCALE);
+	}
+
+	/** Its legs swing faster than a horse's for the same pace. */
+	@Override
+	public void extractRenderState(GhostHorse horse, EquineRenderState state, float partialTicks) {
+		super.extractRenderState(horse, state, partialTicks);
+		state.walkAnimationPos *= STRIDE;
 	}
 
 	@Override
