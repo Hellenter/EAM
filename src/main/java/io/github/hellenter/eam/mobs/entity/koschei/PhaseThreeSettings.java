@@ -144,7 +144,7 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	 * @param blockLate   or this many ticks after it
 	 */
 	public record Leap(float damage, float shieldShare, double minRange, double maxRange, float chance, int cooldown, int blockEarly, int blockLate) {
-		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 1, 10);
+		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 0, 8);
 
 		public static final Codec<Leap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Leap::damage),
