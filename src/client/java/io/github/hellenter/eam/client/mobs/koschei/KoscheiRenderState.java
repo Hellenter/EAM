@@ -3,6 +3,7 @@ package io.github.hellenter.eam.client.mobs.koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiAction;
 
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public Vec3 chainTip = Vec3.ZERO;
 	/** Third phase: where he stood the last few ticks as he darted, from where he stands now, newest first. */
 	public final List<Vec3> ghosts = new ArrayList<>();
+	/** Third phase, killed: his needle, drawn hanging in the air once he is crushed into it. */
+	public final ItemStackRenderState needle = new ItemStackRenderState();
 
 	public enum Eyes {
 		/** His eyes always glow a cold pale blue. */

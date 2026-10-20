@@ -130,8 +130,9 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	}
 
 	/**
-	 * The red blow: both blades glow red and he leaps at the target, striking down from over his head as he lands. A shield
-	 * raised as he hangs at the top of the leap stops it; one raised earlier or later only takes {@code 1 - shieldShare} off.
+	 * The red blow: both blades glow red and he leaps at the target, striking down from over his head as he lands two blocks
+	 * short of it. A shield raised as he flies over the top of the leap stops it; one raised earlier only takes
+	 * {@code 1 - shieldShare} off.
 	 *
 	 * @param damage      the blow
 	 * @param shieldShare share of it that goes through a shield not raised in time
@@ -143,7 +144,7 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	 * @param blockLate   or this many ticks after it
 	 */
 	public record Leap(float damage, float shieldShare, double minRange, double maxRange, float chance, int cooldown, int blockEarly, int blockLate) {
-		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 3.0, 7.0, 0.35F, 120, 3, 2);
+		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 4, 8);
 
 		public static final Codec<Leap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Leap::damage),
@@ -254,17 +255,19 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	/**
 	 * Souls fly out of him to where his draugr climb out of the ground.
 	 *
-	 * @param count       draugr raised at once; fewer when that would pass the cap of the second phase
+	 * @param count       draugr raised at once; fewer when that would pass {@code cap}
+	 * @param cap         most of his draugr up at once
 	 * @param chance      chance each time he is about to attack that he raises them, when it is ready
 	 * @param cooldown    ticks before he raises them again
 	 * @param minDistance they climb out at least this far from the target
 	 * @param maxDistance and at most this far
 	 */
-	public record Thralls(int count, float chance, int cooldown, double minDistance, double maxDistance) {
-		public static final Thralls DEFAULT = new Thralls(3, 0.15F, 600, 10.0, 14.0);
+	public record Thralls(int count, int cap, float chance, int cooldown, double minDistance, double maxDistance) {
+		public static final Thralls DEFAULT = new Thralls(3, 3, 0.15F, 600, 10.0, 14.0);
 
 		public static final Codec<Thralls> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 16).fieldOf("count").orElse(DEFAULT.count).forGetter(Thralls::count),
+				Codec.intRange(0, 16).fieldOf("cap").orElse(DEFAULT.cap).forGetter(Thralls::cap),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Thralls::chance),
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Thralls::cooldown),
 				Codec.doubleRange(0.0, 64.0).fieldOf("min_distance").orElse(DEFAULT.minDistance).forGetter(Thralls::minDistance),

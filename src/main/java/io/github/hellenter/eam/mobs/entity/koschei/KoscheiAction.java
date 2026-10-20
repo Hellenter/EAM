@@ -90,9 +90,9 @@ public enum KoscheiAction {
 	DAGGER_ORANGE(20),
 	/**
 	 * Both blades glowing red, a crouch, and a leap at the target from {@link #LEAP_GO}, at its top on {@link #LEAP_APEX}, both
-	 * blades brought down from over his head as he lands on {@link #LEAP_LAND}.
+	 * blades brought down from over his head as he lands on {@link #LEAP_LAND}, two blocks short of it.
 	 */
-	DAGGER_LEAP(26),
+	DAGGER_LEAP(30),
 	/** Both blades out ahead, then a dash straight at the target from {@link #DASH_GO}; point-blank, both driven in. */
 	DAGGER_DASH(24),
 	/**
@@ -146,8 +146,8 @@ public enum KoscheiAction {
 	public static final int[] COMBO_HITS = {4, 8, 12};
 	public static final int DAGGER_ORANGE_HIT = 12;
 	public static final int LEAP_GO = 8;
-	public static final int LEAP_APEX = 14;
-	public static final int LEAP_LAND = 20;
+	public static final int LEAP_APEX = 16;
+	public static final int LEAP_LAND = 24;
 	public static final int DASH_GO = 7;
 	public static final int CHAINS_THROW = 9;
 	public static final int FEINT_WARP = 6;

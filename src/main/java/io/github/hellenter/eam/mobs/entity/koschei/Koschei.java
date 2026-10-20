@@ -181,9 +181,17 @@ public class Koschei extends Monster implements BuildingAware {
 	/** A soul is in the air about this long, ticks. */
 	private static final int SOUL_FLIGHT = 26;
 	/** Killed in his third phase, he shrinks away into his needle over this many ticks. */
-	public static final int DEATH_TICKS = 30;
+	/** Killed in his third phase, he is crushed into his needle over this many ticks... */
+	public static final int CRUSH_TICKS = 30;
+	/** ...which hangs this high over the ground until the end of his death, then falls. */
+	public static final float NEEDLE_HOVER = 1.0F;
+	public static final int DEATH_TICKS = CRUSH_TICKS + 20;
 	/** His leaps rise this high over the straight line from where he jumps to where he lands. */
 	private static final double LEAP_HEIGHT = 2.5;
+	/** His red leap comes down this far short of the target, and strikes it from there. */
+	private static final double LEAP_STRIKE_DISTANCE = 2.0;
+	/** How fast a target his chains drag into a block a step high is lifted over it. */
+	private static final double CHAINS_HOP = 0.5;
 	/** The dash with the blades out ahead runs this fast, and drives them in this close to the target. */
 	private static final double BLADE_DASH_SPEED = 1.0;
 	private static final double BLADE_DASH_STOP = 1.9;
@@ -1567,8 +1575,9 @@ public class Koschei extends Monster implements BuildingAware {
 	}
 
 	/**
-	 * The red leap: crouched with both blades glowing red, a leap at the target, and both brought down as he lands. A
-	 * shield raised as he hangs at the top stops it; one held up all along, or raised too late, lets most of it through.
+	 * The red leap: crouched with both blades glowing red, a leap at the target, and both brought down from two blocks off
+	 * as he lands. A shield raised from just before the top of the leap until the blow stops it; one held up all along lets
+	 * most of it through.
 	 */
 	private void tickLeap(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Leap leap) {
 		if (t == 0) {
@@ -1579,7 +1588,7 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 		if (t == KoscheiAction.LEAP_GO) {
 			Vec3 back = horizontal(position().subtract(target.position()));
-			startFlight(target.position().add(back.scale(1.2)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
+			startFlight(target.position().add(back.scale(LEAP_STRIKE_DISTANCE)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
 			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.7F);
 		}
 		if (t == KoscheiAction.LEAP_APEX - leap.blockEarly()) {
@@ -1595,10 +1604,11 @@ public class Koschei extends Monster implements BuildingAware {
 		land();
 		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
 		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
-		if (!inReach(target, phaseThree().combo().reach() + 0.8)) {
+		if (!inReach(target, LEAP_STRIKE_DISTANCE + 0.8)) {
 			return;
 		}
-		ItemStack shield = blockingShield(target);
+		// A shield raised only just before the blow counts too, before it would block a common hit.
+		ItemStack shield = raisedShield(target);
 		target.damageCooldownTime = 0;
 		if (shield != null && KoscheiLogic.leapBlockedInTime(target.getTicksUsingItem(), KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_APEX,
 				leap.blockEarly(), leap.blockLate())) {
@@ -1745,18 +1755,29 @@ public class Koschei extends Monster implements BuildingAware {
 			case PULL -> {
 				chainTip = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0);
 				if (horizontalDistanceTo(target) <= CHAINS_STOP || t >= KoscheiAction.CHAINS.length() - 2) {
-					target.setDeltaMovement(target.getDeltaMovement().multiply(0.1, 1.0, 0.1));
+					target.setDeltaMovement(target.getDeltaMovement().multiply(0.0, 1.0, 0.0));
 					syncMotion(target);
 					setAction(KoscheiAction.DAGGER_COMBO);
 					return;
 				}
 				Vec3 in = horizontal(position().subtract(target.position()));
-				target.setDeltaMovement(in.x * chains.pullSpeed(), Math.max(0.08, target.getDeltaMovement().y), in.z * chains.pullSpeed());
+				// Slower as it nears him, so a player's own client does not carry it on past him.
+				double speed = KoscheiLogic.pullSpeed(horizontalDistanceTo(target), CHAINS_STOP, chains.pullSpeed());
+				// Dragged into a block a step high, it is hauled up over it.
+				double up = hopsOver(level, target, in) ? CHAINS_HOP : Math.max(0.08, target.getDeltaMovement().y);
+				target.setDeltaMovement(in.x * speed, up, in.z * speed);
 				target.resetFallDistance();
 				syncMotion(target);
 			}
 		}
 		entityData.set(DATA_CHAIN_TIP, new Vector3f((float) chainTip.x, (float) chainTip.y, (float) chainTip.z));
+	}
+
+	/** Whether {@code entity}, going {@code way}, runs into a block it could clear by rising a block and a bit. */
+	private static boolean hopsOver(ServerLevel level, Entity entity, Vec3 way) {
+		AABB ahead = entity.getBoundingBox().move(way.x * 0.4, 0.0, way.z * 0.4);
+		return !level.noCollision(entity, ahead) && level.noCollision(entity, ahead.move(0.0, 1.3, 0.0))
+				&& level.noCollision(entity, entity.getBoundingBox().move(0.0, 1.3, 0.0));
 	}
 
 	/** Sends the motion just set on {@code entity} to its client, a player's above all. */
@@ -1851,7 +1872,7 @@ public class Koschei extends Monster implements BuildingAware {
 		level.playSound(null, chest.x, chest.y, chest.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 0.5F);
 		level.playSound(null, chest.x, chest.y, chest.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 2.0F, 0.5F);
 		level.sendParticles(ParticleTypes.SCULK_SOUL, chest.x, chest.y, chest.z, 12, 0.3, 0.4, 0.3, 0.05);
-		int count = KoscheiLogic.thrallsToRaise(settings.count(), countThralls(level), phaseTwo().thralls().cap());
+		int count = KoscheiLogic.thrallsToRaise(settings.count(), countThralls(level), thrallCap());
 		double start = random.nextDouble() * Math.PI * 2.0;
 		for (int i = 0; i < count; i++) {
 			double angle = start + i * Math.PI * 2.0 / Math.max(1, count) + (random.nextDouble() - 0.5) * 0.6;
@@ -2331,7 +2352,7 @@ public class Koschei extends Monster implements BuildingAware {
 	/** As {@link #raiseThrall(ServerLevel, Vec3, boolean)}, the draugr {@code speedMultiplier} times as fast as their kind. */
 	private @Nullable Draugr raiseThrall(ServerLevel level, Vec3 at, boolean shieldBearer, double speedMultiplier) {
 		PhaseTwoSettings.Thralls thralls = phaseTwo().thralls();
-		if (countThralls(level) >= thralls.cap()) {
+		if (countThralls(level) >= thrallCap()) {
 			return null;
 		}
 		Vec3 spot = findStandingSpot(level, at);
@@ -2358,6 +2379,11 @@ public class Koschei extends Monster implements BuildingAware {
 		level.sendParticles(ParticleTypes.SCULK_SOUL, spot.x, spot.y + 0.2, spot.z, 12, 0.4, 0.1, 0.4, 0.03);
 		level.playSound(null, spot.x, spot.y, spot.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 1.5F, 0.5F);
 		return draugr;
+	}
+
+	/** How many of his draugr may be up at once, fewer in his third phase. */
+	private int thrallCap() {
+		return phase() == 3 ? phaseThree().thralls().cap() : phaseTwo().thralls().cap();
 	}
 
 	/** His draugr up now. */
@@ -2651,6 +2677,13 @@ public class Koschei extends Monster implements BuildingAware {
 	/** The shield the target holds up against him, or null. */
 	private @Nullable ItemStack blockingShield(LivingEntity target) {
 		return blockingShieldFrom(target, position());
+	}
+
+	/** The shield the target has raised against him, blocking yet or not, or null. */
+	private @Nullable ItemStack raisedShield(LivingEntity target) {
+		ItemStack shield = target.isUsingItem() ? target.getUseItem() : null;
+		return shield != null && shield.has(DataComponents.BLOCKS_ATTACKS)
+				&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ()) ? shield : null;
 	}
 
 	/** The shield the target holds up against something coming from {@code from}, or null. */
@@ -3100,7 +3133,10 @@ public class Koschei extends Monster implements BuildingAware {
 		super.dropAllDeathLoot(level, source);
 	}
 
-	/** Killed in his third phase, he shrinks away into his needle, frost and souls drawn in after him. */
+	/**
+	 * Killed in his third phase, he is crushed into his needle, limbs first and then the body, frost and souls drawn in
+	 * after him; the needle hangs in the air a second and falls.
+	 */
 	@Override
 	protected void tickDeath() {
 		if (phase() < 3) {
@@ -3112,7 +3148,7 @@ public class Koschei extends Monster implements BuildingAware {
 			return;
 		}
 		Vec3 heart = position().add(0.0, getBbHeight() * 0.45, 0.0);
-		if (deathTime % 2 == 0) {
+		if (deathTime < CRUSH_TICKS && deathTime % 2 == 0) {
 			for (int i = 0; i < 6; i++) {
 				Vec3 from = new Vec3(random.nextGaussian(), random.nextGaussian(), random.nextGaussian()).normalize().scale(1.2 + random.nextDouble());
 				level.sendParticles(EamParticles.KOSCHEI_WARP, heart.x + from.x, heart.y + from.y, heart.z + from.z, 0, -from.x, -from.y, -from.z, 0.12);
@@ -3122,12 +3158,20 @@ public class Koschei extends Monster implements BuildingAware {
 		if (deathTime == 1) {
 			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.WITHER_DEATH, getSoundSource(), 0.8F, 1.6F);
 		}
+		Vec3 needle = position().add(0.0, NEEDLE_HOVER, 0.0);
+		if (deathTime == CRUSH_TICKS) {
+			level.playSound(null, needle.x, needle.y, needle.z, SoundEvents.AMETHYST_BLOCK_BREAK, getSoundSource(), 2.0F, 1.6F);
+			level.playSound(null, needle.x, needle.y, needle.z, SoundEvents.TRIDENT_RETURN, getSoundSource(), 2.0F, 0.6F);
+			level.sendParticles(ParticleTypes.END_ROD, needle.x, needle.y, needle.z, 30, 0.05, 0.05, 0.05, 0.2);
+			level.sendParticles(ParticleTypes.SCULK_SOUL, needle.x, needle.y, needle.z, 20, 0.2, 0.2, 0.2, 0.08);
+		}
+		if (deathTime > CRUSH_TICKS && deathTime % 4 == 0) {
+			level.sendParticles(ParticleTypes.END_ROD, needle.x, needle.y, needle.z, 1, 0.05, 0.2, 0.05, 0.01);
+		}
 		if (deathTime >= DEATH_TICKS) {
-			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.AMETHYST_BLOCK_BREAK, getSoundSource(), 2.0F, 1.6F);
-			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.TRIDENT_RETURN, getSoundSource(), 2.0F, 0.6F);
-			level.sendParticles(ParticleTypes.END_ROD, heart.x, heart.y, heart.z, 30, 0.05, 0.05, 0.05, 0.2);
-			level.sendParticles(ParticleTypes.SCULK_SOUL, heart.x, heart.y, heart.z, 20, 0.2, 0.2, 0.2, 0.08);
 			if (deathSource != null) {
+				// The needle drops from where it hung.
+				setPos(needle.x, needle.y - 0.25, needle.z);
 				dropAllDeathLoot(level, deathSource);
 			}
 			level.broadcastEntityEvent(this, (byte) 60);

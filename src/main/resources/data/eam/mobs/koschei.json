@@ -301,12 +301,12 @@
     "leap": {
       "damage": 11.0,
       "shield_share": 0.6,
-      "min_range": 3.0,
-      "max_range": 7.0,
+      "min_range": 4.0,
+      "max_range": 8.0,
       "chance": 0.35,
       "cooldown": 120,
-      "block_early": 3,
-      "block_late": 2
+      "block_early": 4,
+      "block_late": 8
     },
     "dash": {
       "damage": 8.0,
@@ -341,6 +341,7 @@
     },
     "thralls": {
       "count": 3,
+      "cap": 3,
       "chance": 0.15,
       "cooldown": 600,
       "min_distance": 10.0,
