@@ -436,6 +436,14 @@ public final class KoscheiLogic {
 		return raisedAgo <= apexAgo + early && raisedAgo >= apexAgo - late;
 	}
 
+	/**
+	 * How fast his chains drag a target {@code distance} blocks off toward him: {@code max}, slowing over its last blocks
+	 * so it comes to rest about {@code stop} blocks off.
+	 */
+	public static double pullSpeed(double distance, double stop, double max) {
+		return Math.clamp((distance - stop + 0.4) * 0.45, 0.15, max);
+	}
+
 	/** How many cuts in a row a shield has blocked, counting this one, given the last was blocked at {@code last}. */
 	public static int blockedInRow(int count, long last, long now, int memory) {
 		return now - last <= memory ? count + 1 : 1;

@@ -1755,15 +1755,17 @@ public class Koschei extends Monster implements BuildingAware {
 			case PULL -> {
 				chainTip = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0);
 				if (horizontalDistanceTo(target) <= CHAINS_STOP || t >= KoscheiAction.CHAINS.length() - 2) {
-					target.setDeltaMovement(target.getDeltaMovement().multiply(0.1, 1.0, 0.1));
+					target.setDeltaMovement(target.getDeltaMovement().multiply(0.0, 1.0, 0.0));
 					syncMotion(target);
 					setAction(KoscheiAction.DAGGER_COMBO);
 					return;
 				}
 				Vec3 in = horizontal(position().subtract(target.position()));
+				// Slower as it nears him, so a player's own client does not carry it on past him.
+				double speed = KoscheiLogic.pullSpeed(horizontalDistanceTo(target), CHAINS_STOP, chains.pullSpeed());
 				// Dragged into a block a step high, it is hauled up over it.
 				double up = hopsOver(level, target, in) ? CHAINS_HOP : Math.max(0.08, target.getDeltaMovement().y);
-				target.setDeltaMovement(in.x * chains.pullSpeed(), up, in.z * chains.pullSpeed());
+				target.setDeltaMovement(in.x * speed, up, in.z * speed);
 				target.resetFallDistance();
 				syncMotion(target);
 			}

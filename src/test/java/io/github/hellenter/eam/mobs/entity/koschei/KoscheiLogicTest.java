@@ -350,6 +350,9 @@ class KoscheiLogicTest {
 	@Test
 	void hisLeapIsStoppedOnlyByAShieldRaisedAsHeHangsAtTheTop() {
 		// The top of the leap is 6 ticks before it lands; the shield may go up 3 before it to 2 after it.
+		assertEquals(0.9, KoscheiLogic.pullSpeed(10.0, 2.0, 0.9), 1.0e-9);
+		assertEquals(0.45, KoscheiLogic.pullSpeed(2.6, 2.0, 0.9), 1.0e-9);
+		assertEquals(0.15, KoscheiLogic.pullSpeed(1.5, 2.0, 0.9), 1.0e-9);
 		assertTrue(KoscheiLogic.leapBlockedInTime(6, 6, 3, 2));
 		assertTrue(KoscheiLogic.leapBlockedInTime(9, 6, 3, 2));
 		assertTrue(KoscheiLogic.leapBlockedInTime(4, 6, 3, 2));
