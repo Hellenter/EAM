@@ -13,8 +13,9 @@ import net.minecraft.client.renderer.entity.state.EquineRenderState;
 
 /**
  * The ghost horse: a horse's frame starved thin, a narrow barrel of ribs, a thin neck, a bare skull with a hanging jaw,
- * a rat's tail, and legs in two parts, heavy hooves under them, that bend at the knee as it walks. The parts keep the vanilla horse's names and
- * pivots, so the horse animation drives it; {@link #createArmorLayer()} shrinks vanilla horse armor onto it.
+ * a full ragged tail, and legs in two parts, heavy hooves under them, that bend at the knee as it walks. The parts keep
+ * the vanilla horse's names and pivots, so the horse animation drives it; {@link #createArmorLayer()} shrinks vanilla
+ * horse armor onto it.
  */
 public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
 	/** A living horse's model scale; vanilla horse armor is drawn at it. */
@@ -55,11 +56,12 @@ public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
 		MeshDefinition mesh = new MeshDefinition();
 		PartDefinition root = mesh.getRoot();
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 34).addBox(-3.5F, -8.0F, -17.0F, 7.0F, 8.0F, 22.0F),
-				PartPose.offset(0.0F, 11.0F, 5.0F));
-		body.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(36, 14).addBox(-1.0F, 0.0F, 0.0F, 2.0F, 14.0F, 2.0F),
+				PartPose.offset(0.0F, 13.0F, 5.0F));
+		body.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(36, 14).addBox(-1.0F, 0.0F, 0.0F, 2.0F, 4.0F, 2.0F)
+				.texOffs(36, 20).addBox(-2.0F, 3.0F, -0.5F, 4.0F, 11.0F, 3.0F),
 				PartPose.offsetAndRotation(0.0F, -5.0F, 2.0F, (float) (Math.PI / 6), 0.0F, 0.0F));
 		PartDefinition headParts = root.addOrReplaceChild("head_parts", CubeListBuilder.create().texOffs(0, 0)
-				.addBox(-1.5F, -6.0F, -1.0F, 3.0F, 12.0F, 5.0F), PartPose.offsetAndRotation(0.0F, 4.0F, -12.0F, (float) (Math.PI / 6), 0.0F, 0.0F));
+				.addBox(-1.5F, -6.0F, -1.0F, 3.0F, 12.0F, 5.0F), PartPose.offsetAndRotation(0.0F, 6.0F, -12.0F, (float) (Math.PI / 6), 0.0F, 0.0F));
 		PartDefinition head = headParts.addOrReplaceChild("head", CubeListBuilder.create().texOffs(16, 0).addBox(-2.5F, -11.0F, -2.0F, 5.0F, 5.0F, 7.0F),
 				PartPose.ZERO);
 		head.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(56, 0).addBox(0.5F, -13.0F, 4.0F, 1.0F, 3.0F, 1.0F), PartPose.ZERO);
@@ -83,10 +85,10 @@ public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
 	 */
 	private static void leg(PartDefinition root, String name, float x, float z, boolean mirror) {
 		PartDefinition upper = root.addOrReplaceChild(name, CubeListBuilder.create().texOffs(16, 12).mirror(mirror)
-				.addBox(-1.5F, -1.0F, -1.5F, 3.0F, 6.0F, 3.0F), PartPose.offset(x, 12.0F, z));
+				.addBox(-1.5F, -1.0F, -1.5F, 3.0F, 5.0F, 3.0F), PartPose.offset(x, 14.0F, z));
 		upper.addOrReplaceChild(LOWER_LEG, CubeListBuilder.create().mirror(mirror)
-				.texOffs(0, 17).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 4.0F, 3.0F)
-				.texOffs(0, 24).addBox(-2.0F, 4.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
+				.texOffs(0, 17).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 3.0F, 3.0F)
+				.texOffs(0, 24).addBox(-2.0F, 3.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.offset(0.0F, 4.0F, 0.0F));
 	}
 
 	/**
@@ -97,18 +99,17 @@ public class GhostHorseModel extends AbstractEquineModel<EquineRenderState> {
 		MeshDefinition mesh = AbstractEquineModel.createBodyMesh(new CubeDeformation(0.1F));
 		PartDefinition root = mesh.getRoot();
 		// Body: 10 x 10 down to 7.4 x 8.4, its top kept on the back.
-		reshape(root, "body", pose -> sized(pose, 0.0F, -1.5F, 0.0F, 0.74F, 0.83F, 1.0F));
+		reshape(root, "body", pose -> sized(pose, 0.0F, 0.5F, 0.0F, 0.74F, 0.83F, 1.0F));
 		// Neck narrower and shallower; the head and muzzle under it get their length back.
-		PartDefinition headParts = reshape(root, "head_parts", pose -> sized(pose, 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.8F));
+		PartDefinition headParts = reshape(root, "head_parts", pose -> sized(pose, 0.0F, 2.0F, 0.0F, 0.8F, 1.0F, 0.8F));
 		reshape(headParts, "head", pose -> sized(pose, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 1.25F));
 		reshape(headParts, "upper_mouth", pose -> sized(pose, 0.0F, 0.0F, 0.0F, 1.0625F, 1.0F, 1.25F));
 		reshape(headParts, "mane", pose -> sized(pose, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.25F));
-		// Legs: 4 x 4 down to 3.4 x 3.4, stretched to the longer legs, centred over them.
-		float legHeight = 13.1F / 11.2F;
-		reshape(root, "left_hind_leg", pose -> sized(pose, -0.7F, -2.0F, -0.8F, 0.8F, legHeight, 0.8F));
-		reshape(root, "right_hind_leg", pose -> sized(pose, 0.7F, -2.0F, -0.8F, 0.8F, legHeight, 0.8F));
-		reshape(root, "left_front_leg", pose -> sized(pose, -0.7F, -2.0F, -0.08F, 0.8F, legHeight, 0.8F));
-		reshape(root, "right_front_leg", pose -> sized(pose, 0.7F, -2.0F, -0.08F, 0.8F, legHeight, 0.8F));
+		// Legs: 4 x 4 down to 3.4 x 3.4, as long as a horse's, centred over them.
+		reshape(root, "left_hind_leg", pose -> sized(pose, -0.7F, 0.0F, -0.8F, 0.8F, 1.0F, 0.8F));
+		reshape(root, "right_hind_leg", pose -> sized(pose, 0.7F, 0.0F, -0.8F, 0.8F, 1.0F, 0.8F));
+		reshape(root, "left_front_leg", pose -> sized(pose, -0.7F, 0.0F, -0.08F, 0.8F, 1.0F, 0.8F));
+		reshape(root, "right_front_leg", pose -> sized(pose, 0.7F, 0.0F, -0.08F, 0.8F, 1.0F, 0.8F));
 		return LayerDefinition.create(mesh, 64, 64).apply(MeshTransformer.scaling(LIVING_HORSE_SCALE));
 	}
 
