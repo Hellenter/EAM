@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/** Pure rules of the Lost longbowman: when he looses a marking arrow and whom he shoots at. */
+/** Pure rules of the Lost longbowman: when he looses a marking arrow, whom he shoots at and his power shot. */
 public final class LongbowmanLogic {
 	private LongbowmanLogic() {
 	}
@@ -21,6 +21,19 @@ public final class LongbowmanLogic {
 	/** The damage a marked one takes for a hit of {@code amount}: {@code bonus} more, 0.2 for a fifth. */
 	public static float markedDamage(float amount, float bonus) {
 		return amount * (1.0F + bonus);
+	}
+
+	/**
+	 * The red power arrow's damage: his full-draw arrow's hit ({@code base}, a squad archer's base damage, flying at
+	 * {@code archerSpeed} and hurting {@code damageMultiplier} times more), times {@code powerMultiplier}.
+	 */
+	public static float redDamage(double base, float archerSpeed, float damageMultiplier, float powerMultiplier) {
+		return (float) (base * archerSpeed * damageMultiplier * powerMultiplier);
+	}
+
+	/** Ticks to the next power shot: a number from {@code min} to {@code max}, picked by {@code roll} in [0, 1). */
+	public static int powerCooldown(int min, int max, float roll) {
+		return max <= min ? min : min + (int) (roll * (max - min + 1));
 	}
 
 	/** One player he could shoot at. */

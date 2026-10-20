@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.guard.PillagerGuardModule;
 import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
+import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
@@ -44,6 +45,9 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		// The elite crossbowman's red bolt goes through a shield, which still takes part of the damage (worked out by the bolt).
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(EliteCrossbowmanModule.RED_BOLT_DAMAGE);
 		builder(DamageTypeTags.IS_PROJECTILE).add(EliteCrossbowmanModule.RED_BOLT_DAMAGE);
+		// So does the longbowman's red power arrow, which also knocks the shield out.
+		builder(DamageTypeTags.BYPASSES_SHIELD).add(LostModule.RED_ARROW_DAMAGE);
+		builder(DamageTypeTags.IS_PROJECTILE).add(LostModule.RED_ARROW_DAMAGE);
 		// The onslaught of the Pillager King and his guards works out the share a shield takes itself.
 		builder(DamageTypeTags.BYPASSES_SHIELD).add(PillagerKingModule.ONSLAUGHT_DAMAGE, PillagerGuardModule.ONSLAUGHT_DAMAGE);
 		// Baba Yaga's curse (glyph of harm, acid) is pure damage: through armor, its enchantments and shields. Her fire beam
@@ -67,6 +71,6 @@ public class EamDamageTypeTagProvider extends FabricTagsProvider<DamageType> {
 		builder(FallenLordModule.PHYSICAL).add(DamageTypes.PLAYER_ATTACK, DamageTypes.MOB_ATTACK, DamageTypes.MOB_ATTACK_NO_AGGRO,
 				DamageTypes.SPEAR, DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.MOB_PROJECTILE, DamageTypes.THROWN, DamageTypes.STING,
 				DamageTypes.MACE_SMASH).add(FallenLordModule.HEAVY_DAMAGE, LostCavalryModule.LANCE_DAMAGE, LostCavalryModule.SWEEP_DAMAGE,
-				EliteCrossbowmanModule.RED_BOLT_DAMAGE, KoscheiModule.CLEAVE_DAMAGE);
+				EliteCrossbowmanModule.RED_BOLT_DAMAGE, LostModule.RED_ARROW_DAMAGE, KoscheiModule.CLEAVE_DAMAGE);
 	}
 }

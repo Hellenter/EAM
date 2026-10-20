@@ -147,7 +147,7 @@
     "retarget_ticks": 20,
     "drop_chance": 0.1,
     "mark": {
-      "every": 4,
+      "every": 2,
       "seconds": 7.0,
       "damage_bonus": 0.2,
       "priority_range": 32.0
@@ -161,6 +161,16 @@
       "speed": 2.4,
       "knockback": 0.6,
       "inaccuracy": 1.5
+    },
+    "power_shot": {
+      "cooldown_min": 500,
+      "cooldown_max": 800,
+      "warning_ticks": 30,
+      "min_range": 8.0,
+      "damage_multiplier": 1.5,
+      "speed": 5.0,
+      "shield_multiplier": 0.33,
+      "shield_seconds": 5.0
     }
   }
 }
