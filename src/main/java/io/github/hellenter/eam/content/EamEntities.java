@@ -22,6 +22,7 @@ import io.github.hellenter.eam.mobs.entity.king.PillagerKing;
 import io.github.hellenter.eam.mobs.entity.king.ThrownKingAxe;
 import io.github.hellenter.eam.mobs.entity.knight.SkeletonKnight;
 import io.github.hellenter.eam.mobs.entity.lost.Lost;
+import io.github.hellenter.eam.mobs.entity.lost.LostArrow;
 import io.github.hellenter.eam.mobs.entity.lost.LostCenturion;
 import io.github.hellenter.eam.mobs.entity.lost.LostLongbowman;
 import io.github.hellenter.eam.mobs.entity.lost.LostWallCommander;
@@ -136,6 +137,15 @@ public final class EamEntities {
 					.eyeHeight(1.97F)
 					.clientTrackingRange(10)
 					.notInPeaceful());
+
+	/** The longbowman's arrow: plain, black marking or red power arrow; it flies through the Lost. */
+	public static final EntityType<LostArrow> LOST_ARROW = register("lost_arrow",
+			EntityType.Builder.<LostArrow>of(LostArrow::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.5F, 0.5F)
+					.eyeHeight(0.13F)
+					.clientTrackingRange(4)
+					.updateInterval(20));
 
 	/**
 	 * A heavy Lost cavalryman: one of the Lost in full plate with lance and shield, a tenth smaller than the skeleton

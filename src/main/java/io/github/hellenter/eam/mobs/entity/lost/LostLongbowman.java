@@ -4,11 +4,9 @@ import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.content.longbow.LongbowLogic;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanLogic;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -21,8 +19,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
@@ -30,18 +26,20 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The Lost longbowman: one of the Lost with a longbow. He sees three times as far as a squad archer and keeps far back;
  * he draws twice as long, but his arrows fly twice as fast and hurt two and a half times as much. He shoots the weakest
- * player in sight, and at most one arrow in four is a marking arrow with a red trail: the player it hits takes more
+ * player in sight, and every other arrow at an unmarked player is a black marking arrow: the player it hits takes more
  * damage for a while and the Lost go for him first. A player who comes too close gets a quick volley of weak arrows
- * that pushes him back. He comes with some squads, or alone from his egg; his arrows fly through the Lost.
+ * that pushes him back. Now and then, with a clear warning, he looses a very fast red arrow that goes through a raised
+ * shield. He comes with some squads, or alone from his egg; his arrows fly through the Lost.
  */
 public class LostLongbowman extends Lost {
 	/** Arrow speed of a squad archer's shot, as a skeleton's. */
 	private static final float ARCHER_SPEED = 1.6F;
+	/** Spread of the red power arrow: aimed with care. */
+	private static final float RED_INACCURACY = 0.3F;
 
 	/** His shots since the last marking arrow; full at first, so his first arrow at a player marks him. */
 	private int shotsSinceMark = Integer.MAX_VALUE / 2;
@@ -66,6 +64,7 @@ public class LostLongbowman extends Lost {
 	protected void registerGoals() {
 		super.registerGoals();
 		goalSelector.addGoal(1, new LongbowBarrageGoal(this));
+		goalSelector.addGoal(1, new LongbowPowerShotGoal(this));
 		goalSelector.addGoal(2, new LostBowGoal(this, LostRole.LONGBOWMAN, EamItems.LONGBOW, LostLongbowman::archerNumbers));
 	}
 
@@ -156,9 +155,11 @@ public class LostLongbowman extends Lost {
 		LongbowmanSettings settings = longbowman();
 		boolean marking = LongbowmanLogic.marks(shotsSinceMark, settings.mark().every(), target instanceof Player && !LostMark.marked(target));
 		shotsSinceMark = marking ? 0 : shotsSinceMark + 1;
-		LostArrow arrow = new LostArrow(level, this, marking ? markingArrow(settings.mark()) : new ItemStack(Items.ARROW), longbow());
-		// A squad archer's arrow, as a skeleton's; the speed already multiplies the damage on hit.
-		double base = power * 2.0 + getRandom().triangle(level.getDifficulty().getId() * 0.11, 0.57425);
+		LostArrow arrow = new LostArrow(level, this, longbow());
+		if (marking) {
+			arrow.setMarking(Math.round(settings.mark().seconds() * 20.0F));
+		}
+		double base = squadArcherDamage(level, power);
 		arrow.setBaseDamage(LongbowLogic.baseDamage(base, settings.damageMultiplier(), settings.speedMultiplier()));
 		float speed = ARCHER_SPEED * settings.speedMultiplier() * Math.max(power, 0.1F);
 		aim(arrow, target, speed, settings.inaccuracy());
@@ -166,17 +167,26 @@ public class LostLongbowman extends Lost {
 		playSound(SoundEvents.SKELETON_SHOOT, 1.2F, 0.6F / (getRandom().nextFloat() * 0.3F + 0.8F));
 	}
 
-	/** An arrow that marks whoever it hits: the mark's effect on the arrow, with a red trail behind it. */
-	private static ItemStack markingArrow(LongbowmanSettings.Mark mark) {
-		ItemStack stack = new ItemStack(Items.ARROW);
-		stack.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(LostMark.COLOR),
-				List.of(new MobEffectInstance(LostMark.MARKED, Math.round(mark.seconds() * 20.0F))), Optional.empty()));
-		return stack;
+	/** A squad archer's base arrow damage, as a skeleton's; the speed multiplies it on hit. */
+	private double squadArcherDamage(ServerLevel level, float power) {
+		return power * 2.0 + getRandom().triangle(level.getDifficulty().getId() * 0.11, 0.57425);
+	}
+
+	/** The warned power shot: a very fast red arrow that goes through a raised shield. */
+	void shootRed(ServerLevel level, LivingEntity target, LongbowmanSettings.PowerShot shot) {
+		LongbowmanSettings settings = longbowman();
+		LostArrow arrow = new LostArrow(level, this, longbow());
+		arrow.setRed(LongbowmanLogic.redDamage(squadArcherDamage(level, 1.0F), ARCHER_SPEED, settings.damageMultiplier(), shot.damageMultiplier()),
+				shot.shieldMultiplier(), shot.shieldSeconds());
+		aim(arrow, target, shot.speed(), RED_INACCURACY);
+		level.addFreshEntity(arrow);
+		playSound(SoundEvents.CROSSBOW_SHOOT, 1.6F, 0.6F);
+		playSound(SoundEvents.SKELETON_SHOOT, 1.6F, 0.5F);
 	}
 
 	/** A quick weak arrow of the volley that drives back a player who came too close. */
 	void shootBarrage(ServerLevel level, LivingEntity target, LongbowmanSettings.Barrage barrage) {
-		LostArrow arrow = new LostArrow(level, this, new ItemStack(Items.ARROW), longbow());
+		LostArrow arrow = new LostArrow(level, this, longbow());
 		arrow.setBaseDamage(EliteCrossbowmanLogic.baseDamage(barrage.damage(), barrage.speed()));
 		arrow.setVolley(barrage.knockback());
 		aim(arrow, target, barrage.speed(), barrage.inaccuracy());

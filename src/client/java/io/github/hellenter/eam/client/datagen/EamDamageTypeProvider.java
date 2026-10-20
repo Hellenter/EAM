@@ -8,6 +8,7 @@ import io.github.hellenter.eam.mobs.entity.king.PillagerKingModule;
 import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
+import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -41,6 +42,8 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		context.register(PillagerKingModule.ONSLAUGHT_DAMAGE, new DamageType("eam.pillager_king_onslaught", 0.1F));
 		// Death message key: death.attack.eam.red_bolt
 		context.register(EliteCrossbowmanModule.RED_BOLT_DAMAGE, new DamageType("eam.red_bolt", 0.1F));
+		// Death message key: death.attack.eam.red_arrow
+		context.register(LostModule.RED_ARROW_DAMAGE, new DamageType("eam.red_arrow", 0.1F));
 		// Death message key: death.attack.eam.pillager_guard_onslaught
 		context.register(PillagerGuardModule.ONSLAUGHT_DAMAGE, new DamageType("eam.pillager_guard_onslaught", 0.1F));
 		// Death message keys: death.attack.eam.baba_yaga_curse, death.attack.eam.baba_yaga_beam
@@ -63,6 +66,7 @@ public class EamDamageTypeProvider extends FabricDynamicRegistryProvider {
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostCavalryModule.SWEEP_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), PillagerKingModule.ONSLAUGHT_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), EliteCrossbowmanModule.RED_BOLT_DAMAGE);
+		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), LostModule.RED_ARROW_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), PillagerGuardModule.ONSLAUGHT_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), BabaYagaModule.CURSE_DAMAGE);
 		entries.add(registries.lookupOrThrow(Registries.DAMAGE_TYPE), BabaYagaModule.BEAM_DAMAGE);

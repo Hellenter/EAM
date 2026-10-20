@@ -30,6 +30,7 @@ import io.github.hellenter.eam.client.mobs.king.KingAxeRenderer;
 import io.github.hellenter.eam.client.mobs.king.PillagerKingLook;
 import io.github.hellenter.eam.client.mobs.king.PillagerKingRenderer;
 import io.github.hellenter.eam.client.mobs.knight.SkeletonKnightRenderer;
+import io.github.hellenter.eam.client.mobs.lost.LostArrowRenderer;
 import io.github.hellenter.eam.client.mobs.lost.LostModel;
 import io.github.hellenter.eam.client.mobs.lost.LostRenderer;
 import io.github.hellenter.eam.client.mobs.warlock.MagicMissileRenderer;
@@ -230,6 +231,7 @@ public class EamClient implements ClientModInitializer {
 		ModelLayerRegistry.registerModelLayer(KettleHelmetLayer.ILLAGER, () -> KettleHelmetLayer.createLayer(KettleHelmetLayer.ILLAGER_HEAD_TOP));
 		EntityRendererRegistry.register(EamEntities.ELITE_CROSSBOWMAN, EliteCrossbowmanRenderer::new);
 		EntityRendererRegistry.register(EamEntities.RED_BOLT, RedBoltRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LOST_ARROW, LostArrowRenderer::new);
 		EntityRendererRegistry.register(EamEntities.NET_SHOT, ThrownItemRenderer::new);
 		EntityRendererRegistry.register(EamEntities.WEB_SHOT, ThrownItemRenderer::new);
 		EntityRendererRegistry.register(EamEntities.DUERGAR_BOMB, ThrownItemRenderer::new);

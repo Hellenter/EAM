@@ -19,8 +19,8 @@ import java.util.Comparator;
  * every one of the Lost near him who sees him leaves whoever he fights and goes for him.
  */
 public final class LostMark {
-	/** Blood red, as the arrow's trail. */
-	static final int COLOR = 0xC4161C;
+	/** A black mark, as the marking arrow and its trail. */
+	static final int COLOR = 0x1A1A1A;
 	public static final Holder<MobEffect> MARKED = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Eam.id("marked"),
 			new MarkEffect(COLOR));
 

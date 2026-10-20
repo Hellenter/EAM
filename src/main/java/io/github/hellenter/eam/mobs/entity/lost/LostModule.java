@@ -10,8 +10,10 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -24,6 +26,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
  * where squads spawn is the biome tag {@code eam:has_lost}.
  */
 public final class LostModule {
+	/** The longbowman's red power arrow: it goes through a shield, which takes most of the hit itself. */
+	public static final ResourceKey<DamageType> RED_ARROW_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("red_arrow"));
 	public static final TagKey<Biome> SPAWNS_IN = TagKey.create(Registries.BIOME, Eam.id("has_lost"));
 	/** Spawn weight of a squad among the biome's monsters (about 300 in all); a leader spawns, his followers come with him. */
 	private static final int SPAWN_WEIGHT = 20;

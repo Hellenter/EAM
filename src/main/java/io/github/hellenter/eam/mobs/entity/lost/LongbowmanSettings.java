@@ -22,12 +22,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param dropChance       chance his longbow drops
  * @param mark             the marking arrow
  * @param barrage          the quick volley that drives back a player who came too close
+ * @param powerShot        the rare warned shot with a red arrow that goes through a shield
  */
 public record LongbowmanSettings(double squadChance, double health, double followRange, double minRange, double maxRange, int drawTicks,
 		int aimTicks, int cooldown, float damageMultiplier, float speedMultiplier, float inaccuracy, int retargetTicks, float dropChance,
-		Mark mark, Barrage barrage) {
+		Mark mark, Barrage barrage, PowerShot powerShot) {
 	public static final LongbowmanSettings DEFAULT = new LongbowmanSettings(0.3, 23.0, 96.0, 10.0, 40.0, 40, 8, 25, 2.5F, 2.0F, 1.5F, 20,
-			0.1F, Mark.DEFAULT, Barrage.DEFAULT);
+			0.1F, Mark.DEFAULT, Barrage.DEFAULT, PowerShot.DEFAULT);
 
 	/**
 	 * @param every         at most one shot in this many is a marking arrow
@@ -36,7 +37,7 @@ public record LongbowmanSettings(double squadChance, double health, double follo
 	 * @param priorityRange the Lost this close to a marked player in sight leave whoever they fight and go for him
 	 */
 	public record Mark(int every, float seconds, float damageBonus, double priorityRange) {
-		public static final Mark DEFAULT = new Mark(4, 7.0F, 0.2F, 32.0);
+		public static final Mark DEFAULT = new Mark(2, 7.0F, 0.2F, 32.0);
 
 		public static final Codec<Mark> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(1, 64).fieldOf("every").orElse(DEFAULT.every).forGetter(Mark::every),
@@ -71,6 +72,36 @@ public record LongbowmanSettings(double squadChance, double health, double follo
 		).apply(instance, Barrage::new));
 	}
 
+	/**
+	 * A rare shot with a clear warning: he stops, draws with red sparks around him and a warning sound, and looses a very
+	 * fast red arrow exactly {@code warningTicks} after the sound. A raised shield lets part of the damage through and is
+	 * knocked out for a while.
+	 *
+	 * @param cooldownMin      fewest ticks from one power shot to the next
+	 * @param cooldownMax      most ticks; each time a number in between is picked
+	 * @param warningTicks     ticks from the warning sound to the shot
+	 * @param minRange         only at a target at least this far away
+	 * @param damageMultiplier his red arrow hurts this many times more than his full-draw arrow
+	 * @param speed            the red arrow's speed, blocks per tick; his normal arrow flies 3.2
+	 * @param shieldMultiplier share of the damage that goes through a raised shield
+	 * @param shieldSeconds    how long the shield it hits stays down
+	 */
+	public record PowerShot(int cooldownMin, int cooldownMax, int warningTicks, double minRange, float damageMultiplier, float speed,
+			float shieldMultiplier, float shieldSeconds) {
+		public static final PowerShot DEFAULT = new PowerShot(500, 800, 30, 8.0, 1.5F, 5.0F, 0.33F, 5.0F);
+
+		public static final Codec<PowerShot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 24000).fieldOf("cooldown_min").orElse(DEFAULT.cooldownMin).forGetter(PowerShot::cooldownMin),
+				Codec.intRange(0, 24000).fieldOf("cooldown_max").orElse(DEFAULT.cooldownMax).forGetter(PowerShot::cooldownMax),
+				Codec.intRange(1, 200).fieldOf("warning_ticks").orElse(DEFAULT.warningTicks).forGetter(PowerShot::warningTicks),
+				Codec.doubleRange(0.0, 128.0).fieldOf("min_range").orElse(DEFAULT.minRange).forGetter(PowerShot::minRange),
+				Codec.floatRange(0.0F, 20.0F).fieldOf("damage_multiplier").orElse(DEFAULT.damageMultiplier).forGetter(PowerShot::damageMultiplier),
+				Codec.floatRange(0.1F, 10.0F).fieldOf("speed").orElse(DEFAULT.speed).forGetter(PowerShot::speed),
+				Codec.floatRange(0.0F, 1.0F).fieldOf("shield_multiplier").orElse(DEFAULT.shieldMultiplier).forGetter(PowerShot::shieldMultiplier),
+				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(PowerShot::shieldSeconds)
+		).apply(instance, PowerShot::new));
+	}
+
 	public static final Codec<LongbowmanSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.doubleRange(0.0, 1.0).fieldOf("squad_chance").orElse(DEFAULT.squadChance).forGetter(LongbowmanSettings::squadChance),
 			Codec.doubleRange(1.0, 1024.0).fieldOf("health").orElse(DEFAULT.health).forGetter(LongbowmanSettings::health),
@@ -86,6 +117,7 @@ public record LongbowmanSettings(double squadChance, double health, double follo
 			Codec.intRange(1, 400).fieldOf("retarget_ticks").orElse(DEFAULT.retargetTicks).forGetter(LongbowmanSettings::retargetTicks),
 			Codec.floatRange(0.0F, 1.0F).fieldOf("drop_chance").orElse(DEFAULT.dropChance).forGetter(LongbowmanSettings::dropChance),
 			Mark.CODEC.fieldOf("mark").orElse(DEFAULT.mark).forGetter(LongbowmanSettings::mark),
-			Barrage.CODEC.fieldOf("barrage").orElse(DEFAULT.barrage).forGetter(LongbowmanSettings::barrage)
+			Barrage.CODEC.fieldOf("barrage").orElse(DEFAULT.barrage).forGetter(LongbowmanSettings::barrage),
+			PowerShot.CODEC.fieldOf("power_shot").orElse(DEFAULT.powerShot).forGetter(LongbowmanSettings::powerShot)
 	).apply(instance, LongbowmanSettings::new));
 }
