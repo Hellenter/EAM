@@ -56,4 +56,20 @@ class BlueprintLogicTest {
 		List<BlueprintLogic.Edge> edges = BlueprintLogic.outline(Set.of(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1)));
 		assertTrue(edges.contains(new BlueprintLogic.Edge(1, 1, 0, 1, 1)));
 	}
+
+	@Test
+	void aheadKeepsTheNearSideFourBlocksAway() {
+		// Facing south (+z), a 5 by 7 building: its centre 4 + 3.5 blocks ahead, on the ground.
+		assertArrayEquals(new int[] {0, 7, 0}, BlueprintLogic.ahead(0.5, 0.0, 0.0F, 30.0F, 5, 7, 4.0, 16));
+		// Facing east (-90 yaw, +x): the half width along x counts, 2.5.
+		assertArrayEquals(new int[] {6, 0, 0}, BlueprintLogic.ahead(0.0, 0.5, -90.0F, 0.0F, 5, 7, 4.0, 16));
+	}
+
+	@Test
+	void lookingUpLiftsTheBuilding() {
+		// 45 degrees up, the centre 6 blocks ahead: 6 up.
+		assertEquals(6, BlueprintLogic.ahead(0.5, 0.0, 0.0F, -45.0F, 4, 4, 4.0, 16)[2]);
+		// Straight up is held to the most lift.
+		assertEquals(16, BlueprintLogic.ahead(0.5, 0.0, 0.0F, -90.0F, 4, 4, 4.0, 16)[2]);
+	}
 }

@@ -183,16 +183,15 @@ public final class VillageBuildModule {
 	}
 
 	/**
-	 * Sets the blueprint down where the player looks, if nothing is in the way and an elder's village is there; the
+	 * Sets the blueprint down in front of the player, where its ghost shows, if nothing is in the way and an elder's village is there; the
 	 * blueprint is used up. Else the player is told why not.
 	 */
 	public static void place(ServerPlayer player, ItemStack stack, BlueprintData data) {
 		if (!enabled) return;
 		ServerLevel level = player.level();
 		BlueprintTemplate template = BlueprintTemplates.get(level, data.template());
-		BlockPos look = BlueprintTemplate.target(player, 1.0F);
-		if (template == null || look == null) return;
-		BlockPos origin = template.origin(look, data.turns());
+		if (template == null) return;
+		BlockPos origin = template.placement(player, data.turns(), 1.0F);
 		AABB box = template.box(origin, data.turns());
 		if (!player.mayBuild() || !level.mayInteract(player, origin)
 				|| !level.mayInteract(player, BlockPos.containing(box.maxX - 1, box.maxY - 1, box.maxZ - 1))) {
@@ -221,7 +220,7 @@ public final class VillageBuildModule {
 		syncPlanned(level);
 		if (!player.getAbilities().instabuild) stack.shrink(1);
 		player.sendOverlayMessage(Component.translatable("item.eam.blueprint.placed"));
-		level.playSound(null, look, SoundEvents.BOOK_PUT, SoundSource.PLAYERS, 1.0F, 1.0F);
+		level.playSound(null, BlockPos.containing(box.getCenter()), SoundEvents.BOOK_PUT, SoundSource.PLAYERS, 1.0F, 1.0F);
 	}
 
 	private static @Nullable Villager elderNear(ServerLevel level, Vec3 pos) {

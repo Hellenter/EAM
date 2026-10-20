@@ -32,7 +32,29 @@ public final class BlueprintLogic {
 	}
 
 	/**
-	 * The corner a turned template is placed from so that it stands centred on the block a player looks at, its bottom
+	 * Where a turned template stands in front of a player: its centre straight ahead of him, as far as keeps its near
+	 * side {@code distance} blocks away, and lifted off the ground as he looks up, {@code tan(up) * } its distance, up to
+	 * {@code maxLift} blocks. {@code {centreX, centreZ, lift}}, the centre in block coordinates.
+	 *
+	 * @param yaw   the player's yaw in degrees, 0 south, 90 west
+	 * @param pitch the player's pitch in degrees, negative up
+	 */
+	public static int[] ahead(double x, double z, float yaw, float pitch, int turnedX, int turnedZ, double distance, int maxLift) {
+		double rad = Math.toRadians(yaw);
+		double dx = -Math.sin(rad);
+		double dz = Math.cos(rad);
+		double halfX = turnedX / 2.0;
+		double halfZ = turnedZ / 2.0;
+		double extent = Math.min(Math.abs(dx) < 1.0E-6 ? Double.MAX_VALUE : halfX / Math.abs(dx),
+				Math.abs(dz) < 1.0E-6 ? Double.MAX_VALUE : halfZ / Math.abs(dz));
+		double reach = distance + extent;
+		double up = Math.min(-pitch, 80.0F);
+		int lift = up <= 0.0 ? 0 : (int) Math.min(maxLift, Math.round(Math.tan(Math.toRadians(up)) * reach));
+		return new int[] {(int) Math.floor(x + dx * reach), (int) Math.floor(z + dz * reach), lift};
+	}
+
+	/**
+	 * The corner a turned template is placed from so that it stands centred on the block it is set on, its bottom
 	 * layer level with that block: the bottom layer is the template's foundation and takes the place of the ground.
 	 * {@code {x, y, z}}.
 	 */
