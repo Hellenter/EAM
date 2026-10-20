@@ -32,6 +32,12 @@ class GhostHorseLogicTest {
 	}
 
 	@Test
+	void healsOnlyFiveSecondsAfterTheLastBlow() {
+		assertTrue(!GhostHorseLogic.healsAfter(99, 100));
+		assertTrue(GhostHorseLogic.healsAfter(100, 100));
+	}
+
+	@Test
 	void drinksAQuarterOfItsMastersBlowsUpToTheCap() {
 		assertEquals(22.0F, GhostHorseLogic.afterMasterHit(20.0F, 50.0F, 8.0F, 0.25F));
 		assertEquals(32.0F, GhostHorseLogic.afterMasterHit(30.0F, 50.0F, 8.0F, 0.25F));

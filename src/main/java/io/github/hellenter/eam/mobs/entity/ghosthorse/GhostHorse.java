@@ -4,12 +4,15 @@ import io.github.hellenter.eam.Eam;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
@@ -37,11 +40,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -49,12 +53,19 @@ import java.util.EnumSet;
 /**
  * The ghost horse, called from the enchanted horn: a gaunt black horse with its ribs showing and red eyes. It needs no
  * saddle and carries only its master; it is faster and jumps higher than any bred horse, freezes the water under its
- * hooves and wears horse armor. It heals a little each second and drinks a share of the damage its master deals, past its
- * own health, which then runs off slowly. Killed, it leaves the horn empty. It goes back into the horn when its master
+ * hooves (and stands on water while it does) and wears horse armor. It heals a little each second once it has gone a few
+ * seconds unhurt, and drinks a share of the damage its master deals, past its own health, which then runs off slowly. Killed, it leaves the horn empty. It goes back into the horn when its master
  * goes far, leaves the world or no longer carries the horn. Numbers are in {@code data/eam/mobs/ghost_horse.json}.
  */
 public class GhostHorse extends AbstractHorse {
 	private static final Identifier OVERFLOW = Eam.id("ghost_horse_overflow");
+	/** The water's surface it stands on, a little under the top of the water block, as the water is drawn. */
+	private static final VoxelShape WATER_SURFACE = Block.column(16.0, 0.0, 14.0);
+	/** How many ticks ahead at its pace it freezes the water. */
+	private static final double FROST_LEAD = 5.0;
+	private static final ParticleOptions BLACK_MOTE = new DustParticleOptions(0x050407, 1.4F);
+
+	private int lastHurtTick = -10000;
 
 	public GhostHorse(EntityType<? extends GhostHorse> type, Level level) {
 		super(type, level);
@@ -176,25 +187,60 @@ public class GhostHorse extends AbstractHorse {
 	@Override
 	public void tick() {
 		super.tick();
+		if (isInWater()) {
+			// Sunk in somehow: it rises back to stand on the water.
+			setDeltaMovement(getDeltaMovement().scale(0.5).add(0.0, 0.08, 0.0));
+		}
 		if (level() instanceof ServerLevel level) {
-			if (onGround()) {
-				freezeWater(level);
-			}
+			freezeWater(level);
 			if (tickCount % 20 == 0 && isAlive()) {
 				everySecond();
 				GhostHorseModule.checkTether(level, this);
 			}
-		} else if (random.nextInt(3) == 0) {
-			// A wisp of cold smoke trails from its hooves.
-			level().addParticle(random.nextInt(4) == 0 ? ParticleTypes.SOUL : ParticleTypes.SMOKE, getRandomX(0.6), getY() + 0.1,
-					getRandomZ(0.6), 0.0, 0.02, 0.0);
+		} else {
+			trail();
 		}
+	}
+
+	/** At a run a few black motes trail behind it; standing, now and then a soul drifts up from its hooves. */
+	private void trail() {
+		double dx = getX() - xo;
+		double dz = getZ() - zo;
+		double speedSqr = dx * dx + dz * dz;
+		if (speedSqr > 0.02) {
+			int count = speedSqr > 0.1 ? 2 : 1;
+			for (int i = 0; i < count; i++) {
+				level().addParticle(BLACK_MOTE, getX() - dx * 2.0 + random.nextGaussian() * 0.25, getY() + 0.3 + random.nextDouble() * 0.9,
+						getZ() - dz * 2.0 + random.nextGaussian() * 0.25, 0.0, 0.01, 0.0);
+			}
+		} else if (random.nextInt(12) == 0) {
+			level().addParticle(ParticleTypes.SOUL, getRandomX(0.6), getY() + 0.1, getRandomZ(0.6), 0.0, 0.02, 0.0);
+		}
+	}
+
+	/** It stands on still water as on ground, so it never waits for the ice. */
+	@Override
+	public boolean canStandOnFluid(FluidState fluid) {
+		return fluid.is(FluidTags.WATER);
+	}
+
+	@Override
+	public VoxelShape getLiquidCollisionShape() {
+		return WATER_SURFACE;
+	}
+
+	/** It heals only once it has gone a while unhurt. */
+	@Override
+	protected void actuallyHurt(ServerLevel level, DamageSource source, float damage) {
+		super.actuallyHurt(level, source, damage);
+		lastHurtTick = tickCount;
 	}
 
 	/** Heals toward its own health, or lets the overflow from its master's blows run off. */
 	private void everySecond() {
 		GhostHorseSettings settings = GhostHorseModule.settings();
-		float health = GhostHorseLogic.secondLater(getHealth(), settings.health(), settings.regen(), settings.overflowDecay());
+		float regen = GhostHorseLogic.healsAfter(tickCount - lastHurtTick, settings.regenDelay()) ? settings.regen() : 0.0F;
+		float health = GhostHorseLogic.secondLater(getHealth(), settings.health(), regen, settings.overflowDecay());
 		setOverflowHealth(health, settings.health());
 		if (health != getHealth()) {
 			setHealth(health);
@@ -228,22 +274,39 @@ public class GhostHorse extends AbstractHorse {
 		}
 	}
 
-	/** Frost Walker under its hooves: still water around turns to frosted ice, which melts again on its own. */
+	/**
+	 * Frost Walker under its hooves, where it is now and where it will be in a few ticks at this pace: still water around
+	 * turns to frosted ice, which melts again on its own. It moves where its rider's client says, so its pace is read from
+	 * where it was last tick.
+	 */
 	private void freezeWater(ServerLevel level) {
 		int radius = GhostHorseModule.settings().frostRadius();
-		if (radius <= 0 || (getDeltaMovement().horizontalDistanceSqr() < 1.0E-6 && tickCount % 10 != 0)) {
+		if (radius <= 0) {
 			return;
 		}
-		BlockPos center = blockPosition().below();
+		double dx = getX() - xo;
+		double dz = getZ() - zo;
+		boolean moving = dx * dx + dz * dz > 1.0E-4;
+		if (!moving && tickCount % 10 != 0) {
+			return;
+		}
+		// The block under its hooves: on water it stands a little below the top of the water block.
+		int y = Mth.floor(getY() - 0.2);
+		freezeDisk(level, getX(), y, getZ(), radius);
+		if (moving) {
+			freezeDisk(level, getX() + dx * FROST_LEAD, y, getZ() + dz * FROST_LEAD, radius);
+		}
+	}
+
+	private void freezeDisk(ServerLevel level, double x, int y, double z, int radius) {
+		BlockPos center = BlockPos.containing(x, y, z);
 		BlockState ice = Blocks.FROSTED_ICE.defaultBlockState();
 		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-radius, 0, -radius), center.offset(radius, 0, radius))) {
-			if (pos.distToCenterSqr(getX(), pos.getY() + 0.5, getZ()) >= Mth.square(radius)) {
+			if (pos.distToCenterSqr(x, pos.getY() + 0.5, z) >= Mth.square(radius)) {
 				continue;
 			}
 			BlockState state = level.getBlockState(pos);
-			if (state.is(Blocks.WATER) && state.getFluidState().is(Fluids.WATER) && state.getFluidState().isSource()
-					&& level.getBlockState(pos.above()).is(BlockTags.AIR)
-					&& level.isUnobstructed(ice, pos, CollisionContext.empty())
+			if (state.is(Blocks.WATER) && state.getFluidState().isSource() && level.getBlockState(pos.above()).is(BlockTags.AIR)
 					&& level.setBlockAndUpdate(pos, ice)) {
 				level.gameEvent(this, GameEvent.BLOCK_PLACE, pos);
 			}

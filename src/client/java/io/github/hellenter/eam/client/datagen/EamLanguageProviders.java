@@ -293,7 +293,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
 			builder.add(EamItems.COMMANDER_HORN, "Commander's Horn");
 			builder.add(EamItems.KOSCHEI_NEEDLE, "Koschei's Needle");
-			builder.add(EamItems.YAGA_STAFF_SKULL, "Skull from Baba Yaga's Staff");
+			builder.add(EamBlocks.CURSED_HORSE_SKULL, "Cursed Horse Skull");
 			builder.add(EamItems.GHOST_HORN, "Enchanted Horn");
 			builder.add(EamItems.EMPTY_GHOST_HORN, "Empty Horn");
 			builder.add(EamEntities.GHOST_HORSE, "Ghost Horse");
@@ -1159,7 +1159,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
 			builder.add(EamItems.COMMANDER_HORN, "Командирский горн");
 			builder.add(EamItems.KOSCHEI_NEEDLE, "Кощеева игла");
-			builder.add(EamItems.YAGA_STAFF_SKULL, "Череп с посоха Бабы-яги");
+			builder.add(EamBlocks.CURSED_HORSE_SKULL, "Череп проклятой лошади");
 			builder.add(EamItems.GHOST_HORN, "Зачарованный горн");
 			builder.add(EamItems.EMPTY_GHOST_HORN, "Пустой горн");
 			builder.add(EamEntities.GHOST_HORSE, "Конь-призрак");

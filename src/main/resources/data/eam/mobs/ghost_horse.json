@@ -2,13 +2,14 @@
   "health": 30.0,
   "overflow_health": 50.0,
   "regen_per_second": 1.0,
+  "regen_delay": 100,
   "overflow_decay_per_second": 0.25,
   "lifesteal": 0.25,
   "rider_damage_taken": 0.8,
   "rider_damage_dealt": 1.15,
   "speed_bonus": 0.2,
   "jump_bonus": 0.2,
-  "frost_radius": 3,
+  "frost_radius": 4,
   "leash_distance": 64.0,
   "follow_distance": 8.0
 }

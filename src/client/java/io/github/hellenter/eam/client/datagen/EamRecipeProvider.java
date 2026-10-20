@@ -86,14 +86,14 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				// enchanted again with mithril.
 				shaped(RecipeCategory.TOOLS, EamItems.GHOST_HORN)
 						.define('A', EamItems.LESHY_ANTLER)
-						.define('E', Items.ENDER_EYE)
+						.define('E', Items.ENDER_PEARL)
 						.define('M', EamItems.MITHRIL_INGOT)
 						.define('H', Items.GOAT_HORN)
-						.define('S', EamItems.YAGA_STAFF_SKULL)
+						.define('S', EamItems.CURSED_HORSE_SKULL)
 						.pattern("AEA")
 						.pattern("MHM")
 						.pattern(" S ")
-						.unlockedBy(getHasName(EamItems.YAGA_STAFF_SKULL), has(EamItems.YAGA_STAFF_SKULL))
+						.unlockedBy(getHasName(EamItems.CURSED_HORSE_SKULL), has(EamItems.CURSED_HORSE_SKULL))
 						.save(output);
 				shapeless(RecipeCategory.TOOLS, EamItems.GHOST_HORN)
 						.requires(EamItems.EMPTY_GHOST_HORN)

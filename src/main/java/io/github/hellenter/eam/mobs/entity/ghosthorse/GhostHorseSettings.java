@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param health          its own health
  * @param overflowHealth  how high its master's blows can heal it past its own health
  * @param regen           health it heals each second up to its own
+ * @param regenDelay      ticks after it was last hurt before it starts to heal
  * @param overflowDecay   health above its own that it loses each second
  * @param lifesteal       share of its master's damage that heals it
  * @param riderTaken      damage its rider takes, as a share of the full blow
@@ -20,15 +21,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param leashDistance   blocks from its master past which it goes back into the horn
  * @param followDistance  blocks from its master past which it trots after him when nobody rides it
  */
-public record GhostHorseSettings(float health, float overflowHealth, float regen, float overflowDecay, float lifesteal, float riderTaken,
-		float riderDealt, double speedBonus, double jumpBonus, int frostRadius, double leashDistance, double followDistance) {
-	public static final GhostHorseSettings DEFAULT = new GhostHorseSettings(30.0F, 50.0F, 1.0F, 0.25F, 0.25F, 0.8F, 1.15F, 0.2, 0.2, 3, 64.0,
+public record GhostHorseSettings(float health, float overflowHealth, float regen, int regenDelay, float overflowDecay, float lifesteal,
+		float riderTaken, float riderDealt, double speedBonus, double jumpBonus, int frostRadius, double leashDistance, double followDistance) {
+	public static final GhostHorseSettings DEFAULT = new GhostHorseSettings(30.0F, 50.0F, 1.0F, 100, 0.25F, 0.25F, 0.8F, 1.15F, 0.2, 0.2, 4, 64.0,
 			8.0);
 
 	public static final Codec<GhostHorseSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.floatRange(1.0F, 1024.0F).fieldOf("health").orElse(DEFAULT.health).forGetter(GhostHorseSettings::health),
 			Codec.floatRange(1.0F, 1024.0F).fieldOf("overflow_health").orElse(DEFAULT.overflowHealth).forGetter(GhostHorseSettings::overflowHealth),
 			Codec.floatRange(0.0F, 100.0F).fieldOf("regen_per_second").orElse(DEFAULT.regen).forGetter(GhostHorseSettings::regen),
+			Codec.intRange(0, 72000).fieldOf("regen_delay").orElse(DEFAULT.regenDelay).forGetter(GhostHorseSettings::regenDelay),
 			Codec.floatRange(0.0F, 100.0F).fieldOf("overflow_decay_per_second").orElse(DEFAULT.overflowDecay).forGetter(GhostHorseSettings::overflowDecay),
 			Codec.floatRange(0.0F, 10.0F).fieldOf("lifesteal").orElse(DEFAULT.lifesteal).forGetter(GhostHorseSettings::lifesteal),
 			Codec.floatRange(0.0F, 10.0F).fieldOf("rider_damage_taken").orElse(DEFAULT.riderTaken).forGetter(GhostHorseSettings::riderTaken),
