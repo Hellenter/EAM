@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "eam:glowshroom",
+    "eam:glowshroom"
+  ],
+  "result": {
+    "id": "eam:glowing_powder"
+  }
+}

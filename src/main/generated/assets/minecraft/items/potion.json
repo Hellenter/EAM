@@ -48,6 +48,18 @@
             "potion": "eam:light_strength"
           },
           {
+            "potion": "eam:strong_light_regeneration"
+          },
+          {
+            "potion": "eam:strong_light_swiftness"
+          },
+          {
+            "potion": "eam:strong_light_healing"
+          },
+          {
+            "potion": "eam:strong_light_strength"
+          },
+          {
             "potion": "eam:black_blood"
           },
           {

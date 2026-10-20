@@ -609,6 +609,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(EamItems.SILVER_BREWING_STAND), has(EamItems.SILVER_BREWING_STAND))
 						.save(output);
 
+				shapeless(RecipeCategory.BREWING, EamItems.GLOWING_POWDER)
+						.requires(EamItems.GLOWSHROOM, 2)
+						.unlockedBy(getHasName(EamItems.GLOWSHROOM), has(EamItems.GLOWSHROOM))
+						.save(output);
+
 				silverBrewing(Potions.WATER, EamItems.SILVER_REDSTONE_DUST, BrewingModule.HOLY_WATER);
 				silverBrewing(BrewingModule.HOLY_WATER, Items.GLOW_BERRIES, BrewingModule.LIGHT_NIGHT_VISION);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.FLOWER_MIX, BrewingModule.LIGHT_REGENERATION);
@@ -619,6 +624,11 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.WOLF_MEAT, BrewingModule.LIGHT_STRENGTH);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.GARLIC_ORCHID_MIX, BrewingModule.BLACK_BLOOD);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.HERBAL_HONEY, BrewingModule.WHITE_HONEY);
+				// Glowing powder brings a light potion up to level II, as glowstone does in the vanilla stand.
+				silverBrewing(BrewingModule.LIGHT_REGENERATION, EamItems.GLOWING_POWDER, BrewingModule.STRONG_LIGHT_REGENERATION);
+				silverBrewing(BrewingModule.LIGHT_SWIFTNESS, EamItems.GLOWING_POWDER, BrewingModule.STRONG_LIGHT_SWIFTNESS);
+				silverBrewing(BrewingModule.LIGHT_HEALING_POTION, EamItems.GLOWING_POWDER, BrewingModule.STRONG_LIGHT_HEALING);
+				silverBrewing(BrewingModule.LIGHT_STRENGTH, EamItems.GLOWING_POWDER, BrewingModule.STRONG_LIGHT_STRENGTH);
 				// Gunpowder makes a splash potion of the same light potion, as in the vanilla stand.
 				for (Holder<Potion> potion : BrewingModule.LIGHT_POTIONS) {
 					silverBrewing(Items.POTION, potion, Items.GUNPOWDER, Items.SPLASH_POTION, potion,

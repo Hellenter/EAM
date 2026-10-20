@@ -291,6 +291,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Silver-Redstone Dust");
 			builder.add(EamItems.FLOWER_MIX, "Flower Mix");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Fermented Ender Eye");
+			builder.add(EamItems.GLOWING_POWDER, "Glowing Powder");
 			builder.add(EamItems.BLACK_TALISMAN, "Black Talisman");
 			builder.add(EamItems.COMMANDER_HORN, "Commander's Horn");
 			builder.add(EamItems.KOSCHEI_NEEDLE, "Koschei's Needle");
@@ -1158,6 +1159,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_REDSTONE_DUST, "Серебряно-редстоуновый порошок");
 			builder.add(EamItems.FLOWER_MIX, "Цветочная смесь");
 			builder.add(EamItems.FERMENTED_ENDER_EYE, "Ферментированное око Эндера");
+			builder.add(EamItems.GLOWING_POWDER, "Светящийся порошок");
 			builder.add(EamItems.BLACK_TALISMAN, "Чёрный талисман");
 			builder.add(EamItems.COMMANDER_HORN, "Командирский горн");
 			builder.add(EamItems.KOSCHEI_NEEDLE, "Кощеева игла");
