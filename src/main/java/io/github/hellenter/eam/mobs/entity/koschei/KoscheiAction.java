@@ -83,14 +83,31 @@ public enum KoscheiAction {
 	 * {@link #SHATTER_STAFF} and the shell bursts on {@link #SHATTER_BURST}; nothing hurts him meanwhile, and he rises at full
 	 * health in his third phase with two daggers.
 	 */
-	SHATTER(44),
-	/** A quick stab with the left dagger, on {@link #DAGGER_STAB_HIT}. */
-	DAGGER_STAB(10),
-	/** Three cuts, the daggers by turns, on {@link #DAGGER_FLURRY_HITS}. */
-	DAGGER_FLURRY(20),
-	/** Crouched, then a dash at the target from {@link #DAGGER_DASH_GO}, both blades driven in on {@link #DAGGER_DASH_HIT}. */
-	DAGGER_DASH(18),
-	/** The daggers crossed and raised; his draugr climb out round the target on {@link #RAISE_RELEASE}. */
+	SHATTER(31),
+	/** Three quick cuts, the daggers by turns, on {@link #COMBO_HITS}. */
+	DAGGER_COMBO(17),
+	/** The blade flickering orange, drawn back as he runs in, one heavy cut on {@link #DAGGER_ORANGE_HIT}. */
+	DAGGER_ORANGE(20),
+	/**
+	 * Both blades glowing red, a crouch, and a leap at the target from {@link #LEAP_GO}, at its top on {@link #LEAP_APEX}, both
+	 * blades brought down from over his head as he lands on {@link #LEAP_LAND}.
+	 */
+	DAGGER_LEAP(26),
+	/** Both blades out ahead, then a dash straight at the target from {@link #DASH_GO}; point-blank, both driven in. */
+	DAGGER_DASH(24),
+	/**
+	 * Both daggers flung on their chains on {@link #CHAINS_THROW}; caught, the target is dragged in. It lasts until the
+	 * chains are back, at most its length.
+	 */
+	CHAINS(60),
+	/**
+	 * The feint: his eyes flicker and he stands behind the target on {@link #FEINT_WARP}, leaps at it from
+	 * {@link #FEINT_GO}, vanishes at the top on {@link #FEINT_APEX} to stand behind it again, and cuts on {@link #FEINT_HIT}.
+	 */
+	DAGGER_FEINT(28),
+	/** A dart: a short flat dash to one side, back or in, pushing for {@link #DART_PUSH} ticks. */
+	DART(6),
+	/** The daggers crossed and raised; souls fly from him and his draugr climb out where they come down, on {@link #RAISE_RELEASE}. */
 	RAISE(24);
 
 	public static final int STRIKE_HIT = 7;
@@ -124,12 +141,20 @@ public enum KoscheiAction {
 	public static final int TURTLE_RELEASE = 10;
 	public static final int ICE_COPIES_RELEASE = 12;
 	public static final int DRAIN_RISE = 16;
-	public static final int SHATTER_STAFF = 14;
-	public static final int SHATTER_BURST = 30;
-	public static final int DAGGER_STAB_HIT = 5;
-	public static final int[] DAGGER_FLURRY_HITS = {5, 10, 15};
-	public static final int DAGGER_DASH_GO = 7;
-	public static final int DAGGER_DASH_HIT = 12;
+	public static final int SHATTER_STAFF = 10;
+	public static final int SHATTER_BURST = 21;
+	public static final int[] COMBO_HITS = {4, 8, 12};
+	public static final int DAGGER_ORANGE_HIT = 12;
+	public static final int LEAP_GO = 8;
+	public static final int LEAP_APEX = 14;
+	public static final int LEAP_LAND = 20;
+	public static final int DASH_GO = 7;
+	public static final int CHAINS_THROW = 9;
+	public static final int FEINT_WARP = 6;
+	public static final int FEINT_GO = 8;
+	public static final int FEINT_APEX = 13;
+	public static final int FEINT_HIT = 20;
+	public static final int DART_PUSH = 3;
 	public static final int RAISE_RELEASE = 14;
 
 	private final int length;

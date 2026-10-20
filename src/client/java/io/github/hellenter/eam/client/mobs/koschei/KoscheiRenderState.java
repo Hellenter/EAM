@@ -3,6 +3,10 @@ package io.github.hellenter.eam.client.mobs.koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiAction;
 
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class KoscheiRenderState extends HumanoidRenderState {
 	/** What he is doing. */
@@ -30,6 +34,11 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	public boolean daggers;
 	/** Stacks of his fury in his third phase. */
 	public int fury;
+	/** Third phase: his daggers are out on their chains, their heads this far from him. */
+	public boolean chainsOut;
+	public Vec3 chainTip = Vec3.ZERO;
+	/** Third phase: where he stood the last few ticks as he darted, from where he stands now, newest first. */
+	public final List<Vec3> ghosts = new ArrayList<>();
 
 	public enum Eyes {
 		/** His eyes always glow a cold pale blue. */

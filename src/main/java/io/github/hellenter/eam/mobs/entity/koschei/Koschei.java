@@ -17,9 +17,11 @@ import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.DaggerAttack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
+import io.github.hellenter.eam.survival.bleeding.BleedingModule;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -84,6 +86,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -110,8 +114,12 @@ import java.util.UUID;
  * He also looses a wide snow storm that pushes back and burns those without a shield, three ravens of ice of which one
  * knocks a shield out, now and then a ball of lightning that hunts the target until struck down, and a wall of ice
  * before a target that runs at him.
- * The third phase is not built yet: for now he dies at the end of the second. Numbers are in
- * {@code data/eam/mobs/koschei.json}.
+ * <p>
+ * Struck down again, a shell of ice bursts off him, his staff snaps and he rises undead with two daggers: slow, but darting
+ * left, right, in and back, round to the target's back, vanishing to stand behind or before it. He cuts three times
+ * quickly, strikes an orange blow that knocks a shield out and makes one bleed, leaps with both blades red, dashes with
+ * them out ahead, throws them on chains to drag the target in, and feints: a leap at the target and behind it again.
+ * Killed in this phase he shrinks away into his needle. Numbers are in {@code data/eam/mobs/koschei.json}.
  */
 public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
@@ -132,6 +140,8 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Boolean> DATA_PARRY_LOST = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
 	/** Third phase: stacks of his fury. */
 	private static final EntityDataAccessor<Byte> DATA_FURY = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
+	/** Third phase: where the heads of his chains are, in the world, while they are out. */
+	private static final EntityDataAccessor<Vector3fc> DATA_CHAIN_TIP = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.VECTOR3);
 	/** Where the blow he turns aside comes at him, packed by {@link #packGuard}; the client holds the sword there. */
 	private static final EntityDataAccessor<Integer> DATA_GUARD = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT);
 	/** Hits further than this flat distance past their reach still land, for a moving target. */
@@ -170,6 +180,17 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final double STRIKE_LIFT = 0.3;
 	/** A soul is in the air about this long, ticks. */
 	private static final int SOUL_FLIGHT = 26;
+	/** Killed in his third phase, he shrinks away into his needle over this many ticks. */
+	public static final int DEATH_TICKS = 30;
+	/** His leaps rise this high over the straight line from where he jumps to where he lands. */
+	private static final double LEAP_HEIGHT = 2.5;
+	/** The dash with the blades out ahead runs this fast, and drives them in this close to the target. */
+	private static final double BLADE_DASH_SPEED = 1.0;
+	private static final double BLADE_DASH_STOP = 1.9;
+	/** The chains drag the target in until it is this close. */
+	private static final double CHAINS_STOP = 2.0;
+	/** His dash trail: dark red motes. */
+	private static final DustParticleOptions DASH_RED = new DustParticleOptions(0x7A0F1E, 1.2F);
 
 	private final ServerBossEvent bossEvent = new ServerBossEvent(Mth.createInsecureUUID(random), getDisplayName(),
 			BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
@@ -230,6 +251,29 @@ public class Koschei extends Monster implements BuildingAware {
 	private int outOfReach;
 	/** Third phase: ticks since he was last hit or his fury last cooled a stack. */
 	private int furyCalm;
+	/** Third phase: cuts a shield blocked in a row, and the game time of the last. */
+	private int blockedCuts;
+	private long lastBlockedCut = Long.MIN_VALUE / 2;
+	private int dartCooldown;
+	/** Third phase: the pause since his last attack when the dart under way started; a dart does not put off his next blow. */
+	private int idleBeforeDart;
+	/** Third phase: the teleport under way puts him before the target rather than behind it. */
+	private boolean teleportFront;
+	/** Third phase: a leap under way, from where to where, from which tick of the action and for how long. */
+	private Vec3 flightFrom = Vec3.ZERO;
+	private Vec3 flightTo = Vec3.ZERO;
+	private int flightStart;
+	private int flightTicks;
+	/** Third phase: his chains, while they are out. */
+	private Vec3 chainTip = Vec3.ZERO;
+	private Vec3 chainDirection = Vec3.ZERO;
+	private ChainState chainState = ChainState.OUT;
+	/** Third phase: where his dash with the blades out ahead was aimed. */
+	private Vec3 dashTarget = Vec3.ZERO;
+	/** Killed in his third phase: what killed him, for his needle once he has shrunk away into it. */
+	private @Nullable DamageSource deathSource;
+	/** Client: where he stood the last few ticks, newest first, for the trail his darts leave. */
+	private final ArrayDeque<Vec3> trail = new ArrayDeque<>();
 	/** Second phase: ticks he still waits with the trap laid; 0 when it is not. */
 	private int trapWait;
 	/** Second phase: the teleport under way takes him away from the target rather than behind it. */
@@ -259,6 +303,7 @@ public class Koschei extends Monster implements BuildingAware {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			setDropChance(slot, 0.0F);
 		}
+		bossEvent.setName(barName());
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -301,6 +346,7 @@ public class Koschei extends Monster implements BuildingAware {
 		builder.define(DATA_PARRY_OPEN, false);
 		builder.define(DATA_PARRY_LOST, false);
 		builder.define(DATA_FURY, (byte) 0);
+		builder.define(DATA_CHAIN_TIP, new Vector3f());
 		builder.define(DATA_GUARD, packGuard(0.6F, 0.0F));
 	}
 
@@ -454,6 +500,11 @@ public class Koschei extends Monster implements BuildingAware {
 		outOfReach = inReach ? 0 : outOfReach + 1;
 	}
 
+	/** Third phase: ticks the target has kept out of his reach. */
+	int outOfReach() {
+		return outOfReach;
+	}
+
 	/** Third phase: how many times his speed he runs at the target now, the chase and his fury together. */
 	double chaseSpeed() {
 		PhaseThreeSettings three = phaseThree();
@@ -471,21 +522,71 @@ public class Koschei extends Monster implements BuildingAware {
 		PhaseThreeSettings three = phaseThree();
 		actionTarget = target;
 		actionHit = false;
-		switch (attack) {
-			case STAB -> setAction(KoscheiAction.DAGGER_STAB);
-			case FLURRY -> {
-				daggerCooldowns[attack.ordinal()] = three.daggers().flurryCooldown();
-				setAction(KoscheiAction.DAGGER_FLURRY);
-			}
-			case DASH -> {
-				daggerCooldowns[attack.ordinal()] = three.daggers().dashCooldown();
-				setAction(KoscheiAction.DAGGER_DASH);
-			}
-			case RAISE -> {
-				daggerCooldowns[attack.ordinal()] = three.thralls().cooldown();
-				setAction(KoscheiAction.RAISE);
-			}
+		daggerCooldowns[attack.ordinal()] = switch (attack) {
+			case COMBO -> 0;
+			case ORANGE -> three.orange().cooldown();
+			case LEAP -> three.leap().cooldown();
+			case DASH -> three.dash().cooldown();
+			case CHAINS -> three.chains().cooldown();
+			case FEINT -> three.feint().cooldown();
+			case RAISE -> three.thralls().cooldown();
+		};
+		setAction(switch (attack) {
+			case COMBO -> KoscheiAction.DAGGER_COMBO;
+			case ORANGE -> KoscheiAction.DAGGER_ORANGE;
+			case LEAP -> KoscheiAction.DAGGER_LEAP;
+			case DASH -> KoscheiAction.DAGGER_DASH;
+			case CHAINS -> KoscheiAction.CHAINS;
+			case FEINT -> KoscheiAction.DAGGER_FEINT;
+			case RAISE -> KoscheiAction.RAISE;
+		});
+	}
+
+	/** Third phase: whether a dart is ready. */
+	boolean dartReady() {
+		return dartCooldown <= 0 && onGround();
+	}
+
+	/** Third phase: a dart to one side or back from the target, or in at it from {@code in} true. */
+	void dart(LivingEntity target, boolean in) {
+		Vec3 toward = horizontal(target.position().subtract(position()));
+		Vec3 side = new Vec3(-toward.z, 0.0, toward.x);
+		double roll = random.nextDouble();
+		Vec3 direction = in ? toward.add(side.scale((roll - 0.5) * 0.8)) : roll < 0.4 ? side : roll < 0.8 ? side.scale(-1.0) : toward.scale(-1.0);
+		if (!dartReady() || direction.lengthSqr() < 1.0E-6) {
+			return;
 		}
+		PhaseThreeSettings.Moves moves = phaseThree().moves();
+		double distance = in ? Math.min(moves.dartDistance(), Math.max(0.0, horizontalDistanceTo(target) - 2.0)) : moves.dartDistance();
+		if (distance < 0.5) {
+			return;
+		}
+		dartCooldown = moves.dartCooldown();
+		idleBeforeDart = idleTicks;
+		hopSpeed = distance / KoscheiAction.DART_PUSH;
+		rushDirection = direction.normalize();
+		actionTarget = target;
+		getNavigation().stop();
+		setAction(KoscheiAction.DART);
+		playSound(SoundEvents.BREEZE_JUMP, 0.8F, 1.6F + random.nextFloat() * 0.2F);
+	}
+
+	/** Third phase: a dash round to the target's back, the blow following as he lands. */
+	boolean flankInPhaseThree(LivingEntity target) {
+		boolean dashed = flankDash(target);
+		if (dashed) {
+			flankCooldown = phaseThree().moves().flankCooldown();
+			playSound(SoundEvents.BREEZE_JUMP, 0.8F, 1.4F);
+		}
+		return dashed;
+	}
+
+	/** Third phase: whether he vanishes to stand by the target now, ready or not. */
+	void startTeleportThree(LivingEntity target) {
+		PhaseThreeSettings.Moves moves = phaseThree().moves();
+		startTeleport(target);
+		teleportCooldown = moves.teleportCooldown();
+		teleportFront = random.nextFloat() < moves.frontShare();
 	}
 
 	int[] cooldowns() {
@@ -539,7 +640,16 @@ public class Koschei extends Monster implements BuildingAware {
 		super.aiStep();
 		if (level().isClientSide()) {
 			KoscheiEffects.tick(this);
+			trail.addFirst(position());
+			while (trail.size() > 6) {
+				trail.removeLast();
+			}
 		}
+	}
+
+	/** Client: where he stood the last few ticks, newest first. */
+	public List<Vec3> trail() {
+		return List.copyOf(trail);
 	}
 
 	// ---- Server tick ----
@@ -559,6 +669,7 @@ public class Koschei extends Monster implements BuildingAware {
 			closeParry();
 		}
 		if (teleportCooldown > 0) teleportCooldown--;
+		if (dartCooldown > 0) dartCooldown--;
 		for (int i = 0; i < staffCooldowns.length; i++) {
 			if (staffCooldowns[i] > 0) staffCooldowns[i]--;
 		}
@@ -605,8 +716,8 @@ public class Koschei extends Monster implements BuildingAware {
 		if (target == null && tickCount % 20 == 0 && getHealth() < getMaxHealth()) {
 			heal(settings().stats().regen());
 		}
-		if (action != KoscheiAction.DRAIN && isNoGravity()) {
-			// Only the drain holds him up: never left hanging after it, however it ended.
+		if (action != KoscheiAction.DRAIN && action != KoscheiAction.DAGGER_LEAP && action != KoscheiAction.DAGGER_FEINT && isNoGravity()) {
+			// Only the drain and his leaps hold him up: never left hanging after them, however they ended.
 			setNoGravity(false);
 		}
 		if (action == KoscheiAction.NONE) {
@@ -706,29 +817,32 @@ public class Koschei extends Monster implements BuildingAware {
 		if (t >= action.length()) {
 			KoscheiAction ended = action;
 			endAction();
-			if (ended == KoscheiAction.STAGGER && target != null && target.isAlive()) {
+			if (ended == KoscheiAction.STAGGER && phase() == 1 && target != null && target.isAlive()) {
 				// Back on his feet after a parry: he throws the one who parried him off.
 				actionTarget = target;
 				cooldowns[Attack.FORCE.ordinal()] = phaseOne().force().cooldown();
 				setAction(KoscheiAction.FORCE);
+			} else if (ended == KoscheiAction.DART) {
+				idleTicks = idleBeforeDart + KoscheiAction.DART.length();
 			} else if (ended == KoscheiAction.TELEPORT || ended == KoscheiAction.HOP && flankStrike) {
 				// Behind the target or at its side: the next blow comes at once.
-				idleTicks = settings().stats().attackPause();
+				idleTicks = phase() >= 3 ? attackPause() : settings().stats().attackPause();
 			}
 			flankStrike = false;
 			return;
 		}
 		boolean free = action == KoscheiAction.STAGGER || action == KoscheiAction.PARRY_ARROW || action == KoscheiAction.BLOCK
 				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM || action == KoscheiAction.DRAIN
-				|| action == KoscheiAction.SHATTER;
+				|| action == KoscheiAction.SHATTER || action == KoscheiAction.DART;
 		if (!free && (target == null || !target.isAlive())) {
 			endAction();
 			return;
 		}
-		if (action != KoscheiAction.HOP) {
+		if (action != KoscheiAction.HOP && action != KoscheiAction.DART) {
 			getNavigation().stop();
 		}
-		if (target != null && action != KoscheiAction.STAGGER && action != KoscheiAction.HOP) {
+		if (target != null && action != KoscheiAction.STAGGER && action != KoscheiAction.HOP && action != KoscheiAction.DART
+				&& !(action == KoscheiAction.DAGGER_DASH && actionTicks > KoscheiAction.DASH_GO)) {
 			getLookControl().setLookAt(target, 30.0F, 30.0F);
 			faceTowards(target);
 		}
@@ -792,6 +906,13 @@ public class Koschei extends Monster implements BuildingAware {
 				} else if (t == action.length() - 1 && target != null && teleportAway) {
 					teleportAway = false;
 					teleportAwayFrom(level, target, phaseTwo().teleport().distance());
+				} else if (t == action.length() - 1 && target != null && phase() >= 3) {
+					if (teleportFront) {
+						standBefore(level, target);
+					} else {
+						teleportBehind(level, target, settings().teleport());
+					}
+					teleportFront = false;
 				} else if (t == action.length() - 1 && target != null) {
 					// Looked for again: the target may have come down or moved on up there meanwhile.
 					Vec3 spot = teleportSpot != null && target.getY() - getY() > settings().height().above()
@@ -869,21 +990,32 @@ public class Koschei extends Monster implements BuildingAware {
 			}
 			case DRAIN -> tickDrain(level, t, phaseTwo().drain());
 			case SHATTER -> tickShatter(level, t);
-			case DAGGER_STAB -> {
+			case DAGGER_COMBO -> {
 				if (t == 0) {
 					playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.0F, 1.6F);
-				} else if (t == KoscheiAction.DAGGER_STAB_HIT) {
-					daggerHit(level, target, phaseThree().daggers().stabDamage(), 0.0, 1.3F);
 				}
-			}
-			case DAGGER_FLURRY -> {
-				for (int hit : KoscheiAction.DAGGER_FLURRY_HITS) {
+				if (target != null && t < KoscheiAction.COMBO_HITS[2]) {
+					walkIn(target, OVERHEAD_WALK_SPEED, phaseThree().combo().reach());
+				}
+				for (int hit : KoscheiAction.COMBO_HITS) {
 					if (t == hit) {
-						daggerHit(level, target, phaseThree().daggers().flurryDamage(), 0.0, 1.2F + t * 0.02F);
+						comboCut(level, target, phaseThree().combo(), 1.2F + t * 0.03F);
 					}
 				}
 			}
-			case DAGGER_DASH -> tickDash(level, t, target, phaseThree().daggers());
+			case DAGGER_ORANGE -> tickDaggerOrange(level, t, target, phaseThree().orange());
+			case DAGGER_LEAP -> tickLeap(level, t, target, phaseThree().leap());
+			case DAGGER_DASH -> tickBladeDash(level, t, target, phaseThree().dash());
+			case CHAINS -> tickChains(level, t, target, phaseThree().chains());
+			case DAGGER_FEINT -> tickFeint(level, t, target, phaseThree().feint());
+			case DART -> {
+				if (t < KoscheiAction.DART_PUSH && !horizontalCollision) {
+					setDeltaMovement(rushDirection.x * hopSpeed, Math.min(getDeltaMovement().y, 0.0), rushDirection.z * hopSpeed);
+					dashTrail(level);
+				} else if (t == KoscheiAction.DART_PUSH) {
+					setDeltaMovement(getDeltaMovement().multiply(0.15, 1.0, 0.15));
+				}
+			}
 			case RAISE -> {
 				if (t == 0) {
 					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.4F);
@@ -965,7 +1097,12 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** Closes in on the target during a blow's windup, stopping once it is well within his reach. */
 	private void walkIn(LivingEntity target, double speed) {
-		if (horizontalDistanceTo(target) > phaseOne().reach() - 0.8 && onGround()) {
+		walkIn(target, speed, phaseOne().reach());
+	}
+
+	/** As {@link #walkIn(LivingEntity, double)}, for a blow that reaches {@code reach}. */
+	private void walkIn(LivingEntity target, double speed, double reach) {
+		if (horizontalDistanceTo(target) > reach - 0.8 && onGround()) {
 			Vec3 to = horizontal(target.position().subtract(position()));
 			setDeltaMovement(to.x * speed, getDeltaMovement().y, to.z * speed);
 		} else {
@@ -1231,6 +1368,7 @@ public class Koschei extends Monster implements BuildingAware {
 		entityData.set(DATA_PHASE, (byte) 2);
 		applyStats(false);
 		bossEvent.setColor(BossEvent.BossBarColor.GREEN);
+		bossEvent.setName(barName());
 		Arrays.fill(staffCooldowns, 0);
 		trapWait = 0;
 		drainsUsed = 0;
@@ -1294,9 +1432,12 @@ public class Koschei extends Monster implements BuildingAware {
 		entityData.set(DATA_FURY, (byte) 0);
 		applyStats(false);
 		bossEvent.setColor(BossEvent.BossBarColor.RED);
+		bossEvent.setName(barName());
+		blockedCuts = 0;
 		Arrays.fill(daggerCooldowns, 0);
 		// He opens his third phase with the daggers, his draugr later.
 		daggerCooldowns[DaggerAttack.RAISE.ordinal()] = phaseThree().thralls().cooldown() / 2;
+		daggerCooldowns[DaggerAttack.FEINT.ordinal()] = phaseThree().feint().cooldown() / 3;
 		outOfReach = 0;
 		LivingEntity target = getTarget();
 		setAction(KoscheiAction.SHATTER);
@@ -1317,7 +1458,7 @@ public class Koschei extends Monster implements BuildingAware {
 		double radius = getBbHeight() * 0.62;
 		if (t < KoscheiAction.SHATTER_BURST && t % 2 == 0) {
 			// The shell closes: more panes each time, until it is whole.
-			int panes = 20 + t * 3;
+			int panes = 20 + t * 4;
 			double golden = Math.PI * (3.0 - Math.sqrt(5.0));
 			for (int i = 0; i < panes; i++) {
 				double y = 1.0 - (i + 0.5) * 2.0 / panes;
@@ -1367,52 +1508,366 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 	}
 
-	/** A blow of the daggers at the target, if it is within {@code extraReach} more than their reach. */
-	private void daggerHit(ServerLevel level, @Nullable LivingEntity target, float damage, double extraReach, float pitch) {
+	/**
+	 * One of his three quick cuts. A shield blocks it as any blow, but enough of them blocked close together knock it out.
+	 */
+	private void comboCut(ServerLevel level, @Nullable LivingEntity target, PhaseThreeSettings.Combo combo, float pitch) {
 		playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, pitch);
-		if (target != null && inReach(target, phaseThree().daggers().reach() + extraReach)) {
-			target.damageCooldownTime = 0;
-			if (strike(level, target, damageSources().mobAttack(this), damage, 0.2F)) {
-				level.playSound(null, target.getX(), target.getY(0.6), target.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, getSoundSource(), 1.0F, 1.2F);
+		if (target == null || !inReach(target, combo.reach())) {
+			return;
+		}
+		ItemStack shield = blockingShield(target);
+		target.damageCooldownTime = 0;
+		if (shield != null) {
+			long now = level.getGameTime();
+			blockedCuts = KoscheiLogic.blockedInRow(blockedCuts, lastBlockedCut, now, combo.shieldMemory());
+			lastBlockedCut = now;
+			if (blockedCuts >= combo.shieldHits()) {
+				blockedCuts = 0;
+				knockShieldOut(level, target, shield, combo.shieldSeconds());
+				return;
 			}
+		}
+		if (strike(level, target, damageSources().mobAttack(this), combo.damage(), 0.2F)) {
+			level.playSound(null, target.getX(), target.getY(0.6), target.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, getSoundSource(), 1.0F, 1.2F);
 		}
 	}
 
-	/** Crouched for a beat, then a dash straight at the target and both blades driven in. */
-	private void tickDash(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Daggers daggers) {
+	/** The orange blow with a dagger: he runs in as the blade flickers, one heavy cut; a shield is knocked out, flesh bleeds. */
+	private void tickDaggerOrange(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Orange orange) {
+		if (t == 0) {
+			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.KOSCHEI_ORANGE_CUE, getSoundSource(), 2.0F, 1.2F);
+		}
+		if (target == null) {
+			return;
+		}
+		double reach = phaseThree().combo().reach();
+		if (t < KoscheiAction.DAGGER_ORANGE_HIT) {
+			walkIn(target, ORANGE_CHASE_SPEED, reach);
+			return;
+		}
+		if (t != KoscheiAction.DAGGER_ORANGE_HIT) {
+			return;
+		}
+		setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
+		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.4F, 0.8F);
+		if (!inReach(target, reach + ORANGE_REACH_BONUS)) {
+			return;
+		}
+		ItemStack shield = blockingShield(target);
+		if (shield != null) {
+			knockShieldOut(level, target, shield, orange.shieldSeconds());
+			return;
+		}
+		target.damageCooldownTime = 0;
+		if (strike(level, target, damageSources().mobAttack(this), orange.damage(), 0.4F)) {
+			BleedingModule.bleed(target, this, orange.bleedingTicks());
+			level.sendParticles(new DustParticleOptions(0x9E0B0B, 1.0F), target.getX(), target.getY(0.6), target.getZ(), 14, 0.25, 0.3, 0.25, 0.0);
+		}
+	}
+
+	/**
+	 * The red leap: crouched with both blades glowing red, a leap at the target, and both brought down as he lands. A
+	 * shield raised as he hangs at the top stops it; one held up all along, or raised too late, lets most of it through.
+	 */
+	private void tickLeap(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Leap leap) {
+		if (t == 0) {
+			redCue(level);
+		}
+		if (target == null) {
+			return;
+		}
+		if (t == KoscheiAction.LEAP_GO) {
+			Vec3 back = horizontal(position().subtract(target.position()));
+			startFlight(target.position().add(back.scale(1.2)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
+			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.7F);
+		}
+		if (t == KoscheiAction.LEAP_APEX - leap.blockEarly()) {
+			// A bright ping: the moment to raise the shield.
+			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 1.1F);
+		}
+		if (t > KoscheiAction.LEAP_GO && t <= KoscheiAction.LEAP_LAND) {
+			fly(t);
+		}
+		if (t != KoscheiAction.LEAP_LAND) {
+			return;
+		}
+		land();
+		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
+		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
+		if (!inReach(target, phaseThree().combo().reach() + 0.8)) {
+			return;
+		}
+		ItemStack shield = blockingShield(target);
+		target.damageCooldownTime = 0;
+		if (shield != null && KoscheiLogic.leapBlockedInTime(target.getTicksUsingItem(), KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_APEX,
+				leap.blockEarly(), leap.blockLate())) {
+			// Raised in time: the shield takes it all.
+			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.2F, 0.7F);
+			level.sendParticles(EamParticles.KOSCHEI_SPARK, target.getX(), target.getY(0.6), target.getZ(), 16, 0.2, 0.2, 0.2, 0.25);
+			return;
+		}
+		float damage = shield != null ? leap.damage() * leap.shieldShare() : leap.damage();
+		strike(level, target, damageSources().source(KoscheiModule.CLEAVE_DAMAGE, this), damage, 0.5F);
+		if (shield != null) {
+			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 0.8F, 1.3F);
+		}
+	}
+
+	/** Plans a leap from where he stands to {@code to}, starting on action tick {@code start} and lasting {@code ticks}. */
+	private void startFlight(Vec3 to, int start, int ticks) {
+		flightFrom = position();
+		flightTo = to;
+		flightStart = start;
+		flightTicks = Math.max(1, ticks);
+		setNoGravity(true);
+	}
+
+	/** One tick along the leap planned: up in an arc and down on its end. */
+	private void fly(int t) {
+		double share = Math.clamp((t + 1 - flightStart) / (double) flightTicks, 0.0, 1.0);
+		double y = flightFrom.y + KoscheiLogic.leapHeight(share, flightTo.y - flightFrom.y, LEAP_HEIGHT);
+		Vec3 at = new Vec3(Mth.lerp(share, flightFrom.x, flightTo.x), y, Mth.lerp(share, flightFrom.z, flightTo.z));
+		setNoGravity(true);
+		setDeltaMovement(at.subtract(position()));
+		resetFallDistance();
+	}
+
+	/** Down from a leap. */
+	private void land() {
+		setNoGravity(false);
+		setDeltaMovement(getDeltaMovement().multiply(0.0, 0.0, 0.0));
+		resetFallDistance();
+	}
+
+	/**
+	 * Both blades out ahead, a dash straight at where the target stood, and both driven in point-blank. A shield takes them
+	 * and is knocked out, and a quick hit back parries him; his cuts follow at once either way.
+	 */
+	private void tickBladeDash(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Dash dash) {
 		if (target == null) {
 			return;
 		}
 		if (t == 0) {
-			playSound(SoundEvents.RAVAGER_ROAR, 0.6F, 1.8F);
+			playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.5F, 1.3F);
 		}
-		if (t == KoscheiAction.DAGGER_DASH_GO) {
-			Vec3 way = horizontal(target.position().subtract(position()));
-			double distance = Math.max(0.0, horizontalDistanceTo(target) - 1.2);
-			rushDirection = way.scale(distance / (KoscheiAction.DAGGER_DASH_HIT - KoscheiAction.DAGGER_DASH_GO));
-			playSound(SoundEvents.BREEZE_JUMP, 1.2F, 0.8F);
+		if (t < KoscheiAction.DASH_GO) {
+			return;
 		}
-		if (t >= KoscheiAction.DAGGER_DASH_GO && t < KoscheiAction.DAGGER_DASH_HIT) {
-			setDeltaMovement(rushDirection.x, getDeltaMovement().y, rushDirection.z);
-			level.sendParticles(ParticleTypes.SOUL, getX(), getY(0.3), getZ(), 2, 0.2, 0.2, 0.2, 0.01);
+		if (t == KoscheiAction.DASH_GO) {
+			rushDirection = horizontal(target.position().subtract(position()));
+			dashTarget = target.position();
+			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.9F);
 		}
-		if (t == KoscheiAction.DAGGER_DASH_HIT) {
+		if (horizontalDistanceTo(target) <= BLADE_DASH_STOP && Math.abs(target.getY() - getY()) < 2.5 && inFront(target)) {
+			setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.2F, 0.9F);
+			ItemStack shield = blockingShield(target);
+			if (shield != null && target instanceof Player player) {
+				knockShieldOut(level, target, shield, dash.shieldSeconds());
+				openParry(level, player, dash.parryWindow());
+			} else {
+				target.damageCooldownTime = 0;
+				strike(level, target, damageSources().mobAttack(this), dash.damage(), 0.3F);
+			}
+			// Straight into his cuts while the target reels.
+			setAction(KoscheiAction.DAGGER_COMBO);
+			return;
+		}
+		Vec3 left = dashTarget.subtract(position());
+		if (t > KoscheiAction.DASH_GO && (horizontalCollision || horizontal(left).dot(rushDirection) <= 0.0)) {
 			setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
-			daggerHit(level, target, daggers.dashDamage(), 1.0, 0.9F);
+			endAction();
+			return;
+		}
+		setDeltaMovement(rushDirection.x * BLADE_DASH_SPEED, getDeltaMovement().y, rushDirection.z * BLADE_DASH_SPEED);
+		dashTrail(level);
+	}
+
+	/** How his chains go: flying out, coming back empty, or dragging the target in. */
+	private enum ChainState { OUT, BACK, PULL }
+
+	/**
+	 * Both daggers flung on their chains at the target as it stands: one that steps aside lets them fly by. Caught, it is
+	 * dragged in to him and his cuts follow.
+	 */
+	private void tickChains(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Chains chains) {
+		if (target == null) {
+			return;
+		}
+		if (t == 0) {
+			playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 1.5F, 0.6F);
+		}
+		if (t < KoscheiAction.CHAINS_THROW) {
+			return;
+		}
+		Vec3 hands = chainHands();
+		if (t == KoscheiAction.CHAINS_THROW) {
+			chainTip = hands;
+			chainDirection = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0).subtract(hands).normalize();
+			chainState = ChainState.OUT;
+			playSound(SoundEvents.TRIDENT_THROW.value(), 1.5F, 0.6F);
+		}
+		switch (chainState) {
+			case OUT -> {
+				Vec3 next = chainTip.add(chainDirection.scale(chains.speed()));
+				if (target.getBoundingBox().inflate(0.35).clip(chainTip, next).isPresent()) {
+					// Caught: the hooks bite and the pull begins. A shield takes the bite, not the pull.
+					chainState = ChainState.PULL;
+					chainTip = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0);
+					target.damageCooldownTime = 0;
+					strike(level, target, damageSources().mobAttack(this), chains.hookDamage(), 0.0F);
+					level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.TRIDENT_HIT, getSoundSource(), 1.5F, 0.7F);
+					level.playSound(null, getX(), getY(), getZ(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), getSoundSource(), 2.0F, 0.5F);
+				} else {
+					HitResult wall = level.clip(new ClipContext(chainTip, next, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+					if (wall.getType() != HitResult.Type.MISS) {
+						chainTip = wall.getLocation();
+						chainState = ChainState.BACK;
+						level.playSound(null, chainTip.x, chainTip.y, chainTip.z, SoundEvents.ANVIL_LAND, getSoundSource(), 0.4F, 1.8F);
+					} else {
+						chainTip = next;
+						if (chainTip.distanceTo(hands) >= chains.range()) {
+							chainState = ChainState.BACK;
+						}
+					}
+				}
+			}
+			case BACK -> {
+				Vec3 home = hands.subtract(chainTip);
+				double step = chains.speed() * 1.5;
+				if (home.length() <= step) {
+					endAction();
+					return;
+				}
+				chainTip = chainTip.add(home.normalize().scale(step));
+			}
+			case PULL -> {
+				chainTip = target.position().add(0.0, target.getBbHeight() * 0.55, 0.0);
+				if (horizontalDistanceTo(target) <= CHAINS_STOP || t >= KoscheiAction.CHAINS.length() - 2) {
+					target.setDeltaMovement(target.getDeltaMovement().multiply(0.1, 1.0, 0.1));
+					syncMotion(target);
+					setAction(KoscheiAction.DAGGER_COMBO);
+					return;
+				}
+				Vec3 in = horizontal(position().subtract(target.position()));
+				target.setDeltaMovement(in.x * chains.pullSpeed(), Math.max(0.08, target.getDeltaMovement().y), in.z * chains.pullSpeed());
+				target.resetFallDistance();
+				syncMotion(target);
+			}
+		}
+		entityData.set(DATA_CHAIN_TIP, new Vector3f((float) chainTip.x, (float) chainTip.y, (float) chainTip.z));
+	}
+
+	/** Sends the motion just set on {@code entity} to its client, a player's above all. */
+	private static void syncMotion(Entity entity) {
+		entity.syncVelocity = true;
+		entity.needsSync = true;
+	}
+
+	/** Where his chains run from: between his fists, held out before his chest. */
+	private Vec3 chainHands() {
+		return position().add(Vec3.directionFromRotation(0.0F, yBodyRot).scale(0.6)).add(0.0, getBbHeight() * 0.55, 0.0);
+	}
+
+	/** Client: where the heads of his chains are, in the world. */
+	public Vec3 chainTip() {
+		Vector3fc tip = entityData.get(DATA_CHAIN_TIP);
+		return new Vec3(tip.x(), tip.y(), tip.z());
+	}
+
+	/**
+	 * The feint: his eyes flicker and he stands behind the target, leaps at it, vanishes at the top of the leap to stand
+	 * behind it again, and cuts. One who turned to meet the leap has to turn back in time.
+	 */
+	private void tickFeint(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Feint feint) {
+		if (target == null) {
+			return;
+		}
+		if (t == 0) {
+			playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.8F);
+		}
+		if (t == KoscheiAction.FEINT_WARP) {
+			standBehind(level, target, 4.5);
+		}
+		if (t == KoscheiAction.FEINT_GO) {
+			Vec3 back = horizontal(position().subtract(target.position()));
+			startFlight(target.position().add(back.scale(1.2)), t, (KoscheiAction.FEINT_APEX - KoscheiAction.FEINT_GO) * 2);
+			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.8F);
+		}
+		if (t > KoscheiAction.FEINT_GO && t < KoscheiAction.FEINT_APEX) {
+			fly(t);
+		}
+		if (t == KoscheiAction.FEINT_APEX) {
+			land();
+			standBehind(level, target, 2.2);
+		}
+		if (t == KoscheiAction.FEINT_HIT) {
+			playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.9F);
+			if (inReach(target, phaseThree().combo().reach() + 0.3)) {
+				target.damageCooldownTime = 0;
+				strike(level, target, damageSources().mobAttack(this), feint.damage(), 0.3F);
+			}
 		}
 	}
 
-	/** His draugr climb out of the ground far round the target, at their own speed, not his. */
+	/** Vanishes and stands about {@code distance} behind the target, as it faces now; true if there was room. */
+	private boolean standBehind(ServerLevel level, LivingEntity target, double distance) {
+		for (float angle : KoscheiLogic.teleportAngles(settings().teleport().maxAngle(), random::nextDouble)) {
+			Vec3 dir = Vec3.directionFromRotation(0.0F, target.getYHeadRot() + 180.0F + angle);
+			Vec3 spot = findStandingSpot(level, target.position().add(dir.scale(distance)));
+			if (spot != null) {
+				teleportTo(level, spot, target);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Vanishes and stands right before the target, facing it; behind it if there is no room before it. */
+	private void standBefore(ServerLevel level, LivingEntity target) {
+		for (float angle : KoscheiLogic.teleportAngles(30.0F, random::nextDouble)) {
+			Vec3 dir = Vec3.directionFromRotation(0.0F, target.getYHeadRot() + angle);
+			Vec3 spot = findStandingSpot(level, target.position().add(dir.scale(2.0)));
+			if (spot != null) {
+				teleportTo(level, spot, target);
+				return;
+			}
+		}
+		teleportBehind(level, target, settings().teleport());
+	}
+
+	/** The trail of a dart or a dash: dark red motes and wisps of souls left where he passes. */
+	private void dashTrail(ServerLevel level) {
+		level.sendParticles(DASH_RED, getX(), getY(0.5), getZ(), 6, 0.25, getBbHeight() * 0.3, 0.25, 0.0);
+		level.sendParticles(ParticleTypes.SOUL, getX(), getY(0.3), getZ(), 1, 0.2, 0.2, 0.2, 0.01);
+		level.sendParticles(ParticleTypes.SMOKE, getX(), getY(0.2), getZ(), 2, 0.2, 0.1, 0.2, 0.01);
+	}
+
+	/** Souls fly out of him and come down far round the target; his draugr climb out where they land, at their own speed. */
 	private void raiseFar(ServerLevel level, LivingEntity target, PhaseThreeSettings three) {
 		PhaseThreeSettings.Thralls settings = three.thralls();
-		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 0.5F);
+		Vec3 chest = position().add(0.0, getBbHeight() * 0.7, 0.0);
+		level.playSound(null, chest.x, chest.y, chest.z, SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 0.5F);
+		level.playSound(null, chest.x, chest.y, chest.z, SoundEvents.SOUL_ESCAPE.value(), getSoundSource(), 2.0F, 0.5F);
+		level.sendParticles(ParticleTypes.SCULK_SOUL, chest.x, chest.y, chest.z, 12, 0.3, 0.4, 0.3, 0.05);
 		int count = KoscheiLogic.thrallsToRaise(settings.count(), countThralls(level), phaseTwo().thralls().cap());
 		double start = random.nextDouble() * Math.PI * 2.0;
 		for (int i = 0; i < count; i++) {
 			double angle = start + i * Math.PI * 2.0 / Math.max(1, count) + (random.nextDouble() - 0.5) * 0.6;
 			double distance = Mth.lerp(random.nextDouble(), settings.minDistance(), settings.maxDistance());
-			raiseThrall(level, target.position().add(Math.cos(angle) * distance, 0.0, Math.sin(angle) * distance), false, 1.0);
+			Vec3 spot = findStandingSpot(level, target.position().add(Math.cos(angle) * distance, 0.0, Math.sin(angle) * distance));
+			if (spot != null) {
+				throwSoul(level, chest, spot);
+			}
 		}
+	}
+
+	/** A green soul thrown out in an arc from {@code from}, to raise one of his draugr at {@code spot} where it comes down. */
+	private void throwSoul(ServerLevel level, Vec3 from, Vec3 spot) {
+		Vec3 way = spot.subtract(from);
+		double vy = (way.y + KoscheiOrb.SOUL_GRAVITY * SOUL_FLIGHT * (SOUL_FLIGHT + 1) / 2.0) / SOUL_FLIGHT;
+		level.addFreshEntity(new KoscheiOrb(level, this, KoscheiOrb.Kind.SOUL, from, new Vec3(way.x / SOUL_FLIGHT, vy, way.z / SOUL_FLIGHT)));
 	}
 
 	int[] staffCooldowns() {
@@ -1852,15 +2307,20 @@ public class Koschei extends Monster implements BuildingAware {
 			if (spot == null) {
 				continue;
 			}
-			Vec3 way = spot.subtract(hand);
-			double vy = (way.y + KoscheiOrb.SOUL_GRAVITY * SOUL_FLIGHT * (SOUL_FLIGHT + 1) / 2.0) / SOUL_FLIGHT;
-			level.addFreshEntity(new KoscheiOrb(level, this, KoscheiOrb.Kind.SOUL, hand, new Vec3(way.x / SOUL_FLIGHT, vy, way.z / SOUL_FLIGHT)));
+			throwSoul(level, hand, spot);
 		}
 	}
 
-	/** One of his draugr climbs out of the ground at {@code at}, if there is room for it and he is under his cap. */
+	/**
+	 * One of his draugr climbs out of the ground at {@code at}, if there is room for it and he is under his cap; in his
+	 * third phase at the speed of its kind.
+	 */
 	public void raiseThrall(ServerLevel level, Vec3 at) {
-		raiseThrall(level, at, false);
+		if (phase() >= 3) {
+			raiseThrall(level, at, false, 1.0);
+		} else {
+			raiseThrall(level, at, false);
+		}
 	}
 
 	/** As {@link #raiseThrall(ServerLevel, Vec3)}; a {@code shieldBearer} rises with a sword and a shield. */
@@ -2620,6 +3080,59 @@ public class Koschei extends Monster implements BuildingAware {
 	/** Sets the phase he fights in, for one made straight into his second phase. */
 	void setPhase(int phase) {
 		entityData.set(DATA_PHASE, (byte) phase);
+		bossEvent.setName(barName());
+	}
+
+	/** His name on the boss bar: one given him, else the name of the phase he fights in. */
+	private Component barName() {
+		return hasCustomName() ? getDisplayName() : Component.translatable("entity.eam.koschei.phase_" + Math.clamp(phase(), 1, 3));
+	}
+
+	// ---- Death ----
+
+	/** Killed in his third phase, his needle drops only once he has shrunk away into it. */
+	@Override
+	protected void dropAllDeathLoot(ServerLevel level, DamageSource source) {
+		if (phase() >= 3 && deathTime < DEATH_TICKS) {
+			deathSource = source;
+			return;
+		}
+		super.dropAllDeathLoot(level, source);
+	}
+
+	/** Killed in his third phase, he shrinks away into his needle, frost and souls drawn in after him. */
+	@Override
+	protected void tickDeath() {
+		if (phase() < 3) {
+			super.tickDeath();
+			return;
+		}
+		deathTime++;
+		if (!(level() instanceof ServerLevel level) || isRemoved()) {
+			return;
+		}
+		Vec3 heart = position().add(0.0, getBbHeight() * 0.45, 0.0);
+		if (deathTime % 2 == 0) {
+			for (int i = 0; i < 6; i++) {
+				Vec3 from = new Vec3(random.nextGaussian(), random.nextGaussian(), random.nextGaussian()).normalize().scale(1.2 + random.nextDouble());
+				level.sendParticles(EamParticles.KOSCHEI_WARP, heart.x + from.x, heart.y + from.y, heart.z + from.z, 0, -from.x, -from.y, -from.z, 0.12);
+			}
+			level.sendParticles(ParticleTypes.SOUL, heart.x, heart.y, heart.z, 2, 0.4, 0.5, 0.4, 0.02);
+		}
+		if (deathTime == 1) {
+			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.WITHER_DEATH, getSoundSource(), 0.8F, 1.6F);
+		}
+		if (deathTime >= DEATH_TICKS) {
+			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.AMETHYST_BLOCK_BREAK, getSoundSource(), 2.0F, 1.6F);
+			level.playSound(null, heart.x, heart.y, heart.z, SoundEvents.TRIDENT_RETURN, getSoundSource(), 2.0F, 0.6F);
+			level.sendParticles(ParticleTypes.END_ROD, heart.x, heart.y, heart.z, 30, 0.05, 0.05, 0.05, 0.2);
+			level.sendParticles(ParticleTypes.SCULK_SOUL, heart.x, heart.y, heart.z, 20, 0.2, 0.2, 0.2, 0.08);
+			if (deathSource != null) {
+				dropAllDeathLoot(level, deathSource);
+			}
+			level.broadcastEntityEvent(this, (byte) 60);
+			remove(RemovalReason.KILLED);
+		}
 	}
 
 	@Override
@@ -2631,7 +3144,7 @@ public class Koschei extends Monster implements BuildingAware {
 	@Override
 	public void setCustomName(@Nullable Component name) {
 		super.setCustomName(name);
-		bossEvent.setName(getDisplayName());
+		bossEvent.setName(barName());
 	}
 
 	@Override
@@ -2658,7 +3171,7 @@ public class Koschei extends Monster implements BuildingAware {
 		// Saved in the middle of a drain: the drain is not saved, so he comes down.
 		setNoGravity(false);
 		applyStats(false);
-		bossEvent.setName(getDisplayName());
+		bossEvent.setName(barName());
 		bossEvent.setColor(barColor());
 		Arrays.fill(cooldowns, 0);
 		Arrays.fill(staffCooldowns, 0);

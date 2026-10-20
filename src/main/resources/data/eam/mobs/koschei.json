@@ -280,16 +280,64 @@
       "min_pause": 2,
       "speed_bonus": 0.04
     },
-    "daggers": {
+    "moves": {
+      "dart_chance": 0.08,
+      "dart_cooldown": 14,
+      "dart_distance": 2.6,
+      "flank_chance": 0.15,
+      "flank_cooldown": 60,
+      "flank_range": 5.0,
+      "teleport_chance": 0.06,
+      "teleport_cooldown": 140,
+      "front_share": 0.4
+    },
+    "combo": {
       "reach": 2.6,
-      "stab_damage": 6.0,
-      "flurry_damage": 3.5,
-      "flurry_chance": 0.35,
-      "flurry_cooldown": 40,
-      "dash_damage": 9.0,
-      "dash_min": 4.0,
-      "dash_max": 8.0,
-      "dash_cooldown": 100
+      "damage": 6.5,
+      "shield_hits": 3,
+      "shield_seconds": 3.0,
+      "shield_memory": 60
+    },
+    "leap": {
+      "damage": 11.0,
+      "shield_share": 0.6,
+      "min_range": 3.0,
+      "max_range": 7.0,
+      "chance": 0.35,
+      "cooldown": 120,
+      "block_early": 3,
+      "block_late": 2
+    },
+    "dash": {
+      "damage": 8.0,
+      "min_range": 4.0,
+      "max_range": 9.0,
+      "chance": 0.35,
+      "cooldown": 100,
+      "shield_seconds": 4.0,
+      "parry_window": 11
+    },
+    "chains": {
+      "hook_damage": 3.0,
+      "min_range": 5.0,
+      "range": 14.0,
+      "speed": 1.3,
+      "pull_speed": 0.9,
+      "chance": 0.3,
+      "cooldown": 240
+    },
+    "orange": {
+      "damage": 7.0,
+      "bleeding_ticks": 100,
+      "shield_seconds": 5.0,
+      "chance": 0.25,
+      "cooldown": 160
+    },
+    "feint": {
+      "damage": 9.0,
+      "max_range": 12.0,
+      "chance": 0.12,
+      "cooldown": 300
     },
     "thralls": {
       "count": 3,

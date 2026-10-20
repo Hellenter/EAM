@@ -374,32 +374,79 @@ public final class KoscheiLogic {
 
 	/** His attacks with the daggers in his third phase, and the raising of his draugr. */
 	public enum DaggerAttack {
-		STAB,
-		FLURRY,
+		COMBO,
+		ORANGE,
+		LEAP,
 		DASH,
+		CHAINS,
+		FEINT,
 		RAISE
 	}
 
 	/**
 	 * Which dagger attack he starts at a target {@code distance} off, or null to keep coming on: his draugr now and then
-	 * while there is {@code room} for more under the cap, the stab or the flurry in reach, the dash a few blocks off.
+	 * while there is {@code room} for more under the cap, now and then the feint; in reach the orange blow now and then,
+	 * else his three cuts; from further off, at a target in sight, now and then the chains, the leap or the dash.
+	 *
+	 * @param cooldowns ticks left for each {@link DaggerAttack}, by ordinal
+	 * @param rolls     random numbers in [0, 1)
 	 */
 	public static @Nullable DaggerAttack chooseDagger(double distance, boolean sees, int room, int[] cooldowns, PhaseThreeSettings three,
 			DoubleSupplier rolls) {
-		if (cooldowns[DaggerAttack.RAISE.ordinal()] <= 0 && room > 0 && rolls.getAsDouble() < three.thralls().chance()) {
+		if (ready(cooldowns, DaggerAttack.RAISE) && room > 0 && rolls.getAsDouble() < three.thralls().chance()) {
 			return DaggerAttack.RAISE;
 		}
-		PhaseThreeSettings.Daggers daggers = three.daggers();
-		if (distance <= daggers.reach()) {
-			if (cooldowns[DaggerAttack.FLURRY.ordinal()] <= 0 && rolls.getAsDouble() < daggers.flurryChance()) {
-				return DaggerAttack.FLURRY;
-			}
-			return DaggerAttack.STAB;
+		if (ready(cooldowns, DaggerAttack.FEINT) && distance <= three.feint().maxRange() && rolls.getAsDouble() < three.feint().chance()) {
+			return DaggerAttack.FEINT;
 		}
-		if (sees && cooldowns[DaggerAttack.DASH.ordinal()] <= 0 && distance >= daggers.dashMin() && distance <= daggers.dashMax()) {
+		if (distance <= three.combo().reach()) {
+			if (ready(cooldowns, DaggerAttack.ORANGE) && rolls.getAsDouble() < three.orange().chance()) {
+				return DaggerAttack.ORANGE;
+			}
+			return DaggerAttack.COMBO;
+		}
+		if (!sees) {
+			return null;
+		}
+		PhaseThreeSettings.Chains chains = three.chains();
+		if (ready(cooldowns, DaggerAttack.CHAINS) && distance >= chains.minRange() && distance <= chains.range() * 0.9
+				&& rolls.getAsDouble() < chains.chance()) {
+			return DaggerAttack.CHAINS;
+		}
+		PhaseThreeSettings.Leap leap = three.leap();
+		if (ready(cooldowns, DaggerAttack.LEAP) && distance >= leap.minRange() && distance <= leap.maxRange() && rolls.getAsDouble() < leap.chance()) {
+			return DaggerAttack.LEAP;
+		}
+		PhaseThreeSettings.Dash dash = three.dash();
+		if (ready(cooldowns, DaggerAttack.DASH) && distance >= dash.minRange() && distance <= dash.maxRange() && rolls.getAsDouble() < dash.chance()) {
 			return DaggerAttack.DASH;
 		}
 		return null;
+	}
+
+	private static boolean ready(int[] cooldowns, DaggerAttack attack) {
+		return cooldowns[attack.ordinal()] <= 0;
+	}
+
+	/**
+	 * Whether a shield raised {@code raisedAgo} ticks before his leap lands stops it: raised from {@code early} ticks before
+	 * the top of the leap, {@code apexAgo} ticks before the landing, to {@code late} ticks after it.
+	 */
+	public static boolean leapBlockedInTime(int raisedAgo, int apexAgo, int early, int late) {
+		return raisedAgo <= apexAgo + early && raisedAgo >= apexAgo - late;
+	}
+
+	/** How many cuts in a row a shield has blocked, counting this one, given the last was blocked at {@code last}. */
+	public static int blockedInRow(int count, long last, long now, int memory) {
+		return now - last <= memory ? count + 1 : 1;
+	}
+
+	/**
+	 * Where along a leap from height 0 to {@code rise}, {@code height} over the straight line at its top, he is at
+	 * {@code s} from 0 to 1 of it: the share of the way across and the height.
+	 */
+	public static double leapHeight(double s, double rise, double height) {
+		return rise * s + 4.0 * height * s * (1.0 - s);
 	}
 
 	/**
