@@ -1,0 +1,6 @@
+{
+  "parent": "eam:item/ancient_metal_power_slingshot",
+  "textures": {
+    "layer0": "eam:item/ancient_metal_power_slingshot_pulling_2"
+  }
+}

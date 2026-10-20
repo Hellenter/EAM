@@ -1,0 +1,6 @@
+{
+  "parent": "eam:item/copper_power_slingshot",
+  "textures": {
+    "layer0": "eam:item/copper_power_slingshot_pulling_1"
+  }
+}

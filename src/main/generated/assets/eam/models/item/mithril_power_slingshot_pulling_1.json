@@ -1,0 +1,6 @@
+{
+  "parent": "eam:item/mithril_power_slingshot",
+  "textures": {
+    "layer0": "eam:item/mithril_power_slingshot_pulling_1"
+  }
+}

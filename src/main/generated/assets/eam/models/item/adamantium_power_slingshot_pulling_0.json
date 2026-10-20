@@ -1,0 +1,6 @@
+{
+  "parent": "eam:item/adamantium_power_slingshot",
+  "textures": {
+    "layer0": "eam:item/adamantium_power_slingshot_pulling_0"
+  }
+}
