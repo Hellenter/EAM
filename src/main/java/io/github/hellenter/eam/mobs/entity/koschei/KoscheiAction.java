@@ -77,7 +77,21 @@ public enum KoscheiAction {
 	 * He rises {@link #DRAIN_RISE} ticks into the air and draws the strength out of one of his draugr, a hand reaching to it;
 	 * as long as the draugr lasts, at most the whole length.
 	 */
-	DRAIN(400);
+	DRAIN(400),
+	/**
+	 * Struck down in the second phase: a shell of ice closes round him, the staff snaps in his hand on
+	 * {@link #SHATTER_STAFF} and the shell bursts on {@link #SHATTER_BURST}; nothing hurts him meanwhile, and he rises at full
+	 * health in his third phase with two daggers.
+	 */
+	SHATTER(44),
+	/** A quick stab with the left dagger, on {@link #DAGGER_STAB_HIT}. */
+	DAGGER_STAB(10),
+	/** Three cuts, the daggers by turns, on {@link #DAGGER_FLURRY_HITS}. */
+	DAGGER_FLURRY(20),
+	/** Crouched, then a dash at the target from {@link #DAGGER_DASH_GO}, both blades driven in on {@link #DAGGER_DASH_HIT}. */
+	DAGGER_DASH(18),
+	/** The daggers crossed and raised; his draugr climb out round the target on {@link #RAISE_RELEASE}. */
+	RAISE(24);
 
 	public static final int STRIKE_HIT = 7;
 	public static final int[] DOUBLE_HITS = {6, 12};
@@ -110,6 +124,13 @@ public enum KoscheiAction {
 	public static final int TURTLE_RELEASE = 10;
 	public static final int ICE_COPIES_RELEASE = 12;
 	public static final int DRAIN_RISE = 16;
+	public static final int SHATTER_STAFF = 14;
+	public static final int SHATTER_BURST = 30;
+	public static final int DAGGER_STAB_HIT = 5;
+	public static final int[] DAGGER_FLURRY_HITS = {5, 10, 15};
+	public static final int DAGGER_DASH_GO = 7;
+	public static final int DAGGER_DASH_HIT = 12;
+	public static final int RAISE_RELEASE = 14;
 
 	private final int length;
 

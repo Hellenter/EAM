@@ -325,4 +325,33 @@ class KoscheiLogicTest {
 		assertEquals(130, KoscheiLogic.frost(127, 6, 130));
 		assertEquals(140, KoscheiLogic.frost(140, 6, 130));
 	}
+
+	@Test
+	void inTheThirdPhaseHeStabsInReachDashesFromAfarAndRaisesWhenReady() {
+		PhaseThreeSettings three = PhaseThreeSettings.DEFAULT;
+		int[] ready = new int[KoscheiLogic.DaggerAttack.values().length];
+		int[] raiseDown = ready.clone();
+		raiseDown[KoscheiLogic.DaggerAttack.RAISE.ordinal()] = 100;
+		assertEquals(KoscheiLogic.DaggerAttack.RAISE, KoscheiLogic.chooseDagger(2.0, true, 3, ready, three, () -> 0.0));
+		assertEquals(KoscheiLogic.DaggerAttack.STAB, KoscheiLogic.chooseDagger(2.0, true, 0, ready, three, () -> 0.9));
+		assertEquals(KoscheiLogic.DaggerAttack.FLURRY, KoscheiLogic.chooseDagger(2.0, true, 0, ready, three, () -> 0.1));
+		assertEquals(KoscheiLogic.DaggerAttack.DASH, KoscheiLogic.chooseDagger(6.0, true, 3, raiseDown, three, () -> 0.0));
+		assertNull(KoscheiLogic.chooseDagger(6.0, false, 3, raiseDown, three, () -> 0.0));
+		assertNull(KoscheiLogic.chooseDagger(12.0, true, 3, raiseDown, three, () -> 0.0));
+	}
+
+	@Test
+	void heSpeedsUpOnlyAfterTheTargetKeepsAwayAWhile() {
+		assertEquals(1.0, KoscheiLogic.chaseSpeed(0, 60, 100, 1.7), 1.0E-9);
+		assertEquals(1.0, KoscheiLogic.chaseSpeed(60, 60, 100, 1.7), 1.0E-9);
+		assertEquals(1.35, KoscheiLogic.chaseSpeed(110, 60, 100, 1.7), 1.0E-9);
+		assertEquals(1.7, KoscheiLogic.chaseSpeed(500, 60, 100, 1.7), 1.0E-9);
+	}
+
+	@Test
+	void hisFuryShortensThePauseBetweenAttacksDownToItsFloor() {
+		assertEquals(14, KoscheiLogic.furyPause(14, 0, 0.18F, 2));
+		assertEquals(9, KoscheiLogic.furyPause(14, 2, 0.18F, 2));
+		assertEquals(2, KoscheiLogic.furyPause(14, 5, 0.18F, 2));
+	}
 }

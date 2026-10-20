@@ -15,10 +15,12 @@ import io.github.hellenter.eam.mobs.entity.lost.LostLogic;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
+import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.DaggerAttack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -40,6 +42,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -66,6 +69,8 @@ import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -125,6 +130,8 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Boolean> DATA_PARRY_OPEN = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
 	/** The overhead blow under way lost its parry: the player kept clicking at him while he raised it. No yellow eyes then. */
 	private static final EntityDataAccessor<Boolean> DATA_PARRY_LOST = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
+	/** Third phase: stacks of his fury. */
+	private static final EntityDataAccessor<Byte> DATA_FURY = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
 	/** Where the blow he turns aside comes at him, packed by {@link #packGuard}; the client holds the sword there. */
 	private static final EntityDataAccessor<Integer> DATA_GUARD = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.INT);
 	/** Hits further than this flat distance past their reach still land, for a moving target. */
@@ -217,6 +224,12 @@ public class Koschei extends Monster implements BuildingAware {
 	private int clientActionStart;
 	/** Second phase: ticks left for each {@link StaffAttack}, by ordinal. */
 	private final int[] staffCooldowns = new int[StaffAttack.values().length];
+	/** Third phase: ticks left for each {@link DaggerAttack}, by ordinal. */
+	private final int[] daggerCooldowns = new int[DaggerAttack.values().length];
+	/** Third phase: ticks the target has kept out of his reach. */
+	private int outOfReach;
+	/** Third phase: ticks since he was last hit or his fury last cooled a stack. */
+	private int furyCalm;
 	/** Second phase: ticks he still waits with the trap laid; 0 when it is not. */
 	private int trapWait;
 	/** Second phase: the teleport under way takes him away from the target rather than behind it. */
@@ -273,6 +286,10 @@ public class Koschei extends Monster implements BuildingAware {
 		return settings().phaseTwo();
 	}
 
+	PhaseThreeSettings phaseThree() {
+		return settings().phaseThree();
+	}
+
 	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
@@ -283,6 +300,7 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 		builder.define(DATA_PARRY_OPEN, false);
 		builder.define(DATA_PARRY_LOST, false);
+		builder.define(DATA_FURY, (byte) 0);
 		builder.define(DATA_GUARD, packGuard(0.6F, 0.0F));
 	}
 
@@ -291,6 +309,7 @@ public class Koschei extends Monster implements BuildingAware {
 		goalSelector.addGoal(0, new FloatGoal(this));
 		goalSelector.addGoal(2, new KoscheiFightGoal(this));
 		goalSelector.addGoal(2, new KoscheiStaffGoal(this));
+		goalSelector.addGoal(2, new KoscheiDaggerGoal(this));
 		goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.7));
 		goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		goalSelector.addGoal(6, new RandomLookAroundGoal(this));
@@ -317,10 +336,18 @@ public class Koschei extends Monster implements BuildingAware {
 
 	private void applyStats(boolean full) {
 		KoscheiSettings.Stats stats = settings().stats();
-		boolean two = phase() >= 2;
-		setBase(Attributes.MAX_HEALTH, two ? phaseTwo().health() : stats.health());
+		int phase = phase();
+		setBase(Attributes.MAX_HEALTH, switch (phase) {
+			case 1 -> stats.health();
+			case 2 -> phaseTwo().health();
+			default -> phaseThree().health();
+		});
 		setBase(Attributes.ARMOR, stats.armor());
-		setBase(Attributes.MOVEMENT_SPEED, stats.speed() * (two ? phaseTwo().speedMultiplier() : 1.0));
+		setBase(Attributes.MOVEMENT_SPEED, stats.speed() * switch (phase) {
+			case 1 -> 1.0;
+			case 2 -> phaseTwo().speedMultiplier();
+			default -> phaseThree().speedMultiplier();
+		});
 		setBase(Attributes.FOLLOW_RANGE, stats.followRange());
 		setBase(Attributes.ATTACK_SPEED, stats.attackSpeed());
 		setHealth(full ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
@@ -340,7 +367,7 @@ public class Koschei extends Monster implements BuildingAware {
 		return KoscheiAction.byId(entityData.get(DATA_ACTION));
 	}
 
-	/** The phase he fights in: 1 with the sword, 2 with the staff. */
+	/** The phase he fights in: 1 with the sword, 2 with the staff, 3 with the daggers. */
 	public int phase() {
 		return entityData.get(DATA_PHASE);
 	}
@@ -403,7 +430,62 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** Ready to attack: no action for one swing of his sword. */
 	public boolean readyToAttack() {
-		return action == KoscheiAction.NONE && idleTicks >= (phase() >= 2 ? phaseTwo().attackPause() : settings().stats().attackPause());
+		return action == KoscheiAction.NONE && idleTicks >= attackPause();
+	}
+
+	private int attackPause() {
+		return switch (phase()) {
+			case 1 -> settings().stats().attackPause();
+			case 2 -> phaseTwo().attackPause();
+			default -> {
+				PhaseThreeSettings.Rage rage = phaseThree().rage();
+				yield KoscheiLogic.furyPause(phaseThree().attackPause(), fury(), rage.pauseCut(), rage.minPause());
+			}
+		};
+	}
+
+	/** Third phase: stacks of his fury, from the hits he took lately; his eyes burn red while he has any. */
+	public int fury() {
+		return entityData.get(DATA_FURY);
+	}
+
+	/** Third phase: notes whether the target is in his reach, for how fast he chases it. */
+	void noteReach(boolean inReach) {
+		outOfReach = inReach ? 0 : outOfReach + 1;
+	}
+
+	/** Third phase: how many times his speed he runs at the target now, the chase and his fury together. */
+	double chaseSpeed() {
+		PhaseThreeSettings three = phaseThree();
+		PhaseThreeSettings.Chase chase = three.chase();
+		return KoscheiLogic.chaseSpeed(outOfReach, chase.after(), chase.ramp(), chase.maxMultiplier()) * (1.0 + fury() * three.rage().speedBonus());
+	}
+
+	/** Third phase: the dagger attack he starts now at a target {@code distance} off, or null. */
+	@Nullable DaggerAttack chooseDagger(double distance, boolean sees) {
+		int room = phaseTwo().thralls().cap() - thrallCount;
+		return KoscheiLogic.chooseDagger(distance, sees, room, daggerCooldowns, phaseThree(), random::nextDouble);
+	}
+
+	void startDagger(DaggerAttack attack, LivingEntity target) {
+		PhaseThreeSettings three = phaseThree();
+		actionTarget = target;
+		actionHit = false;
+		switch (attack) {
+			case STAB -> setAction(KoscheiAction.DAGGER_STAB);
+			case FLURRY -> {
+				daggerCooldowns[attack.ordinal()] = three.daggers().flurryCooldown();
+				setAction(KoscheiAction.DAGGER_FLURRY);
+			}
+			case DASH -> {
+				daggerCooldowns[attack.ordinal()] = three.daggers().dashCooldown();
+				setAction(KoscheiAction.DAGGER_DASH);
+			}
+			case RAISE -> {
+				daggerCooldowns[attack.ordinal()] = three.thralls().cooldown();
+				setAction(KoscheiAction.RAISE);
+			}
+		}
 	}
 
 	int[] cooldowns() {
@@ -481,6 +563,14 @@ public class Koschei extends Monster implements BuildingAware {
 			if (staffCooldowns[i] > 0) staffCooldowns[i]--;
 		}
 		if (trapWait > 0) trapWait--;
+		for (int i = 0; i < daggerCooldowns.length; i++) {
+			if (daggerCooldowns[i] > 0) daggerCooldowns[i]--;
+		}
+		if (fury() > 0 && ++furyCalm >= phaseThree().rage().decay()) {
+			// Left alone a while, his fury cools a stack.
+			furyCalm = 0;
+			entityData.set(DATA_FURY, (byte) (fury() - 1));
+		}
 		if (phase() >= 2 && tickCount % 10 == 0) {
 			thrallCount = countThralls(level);
 		}
@@ -629,7 +719,8 @@ public class Koschei extends Monster implements BuildingAware {
 			return;
 		}
 		boolean free = action == KoscheiAction.STAGGER || action == KoscheiAction.PARRY_ARROW || action == KoscheiAction.BLOCK
-				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM || action == KoscheiAction.DRAIN;
+				|| action == KoscheiAction.HOP || action == KoscheiAction.TRANSFORM || action == KoscheiAction.DRAIN
+				|| action == KoscheiAction.SHATTER;
 		if (!free && (target == null || !target.isAlive())) {
 			endAction();
 			return;
@@ -777,6 +868,29 @@ public class Koschei extends Monster implements BuildingAware {
 				}
 			}
 			case DRAIN -> tickDrain(level, t, phaseTwo().drain());
+			case SHATTER -> tickShatter(level, t);
+			case DAGGER_STAB -> {
+				if (t == 0) {
+					playSound(SoundEvents.ARMOR_EQUIP_IRON.value(), 1.0F, 1.6F);
+				} else if (t == KoscheiAction.DAGGER_STAB_HIT) {
+					daggerHit(level, target, phaseThree().daggers().stabDamage(), 0.0, 1.3F);
+				}
+			}
+			case DAGGER_FLURRY -> {
+				for (int hit : KoscheiAction.DAGGER_FLURRY_HITS) {
+					if (t == hit) {
+						daggerHit(level, target, phaseThree().daggers().flurryDamage(), 0.0, 1.2F + t * 0.02F);
+					}
+				}
+			}
+			case DAGGER_DASH -> tickDash(level, t, target, phaseThree().daggers());
+			case RAISE -> {
+				if (t == 0) {
+					playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 1.5F, 0.4F);
+				} else if (t == KoscheiAction.RAISE_RELEASE && target != null) {
+					raiseFar(level, target, phaseThree());
+				}
+			}
 			case TRAP -> {
 				if (t == 0) {
 					playSound(SoundEvents.ILLUSIONER_PREPARE_MIRROR, 2.0F, 0.5F);
@@ -1160,6 +1274,144 @@ public class Koschei extends Monster implements BuildingAware {
 			// He opens his second phase by raising the dead.
 			staffCooldowns[StaffAttack.SOULS.ordinal()] = 0;
 			idleTicks = phaseTwo().attackPause();
+		}
+	}
+
+	// ---- Third phase ----
+
+	/**
+	 * Struck down in his second phase: whatever he was doing breaks off, the boss bar turns red, a shell of ice closes round
+	 * him and bursts, his staff snaps, and he rises undead with two daggers through {@link KoscheiAction#SHATTER}.
+	 */
+	private void startShatter(ServerLevel level) {
+		getNavigation().stop();
+		recentHits.clear();
+		leapFrom = null;
+		hitStreak = 0;
+		trapWait = 0;
+		setNoGravity(false);
+		entityData.set(DATA_PHASE, (byte) 3);
+		entityData.set(DATA_FURY, (byte) 0);
+		applyStats(false);
+		bossEvent.setColor(BossEvent.BossBarColor.RED);
+		Arrays.fill(daggerCooldowns, 0);
+		// He opens his third phase with the daggers, his draugr later.
+		daggerCooldowns[DaggerAttack.RAISE.ordinal()] = phaseThree().thralls().cooldown() / 2;
+		outOfReach = 0;
+		LivingEntity target = getTarget();
+		setAction(KoscheiAction.SHATTER);
+		actionTarget = target;
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.GLASS_BREAK, getSoundSource(), 2.0F, 0.4F);
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.WITHER_AMBIENT, getSoundSource(), 1.2F, 0.5F);
+	}
+
+	/**
+	 * Ice gathers round him into a shell, the staff snaps in his hand inside it, and the shell bursts outward, throwing
+	 * back those close; his health fills meanwhile.
+	 */
+	private void tickShatter(ServerLevel level, int t) {
+		setDeltaMovement(getDeltaMovement().multiply(0.0, 1.0, 0.0));
+		int length = KoscheiAction.SHATTER.length();
+		setHealth(KoscheiLogic.transformHealth(t + 1, length, 1.0F, getMaxHealth()));
+		Vec3 centre = position().add(0.0, getBbHeight() * 0.5, 0.0);
+		double radius = getBbHeight() * 0.62;
+		if (t < KoscheiAction.SHATTER_BURST && t % 2 == 0) {
+			// The shell closes: more panes each time, until it is whole.
+			int panes = 20 + t * 3;
+			double golden = Math.PI * (3.0 - Math.sqrt(5.0));
+			for (int i = 0; i < panes; i++) {
+				double y = 1.0 - (i + 0.5) * 2.0 / panes;
+				double ring = Math.sqrt(1.0 - y * y);
+				double angle = i * golden + t * 0.05;
+				level.sendParticles(EamParticles.KOSCHEI_ICE_FIELD, centre.x + Math.cos(angle) * ring * radius * 0.75, centre.y + y * radius,
+						centre.z + Math.sin(angle) * ring * radius * 0.75, 1, 0.0, 0.0, 0.0, 0.0);
+			}
+			if (t % 6 == 0) {
+				level.playSound(null, centre.x, centre.y, centre.z, SoundEvents.AMETHYST_BLOCK_RESONATE, getSoundSource(), 1.5F, 0.6F + t * 0.02F);
+			}
+		}
+		if (t == KoscheiAction.SHATTER_STAFF) {
+			Vec3 hand = raisedHand();
+			level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.ITEM_BREAK.value(), getSoundSource(), 2.0F, 0.4F);
+			level.playSound(null, hand.x, hand.y, hand.z, SoundEvents.WOOD_BREAK, getSoundSource(), 2.0F, 0.5F);
+			level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.DARK_OAK_PLANKS.defaultBlockState()), hand.x, hand.y, hand.z, 25,
+					0.2, 0.5, 0.2, 0.15);
+			level.sendParticles(ParticleTypes.ELECTRIC_SPARK, hand.x, hand.y + 0.8, hand.z, 20, 0.2, 0.2, 0.2, 0.3);
+		}
+		if (t == KoscheiAction.SHATTER_BURST) {
+			level.playSound(null, centre.x, centre.y, centre.z, SoundEvents.GLASS_BREAK, getSoundSource(), 3.0F, 0.5F);
+			level.playSound(null, centre.x, centre.y, centre.z, SoundEvents.AMETHYST_BLOCK_BREAK, getSoundSource(), 3.0F, 0.6F);
+			level.playSound(null, centre.x, centre.y, centre.z, SoundEvents.GENERIC_EXPLODE.value(), getSoundSource(), 1.0F, 1.6F);
+			// Shards of the shell flung out on all sides, like a broken eggshell.
+			for (int i = 0; i < 90; i++) {
+				Vec3 dir = new Vec3(random.nextGaussian(), random.nextGaussian() * 0.6 + 0.3, random.nextGaussian()).normalize();
+				Vec3 at = centre.add(dir.scale(radius * 0.8));
+				level.sendParticles(EamParticles.KOSCHEI_ICE_FIELD, at.x, at.y, at.z, 0, dir.x, dir.y, dir.z, 0.5 + random.nextDouble() * 0.5);
+			}
+			level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PACKED_ICE.defaultBlockState()), centre.x, centre.y, centre.z, 120,
+					radius * 0.6, radius * 0.6, radius * 0.6, 0.6);
+			level.sendParticles(EamParticles.KOSCHEI_SNOWFLAKE, centre.x, centre.y, centre.z, 60, radius * 0.5, radius * 0.5, radius * 0.5, 0.3);
+			level.sendParticles(ParticleTypes.SOUL, centre.x, centre.y, centre.z, 20, 0.5, 0.9, 0.5, 0.05);
+			for (LivingEntity near : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(4.0),
+					e -> e != this && e.isAlive() && !(e instanceof Koschei) && !(e instanceof Draugr draugr && draugr.servedBy(this)))) {
+				Vec3 away = horizontal(near.position().subtract(position()));
+				double speed = KoscheiLogic.pushSpeed(3.0, STRIKE_AIR_TICKS);
+				near.setDeltaMovement(away.x * speed, 0.35, away.z * speed);
+				near.syncVelocity = true;
+				near.needsSync = true;
+			}
+		}
+		if (t == length - 1) {
+			setHealth(getMaxHealth());
+			idleTicks = attackPause();
+		}
+	}
+
+	/** A blow of the daggers at the target, if it is within {@code extraReach} more than their reach. */
+	private void daggerHit(ServerLevel level, @Nullable LivingEntity target, float damage, double extraReach, float pitch) {
+		playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, pitch);
+		if (target != null && inReach(target, phaseThree().daggers().reach() + extraReach)) {
+			target.damageCooldownTime = 0;
+			if (strike(level, target, damageSources().mobAttack(this), damage, 0.2F)) {
+				level.playSound(null, target.getX(), target.getY(0.6), target.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, getSoundSource(), 1.0F, 1.2F);
+			}
+		}
+	}
+
+	/** Crouched for a beat, then a dash straight at the target and both blades driven in. */
+	private void tickDash(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Daggers daggers) {
+		if (target == null) {
+			return;
+		}
+		if (t == 0) {
+			playSound(SoundEvents.RAVAGER_ROAR, 0.6F, 1.8F);
+		}
+		if (t == KoscheiAction.DAGGER_DASH_GO) {
+			Vec3 way = horizontal(target.position().subtract(position()));
+			double distance = Math.max(0.0, horizontalDistanceTo(target) - 1.2);
+			rushDirection = way.scale(distance / (KoscheiAction.DAGGER_DASH_HIT - KoscheiAction.DAGGER_DASH_GO));
+			playSound(SoundEvents.BREEZE_JUMP, 1.2F, 0.8F);
+		}
+		if (t >= KoscheiAction.DAGGER_DASH_GO && t < KoscheiAction.DAGGER_DASH_HIT) {
+			setDeltaMovement(rushDirection.x, getDeltaMovement().y, rushDirection.z);
+			level.sendParticles(ParticleTypes.SOUL, getX(), getY(0.3), getZ(), 2, 0.2, 0.2, 0.2, 0.01);
+		}
+		if (t == KoscheiAction.DAGGER_DASH_HIT) {
+			setDeltaMovement(getDeltaMovement().multiply(0.2, 1.0, 0.2));
+			daggerHit(level, target, daggers.dashDamage(), 1.0, 0.9F);
+		}
+	}
+
+	/** His draugr climb out of the ground far round the target, at their own speed, not his. */
+	private void raiseFar(ServerLevel level, LivingEntity target, PhaseThreeSettings three) {
+		PhaseThreeSettings.Thralls settings = three.thralls();
+		level.playSound(null, getX(), getEyeY(), getZ(), SoundEvents.EVOKER_CAST_SPELL, getSoundSource(), 1.5F, 0.5F);
+		int count = KoscheiLogic.thrallsToRaise(settings.count(), countThralls(level), phaseTwo().thralls().cap());
+		double start = random.nextDouble() * Math.PI * 2.0;
+		for (int i = 0; i < count; i++) {
+			double angle = start + i * Math.PI * 2.0 / Math.max(1, count) + (random.nextDouble() - 0.5) * 0.6;
+			double distance = Mth.lerp(random.nextDouble(), settings.minDistance(), settings.maxDistance());
+			raiseThrall(level, target.position().add(Math.cos(angle) * distance, 0.0, Math.sin(angle) * distance), false, 1.0);
 		}
 	}
 
@@ -1613,6 +1865,11 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** As {@link #raiseThrall(ServerLevel, Vec3)}; a {@code shieldBearer} rises with a sword and a shield. */
 	private @Nullable Draugr raiseThrall(ServerLevel level, Vec3 at, boolean shieldBearer) {
+		return raiseThrall(level, at, shieldBearer, phaseTwo().thralls().speedMultiplier());
+	}
+
+	/** As {@link #raiseThrall(ServerLevel, Vec3, boolean)}, the draugr {@code speedMultiplier} times as fast as their kind. */
+	private @Nullable Draugr raiseThrall(ServerLevel level, Vec3 at, boolean shieldBearer, double speedMultiplier) {
 		PhaseTwoSettings.Thralls thralls = phaseTwo().thralls();
 		if (countThralls(level) >= thralls.cap()) {
 			return null;
@@ -1635,7 +1892,7 @@ public class Koschei extends Monster implements BuildingAware {
 			draugr.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(EamItems.RUSTY_IRON_SWORD));
 			draugr.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
 		}
-		draugr.raiseAsThrall(level, this, getTarget(), spot, thralls.speedMultiplier(), thralls.healthMultiplier());
+		draugr.raiseAsThrall(level, this, getTarget(), spot, speedMultiplier, thralls.healthMultiplier());
 		level.addFreshEntity(draugr);
 		thrallCount++;
 		level.sendParticles(ParticleTypes.SCULK_SOUL, spot.x, spot.y + 0.2, spot.z, 12, 0.4, 0.1, 0.4, 0.03);
@@ -2043,7 +2300,7 @@ public class Koschei extends Monster implements BuildingAware {
 			return super.hurtServer(level, source, damage);
 		}
 		Entity attacker = source.getEntity();
-		if (action == KoscheiAction.TRANSFORM || attacker instanceof Draugr draugr && draugr.servedBy(this)) {
+		if (action == KoscheiAction.TRANSFORM || action == KoscheiAction.SHATTER || attacker instanceof Draugr draugr && draugr.servedBy(this)) {
 			// Nothing touches him while he changes, and his own draugr do not hurt him.
 			return false;
 		}
@@ -2085,6 +2342,10 @@ public class Koschei extends Monster implements BuildingAware {
 		if (melee && guarding() && FallenLordLogic.shieldCovers(yBodyRot, attacker.getX() - getX(), attacker.getZ() - getZ())) {
 			blockBlow(level, (LivingEntity) attacker);
 			return false;
+		}
+		if (melee && phase() >= 3) {
+			// Undead now: Smite bites him as it bites the dead.
+			damage += smiteBonus(level, (LivingEntity) attacker);
 		}
 		return super.hurtServer(level, source, resisted(source, damage));
 	}
@@ -2162,11 +2423,22 @@ public class Koschei extends Monster implements BuildingAware {
 			startTransform(level);
 			return;
 		}
-		if (isAlive()) {
+		if (phase() == 2 && risesAgain() && getHealth() <= 0.0F && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			// Struck down in his second phase: the last of him, undead and furious.
+			setHealth(1.0F);
+			startShatter(level);
+			return;
+		}
+		if (isAlive() && phase() <= 2) {
 			leapIfHurtFast(level, source, before - getHealth());
 		}
-		if (isAlive() && phase() >= 2) {
+		if (isAlive() && phase() == 2) {
 			vanishIfHitAgain(level, source);
+		}
+		if (isAlive() && phase() >= 3 && source.getEntity() instanceof LivingEntity) {
+			// He does not back off: each hit makes him strike faster.
+			furyCalm = 0;
+			entityData.set(DATA_FURY, (byte) Math.min(phaseThree().rage().maxStacks(), fury() + 1));
 		}
 	}
 
@@ -2190,6 +2462,11 @@ public class Koschei extends Monster implements BuildingAware {
 		startTeleportAway(attacker);
 	}
 
+	/** Whether, struck down in his second phase, he rises again in his third; not his copies in ice. */
+	boolean risesAgain() {
+		return true;
+	}
+
 	/** Whether a couple of hits in a row make him vanish; not his copies in ice. */
 	boolean vanishesWhenHit() {
 		return true;
@@ -2197,7 +2474,7 @@ public class Koschei extends Monster implements BuildingAware {
 
 	/** Whether his ice field turns arrows aside: all round him in his second phase; not round his copies in ice. */
 	boolean iceField() {
-		return phase() >= 2;
+		return phase() == 2;
 	}
 
 	/** Losing health fast, he breaks off whatever he is doing and leaps back away from who hurts him. */
@@ -2310,6 +2587,36 @@ public class Koschei extends Monster implements BuildingAware {
 		return true;
 	}
 
+	private BossEvent.BossBarColor barColor() {
+		return switch (phase()) {
+			case 1 -> BossEvent.BossBarColor.PURPLE;
+			case 2 -> BossEvent.BossBarColor.GREEN;
+			default -> BossEvent.BossBarColor.RED;
+		};
+	}
+
+	/** Undead in his third phase: healing harms him and harming heals him. */
+	@Override
+	public boolean isInvertedHealAndHarm() {
+		return phase() >= 3 || super.isInvertedHealAndHarm();
+	}
+
+	/** Undead in his third phase: poison and regeneration do not take. */
+	@Override
+	public boolean canBeAffected(MobEffectInstance effect) {
+		if (phase() >= 3 && (effect.is(MobEffects.POISON) || effect.is(MobEffects.REGENERATION))) {
+			return false;
+		}
+		return super.canBeAffected(effect);
+	}
+
+	/** Smite's bonus on a blow from {@code attacker}, 2.5 a level, as on any undead. */
+	private float smiteBonus(ServerLevel level, LivingEntity attacker) {
+		int smite = EnchantmentHelper.getItemEnchantmentLevel(
+				level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SMITE), attacker.getWeaponItem());
+		return smite * 2.5F;
+	}
+
 	/** Sets the phase he fights in, for one made straight into his second phase. */
 	void setPhase(int phase) {
 		entityData.set(DATA_PHASE, (byte) phase);
@@ -2352,9 +2659,10 @@ public class Koschei extends Monster implements BuildingAware {
 		setNoGravity(false);
 		applyStats(false);
 		bossEvent.setName(getDisplayName());
-		bossEvent.setColor(phase() >= 2 ? BossEvent.BossBarColor.GREEN : BossEvent.BossBarColor.PURPLE);
+		bossEvent.setColor(barColor());
 		Arrays.fill(cooldowns, 0);
 		Arrays.fill(staffCooldowns, 0);
+		Arrays.fill(daggerCooldowns, 0);
 	}
 
 	// ---- Sounds ----

@@ -20,7 +20,8 @@ import net.minecraft.util.Mth;
  * his neck, a mail skirt split in front, a long dark cloak hanging behind, spiked pauldrons, vambraces and tall boots. His
  * long sword is part of the model, held in the left hand: the right is kept free for his burst of force. In his second
  * phase the sword is gone and the same hand holds a tall staff of blackened wood bound in leather, with a little bone
- * skull at its head and a green crystal in iron prongs above it. Arms and legs bend at the elbows and knees; every blow is
+ * skull at its head and a green crystal in iron prongs above it. In his third phase the staff is broken and he holds a
+ * dagger in each hand. Arms and legs bend at the elbows and knees; every blow is
  * posed here from the action and the ticks into it.
  */
 public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
@@ -34,6 +35,9 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private static final float HEAD_SCALE = 0.765F;
 	private static final float MAIL_TOP = 10.0F;
 	private static final float CAPE_UPPER = 11.0F;
+	/** His daggers are his sword's boxes scaled down this much along the blade, and {@link #DAGGER_WIDTH} across it. */
+	private static final float DAGGER_LENGTH = 0.45F;
+	private static final float DAGGER_WIDTH = 0.6F;
 	/** A right angle: the blade lies along the forearm. */
 	private static final float ALONG = Mth.HALF_PI;
 
@@ -43,6 +47,8 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private final ModelPart leftShin;
 	private final ModelPart sword;
 	private final ModelPart staff;
+	private final ModelPart leftDagger;
+	private final ModelPart rightDagger;
 	private final ModelPart mailFrontRight;
 	private final ModelPart mailFrontLeft;
 	private final ModelPart mailBack;
@@ -57,6 +63,8 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		leftShin = leftLeg.getChild("left_shin");
 		sword = leftForearm.getChild("sword");
 		staff = leftForearm.getChild("staff");
+		leftDagger = leftForearm.getChild("dagger");
+		rightDagger = rightForearm.getChild("dagger");
 		mailFrontRight = body.getChild("mail_front_right");
 		mailFrontLeft = body.getChild("mail_front_left");
 		mailBack = body.getChild("mail_back");
@@ -120,7 +128,7 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				.addOrReplaceChild("lower", CubeListBuilder.create().texOffs(74, 64).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 11.0F, 1.0F, thinPlate),
 						PartPose.offset(0.0F, CAPE_UPPER, 0.0F));
 		// Thin arms under spiked pauldrons, vambraces over the forearms; they bend at the elbow.
-		root.addOrReplaceChild("right_arm", CubeListBuilder.create()
+		PartDefinition rightForearmDef = root.addOrReplaceChild("right_arm", CubeListBuilder.create()
 				.texOffs(0, 80).addBox(-2.0F, -2.0F, -1.5F, 3.0F, 6.0F, 3.0F, new CubeDeformation(-0.25F, 0.0F, -0.25F))
 				.texOffs(12, 80).addBox(-3.5F, -3.0F, -2.5F, 5.0F, 3.0F, 5.0F, new CubeDeformation(-0.4F)), PartPose.offset(-4.4F, 2.0F, 0.0F))
 				.addOrReplaceChild("right_forearm", CubeListBuilder.create()
@@ -153,6 +161,15 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 				.texOffs(84, 80).addBox(-0.5F, -23.5F, 0.9F, 1.0F, 3.0F, 1.0F, new CubeDeformation(-0.2F))
 				.texOffs(88, 80).addBox(-0.5F, 12.0F, -0.5F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.15F)),
 				PartPose.offset(0.5F, HAND, 0.0F));
+		// A dagger in each fist in his third phase: his sword's own boxes, drawn short (see DAGGER_LENGTH).
+		CubeListBuilder dagger = CubeListBuilder.create()
+				.texOffs(0, 104).addBox(-0.5F, -0.5F, -1.0F, 1.0F, 1.0F, 3.0F)
+				.texOffs(8, 104).addBox(-1.0F, -1.0F, 2.0F, 2.0F, 2.0F, 1.0F)
+				.texOffs(40, 104).addBox(-0.5F, -3.0F, -2.0F, 1.0F, 6.0F, 1.0F)
+				.texOffs(0, 108).addBox(-0.5F, -1.0F, -18.0F, 1.0F, 2.0F, 16.0F, new CubeDeformation(-0.2F, 0.0F, 0.0F))
+				.texOffs(46, 104).addBox(-0.5F, -0.5F, -19.5F, 1.0F, 1.0F, 2.0F, new CubeDeformation(-0.2F, 0.0F, 0.0F));
+		leftForearm.addOrReplaceChild("dagger", dagger, PartPose.offset(0.5F, HAND, 0.0F));
+		rightForearmDef.addOrReplaceChild("dagger", dagger, PartPose.offset(-0.5F, HAND, 0.0F));
 		// Legs bending at the knee, tall boots with a cuff and a toe.
 		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
 				.texOffs(0, 92).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, thinLeg), PartPose.offset(-1.7F, HIP, 0.0F))
@@ -178,6 +195,17 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		staff.xRot = 0.0F;
 		staff.yRot = 0.0F;
 		staff.zRot = 0.0F;
+		leftDagger.visible = state.daggers;
+		rightDagger.visible = state.daggers;
+		for (ModelPart dagger : new ModelPart[] {leftDagger, rightDagger}) {
+			dagger.zScale = DAGGER_LENGTH;
+			dagger.yScale = DAGGER_WIDTH;
+		}
+		if (state.phase >= 3 && !(state.action == KoscheiAction.SHATTER && state.actionTime < KoscheiAction.SHATTER_BURST)) {
+			daggerAnim(state);
+			finish(state);
+			return;
+		}
 		if (state.phase >= 2 && state.action != KoscheiAction.TRANSFORM) {
 			staffAnim(state);
 			finish(state);
@@ -403,6 +431,102 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private void holdStaffUpright(float lean) {
 		staff.xRot = -(leftArm.xRot + leftForearm.xRot) + lean;
 		staff.zRot = -leftArm.zRot;
+	}
+
+	/**
+	 * The third phase: a dagger in each hand, held low and forward, crouched and leaning in; the attacks with them, and the
+	 * moment the ice shell bursts off him.
+	 */
+	private void daggerAnim(KoscheiRenderState state) {
+		leftArm.xRot = leftArm.xRot * 0.3F - 0.45F;
+		rightArm.xRot = rightArm.xRot * 0.3F - 0.45F;
+		leftArm.zRot = -0.15F;
+		rightArm.zRot = 0.15F;
+		leftForearm.xRot = -0.9F;
+		rightForearm.xRot = -0.9F;
+		float breath = Mth.sin(state.ageInTicks * (state.fury > 0 ? 0.25F : 0.08F));
+		body.xRot = 0.2F + breath * 0.015F;
+		head.xRot -= 0.1F;
+		float t = state.actionTime;
+		float restL = leftArm.xRot;
+		float restR = rightArm.xRot;
+		float restLz = leftArm.zRot;
+		float restRz = rightArm.zRot;
+		float restFl = leftForearm.xRot;
+		float restFr = rightForearm.xRot;
+		switch (state.action) {
+			case SHATTER -> {
+				// The shell bursts off him: arms flung wide and head thrown back, then down into the crouch.
+				float burst = KoscheiAction.SHATTER_BURST;
+				float[] times = {burst, burst + 2, burst + 8, KoscheiAction.SHATTER.length()};
+				float wide = keys(t, times, 1.0F, 1.0F, 0.6F, 0.0F);
+				leftArm.zRot = Mth.lerp(wide, restLz, -1.3F);
+				rightArm.zRot = Mth.lerp(wide, restRz, 1.3F);
+				leftArm.xRot = Mth.lerp(wide, restL, -0.2F);
+				rightArm.xRot = Mth.lerp(wide, restR, -0.2F);
+				head.xRot -= 0.5F * wide;
+				body.xRot -= 0.25F * wide;
+				stance(0.6F * wide);
+			}
+			case DAGGER_STAB -> {
+				// The left dagger drawn back, then driven straight in.
+				float hit = KoscheiAction.DAGGER_STAB_HIT;
+				float[] times = {0, hit - 2, hit, hit + 2, KoscheiAction.DAGGER_STAB.length()};
+				leftArm.xRot = keys(t, times, restL, -0.1F, -1.5F, -1.4F, restL);
+				leftForearm.xRot = keys(t, times, restFl, -1.5F, -0.05F, -0.15F, restFl);
+				body.yRot = keys(t, times, 0.0F, 0.3F, -0.3F, -0.25F, 0.0F);
+				step(keys(t, times, 0.0F, 0.2F, 1.0F, 0.8F, 0.0F), false);
+			}
+			case DAGGER_FLURRY -> {
+				// Three cuts down and across, left, right, left.
+				int[] hits = KoscheiAction.DAGGER_FLURRY_HITS;
+				float[] times = {0, hits[0] - 2, hits[0], hits[1] - 2, hits[1], hits[2] - 2, hits[2], KoscheiAction.DAGGER_FLURRY.length()};
+				leftArm.xRot = keys(t, times, restL, -2.3F, -0.5F, restL, restL, -2.3F, -0.5F, restL);
+				leftArm.yRot = keys(t, times, 0.0F, 0.5F, -0.6F, 0.0F, 0.0F, 0.5F, -0.6F, 0.0F);
+				rightArm.xRot = keys(t, times, restR, restR, restR, -2.3F, -0.5F, restR, restR, restR);
+				rightArm.yRot = keys(t, times, 0.0F, 0.0F, 0.0F, -0.5F, 0.6F, 0.0F, 0.0F, 0.0F);
+				body.yRot = keys(t, times, 0.0F, 0.2F, -0.3F, -0.2F, 0.3F, 0.2F, -0.3F, 0.0F);
+				step(0.6F, false);
+			}
+			case DAGGER_DASH -> {
+				// Crouched low with both blades drawn back, then the dash and both driven in together.
+				float go = KoscheiAction.DAGGER_DASH_GO;
+				float hit = KoscheiAction.DAGGER_DASH_HIT;
+				float[] times = {0, go - 1, go, hit, hit + 2, KoscheiAction.DAGGER_DASH.length()};
+				leftArm.xRot = keys(t, times, restL, 0.6F, 0.5F, -1.5F, -1.4F, restL);
+				rightArm.xRot = keys(t, times, restR, 0.6F, 0.5F, -1.5F, -1.4F, restR);
+				leftForearm.xRot = keys(t, times, restFl, -0.8F, -0.6F, -0.05F, -0.15F, restFl);
+				rightForearm.xRot = keys(t, times, restFr, -0.8F, -0.6F, -0.05F, -0.15F, restFr);
+				body.xRot += keys(t, times, 0.0F, 0.45F, 0.5F, 0.25F, 0.2F, 0.0F);
+				stance(keys(t, times, 0.0F, 1.0F, 1.0F, 0.6F, 0.5F, 0.0F));
+			}
+			case RAISE -> {
+				// Both daggers raised high and crossed over his head; flung apart as the draugr climb out.
+				float release = KoscheiAction.RAISE_RELEASE;
+				float[] times = {0, 7, release, release + 2, KoscheiAction.RAISE.length()};
+				leftArm.xRot = keys(t, times, restL, -2.7F, -2.8F, -2.6F, restL);
+				rightArm.xRot = keys(t, times, restR, -2.7F, -2.8F, -2.6F, restR);
+				leftArm.zRot = keys(t, times, restLz, 0.35F, 0.4F, -0.5F, restLz);
+				rightArm.zRot = keys(t, times, restRz, -0.35F, -0.4F, 0.5F, restRz);
+				leftForearm.xRot = keys(t, times, restFl, -0.3F, -0.3F, -0.1F, restFl);
+				rightForearm.xRot = keys(t, times, restFr, -0.3F, -0.3F, -0.1F, restFr);
+				float up = keys(t, times, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
+				head.xRot -= 0.4F * up;
+				stance(0.4F * up);
+			}
+			default -> {
+			}
+		}
+		// The blades point ahead of the fists whatever the arms do, tipped up.
+		pointAhead(leftDagger, leftArm, leftForearm);
+		pointAhead(rightDagger, rightArm, rightForearm);
+	}
+
+	/** Turns a dagger in the fist so its blade points ahead of him, tipped well up so it shows against him. */
+	private static void pointAhead(ModelPart dagger, ModelPart arm, ModelPart forearm) {
+		dagger.xRot = -(arm.xRot + forearm.xRot) - 0.8F;
+		dagger.yRot = 0.0F;
+		dagger.zRot = -arm.zRot;
 	}
 
 	/** The second phase: the staff in the left hand, and its attacks. */

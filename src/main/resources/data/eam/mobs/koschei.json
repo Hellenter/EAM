@@ -263,5 +263,40 @@
     "chain_step": 4,
     "chain_interval": 3,
     "throw_speed": 0.4
+  },
+  "phase_three": {
+    "health": 200.0,
+    "speed_multiplier": 0.7,
+    "attack_pause": 14,
+    "chase": {
+      "after": 60,
+      "ramp": 100,
+      "max_multiplier": 1.7
+    },
+    "rage": {
+      "max_stacks": 5,
+      "decay": 40,
+      "pause_cut": 0.18,
+      "min_pause": 2,
+      "speed_bonus": 0.04
+    },
+    "daggers": {
+      "reach": 2.6,
+      "stab_damage": 6.0,
+      "flurry_damage": 3.5,
+      "flurry_chance": 0.35,
+      "flurry_cooldown": 40,
+      "dash_damage": 9.0,
+      "dash_min": 4.0,
+      "dash_max": 8.0,
+      "dash_cooldown": 100
+    },
+    "thralls": {
+      "count": 3,
+      "chance": 0.15,
+      "cooldown": 600,
+      "min_distance": 10.0,
+      "max_distance": 14.0
+    }
   }
 }
