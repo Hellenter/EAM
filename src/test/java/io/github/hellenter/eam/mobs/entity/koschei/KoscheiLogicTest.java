@@ -10,6 +10,8 @@ import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Attack;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.Choice;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiLogic.StaffAttack;
 
+import net.minecraft.world.phys.Vec3;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.function.DoubleSupplier;
@@ -348,17 +350,10 @@ class KoscheiLogicTest {
 	}
 
 	@Test
-	void hisLeapIsStoppedOnlyByAShieldRaisedAsHeHangsAtTheTop() {
-		// The top of the leap is 6 ticks before it lands; the shield may go up 3 before it to 2 after it.
+	void hisChainsDragSlowerAsTheTargetNearsHim() {
 		assertEquals(0.9, KoscheiLogic.pullSpeed(10.0, 2.0, 0.9), 1.0e-9);
 		assertEquals(0.45, KoscheiLogic.pullSpeed(2.6, 2.0, 0.9), 1.0e-9);
 		assertEquals(0.15, KoscheiLogic.pullSpeed(1.5, 2.0, 0.9), 1.0e-9);
-		assertTrue(KoscheiLogic.leapBlockedInTime(6, 6, 3, 2));
-		assertTrue(KoscheiLogic.leapBlockedInTime(9, 6, 3, 2));
-		assertTrue(KoscheiLogic.leapBlockedInTime(4, 6, 3, 2));
-		assertFalse(KoscheiLogic.leapBlockedInTime(10, 6, 3, 2));
-		assertFalse(KoscheiLogic.leapBlockedInTime(3, 6, 3, 2));
-		assertFalse(KoscheiLogic.leapBlockedInTime(80, 6, 3, 2));
 	}
 
 	@Test
@@ -367,6 +362,29 @@ class KoscheiLogicTest {
 		assertEquals(2, KoscheiLogic.blockedInRow(1, 0, 4, 60));
 		assertEquals(3, KoscheiLogic.blockedInRow(2, 4, 8, 60));
 		assertEquals(1, KoscheiLogic.blockedInRow(2, 4, 100, 60));
+	}
+
+	@Test
+	void aShieldHeldUpAgainstManyBlowsIsKnockedOutSooner() {
+		assertEquals(3, KoscheiLogic.shieldHitsNeeded(3, 2, 3));
+		assertEquals(2, KoscheiLogic.shieldHitsNeeded(3, 3, 3));
+		assertEquals(1, KoscheiLogic.shieldHitsNeeded(3, 6, 3));
+		assertEquals(1, KoscheiLogic.shieldHitsNeeded(3, 30, 3));
+	}
+
+	@Test
+	void hisRedLeapSpringsUpThenSwoopsOntoTheTarget() {
+		Vec3 from = new Vec3(0.0, 0.0, 0.0);
+		Vec3 top = new Vec3(2.0, 2.5, 0.0);
+		// The spring up is most of the way up at half time and ends at the top.
+		assertEquals(2.5 * 0.75, KoscheiLogic.flightPoint(1, 0.5, from, top, 2.5).y, 1.0E-9);
+		assertEquals(top, KoscheiLogic.flightPoint(1, 1.0, from, top, 2.5));
+		// The swoop closes in fast but drops late.
+		Vec3 land = new Vec3(9.0, 0.0, 0.0);
+		Vec3 half = KoscheiLogic.flightPoint(2, 0.5, top, land, 2.5);
+		assertEquals(2.0 + 7.0 * 0.75, half.x, 1.0E-9);
+		assertEquals(2.5 - 2.5 * 0.25, half.y, 1.0E-9);
+		assertEquals(land, KoscheiLogic.flightPoint(2, 1.0, top, land, 2.5));
 	}
 
 	@Test

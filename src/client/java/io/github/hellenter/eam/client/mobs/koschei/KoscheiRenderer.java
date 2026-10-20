@@ -97,13 +97,10 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		int window = parryWindow(state.action);
 		int parryStart = state.action.parryStart(window);
 		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd() && !koschei.parryLost();
-		boolean leapBlock = state.action == KoscheiAction.DAGGER_LEAP
-				&& t >= KoscheiAction.LEAP_APEX - KoscheiModule.settings().phaseThree().leap().blockEarly() - 1
-				&& t < Math.min(KoscheiAction.LEAP_APEX + KoscheiModule.settings().phaseThree().leap().blockLate(), KoscheiAction.LEAP_LAND) + 1;
 		boolean warp = state.action == KoscheiAction.TELEPORT || state.action == KoscheiAction.TRAP
 				|| state.action == KoscheiAction.DAGGER_FEINT && (t < KoscheiAction.FEINT_WARP || t >= KoscheiAction.FEINT_APEX - 2
 				&& t < KoscheiAction.FEINT_APEX);
-		state.eyes = parry || leapBlock ? KoscheiRenderState.Eyes.YELLOW
+		state.eyes = parry ? KoscheiRenderState.Eyes.YELLOW
 				: warp ? KoscheiRenderState.Eyes.WARP
 				: koschei.fury() > 0 ? KoscheiRenderState.Eyes.RED
 				: KoscheiRenderState.Eyes.GLOW;
@@ -162,6 +159,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		return switch (action) {
 			case LUNGE -> KoscheiModule.settings().phaseOne().lunge().parryWindow();
 			case OVERHEAD -> KoscheiModule.settings().phaseOne().overhead().parryWindow();
+			case DAGGER_LEAP -> KoscheiModule.settings().phaseThree().leap().parryWindow();
 			default -> 0;
 		};
 	}

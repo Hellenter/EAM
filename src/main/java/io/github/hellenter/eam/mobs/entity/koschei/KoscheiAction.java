@@ -89,10 +89,11 @@ public enum KoscheiAction {
 	/** The blade flickering orange, drawn back as he runs in, one heavy cut on {@link #DAGGER_ORANGE_HIT}. */
 	DAGGER_ORANGE(20),
 	/**
-	 * Both blades glowing red, a crouch, and a leap at the target from {@link #LEAP_GO}, at its top on {@link #LEAP_APEX}, both
-	 * blades brought down from over his head as he lands on {@link #LEAP_LAND}, right before the target.
+	 * Both blades glowing red, a crouch, and a spring up toward the target from {@link #LEAP_GO}; from the top of it on
+	 * {@link #LEAP_APEX} he flies at where the target stands then, and brings both blades down from over his head as he
+	 * lands on {@link #LEAP_LAND}. A hit just before he lands parries him.
 	 */
-	DAGGER_LEAP(32),
+	DAGGER_LEAP(34),
 	/** Both blades out ahead, then a dash straight at the target from {@link #DASH_GO}; point-blank, both driven in. */
 	DAGGER_DASH(24),
 	/**
@@ -147,7 +148,7 @@ public enum KoscheiAction {
 	public static final int DAGGER_ORANGE_HIT = 12;
 	public static final int LEAP_GO = 8;
 	public static final int LEAP_APEX = 17;
-	public static final int LEAP_LAND = 26;
+	public static final int LEAP_LAND = 28;
 	public static final int DASH_GO = 7;
 	public static final int CHAINS_THROW = 9;
 	public static final int FEINT_WARP = 6;
@@ -173,6 +174,7 @@ public enum KoscheiAction {
 		return switch (this) {
 			case LUNGE -> LUNGE_STAB - window;
 			case OVERHEAD -> OVERHEAD_HIT - window;
+			case DAGGER_LEAP -> LEAP_LAND - window;
 			default -> -1;
 		};
 	}
@@ -182,6 +184,7 @@ public enum KoscheiAction {
 		return switch (this) {
 			case LUNGE -> LUNGE_STAB;
 			case OVERHEAD -> OVERHEAD_HIT;
+			case DAGGER_LEAP -> LEAP_LAND;
 			default -> -1;
 		};
 	}

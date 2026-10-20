@@ -190,6 +190,11 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final double LEAP_HEIGHT = 2.5;
 	/** His red leap comes down this far short of the target, and strikes it as he lands. */
 	private static final double LEAP_LANDING = 0.9;
+	/** He raises his draugr no nearer the target than this; nearer, he gets away first. */
+	private static final double RAISE_CLEAR = 6.0;
+	/** The spring up of his red leap carries him this share of the way toward the target, at most this far. */
+	private static final double LEAP_RISE_SHARE = 0.3;
+	private static final double LEAP_RISE_AHEAD = 2.0;
 	/** How fast a target his chains drag into a block a step high is lifted over it. */
 	private static final double CHAINS_HOP = 0.5;
 	/** The dash with the blades out ahead runs this fast, and drives them in this close to the target. */
@@ -262,6 +267,9 @@ public class Koschei extends Monster implements BuildingAware {
 	/** Third phase: cuts a shield blocked in a row, and the game time of the last. */
 	private int blockedCuts;
 	private long lastBlockedCut = Long.MIN_VALUE / 2;
+	/** Third phase: his blows taken on a shield lately, and when the last was. */
+	private int shieldWear;
+	private long lastShieldWear = Long.MIN_VALUE / 2;
 	private int dartCooldown;
 	/** Third phase: the pause since his last attack when the dart under way started; a dart does not put off his next blow. */
 	private int idleBeforeDart;
@@ -272,6 +280,7 @@ public class Koschei extends Monster implements BuildingAware {
 	private Vec3 flightTo = Vec3.ZERO;
 	private int flightStart;
 	private int flightTicks;
+	private Flight flight = Flight.ARC;
 	/** Third phase: his chains, while they are out. */
 	private Vec3 chainTip = Vec3.ZERO;
 	private Vec3 chainDirection = Vec3.ZERO;
@@ -286,6 +295,8 @@ public class Koschei extends Monster implements BuildingAware {
 	private int trapWait;
 	/** Second phase: the teleport under way takes him away from the target rather than behind it. */
 	private boolean teleportAway;
+	/** Third phase: he got away from the target to raise his draugr, and raises them as soon as he is clear. */
+	private boolean raisePending;
 	/** Second phase: hits taken in a row, and the game time of the last; enough of them and he vanishes. */
 	private int hitStreak;
 	private long lastHitAt;
@@ -528,6 +539,12 @@ public class Koschei extends Monster implements BuildingAware {
 
 	void startDagger(DaggerAttack attack, LivingEntity target) {
 		PhaseThreeSettings three = phaseThree();
+		if (attack == DaggerAttack.RAISE && horizontalDistanceTo(target) < RAISE_CLEAR) {
+			// Never raises his draugr at the target's side: away first.
+			daggerCooldowns[attack.ordinal()] = three.thralls().cooldown();
+			retreatToRaise(target);
+			return;
+		}
 		actionTarget = target;
 		actionHit = false;
 		daggerCooldowns[attack.ordinal()] = switch (attack) {
@@ -548,6 +565,37 @@ public class Koschei extends Monster implements BuildingAware {
 			case FEINT -> KoscheiAction.DAGGER_FEINT;
 			case RAISE -> KoscheiAction.RAISE;
 		});
+	}
+
+	/** Third phase: about to raise his draugr once he has got away from the target. */
+	boolean raisePending() {
+		return raisePending;
+	}
+
+	/** Leaps back from the target, or vanishes to stand far off it, to raise his draugr from there. */
+	private void retreatToRaise(LivingEntity target) {
+		raisePending = true;
+		idleTicks = 0;
+		getNavigation().stop();
+		if (onGround() && random.nextBoolean()) {
+			leapBack(target.position());
+		} else {
+			startTeleport(target);
+			teleportAway = true;
+		}
+	}
+
+	/** Far enough off the target now, he raises his draugr; else he vanishes to stand further off first. */
+	void continueRaise(LivingEntity target) {
+		if (horizontalDistanceTo(target) < RAISE_CLEAR - 1.0) {
+			startTeleport(target);
+			teleportAway = true;
+			return;
+		}
+		raisePending = false;
+		actionTarget = target;
+		actionHit = false;
+		setAction(KoscheiAction.RAISE);
 	}
 
 	/** Third phase: whether a dart is ready. */
@@ -1057,6 +1105,7 @@ public class Koschei extends Monster implements BuildingAware {
 		return switch (of) {
 			case LUNGE -> one.lunge().parryWindow();
 			case OVERHEAD -> one.overhead().parryWindow();
+			case DAGGER_LEAP -> phaseThree().leap().parryWindow();
 			default -> 0;
 		};
 	}
@@ -1433,6 +1482,7 @@ public class Koschei extends Monster implements BuildingAware {
 		getNavigation().stop();
 		recentHits.clear();
 		leapFrom = null;
+		raisePending = false;
 		hitStreak = 0;
 		trapWait = 0;
 		setNoGravity(false);
@@ -1530,7 +1580,8 @@ public class Koschei extends Monster implements BuildingAware {
 			long now = level.getGameTime();
 			blockedCuts = KoscheiLogic.blockedInRow(blockedCuts, lastBlockedCut, now, combo.shieldMemory());
 			lastBlockedCut = now;
-			if (blockedCuts >= combo.shieldHits()) {
+			wearShield(now, combo);
+			if (blockedCuts >= KoscheiLogic.shieldHitsNeeded(combo.shieldHits(), shieldWear, combo.wearStep())) {
 				blockedCuts = 0;
 				knockShieldOut(level, target, shield, combo.shieldSeconds());
 				return;
@@ -1539,6 +1590,12 @@ public class Koschei extends Monster implements BuildingAware {
 		if (strike(level, target, damageSources().mobAttack(this), combo.damage(), 0.2F)) {
 			level.playSound(null, target.getX(), target.getY(0.6), target.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, getSoundSource(), 1.0F, 1.2F);
 		}
+	}
+
+	/** One more of his blows taken on a shield: the more lately, the sooner his cuts knock it out. */
+	private void wearShield(long now, PhaseThreeSettings.Combo combo) {
+		shieldWear = KoscheiLogic.blockedInRow(shieldWear, lastShieldWear, now, combo.wearMemory());
+		lastShieldWear = now;
 	}
 
 	/** The orange blow with a dagger: he runs in as the blade flickers, one heavy cut; a shield is knocked out, flesh bleeds. */
@@ -1575,8 +1632,9 @@ public class Koschei extends Monster implements BuildingAware {
 	}
 
 	/**
-	 * The red leap: crouched with both blades glowing red, a leap onto the target, and both brought down as he lands. A
-	 * shield raised from the top of the leap until the blow stops it; one held up all along lets most of it through.
+	 * The red leap: crouched with both blades glowing red, a spring up toward the target, and from the top of it a swoop at
+	 * where the target stands then, both blades brought down as he lands. A hit just before he lands parries him (see
+	 * {@link KoscheiAction#parryStart}); a shield only takes part of the blow off.
 	 */
 	private void tickLeap(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Leap leap) {
 		if (t == 0) {
@@ -1586,57 +1644,69 @@ public class Koschei extends Monster implements BuildingAware {
 			return;
 		}
 		if (t == KoscheiAction.LEAP_GO) {
-			Vec3 back = horizontal(position().subtract(target.position()));
-			startFlight(target.position().add(back.scale(LEAP_LANDING)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
+			// Up and a little toward the target.
+			Vec3 toward = horizontal(target.position().subtract(position()));
+			double ahead = Math.min(horizontalDistanceTo(target) * LEAP_RISE_SHARE, LEAP_RISE_AHEAD);
+			startFlight(position().add(toward.scale(ahead)).add(0.0, LEAP_HEIGHT, 0.0), t, KoscheiAction.LEAP_APEX - KoscheiAction.LEAP_GO,
+					Flight.RISE);
 			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.7F);
 		}
-		if (t == KoscheiAction.LEAP_APEX - leap.blockEarly()) {
-			// A bright ping at the top of the leap: the moment to raise the shield.
-			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 1.1F);
+		if (t == KoscheiAction.LEAP_APEX) {
+			// From the top, at where the target stands now, as far as he can fly.
+			Vec3 at = position();
+			Vec3 back = horizontal(at.subtract(target.position()));
+			Vec3 to = target.position().add(back.scale(LEAP_LANDING));
+			Vec3 way = new Vec3(to.x - at.x, 0.0, to.z - at.z);
+			if (way.length() > leap.reach()) {
+				to = new Vec3(at.x, to.y, at.z).add(way.normalize().scale(leap.reach()));
+			}
+			startFlight(to, t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_APEX, Flight.SWOOP);
+			playSound(SoundEvents.PHANTOM_SWOOP, 1.4F, 0.6F);
 		}
 		if (t > KoscheiAction.LEAP_GO && t <= KoscheiAction.LEAP_LAND) {
 			fly(t);
 		}
-		boolean landing = t == KoscheiAction.LEAP_LAND;
-		if (landing) {
-			land();
-			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
-			level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
-		}
-		if (!landing || !inReach(target, phaseThree().combo().reach())) {
+		if (t != KoscheiAction.LEAP_LAND) {
 			return;
 		}
-		// A shield raised only just before the blow counts too, before it would block a common hit.
-		ItemStack shield = raisedShield(target);
+		land();
+		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
+		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
+		if (!inReach(target, phaseThree().combo().reach())) {
+			return;
+		}
+		ItemStack shield = blockingShield(target);
 		target.damageCooldownTime = 0;
-		if (shield != null && KoscheiLogic.leapBlockedInTime(target.getTicksUsingItem(), KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_APEX,
-				leap.blockEarly(), leap.blockLate())) {
-			// Raised in time: the shield takes it all.
-			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BLOCK, getSoundSource(), 1.2F, 0.7F);
-			level.sendParticles(EamParticles.KOSCHEI_SPARK, target.getX(), target.getY(0.6), target.getZ(), 16, 0.2, 0.2, 0.2, 0.25);
-			return;
-		}
 		float damage = shield != null ? leap.damage() * leap.shieldShare() : leap.damage();
 		strike(level, target, damageSources().source(KoscheiModule.CLEAVE_DAMAGE, this), damage, 0.5F);
 		if (shield != null) {
+			wearShield(level.getGameTime(), phaseThree().combo());
 			level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.SHIELD_BREAK, getSoundSource(), 0.8F, 1.3F);
 		}
 	}
 
-	/** Plans a leap from where he stands to {@code to}, starting on action tick {@code start} and lasting {@code ticks}. */
+	/** How he moves along a flight: an arc up and down, a spring up that slows at its top, or a swoop down onto the target. */
+	private enum Flight { ARC, RISE, SWOOP }
+
+	/** As {@link #startFlight(Vec3, int, int, Flight)}, in an arc. */
 	private void startFlight(Vec3 to, int start, int ticks) {
+		startFlight(to, start, ticks, Flight.ARC);
+	}
+
+	/** Plans a flight from where he stands to {@code to}, starting on action tick {@code start} and lasting {@code ticks}. */
+	private void startFlight(Vec3 to, int start, int ticks, Flight flight) {
 		flightFrom = position();
 		flightTo = to;
 		flightStart = start;
 		flightTicks = Math.max(1, ticks);
+		this.flight = flight;
 		setNoGravity(true);
 	}
 
-	/** One tick along the leap planned: up in an arc and down on its end. */
+	/** One tick along the flight planned. */
 	private void fly(int t) {
 		double share = Math.clamp((t + 1 - flightStart) / (double) flightTicks, 0.0, 1.0);
-		double y = flightFrom.y + KoscheiLogic.leapHeight(share, flightTo.y - flightFrom.y, LEAP_HEIGHT);
-		Vec3 at = new Vec3(Mth.lerp(share, flightFrom.x, flightTo.x), y, Mth.lerp(share, flightFrom.z, flightTo.z));
+		Vec3 at = KoscheiLogic.flightPoint(flight.ordinal(), share, flightFrom, flightTo, LEAP_HEIGHT);
 		setNoGravity(true);
 		setDeltaMovement(at.subtract(position()));
 		resetFallDistance();
@@ -2676,13 +2746,6 @@ public class Koschei extends Monster implements BuildingAware {
 	/** The shield the target holds up against him, or null. */
 	private @Nullable ItemStack blockingShield(LivingEntity target) {
 		return blockingShieldFrom(target, position());
-	}
-
-	/** The shield the target has raised against him, blocking yet or not, or null. */
-	private @Nullable ItemStack raisedShield(LivingEntity target) {
-		ItemStack shield = target.isUsingItem() ? target.getUseItem() : null;
-		return shield != null && shield.has(DataComponents.BLOCKS_ATTACKS)
-				&& FallenLordLogic.shieldCovers(target.getYHeadRot(), getX() - target.getX(), getZ() - target.getZ()) ? shield : null;
 	}
 
 	/** The shield the target holds up against something coming from {@code from}, or null. */
