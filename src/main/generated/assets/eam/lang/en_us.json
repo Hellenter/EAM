@@ -404,6 +404,7 @@
   "gui.eam.village.economy.order": "Order",
   "gui.eam.village.economy.orders": "Orders",
   "gui.eam.village.economy.save_up": "Save Up",
+  "gui.eam.village.economy.sources": "Brought by: %s",
   "gui.eam.village.economy.take": "Take (%s)",
   "gui.eam.village.economy.title": "Village Upgrades",
   "gui.eam.village.economy.unavailable": "Not Now",

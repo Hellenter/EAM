@@ -404,6 +404,7 @@
   "gui.eam.village.economy.order": "Заказать",
   "gui.eam.village.economy.orders": "Заказы",
   "gui.eam.village.economy.save_up": "Копить",
+  "gui.eam.village.economy.sources": "Приносят: %s",
   "gui.eam.village.economy.take": "Забрать (%s)",
   "gui.eam.village.economy.title": "Улучшения деревни",
   "gui.eam.village.economy.unavailable": "Нельзя",

@@ -182,6 +182,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.donate.accepts.stone", "Takes cobblestone, stone and stone bricks");
 			builder.add("gui.eam.village.donate.accepts.money", "Takes emeralds, gold ingots and nuggets");
 			builder.add("gui.eam.village.donate.accepts.provisions", "Takes bread, cooked meat and fish, crops");
+			builder.add("gui.eam.village.economy.sources", "Brought by: %s");
 			builder.add("gui.eam.village.order.iron_golem", "Iron Golem");
 			for (String[] component : new String[][] {{"farmer", "Farmer"}, {"fisherman", "Fisherman"}, {"butcher", "Butcher"},
 					{"mason", "Mason"}, {"armorer", "Armorer"}, {"toolsmith", "Toolsmith"}, {"weaponsmith", "Weaponsmith"},
@@ -1045,6 +1046,7 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.donate.accepts.stone", "Принимает булыжник, камень и каменные кирпичи");
 			builder.add("gui.eam.village.donate.accepts.money", "Принимает изумруды, золотые слитки и самородки");
 			builder.add("gui.eam.village.donate.accepts.provisions", "Принимает хлеб, жареное мясо и рыбу, урожай");
+			builder.add("gui.eam.village.economy.sources", "Приносят: %s");
 			builder.add("gui.eam.village.economy.unavailable", "Нельзя");
 			builder.add("gui.eam.village.economy.goal", "Копим на: %s");
 			builder.add("gui.eam.village.economy.orders", "Заказы");

@@ -6,6 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +21,10 @@ import java.util.Optional;
  * @param goal     the order the village saves up for, if any
  * @param orders   what can be ordered
  * @param donatable what the player's items would bring the village, in {@link VillageResource} order
+ * @param sources   the professions that bring each resource, in {@link VillageResource} order
  */
 public record VillageEconomyPayload(int elderId, List<Double> stock, List<Double> income, Status status, Optional<String> goal,
-		List<OrderView> orders, List<Double> donatable) implements CustomPacketPayload {
+		List<OrderView> orders, List<Double> donatable, List<List<Identifier>> sources) implements CustomPacketPayload {
 	public static final Type<VillageEconomyPayload> TYPE = new Type<>(Eam.id("village_economy"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, VillageEconomyPayload> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), VillageEconomyPayload::stock,
@@ -32,8 +34,9 @@ public record VillageEconomyPayload(int elderId, List<Double> stock, List<Double
 			OrderView.STREAM_CODEC.apply(ByteBufCodecs.list()), VillageEconomyPayload::orders,
 			ByteBufCodecs.VAR_INT, VillageEconomyPayload::elderId,
 			ByteBufCodecs.DOUBLE.apply(ByteBufCodecs.list()), VillageEconomyPayload::donatable,
-			(stock, income, status, goal, orders, elderId, donatable) -> new VillageEconomyPayload(elderId, stock, income, status, goal, orders,
-					donatable));
+			Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()), VillageEconomyPayload::sources,
+			(stock, income, status, goal, orders, elderId, donatable, sources) -> new VillageEconomyPayload(elderId, stock, income, status, goal,
+					orders, donatable, sources));
 
 	@Override
 	public Type<VillageEconomyPayload> type() {

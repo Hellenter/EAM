@@ -14,8 +14,12 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -199,7 +203,8 @@ public class VillageEconomyScreen extends Screen {
 			if (hover) {
 				String name = resources[i].getSerializedName();
 				tooltip = Component.translatable("gui.eam.village.resource." + name).append("\n")
-						.append(Component.translatable("gui.eam.village.economy.income", signed)).append("\n\n")
+						.append(Component.translatable("gui.eam.village.economy.income", signed)).append("\n")
+						.append(Component.translatable("gui.eam.village.economy.sources", sources(i))).append("\n\n")
 						.append(Component.translatable("gui.eam.village.donate.accepts." + name)).append("\n")
 						.append(donatable > 0 ? Component.translatable("gui.eam.village.donate.have", amount(donatable)).append("\n")
 								.append(Component.translatable("gui.eam.village.donate.hint"))
@@ -279,6 +284,20 @@ public class VillageEconomyScreen extends Screen {
 
 	private void icon(GuiGraphicsExtractor graphics, int resource, int x, int y) {
 		graphics.item(icons[resource], x, y);
+	}
+
+	/** The professions that bring the resource, by their names, or a dash when none does. */
+	private Component sources(int resource) {
+		List<Identifier> professions = economy.sources().get(resource);
+		if (professions.isEmpty()) return Component.literal("—");
+		MutableComponent names = Component.empty();
+		for (int i = 0; i < professions.size(); i++) {
+			if (i > 0) names.append(", ");
+			Identifier id = professions.get(i);
+			names.append(BuiltInRegistries.VILLAGER_PROFESSION.getOptional(id).map(VillagerProfession::name)
+					.orElseGet(() -> Component.literal(id.getPath())));
+		}
+		return names;
 	}
 
 	/** The resource card under the mouse, or -1. */
