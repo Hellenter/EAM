@@ -66,6 +66,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.createNormalTorch(EamBlocks.UNLIT_TORCH, EamBlocks.UNLIT_WALL_TORCH);
 		SieveModels.generate(generators);
 		KingHelmModels.generate(generators);
+		CursedHorseSkullModels.generate(generators);
 		FeederModels.generate(generators);
 		generators.new BlockFamilyProvider(TextureMapping.cube(Blocks.STRIPPED_POPLAR_LOG)).fence(EamBlocks.STRIPPED_POPLAR_FENCE);
 		generators.createTrivialCube(EamBlocks.SILVER_ORE);
@@ -793,7 +794,6 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.BLACK_TALISMAN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.COMMANDER_HORN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KOSCHEI_NEEDLE, ModelTemplates.FLAT_ITEM);
-		generators.generateFlatItem(EamItems.YAGA_STAFF_SKULL, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.GHOST_HORN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.EMPTY_GHOST_HORN, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KING_CASTLE_MAP, ModelTemplates.FLAT_ITEM);

@@ -94,6 +94,7 @@ public class EamBlockLootProvider extends FabricBlockLootSubProvider {
 						count -> SetItemCountFunction.setCount(ContextIntProviders.exactly(count))
 								.when(matches(block, StatePropertiesPredicate.Builder.properties().hasProperty(ShelfMushroomBlock.MUSHROOMS, count))))))));
 		dropSelf(EamBlocks.PILLAGER_KING_HELM);
+		dropSelf(EamBlocks.CURSED_HORSE_SKULL);
 		// Garlic drops like carrots: one bulb back, and two to five from a ripe plant. Wild garlic gives one or two bulbs.
 		add(EamBlocks.GARLIC_CROP, block -> applyExplosionDecay(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().add(LootItem.lootTableItem(EamItems.GARLIC)))

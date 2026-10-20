@@ -210,10 +210,10 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.setRolls(ContextIntProviders.exactly(1))
 						.add(LootItem.lootTableItem(EamItems.ASH)
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(3, 5)))))
-				// The skull off her staff, for the enchanted horn.
+				// The cursed horse skull off her staff: a trophy, and the heart of the enchanted horn.
 				.withPool(LootPool.lootPool()
 						.setRolls(ContextIntProviders.exactly(1))
-						.add(LootItem.lootTableItem(EamItems.YAGA_STAFF_SKULL))));
+						.add(LootItem.lootTableItem(EamItems.CURSED_HORSE_SKULL))));
 
 		// The drowned soldier: rotten flesh, and bog weed.
 		output.accept(EamEntities.DROWNED_SOLDIER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()

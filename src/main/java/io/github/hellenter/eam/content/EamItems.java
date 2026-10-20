@@ -274,9 +274,9 @@ public final class EamItems {
 	/** An admin item, creative or commands only: whoever carries it commands the Lost and calls their waves. */
 	public static final Item COMMANDER_HORN = register("commander_horn", CommanderHornItem::new, new Item.Properties().stacksTo(1)
 			.rarity(Rarity.EPIC).fireResistant().component(CommanderHornItem.WAVE, LostWave.SQUAD));
-	/** Baba Yaga's drop: the skull off her staff, still warm with her witchcraft. Goes into the enchanted horn. */
-	public static final Item YAGA_STAFF_SKULL = register("yaga_staff_skull", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)
-			.fireResistant());
+	/** Baba Yaga's drop: the cursed horse skull off her staff. Set on the ground as a trophy; goes into the enchanted horn. */
+	public static final Item CURSED_HORSE_SKULL = register("cursed_horse_skull", p -> new BlockItem(EamBlocks.CURSED_HORSE_SKULL, p),
+			new Item.Properties().useBlockDescriptionPrefix().stacksTo(1).rarity(Rarity.EPIC).fireResistant());
 	/** Calls the ghost horse out and back in; it holds the horse's health and armor while the horse rests in it. */
 	public static final Item GHOST_HORN = register("ghost_horn", GhostHornItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)
 			.fireResistant().component(GhostHornItem.HORSE, GhostHorn.FRESH).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));

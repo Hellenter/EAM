@@ -29,6 +29,7 @@ import io.github.hellenter.eam.content.swamp.HollowLogBlock;
 import io.github.hellenter.eam.content.swamp.ShelfMushroomBlock;
 import io.github.hellenter.eam.content.swamp.SwampGrassBlock;
 import io.github.hellenter.eam.content.swamp.SwampShrubBlock;
+import io.github.hellenter.eam.content.trophy.CursedHorseSkullBlock;
 import io.github.hellenter.eam.content.trophy.KingHelmBlock;
 import io.github.hellenter.eam.content.underworld.GlowshroomLogic;
 import io.github.hellenter.eam.content.underworld.GlowshroomVinesBlock;
@@ -387,6 +388,14 @@ public final class EamBlocks {
 			}
 		});
 	}
+
+	/** The cursed horse skull off Baba Yaga's staff, set on the ground as a trophy. */
+	public static final Block CURSED_HORSE_SKULL = register("cursed_horse_skull", CursedHorseSkullBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.SAND)
+			.sound(SoundType.BONE_BLOCK)
+			.strength(1.0F)
+			.noOcclusion()
+			.pushReaction(PushReaction.POPPED));
 
 	/** The Pillager King's helm on a pike: while lit, no raid starts around it; a right click turns that on and off. */
 	public static final Block PILLAGER_KING_HELM = register("pillager_king_helm", KingHelmBlock::new, BlockBehaviour.Properties.of()

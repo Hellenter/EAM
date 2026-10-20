@@ -21,9 +21,9 @@ import net.minecraft.world.level.Level;
 import java.util.function.Consumer;
 
 /**
- * The enchanted horn: a ram's horn bound with Baba Yaga's staff skull, the leshy's antlers, an eye of ender and mithril.
- * Blown, it calls the ghost horse out, or back in with its health and armor. When the horse is killed the horn is left
- * empty ({@code empty_ghost_horn}) until two mithril ingots enchant it again.
+ * The enchanted horn: a goat horn bound with the cursed horse skull off Baba Yaga's staff, the leshy's antlers, an ender
+ * pearl and mithril. Blown, it calls the ghost horse out, or back in with its health and armor. When the horse is killed
+ * the horn is left empty ({@code empty_ghost_horn}) until two mithril ingots enchant it again.
  */
 public class GhostHornItem extends Item {
 	/** The horse the horn holds, or which horse is out. */

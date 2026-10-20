@@ -3,10 +3,10 @@
   "category": "equipment",
   "key": {
     "A": "eam:leshy_antler",
-    "E": "minecraft:ender_eye",
+    "E": "minecraft:ender_pearl",
     "H": "minecraft:goat_horn",
     "M": "eam:mithril_ingot",
-    "S": "eam:yaga_staff_skull"
+    "S": "eam:cursed_horse_skull"
   },
   "pattern": [
     "AEA",

@@ -58,6 +58,11 @@ public final class GhostHorseLogic {
 		return health;
 	}
 
+	/** Whether it heals again: {@code delay} ticks have passed since it was last hurt. */
+	public static boolean healsAfter(int ticksSinceHurt, int delay) {
+		return ticksSinceHurt >= delay;
+	}
+
 	/** Its health after its master dealt {@code damage}: a share of it heals the horse, past its base health up to {@code cap}. */
 	public static float afterMasterHit(float health, float cap, float damage, float share) {
 		if (damage <= 0.0F) {

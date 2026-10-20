@@ -158,13 +158,13 @@ public final class EamEntities {
 					.clientTrackingRange(10)
 					.notInPeaceful());
 
-	/** The ghost horse from the enchanted horn: a gaunt black horse, a horse's size. */
+	/** The ghost horse from the enchanted horn: a gaunt black horse, a quarter block taller than a horse. */
 	public static final EntityType<GhostHorse> GHOST_HORSE = register("ghost_horse",
 			EntityType.Builder.of(GhostHorse::new, MobCategory.CREATURE)
 					.noLootTable()
-					.sized(1.3964844F, 1.6F)
-					.eyeHeight(1.52F)
-					.passengerAttachments(1.31875F)
+					.sized(1.3964844F, 1.85F)
+					.eyeHeight(1.76F)
+					.passengerAttachments(1.525F)
 					.clientTrackingRange(10));
 
 	/** A withered body in a monk's robe that hides in swamp mud; hunched on all fours. */
