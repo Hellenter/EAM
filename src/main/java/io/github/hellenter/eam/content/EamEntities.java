@@ -163,8 +163,8 @@ public final class EamEntities {
 			EntityType.Builder.of(GhostHorse::new, MobCategory.CREATURE)
 					.noLootTable()
 					.sized(1.3964844F, 1.85F)
-					.eyeHeight(1.76F)
-					.passengerAttachments(1.525F)
+					.eyeHeight(1.6F)
+					.passengerAttachments(1.365F)
 					.clientTrackingRange(10));
 
 	/** A withered body in a monk's robe that hides in swamp mud; hunched on all fours. */
