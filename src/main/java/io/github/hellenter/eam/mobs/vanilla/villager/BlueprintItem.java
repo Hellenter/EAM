@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * A blueprint from the village elder: in hand it shows a ghost of its building where the player looks. Sneak and use
+ * A blueprint from the village elder: in hand it shows a ghost of its building four blocks in front of the player, lifted as he looks up. Sneak and use
  * turns it a quarter turn, use sets it down for the villagers to build. See {@link VillageBuildModule}.
  */
 public class BlueprintItem extends Item {

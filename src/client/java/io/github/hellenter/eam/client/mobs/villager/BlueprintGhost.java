@@ -38,7 +38,7 @@ import java.util.UUID;
 
 /**
  * The ghost of a blueprint's building: while the player holds a blueprint, every block of the building shows as a pale
- * translucent cube where he looks, red where something stands in the way, with the building's outline drawn sharp and an
+ * translucent cube four blocks in front of him (higher as he looks up), red where something stands in the way, with the building's outline drawn sharp and an
  * arrow on the ground out of the side it faces. Above the hotbar a hint names the keys that build and turn it. Once set
  * down, a building shows as a dimmer silhouette of what is left to build until the villagers finish it. Templates come
  * from the server once and are kept until the player leaves the world.
@@ -134,12 +134,7 @@ public final class BlueprintGhost {
 			clear();
 			return;
 		}
-		BlockPos look = BlueprintTemplate.target(player, 1.0F);
-		if (look == null) {
-			clear();
-			return;
-		}
-		BlockPos origin = template.origin(look, data.turns());
+		BlockPos origin = template.placement(player, data.turns(), 1.0F);
 		age++;
 		if (template != shownTemplate || !origin.equals(shownOrigin) || data.turns() != shownTurns || age >= RECHECK_TICKS) {
 			recheck(minecraft, template, origin, data.turns());
