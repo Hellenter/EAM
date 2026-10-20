@@ -5,8 +5,12 @@ import io.github.hellenter.eam.Eam;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.netty.buffer.ByteBuf;
+
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -18,6 +22,8 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,7 +58,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * turns it, use sets it down where nothing is in the way, in an elder's village. Then villagers of that village come by
  * day and build it block by block, bottom up, a few at a time: each walks up to the edge of the building and places its
  * blocks from there, reach or no reach. In creative mode a blueprint needs no village, only villagers near enough. While
- * placing blocks, a villager's brain waits; on his way it runs, so he opens doors and flees as ever. What players placed in the way after the site was set down is left alone.
+ * placing blocks, a villager's brain waits; on his way it runs, so he opens doors and flees as ever. What players placed
+ * in the way after the site was set down is left alone. Until a building stands, every player sees its dim silhouette.
  */
 public final class VillageBuildModule {
 	/** A building set down and not yet finished. */
@@ -70,6 +77,19 @@ public final class VillageBuildModule {
 		}
 	}
 
+	/**
+	 * A building set down, as every client sees it to draw its dim silhouette until it stands: unlike {@link Site} it
+	 * changes only when a site is set down or finished, not with every block.
+	 */
+	public record Planned(UUID id, Identifier template, BlockPos origin, int turns) {
+		public static final StreamCodec<ByteBuf, Planned> STREAM_CODEC = StreamCodec.composite(
+				UUIDUtil.STREAM_CODEC, Planned::id,
+				Identifier.STREAM_CODEC, Planned::template,
+				BlockPos.STREAM_CODEC, Planned::origin,
+				ByteBufCodecs.VAR_INT, Planned::turns,
+				Planned::new);
+	}
+
 	/** What a blueprint is of. */
 	public static final DataComponentType<BlueprintData> BLUEPRINT = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Eam.id("blueprint"),
 			DataComponentType.<BlueprintData>builder().persistent(BlueprintData.CODEC).networkSynchronized(BlueprintData.STREAM_CODEC).build());
@@ -77,6 +97,10 @@ public final class VillageBuildModule {
 	/** The buildings under way in a level. */
 	public static final AttachmentType<List<Site>> SITES = AttachmentRegistry.create(Eam.id("village_construction_sites"),
 			builder -> builder.persistent(Site.CODEC.listOf()));
+
+	/** The buildings under way in a level, for clients: kept in step with {@link #SITES}, not saved. */
+	public static final AttachmentType<List<Planned>> PLANNED = AttachmentRegistry.create(Eam.id("village_planned_buildings"),
+			builder -> builder.syncWith(Planned.STREAM_CODEC.apply(ByteBufCodecs.list()), AttachmentSyncPredicate.all()));
 
 	/**
 	 * The site a villager builds, when he took it up and last placed a block, and whether he stands at it: not saved, he
@@ -115,10 +139,11 @@ public final class VillageBuildModule {
 		enabled = true;
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) -> clearCaches());
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> clearCaches());
+		ServerLevelEvents.LOAD.register((server, level) -> syncPlanned(level));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> SENT.remove(handler.player.getUUID()));
 		ServerPlayNetworking.registerGlobalReceiver(BlueprintTemplatePayloads.Request.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
-			if (!holds(player, payload.template())) return;
+			if (!holds(player, payload.template()) && !planned(player.level(), payload.template())) return;
 			if (!SENT.computeIfAbsent(player.getUUID(), id -> ConcurrentHashMap.newKeySet()).add(payload.template())) return;
 			BlueprintTemplate template = BlueprintTemplates.get(player.level(), payload.template());
 			if (template != null) ServerPlayNetworking.send(player, new BlueprintTemplatePayloads.Reply(template));
@@ -138,6 +163,19 @@ public final class VillageBuildModule {
 			if (data != null && data.template().equals(template)) return true;
 		}
 		return false;
+	}
+
+	/** Whether a building of that template is under way in the level: its silhouette is drawn for everyone. */
+	private static boolean planned(ServerLevel level, Identifier template) {
+		return level.getAttachedOrElse(PLANNED, List.<Planned>of()).stream().anyMatch(planned -> planned.template().equals(template));
+	}
+
+	/** Sets the level's sites as clients see them. */
+	private static void syncPlanned(ServerLevel level) {
+		List<Site> sites = level.getAttachedOrElse(SITES, List.of());
+		List<Planned> planned = sites.stream().map(site -> new Planned(site.id(), site.template(), site.origin(), site.turns())).toList();
+		if (planned.isEmpty() && !level.hasAttached(PLANNED)) return;
+		level.setAttached(PLANNED, planned);
 	}
 
 	public static boolean enabled() {
@@ -180,6 +218,7 @@ public final class VillageBuildModule {
 		}
 		sites.add(new Site(UUID.randomUUID(), data.template(), origin, data.turns(), 0));
 		level.setAttached(SITES, List.copyOf(sites));
+		syncPlanned(level);
 		if (!player.getAbilities().instabuild) stack.shrink(1);
 		player.sendOverlayMessage(Component.translatable("item.eam.blueprint.placed"));
 		level.playSound(null, look, SoundEvents.BOOK_PUT, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -366,6 +405,7 @@ public final class VillageBuildModule {
 		List<Site> sites = new ArrayList<>(level.getAttachedOrElse(SITES, List.of()));
 		sites.removeIf(site -> site.id().equals(done.id()));
 		level.setAttached(SITES, List.copyOf(sites));
+		syncPlanned(level);
 		ORDERS.remove(done.id());
 		BlueprintTemplate template = BlueprintTemplates.get(level, done.template());
 		AABB area = template == null ? new AABB(done.origin()).inflate(16) : template.box(done.origin(), done.turns()).inflate(16);
