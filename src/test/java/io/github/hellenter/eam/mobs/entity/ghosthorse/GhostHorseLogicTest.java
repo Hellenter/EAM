@@ -59,4 +59,10 @@ class GhostHorseLogicTest {
 		assertEquals(8.0F, GhostHorseLogic.scaled(10.0F, 0.8F), 1.0E-6);
 		assertEquals(11.5F, GhostHorseLogic.scaled(10.0F, 1.15F), 1.0E-5);
 	}
+
+	@Test
+	void fallsHurtAtMostTheCap() {
+		assertEquals(4, GhostHorseLogic.fallDamage(4, 15.0F));
+		assertEquals(15, GhostHorseLogic.fallDamage(40, 15.0F));
+	}
 }
