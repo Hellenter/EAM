@@ -341,7 +341,7 @@ class KoscheiLogicTest {
 		int[] chainsDown = raiseDown.clone();
 		chainsDown[KoscheiLogic.DaggerAttack.CHAINS.ordinal()] = 100;
 		assertEquals(KoscheiLogic.DaggerAttack.LEAP, KoscheiLogic.chooseDagger(6.0, true, 3, chainsDown, three, () -> 0.0));
-		assertEquals(KoscheiLogic.DaggerAttack.DASH, KoscheiLogic.chooseDagger(8.0, true, 3, chainsDown, three, () -> 0.0));
+		assertEquals(KoscheiLogic.DaggerAttack.DASH, KoscheiLogic.chooseDagger(8.5, true, 3, chainsDown, three, () -> 0.0));
 		assertNull(KoscheiLogic.chooseDagger(6.0, false, 3, raiseDown, three, () -> 0.0));
 		assertNull(KoscheiLogic.chooseDagger(6.0, true, 3, raiseDown, three, () -> 0.99));
 		assertNull(KoscheiLogic.chooseDagger(20.0, true, 3, raiseDown, three, () -> 0.0));

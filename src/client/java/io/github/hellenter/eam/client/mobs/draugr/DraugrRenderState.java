@@ -7,6 +7,4 @@ public class DraugrRenderState extends HumanoidRenderState {
 	public int gear;
 	/** How far he has climbed out of the floor: 0 buried, 1 up. */
 	public float rise = 1.0F;
-	/** Raised by Koschei: his eyes burn green. */
-	public boolean thrall;
 }

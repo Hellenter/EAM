@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.mobs.koschei;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.content.EamItems;
 import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiAction;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
@@ -22,17 +23,22 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
  * In his third phase they burn red while he is in a fury; his darts leave dark red after-images behind him, his daggers fly
- * on chains, and killed he shrinks away to nothing. The rest of the time they glow a cold pale blue. The crystal on his
+ * on chains, and killed he is crushed into his needle. The rest of the time they glow a cold pale blue. The crystal on his
  * staff glows blue. His lightning is drawn by {@link KoscheiBolts}.
  */
 public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderState, KoscheiModel> {
@@ -58,8 +64,10 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 	/** The two chains run from his fists this far apart and meet the daggers this far apart. */
 	private static final double CHAIN_HANDS_APART = 0.35;
 	private static final double CHAIN_TIPS_APART = 0.18;
-	/** His model is this many units to his height, above his feet: he shrinks toward his middle as he dies. */
+	/** His model is this many units to his height, above his feet: he is crushed toward his middle as he dies. */
 	private static final float MIDDLE = 0.9F;
+	/** The needle he is crushed into, drawn hanging in the air; made on first use, never in the constructor. */
+	private static @Nullable ItemStack needle;
 
 	/** A dagger of his flying on its chain, drawn on its own from a copy of his model's. */
 	private final ModelPart flyingDagger;
@@ -133,8 +141,15 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 					break;
 				}
 			}
-			// Shrinking away into his needle: no red flash.
+			// Crushed into his needle: no red flash.
 			state.hasRedOverlay &= state.deathTime <= 0.0F;
+			state.needle.clear();
+			if (state.deathTime >= Koschei.CRUSH_TICKS) {
+				if (needle == null) {
+					needle = new ItemStack(EamItems.KOSCHEI_NEEDLE);
+				}
+				itemModelResolver.updateForNonLiving(state.needle, needle, ItemDisplayContext.GROUND, koschei);
+			}
 		}
 		state.turnRate = Mth.wrapDegrees(koschei.yBodyRot - koschei.yBodyRotO);
 		state.fallSpeed = (float) (koschei.getY() - koschei.yo);
@@ -156,22 +171,22 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		super.scale(state, poseStack);
 		poseStack.scale(SCALE, SCALE, SCALE);
 		if (state.phase >= 3 && state.deathTime > 0.0F) {
-			// Shrinking away toward his middle, faster at the end.
-			float left = Math.max(0.0F, 1.0F - state.deathTime / Koschei.DEATH_TICKS);
-			float size = Math.max(0.01F, left * (0.4F + 0.6F * left));
+			// What is left of him draws in toward his middle as his body is crushed (see KoscheiModel.crush).
+			float body = KoscheiModel.crushedBody(state.deathTime);
+			float size = 1.0F - 0.55F * body;
 			poseStack.translate(0.0F, -MIDDLE, 0.0F);
 			poseStack.scale(size, size, size);
 			poseStack.translate(0.0F, MIDDLE, 0.0F);
 		}
 	}
 
-	/** Killed in his third phase he does not topple over: he spins as he shrinks away. */
+	/** Killed in his third phase he does not topple over: he turns, faster and faster, as he is crushed. */
 	@Override
 	protected void setupRotations(KoscheiRenderState state, PoseStack poseStack, float bodyRot, float entityScale) {
 		if (state.phase >= 3 && state.deathTime > 0.0F) {
 			float death = state.deathTime;
 			state.deathTime = 0.0F;
-			super.setupRotations(state, poseStack, bodyRot + death * death * 1.2F, entityScale);
+			super.setupRotations(state, poseStack, bodyRot + death * death * 0.8F, entityScale);
 			state.deathTime = death;
 			return;
 		}
@@ -180,6 +195,10 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 
 	@Override
 	public void submit(KoscheiRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+		if (state.phase >= 3 && state.deathTime >= Koschei.CRUSH_TICKS) {
+			submitNeedle(state, poseStack, collector);
+			return;
+		}
 		super.submit(state, poseStack, collector, camera);
 		for (int i = 0; i < state.ghosts.size(); i++) {
 			submitGhost(state, poseStack, collector, state.ghosts.get(i), GHOST_ALPHA * (1.0F - i / (float) (state.ghosts.size() + 1)));
@@ -187,6 +206,25 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		if (state.chainsOut) {
 			submitChains(state, poseStack, collector);
 		}
+	}
+
+	/** Crushed into it, his needle hangs in the air, turning slowly and bobbing, until it falls. */
+	private static void submitNeedle(KoscheiRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
+		float hang = state.deathTime - Koschei.CRUSH_TICKS;
+		poseStack.pushPose();
+		poseStack.translate(0.0F, Koschei.NEEDLE_HOVER + Mth.sin(hang * 0.3F) * 0.05F, 0.0F);
+		poseStack.rotate(Axis.YP.rotationDegrees(hang * 9.0F));
+		poseStack.scale(1.4F, 1.4F, 1.4F);
+		poseStack.translate(0.0F, -0.15F, 0.0F);
+		state.needle.submit(poseStack, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.popPose();
+	}
+
+	/** Crushed into his needle, he casts no more shadow than it. */
+	@Override
+	protected float getShadowRadius(KoscheiRenderState state) {
+		float radius = super.getShadowRadius(state);
+		return state.phase >= 3 && state.deathTime > 0.0F ? radius * (1.0F - 0.85F * KoscheiModel.crushedBody(state.deathTime)) : radius;
 	}
 
 	/** One after-image of him where he stood a moment ago, posed as he is now. */

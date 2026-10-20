@@ -18,13 +18,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 
-/** The draugr, a little taller than a man; his eyes glow a cold blue whatever the light, green in one Koschei raised. */
+/** The draugr, a little taller than a man; his eyes glow a cold blue whatever the light */
 public class DraugrRenderer extends HumanoidMobRenderer<Draugr, DraugrRenderState, DraugrModel> {
 	/** The model is about 1.95 blocks tall; the draugr 2.1. */
 	private static final float SCALE = 1.08F;
 	private static final Identifier TEXTURE = Eam.id("textures/entity/draugr/draugr.png");
 	private static final RenderType EYES = RenderTypes.eyes(Eam.id("textures/entity/draugr/draugr_eyes.png"));
-	private static final RenderType THRALL_EYES = RenderTypes.eyes(Eam.id("textures/entity/draugr/draugr_thrall_eyes.png"));
 
 	public DraugrRenderer(EntityRendererProvider.Context context) {
 		super(context, new DraugrModel(context.bakeLayer(DraugrModel.LAYER)), 0.5F * SCALE);
@@ -46,7 +45,6 @@ public class DraugrRenderer extends HumanoidMobRenderer<Draugr, DraugrRenderStat
 		super.extractRenderState(draugr, state, partialTicks);
 		state.gear = draugr.gear();
 		state.rise = draugr.riseProgress(partialTicks);
-		state.thrall = draugr.isThrall();
 	}
 
 	@Override
@@ -73,7 +71,7 @@ public class DraugrRenderer extends HumanoidMobRenderer<Draugr, DraugrRenderStat
 		@Override
 		public void submit(PoseStack poseStack, SubmitNodeCollector collector, int lightCoords, DraugrRenderState state, float yRot,
 				float xRot) {
-			collector.order(1).submitModel(getParentModel(), state, poseStack, state.thrall ? THRALL_EYES : EYES, lightCoords,
+			collector.order(1).submitModel(getParentModel(), state, poseStack, EYES, lightCoords,
 					OverlayTexture.NO_OVERLAY, state.outlineColor);
 		}
 	}

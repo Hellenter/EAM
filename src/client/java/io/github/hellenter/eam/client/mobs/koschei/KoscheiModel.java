@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.mobs.koschei;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.entity.koschei.Koschei;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiAction;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -216,6 +217,9 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		if (state.phase >= 3 && !(state.action == KoscheiAction.SHATTER && state.actionTime < KoscheiAction.SHATTER_BURST)) {
 			daggerAnim(state);
 			finish(state);
+			if (state.deathTime > 0.0F) {
+				crush(state);
+			}
 			return;
 		}
 		if (state.phase >= 2 && state.action != KoscheiAction.TRANSFORM) {
@@ -446,16 +450,16 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	}
 
 	/**
-	 * The third phase: a dagger in each hand, the left held low and forward, the right blade down with the elbow a little
+	 * The third phase: a dagger in each hand, the left held low and forward, the right blade straight down with the elbow
 	 * bent, crouched and leaning in; the attacks with them, his darts, and the moment the ice shell bursts off him.
 	 */
 	private void daggerAnim(KoscheiRenderState state) {
 		leftArm.xRot = leftArm.xRot * 0.3F - 0.45F;
-		rightArm.xRot = rightArm.xRot * 0.3F - 0.3F;
+		rightArm.xRot = rightArm.xRot * 0.3F - 0.1F;
 		leftArm.zRot = -0.15F;
 		rightArm.zRot = 0.2F;
 		leftForearm.xRot = -0.9F;
-		rightForearm.xRot = -0.35F;
+		rightForearm.xRot = -0.85F;
 		float breath = Mth.sin(state.ageInTicks * (state.fury > 0 ? 0.25F : 0.08F));
 		body.xRot = 0.2F + breath * 0.015F;
 		head.xRot -= 0.1F;
@@ -646,12 +650,66 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		}
 	}
 
+	/** How far, 0 to 1, his limbs are drawn into him {@code deathTime} ticks after he is killed in his third phase. */
+	static float crushedLimbs(float deathTime) {
+		return smooth(deathTime / (Koschei.CRUSH_TICKS * 0.45F));
+	}
+
+	/** How far, 0 to 1, his body is crushed into his needle after his limbs. */
+	static float crushedBody(float deathTime) {
+		return smooth((deathTime - Koschei.CRUSH_TICKS * 0.35F) / (Koschei.CRUSH_TICKS * 0.65F));
+	}
+
+	private static float smooth(float x) {
+		float s = Math.clamp(x, 0.0F, 1.0F);
+		return s * s * (3.0F - 2.0F * s);
+	}
+
+	/**
+	 * Killed in his third phase, he is crushed in on himself: first his arms and legs are drawn in, shaking, until they are
+	 * gone, then his head sinks into his body and the body is wrung thin and long, twisting, into his needle.
+	 */
+	private void crush(KoscheiRenderState state) {
+		float limbs = crushedLimbs(state.deathTime);
+		float wrung = crushedBody(state.deathTime);
+		float shake = Mth.sin(state.ageInTicks * 3.1F) * 0.08F * (limbs - wrung * 0.5F);
+		for (ModelPart arm : new ModelPart[] {leftArm, rightArm}) {
+			arm.xRot = Mth.lerp(limbs, arm.xRot, 0.0F) + shake;
+			arm.zRot = Mth.lerp(limbs, arm.zRot, 0.0F);
+			arm.x *= 1.0F - 0.5F * limbs;
+			squeeze(arm, 1.0F - limbs);
+		}
+		for (ModelPart leg : new ModelPart[] {leftLeg, rightLeg}) {
+			leg.xRot = Mth.lerp(limbs, leg.xRot, 0.0F) - shake;
+			leg.x *= 1.0F - 0.6F * limbs;
+			squeeze(leg, 1.0F - limbs);
+		}
+		// Without legs he would hang in the air: he sinks most of the way down.
+		root().y += 8.0F * limbs;
+		head.y += 5.0F * wrung;
+		squeeze(head, 1.0F - 0.95F * wrung);
+		float thin = 1.0F - 0.85F * wrung;
+		body.xScale = thin * (1.0F + Mth.sin(state.ageInTicks * 1.7F) * 0.12F * wrung);
+		body.zScale = thin * (1.0F + Mth.cos(state.ageInTicks * 1.3F) * 0.12F * wrung);
+		body.yScale = 1.0F + 0.25F * wrung;
+		body.yRot += wrung * Mth.sin(state.ageInTicks * 0.9F) * 0.6F;
+		body.zRot += shake;
+	}
+
+	/** Scales {@code part} by {@code size} every way, down to next to nothing. */
+	private static void squeeze(ModelPart part, float size) {
+		float s = Math.max(0.001F, size);
+		part.xScale *= s;
+		part.yScale *= s;
+		part.zScale *= s;
+	}
+
 	/**
 	 * Turns a dagger in the fist: {@code down} 0 its blade ahead of him, tipped well up so it shows against him; 1 its blade
-	 * down, leaning a little forward, as held in a reverse grip.
+	 * down, all but straight, as held in a reverse grip.
 	 */
 	private static void holdDagger(ModelPart dagger, ModelPart arm, ModelPart forearm, float down) {
-		dagger.xRot = -(arm.xRot + forearm.xRot) + Mth.lerp(down, -0.8F, Mth.HALF_PI - 0.25F);
+		dagger.xRot = -(arm.xRot + forearm.xRot) + Mth.lerp(down, -0.8F, Mth.HALF_PI - 0.05F);
 		dagger.yRot = 0.0F;
 		dagger.zRot = -arm.zRot;
 	}
