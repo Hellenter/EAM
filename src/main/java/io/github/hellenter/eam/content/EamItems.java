@@ -214,6 +214,9 @@ public final class EamItems {
 	/** Turns holy water into white honey. */
 	public static final Item HERBAL_HONEY = register("herbal_honey", Item::new, new Item.Properties());
 
+	/** Ground glowshrooms: in the silver stand it brings a light potion up to level II, as glowstone does in the vanilla stand. */
+	public static final Item GLOWING_POWDER = register("glowing_powder", Item::new, new Item.Properties());
+
 	/** Thrown, it flies to the nearest crypt entrance. */
 	public static final Item FERMENTED_ENDER_EYE = register("fermented_ender_eye", FermentedEnderEyeItem::new, new Item.Properties());
 

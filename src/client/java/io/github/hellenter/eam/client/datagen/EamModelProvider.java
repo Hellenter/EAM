@@ -722,7 +722,8 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.IRON_PLATE, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAMP_FIRE, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.SILVER_BREWING_STAND, EamItems.LAPIS_GUNPOWDER_MIX, EamItems.SILVER_REDSTONE_DUST, EamItems.FLOWER_MIX,
-				EamItems.FERMENTED_ENDER_EYE, EamItems.GARLIC_ORCHID_MIX, EamItems.HERBAL_HONEY)) {
+				EamItems.FERMENTED_ENDER_EYE, EamItems.GARLIC_ORCHID_MIX, EamItems.HERBAL_HONEY,
+				EamItems.GLOWING_POWDER)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		for (Item item : List.of(EamItems.RAW_SILVER, EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET,

@@ -94,6 +94,15 @@ public final class BrewingModule {
 	public static final Holder<Potion> LIGHT_STRENGTH = potion("light_strength",
 			new MobEffectInstance(MobEffects.STRENGTH, SilverBrewingLogic.lightDuration(3600)));
 
+	// Light potions of level II, brewed with glowing powder: half the duration of vanilla level II, or twice the healing.
+	public static final Holder<Potion> STRONG_LIGHT_REGENERATION = strongPotion("light_regeneration",
+			new MobEffectInstance(MobEffects.REGENERATION, SilverBrewingLogic.lightDuration(450), 1));
+	public static final Holder<Potion> STRONG_LIGHT_SWIFTNESS = strongPotion("light_swiftness",
+			new MobEffectInstance(MobEffects.SPEED, SilverBrewingLogic.lightDuration(1800), 1));
+	public static final Holder<Potion> STRONG_LIGHT_HEALING = strongPotion("light_healing", new MobEffectInstance(LIGHT_HEALING, 1, 1));
+	public static final Holder<Potion> STRONG_LIGHT_STRENGTH = strongPotion("light_strength",
+			new MobEffectInstance(MobEffects.STRENGTH, SilverBrewingLogic.lightDuration(1800), 1));
+
 	/** Holy water with garlic and blue orchid: for 10 minutes upyrs and vampire bats that hurt the drinker are hurt back. */
 	public static final Holder<Potion> BLACK_BLOOD = potion("black_blood", new MobEffectInstance(UpyrModule.BLACK_BLOOD, 12000));
 
@@ -102,7 +111,8 @@ public final class BrewingModule {
 
 	/** Potions with an effect; gunpowder turns each into its splash version, and they get the silver stopper. */
 	public static final List<Holder<Potion>> LIGHT_POTIONS = List.of(LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS,
-			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, BLACK_BLOOD, WHITE_HONEY);
+			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, STRONG_LIGHT_REGENERATION, STRONG_LIGHT_SWIFTNESS, STRONG_LIGHT_HEALING,
+			STRONG_LIGHT_STRENGTH, BLACK_BLOOD, WHITE_HONEY);
 
 	private static boolean replaceInStructures;
 
@@ -153,5 +163,10 @@ public final class BrewingModule {
 
 	private static Holder<Potion> potion(String name, MobEffectInstance... effects) {
 		return Registry.registerForHolder(BuiltInRegistries.POTION, Eam.id(name), new Potion(name, effects));
+	}
+
+	/** Like vanilla's strong potions: its own id, the name of the level I potion; the tooltip shows the level. */
+	private static Holder<Potion> strongPotion(String name, MobEffectInstance effect) {
+		return Registry.registerForHolder(BuiltInRegistries.POTION, Eam.id("strong_" + name), new Potion(name, effect));
 	}
 }
