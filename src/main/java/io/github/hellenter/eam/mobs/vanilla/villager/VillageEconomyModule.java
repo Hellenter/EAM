@@ -293,6 +293,16 @@ public final class VillageEconomyModule {
 		meetGoal(elder, level, settings);
 	}
 
+	/** The professions that bring each resource, by name, in {@link VillageResource} order. */
+	private static List<List<Identifier>> sources(EconomySettings current) {
+		List<List<Identifier>> sources = new ArrayList<>();
+		for (VillageResource resource : VillageResource.values()) {
+			sources.add(current.professions().entrySet().stream().filter(entry -> entry.getValue().resource() == resource)
+					.map(Map.Entry::getKey).sorted(Comparator.comparing(Identifier::toString)).toList());
+		}
+		return sources;
+	}
+
 	/** What all the player's items would bring the village, in {@link VillageResource} order. */
 	private static List<Double> donatable(ServerPlayer player) {
 		DonationSettings current = donations;
@@ -500,6 +510,6 @@ public final class VillageEconomyModule {
 			orders.add(new VillageEconomyPayload.OrderView(entry.getKey(), cost, available(elder, level, entry.getKey(), current), ready));
 		});
 		ServerPlayNetworking.send(player, new VillageEconomyPayload(elder.getId(), stock, incomes, status, treasury.goal(), orders,
-				donatable(player)));
+				donatable(player), sources(current)));
 	}
 }
