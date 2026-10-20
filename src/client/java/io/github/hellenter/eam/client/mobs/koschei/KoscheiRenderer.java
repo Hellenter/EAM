@@ -23,7 +23,7 @@ import net.minecraft.world.entity.HumanoidArm;
 /**
  * Koschei, two and a half blocks tall. His blade glows orange before the blow only a shield stops and red before the blows
  * a shield only halves; his eyes glow yellow while a hit would parry him and flicker purple and blue before he vanishes.
- * The rest of the time they glow a cold pale blue. The crystal on his staff glows blue. His lightning is drawn by
+ * In his third phase they burn red while he is in a fury. The rest of the time they glow a cold pale blue. The crystal on his staff glows blue. His lightning is drawn by
  * {@link KoscheiBolts}.
  */
 public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderState, KoscheiModel> {
@@ -34,6 +34,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 	private static final RenderType YELLOW_EYES = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_eyes_yellow.png"));
 	private static final RenderType PURPLE_EYES = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_eyes_purple.png"));
 	private static final RenderType BLUE_EYES = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_eyes_blue.png"));
+	private static final RenderType RED_EYES = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_eyes_red.png"));
 	private static final RenderType ORANGE_BLADE = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_blade_orange.png"));
 	private static final RenderType RED_BLADE = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_blade_red.png"));
 	private static final RenderType STAFF_GLOW = RenderTypes.eyes(Eam.id("textures/entity/koschei/koschei_staff_glow.png"));
@@ -64,11 +65,16 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd() && !koschei.parryLost();
 		state.eyes = parry ? KoscheiRenderState.Eyes.YELLOW
 				: state.action == KoscheiAction.TELEPORT || state.action == KoscheiAction.TRAP ? KoscheiRenderState.Eyes.WARP
+				: koschei.fury() > 0 ? KoscheiRenderState.Eyes.RED
 				: KoscheiRenderState.Eyes.GLOW;
 		state.phase = koschei.phase();
 		boolean transforming = state.action == KoscheiAction.TRANSFORM;
 		state.sword = state.phase < 2 || transforming && t < KoscheiAction.TRANSFORM_CRUMBLE;
-		state.staff = state.phase >= 2 && (!transforming || t >= KoscheiAction.TRANSFORM_STAFF);
+		boolean shattering = state.action == KoscheiAction.SHATTER;
+		state.staff = state.phase == 2 && (!transforming || t >= KoscheiAction.TRANSFORM_STAFF)
+				|| state.phase >= 3 && shattering && t < KoscheiAction.SHATTER_STAFF;
+		state.daggers = state.phase >= 3 && (!shattering || t >= KoscheiAction.SHATTER_BURST);
+		state.fury = koschei.fury();
 		state.guardHeight = koschei.guardHeight();
 		state.guardSide = koschei.guardSide();
 		state.blade = switch (state.action) {
@@ -117,6 +123,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 				// Purple and blue in turn, quicker toward the end.
 				case WARP -> ((int) (state.actionTime * (state.actionTime < 6.0F ? 0.5F : 1.0F))) % 2 == 0 ? PURPLE_EYES : BLUE_EYES;
 				case GLOW -> GLOWING_EYES;
+				case RED -> RED_EYES;
 			};
 			if (eyes != null) {
 				collector.order(1).submitModel(getParentModel(), state, poseStack, eyes, lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);

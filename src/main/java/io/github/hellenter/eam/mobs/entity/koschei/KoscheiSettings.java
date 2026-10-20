@@ -17,11 +17,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param height              how he gets at a player who climbed out of his reach above him
  * @param phaseTwo            the second phase, the lord of the undead
  * @param needle              the needle he drops on his death
+ * @param phaseThree          the third phase, undead and in a fury with two daggers
  */
 public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier,
-		Height height, PhaseTwoSettings phaseTwo, Needle needle) {
+		Height height, PhaseTwoSettings phaseTwo, Needle needle, PhaseThreeSettings phaseThree) {
 	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
-			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT, Needle.DEFAULT);
+			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT, Needle.DEFAULT, PhaseThreeSettings.DEFAULT);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
@@ -33,7 +34,8 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 					.forGetter(KoscheiSettings::mobDamageMultiplier),
 			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height),
 			PhaseTwoSettings.CODEC.fieldOf("phase_two").orElse(PhaseTwoSettings.DEFAULT).forGetter(KoscheiSettings::phaseTwo),
-			Needle.CODEC.fieldOf("needle").orElse(Needle.DEFAULT).forGetter(KoscheiSettings::needle)
+			Needle.CODEC.fieldOf("needle").orElse(Needle.DEFAULT).forGetter(KoscheiSettings::needle),
+			PhaseThreeSettings.CODEC.fieldOf("phase_three").orElse(PhaseThreeSettings.DEFAULT).forGetter(KoscheiSettings::phaseThree)
 	).apply(instance, KoscheiSettings::new));
 
 	/**

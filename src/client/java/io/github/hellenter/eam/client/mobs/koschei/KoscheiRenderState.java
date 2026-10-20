@@ -26,6 +26,10 @@ public class KoscheiRenderState extends HumanoidRenderState {
 	/** Whether his sword is in his hand, and his staff. */
 	public boolean sword = true;
 	public boolean staff;
+	/** His daggers, in his third phase. */
+	public boolean daggers;
+	/** Stacks of his fury in his third phase. */
+	public int fury;
 
 	public enum Eyes {
 		/** His eyes always glow a cold pale blue. */
@@ -33,7 +37,9 @@ public class KoscheiRenderState extends HumanoidRenderState {
 		/** He can be parried now. */
 		YELLOW,
 		/** About to vanish: purple and blue in turn. */
-		WARP
+		WARP,
+		/** In a fury: red. */
+		RED
 	}
 
 	public enum Blade {

@@ -12,7 +12,8 @@ import net.minecraft.world.phys.Vec3;
  * The particles that go with Koschei's cues, spawned on the client from his synced action: orange sparks streaming off the
  * blade before the orange blow, red motes before the red ones, blue motes gathering in his right palm before the burst
  * of force and sparks crackling at the sword's point before the bolt; in his second phase blue sparks at the staff's head
- * before its bolt and green souls drawn to his hands before he throws them. The glow of the blade and the eyes is the
+ * before its bolt and green souls drawn to his hands before he throws them; in his third red mist off him while he is in a
+ * fury. The glow of the blade and the eyes is the
  * renderer's.
  */
 final class KoscheiEffects {
@@ -27,6 +28,14 @@ final class KoscheiEffects {
 		Level level = koschei.level();
 		RandomSource random = koschei.getRandom();
 		float t = koschei.actionTime(0.0F);
+		int fury = koschei.fury();
+		if (fury > 0 && random.nextInt(6) < fury) {
+			// His fury smokes off him in red, thicker the more stacks of it.
+			level.addParticle(RED, koschei.getRandomX(0.6), koschei.getRandomY(), koschei.getRandomZ(0.6), 0.0, 0.03, 0.0);
+			if (random.nextInt(4) == 0) {
+				level.addParticle(ParticleTypes.SMOKE, koschei.getRandomX(0.5), koschei.getY(0.9), koschei.getRandomZ(0.5), 0.0, 0.02, 0.0);
+			}
+		}
 		switch (koschei.action()) {
 			case ORANGE -> {
 				if (t < KoscheiAction.ORANGE_HIT) {

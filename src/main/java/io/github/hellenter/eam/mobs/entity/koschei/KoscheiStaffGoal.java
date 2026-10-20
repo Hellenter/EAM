@@ -34,7 +34,7 @@ final class KoscheiStaffGoal extends Goal {
 	@Override
 	public boolean canUse() {
 		LivingEntity candidate = koschei.getTarget();
-		if (koschei.phase() < 2 || candidate == null || !candidate.isAlive()) {
+		if (koschei.phase() != 2 || candidate == null || !candidate.isAlive()) {
 			return false;
 		}
 		target = candidate;
@@ -43,7 +43,7 @@ final class KoscheiStaffGoal extends Goal {
 
 	@Override
 	public boolean canContinueToUse() {
-		return canUse() || koschei.isBusy() && koschei.phase() >= 2;
+		return canUse() || koschei.isBusy() && koschei.phase() == 2;
 	}
 
 	@Override

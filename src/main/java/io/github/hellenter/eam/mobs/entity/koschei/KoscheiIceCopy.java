@@ -64,6 +64,11 @@ public class KoscheiIceCopy extends Koschei {
 	}
 
 	@Override
+	boolean risesAgain() {
+		return false;
+	}
+
+	@Override
 	boolean vanishesWhenHit() {
 		return false;
 	}

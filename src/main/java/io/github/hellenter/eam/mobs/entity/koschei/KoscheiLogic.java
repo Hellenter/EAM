@@ -370,6 +370,52 @@ public final class KoscheiLogic {
 		return cooldowns[attack.ordinal()] <= 0;
 	}
 
+	// ---- Third phase ----
+
+	/** His attacks with the daggers in his third phase, and the raising of his draugr. */
+	public enum DaggerAttack {
+		STAB,
+		FLURRY,
+		DASH,
+		RAISE
+	}
+
+	/**
+	 * Which dagger attack he starts at a target {@code distance} off, or null to keep coming on: his draugr now and then
+	 * while there is {@code room} for more under the cap, the stab or the flurry in reach, the dash a few blocks off.
+	 */
+	public static @Nullable DaggerAttack chooseDagger(double distance, boolean sees, int room, int[] cooldowns, PhaseThreeSettings three,
+			DoubleSupplier rolls) {
+		if (cooldowns[DaggerAttack.RAISE.ordinal()] <= 0 && room > 0 && rolls.getAsDouble() < three.thralls().chance()) {
+			return DaggerAttack.RAISE;
+		}
+		PhaseThreeSettings.Daggers daggers = three.daggers();
+		if (distance <= daggers.reach()) {
+			if (cooldowns[DaggerAttack.FLURRY.ordinal()] <= 0 && rolls.getAsDouble() < daggers.flurryChance()) {
+				return DaggerAttack.FLURRY;
+			}
+			return DaggerAttack.STAB;
+		}
+		if (sees && cooldowns[DaggerAttack.DASH.ordinal()] <= 0 && distance >= daggers.dashMin() && distance <= daggers.dashMax()) {
+			return DaggerAttack.DASH;
+		}
+		return null;
+	}
+
+	/**
+	 * How many times his speed he runs at a target that has kept out of his reach {@code outOfReach} ticks: as he is until
+	 * {@code after}, then faster over {@code ramp} ticks up to {@code max}.
+	 */
+	public static double chaseSpeed(int outOfReach, int after, int ramp, double max) {
+		double t = Math.clamp((outOfReach - after) / (double) ramp, 0.0, 1.0);
+		return 1.0 + (max - 1.0) * t;
+	}
+
+	/** The pause between his attacks with {@code stacks} of fury: each cuts {@code cut} of it, down to {@code min}. */
+	public static int furyPause(int pause, int stacks, float cut, int min) {
+		return Math.max(Math.min(pause, min), Math.round(pause * Math.max(0.0F, 1.0F - stacks * cut)));
+	}
+
 	/** Whether a point {@code dx}, {@code dz} from him is within {@code range} and {@code angle} degrees either side of where he faces. */
 	public static boolean inCone(double dx, double dz, double facingX, double facingZ, double range, float angle) {
 		double length = Math.sqrt(dx * dx + dz * dz);
