@@ -109,42 +109,49 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	}
 
 	/**
-	 * Three quick cuts. A shield blocks each, but {@code shieldHits} blocked in a row knock it out.
+	 * Three quick cuts. A shield blocks each, but {@code shieldHits} blocked in a row knock it out; one who keeps hiding
+	 * behind it has it knocked out sooner: every {@code wearStep} blocked cuts within {@code wearMemory} ticks of each other
+	 * take one off {@code shieldHits}, down to one.
 	 *
 	 * @param reach        how far the blades reach
 	 * @param damage       each cut
 	 * @param shieldHits   cuts blocked in a row that knock a shield out
 	 * @param shieldSeconds how long it stays knocked out
 	 * @param shieldMemory ticks after a blocked cut before the count starts over
+	 * @param wearStep     blocked cuts that take one off {@code shieldHits}
+	 * @param wearMemory   ticks after a blocked cut before the shield is fresh again
 	 */
-	public record Combo(double reach, float damage, int shieldHits, float shieldSeconds, int shieldMemory) {
-		public static final Combo DEFAULT = new Combo(2.6, 6.5F, 3, 3.0F, 60);
+	public record Combo(double reach, float damage, int shieldHits, float shieldSeconds, int shieldMemory, int wearStep, int wearMemory) {
+		public static final Combo DEFAULT = new Combo(2.6, 6.5F, 3, 3.0F, 60, 3, 200);
 
 		public static final Codec<Combo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.doubleRange(0.5, 8.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(Combo::reach),
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Combo::damage),
 				Codec.intRange(1, 100).fieldOf("shield_hits").orElse(DEFAULT.shieldHits).forGetter(Combo::shieldHits),
 				Codec.floatRange(0.0F, 60.0F).fieldOf("shield_seconds").orElse(DEFAULT.shieldSeconds).forGetter(Combo::shieldSeconds),
-				Codec.intRange(1, 24000).fieldOf("shield_memory").orElse(DEFAULT.shieldMemory).forGetter(Combo::shieldMemory)
+				Codec.intRange(1, 24000).fieldOf("shield_memory").orElse(DEFAULT.shieldMemory).forGetter(Combo::shieldMemory),
+				Codec.intRange(1, 100).fieldOf("wear_step").orElse(DEFAULT.wearStep).forGetter(Combo::wearStep),
+				Codec.intRange(1, 24000).fieldOf("wear_memory").orElse(DEFAULT.wearMemory).forGetter(Combo::wearMemory)
 		).apply(instance, Combo::new));
 	}
 
 	/**
-	 * The red blow: both blades glow red and he leaps at the target, striking down from over his head as he lands right
-	 * before it. A shield raised as he passes the top of the leap or after stops it; one raised earlier only
-	 * takes {@code 1 - shieldShare} off.
+	 * The red blow: both blades glow red, he springs up toward the target and from the top of the leap flies at where it
+	 * stands then, up to {@code reach} blocks, striking down from over his head as he lands. A full hit with a weapon in
+	 * the last {@code parryWindow} ticks before he lands parries him and he staggers; a shield only takes
+	 * {@code 1 - shieldShare} off.
 	 *
 	 * @param damage      the blow
-	 * @param shieldShare share of it that goes through a shield not raised in time
+	 * @param shieldShare share of it that goes through a shield
 	 * @param minRange    least distance to the target
 	 * @param maxRange    most distance to the target
 	 * @param chance      chance he leaps when it is ready
 	 * @param cooldown    ticks before the next
-	 * @param blockEarly  the shield may go up this many ticks before the top of the leap
-	 * @param blockLate   or this many ticks after it
+	 * @param parryWindow ticks before he lands that a hit parries him
+	 * @param reach       how far he flies from the top of the leap at most
 	 */
-	public record Leap(float damage, float shieldShare, double minRange, double maxRange, float chance, int cooldown, int blockEarly, int blockLate) {
-		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 0, 8);
+	public record Leap(float damage, float shieldShare, double minRange, double maxRange, float chance, int cooldown, int parryWindow, double reach) {
+		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 7, 7.0);
 
 		public static final Codec<Leap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Leap::damage),
@@ -153,8 +160,8 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 				Codec.doubleRange(0.0, 32.0).fieldOf("max_range").orElse(DEFAULT.maxRange).forGetter(Leap::maxRange),
 				Codec.floatRange(0.0F, 1.0F).fieldOf("chance").orElse(DEFAULT.chance).forGetter(Leap::chance),
 				Codec.intRange(0, 24000).fieldOf("cooldown").orElse(DEFAULT.cooldown).forGetter(Leap::cooldown),
-				Codec.intRange(0, 20).fieldOf("block_early").orElse(DEFAULT.blockEarly).forGetter(Leap::blockEarly),
-				Codec.intRange(0, 20).fieldOf("block_late").orElse(DEFAULT.blockLate).forGetter(Leap::blockLate)
+				Codec.intRange(1, 20).fieldOf("parry_window").orElse(DEFAULT.parryWindow).forGetter(Leap::parryWindow),
+				Codec.doubleRange(0.0, 32.0).fieldOf("reach").orElse(DEFAULT.reach).forGetter(Leap::reach)
 		).apply(instance, Leap::new));
 	}
 

@@ -1,5 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.koschei;
 
+import net.minecraft.world.phys.Vec3;
+
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.DoubleSupplier;
@@ -429,14 +431,6 @@ public final class KoscheiLogic {
 	}
 
 	/**
-	 * Whether a shield raised {@code raisedAgo} ticks before his leap lands stops it: raised from {@code early} ticks before
-	 * the top of the leap, {@code apexAgo} ticks before the landing, to {@code late} ticks after it.
-	 */
-	public static boolean leapBlockedInTime(int raisedAgo, int apexAgo, int early, int late) {
-		return raisedAgo <= apexAgo + early && raisedAgo >= apexAgo - late;
-	}
-
-	/**
 	 * How fast his chains drag a target {@code distance} blocks off toward him: {@code max}, slowing over its last blocks
 	 * so it comes to rest about {@code stop} blocks off.
 	 */
@@ -447,6 +441,30 @@ public final class KoscheiLogic {
 	/** How many cuts in a row a shield has blocked, counting this one, given the last was blocked at {@code last}. */
 	public static int blockedInRow(int count, long last, long now, int memory) {
 		return now - last <= memory ? count + 1 : 1;
+	}
+
+	/**
+	 * How many cuts blocked in a row knock a shield out, {@code hits} as a rule, one fewer for every {@code step} blocked
+	 * lately ({@code wear}), down to one.
+	 */
+	public static int shieldHitsNeeded(int hits, int wear, int step) {
+		return Math.max(1, hits - wear / step);
+	}
+
+	/**
+	 * Where he is {@code s} from 0 to 1 along a flight from {@code from} to {@code to}: {@code style} 0 an arc
+	 * {@code height} over the straight line at its top, 1 a spring up that slows as it nears its top, 2 a swoop that
+	 * closes in fast and drops ever faster.
+	 */
+	public static Vec3 flightPoint(int style, double s, Vec3 from, Vec3 to, double height) {
+		double across = style == 0 ? s : 1.0 - (1.0 - s) * (1.0 - s);
+		double rise = to.y - from.y;
+		double y = switch (style) {
+			case 0 -> leapHeight(s, rise, height);
+			case 1 -> rise * across;
+			default -> rise * s * s;
+		};
+		return new Vec3(from.x + (to.x - from.x) * across, from.y + y, from.z + (to.z - from.z) * across);
 	}
 
 	/**

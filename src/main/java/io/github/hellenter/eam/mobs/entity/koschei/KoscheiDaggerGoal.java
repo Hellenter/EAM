@@ -67,6 +67,14 @@ final class KoscheiDaggerGoal extends Goal {
 			return;
 		}
 		koschei.getLookControl().setLookAt(target, 30.0F, 30.0F);
+		if (koschei.raisePending()) {
+			// Getting away to raise his draugr: no coming back in meanwhile.
+			koschei.getNavigation().stop();
+			if (koschei.readyToAttack() && koschei.onGround()) {
+				koschei.continueRaise(target);
+			}
+			return;
+		}
 		PhaseThreeSettings three = koschei.phaseThree();
 		PhaseThreeSettings.Moves moves = three.moves();
 		double distance = koschei.horizontalDistanceTo(target);

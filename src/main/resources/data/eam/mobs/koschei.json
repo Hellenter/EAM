@@ -296,7 +296,9 @@
       "damage": 6.5,
       "shield_hits": 3,
       "shield_seconds": 3.0,
-      "shield_memory": 60
+      "shield_memory": 60,
+      "wear_step": 3,
+      "wear_memory": 200
     },
     "leap": {
       "damage": 11.0,
@@ -305,8 +307,8 @@
       "max_range": 8.0,
       "chance": 0.35,
       "cooldown": 120,
-      "block_early": 0,
-      "block_late": 8
+      "parry_window": 7,
+      "reach": 7.0
     },
     "dash": {
       "damage": 8.0,
