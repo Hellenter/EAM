@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
  * blade before the orange blow, red motes before the red ones, blue motes gathering in his right palm before the burst
  * of force and sparks crackling at the sword's point before the bolt; in his second phase blue sparks at the staff's head
  * before its bolt and green souls drawn to his hands before he throws them; in his third red mist off him while he is in a
- * fury. The glow of the blade and the eyes is the
+ * fury, orange sparks before his orange blow and red motes as he leaps. The glow of the blade and the eyes is the
  * renderer's.
  */
 final class KoscheiEffects {
@@ -51,6 +51,20 @@ final class KoscheiEffects {
 				if (t < hit && random.nextInt(2) == 0) {
 					Vec3 at = blade(koschei, random);
 					level.addParticle(RED, at.x, at.y + (koschei.action() == KoscheiAction.OVERHEAD ? 0.8 : 0.0), at.z, 0.0, 0.02, 0.0);
+				}
+			}
+			case DAGGER_ORANGE -> {
+				if (t < KoscheiAction.DAGGER_ORANGE_HIT && random.nextInt(2) == 0) {
+					Vec3 at = blade(koschei, random);
+					level.addParticle(EamParticles.KOSCHEI_SPARK, at.x, at.y + 0.3, at.z, (random.nextDouble() - 0.5) * 0.04, 0.03,
+							(random.nextDouble() - 0.5) * 0.04);
+				}
+			}
+			case DAGGER_LEAP -> {
+				if (t < KoscheiAction.LEAP_LAND) {
+					// Red motes streaming off both blades.
+					level.addParticle(RED, koschei.getRandomX(0.9), koschei.getY(0.6 + random.nextDouble() * 0.5), koschei.getRandomZ(0.9), 0.0,
+							0.02, 0.0);
 				}
 			}
 			case FORCE -> {

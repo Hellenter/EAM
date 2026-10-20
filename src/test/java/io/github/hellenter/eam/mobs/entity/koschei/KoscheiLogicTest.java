@@ -327,17 +327,50 @@ class KoscheiLogicTest {
 	}
 
 	@Test
-	void inTheThirdPhaseHeStabsInReachDashesFromAfarAndRaisesWhenReady() {
+	void inTheThirdPhaseHeCutsInReachAndAttacksFromAfarWhenReady() {
 		PhaseThreeSettings three = PhaseThreeSettings.DEFAULT;
 		int[] ready = new int[KoscheiLogic.DaggerAttack.values().length];
 		int[] raiseDown = ready.clone();
 		raiseDown[KoscheiLogic.DaggerAttack.RAISE.ordinal()] = 100;
+		raiseDown[KoscheiLogic.DaggerAttack.FEINT.ordinal()] = 100;
 		assertEquals(KoscheiLogic.DaggerAttack.RAISE, KoscheiLogic.chooseDagger(2.0, true, 3, ready, three, () -> 0.0));
-		assertEquals(KoscheiLogic.DaggerAttack.STAB, KoscheiLogic.chooseDagger(2.0, true, 0, ready, three, () -> 0.9));
-		assertEquals(KoscheiLogic.DaggerAttack.FLURRY, KoscheiLogic.chooseDagger(2.0, true, 0, ready, three, () -> 0.1));
-		assertEquals(KoscheiLogic.DaggerAttack.DASH, KoscheiLogic.chooseDagger(6.0, true, 3, raiseDown, three, () -> 0.0));
+		assertEquals(KoscheiLogic.DaggerAttack.FEINT, KoscheiLogic.chooseDagger(2.0, true, 0, ready, three, () -> 0.0));
+		assertEquals(KoscheiLogic.DaggerAttack.COMBO, KoscheiLogic.chooseDagger(2.0, true, 0, raiseDown, three, () -> 0.9));
+		assertEquals(KoscheiLogic.DaggerAttack.ORANGE, KoscheiLogic.chooseDagger(2.0, true, 0, raiseDown, three, () -> 0.1));
+		assertEquals(KoscheiLogic.DaggerAttack.CHAINS, KoscheiLogic.chooseDagger(6.0, true, 3, raiseDown, three, () -> 0.0));
+		int[] chainsDown = raiseDown.clone();
+		chainsDown[KoscheiLogic.DaggerAttack.CHAINS.ordinal()] = 100;
+		assertEquals(KoscheiLogic.DaggerAttack.LEAP, KoscheiLogic.chooseDagger(6.0, true, 3, chainsDown, three, () -> 0.0));
+		assertEquals(KoscheiLogic.DaggerAttack.DASH, KoscheiLogic.chooseDagger(8.0, true, 3, chainsDown, three, () -> 0.0));
 		assertNull(KoscheiLogic.chooseDagger(6.0, false, 3, raiseDown, three, () -> 0.0));
-		assertNull(KoscheiLogic.chooseDagger(12.0, true, 3, raiseDown, three, () -> 0.0));
+		assertNull(KoscheiLogic.chooseDagger(6.0, true, 3, raiseDown, three, () -> 0.99));
+		assertNull(KoscheiLogic.chooseDagger(20.0, true, 3, raiseDown, three, () -> 0.0));
+	}
+
+	@Test
+	void hisLeapIsStoppedOnlyByAShieldRaisedAsHeHangsAtTheTop() {
+		// The top of the leap is 6 ticks before it lands; the shield may go up 3 before it to 2 after it.
+		assertTrue(KoscheiLogic.leapBlockedInTime(6, 6, 3, 2));
+		assertTrue(KoscheiLogic.leapBlockedInTime(9, 6, 3, 2));
+		assertTrue(KoscheiLogic.leapBlockedInTime(4, 6, 3, 2));
+		assertFalse(KoscheiLogic.leapBlockedInTime(10, 6, 3, 2));
+		assertFalse(KoscheiLogic.leapBlockedInTime(3, 6, 3, 2));
+		assertFalse(KoscheiLogic.leapBlockedInTime(80, 6, 3, 2));
+	}
+
+	@Test
+	void blockedCutsCountUpOnlyWhileTheyComeCloseTogether() {
+		assertEquals(1, KoscheiLogic.blockedInRow(0, -1000, 0, 60));
+		assertEquals(2, KoscheiLogic.blockedInRow(1, 0, 4, 60));
+		assertEquals(3, KoscheiLogic.blockedInRow(2, 4, 8, 60));
+		assertEquals(1, KoscheiLogic.blockedInRow(2, 4, 100, 60));
+	}
+
+	@Test
+	void theLeapPeaksHalfwayAndLandsOnTheTarget() {
+		assertEquals(0.0, KoscheiLogic.leapHeight(0.0, 1.0, 2.5), 1.0E-9);
+		assertEquals(3.0, KoscheiLogic.leapHeight(0.5, 1.0, 2.5), 1.0E-9);
+		assertEquals(1.0, KoscheiLogic.leapHeight(1.0, 1.0, 2.5), 1.0E-9);
 	}
 
 	@Test

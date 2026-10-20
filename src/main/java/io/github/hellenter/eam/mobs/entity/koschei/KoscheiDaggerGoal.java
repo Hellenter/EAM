@@ -9,10 +9,15 @@ import java.util.EnumSet;
 
 /**
  * Koschei in his third phase, with the daggers: he comes straight at his target, slow at first but faster the longer it
- * keeps out of his reach, and starts his dagger attacks; he never backs off.
+ * keeps out of his reach, darting in at it, and to the sides and back while he waits in reach; now and then he dashes
+ * round to its back or vanishes to stand behind or before it, and the blow follows at once. He never backs off.
  */
 final class KoscheiDaggerGoal extends Goal {
 	private static final int REPATH_INTERVAL = 5;
+	/** He darts in at a target at least this far off. */
+	private static final double DART_IN_FROM = 4.0;
+	/** He vanishes to a target that has kept out of his reach this long, if he can. */
+	private static final int AWAY_TICKS = 100;
 
 	private final Koschei koschei;
 	private LivingEntity target;
@@ -62,14 +67,39 @@ final class KoscheiDaggerGoal extends Goal {
 			return;
 		}
 		koschei.getLookControl().setLookAt(target, 30.0F, 30.0F);
+		PhaseThreeSettings three = koschei.phaseThree();
+		PhaseThreeSettings.Moves moves = three.moves();
 		double distance = koschei.horizontalDistanceTo(target);
 		boolean sees = koschei.getSensing().hasLineOfSight(target);
-		koschei.noteReach(distance <= koschei.phaseThree().daggers().reach() + 0.5 && sees);
+		boolean inReach = distance <= three.combo().reach() + 0.5;
+		koschei.noteReach(inReach && sees);
+		boolean level = Math.abs(target.getY() - koschei.getY()) < 2.5;
 		if (koschei.readyToAttack()) {
-			DaggerAttack attack = koschei.chooseDagger(distance, sees);
+			if (koschei.teleportReady() && (koschei.outOfReach() >= AWAY_TICKS || sees && distance > 2.0
+					&& koschei.getRandom().nextFloat() < moves.teleportChance())) {
+				koschei.getNavigation().stop();
+				koschei.startTeleportThree(target);
+				return;
+			}
+			if (sees && level && distance <= moves.flankRange() && koschei.flankReady() && koschei.getRandom().nextFloat() < moves.flankChance()
+					&& koschei.flankInPhaseThree(target)) {
+				return;
+			}
+			DaggerAttack attack = level ? koschei.chooseDagger(distance, sees) : null;
 			if (attack != null) {
 				koschei.getNavigation().stop();
 				koschei.startDagger(attack, target);
+				return;
+			}
+		}
+		if (sees && level && koschei.dartReady() && koschei.getRandom().nextFloat() < moves.dartChance()) {
+			if (inReach) {
+				// Waiting for his next blow: a dart to one side or back.
+				koschei.dart(target, false);
+				return;
+			}
+			if (distance >= DART_IN_FROM) {
+				koschei.dart(target, true);
 				return;
 			}
 		}
