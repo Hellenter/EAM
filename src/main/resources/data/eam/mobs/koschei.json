@@ -305,8 +305,8 @@
       "max_range": 8.0,
       "chance": 0.35,
       "cooldown": 120,
-      "block_early": 4,
-      "block_late": 8
+      "block_early": 1,
+      "block_late": 10
     },
     "dash": {
       "damage": 8.0,

@@ -188,8 +188,8 @@ public class Koschei extends Monster implements BuildingAware {
 	public static final int DEATH_TICKS = CRUSH_TICKS + 20;
 	/** His leaps rise this high over the straight line from where he jumps to where he lands. */
 	private static final double LEAP_HEIGHT = 2.5;
-	/** His red leap comes down this far short of the target, and strikes it from there. */
-	private static final double LEAP_STRIKE_DISTANCE = 2.0;
+	/** His red leap comes down this far short of the target, and strikes it as he lands. */
+	private static final double LEAP_LANDING = 0.9;
 	/** How fast a target his chains drag into a block a step high is lifted over it. */
 	private static final double CHAINS_HOP = 0.5;
 	/** The dash with the blades out ahead runs this fast, and drives them in this close to the target. */
@@ -1575,9 +1575,8 @@ public class Koschei extends Monster implements BuildingAware {
 	}
 
 	/**
-	 * The red leap: crouched with both blades glowing red, a leap at the target, and both brought down from two blocks off
-	 * as he lands. A shield raised from just before the top of the leap until the blow stops it; one held up all along lets
-	 * most of it through.
+	 * The red leap: crouched with both blades glowing red, a leap onto the target, and both brought down as he lands. A
+	 * shield raised from the top of the leap until the blow stops it; one held up all along lets most of it through.
 	 */
 	private void tickLeap(ServerLevel level, int t, @Nullable LivingEntity target, PhaseThreeSettings.Leap leap) {
 		if (t == 0) {
@@ -1588,23 +1587,23 @@ public class Koschei extends Monster implements BuildingAware {
 		}
 		if (t == KoscheiAction.LEAP_GO) {
 			Vec3 back = horizontal(position().subtract(target.position()));
-			startFlight(target.position().add(back.scale(LEAP_STRIKE_DISTANCE)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
+			startFlight(target.position().add(back.scale(LEAP_LANDING)), t, KoscheiAction.LEAP_LAND - KoscheiAction.LEAP_GO);
 			playSound(SoundEvents.BREEZE_JUMP, 1.4F, 0.7F);
 		}
 		if (t == KoscheiAction.LEAP_APEX - leap.blockEarly()) {
-			// A bright ping: the moment to raise the shield.
+			// A bright ping at the top of the leap: the moment to raise the shield.
 			level.playSound(null, getX(), getEyeY(), getZ(), EamSounds.FALLEN_LORD_PARRY_WINDOW, getSoundSource(), 1.5F, 1.1F);
 		}
 		if (t > KoscheiAction.LEAP_GO && t <= KoscheiAction.LEAP_LAND) {
 			fly(t);
 		}
-		if (t != KoscheiAction.LEAP_LAND) {
-			return;
+		boolean landing = t == KoscheiAction.LEAP_LAND;
+		if (landing) {
+			land();
+			playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
+			level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
 		}
-		land();
-		playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.5F, 0.5F);
-		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, getBlockStateOn()), getX(), getY() + 0.1, getZ(), 30, 0.8, 0.1, 0.8, 0.15);
-		if (!inReach(target, LEAP_STRIKE_DISTANCE + 0.8)) {
+		if (!landing || !inReach(target, phaseThree().combo().reach())) {
 			return;
 		}
 		// A shield raised only just before the blow counts too, before it would block a common hit.
