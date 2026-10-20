@@ -130,9 +130,9 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	}
 
 	/**
-	 * The red blow: both blades glow red and he leaps at the target, striking down from over his head as he lands two blocks
-	 * short of it. A shield raised as he flies over the top of the leap stops it; one raised earlier only takes
-	 * {@code 1 - shieldShare} off.
+	 * The red blow: both blades glow red and he leaps at the target, striking down from over his head as he lands right
+	 * before it. A shield raised as he passes the top of the leap or after stops it; one raised earlier only
+	 * takes {@code 1 - shieldShare} off.
 	 *
 	 * @param damage      the blow
 	 * @param shieldShare share of it that goes through a shield not raised in time
@@ -144,7 +144,7 @@ public record PhaseThreeSettings(float health, double speedMultiplier, int attac
 	 * @param blockLate   or this many ticks after it
 	 */
 	public record Leap(float damage, float shieldShare, double minRange, double maxRange, float chance, int cooldown, int blockEarly, int blockLate) {
-		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 4, 8);
+		public static final Leap DEFAULT = new Leap(11.0F, 0.6F, 4.0, 8.0, 0.35F, 120, 1, 10);
 
 		public static final Codec<Leap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.floatRange(0.0F, 1000.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Leap::damage),

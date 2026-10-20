@@ -53,6 +53,8 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 	private final ModelPart mailFrontRight;
 	private final ModelPart mailFrontLeft;
 	private final ModelPart mailBack;
+	private final ModelPart mailRight;
+	private final ModelPart mailLeft;
 	private final ModelPart cape;
 	private final ModelPart capeLower;
 
@@ -69,6 +71,8 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		mailFrontRight = body.getChild("mail_front_right");
 		mailFrontLeft = body.getChild("mail_front_left");
 		mailBack = body.getChild("mail_back");
+		mailRight = body.getChild("mail_right");
+		mailLeft = body.getChild("mail_left");
 		cape = body.getChild("cape");
 		capeLower = cape.getChild("lower");
 	}
@@ -984,9 +988,20 @@ public class KoscheiModel extends HumanoidModel<KoscheiRenderState> {
 		float sway = Mth.sin(state.ageInTicks * 0.08F) * 0.03F;
 		float trail = 0.2F * walk + 0.5F * state.dash;
 		float flare = Math.clamp(-state.fallSpeed * 1.5F, 0.0F, 0.6F);
-		mailFrontRight.xRot = Math.min(sway - flare, rightLeg.xRot * 0.85F);
-		mailFrontLeft.xRot = Math.min(-sway - flare, leftLeg.xRot * 0.85F);
-		mailBack.xRot = Math.max(trail * 0.5F + flare - sway, Math.max(rightLeg.xRot, leftLeg.xRot) * 0.85F);
+		// The skirt hangs from the belt as his body leans, but the legs do not lean with it: the front of the skirt is kept out
+		// before the hips and every panel hangs as it would from an upright body.
+		float lean = body.xRot;
+		float forward = Math.max(0.0F, MAIL_TOP * Mth.sin(lean));
+		mailFrontRight.z -= forward;
+		mailFrontLeft.z -= forward;
+		mailFrontRight.xRot = Math.min(sway - flare, rightLeg.xRot * 0.85F) - lean;
+		mailFrontLeft.xRot = Math.min(-sway - flare, leftLeg.xRot * 0.85F) - lean;
+		mailBack.xRot = Math.max(trail * 0.5F + flare - sway, Math.max(rightLeg.xRot, leftLeg.xRot) * 0.85F) - lean;
+		// The side panels swing out with legs set apart.
+		mailRight.zRot = Math.max(0.0F, rightLeg.zRot);
+		mailLeft.zRot = Math.min(0.0F, leftLeg.zRot);
+		mailRight.xRot = -lean;
+		mailLeft.xRot = -lean;
 		cape.xRot = Math.max(0.05F + trail + flare + sway - body.xRot, Math.max(rightLeg.xRot, leftLeg.xRot) * 0.6F);
 		cape.zRot = -Math.clamp(state.turnRate / 25.0F, -1.0F, 1.0F) * 0.25F;
 		// The lower half lags behind the swing and hangs back toward the ground.

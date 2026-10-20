@@ -99,7 +99,7 @@ public class KoscheiRenderer extends HumanoidMobRenderer<Koschei, KoscheiRenderS
 		boolean parry = koschei.parryOpen() || parryStart >= 0 && t >= parryStart - 1 && t < state.action.parryEnd() && !koschei.parryLost();
 		boolean leapBlock = state.action == KoscheiAction.DAGGER_LEAP
 				&& t >= KoscheiAction.LEAP_APEX - KoscheiModule.settings().phaseThree().leap().blockEarly() - 1
-				&& t < KoscheiAction.LEAP_APEX + KoscheiModule.settings().phaseThree().leap().blockLate() + 1;
+				&& t < Math.min(KoscheiAction.LEAP_APEX + KoscheiModule.settings().phaseThree().leap().blockLate(), KoscheiAction.LEAP_LAND) + 1;
 		boolean warp = state.action == KoscheiAction.TELEPORT || state.action == KoscheiAction.TRAP
 				|| state.action == KoscheiAction.DAGGER_FEINT && (t < KoscheiAction.FEINT_WARP || t >= KoscheiAction.FEINT_APEX - 2
 				&& t < KoscheiAction.FEINT_APEX);
