@@ -275,6 +275,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_INGOT, "Silver Ingot");
 			builder.add(EamItems.SILVER_NUGGET, "Silver Nugget");
 			builder.add(EamItems.SILVER_SWORD, "Silver Sword");
+			builder.add(EamItems.SILVER_SPEAR, "Silver Spear");
 			builder.add(EamItems.SILVER_SHOVEL, "Silver Shovel");
 			builder.add(EamItems.SILVER_PICKAXE, "Silver Pickaxe");
 			builder.add(EamItems.SILVER_AXE, "Silver Axe");
@@ -743,6 +744,7 @@ public final class EamLanguageProviders {
 			builder.add("item.minecraft.chainmail_leggings", "Iron Chainmail Leggings");
 			builder.add("item.minecraft.chainmail_boots", "Iron Chainmail Boots");
 			builder.add(EamItems.ANCIENT_METAL_SWORD, "Ancient Metal Sword");
+			builder.add(EamItems.ANCIENT_METAL_SPEAR, "Ancient Metal Spear");
 			builder.add(EamItems.ANCIENT_METAL_SHOVEL, "Ancient Metal Shovel");
 			builder.add(EamItems.ANCIENT_METAL_PICKAXE, "Ancient Metal Pickaxe");
 			builder.add(EamItems.ANCIENT_METAL_AXE, "Ancient Metal Axe");
@@ -768,6 +770,7 @@ public final class EamLanguageProviders {
 
 		private static void rusty(TranslationBuilder builder) {
 			builder.add(EamItems.RUSTY_IRON_SWORD, "Rusty Iron Sword");
+			builder.add(EamItems.RUSTY_IRON_SPEAR, "Rusty Iron Spear");
 			builder.add(EamItems.RUSTY_IRON_SHOVEL, "Rusty Iron Shovel");
 			builder.add(EamItems.RUSTY_IRON_PICKAXE, "Rusty Iron Pickaxe");
 			builder.add(EamItems.RUSTY_IRON_AXE, "Rusty Iron Axe");
@@ -792,6 +795,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.HOT_ADAMANTIUM_INGOT, "Hot Adamantium");
 			builder.add(EamItems.ADAMANTIUM_PLATE, "Adamantium Plate");
 			builder.add(EamItems.ADAMANTIUM_SWORD, "Adamantium Sword");
+			builder.add(EamItems.ADAMANTIUM_SPEAR, "Adamantium Spear");
 			builder.add(EamItems.ADAMANTIUM_SHOVEL, "Adamantium Shovel");
 			builder.add(EamItems.ADAMANTIUM_PICKAXE, "Adamantium Pickaxe");
 			builder.add(EamItems.ADAMANTIUM_AXE, "Adamantium Axe");
@@ -865,6 +869,7 @@ public final class EamLanguageProviders {
 			builder.add("message.eam.bucket_melted", "The bucket melted in the lava!");
 			builder.add("item.eam.bucket.lava_melt_chance", "Melting chance: %s%%");
 			builder.add(EamItems.MITHRIL_SWORD, "Mithril Sword");
+			builder.add(EamItems.MITHRIL_SPEAR, "Mithril Spear");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Mithril Shovel");
 			builder.add(EamItems.MITHRIL_PICKAXE, "Mithril Pickaxe");
 			builder.add(EamItems.MITHRIL_AXE, "Mithril Axe");
@@ -1149,6 +1154,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.SILVER_INGOT, "Серебряный слиток");
 			builder.add(EamItems.SILVER_NUGGET, "Кусочек серебра");
 			builder.add(EamItems.SILVER_SWORD, "Серебряный меч");
+			builder.add(EamItems.SILVER_SPEAR, "Серебряное копьё");
 			builder.add(EamItems.SILVER_SHOVEL, "Серебряная лопата");
 			builder.add(EamItems.SILVER_PICKAXE, "Серебряная кирка");
 			builder.add(EamItems.SILVER_AXE, "Серебряный топор");
@@ -1624,6 +1630,7 @@ public final class EamLanguageProviders {
 			builder.add("item.minecraft.chainmail_leggings", "Железные кольчужные поножи");
 			builder.add("item.minecraft.chainmail_boots", "Железные кольчужные ботинки");
 			builder.add(EamItems.ANCIENT_METAL_SWORD, "Меч из древнего металла");
+			builder.add(EamItems.ANCIENT_METAL_SPEAR, "Копьё из древнего металла");
 			builder.add(EamItems.ANCIENT_METAL_SHOVEL, "Лопата из древнего металла");
 			builder.add(EamItems.ANCIENT_METAL_PICKAXE, "Кирка из древнего металла");
 			builder.add(EamItems.ANCIENT_METAL_AXE, "Топор из древнего металла");
@@ -1649,6 +1656,7 @@ public final class EamLanguageProviders {
 
 		private static void rusty(TranslationBuilder builder) {
 			builder.add(EamItems.RUSTY_IRON_SWORD, "Ржавый железный меч");
+			builder.add(EamItems.RUSTY_IRON_SPEAR, "Ржавое железное копьё");
 			builder.add(EamItems.RUSTY_IRON_SHOVEL, "Ржавая железная лопата");
 			builder.add(EamItems.RUSTY_IRON_PICKAXE, "Ржавая железная кирка");
 			builder.add(EamItems.RUSTY_IRON_AXE, "Ржавый железный топор");
@@ -1673,6 +1681,7 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.HOT_ADAMANTIUM_INGOT, "Раскалённый адамантий");
 			builder.add(EamItems.ADAMANTIUM_PLATE, "Адамантиевая пластина");
 			builder.add(EamItems.ADAMANTIUM_SWORD, "Адамантиевый меч");
+			builder.add(EamItems.ADAMANTIUM_SPEAR, "Адамантиевое копьё");
 			builder.add(EamItems.ADAMANTIUM_SHOVEL, "Адамантиевая лопата");
 			builder.add(EamItems.ADAMANTIUM_PICKAXE, "Адамантиевая кирка");
 			builder.add(EamItems.ADAMANTIUM_AXE, "Адамантиевый топор");
@@ -1746,6 +1755,7 @@ public final class EamLanguageProviders {
 			builder.add("item.eam.bucket.lava_melt_chance", "Шанс плавления: %s%%");
 			builder.add(EamItems.MITHRIL_PLATE, "Мифриловая пластина");
 			builder.add(EamItems.MITHRIL_SWORD, "Мифриловый меч");
+			builder.add(EamItems.MITHRIL_SPEAR, "Мифриловое копьё");
 			builder.add(EamItems.MITHRIL_SHOVEL, "Мифриловая лопата");
 			builder.add(EamItems.MITHRIL_PICKAXE, "Мифриловая кирка");
 			builder.add(EamItems.MITHRIL_AXE, "Мифриловый топор");

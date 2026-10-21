@@ -200,6 +200,8 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(SilverGear.REPAIRS_ARMOR).add(EamItems.SILVER_INGOT.builtInRegistryHolder().key());
 		// Vanilla tool and armor tags: enchanting, and the 5 s craft times below.
 		builder(ItemTags.SWORDS).add(EamItems.SILVER_SWORD.builtInRegistryHolder().key());
+		builder(ItemTags.SPEARS).addAll(keys(EamItems.SILVER_SPEAR, EamItems.RUSTY_IRON_SPEAR, EamItems.ANCIENT_METAL_SPEAR,
+				EamItems.MITHRIL_SPEAR, EamItems.ADAMANTIUM_SPEAR));
 		builder(ItemTags.SHOVELS).add(EamItems.SILVER_SHOVEL.builtInRegistryHolder().key());
 		builder(ItemTags.PICKAXES).add(EamItems.SILVER_PICKAXE.builtInRegistryHolder().key());
 		builder(ItemTags.HOES).add(EamItems.SILVER_HOE.builtInRegistryHolder().key());
