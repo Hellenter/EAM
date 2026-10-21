@@ -4,6 +4,10 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.fridge.FridgeBlockEntity;
 import io.github.hellenter.eam.survival.thirst.ThirstModule;
 
+import com.mojang.serialization.Codec;
+
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -18,7 +22,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ResultContainer;
@@ -40,7 +46,8 @@ import java.util.function.Consumer;
  * (fruit, vegetables, cooked food) ten; then each item turns into what its rule says. The server stamps a perishable
  * stack when it first sees it: in a player's inventory or open container, on the ground, or in a fridge. Times are
  * absolute, so food in a chest nobody opens still rots on schedule and is swapped when someone looks. A fridge with ice
- * puts its food's times off for as long as it stays cold, see {@link FridgeBlockEntity}.
+ * puts its food's times off for as long as it stays cold, see {@link FridgeBlockEntity}. Food a villager carries is put
+ * off the same way, so it keeps while he has it; food in a creative player's inventory is never stamped.
  */
 public final class SpoilageModule {
 	/** When each item of a perishable stack spoils. */
@@ -52,6 +59,12 @@ public final class SpoilageModule {
 	private static final int PLAYER_INTERVAL = 10;
 	/** How often food on the ground is checked, in ticks. */
 	private static final int GROUND_INTERVAL = 20;
+	/** How often the food a villager carries is put off, in ticks. */
+	private static final int VILLAGER_INTERVAL = 20;
+
+	/** The clock time a villager's food was last put off at. */
+	public static final AttachmentType<Long> KEPT_AT = AttachmentRegistry.create(Eam.id("food_kept_at"),
+			builder -> builder.persistent(Codec.LONG));
 
 	private static volatile SpoilageSettings settings = SpoilageSettings.DEFAULT;
 	private static boolean enabled;
@@ -220,30 +233,38 @@ public final class SpoilageModule {
 		}
 	}
 
-	/** The player's inventory, the stack on the cursor and whatever container the player has open. */
+	/**
+	 * The player's inventory, the stack on the cursor and whatever container the player has open. In creative the
+	 * inventory and cursor keep their food unstamped, fresh.
+	 */
 	private static void updatePlayer(ServerPlayer player) {
 		long now = now(player.level());
 		Inventory inventory = player.getInventory();
 		Consumer<ItemStack> give = spoiled -> inventory.placeItemBackInInventory(spoiled, Prediction.SERVER_ONLY);
-		for (int i = 0; i < inventory.getContainerSize(); i++) {
-			ItemStack stack = inventory.getItem(i);
-			List<ItemStack> spoiled = update(stack, now).spoiled;
-			if (spoiled.isEmpty()) continue;
-			if (stack.isEmpty()) {
-				inventory.setItem(i, spoiled.getFirst());
-				spoiled = spoiled.subList(1, spoiled.size());
-			}
-			spoiled.forEach(give);
-		}
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
-		List<ItemStack> spoiled = update(carried, now).spoiled;
-		if (!spoiled.isEmpty()) {
-			if (carried.isEmpty()) {
-				menu.setCarried(spoiled.getFirst());
-				spoiled = spoiled.subList(1, spoiled.size());
+		if (player.isCreative()) {
+			for (int i = 0; i < inventory.getContainerSize(); i++) unstamp(inventory.getItem(i));
+			unstamp(carried);
+		} else {
+			for (int i = 0; i < inventory.getContainerSize(); i++) {
+				ItemStack stack = inventory.getItem(i);
+				List<ItemStack> spoiled = update(stack, now).spoiled;
+				if (spoiled.isEmpty()) continue;
+				if (stack.isEmpty()) {
+					inventory.setItem(i, spoiled.getFirst());
+					spoiled = spoiled.subList(1, spoiled.size());
+				}
+				spoiled.forEach(give);
 			}
-			spoiled.forEach(give);
+			List<ItemStack> spoiled = update(carried, now).spoiled;
+			if (!spoiled.isEmpty()) {
+				if (carried.isEmpty()) {
+					menu.setCarried(spoiled.getFirst());
+					spoiled = spoiled.subList(1, spoiled.size());
+				}
+				spoiled.forEach(give);
+			}
 		}
 		if (menu == player.inventoryMenu) return;
 		Set<Container> containers = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -255,6 +276,27 @@ public final class SpoilageModule {
 				updateContainer(container, now, false, give);
 			}
 		}
+	}
+
+	private static void unstamp(ItemStack stack) {
+		if (stack.has(FRESHNESS)) stack.remove(FRESHNESS);
+	}
+
+	/**
+	 * Food in a villager's inventory and hands keeps: now and then its times are put off by the clock time since the
+	 * last time, which also covers the time his chunk was not loaded.
+	 */
+	public static void tickVillager(Villager villager, ServerLevel level) {
+		if (!enabled || villager.tickCount % VILLAGER_INTERVAL != 0) return;
+		long now = now(level);
+		Long last = villager.getAttached(KEPT_AT);
+		villager.setAttached(KEPT_AT, now);
+		if (last == null || now <= last) return;
+		long ticks = now - last;
+		SimpleContainer inventory = villager.getInventory();
+		for (ItemStack stack : inventory.getItems()) delay(stack, ticks);
+		delay(villager.getMainHandItem(), ticks);
+		delay(villager.getOffhandItem(), ticks);
 	}
 
 	/** Food on the ground spoils too; what spoiled drops beside it. New drops are stamped on their first tick. */

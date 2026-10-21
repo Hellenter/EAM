@@ -31,8 +31,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Each villager with a job site puts a locked chest of his own beside it, and the elder puts one for the village by his
- * cartography table unless the village has a store already. A villager by his chest puts in what fills his inventory
+ * The elder puts a locked chest for the village by his cartography table unless the village has a store already; other
+ * villagers place none, but use the chests players give them. A villager by his chest puts in what fills his inventory
  * past a few slots, seeds aside, and takes food out when he is hungry and his trade's goods when he has none. Chests a
  * player gives to a villager or to the village count the same. Numbers are in {@code data/eam/villagers/chests.json}.
  */
@@ -68,9 +68,9 @@ public final class VillagerChestModule {
 		ChestSettings current = settings;
 		long time = level.getGameTime();
 		boolean elder = VillagerElderModule.isElder(villager);
-		if (VillagerRepairLogic.checksNow(time, villager.getId(), current.placeIntervalTicks())) {
+		if (elder && VillagerRepairLogic.checksNow(time, villager.getId(), current.placeIntervalTicks())) {
 			BlockPos jobSite = jobSite(villager, level);
-			if (jobSite != null && !hasChest(villager, level, jobSite, elder, current)) place(villager, level, jobSite, elder);
+			if (jobSite != null && store(level, villager, VillagerElderModule.radius()).isEmpty()) place(villager, level, jobSite);
 		}
 		if (elder || !VillagerRepairLogic.checksNow(time, villager.getId(), current.intervalTicks())) return;
 		for (LockedChestBlockEntity chest : LockedChestModule.ownedBy(level, villager.blockPosition(), current.reach() + 1, villager.getUUID())) {
@@ -137,17 +137,11 @@ public final class VillagerChestModule {
 				.map(GlobalPos::pos).orElse(null);
 	}
 
-	/** An elder has one when the village has a store; anyone else when a chest near his job site is his. */
-	private static boolean hasChest(Villager villager, ServerLevel level, BlockPos jobSite, boolean elder, ChestSettings current) {
-		if (elder) return !store(level, villager, VillagerElderModule.radius()).isEmpty();
-		return !LockedChestModule.ownedBy(level, jobSite, current.findRadius(), villager.getUUID()).isEmpty();
-	}
-
 	/**
-	 * Places a chest on free floor beside the job site, the nearest spot first, its lock toward the villager; never in
+	 * Places the village's chest on free floor beside the job site, the nearest spot first, its lock toward the villager; never in
 	 * a one-block gap or beside a door, so it blocks no way.
 	 */
-	private static void place(Villager villager, ServerLevel level, BlockPos jobSite, boolean elder) {
+	private static void place(Villager villager, ServerLevel level, BlockPos jobSite) {
 		BlockPos best = null;
 		double bestDistance = Double.MAX_VALUE;
 		for (BlockPos pos : BlockPos.betweenClosed(jobSite.offset(-2, -1, -2), jobSite.offset(2, 1, 2))) {
@@ -162,7 +156,7 @@ public final class VillagerChestModule {
 		Direction facing = Direction.getApproximateNearest(villager.getX() - best.getX() - 0.5, 0.0, villager.getZ() - best.getZ() - 0.5);
 		if (facing.getAxis().isVertical()) facing = Direction.NORTH;
 		level.setBlockAndUpdate(best, EamBlocks.LOCKED_CHEST.defaultBlockState().setValue(LockedChestBlock.FACING, facing));
-		if (level.getBlockEntity(best) instanceof LockedChestBlockEntity chest) chest.claimByVillager(villager.getUUID(), elder);
+		if (level.getBlockEntity(best) instanceof LockedChestBlockEntity chest) chest.claimByVillager(villager.getUUID(), true);
 		level.playSound(null, best, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0F, 0.8F);
 		villager.getLookControl().setLookAt(Vec3.atCenterOf(best));
 	}

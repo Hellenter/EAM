@@ -1,5 +1,4 @@
 {
-  "find_radius": 16,
   "food_from_chest": 16,
   "interval_ticks": 200,
   "keep_slots": 6,

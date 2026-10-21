@@ -15,6 +15,7 @@ import io.github.hellenter.eam.mobs.vanilla.villager.VillagerFoodModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGuardModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerRepairModule;
+import io.github.hellenter.eam.survival.spoilage.SpoilageModule;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * A villager who takes up a trade gets its work item; now and then his gear gets mended and his trade feeds the
  * village; he keeps his things in his locked chest and brings his share to the elder; he has children only with a
- * bed and food for them; his brain waits while he fights as a guard, answers the village alarm or a player has his inventory open.
+ * bed and food for them; the food he carries keeps; his brain waits while he fights as a guard, answers the village alarm or a player has his inventory open.
  */
 @Mixin(Villager.class)
 abstract class VillagerMixin {
@@ -60,6 +61,7 @@ abstract class VillagerMixin {
 		VillagerChestModule.tick((Villager) (Object) this, level);
 		VillageEconomyModule.tick((Villager) (Object) this, level);
 		VillageBuildModule.tick((Villager) (Object) this, level);
+		SpoilageModule.tickVillager((Villager) (Object) this, level);
 	}
 
 	@ModifyReturnValue(method = "canBreed", at = @At("RETURN"))
