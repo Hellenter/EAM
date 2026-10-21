@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A villager's page in the village menu, opened by a right click on his row: his figure, armor, hands and work item,
+ * A villager's page in the village menu, opened by a click on his row: his name, his figure, armor, hands (put-away gear too) and work item,
  * his level and experience, health, job site, bed and locked chest, his inventory and what is in his chest (for the
  * elder, the village store's nearest chest). It asks the server again every second, so it stays current; Escape and
  * the back button return to the list.
@@ -33,7 +33,6 @@ public class VillageResidentScreen extends Screen {
 	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
 	private static final int TEXT = 0xFF404040;
 	private static final int MUTED = 0xFF707070;
-	private static final int HURT = 0xFFA02020;
 	private static final int FIGURE_BACKGROUND = 0xFF000000;
 	private static final int XP_BACK = 0xFF555555;
 	private static final int XP_FILL = 0xFF7FB238;
@@ -67,7 +66,7 @@ public class VillageResidentScreen extends Screen {
 		this.page = page;
 	}
 
-	/** Opens a villager's page when the server answers a right click in the list, or refreshes the open one. */
+	/** Opens a villager's page when the server answers a click in the list, or refreshes the open one. */
 	public static void register() {
 		ClientPlayNetworking.registerGlobalReceiver(VillageResidentPayload.TYPE, (payload, context) -> {
 			Minecraft minecraft = Minecraft.getInstance();
@@ -171,9 +170,7 @@ public class VillageResidentScreen extends Screen {
 			}
 			y += LINE;
 		}
-		String health = Math.round(resident.health()) + "/" + Math.round(resident.maxHealth());
-		graphics.text(font, Component.translatable("gui.eam.village.health", health), x, y,
-				resident.health() < resident.maxHealth() ? HURT : MUTED, false);
+		VillageScreen.health(graphics, font, resident, x, y - 1);
 		y += LINE + 4;
 		if (!child) {
 			place(graphics, "gui.eam.village.job_site", page.jobSite(), x, y);

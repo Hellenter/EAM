@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content.lockedchest;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerNames;
 
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -79,7 +80,7 @@ public final class LockedChestModule {
 	static List<LockedChestMenu.Candidate> candidates(ServerLevel level, BlockPos pos) {
 		List<LockedChestMenu.Candidate> candidates = new ArrayList<>();
 		for (Villager villager : villagers(level, pos)) {
-			candidates.add(new LockedChestMenu.Candidate(villager.getId(), Optional.ofNullable(villager.getCustomName()),
+			candidates.add(new LockedChestMenu.Candidate(villager.getId(), Optional.of(VillagerNames.name(villager)),
 					villager.getVillagerData().profession().value().name(), villager.getVillagerData().level(),
 					(int) Math.round(Math.sqrt(villager.distanceToSqr(Vec3.atCenterOf(pos))))));
 		}

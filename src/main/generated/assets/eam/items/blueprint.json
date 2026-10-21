@@ -1,6 +1,110 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "eam:item/blueprint"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_gate"
+        },
+        "when": "gate"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_plains_house_big"
+        },
+        "when": "plains_house_big"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_plains_house_medium"
+        },
+        "when": "plains_house_medium"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_desert_house_medium"
+        },
+        "when": "desert_house_medium"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_savanna_house_medium"
+        },
+        "when": "savanna_house_medium"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_snowy_house_medium"
+        },
+        "when": "snowy_house_medium"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_taiga_house_medium"
+        },
+        "when": "taiga_house_medium"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_plains_house_small"
+        },
+        "when": "plains_house_small"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_desert_house_small"
+        },
+        "when": "desert_house_small"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_savanna_house_small"
+        },
+        "when": "savanna_house_small"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_snowy_house_small"
+        },
+        "when": "snowy_house_small"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_taiga_house_small"
+        },
+        "when": "taiga_house_small"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_tower"
+        },
+        "when": "tower"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "eam:item/blueprint_wall"
+        },
+        "when": "wall"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "eam:item/blueprint"
+    },
+    "property": "eam:blueprint"
   }
 }

@@ -24,6 +24,8 @@ import io.github.hellenter.eam.world.farming.HarvestModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintTemplate;
 import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.VillagerGearModule;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerNameLogic;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerNames;
 import io.github.hellenter.eam.world.crafting.CraftingTags;
 import io.github.hellenter.eam.world.forging.ForgingTags;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
@@ -52,6 +54,18 @@ public final class EamLanguageProviders {
 		builder.add("item.minecraft.splash_potion.effect." + name, splash);
 		builder.add("item.minecraft.lingering_potion.effect." + name, lingering);
 		builder.add("item.minecraft.tipped_arrow.effect." + name, arrow);
+	}
+
+	/** Villagers' first names and surnames, a surname in both its forms. */
+	private static void villagerNames(FabricLanguageProvider.TranslationBuilder builder, boolean russian) {
+		builder.add("villager_name.eam.full", "%s %s");
+		for (VillagerNameLogic.Entry name : VillagerNameLogic.MALE) builder.add(VillagerNames.givenKey(name.id()), russian ? name.russian() : name.english());
+		for (VillagerNameLogic.Entry name : VillagerNameLogic.FEMALE) builder.add(VillagerNames.givenKey(name.id()), russian ? name.russian() : name.english());
+		for (VillagerNameLogic.Entry name : VillagerNameLogic.SURNAMES) {
+			String male = russian ? name.russian() : name.english();
+			builder.add(VillagerNames.surnameKey(name.id(), false), male);
+			builder.add(VillagerNames.surnameKey(name.id(), true), VillagerNameLogic.feminine(male));
+		}
 	}
 
 	public static class English extends FabricLanguageProvider {
@@ -148,8 +162,6 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.elder", "Elder");
 			builder.add("gui.eam.village.child", "Child");
 			builder.add("gui.eam.village.named", "%s, %s");
-			builder.add("gui.eam.village.health", "Health %s");
-			builder.add("gui.eam.village.level_health", "Level %s, health %s");
 			builder.add("gui.eam.village.make_guard", "To Guard");
 			builder.add("gui.eam.village.dismiss_guard", "Dismiss");
 			builder.add("gui.eam.village.upgrades", "Upgrades");
@@ -189,7 +201,9 @@ public final class EamLanguageProviders {
 					{"fletcher", "Fletcher"}, {"shepherd", "Shepherd"}, {"leatherworker", "Leatherworker"}, {"librarian", "Librarian"}}) {
 				builder.add(EconomySettings.componentsTag(component[0]), component[1] + " Components");
 			}
-			builder.add("gui.eam.village.hint", "Right-click a villager for details");
+			builder.add("gui.eam.village.hint", "Click a villager to see everything they carry");
+			builder.add("gui.eam.village.occupation", "%s · level %s (%s)");
+			villagerNames(builder, false);
 			builder.add("gui.eam.village.back", "Back");
 			builder.add("gui.eam.village.level", "Level %s (%s)");
 			builder.add("gui.eam.village.xp", "XP %s/%s");
@@ -322,7 +336,16 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.pillager_king_helm.off", "Raid protection is off");
 			builder.add(EamItems.BLUEPRINT, "Blueprint");
 			builder.add("item.eam.blueprint.of", "Blueprint: %s");
-			builder.add("item.eam.blueprint.usage", "Use to set it down where you look");
+			builder.add("item.eam.blueprint.of_style", "Blueprint: %1$s %2$s (%3$s)");
+			builder.add("item.eam.blueprint.building", "Building: %s");
+			builder.add("item.eam.blueprint.style", "Village style: %s");
+			builder.add("item.eam.blueprint.style.any", "any village");
+			builder.add("item.eam.blueprint.style.plains", "Plains");
+			builder.add("item.eam.blueprint.style.desert", "Desert");
+			builder.add("item.eam.blueprint.style.savanna", "Savanna");
+			builder.add("item.eam.blueprint.style.snowy", "Snowy Plains");
+			builder.add("item.eam.blueprint.style.taiga", "Taiga");
+			builder.add("item.eam.blueprint.usage", "Use to set it down where it shows");
 			builder.add("item.eam.blueprint.turn", "Sneak and use to turn it");
 			builder.add("item.eam.blueprint.blocked", "%s blocks are in the way");
 			builder.add("item.eam.blueprint.no_village", "Only in a village: within %s blocks of its elder");
@@ -1027,8 +1050,6 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.village.elder", "Староста");
 			builder.add("gui.eam.village.child", "Ребёнок");
 			builder.add("gui.eam.village.named", "%s, %s");
-			builder.add("gui.eam.village.health", "Здоровье %s");
-			builder.add("gui.eam.village.level_health", "Ур. %s, здоровье %s");
 			builder.add("gui.eam.village.make_guard", "В стражу");
 			builder.add("gui.eam.village.dismiss_guard", "Из стражи");
 			builder.add("gui.eam.village.upgrades", "Улучшения");
@@ -1068,7 +1089,9 @@ public final class EamLanguageProviders {
 					{"fletcher", "лучника"}, {"shepherd", "пастуха"}, {"leatherworker", "кожевника"}, {"librarian", "библиотекаря"}}) {
 				builder.add(EconomySettings.componentsTag(component[0]), "Материалы " + component[1]);
 			}
-			builder.add("gui.eam.village.hint", "ПКМ по жителю: подробнее");
+			builder.add("gui.eam.village.hint", "Нажмите на жителя, чтобы увидеть всё, что у него есть");
+			builder.add("gui.eam.village.occupation", "%s · ур. %s (%s)");
+			villagerNames(builder, true);
 			builder.add("gui.eam.village.back", "Назад");
 			builder.add("gui.eam.village.level", "Уровень %s (%s)");
 			builder.add("gui.eam.village.xp", "Опыт %s/%s");
@@ -1201,7 +1224,16 @@ public final class EamLanguageProviders {
 			builder.add("block.eam.pillager_king_helm.off", "Защита от рейдов выключена");
 			builder.add(EamItems.BLUEPRINT, "Чертёж");
 			builder.add("item.eam.blueprint.of", "Чертёж: %s");
-			builder.add("item.eam.blueprint.usage", "ПКМ: поставить туда, куда смотришь");
+			builder.add("item.eam.blueprint.of_style", "Чертёж: %1$s %2$s (%3$s)");
+			builder.add("item.eam.blueprint.building", "Постройка: %s");
+			builder.add("item.eam.blueprint.style", "Стиль деревни: %s");
+			builder.add("item.eam.blueprint.style.any", "любая деревня");
+			builder.add("item.eam.blueprint.style.plains", "равнины");
+			builder.add("item.eam.blueprint.style.desert", "пустыня");
+			builder.add("item.eam.blueprint.style.savanna", "саванна");
+			builder.add("item.eam.blueprint.style.snowy", "снежная равнина");
+			builder.add("item.eam.blueprint.style.taiga", "тайга");
+			builder.add("item.eam.blueprint.usage", "ПКМ: поставить там, где виден");
 			builder.add("item.eam.blueprint.turn", "Shift+ПКМ: повернуть");
 			builder.add("item.eam.blueprint.blocked", "Мешают блоки: %s");
 			builder.add("item.eam.blueprint.no_village", "Только в деревне: не дальше %s блоков от старосты");
