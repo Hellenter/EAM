@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.brewing.BrewingModule;
 import io.github.hellenter.eam.world.structures.EmptyContainerLoot;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 
@@ -27,8 +28,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 /**
- * Loot of containers saved empty in templates: a few weak potions for barrels (Baba Yaga's hut, duergar houses), and in
- * Baba Yaga's chests valuables and the potion ingredients one finds in the surface world.
+ * Loot of containers saved empty in templates: a few weak potions for Baba Yaga's barrels, light potions of the silver stand
+ * for duergar barrels, and in Baba Yaga's chests valuables and the potion ingredients one finds in the surface world.
  */
 public class EamHutLootProvider extends SimpleFabricLootTableSubProvider {
 	public EamHutLootProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -57,6 +58,21 @@ public class EamHutLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(potion(Potions.WATER_BREATHING, 3))
 						.add(potion(Potions.LEAPING, 2))
 						.add(potion(Potions.SLOW_FALLING, 2)))
+				.withPool(LootPool.lootPool().setRolls(ContextIntProviders.between(0, 1))
+						.add(item(Items.GLASS_BOTTLE, 1, 1, 3))));
+		// Duergar brew on silver: light potions, now and then a level II one, and the holy water they start from.
+		output.accept(EmptyContainerLoot.DUERGAR_POTIONS, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ContextIntProviders.between(1, 3))
+						.add(potion(BrewingModule.LIGHT_HEALING_POTION, 5))
+						.add(potion(BrewingModule.LIGHT_REGENERATION, 3))
+						.add(potion(BrewingModule.LIGHT_SWIFTNESS, 4))
+						.add(potion(BrewingModule.LIGHT_NIGHT_VISION, 5))
+						.add(potion(BrewingModule.LIGHT_STRENGTH, 3))
+						.add(potion(BrewingModule.HOLY_WATER, 2))
+						.add(potion(BrewingModule.STRONG_LIGHT_HEALING, 1))
+						.add(potion(BrewingModule.STRONG_LIGHT_REGENERATION, 1))
+						.add(potion(BrewingModule.STRONG_LIGHT_SWIFTNESS, 1))
+						.add(potion(BrewingModule.STRONG_LIGHT_STRENGTH, 1)))
 				.withPool(LootPool.lootPool().setRolls(ContextIntProviders.between(0, 1))
 						.add(item(Items.GLASS_BOTTLE, 1, 1, 3))));
 		output.accept(YagaHutModule.CHEST_LOOT, LootTable.lootTable()

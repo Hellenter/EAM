@@ -71,14 +71,14 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 		HolderGetter<net.minecraft.world.level.block.Block> blocks = context.lookup(Registries.BLOCK);
 		context.register(PROCESSORS, new StructureProcessorList(List.of(
 				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
-				// Barrels Maxim left empty hold a few potions.
-				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS),
+				// Barrels Maxim left empty hold a few light potions.
+				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.DUERGAR_POTIONS),
 				// Some pieces were saved with bare fence posts.
 				ConnectFences.INSTANCE)));
 		// The canal beside each lake street ran out over lower ground and flooded the street below; it is a muddy verge.
 		context.register(LAKE_STREET_PROCESSORS, new StructureProcessorList(List.of(
 				new ProtectedBlockProcessor(blocks.getOrThrow(BlockTags.FEATURES_CANNOT_REPLACE)),
-				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.LIGHT_POTIONS),
+				new EmptyContainerLoot(Blocks.BARREL, EmptyContainerLoot.DUERGAR_POTIONS),
 				ConnectFences.INSTANCE,
 				new RuleProcessor(List.of(
 						new ProcessorRule(new RandomBlockMatchTest(Blocks.WATER, 0.25F), AlwaysTrueTest.INSTANCE,
