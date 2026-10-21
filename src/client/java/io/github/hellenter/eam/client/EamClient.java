@@ -97,6 +97,7 @@ import io.github.hellenter.eam.client.mobs.villager.VillagerFigureRenderer;
 import io.github.hellenter.eam.client.mobs.villager.VillagerGearScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillagerTradePanelScreen;
 import io.github.hellenter.eam.client.mobs.villager.BlueprintGhost;
+import io.github.hellenter.eam.client.mobs.villager.BlueprintIcon;
 import io.github.hellenter.eam.client.mobs.villager.VillageEconomyScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillageResidentScreen;
 import io.github.hellenter.eam.client.mobs.villager.VillageScreen;
@@ -143,6 +144,7 @@ public class EamClient implements ClientModInitializer {
 		NutritionPanel.register();
 		Encyclopedia.register();
 		NockedArrow.register();
+		BlueprintIcon.register();
 		// The dense shrub's leaves take the biome's foliage colour, like the trees around it.
 		BlockColorRegistry.register(List.of(BlockTintSources.foliage()), EamBlocks.DENSE_SHRUB, EamBlocks.BIG_SHRUB_LEAVES);
 		// Both stay idle unless the server has thirst on: they need the synced bar or the server's drink channel.
