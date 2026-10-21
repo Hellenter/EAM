@@ -189,6 +189,9 @@ public final class EamItems {
 	public static final Item SILVER_PICKAXE = silverTool("silver_pickaxe", new Item.Properties().pickaxe(SilverGear.TOOL, 1.0F, -2.8F));
 	public static final Item SILVER_AXE = silverTool("silver_axe", new Item.Properties().axe(SilverGear.TOOL, 7.0F, -3.2F));
 	public static final Item SILVER_HOE = silverTool("silver_hoe", new Item.Properties().hoe(SilverGear.TOOL, -1.0F, -2.0F));
+	/** Thrusts like the vanilla copper spear. */
+	public static final Item SILVER_SPEAR = silverTool("silver_spear",
+			new Item.Properties().spear(SilverGear.TOOL, 0.85F, 0.82F, 0.65F, 4.0F, 12.0F, 8.25F, 5.1F, 12.5F, 4.6F));
 
 	/** Silver armor has copper's stats and hurts undead that hit its wearer. */
 	public static final Item SILVER_HELMET = silverArmor("silver_helmet", ArmorType.HELMET);
@@ -336,6 +339,9 @@ public final class EamItems {
 	public static final Item MITHRIL_PICKAXE = register("mithril_pickaxe", Item::new, new Item.Properties().pickaxe(MithrilGear.TOOL, 1.0F, -2.8F));
 	public static final Item MITHRIL_AXE = register("mithril_axe", Item::new, new Item.Properties().axe(MithrilGear.TOOL, 5.0F, -3.0F));
 	public static final Item MITHRIL_HOE = register("mithril_hoe", Item::new, new Item.Properties().hoe(MithrilGear.TOOL, -3.0F, 0.0F));
+	/** Thrusts like the vanilla diamond spear. */
+	public static final Item MITHRIL_SPEAR = register("mithril_spear", Item::new,
+			new Item.Properties().spear(MithrilGear.TOOL, 1.05F, 1.075F, 0.5F, 3.0F, 10.0F, 6.5F, 5.1F, 10.0F, 4.6F));
 
 	/** Mithril armor protects and lasts like diamond, before the gear module's cut. */
 	public static final Item MITHRIL_HELMET = mithrilArmor("mithril_helmet", ArmorType.HELMET);
@@ -366,6 +372,9 @@ public final class EamItems {
 	public static final Item ADAMANTIUM_PICKAXE = register("adamantium_pickaxe", Item::new, new Item.Properties().pickaxe(AdamantiumGear.TOOL, 1.0F, -2.8F));
 	public static final Item ADAMANTIUM_AXE = register("adamantium_axe", Item::new, new Item.Properties().axe(AdamantiumGear.TOOL, 5.0F, -3.0F));
 	public static final Item ADAMANTIUM_HOE = register("adamantium_hoe", Item::new, new Item.Properties().hoe(AdamantiumGear.TOOL, -4.0F, 0.0F));
+	/** Thrusts like the vanilla netherite spear; a smithing table upgrades it to one. */
+	public static final Item ADAMANTIUM_SPEAR = register("adamantium_spear", Item::new,
+			new Item.Properties().spear(AdamantiumGear.TOOL, 1.15F, 1.2F, 0.4F, 2.5F, 9.0F, 5.5F, 5.1F, 8.75F, 4.6F));
 
 	/** Adamantium armor protects and lasts like vanilla netherite, before the gear module's cut. */
 	public static final Item ADAMANTIUM_HELMET = armor("adamantium_helmet", AdamantiumGear.ARMOR, ArmorType.HELMET);
@@ -387,6 +396,9 @@ public final class EamItems {
 	public static final Item RUSTY_IRON_PICKAXE = register("rusty_iron_pickaxe", Item::new, new Item.Properties().pickaxe(RustyGear.TOOL, 1.0F, -2.8F));
 	public static final Item RUSTY_IRON_AXE = register("rusty_iron_axe", Item::new, new Item.Properties().axe(RustyGear.TOOL, 6.0F, -3.1F));
 	public static final Item RUSTY_IRON_HOE = register("rusty_iron_hoe", Item::new, new Item.Properties().hoe(RustyGear.TOOL, -1.0F, -1.0F));
+	/** The iron spear's timings, a little slower and softer. Draugr carry it. */
+	public static final Item RUSTY_IRON_SPEAR = register("rusty_iron_spear", Item::new,
+			new Item.Properties().spear(RustyGear.TOOL, 1.0F, 0.9F, 0.6F, 2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F));
 
 	public static final Item RUSTY_IRON_HELMET = armor("rusty_iron_helmet", RustyGear.IRON_ARMOR, ArmorType.HELMET);
 	public static final Item RUSTY_IRON_CHESTPLATE = armor("rusty_iron_chestplate", RustyGear.IRON_ARMOR, ArmorType.CHESTPLATE);
@@ -504,6 +516,9 @@ public final class EamItems {
 			new Item.Properties().axe(AncientMetalGear.TOOL, 5.5F, -3.05F));
 	public static final Item ANCIENT_METAL_HOE = register("ancient_metal_hoe", Item::new,
 			new Item.Properties().hoe(AncientMetalGear.TOOL, -2.5F, -0.5F));
+	/** Between the vanilla iron and diamond spears. */
+	public static final Item ANCIENT_METAL_SPEAR = register("ancient_metal_spear", Item::new,
+			new Item.Properties().spear(AncientMetalGear.TOOL, 1.0F, 1.0F, 0.55F, 2.75F, 10.5F, 6.6F, 5.1F, 10.6F, 4.6F));
 
 	public static final Item ANCIENT_METAL_HELMET = armor("ancient_metal_helmet", AncientMetalGear.ARMOR, ArmorType.HELMET);
 	public static final Item ANCIENT_METAL_CHESTPLATE = armor("ancient_metal_chestplate", AncientMetalGear.ARMOR, ArmorType.CHESTPLATE);

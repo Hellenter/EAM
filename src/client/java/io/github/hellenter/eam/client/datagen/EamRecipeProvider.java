@@ -554,6 +554,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 						"eam:silver_ingot_from_nuggets", "silver_ingot", "eam:silver_nugget", null);
 
 				silver(RecipeCategory.COMBAT, EamItems.SILVER_SWORD, true, "X", "X", "#");
+				silver(RecipeCategory.COMBAT, EamItems.SILVER_SPEAR, true, "  X", " # ", "#  ");
 				silver(RecipeCategory.TOOLS, EamItems.SILVER_SHOVEL, true, "X", "#", "#");
 				silver(RecipeCategory.TOOLS, EamItems.SILVER_PICKAXE, true, "XXX", " # ", " # ");
 				silver(RecipeCategory.TOOLS, EamItems.SILVER_AXE, true, "XX", "X#", " #");
@@ -688,6 +689,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.MITHRIL_NUGGET, RecipeCategory.MISC, EamItems.MITHRIL_INGOT,
 						"eam:mithril_ingot_from_nuggets", "mithril_ingot", "eam:mithril_nugget", null);
 				mithril(RecipeCategory.COMBAT, EamItems.MITHRIL_SWORD, "X", "X", "#");
+				mithril(RecipeCategory.COMBAT, EamItems.MITHRIL_SPEAR, "  X", " # ", "#  ");
 				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_SHOVEL, "X", "#", "#");
 				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_PICKAXE, "XXX", " # ", " # ");
 				mithril(RecipeCategory.TOOLS, EamItems.MITHRIL_AXE, "XX", "X#", " #");
@@ -722,6 +724,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ADAMANTIUM_NUGGET, RecipeCategory.MISC, EamItems.ADAMANTIUM_INGOT,
 						"eam:adamantium_ingot_from_nuggets", "adamantium_ingot", "eam:adamantium_nugget", null);
 				adamantium(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, "X", "X", "#");
+				adamantium(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SPEAR, "  X", " # ", "#  ");
 				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, "X", "#", "#");
 				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, "XXX", " # ", " # ");
 				adamantium(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, "XX", "X#", " #");
@@ -778,12 +781,13 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 
 			/**
 			 * Netherite is the upgrade of adamantium: the vanilla smithing recipes, saved under their vanilla ids, take
-			 * adamantium gear instead of diamond gear (the spear keeps diamond, which cannot be crafted). The upgrade
+			 * adamantium gear instead of diamond gear. The upgrade
 			 * template can only be found: its copying recipe is saved under the vanilla id with a condition that never
 			 * holds, so neither it nor the vanilla one loads.
 			 */
 			private void netheriteUpgradeRecipes() {
 				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SWORD, Items.NETHERITE_SWORD);
+				netheriteUpgrade(RecipeCategory.COMBAT, EamItems.ADAMANTIUM_SPEAR, Items.NETHERITE_SPEAR);
 				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_SHOVEL, Items.NETHERITE_SHOVEL);
 				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_PICKAXE, Items.NETHERITE_PICKAXE);
 				netheriteUpgrade(RecipeCategory.TOOLS, EamItems.ADAMANTIUM_AXE, Items.NETHERITE_AXE);
@@ -859,6 +863,7 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				nineBlockStorageRecipes(RecipeCategory.MISC, EamItems.ANCIENT_METAL_NUGGET, RecipeCategory.MISC, EamItems.ANCIENT_METAL_INGOT,
 						"eam:ancient_metal_ingot_from_nuggets", "ancient_metal_ingot", "eam:ancient_metal_nugget", null);
 				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_SWORD, "", "I", "I", "#");
+				ancientMetal(output, RecipeCategory.COMBAT, EamItems.ANCIENT_METAL_SPEAR, "", "  I", " # ", "#  ");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_SHOVEL, "", "I", "#", "#");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_PICKAXE, "", "III", " # ", " # ");
 				ancientMetal(output, RecipeCategory.TOOLS, EamItems.ANCIENT_METAL_AXE, "", "II", "I#", " #");

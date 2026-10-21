@@ -84,9 +84,10 @@ public class EamCryptLootProvider extends SimpleFabricLootTableSubProvider {
 		LootPool.Builder weapons = LootPool.lootPool().setRolls(ContextIntProviders.exactly(1))
 				.add(brokenWeapon(EamItems.RUSTY_IRON_SWORD, 4, 0.05F, 0.2F, 5, 12, true))
 				.add(brokenWeapon(EamItems.RUSTY_IRON_AXE, 3, 0.05F, 0.2F, 5, 12, true))
+				.add(brokenWeapon(EamItems.RUSTY_IRON_SPEAR, 2, 0.05F, 0.2F, 5, 12, true))
 				.add(brokenWeapon(Items.COPPER_SWORD, 3, 0.05F, 0.2F, 5, 12, true))
 				.add(brokenWeapon(Items.BOW, 2, 0.05F, 0.2F, 5, 12, true))
-				.add(EmptyLootItem.emptyItem().setWeight(22));
+				.add(EmptyLootItem.emptyItem().setWeight(20));
 		return LootTable.lootTable().withPool(supplies).withPool(jewels).withPool(books).withPool(weapons);
 	}
 

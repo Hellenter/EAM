@@ -43,7 +43,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -213,7 +212,7 @@ public class Draugr extends Monster {
 		return switch (index) {
 			case 0 -> EamItems.RUSTY_IRON_AXE;
 			case 1 -> EamItems.RUSTY_IRON_SWORD;
-			default -> Items.IRON_SPEAR;
+			default -> EamItems.RUSTY_IRON_SPEAR;
 		};
 	}
 

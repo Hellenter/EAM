@@ -787,6 +787,10 @@ public class EamModelProvider extends FabricModelProvider {
 				EamItems.MITHRIL_ARROW)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
+		for (Item item : List.of(EamItems.SILVER_SPEAR, EamItems.RUSTY_IRON_SPEAR, EamItems.ANCIENT_METAL_SPEAR, EamItems.MITHRIL_SPEAR,
+				EamItems.ADAMANTIUM_SPEAR)) {
+			generators.generateSpear(item);
+		}
 		PotionModels.generate(generators);
 		BowModels.generate(generators);
 		FallenLordItemModels.generate(generators);

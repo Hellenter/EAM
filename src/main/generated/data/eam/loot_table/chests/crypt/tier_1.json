@@ -268,6 +268,30 @@
               "options": "#minecraft:in_enchanting_table"
             }
           ],
+          "name": "eam:rusty_iron_spear",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "type": "minecraft:uniform",
+                "max": 0.2,
+                "min": 0.05
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "max": 12,
+                "min": 5
+              },
+              "options": "#minecraft:in_enchanting_table"
+            }
+          ],
           "name": "minecraft:copper_sword",
           "weight": 3
         },
@@ -297,7 +321,7 @@
         },
         {
           "type": "minecraft:empty",
-          "weight": 22
+          "weight": 20
         }
       ],
       "rolls": 1
