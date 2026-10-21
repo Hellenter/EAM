@@ -44,7 +44,13 @@ public class YagaFxParticle extends SingleQuadParticle {
 		FORCE(8, 14, 0.12F, 0.2F, 0.0F, 0.84F, 0.2F, true, true, false, 0.8F, false),
 		// His second phase: the blizzard's small flakes, blown out fast and spinning, and the panes of his ice field.
 		FLAKE(24, 40, 0.035F, 0.07F, 0.01F, 0.95F, 0.25F, false, true, true, 0.0F, true),
-		ICE_FIELD(7, 10, 0.2F, 0.26F, 0.0F, 0.0F, 0.0F, false, true, false, 0.25F, false);
+		ICE_FIELD(7, 10, 0.2F, 0.26F, 0.0F, 0.0F, 0.0F, false, true, false, 0.25F, false),
+		// The Lost longbowman's shots: glints flying into his bow, the flash when the red arrow flies, the red arrow's
+		// hot motes and the marking arrow's soot.
+		CHARGE(10, 12, 0.07F, 0.1F, 0.0F, 0.86F, 0.0F, true, true, false, -0.4F, false),
+		FLARE(6, 6, 0.45F, 0.55F, 0.0F, 0.0F, 0.0F, true, true, false, 0.5F, false),
+		HOT_TRAIL(6, 10, 0.06F, 0.09F, 0.0F, 0.8F, 0.0F, true, true, false, -0.5F, false),
+		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false);
 
 		final int minLife;
 		final int maxLife;
@@ -128,9 +134,9 @@ public class YagaFxParticle extends SingleQuadParticle {
 
 	@Override
 	public void extract(QuadParticleRenderState state, Camera camera, float partialTick) {
-		// Fades out over the last part of its life; the claw rakes and the eye hold until their frames end.
+		// Fades out over the last part of its life; the claw rakes, the eye and the flare hold until their frames end.
 		float left = (lifetime - age - partialTick) / Math.max(1.0F, lifetime * 0.35F);
-		alpha = style == Style.CLAW || style == Style.EYE ? 1.0F : Mth.clamp(left, 0.0F, 1.0F);
+		alpha = style == Style.CLAW || style == Style.EYE || style == Style.FLARE ? 1.0F : Mth.clamp(left, 0.0F, 1.0F);
 		super.extract(state, camera, partialTick);
 	}
 
