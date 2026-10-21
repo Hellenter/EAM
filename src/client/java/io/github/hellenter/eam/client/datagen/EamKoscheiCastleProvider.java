@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Koschei's castle: Maxim's template in the middle of every other ice spikes patch, placed after the spikes so it can
- * clear them within 12 blocks.
+ * Koschei's castle: Maxim's template in the middle of every patch of the underworld's ice caves, placed after the ice
+ * spires so it can clear them within 12 blocks.
  */
 public class EamKoscheiCastleProvider extends FabricDynamicRegistryProvider {
 	public EamKoscheiCastleProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
@@ -31,7 +31,7 @@ public class EamKoscheiCastleProvider extends FabricDynamicRegistryProvider {
 		context.register(KoscheiCastleModule.STRUCTURE, new KoscheiCastleStructure(
 				new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(KoscheiCastleModule.HAS_CASTLE), Map.of(),
 						GenerationStep.Decoration.TOP_LAYER_MODIFICATION, TerrainAdjustment.BEARD_THIN),
-				0.5F, 12));
+				1.0F, 12));
 	}
 
 	public static void bootstrapSets(BootstrapContext<StructureSet> context) {

@@ -2,6 +2,8 @@ package io.github.hellenter.eam.world.structures.koscheicastle;
 
 import com.mojang.serialization.MapCodec;
 
+import io.github.hellenter.eam.dimension.UnderworldLogic;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Vec3i;
@@ -20,7 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * One castle spot per {@link KoscheiCastleLogic#CELL}-sample cell: the middle of the biggest ice spikes patch whose
+ * One castle spot per {@link KoscheiCastleLogic#CELL}-sample cell: the middle of the biggest ice caves patch whose
  * middle lies in the cell. It stays a random spread with one cell per cell, so {@code /locate} searches it like any
  * other structure; a cell without such a patch falls back to a random chunk, where the castle finds no spot and
  * generates nothing.
@@ -29,11 +31,11 @@ public class KoscheiCastlePlacement extends RandomSpreadStructurePlacement {
 	public static final KoscheiCastlePlacement INSTANCE = new KoscheiCastlePlacement();
 	public static final MapCodec<RandomSpreadStructurePlacement> CODEC = MapCodec.unit(INSTANCE);
 
-	/** The height the biome is read at: the surface of the low, flat ice spikes land. */
-	private static final int SAMPLE_Y = 72;
+	/** The height the biome is read at: the middle of the underworld's upper level, inside the ice caves' hall. */
+	private static final int SAMPLE_Y = (UnderworldLogic.BAND_TOP + UnderworldLogic.HEIGHT) / 2;
 	private static final int MAX_CACHED = 4096;
 
-	/** The overworld's biomes and noises for each world seed, to find a patch's middle from the seed alone, as {@code /locate} does. */
+	/** The underworld's biomes and noises for each world seed, to find a patch's middle from the seed alone, as {@code /locate} does. */
 	private static final Map<Long, World> WORLDS = new ConcurrentHashMap<>();
 	/** Each cell's spot, worked out once: following a patch reads the climate a few hundred times. */
 	private static final Map<CellKey, Optional<KoscheiCastleLogic.Patch>> PATCHES = new ConcurrentHashMap<>();
@@ -49,7 +51,7 @@ public class KoscheiCastlePlacement extends RandomSpreadStructurePlacement {
 				KoscheiCastleLogic.CELL * KoscheiCastleLogic.SAMPLE / 16, 0, RandomSpreadType.LINEAR);
 	}
 
-	/** Remembers a world's overworld biomes and noises, for {@code /locate} before any new chunk has been made. */
+	/** Remembers a world's underworld biomes and noises, for {@code /locate} before any new chunk has been made. */
 	public static void remember(long seed, BiomeSource biomes, RandomState state) {
 		WORLDS.put(seed, new World(biomes, state));
 	}

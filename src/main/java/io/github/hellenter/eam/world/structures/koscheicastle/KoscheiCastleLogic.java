@@ -12,9 +12,9 @@ import java.util.Set;
 import java.util.SplittableRandom;
 
 /**
- * Where Koschei's castle goes, apart from the world so it can be tested: in the middle of an ice spikes patch, read
+ * Where Koschei's castle goes, apart from the world so it can be tested: in the middle of an ice caves patch, read
  * off a grid of biome samples. Each patch is owned by the one cell its middle lies in, so a patch spread over several
- * cells still gets one castle at most, and only every other patch gets one at all.
+ * cells still gets one castle at most.
  */
 public final class KoscheiCastleLogic {
 	/** Blocks between two biome samples. */
@@ -27,7 +27,7 @@ public final class KoscheiCastleLogic {
 	private static final int MAX_PATCH = 4096;
 	/**
 	 * Samples from the middle to the patch's edge, at least, counting the edge sample as 1: two keep the castle's
-	 * footprint, 28 blocks either way, inside the ice spikes.
+	 * footprint, 28 blocks either way, inside the ice caves.
 	 */
 	public static final int MIN_DEPTH = 2;
 
