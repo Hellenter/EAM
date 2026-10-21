@@ -3,7 +3,7 @@
   "biomes": "#eam:has_structure/underworld_mine",
   "collapsed_wing_chance": 0.35,
   "dimension_padding": {
-    "bottom": 56,
+    "bottom": 104,
     "top": 8
   },
   "flooded_wing_chance": 0.3,
