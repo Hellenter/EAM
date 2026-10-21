@@ -29,6 +29,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(EamOutpostProvider::new);
 		pack.addProvider(EamCastleProvider::new);
 		pack.addProvider(EamYagaHutProvider::new);
+		pack.addProvider(EamKoscheiCastleProvider::new);
 		pack.addProvider(EamUnderworldMineProvider::new);
 		pack.addProvider(EamUnderworldMineLootProvider::new);
 		pack.addProvider(EamDuergarVillageProvider::new);
@@ -103,6 +104,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 			EamOutpostProvider.bootstrap(context);
 			EamCastleProvider.bootstrap(context);
 			EamYagaHutProvider.bootstrap(context);
+			EamKoscheiCastleProvider.bootstrap(context);
 			EamUnderworldMineProvider.bootstrap(context);
 			EamDuergarVillageProvider.bootstrap(context);
 		});
@@ -111,6 +113,7 @@ public class EamDataGenerator implements DataGeneratorEntrypoint {
 			EamOutpostProvider.bootstrapSets(context);
 			EamCastleProvider.bootstrapSets(context);
 			EamYagaHutProvider.bootstrapSets(context);
+			EamKoscheiCastleProvider.bootstrapSets(context);
 			EamUnderworldMineProvider.bootstrapSets(context);
 			EamDuergarVillageProvider.bootstrapSets(context);
 		});

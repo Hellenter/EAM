@@ -184,6 +184,7 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.KOSCHEI_FORCE, YagaFxParticle.Style.FORCE);
 		registerYagaFx(EamParticles.KOSCHEI_SNOWFLAKE, YagaFxParticle.Style.FLAKE);
 		registerYagaFx(EamParticles.KOSCHEI_ICE_FIELD, YagaFxParticle.Style.ICE_FIELD);
+		registerYagaFx(EamParticles.KOSCHEI_CRYSTAL_SHARD, YagaFxParticle.Style.SHARD);
 		registerYagaFx(EamParticles.LONGBOW_CHARGE, YagaFxParticle.Style.CHARGE);
 		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
 		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);

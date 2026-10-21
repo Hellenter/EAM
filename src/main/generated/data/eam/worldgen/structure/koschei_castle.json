@@ -1,0 +1,7 @@
+{
+  "type": "eam:koschei_castle",
+  "biomes": "#eam:has_structure/koschei_castle",
+  "spawn_overrides": {},
+  "step": "top_layer_modification",
+  "terrain_adaptation": "beard_thin"
+}

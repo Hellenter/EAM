@@ -18,11 +18,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param phaseTwo            the second phase, the lord of the undead
  * @param needle              the needle he drops on his death
  * @param phaseThree          the third phase, undead and in a fury with two daggers
+ * @param crystal             the ice crystal he waits sealed in at his castle
  */
 public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport, Hop hop, Ravens ravens, float mobDamageMultiplier,
-		Height height, PhaseTwoSettings phaseTwo, Needle needle, PhaseThreeSettings phaseThree) {
+		Height height, PhaseTwoSettings phaseTwo, Needle needle, PhaseThreeSettings phaseThree, Crystal crystal) {
 	public static final KoscheiSettings DEFAULT = new KoscheiSettings(Stats.DEFAULT, PhaseOne.DEFAULT, Teleport.DEFAULT, Hop.DEFAULT, Ravens.DEFAULT,
-			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT, Needle.DEFAULT, PhaseThreeSettings.DEFAULT);
+			4.0F, Height.DEFAULT, PhaseTwoSettings.DEFAULT, Needle.DEFAULT, PhaseThreeSettings.DEFAULT, Crystal.DEFAULT);
 
 	public static final Codec<KoscheiSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Stats.CODEC.fieldOf("stats").orElse(DEFAULT.stats).forGetter(KoscheiSettings::stats),
@@ -35,8 +36,34 @@ public record KoscheiSettings(Stats stats, PhaseOne phaseOne, Teleport teleport,
 			Height.CODEC.fieldOf("height").orElse(Height.DEFAULT).forGetter(KoscheiSettings::height),
 			PhaseTwoSettings.CODEC.fieldOf("phase_two").orElse(PhaseTwoSettings.DEFAULT).forGetter(KoscheiSettings::phaseTwo),
 			Needle.CODEC.fieldOf("needle").orElse(Needle.DEFAULT).forGetter(KoscheiSettings::needle),
-			PhaseThreeSettings.CODEC.fieldOf("phase_three").orElse(PhaseThreeSettings.DEFAULT).forGetter(KoscheiSettings::phaseThree)
+			PhaseThreeSettings.CODEC.fieldOf("phase_three").orElse(PhaseThreeSettings.DEFAULT).forGetter(KoscheiSettings::phaseThree),
+			Crystal.CODEC.fieldOf("crystal").orElse(Crystal.DEFAULT).forGetter(KoscheiSettings::crystal)
 	).apply(instance, KoscheiSettings::new));
+
+	/**
+	 * The ice crystal on the second floor of his castle, which he waits sealed in: still, silent and untouchable, his
+	 * boss bar hidden. A player who comes close on his floor, or strikes him, wakes him: the crystal bursts in a spray of
+	 * shards that throws back and cuts whoever stands near.
+	 *
+	 * @param wakeRadius  a player this close across the floor wakes him
+	 * @param wakeAbove   ... if their feet are at most this much higher than his
+	 * @param wakeBelow   ... or at most this much lower
+	 * @param burstRadius the shards reach this far
+	 * @param push        how hard the burst throws a player back, blocks per tick at its heart
+	 * @param damage      what the shards deal at the heart of the burst; less farther out
+	 */
+	public record Crystal(double wakeRadius, double wakeAbove, double wakeBelow, double burstRadius, double push, float damage) {
+		public static final Crystal DEFAULT = new Crystal(10.0, 4.0, 2.0, 4.5, 1.2, 4.0F);
+
+		public static final Codec<Crystal> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.doubleRange(0.0, 64.0).fieldOf("wake_radius").orElse(DEFAULT.wakeRadius).forGetter(Crystal::wakeRadius),
+				Codec.doubleRange(0.0, 64.0).fieldOf("wake_above").orElse(DEFAULT.wakeAbove).forGetter(Crystal::wakeAbove),
+				Codec.doubleRange(0.0, 64.0).fieldOf("wake_below").orElse(DEFAULT.wakeBelow).forGetter(Crystal::wakeBelow),
+				Codec.doubleRange(0.0, 16.0).fieldOf("burst_radius").orElse(DEFAULT.burstRadius).forGetter(Crystal::burstRadius),
+				Codec.doubleRange(0.0, 4.0).fieldOf("push").orElse(DEFAULT.push).forGetter(Crystal::push),
+				Codec.floatRange(0.0F, 100.0F).fieldOf("damage").orElse(DEFAULT.damage).forGetter(Crystal::damage)
+		).apply(instance, Crystal::new));
+	}
 
 	/**
 	 * The needle that held his death. Used, it flies out of the hand and hangs spinning in the air in a pillar of light

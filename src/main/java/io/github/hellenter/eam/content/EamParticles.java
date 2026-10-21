@@ -61,6 +61,8 @@ public final class EamParticles {
 	public static final SimpleParticleType KOSCHEI_SNOWFLAKE = register("koschei_snowflake");
 	/** Panes of the ice field round Koschei, that show for a moment where it turns an arrow. */
 	public static final SimpleParticleType KOSCHEI_ICE_FIELD = register("koschei_ice_field");
+	/** Shards of ice and glass flung out when the crystal Koschei waits sealed in at his castle bursts. */
+	public static final SimpleParticleType KOSCHEI_CRYSTAL_SHARD = register("koschei_crystal_shard");
 
 	/**
 	 * The Lost longbowman's power shot: red glints drawn into his bow while it is warned (sent with count 0 so the

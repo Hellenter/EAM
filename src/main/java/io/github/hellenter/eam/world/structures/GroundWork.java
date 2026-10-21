@@ -40,6 +40,15 @@ public final class GroundWork {
 	 * @param grassUnder   whether the top of the fill under the footprint is grass, where the template leaves it open
 	 */
 	public static void bank(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint, int grass, boolean grassUnder) {
+		bank(level, chunkBox, footprint, grass, grassUnder, Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState());
+	}
+
+	/**
+	 * {@link #bank(WorldGenLevel, BoundingBox, BoundingBox, int, boolean)} with other earth: {@code surface} where grass
+	 * would be, {@code fill} under it.
+	 */
+	public static void bank(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint, int grass, boolean grassUnder,
+			BlockState surface, BlockState fill) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for (int x = Math.max(chunkBox.minX(), footprint.minX() - BANK); x <= Math.min(chunkBox.maxX(), footprint.maxX() + BANK); x++) {
 			for (int z = Math.max(chunkBox.minZ(), footprint.minZ() - BANK); z <= Math.min(chunkBox.maxZ(), footprint.maxZ() + BANK); z++) {
@@ -57,8 +66,7 @@ public final class GroundWork {
 						if (y < top && state.is(Blocks.GRASS_BLOCK)) level.setBlock(pos, Blocks.DIRT.defaultBlockState(), Block.UPDATE_CLIENTS);
 						break;
 					}
-					BlockState fill = grassTop && y == top ? Blocks.GRASS_BLOCK.defaultBlockState() : Blocks.DIRT.defaultBlockState();
-					level.setBlock(pos, fill, Block.UPDATE_CLIENTS);
+					level.setBlock(pos, grassTop && y == top ? surface : fill, Block.UPDATE_CLIENTS);
 				}
 			}
 		}

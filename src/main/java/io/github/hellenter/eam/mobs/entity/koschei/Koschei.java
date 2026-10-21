@@ -125,6 +125,8 @@ public class Koschei extends Monster implements BuildingAware {
 	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
 	/** The phase he fights in, from 1. */
 	private static final EntityDataAccessor<Byte> DATA_PHASE = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BYTE);
+	/** Sealed in the ice crystal at his castle, waiting for a player. */
+	private static final EntityDataAccessor<Boolean> DATA_SEALED = SynchedEntityData.defineId(Koschei.class, EntityDataSerializers.BOOLEAN);
 	/** Id of the entity his lightning holds on, or -1. */
 	/** Ids of the entities his lightning holds on, -1 for an empty slot: every player in his sight when he looses it. */
 	@SuppressWarnings("unchecked")
@@ -359,6 +361,7 @@ public class Koschei extends Monster implements BuildingAware {
 		super.defineSynchedData(builder);
 		builder.define(DATA_ACTION, (byte) 0);
 		builder.define(DATA_PHASE, (byte) 1);
+		builder.define(DATA_SEALED, false);
 		for (EntityDataAccessor<Integer> slot : DATA_BOLT_TARGETS) {
 			builder.define(slot, -1);
 		}
@@ -693,6 +696,10 @@ public class Koschei extends Monster implements BuildingAware {
 
 	@Override
 	public void aiStep() {
+		if (sealed()) {
+			tickSealed();
+			return;
+		}
 		super.aiStep();
 		if (level().isClientSide()) {
 			KoscheiEffects.tick(this);
@@ -701,6 +708,51 @@ public class Koschei extends Monster implements BuildingAware {
 				trail.removeLast();
 			}
 		}
+	}
+
+	// ---- Sealed in the crystal ----
+
+	/**
+	 * He waits sealed in the ice crystal of his castle: still, silent and untouchable, his boss bar hidden, until a player
+	 * comes close on his floor or strikes him. Then the crystal bursts and the fight begins.
+	 */
+	public void sealInCrystal() {
+		setSealed(true);
+	}
+
+	/** Whether he still waits sealed in his crystal. */
+	public boolean sealed() {
+		return entityData.get(DATA_SEALED);
+	}
+
+	private void setSealed(boolean sealed) {
+		entityData.set(DATA_SEALED, sealed);
+		bossEvent.setVisible(!sealed);
+	}
+
+	/** Sealed: he stands still in the ice; a player close on his floor breaks him out. */
+	private void tickSealed() {
+		setDeltaMovement(Vec3.ZERO);
+		if (level() instanceof ServerLevel level && tickCount % 5 == 0) {
+			Player player = KoscheiCrystal.waker(level, this, settings().crystal());
+			if (player != null) {
+				breakOut(level, player);
+			}
+		}
+	}
+
+	/** The crystal bursts and he steps out, after the player who woke him if he can fight them. */
+	private void breakOut(ServerLevel level, Player player) {
+		setSealed(false);
+		KoscheiCrystal.burst(level, this, settings().crystal());
+		if (EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
+			setTarget(player);
+		}
+	}
+
+	@Override
+	public boolean isPushable() {
+		return !sealed() && super.isPushable();
 	}
 
 	/** Client: where he stood the last few ticks, newest first. */
@@ -2855,6 +2907,13 @@ public class Koschei extends Monster implements BuildingAware {
 			return super.hurtServer(level, source, damage);
 		}
 		Entity attacker = source.getEntity();
+		if (sealed()) {
+			// The crystal takes the blow, and a player's blow breaks him out.
+			if (attacker instanceof Player player && !player.isSpectator()) {
+				breakOut(level, player);
+			}
+			return false;
+		}
 		if (action == KoscheiAction.TRANSFORM || action == KoscheiAction.SHATTER || attacker instanceof Draugr draugr && draugr.servedBy(this)) {
 			// Nothing touches him while he changes, and his own draugr do not hurt him.
 			return false;
@@ -3132,7 +3191,7 @@ public class Koschei extends Monster implements BuildingAware {
 	@Override
 	public void startSeenByPlayer(ServerPlayer player) {
 		super.startSeenByPlayer(player);
-		if (showsBossBar()) {
+		if (showsBossBar() && !sealed()) {
 			bossEvent.addPlayer(player);
 		}
 	}
@@ -3268,12 +3327,14 @@ public class Koschei extends Monster implements BuildingAware {
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putByte("Phase", entityData.get(DATA_PHASE));
+		output.putBoolean("Sealed", sealed());
 	}
 
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
 		entityData.set(DATA_PHASE, input.getByteOr("Phase", (byte) 1));
+		setSealed(input.getBooleanOr("Sealed", false));
 		// Saved in the middle of a drain: the drain is not saved, so he comes down.
 		setNoGravity(false);
 		applyStats(false);
@@ -3287,8 +3348,8 @@ public class Koschei extends Monster implements BuildingAware {
 	// ---- Sounds ----
 
 	@Override
-	protected SoundEvent getAmbientSound() {
-		return SoundEvents.EVOKER_AMBIENT;
+	protected @Nullable SoundEvent getAmbientSound() {
+		return sealed() ? null : SoundEvents.EVOKER_AMBIENT;
 	}
 
 	@Override
