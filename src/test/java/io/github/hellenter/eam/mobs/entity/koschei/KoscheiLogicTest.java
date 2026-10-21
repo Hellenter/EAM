@@ -408,4 +408,23 @@ class KoscheiLogicTest {
 		assertEquals(9, KoscheiLogic.furyPause(14, 2, 0.18F, 2));
 		assertEquals(2, KoscheiLogic.furyPause(14, 5, 0.18F, 2));
 	}
+
+	@Test
+	void onlyAPlayerCloseOnHisFloorWakesHimInTheCrystal() {
+		KoscheiSettings.Crystal crystal = KoscheiSettings.Crystal.DEFAULT;
+		assertTrue(KoscheiLogic.wakesFromCrystal(6.0, 0.0, crystal));
+		assertTrue(KoscheiLogic.wakesFromCrystal(10.0, 1.0, crystal));
+		assertFalse(KoscheiLogic.wakesFromCrystal(10.5, 0.0, crystal));
+		// The floor below and the roof above stay out of it.
+		assertFalse(KoscheiLogic.wakesFromCrystal(2.0, -19.0, crystal));
+		assertFalse(KoscheiLogic.wakesFromCrystal(2.0, 9.0, crystal));
+	}
+
+	@Test
+	void theBurstFadesToNothingAtItsEdge() {
+		assertEquals(1.0, KoscheiLogic.burstShare(0.0, 4.0), 1.0E-9);
+		assertEquals(0.5, KoscheiLogic.burstShare(2.0, 4.0), 1.0E-9);
+		assertEquals(0.0, KoscheiLogic.burstShare(5.0, 4.0), 1.0E-9);
+		assertEquals(0.0, KoscheiLogic.burstShare(1.0, 0.0), 1.0E-9);
+	}
 }

@@ -45,6 +45,8 @@ public class YagaFxParticle extends SingleQuadParticle {
 		// His second phase: the blizzard's small flakes, blown out fast and spinning, and the panes of his ice field.
 		FLAKE(24, 40, 0.035F, 0.07F, 0.01F, 0.95F, 0.25F, false, true, true, 0.0F, true),
 		ICE_FIELD(7, 10, 0.2F, 0.26F, 0.0F, 0.0F, 0.0F, false, true, false, 0.25F, false),
+		// The shards of the crystal he waits sealed in at his castle: flung out tumbling, falling and bouncing on the floor.
+		SHARD(30, 55, 0.07F, 0.16F, 0.9F, 0.96F, 0.45F, false, true, false, 0.0F, true),
 		// The Lost longbowman's shots: glints flying into his bow, the flash when the red arrow flies, the red arrow's
 		// hot motes and the marking arrow's soot.
 		CHARGE(10, 12, 0.07F, 0.1F, 0.0F, 0.86F, 0.0F, true, true, false, -0.4F, false),

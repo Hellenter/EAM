@@ -1,0 +1,11 @@
+{
+  "placement": {
+    "type": "eam:biome_patch_middle"
+  },
+  "structures": [
+    {
+      "structure": "eam:koschei_castle",
+      "weight": 1
+    }
+  ]
+}

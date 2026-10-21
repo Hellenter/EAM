@@ -524,4 +524,17 @@ public final class KoscheiLogic {
 		float progress = Math.clamp((float) t / Math.max(1, length), 0.0F, 1.0F);
 		return from + (full - from) * progress;
 	}
+
+	/**
+	 * Whether a player {@code across} blocks away over the floor and {@code rise} blocks higher (negative: lower) wakes him
+	 * in his crystal: close on his own floor, not on the floor below or the roof above.
+	 */
+	public static boolean wakesFromCrystal(double across, double rise, KoscheiSettings.Crystal crystal) {
+		return across <= crystal.wakeRadius() && rise <= crystal.wakeAbove() && rise >= -crystal.wakeBelow();
+	}
+
+	/** How much of the crystal's burst reaches {@code distance} blocks out: all of it at the heart, none past its radius. */
+	public static double burstShare(double distance, double radius) {
+		return radius <= 0.0 ? 0.0 : Math.clamp(1.0 - distance / radius, 0.0, 1.0);
+	}
 }

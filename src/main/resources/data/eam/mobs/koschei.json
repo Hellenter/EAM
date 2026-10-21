@@ -255,6 +255,14 @@
       "height": 3.0
     }
   },
+  "crystal": {
+    "wake_radius": 10.0,
+    "wake_above": 4.0,
+    "wake_below": 2.0,
+    "burst_radius": 4.5,
+    "push": 1.2,
+    "damage": 4.0
+  },
   "needle": {
     "fuse": 60,
     "explosion_power": 7.0,
