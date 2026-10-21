@@ -183,8 +183,6 @@ final class UnderworldWorldgen {
 	private static final int ICE_ROOF = UPPER_TOP - 14;
 	/** The lava caves turn to solid rock above this height, so they are lower than the other biomes' halls. */
 	private static final int LAVA_ROOF = 128;
-	/** The depths' halls open from this height up; below it lies solid rock. */
-	private static final int DEPTHS_FLOOR = 4;
 	/**
 	 * The layered caves: a level every LAYER_PERIOD blocks of height, its density from LAYER_SLAB in the rock between
 	 * levels to LAYER_OPEN in the middle of one, rising and falling by up to about LAYER_WAVE / 2 blocks, and roughened by
@@ -466,10 +464,10 @@ final class UnderworldWorldgen {
 				DensityFunctions.yClampedGradient(FOREST_ROOF - 12, FOREST_ROOF, 0.0F, 1.5F));
 		caves = DensityFunctions.lerp(forestWeight, caves, forest);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
-		// Lower level: one tier of wide halls from y 4 to y 36 under the band, solid rock below them down to the floor bedrock.
-		// Halls reaching below y 0 would cross into the aquifer's next cell and hold a second lava sea.
+		// Lower level: one tier of wide halls just over the floor bedrock, under a thick layer of rock up to the band.
 		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.TOP,
-				UnderworldLogic.TOP - 36, UnderworldLogic.TOP - (UnderworldLogic.BAND_BOTTOM - 1), 2.5F, DEPTHS_FLOOR, DEPTHS_FLOOR + 6, 2.5F);
+				UnderworldLogic.TOP - UnderworldLogic.DEPTHS_ROOF, UnderworldLogic.TOP - (UnderworldLogic.DEPTHS_ROOF + 5), 2.5F,
+				UnderworldLogic.MIN_Y + 2, UnderworldLogic.MIN_Y + 8, 2.5F);
 		DensityFunction finalDensity = DensityFunctions.add(NoiseRouterData.postProcess(DensityFunctions.min(upper, lower), 4, 8),
 				DensityFunctions.beardifier());
 
@@ -479,18 +477,16 @@ final class UnderworldWorldgen {
 				DensityFunctions.zero(), depth,
 				DensityFunctions.zero(), DensityFunctions.zero(), finalDensity);
 
-		DensityFunction floodNoise = DensityFunctions.mul(DensityFunctions.constant(0.3F),
-				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS), 1.0, 0.67));
-		// The depths flood into a lava sea; the upper level stays dry (at 0.4 and below a cave holds no fluid), its lakes
-		// are dug by features with thick walls instead of the aquifer's thin ones.
+		// The depths flood into one lava sea: above 0.8 every cave takes the global fluid, filled up to the sea level (water,
+		// turned to lava by the fluids feature), so there are no dry basins and no second level. The upper level stays dry
+		// (at 0.4 and below a cave holds no fluid), its lakes are dug by features with thick walls instead of the aquifer's
+		// thin ones.
 		DensityFunction flooded = DensityFunctions.lerp(
 				DensityFunctions.yClampedGradient(UnderworldLogic.BAND_BOTTOM - 2, UnderworldLogic.BAND_TOP, 0.0F, 1.0F),
-				DensityFunctions.add(DensityFunctions.constant(0.5F), floodNoise),
-				DensityFunctions.constant(-1.0F));
-		// Above 0.8 a cave would take the global fluid, which here is none: keep the wettest spots just below it.
+				DensityFunctions.constant(1.0F), DensityFunctions.constant(-1.0F));
 		Aquifer.Config aquifers = new Aquifer.Config(
 				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_BARRIER), 1.0, 0.5),
-				DensityFunctions.clamp(flooded, -1.0F, 0.78F),
+				flooded,
 				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_FLUID_LEVEL_SPREAD), 1.0, 0.7142857142857143),
 				DensityFunctions.zero(),
 				DensityFunctions.zero(),
@@ -504,7 +500,7 @@ final class UnderworldWorldgen {
 				router,
 				context.lookup(Registries.MATERIAL_RULE).getOrThrow(MATERIAL_RULE),
 				List.of(),
-				UnderworldLogic.MIN_Y,
+				UnderworldLogic.LAVA_SEA_LEVEL,
 				false,
 				Optional.of(aquifers),
 				false,

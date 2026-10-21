@@ -8,35 +8,17 @@
     },
     "exclusion": 0.0,
     "fluid_level_floodedness": {
-      "type": "minecraft:clamp",
-      "input": {
-        "type": "minecraft:lerp",
-        "alpha": {
-          "type": "minecraft:gradient",
-          "axis": "y",
-          "from_coordinate": 40,
-          "from_value": 0.0,
-          "to_coordinate": 51,
-          "to_value": 1.0
-        },
-        "first": {
-          "type": "minecraft:add",
-          "left": 0.5,
-          "right": {
-            "type": "minecraft:mul",
-            "left": 0.3,
-            "right": {
-              "type": "minecraft:noise",
-              "noise": "minecraft:aquifer_fluid_level_floodedness",
-              "xz_scale": 1.0,
-              "y_scale": 0.67
-            }
-          }
-        },
-        "second": -1.0
+      "type": "minecraft:lerp",
+      "alpha": {
+        "type": "minecraft:gradient",
+        "axis": "y",
+        "from_coordinate": 40,
+        "from_value": 0.0,
+        "to_coordinate": 51,
+        "to_value": 1.0
       },
-      "max": 0.78,
-      "min": -1.0
+      "first": 1.0,
+      "second": -1.0
     },
     "fluid_level_spread": {
       "type": "minecraft:noise",
@@ -724,9 +706,9 @@
                   "alpha": {
                     "type": "minecraft:gradient",
                     "axis": "y",
-                    "from_coordinate": 4,
+                    "from_coordinate": -46,
                     "from_value": 0.0,
-                    "to_coordinate": 10,
+                    "to_coordinate": -40,
                     "to_value": 1.0
                   },
                   "first": 2.5,
@@ -735,9 +717,9 @@
                     "alpha": {
                       "type": "minecraft:gradient",
                       "axis": "y",
-                      "from_coordinate": 36,
+                      "from_coordinate": -2,
                       "from_value": 1.0,
-                      "to_coordinate": 41,
+                      "to_coordinate": 3,
                       "to_value": 0.0
                     },
                     "first": 2.5,
@@ -762,6 +744,6 @@
     "temperature": "eam:underworld/temperature",
     "vegetation": "eam:underworld/humidity"
   },
-  "sea_level": -48,
+  "sea_level": -24,
   "spawn_target": []
 }
