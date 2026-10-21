@@ -9,6 +9,7 @@ import io.github.hellenter.eam.world.structures.GroundWork;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.NoiseColumn;
@@ -29,8 +30,8 @@ import java.util.Optional;
 
 /**
  * Koschei's castle: Maxim's template on the floor of the underworld's ice caves, in the middle of a patch of them, for
- * {@code chance} of the patches. It stands on the highest floor under its footprint with stone and snow banked under and
- * around it, and clears the ice spires within {@code clearRadius} blocks so none is cut off by its walls. It generates
+ * {@code chance} of the patches. Its foot is sunk into the highest floor under its footprint, with stone and snow filled in
+ * round the foot and banked around it, and clears the ice spires within {@code clearRadius} blocks so none is cut off by its walls. It generates
  * after the spires, so each chunk clears what grew there and what spires of neighbouring chunks reach into it.
  */
 public class KoscheiCastleStructure extends Structure {
@@ -40,6 +41,11 @@ public class KoscheiCastleStructure extends Structure {
 			Codec.intRange(0, 24).optionalFieldOf("clear_radius", 12).forGetter(castle -> castle.clearRadius)
 	).apply(instance, KoscheiCastleStructure::new));
 
+	/**
+	 * The template's bottom layers that go into the ground. The template leaves out their air, so the ground round the
+	 * foot stays; where the ground is lower, stone and snow fill it up to the top of the foot.
+	 */
+	public static final int BURIED = 4;
 	/** Blocks between two floor samples across the footprint. */
 	private static final int STEP = 8;
 	/** How far an ice spire grown in a neighbouring chunk may reach into this one; each chunk clears this far past its edges. */
@@ -70,7 +76,7 @@ public class KoscheiCastleStructure extends Structure {
 			}
 		}
 		if (ground == Integer.MIN_VALUE) return Optional.empty();
-		BlockPos corner = new BlockPos(spot[0] - size.getX() / 2, ground + 1, spot[1] - size.getZ() / 2);
+		BlockPos corner = new BlockPos(spot[0] - size.getX() / 2, ground + 1 - BURIED, spot[1] - size.getZ() / 2);
 		Rotation rotation = Rotation.getRandom(context.random());
 		return Optional.of(new GenerationStub(new BlockPos(spot[0], ground, spot[1]),
 				builder -> builder.addPiece(new KoscheiCastlePiece(context.structureTemplateManager(), corner, rotation))));
@@ -101,29 +107,47 @@ public class KoscheiCastleStructure extends Structure {
 		for (StructurePiece piece : pieces.pieces()) {
 			if (!(piece instanceof KoscheiCastlePiece castle)) continue;
 			BoundingBox footprint = castle.templateBox();
-			clearSpires(level, chunkBox, footprint);
-			// The plinth's foot stands on the floor: the floor round it is snow over rock.
-			GroundWork.bank(level, chunkBox, footprint, footprint.minY() - 1, true, Blocks.SNOW_BLOCK.defaultBlockState(), Blocks.STONE.defaultBlockState());
+			int ground = footprint.minY() + BURIED - 1;
+			clearSpires(level, chunkBox, footprint, ground);
+			fillFoot(level, chunkBox, footprint, ground);
+			// The floor round the plinth's foot is snow over rock.
+			GroundWork.bank(level, chunkBox, footprint, ground, true, Blocks.SNOW_BLOCK.defaultBlockState(), Blocks.STONE.defaultBlockState());
 		}
 	}
 
 	/**
 	 * Removes the ice of the spires, and the snow on them, from the columns round the castle, from a little over its top
-	 * down to its foot, and over the castle down to its top. The castle's own ice stays, and so does the hall's floor
-	 * below its foot.
+	 * down to the ground its foot is sunk into, and over the castle down to its top. The castle's own ice stays, and so
+	 * does the hall's floor.
 	 */
-	private void clearSpires(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint) {
+	private void clearSpires(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint, int ground) {
 		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		int top = footprint.maxY() + CLEAR_ABOVE;
 		for (int x = Math.max(chunkBox.minX() - SPIKE_REACH, footprint.minX() - clearRadius); x <= Math.min(chunkBox.maxX() + SPIKE_REACH, footprint.maxX() + clearRadius); x++) {
 			for (int z = Math.max(chunkBox.minZ() - SPIKE_REACH, footprint.minZ() - clearRadius); z <= Math.min(chunkBox.maxZ() + SPIKE_REACH, footprint.maxZ() + clearRadius); z++) {
 				boolean over = x >= footprint.minX() && x <= footprint.maxX() && z >= footprint.minZ() && z <= footprint.maxZ();
-				int bottom = over ? footprint.maxY() + 1 : footprint.minY();
+				int bottom = over ? footprint.maxY() + 1 : ground + 1;
 				for (int y = top; y >= bottom; y--) {
 					pos.set(x, y, z);
 					BlockState state = level.getBlockState(pos);
 					if (state.is(Blocks.PACKED_ICE) || state.is(Blocks.BLUE_ICE) || state.is(Blocks.SNOW)) {
 						level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+					}
+				}
+			}
+		}
+	}
+
+	/** Fills the hollows round the sunk foot, inside the footprint, with stone and snow up to {@code ground}. */
+	private static void fillFoot(WorldGenLevel level, BoundingBox chunkBox, BoundingBox footprint, int ground) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		for (int x = Math.max(chunkBox.minX(), footprint.minX()); x <= Math.min(chunkBox.maxX(), footprint.maxX()); x++) {
+			for (int z = Math.max(chunkBox.minZ(), footprint.minZ()); z <= Math.min(chunkBox.maxZ(), footprint.maxZ()); z++) {
+				for (int y = footprint.minY(); y <= ground; y++) {
+					pos.set(x, y, z);
+					BlockState state = level.getBlockState(pos);
+					if (state.isAir() || state.is(BlockTags.REPLACEABLE)) {
+						level.setBlock(pos, (y == ground ? Blocks.SNOW_BLOCK : Blocks.STONE).defaultBlockState(), Block.UPDATE_CLIENTS);
 					}
 				}
 			}

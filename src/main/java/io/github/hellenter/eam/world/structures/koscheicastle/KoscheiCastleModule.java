@@ -26,7 +26,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 public final class KoscheiCastleModule {
 	public static final Identifier TEMPLATE = Eam.id("koschei_castle");
 	/** Where Koschei stands in the template: in the crystal on the second floor, his feet on the floor. */
-	public static final BlockPos CRYSTAL = new BlockPos(27, 24, 26);
+	public static final BlockPos CRYSTAL = new BlockPos(28, 27, 28);
 
 	public static final ResourceKey<Structure> STRUCTURE = ResourceKey.create(Registries.STRUCTURE, Eam.id("koschei_castle"));
 	public static final ResourceKey<StructureSet> STRUCTURE_SET = ResourceKey.create(Registries.STRUCTURE_SET, Eam.id("koschei_castles"));

@@ -24,8 +24,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
- * Maxim's castle template, turned about the middle of its floor. Its bottom layer, the foot of the plinth, stands one
- * block above the ground. Once the chunk with the crystal is placed, Koschei is put in it, sealed until a player comes
+ * Maxim's castle template, turned about the middle of its floor. Its bottom {@link KoscheiCastleStructure#BURIED} layers,
+ * the foot of the plinth, are sunk into the ground. Once the chunk with the crystal is placed, Koschei is put in it, sealed until a player comes
  * up to the crystal.
  */
 public class KoscheiCastlePiece extends TemplateStructurePiece {
