@@ -174,6 +174,7 @@
   "container.eam.locked_chest.owner": "Owner: %s",
   "container.eam.locked_chest.search": "Name or profession",
   "container.eam.locked_chest.village": "Village (elder's store)",
+  "container.eam.locked_chest_double": "Large Locked Chest",
   "container.eam.obsidian_blast_furnace": "Obsidian Blast Furnace",
   "container.eam.silver_brewing_stand": "Silver Brewing Stand",
   "container.eam.villager.dismiss_guard": "Make Ordinary Villager",

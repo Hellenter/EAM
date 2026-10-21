@@ -408,6 +408,7 @@ public final class EamLanguageProviders {
 			builder.add("container.eam.feeder.fed", "Fed today: %s/%s");
 			builder.add(EamBlocks.SMALL_FRIDGE, "Wooden Icebox");
 			builder.add(EamBlocks.LOCKED_CHEST, "Locked Chest");
+			builder.add("container.eam.locked_chest_double", "Large Locked Chest");
 			builder.add("container.eam.locked_chest.locked", "This chest is locked");
 			builder.add("container.eam.locked_chest.owner", "Owner: %s");
 			builder.add("container.eam.locked_chest.search", "Name or profession");
@@ -1291,6 +1292,7 @@ public final class EamLanguageProviders {
 			builder.add("container.eam.feeder.fed", "Поели сегодня: %s/%s");
 			builder.add(EamBlocks.SMALL_FRIDGE, "Маленький холодильник");
 			builder.add(EamBlocks.LOCKED_CHEST, "Сундук с замком");
+			builder.add("container.eam.locked_chest_double", "Большой сундук с замком");
 			builder.add("container.eam.locked_chest.locked", "Сундук заперт");
 			builder.add("container.eam.locked_chest.owner", "Владелец: %s");
 			builder.add("container.eam.locked_chest.search", "Имя или профессия");
