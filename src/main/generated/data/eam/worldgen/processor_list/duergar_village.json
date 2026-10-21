@@ -6,7 +6,7 @@
     },
     {
       "block": "minecraft:barrel",
-      "loot_table": "eam:chests/light_potions",
+      "loot_table": "eam:chests/duergar_potions",
       "processor_type": "eam:empty_container_loot"
     },
     {

@@ -23,8 +23,10 @@ import net.minecraft.world.level.storage.loot.LootTable;
  * one; containers with their own loot are left as they are.
  */
 public record EmptyContainerLoot(Block block, ResourceKey<LootTable> lootTable) implements StructureProcessor {
-	/** A few weak potions: what an empty barrel of a hut or a duergar house gets. */
+	/** A few weak potions: what an empty barrel of Baba Yaga's hut gets. */
 	public static final ResourceKey<LootTable> LIGHT_POTIONS = ResourceKey.create(Registries.LOOT_TABLE, Eam.id("chests/light_potions"));
+	/** Light potions of the silver stand: what an empty barrel of a duergar house gets. */
+	public static final ResourceKey<LootTable> DUERGAR_POTIONS = ResourceKey.create(Registries.LOOT_TABLE, Eam.id("chests/duergar_potions"));
 
 	public static final MapCodec<EmptyContainerLoot> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
 			BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(EmptyContainerLoot::block),
