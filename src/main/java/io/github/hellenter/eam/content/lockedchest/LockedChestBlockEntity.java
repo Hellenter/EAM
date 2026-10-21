@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content.lockedchest;
 
 import io.github.hellenter.eam.content.EamBlockEntities;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerNames;
 
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 
@@ -18,6 +19,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -127,7 +129,8 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 		if (village) return Component.translatable("container.eam.locked_chest.village");
 		if (owner == null) return Component.translatable("container.eam.locked_chest.nobody");
 		Entity entity = level.getEntity(owner);
-		return entity != null && entity.isAlive() ? entity.getDisplayName() : Component.translatable("container.eam.locked_chest.gone");
+		if (entity == null || !entity.isAlive()) return Component.translatable("container.eam.locked_chest.gone");
+		return entity instanceof Villager villager ? VillagerNames.name(villager) : entity.getDisplayName();
 	}
 
 	@Override
