@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "eam:item/blueprint_paper_defense",
+    "layer1": "eam:item/blueprint_emblem_gate"
+  }
+}

@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.Block;
  * trough on legs with a tall back wall, a low front lip and end walls on the sides not joined to another feeder, and a
  * heap of feed that rises as it fills. Each block stands on two legs at its west end, plus two at its east end when
  * nothing joins there, so a trough of one has four legs and each further block adds two. Multipart, so a joined row
- * reads as one long trough. The wooden feeder is made of planks; the metal one, of galvanized sheet on thin legs.
+ * reads as one long trough. The wooden feeder is made of planks; the metal one, of galvanized sheet on slimmer legs.
  *
  * <p>No two boxes overlap or share a face plane facing the same way where they meet: such faces flicker.
  */
@@ -59,9 +59,9 @@ final class FeederModels {
 		}
 	}
 
-	private static final Style WOOD = new Style("feeder", EamBlocks.FEEDER, EamItems.FEEDER, 2, 2,
+	private static final Style WOOD = new Style("feeder", EamBlocks.FEEDER, EamItems.FEEDER, 2, 3,
 			"eam:block/feeder_planks", "eam:block/feeder_post");
-	private static final Style METAL = new Style("metal_feeder", EamBlocks.METAL_FEEDER, EamItems.METAL_FEEDER, 1, 1,
+	private static final Style METAL = new Style("metal_feeder", EamBlocks.METAL_FEEDER, EamItems.METAL_FEEDER, 1, 2,
 			"eam:block/metal_feeder_trough", "eam:block/metal_feeder_bars");
 
 	private FeederModels() {

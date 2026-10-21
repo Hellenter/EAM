@@ -63,6 +63,17 @@ public final class EamParticles {
 	public static final SimpleParticleType KOSCHEI_ICE_FIELD = register("koschei_ice_field");
 
 	/**
+	 * The Lost longbowman's power shot: red glints drawn into his bow while it is warned (sent with count 0 so the
+	 * "velocity" is their flight to the bow), and the red starburst at the bow when the arrow flies.
+	 */
+	public static final SimpleParticleType LONGBOW_CHARGE = register("longbow_charge");
+	public static final SimpleParticleType LONGBOW_FLARE = register("longbow_flare");
+	/** Hot motes behind his red power arrow. */
+	public static final SimpleParticleType RED_ARROW_TRAIL = register("red_arrow_trail");
+	/** Black soot with a dried-blood rim behind his marking arrow, and puffing where it marks someone. */
+	public static final SimpleParticleType MARK_TRAIL = register("mark_trail");
+
+	/**
 	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the
 	 * mushroom forest, ash flakes settling in the burnt one, snow sifting down in the frozen and ice caves, embers rising
 	 * over lava and stone dust hanging in the wastes.

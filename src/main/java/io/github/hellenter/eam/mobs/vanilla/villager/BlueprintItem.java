@@ -49,30 +49,47 @@ public class BlueprintItem extends Item {
 	 * defences. In creative mode a blueprint needs no village, only villagers near enough to build it.
 	 */
 	public static List<ItemStack> creativeStacks() {
-		List<ItemStack> stacks = new ArrayList<>();
+		return creativeBlueprints().stream().map(data -> {
+			ItemStack stack = new ItemStack(EamItems.BLUEPRINT);
+			stack.set(VillageBuildModule.BLUEPRINT, data);
+			return stack;
+		}).toList();
+	}
+
+	/** What the blueprints of {@link #creativeStacks()} are of; datagen gives each its icon. */
+	public static List<BlueprintData> creativeBlueprints() {
+		List<BlueprintData> blueprints = new ArrayList<>();
 		Set<Identifier> seen = new HashSet<>();
 		EconomySettings.DEFAULT.orders().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry ->
 				entry.getValue().templates().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(style ->
-						style.getValue().stream().filter(seen::add).forEach(template -> {
-							ItemStack stack = new ItemStack(EamItems.BLUEPRINT);
-							stack.set(VillageBuildModule.BLUEPRINT, new BlueprintData(template, entry.getKey(), 0));
-							stacks.add(stack);
-						})));
-		return stacks;
+						style.getValue().stream().filter(seen::add).forEach(template ->
+								blueprints.add(new BlueprintData(template, entry.getKey(), 0)))));
+		return blueprints;
 	}
 
 	@Override
 	public Component getName(ItemStack stack) {
 		BlueprintData data = stack.get(VillageBuildModule.BLUEPRINT);
 		if (data == null) return super.getName(stack);
-		return Component.translatable("item.eam.blueprint.of", Component.translatable("gui.eam.village.order." + data.order()));
+		Component building = Component.translatable("gui.eam.village.order." + data.order());
+		String style = data.style();
+		if (style == null) return Component.translatable("item.eam.blueprint.of", building);
+		return Component.translatable("item.eam.blueprint.of_style", building, data.number(), Component.translatable("item.eam.blueprint.style." + style));
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
 		BlueprintData data = stack.get(VillageBuildModule.BLUEPRINT);
-		if (data != null) builder.accept(Component.literal(data.template().getPath()).withStyle(ChatFormatting.DARK_GRAY));
+		if (data != null) {
+			builder.accept(Component.translatable("item.eam.blueprint.building", Component.translatable("gui.eam.village.order." + data.order()))
+					.withStyle(ChatFormatting.GRAY));
+			String style = data.style();
+			builder.accept(Component.translatable("item.eam.blueprint.style",
+					Component.translatable(style == null ? "item.eam.blueprint.style.any" : "item.eam.blueprint.style." + style))
+					.withStyle(ChatFormatting.GRAY));
+			builder.accept(Component.literal(data.template().getPath()).withStyle(ChatFormatting.DARK_GRAY));
+		}
 		builder.accept(Component.translatable("item.eam.blueprint.usage").withStyle(ChatFormatting.GRAY));
 		builder.accept(Component.translatable("item.eam.blueprint.turn").withStyle(ChatFormatting.DARK_GRAY));
 	}
