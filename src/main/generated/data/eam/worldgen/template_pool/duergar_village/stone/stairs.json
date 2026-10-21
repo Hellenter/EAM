@@ -1,0 +1,45 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/stone/stairs/1",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/stone/stairs/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/stone/stairs/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/stone/stairs/4",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

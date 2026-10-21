@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.world.structures.village;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilde
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
@@ -49,8 +51,9 @@ import net.minecraft.world.phys.shapes.Shapes;
  * A duergar village: a jigsaw village that stands on the floor of a cave instead of at a random height. It looks for a
  * wide enough stretch of floor near its chunk, builds the village there, then sets every piece down onto the floor
  * under it, at most {@code max_step} blocks above or below the piece it joins, so the streets climb and fall with the
- * cave like a surface village's paths. Where the floor rises faster than that, the street stops at the foot of the rise
- * rather than tunnel on under it. A site where too many pieces would hang over open air is given up; a smaller gap under
+ * cave like a surface village's paths. A stair climbs one block, or as many as the floor climbs over it (up to four) when
+ * the {@code stairs} pool has the taller ones. Where the floor rises faster than that, the street stops at the foot of the
+ * rise rather than tunnel on under it. A site where too many pieces would hang over open air is given up; a smaller gap under
  * a piece is filled with a footing once it is built, and water that would run out of a pond or moat is filled in too.
  */
 public class DuergarVillageStructure extends Structure {
@@ -65,7 +68,8 @@ public class DuergarVillageStructure extends Structure {
 			Codec.intRange(4, 32).optionalFieldOf("site_radius", 14).forGetter(village -> village.siteRadius),
 			Codec.floatRange(0.0F, 1.0F).optionalFieldOf("max_hanging", 0.15F).forGetter(village -> village.maxHanging),
 			BlockState.CODEC.fieldOf("foundation").forGetter(village -> village.foundation),
-			Codec.intRange(0, 16).optionalFieldOf("foundation_depth", 6).forGetter(village -> village.foundationDepth)
+			Codec.intRange(0, 16).optionalFieldOf("foundation_depth", 6).forGetter(village -> village.foundationDepth),
+			StructureTemplatePool.CODEC.optionalFieldOf("stairs").forGetter(village -> village.stairs)
 	).apply(instance, DuergarVillageStructure::new));
 
 	/** How far above or below its expected height a piece looks for the floor. */
@@ -74,6 +78,8 @@ public class DuergarVillageStructure extends Structure {
 	private static final int TRIES = 3;
 	/** How far apart the columns tried as the village's centre are. */
 	private static final int GRID = 8;
+	/** What {@link #fitStair} says of a piece that is no stair. */
+	private static final int NOT_A_STAIR = Integer.MIN_VALUE;
 
 	private final Holder<StructureTemplatePool> startPool;
 	private final int size;
@@ -85,9 +91,11 @@ public class DuergarVillageStructure extends Structure {
 	private final float maxHanging;
 	private final BlockState foundation;
 	private final int foundationDepth;
+	private final Optional<Holder<StructureTemplatePool>> stairs;
 
 	public DuergarVillageStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int size, int floorMinY,
-			int floorMaxY, int maxDistance, int maxStep, int siteRadius, float maxHanging, BlockState foundation, int foundationDepth) {
+			int floorMaxY, int maxDistance, int maxStep, int siteRadius, float maxHanging, BlockState foundation, int foundationDepth,
+			Optional<Holder<StructureTemplatePool>> stairs) {
 		super(settings);
 		this.startPool = startPool;
 		this.size = size;
@@ -99,6 +107,7 @@ public class DuergarVillageStructure extends Structure {
 		this.maxHanging = maxHanging;
 		this.foundation = foundation;
 		this.foundationDepth = foundationDepth;
+		this.stairs = stairs;
 	}
 
 	@Override
@@ -241,30 +250,37 @@ public class DuergarVillageStructure extends Structure {
 	/**
 	 * Moves each piece down or up onto the floor under it. A piece the floor still walls in after its step (the cave
 	 * floor rises faster than the streets may climb) is left out together with everything joined on beyond it, so a
-	 * street ends at the foot of the rise instead of running on under the ground. A stair that climbs where the floor
-	 * drops (or the other way round) is turned round first, so the streets can go down as well as up. {@code null} when
-	 * too many pieces would hang in the air or fewer than a third are left.
+	 * street ends at the foot of the rise instead of running on under the ground. A stair is swapped first for the one
+	 * that climbs (or goes down) as far as the floor under it, so the streets go up and down hills of any height a
+	 * flight at a time. {@code null} when too many pieces would hang in the air or fewer than a third are left.
 	 */
 	private Settled settle(List<StructurePiece> built, Columns columns, StructureTemplateManager templates) {
 		List<StructurePiece> all = new ArrayList<>(built);
 		int n = all.size();
+		Map<Integer, StructurePoolElement> flights = flights(templates);
 		int[] moves = new int[n];
-		// How far the pieces joined on beyond each piece move; more than the piece itself for a stair that was turned.
+		// How far the pieces joined on beyond each piece move; not the piece's own move for a stair that was swapped.
 		int[] carried = new int[n];
 		boolean[] dropped = new boolean[n];
 		int hanging = 0;
 		int kept = 0;
 		for (int i = 0; i < n; i++) {
-			BoundingBox box = all.get(i).getBoundingBox();
 			int parent = parent(all, i);
 			if (parent >= 0 && dropped[parent]) {
 				dropped[i] = true;
 				continue;
 			}
 			int base = parent < 0 ? 0 : carried[parent];
-			int rise = parent < 0 ? 0 : turnStair(all, i, all.get(parent).getBoundingBox(), base, columns, templates);
-			// The near end of a turned stair is where its far end was, rise blocks higher or lower.
-			base -= rise;
+			int extra = parent < 0 ? NOT_A_STAIR : fitStair(all, i, all.get(parent).getBoundingBox(), base, columns, templates, flights);
+			if (extra != NOT_A_STAIR) {
+				// A stair meets the piece it joins exactly and its far end stands on the floor; the pieces beyond it
+				// follow its far end, extra blocks higher or lower than they were built.
+				moves[i] = base;
+				carried[i] = base + extra;
+				kept++;
+				continue;
+			}
+			BoundingBox box = all.get(i).getBoundingBox();
 			int[][] samples = samples(box);
 			int[] found = new int[samples.length];
 			int count = 0;
@@ -276,7 +292,7 @@ public class DuergarVillageStructure extends Structure {
 			}
 			int wanted = count == 0 ? base : DuergarVillageLogic.median(Arrays.copyOf(found, count));
 			moves[i] = parent < 0 ? wanted : DuergarVillageLogic.step(wanted, base, maxStep);
-			carried[i] = moves[i] - rise;
+			carried[i] = moves[i];
 			int over = 0;
 			int under = 0;
 			for (int[] sample : samples) {
@@ -328,43 +344,80 @@ public class DuergarVillageStructure extends Structure {
 	}
 
 	/**
-	 * Turns piece {@code index} round in place if it is a stair (two joins at different heights) that climbs away from
-	 * {@code parent} where the floor under it drops, or the other way round. Returns how many blocks it climbed away
-	 * from its parent before it was turned, or zero when it is left as it is.
+	 * Swaps piece {@code index}, if it is a stair (two joins at different heights), for the flight that climbs or goes
+	 * down as far as the floor under it, one block a step: its near end where the old one's was, its far end on the floor
+	 * there. Returns how many blocks higher (or lower) its far end now stands than the old one's, zero when the old one
+	 * already fits, or {@link #NOT_A_STAIR}.
 	 */
-	private static int turnStair(List<StructurePiece> pieces, int index, BoundingBox parent, int base, Columns columns,
-			StructureTemplateManager templates) {
+	private static int fitStair(List<StructurePiece> pieces, int index, BoundingBox parent, int base, Columns columns,
+			StructureTemplateManager templates, Map<Integer, StructurePoolElement> flights) {
 		if (!(pieces.get(index) instanceof PoolElementStructurePiece piece)) {
-			return 0;
+			return NOT_A_STAIR;
 		}
 		List<StructureTemplate.JigsawBlockInfo> joins = piece.getElement().getShuffledJigsawBlocks(templates, piece.getPosition(),
 				piece.getRotation(), RandomSource.create(0));
 		if (joins.size() != 2 || joins.get(0).pos().getY() == joins.get(1).pos().getY()) {
-			return 0;
+			return NOT_A_STAIR;
 		}
 		BoundingBox near = parent.inflatedBy(1);
 		BlockPos from = near.isInside(joins.get(0).pos()) ? joins.get(0).pos() : joins.get(1).pos();
 		BlockPos to = from == joins.get(0).pos() ? joins.get(1).pos() : joins.get(0).pos();
 		if (!near.isInside(from) || near.isInside(to)) {
-			return 0;
+			return NOT_A_STAIR;
 		}
-		int fromFloor = DuergarVillageLogic.floorNear(columns.at(from.getX(), from.getZ()), from.getY() + base, SEARCH);
-		int toFloor = DuergarVillageLogic.floorNear(columns.at(to.getX(), to.getZ()), to.getY() + base, SEARCH);
 		int rise = to.getY() - from.getY();
-		if (fromFloor == DuergarVillageLogic.NONE || toFloor == DuergarVillageLogic.NONE
-				|| !DuergarVillageLogic.turnStair(rise, toFloor - fromFloor)) {
+		int toFloor = DuergarVillageLogic.floorNear(columns.at(to.getX(), to.getZ()), to.getY() + base, SEARCH);
+		if (toFloor == DuergarVillageLogic.NONE) {
 			return 0;
 		}
-		// Half a turn swaps the two ends; the box is kept where it was.
-		BoundingBox box = piece.getBoundingBox();
-		Rotation turned = piece.getRotation().getRotated(Rotation.CLOCKWISE_180);
-		BoundingBox moved = piece.getElement().getBoundingBox(templates, piece.getPosition(), turned);
-		BlockPos position = piece.getPosition().offset(box.minX() - moved.minX(), 0, box.minZ() - moved.minZ());
-		PoolElementStructurePiece flipped = new PoolElementStructurePiece(templates, piece.getElement(), position,
-				piece.getGroundLevelDelta(), turned, box, LiquidSettings.IGNORE_WATERLOGGING);
-		piece.getJunctions().forEach(flipped::addJunction);
-		pieces.set(index, flipped);
-		return rise;
+		int maxRise = flights.keySet().stream().mapToInt(Integer::intValue).max().orElse(Math.abs(rise));
+		int wanted = DuergarVillageLogic.stairRise(toFloor - (from.getY() + base), rise, maxRise);
+		StructurePoolElement flight = flights.getOrDefault(Math.abs(wanted), wanted == -rise ? piece.getElement() : null);
+		if (wanted == rise || flight == null) {
+			return 0;
+		}
+		// The turn that lays the flight along the old one, climbing the way it should.
+		for (Rotation rotation : Rotation.values()) {
+			List<StructureTemplate.JigsawBlockInfo> ends = flight.getShuffledJigsawBlocks(templates, BlockPos.ZERO, rotation,
+					RandomSource.create(0));
+			if (ends.size() != 2) {
+				return 0;
+			}
+			BlockPos low = ends.get(0).pos().getY() < ends.get(1).pos().getY() ? ends.get(0).pos() : ends.get(1).pos();
+			BlockPos high = low == ends.get(0).pos() ? ends.get(1).pos() : ends.get(0).pos();
+			BlockPos start = wanted > 0 ? low : high;
+			BlockPos end = wanted > 0 ? high : low;
+			if (end.getX() - start.getX() != to.getX() - from.getX() || end.getZ() - start.getZ() != to.getZ() - from.getZ()) {
+				continue;
+			}
+			BlockPos position = from.subtract(start);
+			BoundingBox box = flight.getBoundingBox(templates, position, rotation);
+			BoundingBox old = piece.getBoundingBox();
+			if (box.minX() != old.minX() || box.maxX() != old.maxX() || box.minZ() != old.minZ() || box.maxZ() != old.maxZ()) {
+				return 0;
+			}
+			PoolElementStructurePiece swapped = new PoolElementStructurePiece(templates, flight, position,
+					piece.getGroundLevelDelta(), rotation, box, LiquidSettings.IGNORE_WATERLOGGING);
+			piece.getJunctions().forEach(swapped::addJunction);
+			pieces.set(index, swapped);
+			return wanted - rise;
+		}
+		return 0;
+	}
+
+	/** The flights of the {@code stairs} pool by how many blocks each climbs. */
+	private Map<Integer, StructurePoolElement> flights(StructureTemplateManager templates) {
+		Map<Integer, StructurePoolElement> flights = new HashMap<>();
+		stairs.ifPresent(pool -> {
+			for (Pair<StructurePoolElement, Integer> entry : pool.value().getTemplates()) {
+				List<StructureTemplate.JigsawBlockInfo> ends = entry.getFirst().getShuffledJigsawBlocks(templates, BlockPos.ZERO,
+						Rotation.NONE, RandomSource.create(0));
+				if (ends.size() == 2 && ends.get(0).pos().getY() != ends.get(1).pos().getY()) {
+					flights.put(Math.abs(ends.get(0).pos().getY() - ends.get(1).pos().getY()), entry.getFirst());
+				}
+			}
+		});
+		return flights;
 	}
 
 	/** The pieces that stay, set down onto the floor, and how far the first one moved. */

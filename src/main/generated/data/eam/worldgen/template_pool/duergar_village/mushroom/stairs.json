@@ -1,0 +1,45 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/stairs/1",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/stairs/2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/stairs/3",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "eam:duergar_village/mushroom/stairs/4",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "eam:duergar_village",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}
