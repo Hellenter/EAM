@@ -45,6 +45,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -98,18 +99,24 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 			Holder<StructureProcessorList> streets = style == Style.LAKE ? lakeStreets : processors;
 			context.register(style.pool("start"), new StructureTemplatePool(empty, List.of(
 					piece(dir + "plaza", processors, 1)), StructureTemplatePool.Projection.RIGID));
-			// Straight streets, turns, forks, ramps up or down and bridges, so a village follows its cave.
+			// Straight streets, turns, forks, stairs up or down and bridges, so a village follows its cave.
 			context.register(style.pool("streets"), new StructureTemplatePool(pools.getOrThrow(style.pool("ends")), List.of(
 					piece(dir + "street/1", streets, 5),
 					piece(dir + "street/2", streets, 2),
 					piece(dir + "street/3", streets, 2),
 					piece(dir + "street/4", streets, 3),
 					piece(dir + "street/5", streets, 3),
-					piece(dir + "ramp", streets, 3),
+					piece(dir + "stairs/1", streets, 3),
 					piece(dir + "corner", streets, 3),
 					piece(dir + "fork", streets, 2),
 					piece(dir + "crossing", streets, 1),
 					piece(dir + "bridge", streets, 1)), StructureTemplatePool.Projection.RIGID));
+			// Flights climbing one to four blocks: a stair is swapped for the one that fits the floor under it.
+			context.register(style.pool("stairs"), new StructureTemplatePool(empty, List.of(
+					piece(dir + "stairs/1", streets, 1),
+					piece(dir + "stairs/2", streets, 1),
+					piece(dir + "stairs/3", streets, 1),
+					piece(dir + "stairs/4", streets, 1)), StructureTemplatePool.Projection.RIGID));
 			context.register(style.pool("ends"), new StructureTemplatePool(empty, List.of(
 					piece(dir + "end/1", streets, 2),
 					piece(dir + "end/2", streets, 1)), StructureTemplatePool.Projection.RIGID));
@@ -138,7 +145,8 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 					new Structure.StructureSettings(context.lookup(Registries.BIOME).getOrThrow(style.biomes()), spawns,
 							GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.BEARD_THIN),
 					context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("start")), 6, 58, 150, 56, 1, 14, 0.15F,
-					foundation(style).defaultBlockState(), 6));
+					foundation(style).defaultBlockState(), 6,
+					Optional.of(context.lookup(Registries.TEMPLATE_POOL).getOrThrow(style.pool("stairs")))));
 		}
 	}
 
@@ -171,7 +179,7 @@ public class EamDuergarVillageProvider extends FabricDynamicRegistryProvider {
 		entries.add(registries.lookupOrThrow(Registries.PROCESSOR_LIST), PROCESSORS);
 		entries.add(registries.lookupOrThrow(Registries.PROCESSOR_LIST), LAKE_STREET_PROCESSORS);
 		for (Style style : Style.values()) {
-			for (String kind : List.of("start", "streets", "ends", "houses")) {
+			for (String kind : List.of("start", "streets", "stairs", "ends", "houses")) {
 				entries.add(registries.lookupOrThrow(Registries.TEMPLATE_POOL), style.pool(kind));
 			}
 			entries.add(registries.lookupOrThrow(Registries.STRUCTURE), style.structure());

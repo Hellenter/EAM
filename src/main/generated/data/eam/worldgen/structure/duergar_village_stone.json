@@ -11,6 +11,7 @@
       "spawns": []
     }
   },
+  "stairs": "eam:duergar_village/stone/stairs",
   "start_pool": "eam:duergar_village/stone/start",
   "step": "underground_structures",
   "terrain_adaptation": "beard_thin"
