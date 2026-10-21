@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -35,7 +36,7 @@ import java.util.UUID;
 /**
  * A locked chest's three rows of items and whose they are. A villager owns it, or the village (its elder keeps the
  * village's goods in it), or nobody. Only the player who placed it opens it, and players in creative; a chest a villager
- * placed himself no player opens. Hoppers cannot reach into it.
+ * placed himself no player opens. Hoppers cannot reach into it. Each half of a double chest keeps its own rows.
  */
 public class LockedChestBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, ExtendedMenuProvider<LockedChestMenu.OpenData> {
 	public static final int SIZE = 27;
@@ -113,7 +114,12 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 
 	/** Whether {@code player} may look inside. */
 	public boolean opens(Player player) {
-		return player.isCreative() || placer != null && placer.equals(player.getUUID());
+		return player.isCreative() || placedBy(player);
+	}
+
+	/** Whether {@code player} placed it. */
+	boolean placedBy(Player player) {
+		return placer != null && placer.equals(player.getUUID());
 	}
 
 	/** Who the chest is for, as the chest's menu shows it. */
@@ -161,7 +167,7 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 
 	@Override
 	protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-		return new LockedChestMenu(containerId, inventory, this, getScreenOpeningData((ServerPlayer) inventory.player));
+		return new LockedChestMenuProvider(List.of(this)).createMenu(containerId, inventory, inventory.player);
 	}
 
 	/** Who has it now, as the menu marks it in its owner list. */
@@ -174,10 +180,7 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 
 	@Override
 	public LockedChestMenu.OpenData getScreenOpeningData(ServerPlayer player) {
-		ServerLevel level = player.level();
-		boolean canChange = placer != null && placer.equals(player.getUUID()) || player.isCreative();
-		return new LockedChestMenu.OpenData(ownerName(level), canChange, ownerId(level),
-				canChange ? LockedChestModule.candidates(level, getBlockPos()) : List.of());
+		return new LockedChestMenuProvider(List.of(this)).getScreenOpeningData(player);
 	}
 
 	@Override
@@ -190,8 +193,9 @@ public class LockedChestBlockEntity extends BaseContainerBlockEntity implements 
 		playSound(SoundEvents.CHEST_CLOSE);
 	}
 
+	/** Only the left half of a double chest sounds, so a double one is no louder. */
 	private void playSound(SoundEvent sound) {
-		if (level != null && !level.isClientSide()) {
+		if (level != null && !level.isClientSide() && getBlockState().getValue(LockedChestBlock.TYPE) != ChestType.RIGHT) {
 			level.playSound(null, worldPosition, sound, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
 		}
 	}
