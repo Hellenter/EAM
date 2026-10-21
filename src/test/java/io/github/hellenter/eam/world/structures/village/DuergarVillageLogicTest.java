@@ -67,12 +67,13 @@ class DuergarVillageLogicTest {
 	}
 
 	@Test
-	void turnsAStairThatGoesAgainstTheFloor() {
-		assertTrue(DuergarVillageLogic.turnStair(2, -3));
-		assertTrue(DuergarVillageLogic.turnStair(-2, 1));
-		assertFalse(DuergarVillageLogic.turnStair(2, 2));
-		assertFalse(DuergarVillageLogic.turnStair(-2, -1));
-		assertFalse(DuergarVillageLogic.turnStair(2, 0));
-		assertFalse(DuergarVillageLogic.turnStair(0, -4));
+	void fitsAStairToTheFloor() {
+		assertEquals(1, DuergarVillageLogic.stairRise(1, 1, 4));
+		assertEquals(3, DuergarVillageLogic.stairRise(3, 1, 4));
+		assertEquals(4, DuergarVillageLogic.stairRise(6, 1, 4));
+		assertEquals(-2, DuergarVillageLogic.stairRise(-2, 1, 4));
+		assertEquals(-4, DuergarVillageLogic.stairRise(-9, -1, 4));
+		assertEquals(-1, DuergarVillageLogic.stairRise(0, -1, 4));
+		assertEquals(1, DuergarVillageLogic.stairRise(0, 1, 4));
 	}
 }

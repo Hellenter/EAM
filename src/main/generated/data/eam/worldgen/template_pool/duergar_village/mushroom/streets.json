@@ -53,7 +53,7 @@
     {
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "eam:duergar_village/mushroom/ramp",
+        "location": "eam:duergar_village/mushroom/stairs/1",
         "override_liquid_settings": "ignore_waterlogging",
         "processors": "eam:duergar_village",
         "projection": "rigid"
