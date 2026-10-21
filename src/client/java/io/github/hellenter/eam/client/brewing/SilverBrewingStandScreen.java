@@ -59,6 +59,8 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 	private int panelY;
 	private int panelWidth;
 	private int panelHeight;
+	/** Shrinks the panel when it does not fit beside the stand (large GUI scale, small window). */
+	private float panelScale = 1.0F;
 
 	public SilverBrewingStandScreen(BrewingStandMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -105,12 +107,18 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 		panelWidth = Math.max(tree.columns() * column, font.width(TITLE)) + 2 * PAD;
 	}
 
-	/** Moves the stand right to make room for an open panel, as the vanilla recipe book does. */
+	/**
+	 * Moves the stand right to make room for an open panel, as the vanilla recipe book does. A panel that does not fit
+	 * left of the stand or within the screen height is scaled down, so it never covers the stand or the inventory.
+	 */
 	private void place() {
 		int centered = (width - imageWidth) / 2;
-		leftPos = open ? Math.min(centered + (panelWidth + GAP) / 2, width - imageWidth) : centered;
-		panelX = Math.max(0, leftPos - panelWidth - GAP);
-		panelY = Math.max(0, topPos + (imageHeight - panelHeight) / 2);
+		panelScale = Math.min(1.0F, Math.min((float) (width - imageWidth - GAP) / panelWidth, (float) height / panelHeight));
+		int scaledWidth = Mth.ceil(panelWidth * panelScale);
+		int scaledHeight = Mth.ceil(panelHeight * panelScale);
+		leftPos = open ? Math.min(centered + (scaledWidth + GAP) / 2, width - imageWidth) : centered;
+		panelX = Math.max(0, leftPos - scaledWidth - GAP);
+		panelY = Mth.clamp(topPos + (imageHeight - scaledHeight) / 2, 0, Math.max(0, height - scaledHeight));
 	}
 
 	/** Bottom of a level's bottles, durations included. */
@@ -118,16 +126,17 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 		return levelTops[depth] + SLOT + (levelText[depth] ? TEXT : 0);
 	}
 
+	/** Panel-local coordinates from here on: the panel is drawn translated to panelX, panelY and scaled. */
 	private int centerX(int node) {
-		return panelX + PAD + (int) (tree.placement(node).column() * column) + column / 2;
+		return PAD + (int) (tree.placement(node).column() * column) + column / 2;
 	}
 
 	private int top(int node) {
-		return panelY + levelTops[tree.placement(node).depth()];
+		return levelTops[tree.placement(node).depth()];
 	}
 
 	private int branchY(int parent) {
-		return panelY + bottom(tree.placement(parent).depth()) + STEM;
+		return bottom(tree.placement(parent).depth()) + STEM;
 	}
 
 	@Override
@@ -165,10 +174,13 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 	}
 
 	private void extractPanel(GuiGraphicsExtractor graphics) {
-		int x0 = panelX;
-		int y0 = panelY;
-		int x1 = panelX + panelWidth;
-		int y1 = panelY + panelHeight;
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(panelX, panelY);
+		graphics.pose().scale(panelScale);
+		int x0 = 0;
+		int y0 = 0;
+		int x1 = panelWidth;
+		int y1 = panelHeight;
 		graphics.fill(x0 + 1, y0, x1 - 1, y1, 0xFF000000);
 		graphics.fill(x0, y0 + 1, x1, y1 - 1, 0xFF000000);
 		graphics.fill(x0 + 1, y0 + 1, x1 - 3, y1 - 3, 0xFFFFFFFF);
@@ -187,7 +199,7 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 			int cx = centerX(i);
 			int by = branchY(parent);
 			int ty = top(i);
-			graphics.fill(px, panelY + bottom(tree.placement(parent).depth()), px + 1, by + 1, LINE);
+			graphics.fill(px, bottom(tree.placement(parent).depth()), px + 1, by + 1, LINE);
 			graphics.fill(Math.min(px, cx), by, Math.max(px, cx) + 1, by + 1, LINE);
 			graphics.fill(cx, by, cx + 1, ty - 1, LINE);
 			graphics.fill(cx - 2, ty - 3, cx + 3, ty - 2, LINE);
@@ -210,6 +222,7 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 				graphics.item(node.reagent(), cx - 8, ry);
 			}
 		}
+		graphics.pose().popMatrix();
 	}
 
 	private int reagentY(int node) {
@@ -226,7 +239,7 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 		if (!open || tree == null || !menu.getCarried().isEmpty()) {
 			return;
 		}
-		ItemStack hovered = hoveredInPanel(mouseX, mouseY);
+		ItemStack hovered = hoveredInPanel((mouseX - panelX) / panelScale, (mouseY - panelY) / panelScale);
 		if (hovered != null) {
 			graphics.setTooltipForNextFrame(font, hovered, mouseX, mouseY);
 		}
@@ -253,7 +266,7 @@ public class SilverBrewingStandScreen extends AbstractContainerScreen<BrewingSta
 	@Override
 	protected boolean hasClickedOutside(double mx, double my, int xo, int yo) {
 		boolean inPanel = open && tree != null
-				&& mx >= panelX && mx < panelX + panelWidth && my >= panelY && my < panelY + panelHeight;
+				&& mx >= panelX && mx < panelX + panelWidth * panelScale && my >= panelY && my < panelY + panelHeight * panelScale;
 		return super.hasClickedOutside(mx, my, xo, yo) && !inPanel;
 	}
 }
