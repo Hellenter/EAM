@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.content.lockedchest;
 
 import io.github.hellenter.eam.Eam;
+import io.github.hellenter.eam.mobs.vanilla.villager.VillagerNames;
 
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -54,16 +55,18 @@ public final class LockedChestModule {
 		PayloadTypeRegistry.clientboundPlay().register(LockedChestOwnerNamePayload.TYPE, LockedChestOwnerNamePayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(LockedChestOwnerPayload.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
-			if (!(player.containerMenu instanceof LockedChestMenu menu) || menu.chest() == null || !menu.data().canChange()) return;
-			LockedChestBlockEntity chest = menu.chest();
+			if (!(player.containerMenu instanceof LockedChestMenu menu) || menu.halves().isEmpty() || !menu.data().canChange()) return;
+			LockedChestBlockEntity chest = menu.halves().getFirst();
 			ServerLevel level = player.level();
-			if (payload.owner() == LockedChestMenu.OpenData.NOBODY) {
-				chest.setOwner(null, false);
-			} else if (payload.owner() == LockedChestMenu.OpenData.VILLAGE) {
-				chest.setOwner(null, true);
-			} else {
-				for (Villager villager : villagers(level, chest.getBlockPos())) {
-					if (villager.getId() == payload.owner()) chest.setOwner(villager.getUUID(), false);
+			for (LockedChestBlockEntity half : menu.halves()) {
+				if (payload.owner() == LockedChestMenu.OpenData.NOBODY) {
+					half.setOwner(null, false);
+				} else if (payload.owner() == LockedChestMenu.OpenData.VILLAGE) {
+					half.setOwner(null, true);
+				} else {
+					for (Villager villager : villagers(level, chest.getBlockPos())) {
+						if (villager.getId() == payload.owner()) half.setOwner(villager.getUUID(), false);
+					}
 				}
 			}
 			ServerPlayNetworking.send(player, new LockedChestOwnerNamePayload(menu.containerId, chest.ownerName(level), chest.ownerId(level)));
@@ -79,7 +82,7 @@ public final class LockedChestModule {
 	static List<LockedChestMenu.Candidate> candidates(ServerLevel level, BlockPos pos) {
 		List<LockedChestMenu.Candidate> candidates = new ArrayList<>();
 		for (Villager villager : villagers(level, pos)) {
-			candidates.add(new LockedChestMenu.Candidate(villager.getId(), Optional.ofNullable(villager.getCustomName()),
+			candidates.add(new LockedChestMenu.Candidate(villager.getId(), Optional.of(VillagerNames.name(villager)),
 					villager.getVillagerData().profession().value().name(), villager.getVillagerData().level(),
 					(int) Math.round(Math.sqrt(villager.distanceToSqr(Vec3.atCenterOf(pos))))));
 		}
