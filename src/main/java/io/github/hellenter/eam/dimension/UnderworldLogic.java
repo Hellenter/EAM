@@ -3,14 +3,16 @@ package io.github.hellenter.eam.dimension;
 /**
  * Pure rules of the underworld: its layout in height and where a nether portal leads.
  * <p>
- * The underworld is 192 blocks tall (y 0..191): vanilla bedrock at the bottom (y 0..4) and at the top (y 187..191), and
- * in between a band of deep bedrock ({@link #BAND_BOTTOM}..{@link #BAND_TOP}) that splits it into two levels. The upper
- * level (about 140 blocks) holds the five biomes; the lower level (about 48 blocks with its bedrock) is the hot depths,
+ * The underworld is 256 blocks tall (y -48..207): vanilla bedrock at the bottom (y -48..-44) and at the top (y 203..207),
+ * and in between a band of deep bedrock ({@link #BAND_BOTTOM}..{@link #BAND_TOP}) that splits it into two levels. The
+ * upper level (about 156 blocks) holds the biomes; the lower level (about 90 blocks with its bedrock) is the hot depths,
  * where nether portals lead to the nether. Only a special item breaks the deep bedrock.
  */
 public final class UnderworldLogic {
-	public static final int MIN_Y = 0;
-	public static final int HEIGHT = 192;
+	public static final int MIN_Y = -48;
+	public static final int HEIGHT = 256;
+	/** One above the highest block. */
+	public static final int TOP = MIN_Y + HEIGHT;
 	/** The deep bedrock band: always solid from {@link #BAND_CORE_BOTTOM} to {@link #BAND_CORE_TOP}, ragged a few blocks around. */
 	public static final int BAND_BOTTOM = 42;
 	public static final int BAND_CORE_BOTTOM = 45;
@@ -19,10 +21,10 @@ public final class UnderworldLogic {
 	/** Below this a spot belongs to the lower level, at and above it to the upper one. */
 	public static final int LEVEL_SPLIT = 46;
 	/** Where a portal may be built when one is made for a traveller: its lowest block, in each level. */
-	public static final int LOWER_PORTAL_MIN_Y = 6;
+	public static final int LOWER_PORTAL_MIN_Y = MIN_Y + 6;
 	public static final int LOWER_PORTAL_MAX_Y = 30;
 	public static final int UPPER_PORTAL_MIN_Y = 54;
-	public static final int UPPER_PORTAL_MAX_Y = 176;
+	public static final int UPPER_PORTAL_MAX_Y = TOP - 16;
 	/**
 	 * How far out an exit portal looks for a safe spot, ring by ring: the next ring is searched only when the previous one
 	 * had none. The first is vanilla's radius.

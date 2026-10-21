@@ -5,8 +5,8 @@
       "type": "minecraft:count",
       "count": {
         "type": "minecraft:uniform",
-        "max_inclusive": 50,
-        "min_inclusive": 30
+        "max_inclusive": 68,
+        "min_inclusive": 40
       }
     },
     {
@@ -17,10 +17,10 @@
       "height": {
         "type": "minecraft:uniform",
         "max_inclusive": {
-          "absolute": 186
+          "absolute": 202
         },
         "min_inclusive": {
-          "absolute": 5
+          "absolute": -43
         }
       }
     },

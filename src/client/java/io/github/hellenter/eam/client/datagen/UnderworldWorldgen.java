@@ -177,10 +177,10 @@ final class UnderworldWorldgen {
 	static final float ICE_T = (ICE_EDGE - 1.0F) / 2.0F;
 
 	private static final int UPPER_BOTTOM = UnderworldLogic.BAND_TOP + 2;
-	private static final int UPPER_TOP = UnderworldLogic.HEIGHT - 6;
+	private static final int UPPER_TOP = UnderworldLogic.TOP - 6;
 	/** Where the ice caves' hall has its floor and its roof. */
 	private static final int ICE_FLOOR = 64;
-	private static final int ICE_ROOF = 172;
+	private static final int ICE_ROOF = UPPER_TOP - 14;
 	/** The lava caves turn to solid rock above this height, so they are lower than the other biomes' halls. */
 	private static final int LAVA_ROOF = 128;
 	/**
@@ -386,13 +386,13 @@ final class UnderworldWorldgen {
 	 */
 	private static DensityFunction layered(SplineFunction.Coordinate height, int period, float open, DensityFunction base) {
 		CubicSpline.Builder<SplineFunction.Coordinate> levels = CubicSpline.builder(height);
-		for (int y = UPPER_BOTTOM - period; y < UnderworldLogic.HEIGHT + period; y += period) {
+		for (int y = UPPER_BOTTOM - period; y < UnderworldLogic.TOP + period; y += period) {
 			levels.addPoint(y, LAYER_SLAB);
 			levels.addPoint(y + period / 2.0F, open);
 		}
 		DensityFunction layers = DensityFunctions.add(DensityFunctions.spline(levels.build()),
 				DensityFunctions.mul(DensityFunctions.constant(LAYER_ROUGHNESS), base));
-		return NoiseRouterData.slide(layers, 0, UnderworldLogic.HEIGHT, 22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
+		return NoiseRouterData.slide(layers, 0, UnderworldLogic.TOP, 22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
 	}
 
 	static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
@@ -416,10 +416,10 @@ final class UnderworldWorldgen {
 				.addPoint(LAVA_T, -0.08F)
 				.addPoint(1.0F, -0.08F)
 				.build());
-		// Upper level: rock below y 53 rising to open noise by y 66, and back to rock from y 170 to the roof.
-		DensityFunction caves = NoiseRouterData.slide(DensityFunctions.add(base, openness), 0, UnderworldLogic.HEIGHT,
+		// Upper level: rock below y 53 rising to open noise by y 66, and back to rock from y 186 to the roof.
+		DensityFunction caves = NoiseRouterData.slide(DensityFunctions.add(base, openness), 0, UnderworldLogic.TOP,
 				22, 5, 0.9375F, UPPER_BOTTOM, UPPER_BOTTOM + 13, 2.5F);
-		// The ice caves are one hall as tall as the level can hold: a rough floor near y 64, a roof near y 172, and the
+		// The ice caves are one hall as tall as the level can hold: a rough floor near y 64, a roof near y 188, and the
 		// ice spires growing between them.
 		DensityFunction roughness = DensityFunctions.add(
 				DensityFunctions.mul(DensityFunctions.constant(0.35F), DensityFunctions.noise(noises.getOrThrow(Noises.ICE), 1.0, 0.0)),
@@ -445,7 +445,7 @@ final class UnderworldWorldgen {
 		DensityFunction wave = DensityFunctions.mul(DensityFunctions.constant(LAYER_WAVE),
 				DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 4.0, 0.0));
 		SplineFunction.Coordinate height = new SplineFunction.Coordinate(DensityFunctions.add(
-				DensityFunctions.yClampedGradient(0, UnderworldLogic.HEIGHT, 0.0F, UnderworldLogic.HEIGHT), wave));
+				DensityFunctions.yClampedGradient(UnderworldLogic.MIN_Y, UnderworldLogic.TOP, UnderworldLogic.MIN_Y, UnderworldLogic.TOP), wave));
 		DensityFunction frozenWeight = DensityFunctions.spline(CubicSpline.builder(t)
 				.addPoint(ICE_EDGE + 0.01F, 0.0F)
 				.addPoint(ICE_EDGE + 0.04F, 1.0F)
@@ -464,9 +464,10 @@ final class UnderworldWorldgen {
 				DensityFunctions.yClampedGradient(FOREST_ROOF - 12, FOREST_ROOF, 0.0F, 1.5F));
 		caves = DensityFunctions.lerp(forestWeight, caves, forest);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
-		// Lower level: wide, lower halls between the floor bedrock and the band.
-		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.HEIGHT,
-				UnderworldLogic.HEIGHT - 36, UnderworldLogic.HEIGHT - (UnderworldLogic.BAND_BOTTOM - 1), 2.5F, 4, 10, 2.5F);
+		// Lower level: wide halls between the floor bedrock and the band, rock from y 36 up to the band.
+		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.TOP,
+				UnderworldLogic.TOP - 36, UnderworldLogic.TOP - (UnderworldLogic.BAND_BOTTOM - 1), 2.5F,
+				UnderworldLogic.MIN_Y + 4, UnderworldLogic.MIN_Y + 10, 2.5F);
 		DensityFunction finalDensity = DensityFunctions.add(NoiseRouterData.postProcess(DensityFunctions.min(upper, lower), 4, 8),
 				DensityFunctions.beardifier());
 
@@ -812,8 +813,8 @@ final class UnderworldWorldgen {
 	static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
 		HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
 		PlacementModifier upper = HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM), VerticalAnchor.absolute(UPPER_TOP));
-		PlacementModifier lower = HeightRangePlacement.uniform(VerticalAnchor.absolute(5), VerticalAnchor.absolute(UnderworldLogic.BAND_BOTTOM));
-		PlacementModifier all = HeightRangePlacement.uniform(VerticalAnchor.absolute(5), VerticalAnchor.absolute(UPPER_TOP));
+		PlacementModifier lower = HeightRangePlacement.uniform(VerticalAnchor.absolute(UnderworldLogic.MIN_Y + 5), VerticalAnchor.absolute(UnderworldLogic.BAND_BOTTOM));
+		PlacementModifier all = HeightRangePlacement.uniform(VerticalAnchor.absolute(UnderworldLogic.MIN_Y + 5), VerticalAnchor.absolute(UPPER_TOP));
 
 		// Lakes: the feature finds the lowest floor of its column itself; the fixed height only picks the upper level's biome.
 		PlacementModifier upperBiome = HeightRangePlacement.uniform(VerticalAnchor.absolute(UPPER_BOTTOM + 40), VerticalAnchor.absolute(UPPER_BOTTOM + 40));
@@ -833,18 +834,19 @@ final class UnderworldWorldgen {
 		// Ores: the underworld is where the rare ores are. Diamond, silver and mithril are richer than in the overworld,
 		// the common ores (iron, gold, copper, redstone, lapis) scarcer. Copper, silver, redstone and lapis only in the
 		// upper level; mithril is most common under the deep bedrock, and adamantium is found only there. The hot biomes (lava caves, mushroom forest) add
-		// gold and redstone; the ice caves add diamond, silver, mithril and lapis.
-		ore(context, P_ORE_IRON, features.getOrThrow(OreFeatures.ORE_IRON), 9, all);
-		ore(context, P_ORE_GOLD, features.getOrThrow(OreFeatures.ORE_GOLD), 3, all);
+		// gold and redstone; the ice caves add diamond, silver, mithril and lapis. Counts are per chunk, sized to the height
+		// they spread over, so the tall depths are not thinner in ore.
+		ore(context, P_ORE_IRON, features.getOrThrow(OreFeatures.ORE_IRON), 12, all);
+		ore(context, P_ORE_GOLD, features.getOrThrow(OreFeatures.ORE_GOLD), 4, all);
 		ore(context, P_ORE_COPPER, features.getOrThrow(EamWorldgen.ORE_COPPER), 6, upper);
 		ore(context, P_ORE_REDSTONE, features.getOrThrow(OreFeatures.ORE_REDSTONE), 2, upper);
 		ore(context, P_ORE_LAPIS, features.getOrThrow(OreFeatures.ORE_LAPIS), 1, upper);
-		ore(context, P_ORE_DIAMOND, features.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL), 4, all);
+		ore(context, P_ORE_DIAMOND, features.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL), 5, all);
 		ore(context, P_ORE_SILVER, features.getOrThrow(EamWorldgen.ORE_SILVER), 9, upper);
 		ore(context, P_ORE_MITHRIL, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
-		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 6, lower);
-		// Adamantium only in the depths, one small vein per chunk on average (3 tries, each kept 1 time in 3).
-		register(context, P_ORE_ADAMANTIUM, features.getOrThrow(EamWorldgen.ORE_ADAMANTIUM), List.of(CountPlacement.of(3),
+		ore(context, P_ORE_MITHRIL_DEPTHS, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 14, lower);
+		// Adamantium only in the depths, about two small veins per chunk (7 tries, each kept 1 time in 3).
+		register(context, P_ORE_ADAMANTIUM, features.getOrThrow(EamWorldgen.ORE_ADAMANTIUM), List.of(CountPlacement.of(7),
 				RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		ore(context, P_ORE_GOLD_HOT, features.getOrThrow(OreFeatures.ORE_GOLD), 7, upper);
 		ore(context, P_ORE_REDSTONE_HOT, features.getOrThrow(OreFeatures.ORE_REDSTONE), 6, upper);
@@ -853,20 +855,20 @@ final class UnderworldWorldgen {
 		ore(context, P_ORE_MITHRIL_ICE, features.getOrThrow(EamWorldgen.ORE_MITHRIL), 2, upper);
 		ore(context, P_ORE_LAPIS_ICE, features.getOrThrow(OreFeatures.ORE_LAPIS), 4, upper);
 		ore(context, P_ORE_GRAVEL, features.getOrThrow(OreFeatures.ORE_GRAVEL), 10, upper);
-		ore(context, P_ORE_MAGMA, features.getOrThrow(OreFeatures.ORE_MAGMA), 6, all);
+		ore(context, P_ORE_MAGMA, features.getOrThrow(OreFeatures.ORE_MAGMA), 8, all);
 
 		// Springs make the waterfalls and lavafalls; most of them never find a wall with one opening and do nothing.
 		ore(context, P_SPRING_WATER, features.getOrThrow(MiscOverworldFeatures.SPRING_WATER), 12, upper);
 		ore(context, P_SPRING_WATER_MANY, features.getOrThrow(MiscOverworldFeatures.SPRING_WATER), 20, upper);
-		ore(context, P_SPRING_LAVA, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 6, all);
-		ore(context, P_SPRING_LAVA_MANY, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 40, all);
+		ore(context, P_SPRING_LAVA, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 8, all);
+		ore(context, P_SPRING_LAVA_MANY, features.getOrThrow(MiscOverworldFeatures.SPRING_LAVA_OVERWORLD), 54, all);
 
 		// Pillars stand anywhere in the open and reach from floor (or lava bed) to ceiling. In the upper caves they rise
 		// before the mines are dug, so a mine tunnel or its adit cuts through a pillar instead of being walled up by one.
 		register(context, P_LAVA_PILLAR, features.getOrThrow(LAVA_PILLAR),
 				List.of(RarityFilter.onAverageOnceEvery(2), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
 		register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
-				List.of(CountPlacement.of(UniformInt.of(1, 2)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
+				List.of(CountPlacement.of(UniformInt.of(2, 4)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		register(context, P_ICE_SPIRE, features.getOrThrow(ICE_SPIRE), List.of(CountPlacement.of(UniformInt.of(3, 7)),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),
@@ -924,13 +926,13 @@ final class UnderworldWorldgen {
 		register(context, P_CAVE_VINES, features.getOrThrow(CaveFeatures.CAVE_VINE), List.of(CountPlacement.of(60),
 				InSquarePlacement.spread(), upper, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.hasSturdyFace(Direction.DOWN),
 						BlockPredicate.ONLY_IN_AIR_PREDICATE, 16), OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
-		register(context, P_COBWEB, features.getOrThrow(COBWEB), List.of(CountPlacement.of(10), InSquarePlacement.spread(),
+		register(context, P_COBWEB, features.getOrThrow(COBWEB), List.of(CountPlacement.of(13), InSquarePlacement.spread(),
 				all, EnvironmentScanPlacement.scanningFor(Direction.UP, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 12),
 				OffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome()));
 		register(context, P_GLOW_LICHEN, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
-				List.of(CountPlacement.of(UniformInt.of(30, 50)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
+				List.of(CountPlacement.of(UniformInt.of(40, 68)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
 		register(context, P_GLOW_LICHEN_MANY, features.getOrThrow(CaveFeatures.GLOW_LICHEN),
-				List.of(CountPlacement.of(UniformInt.of(90, 130)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
+				List.of(CountPlacement.of(UniformInt.of(120, 175)), InSquarePlacement.spread(), all, BiomeFilter.biome()));
 
 		// Frozen caves: a small ice spike every other chunk or so, a few short icicles.
 		register(context, P_SMALL_ICE_SPIRE, features.getOrThrow(SMALL_ICE_SPIRE), List.of(RarityFilter.onAverageOnceEvery(2),

@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.dimension.UnderworldLogic;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMine;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMineStructure;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage;
@@ -136,7 +137,7 @@ public class EamUnderworldMineProvider extends FabricDynamicRegistryProvider {
 						GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.ENCAPSULATE),
 				context.lookup(Registries.TEMPLATE_POOL).getOrThrow(UnderworldMine.START_POOL), 7,
 				UniformHeight.of(VerticalAnchor.absolute(60), VerticalAnchor.absolute(120)),
-				new JigsawStructure.MaxDistance(80, 48), new DimensionPadding(56, 8), 40, 4, 0.35F, 0.3F, 0.12F));
+				new JigsawStructure.MaxDistance(80, 48), new DimensionPadding(56 - UnderworldLogic.MIN_Y, 8), 40, 4, 0.35F, 0.3F, 0.12F));
 	}
 
 	/** No mine starts within eight chunks of a duergar village, so its tunnels never cut through the village hall. */

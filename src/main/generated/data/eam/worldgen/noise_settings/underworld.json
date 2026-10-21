@@ -53,8 +53,8 @@
   "legacy_random_source": false,
   "material_rule": "eam:underworld",
   "noise": {
-    "height": 192,
-    "min_y": 0
+    "height": 256,
+    "min_y": -48
   },
   "noise_router": {
     "chunk_surface_level": 0.0,
@@ -180,9 +180,9 @@
                             "alpha": {
                               "type": "minecraft:gradient",
                               "axis": "y",
-                              "from_coordinate": 170,
+                              "from_coordinate": 186,
                               "from_value": 1.0,
-                              "to_coordinate": 187,
+                              "to_coordinate": 203,
                               "to_value": 0.0
                             },
                             "first": 0.9375,
@@ -301,9 +301,9 @@
                           "alpha": {
                             "type": "minecraft:gradient",
                             "axis": "y",
-                            "from_coordinate": 170,
+                            "from_coordinate": 186,
                             "from_value": 1.0,
-                            "to_coordinate": 187,
+                            "to_coordinate": 203,
                             "to_value": 0.0
                           },
                           "first": 0.9375,
@@ -317,10 +317,10 @@
                                   "left": {
                                     "type": "minecraft:gradient",
                                     "axis": "y",
-                                    "from_coordinate": 0,
-                                    "from_value": 0.0,
-                                    "to_coordinate": 192,
-                                    "to_value": 192.0
+                                    "from_coordinate": -48,
+                                    "from_value": -48.0,
+                                    "to_coordinate": 208,
+                                    "to_value": 208.0
                                   },
                                   "right": {
                                     "type": "minecraft:mul",
@@ -463,6 +463,16 @@
                                     "derivative": 0.0,
                                     "location": 202.5,
                                     "value": -0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 209.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 215.5,
+                                    "value": -0.5
                                   }
                                 ]
                               }
@@ -494,9 +504,9 @@
                           "alpha": {
                             "type": "minecraft:gradient",
                             "axis": "y",
-                            "from_coordinate": 170,
+                            "from_coordinate": 186,
                             "from_value": 1.0,
-                            "to_coordinate": 187,
+                            "to_coordinate": 203,
                             "to_value": 0.0
                           },
                           "first": 0.9375,
@@ -510,10 +520,10 @@
                                   "left": {
                                     "type": "minecraft:gradient",
                                     "axis": "y",
-                                    "from_coordinate": 0,
-                                    "from_value": 0.0,
-                                    "to_coordinate": 192,
-                                    "to_value": 192.0
+                                    "from_coordinate": -48,
+                                    "from_value": -48.0,
+                                    "to_coordinate": 208,
+                                    "to_value": 208.0
                                   },
                                   "right": {
                                     "type": "minecraft:mul",
@@ -636,6 +646,16 @@
                                     "derivative": 0.0,
                                     "location": 214.5,
                                     "value": -1.0
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 223.0,
+                                    "value": 0.5
+                                  },
+                                  {
+                                    "derivative": 0.0,
+                                    "location": 231.5,
+                                    "value": -1.0
                                   }
                                 ]
                               }
@@ -673,9 +693,9 @@
                       "right": {
                         "type": "minecraft:gradient",
                         "axis": "y",
-                        "from_coordinate": 162,
+                        "from_coordinate": 178,
                         "from_value": -1.0,
-                        "to_coordinate": 184,
+                        "to_coordinate": 200,
                         "to_value": 1.0
                       }
                     },
@@ -704,9 +724,9 @@
                   "alpha": {
                     "type": "minecraft:gradient",
                     "axis": "y",
-                    "from_coordinate": 4,
+                    "from_coordinate": -44,
                     "from_value": 0.0,
-                    "to_coordinate": 10,
+                    "to_coordinate": -38,
                     "to_value": 1.0
                   },
                   "first": 2.5,
@@ -742,6 +762,6 @@
     "temperature": "eam:underworld/temperature",
     "vegetation": "eam:underworld/humidity"
   },
-  "sea_level": 0,
+  "sea_level": -48,
   "spawn_target": []
 }
