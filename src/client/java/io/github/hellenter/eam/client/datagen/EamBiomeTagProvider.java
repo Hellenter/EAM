@@ -43,7 +43,7 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST,
 						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DAPPLED_FOREST, Biomes.DARK_FOREST);
 		builder(CastleModule.HAS_CASTLE).addTag(OutpostModule.HAS_OUTPOST);
-		builder(KoscheiCastleModule.HAS_CASTLE).add(Biomes.ICE_SPIKES);
+		builder(KoscheiCastleModule.HAS_CASTLE).add(UnderworldDimension.ICE_CAVES);
 		builder(SwampyForestBiomes.IS_SWAMPY_FOREST)
 				.add(SwampyForestBiomes.SWAMPY_FOREST, SwampyForestBiomes.SWAMPY_LAKES, SwampyForestBiomes.SWAMPY_HUMMOCKS);
 		// Temperate land biomes a swampy forest region takes over; rivers, beaches, oceans, mountains and caves stay.
