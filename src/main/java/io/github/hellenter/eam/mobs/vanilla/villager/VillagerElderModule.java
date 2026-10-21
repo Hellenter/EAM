@@ -53,7 +53,7 @@ import java.util.function.Predicate;
  * <p>
  * The village button of his inventory and of his trade panel opens the village menu: every villager within his reach
  * with his profession, level, health and gear, and a button to make each grown villager a guard or an ordinary villager
- * again; a right click on a villager opens his page. A locked chest placed in his reach lists his villagers as owners.
+ * again; a click on a villager opens his page. Every villager has a first name and a surname, {@link VillagerNames}. A locked chest placed in his reach lists his villagers as owners.
  */
 public final class VillagerElderModule {
 	private static final byte HAPPY_PARTICLES = 14;
@@ -67,6 +67,7 @@ public final class VillagerElderModule {
 	/** Settings and payloads register whatever the config says, so the data is always valid and client and server match. */
 	public static void register() {
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(ElderSettingsLoader.ID, new ElderSettingsLoader());
+		VillagerNames.register();
 		PayloadTypeRegistry.serverboundPlay().register(VillageOpenPayload.TYPE, VillageOpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(VillageGuardPayload.TYPE, VillageGuardPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(VillageListPayload.TYPE, VillageListPayload.STREAM_CODEC);
@@ -192,7 +193,7 @@ public final class VillagerElderModule {
 		gear.add(VillagerMilitiaModule.gear(villager, EquipmentSlot.MAINHAND).copy());
 		gear.add(VillagerMilitiaModule.gear(villager, EquipmentSlot.OFFHAND).copy());
 		VillageListPayload.Role role = role(villager, elder);
-		return new VillageListPayload.Resident(villager.getId(), Optional.ofNullable(villager.getCustomName()),
+		return new VillageListPayload.Resident(villager.getId(), VillagerNames.name(villager),
 				villager.getVillagerData().profession().value().name(), villager.getVillagerData().level(), villager.getHealth(),
 				villager.getMaxHealth(), gear, role);
 	}

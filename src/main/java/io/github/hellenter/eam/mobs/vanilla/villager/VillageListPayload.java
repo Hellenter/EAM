@@ -13,7 +13,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The villagers of the elder's village, for the village menu: sent when a player opens it and again after he changes
@@ -47,7 +46,7 @@ public record VillageListPayload(int elderId, boolean guards, List<Resident> vil
 	 * One villager in the list.
 	 *
 	 * @param id         his entity id
-	 * @param name       the name a player gave him, if any
+	 * @param name       his name: his own first name and surname, or the one a player gave him
 	 * @param profession his profession's name
 	 * @param level      his trade level, 1 to 5
 	 * @param health     his health now
@@ -55,11 +54,11 @@ public record VillageListPayload(int elderId, boolean guards, List<Resident> vil
 	 * @param gear       head, chest, legs, feet, main hand and off hand; the main hand is empty while he holds his work item
 	 * @param role       guard, child, the elder or anyone else
 	 */
-	public record Resident(int id, Optional<Component> name, Component profession, int level, float health, float maxHealth,
+	public record Resident(int id, Component name, Component profession, int level, float health, float maxHealth,
 			List<ItemStack> gear, Role role) {
 		public static final StreamCodec<RegistryFriendlyByteBuf, Resident> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.VAR_INT, Resident::id,
-				ComponentSerialization.OPTIONAL_STREAM_CODEC, Resident::name,
+				ComponentSerialization.STREAM_CODEC, Resident::name,
 				ComponentSerialization.STREAM_CODEC, Resident::profession,
 				ByteBufCodecs.VAR_INT, Resident::level,
 				ByteBufCodecs.FLOAT, Resident::health,

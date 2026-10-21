@@ -9,6 +9,7 @@ import io.github.hellenter.eam.mobs.vanilla.villager.VillageResidentRequestPaylo
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,9 +24,9 @@ import java.util.List;
 
 /**
  * The village menu the elder opens: a window like a chest's listing every villager within his reach, a row each, with
- * his profession and level, his health, his armor and what he holds, and a button that makes a grown villager a guard
- * or a guard an ordinary villager again. The wheel scrolls the rows; a right click on a row opens that villager's page,
- * {@link VillageResidentScreen}.
+ * his name, profession and level, a bar of his health, his armor and what he holds, and a button that makes a grown
+ * villager a guard or a guard an ordinary villager again. The wheel scrolls the rows; a click on a row opens that
+ * villager's page with everything he has, {@link VillageResidentScreen}.
  */
 public class VillageScreen extends Screen {
 	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
@@ -37,15 +38,22 @@ public class VillageScreen extends Screen {
 	private static final int ROW_HOVER = 0xFFD8D8D8;
 	private static final int TEXT = 0xFF404040;
 	private static final int MUTED = 0xFF707070;
-	private static final int HURT = 0xFFA02020;
-	private static final int WIDTH = 304;
-	private static final int ROW = 22;
+	private static final Identifier HEART_SPRITE = Identifier.withDefaultNamespace("hud/heart/full");
+	private static final int BAR_BACK = 0xFF3A1A1A;
+	private static final int BAR_HIGH = 0xFF4E9A2E;
+	private static final int BAR_MID = 0xFFC8961E;
+	private static final int BAR_LOW = 0xFFB82828;
+	static final int HEALTH_WIDTH = 9 + 2 + 60;
+	private static final int WIDTH = 440;
+	private static final int ROW = 24;
 	private static final int ROWS = 8;
 	private static final int LIST_TOP = 18;
 	private static final int HINT_Y = LIST_TOP + ROWS * ROW + 4;
 	private static final int HEIGHT = HINT_Y + 14;
 	private static final int TEXT_X = 8;
-	private static final int GEAR_X = 122;
+	private static final int TEXT_WIDTH = 170;
+	private static final int HEALTH_X = TEXT_X + TEXT_WIDTH + 4;
+	private static final int GEAR_X = HEALTH_X + HEALTH_WIDTH + 6;
 	private static final int SLOT = 18;
 	private static final int BUTTON_X = GEAR_X + 6 * SLOT + 4;
 	private static final int BUTTON_WIDTH = WIDTH - BUTTON_X - 7;
@@ -89,7 +97,7 @@ public class VillageScreen extends Screen {
 						ClientPlayNetworking.send(new VillageGuardPayload(village.elderId(), resident.id(), !guard));
 						pressed.active = false;
 					})
-					.bounds(left + BUTTON_X, top + LIST_TOP + row * ROW + 1, BUTTON_WIDTH, 20)
+					.bounds(left + BUTTON_X, top + LIST_TOP + row * ROW + 2, BUTTON_WIDTH, 20)
 					.build();
 			button.active = village.guards();
 			addRenderableWidget(button);
@@ -108,12 +116,13 @@ public class VillageScreen extends Screen {
 		return village.elderId();
 	}
 
-	/** A right click on a row asks the server for that villager's page. */
+	/** A left or right click on a row, off its button, asks the server for that villager's page. */
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		if (super.mouseClicked(event, doubleClick)) return true;
 		int index = rowAt(event.x(), event.y());
-		if (event.button() != InputConstants.MOUSE_BUTTON_RIGHT || index < 0) return false;
+		boolean button = event.button() == InputConstants.MOUSE_BUTTON_LEFT || event.button() == InputConstants.MOUSE_BUTTON_RIGHT;
+		if (!button || index < 0) return false;
 		ClientPlayNetworking.send(new VillageResidentRequestPayload(village.elderId(), village.villagers().get(index).id()));
 		return true;
 	}
@@ -174,37 +183,66 @@ public class VillageScreen extends Screen {
 			} else if (row % 2 == 1) {
 				graphics.fill(left + 5, y, left + WIDTH - 5, y + ROW, ROW_DARK);
 			}
-			graphics.text(font, name(resident), left + TEXT_X, y + 2, TEXT, false);
-			graphics.text(font, details(resident), left + TEXT_X, y + 12, resident.health() < resident.maxHealth() ? HURT : MUTED, false);
+			graphics.text(font, fit(font, resident.name(), TEXT_WIDTH), left + TEXT_X, y + 3, TEXT, false);
+			graphics.text(font, fit(font, occupation(resident), TEXT_WIDTH), left + TEXT_X, y + 13, MUTED, false);
+			health(graphics, font, resident, left + HEALTH_X, y + 7);
 			for (int i = 0; i < resident.gear().size(); i++) {
 				int x = left + GEAR_X + i * SLOT;
-				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y + 2, SLOT, SLOT);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y + 3, SLOT, SLOT);
 				ItemStack stack = resident.gear().get(i);
 				if (stack.isEmpty()) continue;
-				graphics.item(stack, x + 1, y + 3);
-				graphics.itemDecorations(font, stack, x + 1, y + 3);
-				if (mouseX >= x && mouseX < x + SLOT && mouseY >= y + 2 && mouseY < y + 2 + SLOT) hovered = stack;
+				graphics.item(stack, x + 1, y + 4);
+				graphics.itemDecorations(font, stack, x + 1, y + 4);
+				if (mouseX >= x && mouseX < x + SLOT && mouseY >= y + 3 && mouseY < y + 3 + SLOT) hovered = stack;
 			}
 		}
 		super.extractRenderState(graphics, mouseX, mouseY, a);
 		if (!hovered.isEmpty()) graphics.setTooltipForNextFrame(font, hovered, mouseX, mouseY);
 	}
 
-	/** His profession, with his name if a player gave him one. */
+	/** His name and what he is, for the title of his page. */
 	static Component name(VillageListPayload.Resident resident) {
-		Component role = switch (resident.role()) {
+		return Component.translatable("gui.eam.village.named", resident.name(), role(resident));
+	}
+
+	/** The elder, a child, or his profession. */
+	private static Component role(VillageListPayload.Resident resident) {
+		return switch (resident.role()) {
 			case ELDER -> Component.translatable("gui.eam.village.elder");
 			case CHILD -> Component.translatable("gui.eam.village.child");
 			default -> resident.profession();
 		};
-		return resident.name().map(name -> (Component) Component.translatable("gui.eam.village.named", name, role)).orElse(role);
 	}
 
-	/** Level and health. */
-	private static Component details(VillageListPayload.Resident resident) {
-		String health = Math.round(resident.health()) + "/" + Math.round(resident.maxHealth());
-		if (resident.role() == VillageListPayload.Role.CHILD) return Component.translatable("gui.eam.village.health", health);
-		return Component.translatable("gui.eam.village.level_health", resident.level(), health);
+	/** What he is and his trade level with its name; a child has no level. */
+	private static Component occupation(VillageListPayload.Resident resident) {
+		if (resident.role() == VillageListPayload.Role.CHILD) return role(resident);
+		int level = resident.level();
+		return Component.translatable("gui.eam.village.occupation", role(resident), level, Component.translatable("merchant.level." + level));
+	}
+
+	/** The text cut to {@code width} pixels, with an ellipsis when it does not fit. */
+	private static String fit(Font font, Component text, int width) {
+		String plain = text.getString();
+		if (font.width(plain) <= width) return plain;
+		return font.plainSubstrByWidth(plain, width - font.width("...")) + "...";
+	}
+
+	/**
+	 * A heart and a bar of his health, {@link #HEALTH_WIDTH} wide, green while he is well, yellow, then red, with his
+	 * health and full health written on it.
+	 */
+	static void health(GuiGraphicsExtractor graphics, Font font, VillageListPayload.Resident resident, int x, int y) {
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_SPRITE, x, y, 9, 9);
+		int x0 = x + 11;
+		int x1 = x + HEALTH_WIDTH;
+		float fraction = resident.maxHealth() > 0 ? Math.clamp(resident.health() / resident.maxHealth(), 0.0F, 1.0F) : 0.0F;
+		graphics.fill(x0, y, x1, y + 9, OUTLINE);
+		graphics.fill(x0 + 1, y + 1, x1 - 1, y + 8, BAR_BACK);
+		int color = fraction > 0.6F ? BAR_HIGH : fraction > 0.3F ? BAR_MID : BAR_LOW;
+		graphics.fill(x0 + 1, y + 1, x0 + 1 + Math.round((x1 - x0 - 2) * fraction), y + 8, color);
+		String text = Mth.ceil(resident.health()) + "/" + Mth.ceil(resident.maxHealth());
+		graphics.text(font, text, (x0 + x1 - font.width(text)) / 2, y + 1, LIGHT, true);
 	}
 
 	@Override
