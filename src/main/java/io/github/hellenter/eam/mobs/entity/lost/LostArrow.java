@@ -1,10 +1,10 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
 import io.github.hellenter.eam.content.EamEntities;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordLogic;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -44,8 +44,6 @@ public class LostArrow extends AbstractArrow {
 	}
 
 	private static final EntityDataAccessor<Integer> DATA_KIND = SynchedEntityData.defineId(LostArrow.class, EntityDataSerializers.INT);
-	private static final DustParticleOptions BLACK_TRAIL = new DustParticleOptions(LostMark.COLOR, 1.0F);
-	private static final DustParticleOptions RED_TRAIL = new DustParticleOptions(0xFF2A10, 1.0F);
 
 	/** How hard it pushes back, as Punch levels; 0 leaves it to the bow's enchantments. */
 	private float knockback;
@@ -111,7 +109,7 @@ public class LostArrow extends AbstractArrow {
 			int steps = kind == Kind.RED ? 4 : 2;
 			for (int i = 0; i < steps; i++) {
 				double f = (double) i / steps;
-				level().addParticle(kind == Kind.RED ? RED_TRAIL : BLACK_TRAIL, getX() - motion.x * f, getY() - motion.y * f,
+				level().addParticle(kind == Kind.RED ? EamParticles.RED_ARROW_TRAIL : EamParticles.MARK_TRAIL, getX() - motion.x * f, getY() - motion.y * f,
 						getZ() - motion.z * f, 0.0, 0.0, 0.0);
 			}
 		}
@@ -147,6 +145,9 @@ public class LostArrow extends AbstractArrow {
 		if (owner instanceof LivingEntity livingOwner) {
 			livingOwner.setLastHurtMob(entity);
 		}
+		if (level() instanceof ServerLevel level) {
+			level.sendParticles(EamParticles.RED_ARROW_TRAIL, getX(), getY(), getZ(), 12, 0.15, 0.15, 0.15, 0.12);
+		}
 		if (entity.hurtOrSimulate(source, dealt) && entity instanceof LivingEntity living) {
 			doKnockback(living, source);
 			doPostHurtEffects(living);
@@ -160,6 +161,10 @@ public class LostArrow extends AbstractArrow {
 		super.doPostHurtEffects(target);
 		if (kind() == Kind.MARK && markTicks > 0) {
 			target.addEffect(new MobEffectInstance(LostMark.MARKED, markTicks), getEffectSource());
+			// A puff of soot where the mark lands.
+			if (level() instanceof ServerLevel level) {
+				level.sendParticles(EamParticles.MARK_TRAIL, target.getX(), target.getY(0.6), target.getZ(), 10, 0.25, 0.3, 0.25, 0.02);
+			}
 		}
 	}
 
