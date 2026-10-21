@@ -1,27 +1,29 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamParticles;
 
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 
 /**
- * The longbowman's rare power shot, always warned the same way: he stops, a warning sound rings out and red sparks
- * gather around him while he draws, and exactly {@code warning_ticks} after the sound he looses a very fast red arrow.
+ * The longbowman's rare power shot, always warned the same way: he stops, a warning sound rings out and red glints
+ * fly into his bow while he draws, and exactly {@code warning_ticks} after the sound he looses a very fast red arrow.
  * A player who breaks his line of sight before then makes him lower the bow.
  */
 final class LongbowPowerShotGoal extends Goal {
 	private static final float TURN = 40.0F;
-	private static final DustParticleOptions SPARK = new DustParticleOptions(0xFF2A10, 1.2F);
 	/** After a shot called off for lack of sight he tries again this soon. */
 	private static final int RETRY_TICKS = 100;
+	/** Share of the distance to the bow a glint flies in its first tick; its drag of 0.86 a tick brings it there in about ten. */
+	private static final double GLINT_PULL = 0.19;
 
 	private final LostLongbowman longbowman;
 	/** Game time from which he may start another power shot; 0 until his first fight. */
@@ -69,7 +71,7 @@ final class LongbowPowerShotGoal extends Goal {
 		longbowman.startUsingItem(ProjectileUtil.getWeaponHoldingHand(longbowman, EamItems.LONGBOW));
 		longbowman.playSound(SoundEvents.EVOKER_PREPARE_ATTACK, 2.0F, 0.7F);
 		if (longbowman.level() instanceof ServerLevel level) {
-			level.sendParticles(SPARK, longbowman.getX(), longbowman.getY(1.0), longbowman.getZ(), 20, 0.5, 0.6, 0.5, 0.0);
+			glints(level, 14);
 		}
 	}
 
@@ -103,9 +105,8 @@ final class LongbowPowerShotGoal extends Goal {
 		longbowman.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		LongbowmanSettings.PowerShot shot = LostLongbowman.longbowman().powerShot();
 		ticks++;
-		// Sparks gather round him, thicker as the shot comes.
-		int sparks = 1 + 4 * ticks / shot.warningTicks();
-		level.sendParticles(SPARK, longbowman.getX(), longbowman.getY(0.7), longbowman.getZ(), sparks, 0.45, 0.5, 0.45, 0.0);
+		// Red glints fly into his bow, thicker as the shot comes.
+		glints(level, 1 + 3 * ticks / shot.warningTicks());
 		if (ticks < shot.warningTicks()) {
 			return;
 		}
@@ -115,6 +116,18 @@ final class LongbowPowerShotGoal extends Goal {
 		if (longbowman.getSensing().hasLineOfSight(target)) {
 			longbowman.shootRed(level, target, shot);
 			fired = true;
+		}
+	}
+
+	/** {@code count} red glints from around his bow flying into it. */
+	private void glints(ServerLevel level, int count) {
+		Vec3 bow = longbowman.bowPosition();
+		for (int i = 0; i < count; i++) {
+			Vec3 from = bow.add(new Vec3(longbowman.getRandom().nextGaussian(), longbowman.getRandom().nextGaussian() * 0.7,
+					longbowman.getRandom().nextGaussian()).normalize().scale(1.0 + longbowman.getRandom().nextDouble() * 0.5));
+			// With the particle's drag, this flight ends at the bow just as it fades.
+			Vec3 flight = bow.subtract(from).scale(GLINT_PULL);
+			level.sendParticles(EamParticles.LONGBOW_CHARGE, from.x, from.y, from.z, 0, flight.x, flight.y, flight.z, 1.0);
 		}
 	}
 

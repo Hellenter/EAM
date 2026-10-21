@@ -182,6 +182,10 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.KOSCHEI_FORCE, YagaFxParticle.Style.FORCE);
 		registerYagaFx(EamParticles.KOSCHEI_SNOWFLAKE, YagaFxParticle.Style.FLAKE);
 		registerYagaFx(EamParticles.KOSCHEI_ICE_FIELD, YagaFxParticle.Style.ICE_FIELD);
+		registerYagaFx(EamParticles.LONGBOW_CHARGE, YagaFxParticle.Style.CHARGE);
+		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
+		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);
+		registerYagaFx(EamParticles.MARK_TRAIL, YagaFxParticle.Style.SOOT);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
 		registerAmbient(EamParticles.UNDERWORLD_SPORE, UnderworldAmbientParticle.Style.SPORE);
 		registerAmbient(EamParticles.UNDERWORLD_ASH, UnderworldAmbientParticle.Style.ASH);

@@ -1,6 +1,7 @@
 package io.github.hellenter.eam.mobs.entity.lost;
 
 import io.github.hellenter.eam.content.EamItems;
+import io.github.hellenter.eam.content.EamParticles;
 import io.github.hellenter.eam.content.longbow.LongbowLogic;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanLogic;
 
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.Nullable;
 
@@ -180,8 +182,17 @@ public class LostLongbowman extends Lost {
 				shot.shieldMultiplier(), shot.shieldSeconds());
 		aim(arrow, target, shot.speed(), RED_INACCURACY);
 		level.addFreshEntity(arrow);
+		Vec3 bow = bowPosition();
+		level.sendParticles(EamParticles.LONGBOW_FLARE, bow.x, bow.y, bow.z, 1, 0.0, 0.0, 0.0, 0.0);
+		level.sendParticles(EamParticles.RED_ARROW_TRAIL, bow.x, bow.y, bow.z, 8, 0.1, 0.1, 0.1, 0.08);
 		playSound(SoundEvents.CROSSBOW_SHOOT, 1.6F, 0.6F);
 		playSound(SoundEvents.SKELETON_SHOOT, 1.6F, 0.5F);
+	}
+
+	/** About where his drawn longbow is: in front of him at chest height. */
+	Vec3 bowPosition() {
+		Vec3 facing = Vec3.directionFromRotation(0.0F, getYRot());
+		return new Vec3(getX() + facing.x * 0.6, getY(0.6), getZ() + facing.z * 0.6);
 	}
 
 	/** A quick weak arrow of the volley that drives back a player who came too close. */
