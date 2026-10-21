@@ -183,6 +183,8 @@ final class UnderworldWorldgen {
 	private static final int ICE_ROOF = UPPER_TOP - 14;
 	/** The lava caves turn to solid rock above this height, so they are lower than the other biomes' halls. */
 	private static final int LAVA_ROOF = 128;
+	/** The depths' halls open from this height up; below it lies solid rock. */
+	private static final int DEPTHS_FLOOR = 4;
 	/**
 	 * The layered caves: a level every LAYER_PERIOD blocks of height, its density from LAYER_SLAB in the rock between
 	 * levels to LAYER_OPEN in the middle of one, rising and falling by up to about LAYER_WAVE / 2 blocks, and roughened by
@@ -464,10 +466,10 @@ final class UnderworldWorldgen {
 				DensityFunctions.yClampedGradient(FOREST_ROOF - 12, FOREST_ROOF, 0.0F, 1.5F));
 		caves = DensityFunctions.lerp(forestWeight, caves, forest);
 		DensityFunction upper = DensityFunctions.lerp(iceWeight, caves, hall);
-		// Lower level: wide halls between the floor bedrock and the band, rock from y 36 up to the band.
+		// Lower level: one tier of wide halls from y 4 to y 36 under the band, solid rock below them down to the floor bedrock.
+		// Halls reaching below y 0 would cross into the aquifer's next cell and hold a second lava sea.
 		DensityFunction lower = NoiseRouterData.slide(DensityFunctions.add(base, DensityFunctions.constant(-0.14F)), 0, UnderworldLogic.TOP,
-				UnderworldLogic.TOP - 36, UnderworldLogic.TOP - (UnderworldLogic.BAND_BOTTOM - 1), 2.5F,
-				UnderworldLogic.MIN_Y + 4, UnderworldLogic.MIN_Y + 10, 2.5F);
+				UnderworldLogic.TOP - 36, UnderworldLogic.TOP - (UnderworldLogic.BAND_BOTTOM - 1), 2.5F, DEPTHS_FLOOR, DEPTHS_FLOOR + 6, 2.5F);
 		DensityFunction finalDensity = DensityFunctions.add(NoiseRouterData.postProcess(DensityFunctions.min(upper, lower), 4, 8),
 				DensityFunctions.beardifier());
 
@@ -868,7 +870,7 @@ final class UnderworldWorldgen {
 		register(context, P_LAVA_PILLAR, features.getOrThrow(LAVA_PILLAR),
 				List.of(RarityFilter.onAverageOnceEvery(2), InSquarePlacement.spread(), upper, BiomeFilter.biome()));
 		register(context, P_LAVA_PILLAR_DEPTHS, features.getOrThrow(LAVA_PILLAR),
-				List.of(CountPlacement.of(UniformInt.of(2, 4)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
+				List.of(CountPlacement.of(UniformInt.of(1, 2)), InSquarePlacement.spread(), lower, BiomeFilter.biome()));
 		register(context, P_ICE_SPIRE, features.getOrThrow(ICE_SPIRE), List.of(CountPlacement.of(UniformInt.of(3, 7)),
 				InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(ICE_FLOOR - 4), VerticalAnchor.absolute(ICE_FLOOR + 28)),
 				EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 32),

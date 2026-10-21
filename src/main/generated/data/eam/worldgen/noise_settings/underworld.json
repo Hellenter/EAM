@@ -724,9 +724,9 @@
                   "alpha": {
                     "type": "minecraft:gradient",
                     "axis": "y",
-                    "from_coordinate": -44,
+                    "from_coordinate": 4,
                     "from_value": 0.0,
-                    "to_coordinate": -38,
+                    "to_coordinate": 10,
                     "to_value": 1.0
                   },
                   "first": 2.5,

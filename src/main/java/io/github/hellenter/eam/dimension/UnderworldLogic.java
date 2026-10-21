@@ -5,8 +5,8 @@ package io.github.hellenter.eam.dimension;
  * <p>
  * The underworld is 256 blocks tall (y -48..207): vanilla bedrock at the bottom (y -48..-44) and at the top (y 203..207),
  * and in between a band of deep bedrock ({@link #BAND_BOTTOM}..{@link #BAND_TOP}) that splits it into two levels. The
- * upper level (about 156 blocks) holds the biomes; the lower level (about 90 blocks with its bedrock) is the hot depths,
- * where nether portals lead to the nether. Only a special item breaks the deep bedrock.
+ * upper level (about 156 blocks) holds the biomes; the lower level (about 90 blocks, its halls only above y 4) is the
+ * hot depths, where nether portals lead to the nether. Only a special item breaks the deep bedrock.
  */
 public final class UnderworldLogic {
 	public static final int MIN_Y = -48;
@@ -21,7 +21,7 @@ public final class UnderworldLogic {
 	/** Below this a spot belongs to the lower level, at and above it to the upper one. */
 	public static final int LEVEL_SPLIT = 46;
 	/** Where a portal may be built when one is made for a traveller: its lowest block, in each level. */
-	public static final int LOWER_PORTAL_MIN_Y = MIN_Y + 6;
+	public static final int LOWER_PORTAL_MIN_Y = 6;
 	public static final int LOWER_PORTAL_MAX_Y = 30;
 	public static final int UPPER_PORTAL_MIN_Y = 54;
 	public static final int UPPER_PORTAL_MAX_Y = TOP - 16;
