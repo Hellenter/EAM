@@ -32,7 +32,7 @@ public class KoscheiCastlePlacement extends RandomSpreadStructurePlacement {
 	public static final MapCodec<RandomSpreadStructurePlacement> CODEC = MapCodec.unit(INSTANCE);
 
 	/** The height the biome is read at: the middle of the underworld's upper level, inside the ice caves' hall. */
-	private static final int SAMPLE_Y = (UnderworldLogic.BAND_TOP + UnderworldLogic.HEIGHT) / 2;
+	private static final int SAMPLE_Y = (UnderworldLogic.BAND_TOP + UnderworldLogic.TOP) / 2;
 	private static final int MAX_CACHED = 4096;
 
 	/** The underworld's biomes and noises for each world seed, to find a patch's middle from the seed alone, as {@code /locate} does. */
