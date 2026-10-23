@@ -16,6 +16,8 @@
     "eam:draugr",
     "eam:drowned_soldier",
     "eam:zombie_duergar",
-    "eam:frozen_corpse"
+    "eam:frozen_corpse",
+    "eam:mushroom_shambler",
+    "eam:smoldering_shambler"
   ]
 }

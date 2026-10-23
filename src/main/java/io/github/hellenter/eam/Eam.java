@@ -27,6 +27,7 @@ import io.github.hellenter.eam.core.config.EamConfig;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
+import io.github.hellenter.eam.mobs.entity.shambler.ShamblerModule;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowmanModule;
 import io.github.hellenter.eam.mobs.entity.fallenlord.FallenLordModule;
@@ -159,6 +160,7 @@ public class Eam implements ModInitializer {
 		WargModule.register();
 		BoarModule.register();
 		FrozenCorpseModule.register();
+		ShamblerModule.register();
 		CaveRamModule.register();
 		BabaYagaModule.register();
 		KoscheiModule.register();
@@ -248,6 +250,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) WargModule.init();
 		if (config.mobs()) BoarModule.init();
 		if (config.mobs()) FrozenCorpseModule.init();
+		if (config.mobs()) ShamblerModule.init();
 		if (config.mobs()) CaveRamModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();
 		if (config.mobDrops()) KnifeModule.init();
