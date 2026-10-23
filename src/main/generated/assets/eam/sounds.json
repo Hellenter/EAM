@@ -669,6 +669,123 @@
     ],
     "subtitle": "subtitles.eam.entity.leshy.shield"
   },
+  "entity.mushroom_shambler.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/husk/idle1",
+        "pitch": 0.7,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/husk/idle2",
+        "pitch": 0.7,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/husk/idle3",
+        "pitch": 0.7,
+        "volume": 0.7
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.ambient"
+  },
+  "entity.mushroom_shambler.death": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/husk/death1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/husk/death2",
+        "pitch": 0.7
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.death"
+  },
+  "entity.mushroom_shambler.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/husk/hurt1",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/husk/hurt2",
+        "pitch": 0.75
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.hurt"
+  },
+  "entity.mushroom_shambler.sparks": {
+    "sounds": [
+      {
+        "name": "minecraft:block/campfire/crackle1",
+        "pitch": 1.3
+      },
+      {
+        "name": "minecraft:block/campfire/crackle2",
+        "pitch": 1.3
+      },
+      {
+        "name": "minecraft:block/campfire/crackle3",
+        "pitch": 1.3
+      },
+      {
+        "name": "minecraft:block/campfire/crackle4",
+        "pitch": 1.3
+      },
+      {
+        "name": "minecraft:block/campfire/crackle5",
+        "pitch": 1.3
+      },
+      {
+        "name": "minecraft:block/campfire/crackle6",
+        "pitch": 1.3
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.sparks"
+  },
+  "entity.mushroom_shambler.spores": {
+    "sounds": [
+      {
+        "name": "minecraft:mob/pufferfish/blow_out1",
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:mob/pufferfish/blow_out2",
+        "pitch": 0.55
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.spores"
+  },
+  "entity.mushroom_shambler.wake": {
+    "sounds": [
+      {
+        "name": "minecraft:block/fungus/break1",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:block/fungus/break2",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:block/fungus/break3",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:block/fungus/break4",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:block/fungus/break5",
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:block/fungus/break6",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.eam.entity.mushroom_shambler.wake"
+  },
   "entity.vampire_bat.swarm": {
     "sounds": [
       {

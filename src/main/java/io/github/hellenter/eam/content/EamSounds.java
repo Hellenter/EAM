@@ -47,6 +47,17 @@ public final class EamSounds {
 	public static final SoundEvent LESHY_HURT = register("entity.leshy.hurt");
 	public static final SoundEvent LESHY_DEATH = register("entity.leshy.death");
 
+	/** The mushroom shambler's low, wet groan; it keeps quiet while it passes for a mushroom. */
+	public static final SoundEvent SHAMBLER_AMBIENT = register("entity.mushroom_shambler.ambient");
+	/** The soft tearing of mycelium as a disguised shambler stands up. */
+	public static final SoundEvent SHAMBLER_WAKE = register("entity.mushroom_shambler.wake");
+	/** A puff of spores out of a shambler that was hit, or out of a burst spore sac. */
+	public static final SoundEvent SHAMBLER_SPORES = register("entity.mushroom_shambler.spores");
+	/** A crackling spray of sparks out of a smoldering shambler that was hit. */
+	public static final SoundEvent SHAMBLER_SPARKS = register("entity.mushroom_shambler.sparks");
+	public static final SoundEvent SHAMBLER_HURT = register("entity.mushroom_shambler.hurt");
+	public static final SoundEvent SHAMBLER_DEATH = register("entity.mushroom_shambler.death");
+
 	/** The screech of a vampire bat flock taking wing in the distance: get ready. */
 	public static final SoundEvent VAMPIRE_BAT_SWARM = register("entity.vampire_bat.swarm");
 

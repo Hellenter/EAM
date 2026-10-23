@@ -55,6 +55,10 @@ public class YagaFxParticle extends SingleQuadParticle {
 		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false),
 		// Stone chips and rust flakes from the Lost straggler's sword striking the floor: tumbling up, falling and bouncing.
 		RUBBLE(18, 30, 0.05F, 0.1F, 1.0F, 0.96F, 0.4F, false, false, false, 0.0F, true),
+		// The mushroom shambler's puffs: a slow spreading cloud of spore clumps, and a smoldering one's sparks flung out
+		// falling and bouncing.
+		SPORE_PUFF(36, 60, 0.18F, 0.3F, -0.004F, 0.9F, 0.05F, true, false, false, 0.9F, false),
+		CINDER(12, 24, 0.04F, 0.07F, 0.35F, 0.94F, 0.0F, true, true, false, -0.4F, true),
 		// Ember beetles: sparks off the cracks in their shell, and the coal crumbs they scatter as they eat.
 		BEETLE_SPARK(10, 20, 0.04F, 0.07F, -0.015F, 0.92F, 0.0F, true, true, false, -0.5F, false),
 		CRUMB(14, 24, 0.04F, 0.07F, 0.9F, 0.96F, 0.3F, false, false, false, 0.0F, true);

@@ -302,6 +302,36 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
 								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 
+		// Mushroom shamblers: the mushrooms grown over them and now and then a spore sac; the smoldering one, charcoal and a
+		// mushroom or two cooked through.
+		output.accept(EamEntities.MUSHROOM_SHAMBLER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.RED_MUSHROOM)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.BROWN_MUSHROOM)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.SPORE_SAC)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 1)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+		output.accept(EamEntities.SMOLDERING_SHAMBLER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.CHARCOAL)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.BROWN_MUSHROOM)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
 		// Cave rams: mutton like a sheep, cooked if it burned, and a tuft or two of their wool.
 		output.accept(EamEntities.CAVE_RAM.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

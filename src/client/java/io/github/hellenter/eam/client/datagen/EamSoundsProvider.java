@@ -50,6 +50,19 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 		exporter.add(EamSounds.WIGHT_GROAN, wight(EamSounds.WIGHT_GROAN, "groan", "mob/husk/idle", 3, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_HURT, wight(EamSounds.WIGHT_HURT, "hurt", "mob/husk/hurt", 2, 0.6F, 1.0F));
 		exporter.add(EamSounds.WIGHT_DEATH, wight(EamSounds.WIGHT_DEATH, "death", "mob/husk/death", 2, 0.5F, 1.0F));
+		// The mushroom shambler: husk files pitched down into a wet groan, fungus breaking as it stands up, a pufferfish
+		// blowing out for its spores and campfire crackle for a smoldering one's sparks.
+		exporter.add(EamSounds.SHAMBLER_AMBIENT, shambler(EamSounds.SHAMBLER_AMBIENT, "ambient", 0.7F, 0.7F, "mob/husk/idle1", "mob/husk/idle2",
+				"mob/husk/idle3"));
+		exporter.add(EamSounds.SHAMBLER_WAKE, shambler(EamSounds.SHAMBLER_WAKE, "wake", 0.6F, 1.0F, "block/fungus/break1", "block/fungus/break2",
+				"block/fungus/break3", "block/fungus/break4", "block/fungus/break5", "block/fungus/break6"));
+		exporter.add(EamSounds.SHAMBLER_SPORES, shambler(EamSounds.SHAMBLER_SPORES, "spores", 0.55F, 1.0F, "mob/pufferfish/blow_out1",
+				"mob/pufferfish/blow_out2"));
+		exporter.add(EamSounds.SHAMBLER_SPARKS, shambler(EamSounds.SHAMBLER_SPARKS, "sparks", 1.3F, 1.0F, "block/campfire/crackle1",
+				"block/campfire/crackle2", "block/campfire/crackle3", "block/campfire/crackle4", "block/campfire/crackle5",
+				"block/campfire/crackle6"));
+		exporter.add(EamSounds.SHAMBLER_HURT, shambler(EamSounds.SHAMBLER_HURT, "hurt", 0.75F, 1.0F, "mob/husk/hurt1", "mob/husk/hurt2"));
+		exporter.add(EamSounds.SHAMBLER_DEATH, shambler(EamSounds.SHAMBLER_DEATH, "death", 0.7F, 1.0F, "mob/husk/death1", "mob/husk/death2"));
 		// The leshy: vanilla creaking, creaking heart and ravager files pitched down into a voice of old wood; crows are the
 		// raven caws Koschei's ravens use.
 		exporter.add(EamSounds.LESHY_AMBIENT, leshy(EamSounds.LESHY_AMBIENT, "ambient", 0.55F, 1.0F, "mob/creaking/creaking_idle1",
@@ -175,6 +188,14 @@ public class EamSoundsProvider extends FabricSoundsProvider {
 
 	private static SoundTypeBuilder leshy(SoundEvent event, String name, float pitch, float volume, String... files) {
 		SoundTypeBuilder builder = SoundTypeBuilder.of(event).subtitle("subtitles.eam.entity.leshy." + name);
+		for (String file : files) {
+			builder.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file)).pitch(pitch).volume(volume));
+		}
+		return builder;
+	}
+
+	private static SoundTypeBuilder shambler(SoundEvent event, String name, float pitch, float volume, String... files) {
+		SoundTypeBuilder builder = SoundTypeBuilder.of(event).subtitle("subtitles.eam.entity.mushroom_shambler." + name);
 		for (String file : files) {
 			builder.sound(SoundTypeBuilder.RegistrationBuilder.ofFile(Identifier.withDefaultNamespace(file)).pitch(pitch).volume(volume));
 		}

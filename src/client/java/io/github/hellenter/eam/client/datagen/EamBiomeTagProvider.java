@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
+import io.github.hellenter.eam.mobs.entity.shambler.ShamblerModule;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
 import io.github.hellenter.eam.mobs.entity.beetle.EmberBeetleModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
@@ -101,6 +102,9 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(WargModule.SPAWNS_IN).add(Biomes.SNOWY_TAIGA, Biomes.GROVE);
 		// Underground boar herds graze the underworld's lake and river caves and its forest.
 		builder(BoarModule.SPAWNS_IN).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES, UnderworldDimension.UNDERGROUND_FOREST);
+		// Mushroom shamblers stand among the mushrooms of the mushroom forest, their smoldering kin in the burnt one.
+		builder(ShamblerModule.SPAWNS_IN).add(UnderworldDimension.MUSHROOM_FOREST);
+		builder(ShamblerModule.SMOLDERING_SPAWNS_IN).add(UnderworldDimension.BURNT_MUSHROOM_FOREST);
 		// Cave rams keep to the rocky and cold caves: the stone wastes and the frozen and ice caves.
 		builder(EmberBeetleModule.SPAWNS_IN).add(UnderworldDimension.BURNT_MUSHROOM_FOREST, UnderworldDimension.LAVA_CAVES);
 		builder(CaveRamModule.SPAWNS_IN).add(UnderworldDimension.STONE_WASTES, UnderworldDimension.FROZEN_CAVES, UnderworldDimension.ICE_CAVES);

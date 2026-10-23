@@ -1,0 +1,12 @@
+{
+  "spawn_chance": 0.6,
+  "max_spawn_light": 7,
+  "wake_distance": 5.0,
+  "disguise_delay": 300,
+  "spore_radius": 2.5,
+  "nausea_ticks": 80,
+  "spark_fire_ticks": 40,
+  "burn_ticks": 200,
+  "burning_damage": 2.0,
+  "snowball_damage": 3.0
+}

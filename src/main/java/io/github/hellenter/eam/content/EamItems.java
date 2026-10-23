@@ -72,6 +72,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.Rarity;
+import io.github.hellenter.eam.content.underworld.SporeSacItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.component.ItemLore;
@@ -466,6 +467,12 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.WARG_LEADER));
 	public static final Item BOAR_SPAWN_EGG = register("boar_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.BOAR));
+	public static final Item MUSHROOM_SHAMBLER_SPAWN_EGG = register("mushroom_shambler_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.MUSHROOM_SHAMBLER));
+	public static final Item SMOLDERING_SHAMBLER_SPAWN_EGG = register("smoldering_shambler_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.SMOLDERING_SHAMBLER));
+	/** A mushroom shambler's spore sac: thrown, it bursts into a cloud of sickening spores. */
+	public static final Item SPORE_SAC = register("spore_sac", SporeSacItem::new, new Item.Properties().stacksTo(16));
 	public static final Item CAVE_RAM_SPAWN_EGG = register("cave_ram_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.CAVE_RAM));
 	public static final Item EMBER_BEETLE_SPAWN_EGG = register("ember_beetle_spawn_egg", SpawnEggItem::new,

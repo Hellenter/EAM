@@ -97,6 +97,13 @@ public final class EamParticles {
 	public static final SimpleParticleType UNDERWORLD_EMBER = registerAmbient("underworld_ember");
 	public static final SimpleParticleType UNDERWORLD_DUST = registerAmbient("underworld_dust");
 
+	/** The green-brown spore puffs a mushroom shambler (or a thrown spore sac) gives off; they make whoever is in them sick. */
+	public static final SimpleParticleType SHAMBLER_SPORE = register("shambler_spore");
+	/** The sparks a smoldering shambler throws when it is hit; they set whoever is in them on fire. */
+	public static final SimpleParticleType SHAMBLER_SPARK = register("shambler_spark");
+	/** Embers drifting up out of a smoldering shambler's cracks. */
+	public static final SimpleParticleType SHAMBLER_EMBER = registerAmbient("shambler_ember");
+
 	private EamParticles() {
 	}
 

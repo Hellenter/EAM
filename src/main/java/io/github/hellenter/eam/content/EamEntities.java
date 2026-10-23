@@ -4,6 +4,8 @@ import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.ground.ThrownPebble;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBat;
 import io.github.hellenter.eam.mobs.entity.boar.Boar;
+import io.github.hellenter.eam.mobs.entity.shambler.MushroomShambler;
+import io.github.hellenter.eam.content.underworld.ThrownSporeSac;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRam;
 import io.github.hellenter.eam.mobs.entity.beetle.EmberBeetle;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
@@ -307,6 +309,23 @@ public final class EamEntities {
 					.passengerAttachments(1.1F)
 					.clientTrackingRange(10));
 
+	/** A mushroom shambler: a dead man overgrown with mushrooms that passes for one in the underworld's mushroom forest. */
+	public static final EntityType<MushroomShambler> MUSHROOM_SHAMBLER = register("mushroom_shambler",
+			EntityType.Builder.of(MushroomShambler::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** Its charred kin from the burnt mushroom forest: embers in its cracks, fire does not hurt it. */
+	public static final EntityType<MushroomShambler> SMOLDERING_SHAMBLER = register("smoldering_shambler",
+			EntityType.Builder.of(MushroomShambler::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.fireImmune()
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
 	/** An ember beetle: a chicken-sized, glowing coal-shelled beetle of the underworld's burnt forest and lava caves. */
 	public static final EntityType<EmberBeetle> EMBER_BEETLE = register("ember_beetle",
 			EntityType.Builder.of(EmberBeetle::new, MobCategory.MONSTER)
@@ -315,6 +334,14 @@ public final class EamEntities {
 					.fireImmune()
 					.clientTrackingRange(8)
 					.notInPeaceful());
+
+	/** A thrown spore sac: bursts into a cloud of sickening spores where it lands. */
+	public static final EntityType<ThrownSporeSac> SPORE_SAC = register("spore_sac",
+			EntityType.Builder.<ThrownSporeSac>of(ThrownSporeSac::new, MobCategory.MISC)
+					.noLootTable()
+					.sized(0.25F, 0.25F)
+					.clientTrackingRange(4)
+					.updateInterval(10));
 
 	/** A duergar outcast on a cave ram, with tomahawks and a net. */
 	public static final EntityType<DuergarRamRider> DUERGAR_RAM_RIDER = register("duergar_ram_rider",

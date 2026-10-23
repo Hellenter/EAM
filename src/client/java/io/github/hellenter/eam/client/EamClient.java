@@ -64,6 +64,8 @@ import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
 import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseModel;
 import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseRenderer;
+import io.github.hellenter.eam.client.mobs.shambler.ShamblerModel;
+import io.github.hellenter.eam.client.mobs.shambler.ShamblerRenderer;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrRenderer;
 import io.github.hellenter.eam.client.mobs.warg.WargModel;
 import io.github.hellenter.eam.client.mobs.warg.WargRenderer;
@@ -155,6 +157,7 @@ public class EamClient implements ClientModInitializer {
 		ThirstHud.register();
 		DrinkFromSourceHandler.register();
 		EntityRendererRegistry.register(EamEntities.PEBBLE, ThrownItemRenderer::new);
+		EntityRendererRegistry.register(EamEntities.SPORE_SAC, ThrownItemRenderer::new);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.LAYER, VillagerFigureModel::createLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.NO_HAT_LAYER, VillagerFigureModel::createNoHatLayer);
 		ModelLayerRegistry.registerModelLayer(VillagerFigureModel.BABY_LAYER, VillagerFigureModel::createBabyLayer);
@@ -196,6 +199,9 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.STRAGGLER_RUBBLE, YagaFxParticle.Style.RUBBLE);
 		registerYagaFx(EamParticles.FROST_SHARD, YagaFxParticle.Style.SHARD);
 		registerYagaFx(EamParticles.FROST_RIME, YagaFxParticle.Style.FLAKE);
+		registerYagaFx(EamParticles.SHAMBLER_SPORE, YagaFxParticle.Style.SPORE_PUFF);
+		registerYagaFx(EamParticles.SHAMBLER_SPARK, YagaFxParticle.Style.CINDER);
+		registerYagaFx(EamParticles.SHAMBLER_EMBER, YagaFxParticle.Style.EMBER);
 		registerYagaFx(EamParticles.EMBER_BEETLE_SPARK, YagaFxParticle.Style.BEETLE_SPARK);
 		registerYagaFx(EamParticles.EMBER_BEETLE_CRUMB, YagaFxParticle.Style.CRUMB);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
@@ -291,6 +297,9 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.WARG_LEADER, WargRenderer::new);
 		ModelLayerRegistry.registerModelLayer(BoarModel.LAYER, BoarModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.BOAR, BoarRenderer::new);
+		ModelLayerRegistry.registerModelLayer(ShamblerModel.LAYER, ShamblerModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.MUSHROOM_SHAMBLER, ShamblerRenderer::new);
+		EntityRendererRegistry.register(EamEntities.SMOLDERING_SHAMBLER, ShamblerRenderer::new);
 		ModelLayerRegistry.registerModelLayer(CaveRamModel.LAYER, CaveRamModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.CAVE_RAM, CaveRamRenderer::new);
 		ModelLayerRegistry.registerModelLayer(EmberBeetleModel.LAYER, EmberBeetleModel::createLayer);
