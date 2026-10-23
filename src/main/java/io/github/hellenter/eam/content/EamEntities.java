@@ -33,6 +33,7 @@ import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
 import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
+import io.github.hellenter.eam.mobs.entity.frozen.FrozenCorpse;
 import io.github.hellenter.eam.mobs.entity.warg.Warg;
 import io.github.hellenter.eam.mobs.entity.leshy.Leshy;
 import io.github.hellenter.eam.mobs.entity.leshy.LeshyRoot;
@@ -261,6 +262,14 @@ public final class EamEntities {
 	/** A bloodsucking corpse in a burial shirt that crawls out at night by abandoned villages. */
 	public static final EntityType<Upyr> UPYR = register("upyr",
 			EntityType.Builder.of(Upyr::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A traveller frozen to death in the underworld's ice caves, walking again; its hits slow. */
+	public static final EntityType<FrozenCorpse> FROZEN_CORPSE = register("frozen_corpse",
+			EntityType.Builder.of(FrozenCorpse::new, MobCategory.MONSTER)
 					.sized(0.6F, 1.95F)
 					.eyeHeight(1.74F)
 					.clientTrackingRange(8)

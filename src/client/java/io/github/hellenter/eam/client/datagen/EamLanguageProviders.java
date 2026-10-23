@@ -608,6 +608,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BOAR_SPAWN_EGG, "Underground Boar Spawn Egg");
 			builder.add(EamEntities.CAVE_RAM, "Cave Ram");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Cave Ram Spawn Egg");
+			builder.add(EamEntities.FROZEN_CORPSE, "Frozen Corpse");
+			builder.add(EamItems.FROZEN_CORPSE_SPAWN_EGG, "Frozen Corpse Spawn Egg");
 			builder.add(CaveRamModule.FOOD, "Cave Ram Food");
 			builder.add(EamEntities.DUERGAR_RAM_RIDER, "Ram Rider");
 			builder.add(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, "Ram Rider Spawn Egg");
@@ -1506,6 +1508,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BOAR_SPAWN_EGG, "Яйцо призыва подземного кабана");
 			builder.add(EamEntities.CAVE_RAM, "Пещерный баран");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Яйцо призыва пещерного барана");
+			builder.add(EamEntities.FROZEN_CORPSE, "Замёрзший мертвец");
+			builder.add(EamItems.FROZEN_CORPSE_SPAWN_EGG, "Яйцо призыва замёрзшего мертвеца");
 			builder.add(CaveRamModule.FOOD, "Корм пещерных баранов");
 			builder.add(EamEntities.DUERGAR_RAM_RIDER, "Бараний всадник");
 			builder.add(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, "Яйцо призыва бараньего всадника");

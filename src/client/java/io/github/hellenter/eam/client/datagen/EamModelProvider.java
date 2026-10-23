@@ -694,6 +694,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.WARG_LEADER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BOAR_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAVE_RAM_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.FROZEN_CORPSE_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BABA_YAGA_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KOSCHEI_SPAWN_EGG, ModelTemplates.FLAT_ITEM);

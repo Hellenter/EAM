@@ -2,6 +2,7 @@ package io.github.hellenter.eam.client.datagen;
 
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillage;
+import io.github.hellenter.eam.mobs.entity.frozen.FrozenCorpseModule;
 import io.github.hellenter.eam.mobs.entity.lost.LostModule;
 import io.github.hellenter.eam.content.EamWorldgen;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
@@ -91,6 +92,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(LostModule.SPAWNS_IN).addAll(UnderworldDimension.UPPER_BIOMES);
 		// Stragglers wander alone in the stone wastes.
 		builder(LostModule.STRAGGLERS_SPAWN_IN).add(UnderworldDimension.STONE_WASTES);
+		// Frozen corpses walk the cold caves only.
+		builder(FrozenCorpseModule.SPAWNS_IN).add(UnderworldDimension.FROZEN_CAVES, UnderworldDimension.ICE_CAVES);
 		// Wild garlic grows only in forests.
 		builder(EamWorldgen.HAS_WILD_GARLIC).forceAddTag(BiomeTags.IS_FOREST);
 		// Warg packs hunt the snowy taiga and the snowy groves above it.

@@ -78,6 +78,11 @@ public final class EamParticles {
 	/** Stone chips and rust flakes knocked up where the Lost straggler drives his sword into the floor to call the Lost. */
 	public static final SimpleParticleType STRAGGLER_RUBBLE = register("straggler_rubble");
 
+	/** Frost crystals bursting over whoever a frozen corpse hits. */
+	public static final SimpleParticleType FROST_SHARD = register("frost_shard");
+	/** Rime flaking off a frozen corpse as it walks. */
+	public static final SimpleParticleType FROST_RIME = register("frost_rime");
+
 	/**
 	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the
 	 * mushroom forest, ash flakes settling in the burnt one, snow sifting down in the frozen and ice caves, embers rising

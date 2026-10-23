@@ -457,6 +457,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.BLACK_WIDOW));
 	public static final Item VAMPIRE_BAT_SPAWN_EGG = register("vampire_bat_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.VAMPIRE_BAT));
+	public static final Item FROZEN_CORPSE_SPAWN_EGG = register("frozen_corpse_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.FROZEN_CORPSE));
 	public static final Item WARG_SPAWN_EGG = register("warg_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WARG));
 	/** Brings the leader with his whole pack. */
