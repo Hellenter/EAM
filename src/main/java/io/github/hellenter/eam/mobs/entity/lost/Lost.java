@@ -101,8 +101,8 @@ public class Lost extends SkeletonKnight {
 			return true;
 		}
 		// A rest after each squad near a player, and one squad at a time in any one stretch of the caves.
-		return LostSpawnCooldowns.ready(level.getLevel(), pos)
-				&& level.getEntitiesOfClass(Lost.class, new AABB(pos).inflate(LostModule.settings().squad().spawnSpacing())).isEmpty();
+		return LostSpawnCooldowns.ready(level.getLevel(), pos) && level.getEntitiesOfClass(Lost.class,
+				new AABB(pos).inflate(LostModule.settings().squad().spawnSpacing()), lost -> !(lost instanceof LostStraggler)).isEmpty();
 	}
 
 	@Override
@@ -336,6 +336,21 @@ public class Lost extends SkeletonKnight {
 	/** Whether he is rushing at someone who hit his centurion. */
 	boolean defending() {
 		return defendTicks > 0;
+	}
+
+	/** Whether he heads a squad of his own: a straggler is alone until he joins one. */
+	boolean headsSquad() {
+		return leader == null && role != LostRole.STRAGGLER;
+	}
+
+	/** He joins the squad of {@code head}, who heads one, and follows its leader from now on. */
+	void joinSquad(Lost head) {
+		leader = head.squadId();
+	}
+
+	/** Whether he is in a squad with its leader alive and near. */
+	boolean inSquad() {
+		return leaderNearby() != null;
 	}
 
 	/** His leader, if alive and near. */

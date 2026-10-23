@@ -189,6 +189,7 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
 		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);
 		registerYagaFx(EamParticles.MARK_TRAIL, YagaFxParticle.Style.SOOT);
+		registerYagaFx(EamParticles.STRAGGLER_RUBBLE, YagaFxParticle.Style.RUBBLE);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
 		registerAmbient(EamParticles.UNDERWORLD_SPORE, UnderworldAmbientParticle.Style.SPORE);
 		registerAmbient(EamParticles.UNDERWORLD_ASH, UnderworldAmbientParticle.Style.ASH);
@@ -221,6 +222,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.LOST_CENTURION, LostCenturionRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_WALL_COMMANDER, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_LONGBOWMAN, LostRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LOST_STRAGGLER, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_CAVALRYMAN, LostCavalrymanRenderer::new);
 		ModelLayerRegistry.registerModelLayer(LostWarhorseRenderer.BARDING, LostWarhorseRenderer::createBardingLayer);
 		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);

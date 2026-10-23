@@ -35,7 +35,12 @@ public enum KnightAction {
 	 * The Lost centurion raises his horn and blows it, calling up more of the Lost: the call sounds on
 	 * {@link #HORN_SOUND}, they come on {@link #HORN_CALL}. His own model draws it.
 	 */
-	HORN(FallenLordAction.NONE, 40);
+	HORN(FallenLordAction.NONE, 40),
+	/**
+	 * The Lost straggler drives his sword into the floor and calls the Lost to him, on {@link #STRAGGLER_CALL_HIT}; drawn
+	 * as the Fallen Lord's overhead strike.
+	 */
+	STRAGGLER_CALL(FallenLordAction.HEAVY_STRIKE);
 
 	public static final int SLASH_HIT = 5;
 	public static final int POKE_HIT = 6;
@@ -49,6 +54,7 @@ public enum KnightAction {
 	public static final int AXE_SWEEP_HIT = 14;
 	public static final int HORN_SOUND = 8;
 	public static final int HORN_CALL = 20;
+	public static final int STRAGGLER_CALL_HIT = FallenLordAction.HEAVY_HIT;
 
 	private final FallenLordAction animation;
 	private final int length;

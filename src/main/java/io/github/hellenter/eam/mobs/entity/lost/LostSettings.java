@@ -20,10 +20,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param commanderHorn the commander's horn and the Lost who serve whoever carries it
  * @param shieldWall    the shield wall: spearmen in a row in front of their crossbow commander
  * @param longbowman    the longbowman who comes with some squads and marks the player for them
+ * @param straggler     the lone straggler of the stone wastes, who calls a squad when a fight drags on
  */
 public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings follower, double spearReach, double guardDistance,
 		Squad squad, Archer archer, LostCenturionSettings centurion, CommanderHorn commanderHorn, ShieldWallSettings shieldWall,
-		LongbowmanSettings longbowman) {
+		LongbowmanSettings longbowman, LostStragglerSettings straggler) {
 	public static final SkeletonKnightSettings LEADER_DEFAULT = new SkeletonKnightSettings(10, 2.7, 12.0, 1.0F,
 			0.45, 80, 0.6F, 0.2, 0.6,
 			160, 1.7F, 0.5, 0.5F, 4.0F,
@@ -33,7 +34,8 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			400, 1.5F, 0.5, 0.5F, 3.0F,
 			0.5, new SkeletonKnightSettings.Dash(300, 3, 0.8));
 	public static final LostSettings DEFAULT = new LostSettings(LEADER_DEFAULT, FOLLOWER_DEFAULT, 3.4, 2.6, Squad.DEFAULT, Archer.DEFAULT,
-			LostCenturionSettings.DEFAULT, CommanderHorn.DEFAULT, ShieldWallSettings.DEFAULT, LongbowmanSettings.DEFAULT);
+			LostCenturionSettings.DEFAULT, CommanderHorn.DEFAULT, ShieldWallSettings.DEFAULT, LongbowmanSettings.DEFAULT,
+			LostStragglerSettings.DEFAULT);
 
 	/**
 	 * @param minFollowers    fewest followers a leader brings (a squad is one more)
@@ -114,6 +116,7 @@ public record LostSettings(SkeletonKnightSettings leader, SkeletonKnightSettings
 			LostCenturionSettings.CODEC.fieldOf("centurion").orElse(DEFAULT.centurion).forGetter(LostSettings::centurion),
 			CommanderHorn.CODEC.fieldOf("commander_horn").orElse(DEFAULT.commanderHorn).forGetter(LostSettings::commanderHorn),
 			ShieldWallSettings.CODEC.fieldOf("shield_wall").orElse(DEFAULT.shieldWall).forGetter(LostSettings::shieldWall),
-			LongbowmanSettings.CODEC.fieldOf("longbowman").orElse(DEFAULT.longbowman).forGetter(LostSettings::longbowman)
+			LongbowmanSettings.CODEC.fieldOf("longbowman").orElse(DEFAULT.longbowman).forGetter(LostSettings::longbowman),
+			LostStragglerSettings.CODEC.fieldOf("straggler").orElse(DEFAULT.straggler).forGetter(LostSettings::straggler)
 	).apply(instance, LostSettings::new));
 }

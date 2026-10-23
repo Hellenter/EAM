@@ -89,6 +89,8 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 		builder(DuergarVillage.Style.LAKE.biomes()).add(UnderworldDimension.LAKE_CAVES, UnderworldDimension.RIVER_CAVES);
 		// Squads of the Lost roam the underworld's upper level, not its depths.
 		builder(LostModule.SPAWNS_IN).addAll(UnderworldDimension.UPPER_BIOMES);
+		// Stragglers wander alone in the stone wastes.
+		builder(LostModule.STRAGGLERS_SPAWN_IN).add(UnderworldDimension.STONE_WASTES);
 		// Wild garlic grows only in forests.
 		builder(EamWorldgen.HAS_WILD_GARLIC).forceAddTag(BiomeTags.IS_FOREST);
 		// Warg packs hunt the snowy taiga and the snowy groves above it.

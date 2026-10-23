@@ -30,6 +30,9 @@ public final class LostGear {
 	public static final List<ResourceKey<EquipmentAsset>> WORN = List.of(asset("worn_ancient_metal_0"), asset("worn_ancient_metal_1"),
 			asset("worn_ancient_metal_2"), asset("worn_ancient_metal_3"));
 
+	/** The straggler's breastplate, torn open, its chainmail sleeves in shreds. */
+	public static final ResourceKey<EquipmentAsset> TORN = asset("worn_ancient_metal_4");
+
 	/** The look of their shields: {@code assets/eam/items/lost_shield.json}. */
 	public static final Identifier SHIELD_MODEL = Eam.id("lost_shield");
 
@@ -77,10 +80,15 @@ public final class LostGear {
 
 	/** An armor piece drawn with the worn look {@code look}; everything else about it stays as it is. */
 	public static ItemStack worn(Item item, int look) {
+		return worn(item, WORN.get(look));
+	}
+
+	/** An armor piece drawn with the worn look {@code asset}; everything else about it stays as it is. */
+	public static ItemStack worn(Item item, ResourceKey<EquipmentAsset> asset) {
 		ItemStack stack = new ItemStack(item);
 		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
 		if (equippable != null) {
-			stack.set(DataComponents.EQUIPPABLE, new Equippable(equippable.slot(), equippable.equipSound(), Optional.of(WORN.get(look)),
+			stack.set(DataComponents.EQUIPPABLE, new Equippable(equippable.slot(), equippable.equipSound(), Optional.of(asset),
 					equippable.cameraOverlay(), equippable.allowedEntities(), equippable.dispensable(), equippable.swappable(),
 					equippable.damageOnHurt(), equippable.equipOnInteract(), equippable.canBeSheared(), equippable.shearingSound()));
 		}

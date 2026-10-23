@@ -52,7 +52,9 @@ public class YagaFxParticle extends SingleQuadParticle {
 		CHARGE(10, 12, 0.07F, 0.1F, 0.0F, 0.86F, 0.0F, true, true, false, -0.4F, false),
 		FLARE(6, 6, 0.45F, 0.55F, 0.0F, 0.0F, 0.0F, true, true, false, 0.5F, false),
 		HOT_TRAIL(6, 10, 0.06F, 0.09F, 0.0F, 0.8F, 0.0F, true, true, false, -0.5F, false),
-		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false);
+		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false),
+		// Stone chips and rust flakes from the Lost straggler's sword striking the floor: tumbling up, falling and bouncing.
+		RUBBLE(18, 30, 0.05F, 0.1F, 1.0F, 0.96F, 0.4F, false, false, false, 0.0F, true);
 
 		final int minLife;
 		final int maxLife;
