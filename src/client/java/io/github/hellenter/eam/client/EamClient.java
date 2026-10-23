@@ -60,6 +60,8 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
+import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseModel;
+import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseRenderer;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrRenderer;
 import io.github.hellenter.eam.client.mobs.warg.WargModel;
 import io.github.hellenter.eam.client.mobs.warg.WargRenderer;
@@ -189,6 +191,8 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
 		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);
 		registerYagaFx(EamParticles.MARK_TRAIL, YagaFxParticle.Style.SOOT);
+		registerYagaFx(EamParticles.FROST_SHARD, YagaFxParticle.Style.SHARD);
+		registerYagaFx(EamParticles.FROST_RIME, YagaFxParticle.Style.FLAKE);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
 		registerAmbient(EamParticles.UNDERWORLD_SPORE, UnderworldAmbientParticle.Style.SPORE);
 		registerAmbient(EamParticles.UNDERWORLD_ASH, UnderworldAmbientParticle.Style.ASH);
@@ -274,6 +278,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.VAMPIRE_BAT, VampireBatRenderer::new);
 		ModelLayerRegistry.registerModelLayer(UpyrModel.LAYER, UpyrModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.UPYR, UpyrRenderer::new);
+		ModelLayerRegistry.registerModelLayer(FrozenCorpseModel.LAYER, FrozenCorpseModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.FROZEN_CORPSE, FrozenCorpseRenderer::new);
 		ModelLayerRegistry.registerModelLayer(WargModel.LAYER, WargModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.WARG, WargRenderer::new);
 		EntityRendererRegistry.register(EamEntities.WARG_LEADER, WargRenderer::new);
