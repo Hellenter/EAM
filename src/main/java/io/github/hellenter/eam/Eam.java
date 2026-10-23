@@ -41,6 +41,7 @@ import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlockModule;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurkerModule;
 import io.github.hellenter.eam.mobs.entity.spider.SpiderModule;
 import io.github.hellenter.eam.mobs.entity.upyr.UpyrModule;
+import io.github.hellenter.eam.mobs.entity.frozen.FrozenCorpseModule;
 import io.github.hellenter.eam.mobs.entity.yaga.BabaYagaModule;
 import io.github.hellenter.eam.mobs.entity.koschei.KoscheiModule;
 import io.github.hellenter.eam.mobs.entity.warg.WargModule;
@@ -158,6 +159,7 @@ public class Eam implements ModInitializer {
 		UpyrModule.register();
 		WargModule.register();
 		BoarModule.register();
+		FrozenCorpseModule.register();
 		CaveRamModule.register();
 		EmberBeetleModule.register();
 		BabaYagaModule.register();
@@ -247,6 +249,7 @@ public class Eam implements ModInitializer {
 		if (config.mobs()) UpyrModule.init();
 		if (config.mobs()) WargModule.init();
 		if (config.mobs()) BoarModule.init();
+		if (config.mobs()) FrozenCorpseModule.init();
 		if (config.mobs()) CaveRamModule.init();
 		if (config.mobs()) EmberBeetleModule.init();
 		if (config.mobs() && config.mobDrops()) MobDropsModule.init();

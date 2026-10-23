@@ -62,6 +62,8 @@ import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarVillager;
 import io.github.hellenter.eam.mobs.entity.duergar.ZombieDuergar;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrModel;
+import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseModel;
+import io.github.hellenter.eam.client.mobs.frozen.FrozenCorpseRenderer;
 import io.github.hellenter.eam.client.mobs.upyr.UpyrRenderer;
 import io.github.hellenter.eam.client.mobs.warg.WargModel;
 import io.github.hellenter.eam.client.mobs.warg.WargRenderer;
@@ -191,6 +193,9 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
 		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);
 		registerYagaFx(EamParticles.MARK_TRAIL, YagaFxParticle.Style.SOOT);
+		registerYagaFx(EamParticles.STRAGGLER_RUBBLE, YagaFxParticle.Style.RUBBLE);
+		registerYagaFx(EamParticles.FROST_SHARD, YagaFxParticle.Style.SHARD);
+		registerYagaFx(EamParticles.FROST_RIME, YagaFxParticle.Style.FLAKE);
 		registerYagaFx(EamParticles.EMBER_BEETLE_SPARK, YagaFxParticle.Style.BEETLE_SPARK);
 		registerYagaFx(EamParticles.EMBER_BEETLE_CRUMB, YagaFxParticle.Style.CRUMB);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
@@ -225,6 +230,7 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.LOST_CENTURION, LostCenturionRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_WALL_COMMANDER, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_LONGBOWMAN, LostRenderer::new);
+		EntityRendererRegistry.register(EamEntities.LOST_STRAGGLER, LostRenderer::new);
 		EntityRendererRegistry.register(EamEntities.LOST_CAVALRYMAN, LostCavalrymanRenderer::new);
 		ModelLayerRegistry.registerModelLayer(LostWarhorseRenderer.BARDING, LostWarhorseRenderer::createBardingLayer);
 		EntityRendererRegistry.register(EamEntities.LOST_WARHORSE, LostWarhorseRenderer::new);
@@ -278,6 +284,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.VAMPIRE_BAT, VampireBatRenderer::new);
 		ModelLayerRegistry.registerModelLayer(UpyrModel.LAYER, UpyrModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.UPYR, UpyrRenderer::new);
+		ModelLayerRegistry.registerModelLayer(FrozenCorpseModel.LAYER, FrozenCorpseModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.FROZEN_CORPSE, FrozenCorpseRenderer::new);
 		ModelLayerRegistry.registerModelLayer(WargModel.LAYER, WargModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.WARG, WargRenderer::new);
 		EntityRendererRegistry.register(EamEntities.WARG_LEADER, WargRenderer::new);

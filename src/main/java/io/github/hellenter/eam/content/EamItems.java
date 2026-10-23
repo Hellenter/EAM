@@ -417,6 +417,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.LOST_WALL_COMMANDER));
 	public static final Item LOST_LONGBOWMAN_SPAWN_EGG = register("lost_longbowman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_LONGBOWMAN));
+	public static final Item LOST_STRAGGLER_SPAWN_EGG = register("lost_straggler_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LOST_STRAGGLER));
 	public static final Item LOST_CAVALRYMAN_SPAWN_EGG = register("lost_cavalryman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_CAVALRYMAN));
 	public static final Item UNDEAD_WARLOCK_SPAWN_EGG = register("undead_warlock_spawn_egg", SpawnEggItem::new,
@@ -455,6 +457,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.BLACK_WIDOW));
 	public static final Item VAMPIRE_BAT_SPAWN_EGG = register("vampire_bat_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.VAMPIRE_BAT));
+	public static final Item FROZEN_CORPSE_SPAWN_EGG = register("frozen_corpse_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.FROZEN_CORPSE));
 	public static final Item WARG_SPAWN_EGG = register("warg_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.WARG));
 	/** Brings the leader with his whole pack. */

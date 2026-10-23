@@ -473,6 +473,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.LOST_WALL_COMMANDER_SPAWN_EGG, "Lost Shield Wall Spawn Egg");
 			builder.add(EamEntities.LOST_LONGBOWMAN, "Lost Longbowman");
 			builder.add(EamItems.LOST_LONGBOWMAN_SPAWN_EGG, "Lost Longbowman Spawn Egg");
+			builder.add(EamEntities.LOST_STRAGGLER, "Lost Straggler");
+			builder.add(EamItems.LOST_STRAGGLER_SPAWN_EGG, "Lost Straggler Spawn Egg");
 			builder.add(EamItems.LONGBOW, "Longbow");
 			builder.add("effect.eam.marked", "Marked");
 			builder.add(EamEntities.LOST_CAVALRYMAN, "Heavy Lost Cavalryman");
@@ -609,6 +611,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BOAR_SPAWN_EGG, "Underground Boar Spawn Egg");
 			builder.add(EamEntities.CAVE_RAM, "Cave Ram");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Cave Ram Spawn Egg");
+			builder.add(EamEntities.FROZEN_CORPSE, "Frozen Corpse");
+			builder.add(EamItems.FROZEN_CORPSE_SPAWN_EGG, "Frozen Corpse Spawn Egg");
 			builder.add(CaveRamModule.FOOD, "Cave Ram Food");
 			builder.add(EamEntities.EMBER_BEETLE, "Ember Beetle");
 			builder.add(EamItems.EMBER_BEETLE_SPAWN_EGG, "Ember Beetle Spawn Egg");
@@ -1369,6 +1373,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.LOST_WALL_COMMANDER_SPAWN_EGG, "Яйцо призыва отряда потерянных щитоносцев");
 			builder.add(EamEntities.LOST_LONGBOWMAN, "Потерянный лучник");
 			builder.add(EamItems.LOST_LONGBOWMAN_SPAWN_EGG, "Яйцо призыва потерянного лучника");
+			builder.add(EamEntities.LOST_STRAGGLER, "Отставший потерянный");
+			builder.add(EamItems.LOST_STRAGGLER_SPAWN_EGG, "Яйцо призыва отставшего потерянного");
 			builder.add(EamItems.LONGBOW, "Длинный лук");
 			builder.add("effect.eam.marked", "Метка");
 			builder.add(EamEntities.LOST_CAVALRYMAN, "Тяжёлый потерянный кавалерист");
@@ -1512,6 +1518,8 @@ public final class EamLanguageProviders {
 			builder.add(EamItems.BOAR_SPAWN_EGG, "Яйцо призыва подземного кабана");
 			builder.add(EamEntities.CAVE_RAM, "Пещерный баран");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Яйцо призыва пещерного барана");
+			builder.add(EamEntities.FROZEN_CORPSE, "Замёрзший мертвец");
+			builder.add(EamItems.FROZEN_CORPSE_SPAWN_EGG, "Яйцо призыва замёрзшего мертвеца");
 			builder.add(CaveRamModule.FOOD, "Корм пещерных баранов");
 			builder.add(EamEntities.EMBER_BEETLE, "Угольный жук");
 			builder.add(EamItems.EMBER_BEETLE_SPAWN_EGG, "Яйцо призыва угольного жука");

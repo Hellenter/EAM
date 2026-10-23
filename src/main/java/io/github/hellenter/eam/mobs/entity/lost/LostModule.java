@@ -23,14 +23,18 @@ import net.minecraft.world.level.levelgen.Heightmap;
 /**
  * The Lost: undead soldiers in worn ancient metal who roam the underworld in squads of three to five, a leader with
  * sword and shield and his followers with swords, spears and bows. Numbers are in {@code data/eam/mobs/lost.json};
- * where squads spawn is the biome tag {@code eam:has_lost}.
+ * where squads spawn is the biome tag {@code eam:has_lost}, where lone stragglers do {@code eam:has_lost_stragglers}.
  */
 public final class LostModule {
 	/** The longbowman's red power arrow: it goes through a shield, which takes most of the hit itself. */
 	public static final ResourceKey<DamageType> RED_ARROW_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, Eam.id("red_arrow"));
 	public static final TagKey<Biome> SPAWNS_IN = TagKey.create(Registries.BIOME, Eam.id("has_lost"));
+	/** Where stragglers roam alone: the stone wastes. */
+	public static final TagKey<Biome> STRAGGLERS_SPAWN_IN = TagKey.create(Registries.BIOME, Eam.id("has_lost_stragglers"));
 	/** Spawn weight of a squad among the biome's monsters (about 300 in all); a leader spawns, his followers come with him. */
 	private static final int SPAWN_WEIGHT = 20;
+	/** A straggler's, as often as a squad's; how many roam about is up to his spawn rules. */
+	private static final int STRAGGLER_SPAWN_WEIGHT = 20;
 
 	private static volatile LostSettings settings = LostSettings.DEFAULT;
 
@@ -42,8 +46,11 @@ public final class LostModule {
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST_CENTURION, LostCenturion.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST_WALL_COMMANDER, Lost.createAttributes());
 		FabricDefaultAttributeRegistry.register(EamEntities.LOST_LONGBOWMAN, LostLongbowman.createAttributes());
+		FabricDefaultAttributeRegistry.register(EamEntities.LOST_STRAGGLER, LostStraggler.createAttributes());
 		LostMark.register();
 		SpawnPlacements.register(EamEntities.LOST, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Lost::checkSpawnRules);
+		SpawnPlacements.register(EamEntities.LOST_STRAGGLER, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				LostStraggler::checkStragglerSpawnRules);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(LostSettingsLoader.ID, new LostSettingsLoader());
 		// Rests are game times of one world: a singleplayer game that opens another world starts afresh.
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> LostSpawnCooldowns.clear());
@@ -52,6 +59,8 @@ public final class LostModule {
 	/** Natural spawning in the underworld; the mob itself exists whatever the config says. */
 	public static void init() {
 		BiomeModifications.addSpawn(BiomeSelectors.tag(SPAWNS_IN), MobCategory.MONSTER, EamEntities.LOST, SPAWN_WEIGHT, 1, 1);
+		BiomeModifications.addSpawn(BiomeSelectors.tag(STRAGGLERS_SPAWN_IN), MobCategory.MONSTER, EamEntities.LOST_STRAGGLER,
+				STRAGGLER_SPAWN_WEIGHT, 1, 1);
 	}
 
 	static LostSettings settings() {

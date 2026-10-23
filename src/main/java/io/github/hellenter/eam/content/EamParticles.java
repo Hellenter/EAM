@@ -75,6 +75,13 @@ public final class EamParticles {
 	/** Black soot with a dried-blood rim behind his marking arrow, and puffing where it marks someone. */
 	public static final SimpleParticleType MARK_TRAIL = register("mark_trail");
 
+	/** Stone chips and rust flakes knocked up where the Lost straggler drives his sword into the floor to call the Lost. */
+	public static final SimpleParticleType STRAGGLER_RUBBLE = register("straggler_rubble");
+
+	/** Frost crystals bursting over whoever a frozen corpse hits. */
+	public static final SimpleParticleType FROST_SHARD = register("frost_shard");
+	/** Rime flaking off a frozen corpse as it walks. */
+	public static final SimpleParticleType FROST_RIME = register("frost_rime");
 	/** Ember beetles: sparks rising off the cracks in their shell and bursting out when one dies, and the black crumbs of the coal it eats. */
 	public static final SimpleParticleType EMBER_BEETLE_SPARK = register("ember_beetle_spark");
 	public static final SimpleParticleType EMBER_BEETLE_CRUMB = register("ember_beetle_crumb");

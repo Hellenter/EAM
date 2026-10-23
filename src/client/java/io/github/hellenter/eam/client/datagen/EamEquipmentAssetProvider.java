@@ -22,6 +22,7 @@ import net.minecraft.world.item.equipment.EquipmentAsset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 /** How EAM armor looks when worn: {@code assets/eam/equipment}, pointing at {@code textures/entity/equipment}. */
 public class EamEquipmentAssetProvider implements DataProvider {
@@ -52,7 +53,7 @@ public class EamEquipmentAssetProvider implements DataProvider {
 	 */
 	private static Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> worn(Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> assets) {
 		Map<ResourceKey<EquipmentAsset>, EquipmentClientInfo> all = new HashMap<>(assets);
-		for (ResourceKey<EquipmentAsset> asset : LostGear.WORN) {
+		for (ResourceKey<EquipmentAsset> asset : Stream.concat(LostGear.WORN.stream(), Stream.of(LostGear.TORN)).toList()) {
 			all.put(asset, EquipmentClientInfo.builder()
 					.addLayers(EquipmentClientInfo.LayerType.HUMANOID, new EquipmentClientInfo.Layer(asset.identifier()))
 					.addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, new EquipmentClientInfo.Layer(Eam.id("worn_ancient_metal")))

@@ -172,5 +172,44 @@
       "shield_multiplier": 0.33,
       "shield_seconds": 5.0
     }
+  },
+  "straggler": {
+    "health": 14.0,
+    "attack_damage": 0.0,
+    "drop_chance": 0.03,
+    "chest_chance": 0.75,
+    "boots_chance": 0.5,
+    "fight": {
+      "attack_pause": 28,
+      "reach": 2.6,
+      "shield_range": 0.0,
+      "shield_disable_multiplier": 1.0,
+      "combo_chance": 0.1,
+      "combo_cooldown": 160,
+      "combo_hit_multiplier": 0.6,
+      "heavy_chance": 0.0,
+      "heavy_chance_vs_shield": 0.0,
+      "heavy_cooldown": 400,
+      "heavy_damage_multiplier": 1.5,
+      "heavy_extra_reach": 0.5,
+      "heavy_blocked_share": 0.5,
+      "heavy_shield_seconds": 3.0,
+      "backstep": 0.5,
+      "dash": {
+        "cooldown": 300,
+        "ticks": 3,
+        "speed": 0.8
+      }
+    },
+    "call_after": 200,
+    "fight_range": 16.0,
+    "squad_range": 32.0,
+    "min_distance": 16.0,
+    "max_distance": 26.0,
+    "max_nearby": 12,
+    "join_range": 32.0,
+    "spawn_spacing": 24.0,
+    "spawn_range": 64.0,
+    "max_stragglers": 2
   }
 }

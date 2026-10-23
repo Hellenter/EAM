@@ -26,6 +26,7 @@ import io.github.hellenter.eam.mobs.entity.lost.Lost;
 import io.github.hellenter.eam.mobs.entity.lost.LostArrow;
 import io.github.hellenter.eam.mobs.entity.lost.LostCenturion;
 import io.github.hellenter.eam.mobs.entity.lost.LostLongbowman;
+import io.github.hellenter.eam.mobs.entity.lost.LostStraggler;
 import io.github.hellenter.eam.mobs.entity.lost.LostWallCommander;
 import io.github.hellenter.eam.mobs.entity.lurker.SwampLurker;
 import io.github.hellenter.eam.mobs.entity.spider.BlackWidow;
@@ -33,6 +34,7 @@ import io.github.hellenter.eam.mobs.entity.spider.WoodSpider;
 import io.github.hellenter.eam.mobs.entity.warlock.MagicMissile;
 import io.github.hellenter.eam.mobs.entity.warlock.UndeadWarlock;
 import io.github.hellenter.eam.mobs.entity.upyr.Upyr;
+import io.github.hellenter.eam.mobs.entity.frozen.FrozenCorpse;
 import io.github.hellenter.eam.mobs.entity.warg.Warg;
 import io.github.hellenter.eam.mobs.entity.leshy.Leshy;
 import io.github.hellenter.eam.mobs.entity.leshy.LeshyRoot;
@@ -126,6 +128,14 @@ public final class EamEntities {
 	/** The commander of a shield wall: one of the Lost with a crossbow, who brings four spearmen with shields. */
 	public static final EntityType<LostWallCommander> LOST_WALL_COMMANDER = register("lost_wall_commander",
 			EntityType.Builder.of(LostWallCommander::new, MobCategory.MONSTER)
+					.sized(0.65F, 2.25F)
+					.eyeHeight(1.97F)
+					.clientTrackingRange(10)
+					.notInPeaceful());
+
+	/** The Lost straggler: one of the Lost alone in torn armor, who calls a squad when a fight with him drags on. */
+	public static final EntityType<LostStraggler> LOST_STRAGGLER = register("lost_straggler",
+			EntityType.Builder.of(LostStraggler::new, MobCategory.MONSTER)
 					.sized(0.65F, 2.25F)
 					.eyeHeight(1.97F)
 					.clientTrackingRange(10)
@@ -253,6 +263,14 @@ public final class EamEntities {
 	/** A bloodsucking corpse in a burial shirt that crawls out at night by abandoned villages. */
 	public static final EntityType<Upyr> UPYR = register("upyr",
 			EntityType.Builder.of(Upyr::new, MobCategory.MONSTER)
+					.sized(0.6F, 1.95F)
+					.eyeHeight(1.74F)
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** A traveller frozen to death in the underworld's ice caves, walking again; its hits slow. */
+	public static final EntityType<FrozenCorpse> FROZEN_CORPSE = register("frozen_corpse",
+			EntityType.Builder.of(FrozenCorpse::new, MobCategory.MONSTER)
 					.sized(0.6F, 1.95F)
 					.eyeHeight(1.74F)
 					.clientTrackingRange(8)
