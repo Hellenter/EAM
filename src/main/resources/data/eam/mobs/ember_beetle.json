@@ -1,0 +1,13 @@
+{
+  "health": 12.0,
+  "armor": 6.0,
+  "speed": 0.25,
+  "damage": 3.0,
+  "burn_seconds": 3,
+  "notice_range": 4.0,
+  "crush_multiplier": 1.5,
+  "eat_heal": 4.0,
+  "max_eaten": 3,
+  "death_fire": true,
+  "spawn_chance": 0.6
+}

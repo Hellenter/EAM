@@ -116,7 +116,7 @@ public final class EamCreativeTabs {
 			EamItems.SWAMP_LURKER_SPAWN_EGG,
 			EamItems.WIGHT_SPAWN_EGG, EamItems.LESHY_SPAWN_EGG, EamItems.DRAUGR_SPAWN_EGG, EamItems.ZOMBIE_DUERGAR_SPAWN_EGG, EamItems.DUERGAR_RENEGADE_SPAWN_EGG, EamItems.DUERGAR_VILLAGER_SPAWN_EGG, EamItems.WOOD_SPIDER_SPAWN_EGG, EamItems.BLACK_WIDOW_SPAWN_EGG,
 			EamItems.VAMPIRE_BAT_SPAWN_EGG, EamItems.UPYR_SPAWN_EGG, EamItems.WARG_SPAWN_EGG, EamItems.WARG_LEADER_SPAWN_EGG, EamItems.BOAR_SPAWN_EGG,
-			EamItems.CAVE_RAM_SPAWN_EGG, EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, EamItems.FROZEN_CORPSE_SPAWN_EGG,
+			EamItems.CAVE_RAM_SPAWN_EGG, EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, EamItems.FROZEN_CORPSE_SPAWN_EGG, EamItems.EMBER_BEETLE_SPAWN_EGG,
 			EamItems.MUSHROOM_SHAMBLER_SPAWN_EGG, EamItems.SMOLDERING_SHAMBLER_SPAWN_EGG, EamItems.SPORE_SAC,
 			EamItems.BABA_YAGA_SPAWN_EGG, EamItems.DROWNED_SOLDIER_SPAWN_EGG, EamItems.KOSCHEI_SPAWN_EGG);
 
@@ -139,6 +139,7 @@ public final class EamCreativeTabs {
 						output.accept(EamItems.GARLIC_ORCHID_MIX);
 						output.accept(EamItems.HERBAL_HONEY);
 						output.accept(EamItems.GLOWING_POWDER);
+						output.accept(EamItems.EMBER_CHITIN);
 						output.acceptAll(potionStacks());
 					})
 					.build());

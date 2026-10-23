@@ -623,6 +623,8 @@ public class EamRecipeProvider extends FabricRecipeProvider {
 				silverBrewing(BrewingModule.HOLY_WATER, Items.FERMENTED_SPIDER_EYE, BrewingModule.LIGHT_WEAKNESS);
 				// A warg's strength, in its meat.
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.WOLF_MEAT, BrewingModule.LIGHT_STRENGTH);
+				// An ember beetle's hot shell keeps the fire off.
+				silverBrewing(BrewingModule.HOLY_WATER, EamItems.EMBER_CHITIN, BrewingModule.LIGHT_FIRE_RESISTANCE);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.GARLIC_ORCHID_MIX, BrewingModule.BLACK_BLOOD);
 				silverBrewing(BrewingModule.HOLY_WATER, EamItems.HERBAL_HONEY, BrewingModule.WHITE_HONEY);
 				// Glowing powder brings a light potion up to level II, as glowstone does in the vanilla stand.

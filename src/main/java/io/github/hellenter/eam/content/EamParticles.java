@@ -82,6 +82,9 @@ public final class EamParticles {
 	public static final SimpleParticleType FROST_SHARD = register("frost_shard");
 	/** Rime flaking off a frozen corpse as it walks. */
 	public static final SimpleParticleType FROST_RIME = register("frost_rime");
+	/** Ember beetles: sparks rising off the cracks in their shell and bursting out when one dies, and the black crumbs of the coal it eats. */
+	public static final SimpleParticleType EMBER_BEETLE_SPARK = register("ember_beetle_spark");
+	public static final SimpleParticleType EMBER_BEETLE_CRUMB = register("ember_beetle_crumb");
 
 	/**
 	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the

@@ -475,6 +475,11 @@ public final class EamItems {
 	public static final Item SPORE_SAC = register("spore_sac", SporeSacItem::new, new Item.Properties().stacksTo(16));
 	public static final Item CAVE_RAM_SPAWN_EGG = register("cave_ram_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.CAVE_RAM));
+	public static final Item EMBER_BEETLE_SPAWN_EGG = register("ember_beetle_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.EMBER_BEETLE));
+	/** A plate of an ember beetle's shell, still hot: burns half as long again as coal, and brews light fire resistance. */
+	public static final Item EMBER_CHITIN = register("ember_chitin", Item::new,
+			new Item.Properties().cookingFuel(ContextIntProviders.COOKING_TIME_BLAZE_ROD));
 	/** Brings the leader with his whole squad, each on his ram. */
 	public static final Item DUERGAR_RAM_RIDER_SPAWN_EGG = register("duergar_ram_rider_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.DUERGAR_RAM_RIDER));

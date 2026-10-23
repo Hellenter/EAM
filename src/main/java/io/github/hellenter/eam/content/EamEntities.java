@@ -7,6 +7,7 @@ import io.github.hellenter.eam.mobs.entity.boar.Boar;
 import io.github.hellenter.eam.mobs.entity.shambler.MushroomShambler;
 import io.github.hellenter.eam.content.underworld.ThrownSporeSac;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRam;
+import io.github.hellenter.eam.mobs.entity.beetle.EmberBeetle;
 import io.github.hellenter.eam.mobs.entity.duergar.DuergarRamRider;
 import io.github.hellenter.eam.content.tools.ThrownTomahawk;
 import io.github.hellenter.eam.mobs.entity.crossbowman.EliteCrossbowman;
@@ -321,6 +322,15 @@ public final class EamEntities {
 			EntityType.Builder.of(MushroomShambler::new, MobCategory.MONSTER)
 					.sized(0.6F, 1.95F)
 					.eyeHeight(1.74F)
+					.fireImmune()
+					.clientTrackingRange(8)
+					.notInPeaceful());
+
+	/** An ember beetle: a chicken-sized, glowing coal-shelled beetle of the underworld's burnt forest and lava caves. */
+	public static final EntityType<EmberBeetle> EMBER_BEETLE = register("ember_beetle",
+			EntityType.Builder.of(EmberBeetle::new, MobCategory.MONSTER)
+					.sized(0.8F, 0.55F)
+					.eyeHeight(0.35F)
 					.fireImmune()
 					.clientTrackingRange(8)
 					.notInPeaceful());

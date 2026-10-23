@@ -346,6 +346,22 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 						.add(LootItem.lootTableItem(Items.WOOL.white())
 								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))));
 
+		// Ember beetles: a lump or two of coal or charcoal, and sometimes a hot plate of their shell.
+		output.accept(EamEntities.EMBER_BEETLE.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.COAL).setWeight(3)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))
+						.add(LootItem.lootTableItem(Items.CHARCOAL).setWeight(2)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(EamItems.EMBER_CHITIN)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 1)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
+
 		// Ram riders: a few iron nuggets and scraps of leather, and sometimes a net they did not get to cast.
 		output.accept(EamEntities.DUERGAR_RAM_RIDER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

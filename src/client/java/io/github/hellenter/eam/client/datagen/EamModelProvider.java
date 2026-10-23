@@ -698,6 +698,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.SPORE_SAC, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.CAVE_RAM_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.FROZEN_CORPSE_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+		generators.generateFlatItem(EamItems.EMBER_BEETLE_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.BABA_YAGA_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
 		generators.generateFlatItem(EamItems.KOSCHEI_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
@@ -728,7 +729,7 @@ public class EamModelProvider extends FabricModelProvider {
 		generators.generateFlatItem(EamItems.CAMP_FIRE, ModelTemplates.FLAT_ITEM);
 		for (Item item : List.of(EamItems.SILVER_BREWING_STAND, EamItems.LAPIS_GUNPOWDER_MIX, EamItems.SILVER_REDSTONE_DUST, EamItems.FLOWER_MIX,
 				EamItems.FERMENTED_ENDER_EYE, EamItems.GARLIC_ORCHID_MIX, EamItems.HERBAL_HONEY,
-				EamItems.GLOWING_POWDER)) {
+				EamItems.GLOWING_POWDER, EamItems.EMBER_CHITIN)) {
 			generators.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
 		}
 		for (Item item : List.of(EamItems.RAW_SILVER, EamItems.SILVER_INGOT, EamItems.SILVER_NUGGET,
