@@ -75,6 +75,9 @@ public final class EamParticles {
 	/** Black soot with a dried-blood rim behind his marking arrow, and puffing where it marks someone. */
 	public static final SimpleParticleType MARK_TRAIL = register("mark_trail");
 
+	/** Stone chips and rust flakes knocked up where the Lost straggler drives his sword into the floor to call the Lost. */
+	public static final SimpleParticleType STRAGGLER_RUBBLE = register("straggler_rubble");
+
 	/** Frost crystals bursting over whoever a frozen corpse hits. */
 	public static final SimpleParticleType FROST_SHARD = register("frost_shard");
 	/** Rime flaking off a frozen corpse as it walks. */

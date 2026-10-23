@@ -106,6 +106,19 @@ public class EamEntityLootProvider extends SimpleFabricLootTableSubProvider {
 									.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F))))));
 		}
 
+		// The straggler: a bone or two, now and then a nugget of the ancient metal his armor was; his worn gear by its drop chances.
+		output.accept(EamEntities.LOST_STRAGGLER.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.add(LootItem.lootTableItem(Items.BONE)
+								.apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2)))
+								.apply(EnchantedCountIncreaseFunction.lootingMultiplier(enchantments, ContextFloatProviders.between(0.0F, 1.0F)))))
+				.withPool(LootPool.lootPool()
+						.setRolls(ContextIntProviders.exactly(1))
+						.when(LootItemKilledByPlayerCondition.killedByPlayer())
+						.when(LootItemRandomChanceCondition.randomChance(0.05F))
+						.add(LootItem.lootTableItem(EamItems.ANCIENT_METAL_NUGGET))));
+
 		// The heavy cavalryman: like the Lost; his worn plate and weapons drop by the mob's own drop chances.
 		output.accept(EamEntities.LOST_CAVALRYMAN.getDefaultLootTable().orElseThrow(), LootTable.lootTable()
 				.withPool(LootPool.lootPool()

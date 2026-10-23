@@ -417,6 +417,8 @@ public final class EamItems {
 			new Item.Properties().spawnEgg(EamEntities.LOST_WALL_COMMANDER));
 	public static final Item LOST_LONGBOWMAN_SPAWN_EGG = register("lost_longbowman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_LONGBOWMAN));
+	public static final Item LOST_STRAGGLER_SPAWN_EGG = register("lost_straggler_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(EamEntities.LOST_STRAGGLER));
 	public static final Item LOST_CAVALRYMAN_SPAWN_EGG = register("lost_cavalryman_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(EamEntities.LOST_CAVALRYMAN));
 	public static final Item UNDEAD_WARLOCK_SPAWN_EGG = register("undead_warlock_spawn_egg", SpawnEggItem::new,
