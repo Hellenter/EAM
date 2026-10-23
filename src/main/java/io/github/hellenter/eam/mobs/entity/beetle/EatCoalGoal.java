@@ -74,6 +74,10 @@ final class EatCoalGoal extends Goal {
 
 	@Override
 	public void tick() {
+		// The goal keeps ticking until its next check, after the coal is eaten.
+		if (lump == null && furnace == null) {
+			return;
+		}
 		ticks++;
 		Vec3 at = lump != null ? lump.position() : Vec3.atCenterOf(furnace);
 		beetle.getLookControl().setLookAt(at.x, at.y, at.z);
