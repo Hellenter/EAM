@@ -3191,7 +3191,8 @@ public class Koschei extends Monster implements BuildingAware {
 	@Override
 	public void startSeenByPlayer(ServerPlayer player) {
 		super.startSeenByPlayer(player);
-		if (showsBossBar() && !sealed()) {
+		// Added while he is sealed too: the bar stays hidden until the crystal bursts, then shows to everyone near.
+		if (showsBossBar()) {
 			bossEvent.addPlayer(player);
 		}
 	}

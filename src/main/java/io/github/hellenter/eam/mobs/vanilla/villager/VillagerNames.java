@@ -16,11 +16,12 @@ import java.util.List;
 
 /**
  * Every villager's first name and surname, picked at random from {@link VillagerNameLogic} the first time the server
- * needs it and kept with him. A name a player gives him with a name tag is shown instead.
+ * needs it and kept with him, also through a zombie villager and back. A name a player gives him with a name tag is shown
+ * instead.
  */
 public final class VillagerNames {
 	public static final AttachmentType<Name> NAME = AttachmentRegistry.create(Eam.id("villager_name"),
-			builder -> builder.persistent(Name.CODEC));
+			builder -> builder.persistent(Name.CODEC).copyOnDeath());
 
 	private VillagerNames() {
 	}
