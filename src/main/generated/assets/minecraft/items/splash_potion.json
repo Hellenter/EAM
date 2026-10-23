@@ -48,6 +48,9 @@
             "potion": "eam:light_strength"
           },
           {
+            "potion": "eam:light_fire_resistance"
+          },
+          {
             "potion": "eam:strong_light_regeneration"
           },
           {

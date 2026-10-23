@@ -75,6 +75,10 @@ public final class EamParticles {
 	/** Black soot with a dried-blood rim behind his marking arrow, and puffing where it marks someone. */
 	public static final SimpleParticleType MARK_TRAIL = register("mark_trail");
 
+	/** Ember beetles: sparks rising off the cracks in their shell and bursting out when one dies, and the black crumbs of the coal it eats. */
+	public static final SimpleParticleType EMBER_BEETLE_SPARK = register("ember_beetle_spark");
+	public static final SimpleParticleType EMBER_BEETLE_CRUMB = register("ember_beetle_crumb");
+
 	/**
 	 * Underworld biome ambience, spawned by the biomes themselves around the player: pale spores drifting up in the
 	 * mushroom forest, ash flakes settling in the burnt one, snow sifting down in the frozen and ice caves, embers rising

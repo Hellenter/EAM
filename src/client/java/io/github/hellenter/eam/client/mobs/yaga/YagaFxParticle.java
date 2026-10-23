@@ -52,7 +52,10 @@ public class YagaFxParticle extends SingleQuadParticle {
 		CHARGE(10, 12, 0.07F, 0.1F, 0.0F, 0.86F, 0.0F, true, true, false, -0.4F, false),
 		FLARE(6, 6, 0.45F, 0.55F, 0.0F, 0.0F, 0.0F, true, true, false, 0.5F, false),
 		HOT_TRAIL(6, 10, 0.06F, 0.09F, 0.0F, 0.8F, 0.0F, true, true, false, -0.5F, false),
-		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false);
+		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false),
+		// Ember beetles: sparks off the cracks in their shell, and the coal crumbs they scatter as they eat.
+		BEETLE_SPARK(10, 20, 0.04F, 0.07F, -0.015F, 0.92F, 0.0F, true, true, false, -0.5F, false),
+		CRUMB(14, 24, 0.04F, 0.07F, 0.9F, 0.96F, 0.3F, false, false, false, 0.0F, true);
 
 		final int minLife;
 		final int maxLife;

@@ -20,6 +20,7 @@ import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.dimension.UnderworldDimension;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
+import io.github.hellenter.eam.mobs.entity.beetle.EmberBeetleModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.ClericSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.DonationSettings;
 import io.github.hellenter.eam.mobs.vanilla.villager.EconomySettings;
@@ -78,6 +79,9 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(BoarModule.FOOD).addAll(keys(Items.BROWN_MUSHROOM, Items.RED_MUSHROOM, Items.CARROT, Items.POTATO, Items.BEETROOT));
 		// Cave rams graze like sheep, and pick at cave mushrooms.
 		builder(CaveRamModule.FOOD).addAll(keys(Items.WHEAT, Items.BROWN_MUSHROOM, Items.RED_MUSHROOM));
+		// Ember beetles eat coal; axes, the mace and forge hammers crack their shell.
+		builder(EmberBeetleModule.FOOD).addAll(keys(Items.COAL, Items.CHARCOAL));
+		builder(EmberBeetleModule.CRUSHES_SHELLS).forceAddTag(ItemTags.AXES).forceAddTag(ForgingTags.HAMMERS).add(Items.MACE.builtInRegistryHolder().key());
 		// Food spoilage: raw meat and fish keep five days; fruit, vegetables and cooked food ten.
 		builder(SpoilageSettings.SPOILS_FAST).addAll(keys(Items.BEEF, Items.PORKCHOP, Items.MUTTON, Items.CHICKEN, Items.RABBIT,
 				EamItems.WOLF_MEAT, Items.COD, Items.SALMON, Items.TROPICAL_FISH, Items.PUFFERFISH));

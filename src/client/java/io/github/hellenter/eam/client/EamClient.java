@@ -45,6 +45,8 @@ import io.github.hellenter.eam.client.mobs.boar.BoarRenderer;
 import io.github.hellenter.eam.client.mobs.duergar.TomahawkRenderer;
 import io.github.hellenter.eam.client.mobs.ram.CaveRamModel;
 import io.github.hellenter.eam.client.mobs.ram.CaveRamRenderer;
+import io.github.hellenter.eam.client.mobs.beetle.EmberBeetleModel;
+import io.github.hellenter.eam.client.mobs.beetle.EmberBeetleRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostCavalrymanRenderer;
 import io.github.hellenter.eam.client.mobs.cavalry.LostWarhorseRenderer;
 import io.github.hellenter.eam.client.mobs.ghosthorse.GhostHorseModel;
@@ -189,6 +191,8 @@ public class EamClient implements ClientModInitializer {
 		registerYagaFx(EamParticles.LONGBOW_FLARE, YagaFxParticle.Style.FLARE);
 		registerYagaFx(EamParticles.RED_ARROW_TRAIL, YagaFxParticle.Style.HOT_TRAIL);
 		registerYagaFx(EamParticles.MARK_TRAIL, YagaFxParticle.Style.SOOT);
+		registerYagaFx(EamParticles.EMBER_BEETLE_SPARK, YagaFxParticle.Style.BEETLE_SPARK);
+		registerYagaFx(EamParticles.EMBER_BEETLE_CRUMB, YagaFxParticle.Style.CRUMB);
 		ParticleProviderRegistry.getInstance().register(EamParticles.KOSCHEI_RAVEN, KoscheiRavenParticle.Provider::new);
 		registerAmbient(EamParticles.UNDERWORLD_SPORE, UnderworldAmbientParticle.Style.SPORE);
 		registerAmbient(EamParticles.UNDERWORLD_ASH, UnderworldAmbientParticle.Style.ASH);
@@ -281,6 +285,8 @@ public class EamClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EamEntities.BOAR, BoarRenderer::new);
 		ModelLayerRegistry.registerModelLayer(CaveRamModel.LAYER, CaveRamModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.CAVE_RAM, CaveRamRenderer::new);
+		ModelLayerRegistry.registerModelLayer(EmberBeetleModel.LAYER, EmberBeetleModel::createLayer);
+		EntityRendererRegistry.register(EamEntities.EMBER_BEETLE, EmberBeetleRenderer::new);
 		ModelLayerRegistry.registerModelLayer(BabaYagaModel.LAYER, BabaYagaModel::createLayer);
 		EntityRendererRegistry.register(EamEntities.BABA_YAGA, BabaYagaRenderer::new);
 		ModelLayerRegistry.registerModelLayer(DrownedSoldierModel.LAYER, DrownedSoldierModel::createLayer);

@@ -93,6 +93,8 @@ public final class BrewingModule {
 			new MobEffectInstance(MobEffects.WEAKNESS, SilverBrewingLogic.lightDuration(1800)));
 	public static final Holder<Potion> LIGHT_STRENGTH = potion("light_strength",
 			new MobEffectInstance(MobEffects.STRENGTH, SilverBrewingLogic.lightDuration(3600)));
+	public static final Holder<Potion> LIGHT_FIRE_RESISTANCE = potion("light_fire_resistance",
+			new MobEffectInstance(MobEffects.FIRE_RESISTANCE, SilverBrewingLogic.lightDuration(3600)));
 
 	// Light potions of level II, brewed with glowing powder: half the duration of vanilla level II, or twice the healing.
 	public static final Holder<Potion> STRONG_LIGHT_REGENERATION = strongPotion("light_regeneration",
@@ -111,7 +113,7 @@ public final class BrewingModule {
 
 	/** Potions with an effect; gunpowder turns each into its splash version, and they get the silver stopper. */
 	public static final List<Holder<Potion>> LIGHT_POTIONS = List.of(LIGHT_NIGHT_VISION, LIGHT_REGENERATION, LIGHT_SWIFTNESS,
-			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, STRONG_LIGHT_REGENERATION, STRONG_LIGHT_SWIFTNESS, STRONG_LIGHT_HEALING,
+			LIGHT_HEALING_POTION, LIGHT_WEAKNESS, LIGHT_STRENGTH, LIGHT_FIRE_RESISTANCE, STRONG_LIGHT_REGENERATION, STRONG_LIGHT_SWIFTNESS, STRONG_LIGHT_HEALING,
 			STRONG_LIGHT_STRENGTH, BLACK_BLOOD, WHITE_HONEY);
 
 	private static boolean replaceInStructures;

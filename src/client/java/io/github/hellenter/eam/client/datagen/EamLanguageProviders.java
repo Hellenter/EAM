@@ -15,6 +15,7 @@ import io.github.hellenter.eam.content.silver.SilverGear;
 import io.github.hellenter.eam.content.tools.FlintTools;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
 import io.github.hellenter.eam.mobs.entity.ram.CaveRamModule;
+import io.github.hellenter.eam.mobs.entity.beetle.EmberBeetleModule;
 import io.github.hellenter.eam.mobs.vanilla.nemesis.NemesisModule;
 import io.github.hellenter.eam.mobs.vanilla.predators.PredatorModule;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
@@ -393,6 +394,8 @@ public final class EamLanguageProviders {
 					"Light Lingering Potion of Weakness", "Arrow of Light Weakness");
 			potion(builder, "light_strength", "Light Potion of Strength", "Light Splash Potion of Strength",
 					"Light Lingering Potion of Strength", "Arrow of Light Strength");
+			potion(builder, "light_fire_resistance", "Light Potion of Fire Resistance", "Light Splash Potion of Fire Resistance",
+					"Light Lingering Potion of Fire Resistance", "Arrow of Light Fire Resistance");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Cools in %s s");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Cooled: it is an iron ingot again");
 			builder.add("item.eam.hot_iron_ingot.forge", "Forge on an anvil: 2 make an iron plate");
@@ -607,6 +610,11 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.CAVE_RAM, "Cave Ram");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Cave Ram Spawn Egg");
 			builder.add(CaveRamModule.FOOD, "Cave Ram Food");
+			builder.add(EamEntities.EMBER_BEETLE, "Ember Beetle");
+			builder.add(EamItems.EMBER_BEETLE_SPAWN_EGG, "Ember Beetle Spawn Egg");
+			builder.add(EamItems.EMBER_CHITIN, "Ember Chitin");
+			builder.add(EmberBeetleModule.FOOD, "Ember Beetle Food");
+			builder.add(EmberBeetleModule.CRUSHES_SHELLS, "Crushes Shells");
 			builder.add(EamEntities.DUERGAR_RAM_RIDER, "Ram Rider");
 			builder.add(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, "Ram Rider Spawn Egg");
 			builder.add(BoarModule.FOOD, "Boar Food");
@@ -1282,6 +1290,8 @@ public final class EamLanguageProviders {
 					"Оседающее лёгкое зелье слабости", "Стрела лёгкой слабости");
 			potion(builder, "light_strength", "Лёгкое зелье силы", "Взрывное лёгкое зелье силы",
 					"Оседающее лёгкое зелье силы", "Стрела лёгкой силы");
+			potion(builder, "light_fire_resistance", "Лёгкое зелье огнестойкости", "Взрывное лёгкое зелье огнестойкости",
+					"Оседающее лёгкое зелье огнестойкости", "Стрела лёгкой огнестойкости");
 			builder.add("item.eam.hot_iron_ingot.cools_in", "Остынет через %s с");
 			builder.add("item.eam.hot_iron_ingot.cooled", "Остыло и снова стало железным слитком");
 			builder.add("item.eam.hot_iron_ingot.forge", "Выкуйте на наковальне: из 2 выйдет железная пластина");
@@ -1503,6 +1513,11 @@ public final class EamLanguageProviders {
 			builder.add(EamEntities.CAVE_RAM, "Пещерный баран");
 			builder.add(EamItems.CAVE_RAM_SPAWN_EGG, "Яйцо призыва пещерного барана");
 			builder.add(CaveRamModule.FOOD, "Корм пещерных баранов");
+			builder.add(EamEntities.EMBER_BEETLE, "Угольный жук");
+			builder.add(EamItems.EMBER_BEETLE_SPAWN_EGG, "Яйцо призыва угольного жука");
+			builder.add(EamItems.EMBER_CHITIN, "Раскалённый хитин");
+			builder.add(EmberBeetleModule.FOOD, "Корм угольных жуков");
+			builder.add(EmberBeetleModule.CRUSHES_SHELLS, "Колет панцири");
 			builder.add(EamEntities.DUERGAR_RAM_RIDER, "Бараний всадник");
 			builder.add(EamItems.DUERGAR_RAM_RIDER_SPAWN_EGG, "Яйцо призыва бараньего всадника");
 			builder.add(BoarModule.FOOD, "Корм кабанов");
