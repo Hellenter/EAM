@@ -54,7 +54,11 @@ public class YagaFxParticle extends SingleQuadParticle {
 		HOT_TRAIL(6, 10, 0.06F, 0.09F, 0.0F, 0.8F, 0.0F, true, true, false, -0.5F, false),
 		SOOT(16, 24, 0.09F, 0.14F, -0.01F, 0.9F, 0.08F, true, true, false, 0.6F, false),
 		// Stone chips and rust flakes from the Lost straggler's sword striking the floor: tumbling up, falling and bouncing.
-		RUBBLE(18, 30, 0.05F, 0.1F, 1.0F, 0.96F, 0.4F, false, false, false, 0.0F, true);
+		RUBBLE(18, 30, 0.05F, 0.1F, 1.0F, 0.96F, 0.4F, false, false, false, 0.0F, true),
+		// The mushroom shambler's puffs: a slow spreading cloud of spore clumps, and a smoldering one's sparks flung out
+		// falling and bouncing.
+		SPORE_PUFF(36, 60, 0.18F, 0.3F, -0.004F, 0.9F, 0.05F, true, false, false, 0.9F, false),
+		CINDER(12, 24, 0.04F, 0.07F, 0.35F, 0.94F, 0.0F, true, true, false, -0.4F, true);
 
 		final int minLife;
 		final int maxLife;

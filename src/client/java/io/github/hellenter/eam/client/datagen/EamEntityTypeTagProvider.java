@@ -119,7 +119,8 @@ public class EamEntityTypeTagProvider extends FabricTagsProvider<EntityType<?>> 
 				EamEntities.UNDEAD_WARLOCK.builtInRegistryHolder().key(), EamEntities.LOST_CAVALRYMAN.builtInRegistryHolder().key(),
 				EamEntities.LOST_WARHORSE.builtInRegistryHolder().key(), EamEntities.UPYR.builtInRegistryHolder().key(),
 				EamEntities.DRAUGR.builtInRegistryHolder().key(), EamEntities.DROWNED_SOLDIER.builtInRegistryHolder().key(),
-				EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(), EamEntities.FROZEN_CORPSE.builtInRegistryHolder().key());
+				EamEntities.ZOMBIE_DUERGAR.builtInRegistryHolder().key(), EamEntities.FROZEN_CORPSE.builtInRegistryHolder().key(),
+				EamEntities.MUSHROOM_SHAMBLER.builtInRegistryHolder().key(), EamEntities.SMOLDERING_SHAMBLER.builtInRegistryHolder().key());
 		// Draugr and frozen corpses walk on powder snow like a wearer of leather boots and never freeze.
 		builder(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS).add(EamEntities.DRAUGR.builtInRegistryHolder().key(),
 				EamEntities.FROZEN_CORPSE.builtInRegistryHolder().key());
