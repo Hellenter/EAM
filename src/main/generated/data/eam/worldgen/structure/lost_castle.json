@@ -1,0 +1,8 @@
+{
+  "type": "eam:lost_castle",
+  "biomes": "#eam:has_structure/lost_castle",
+  "floor_max_y": 150,
+  "floor_min_y": 58,
+  "spawn_overrides": {},
+  "step": "top_layer_modification"
+}

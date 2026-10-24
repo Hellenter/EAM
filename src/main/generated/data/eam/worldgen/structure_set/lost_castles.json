@@ -1,0 +1,24 @@
+{
+  "placement": {
+    "type": "eam:castle_spread",
+    "avoid": [
+      {
+        "chunk_count": 8,
+        "other_set": "eam:duergar_villages"
+      },
+      {
+        "chunk_count": 3,
+        "other_set": "eam:underworld_mines"
+      }
+    ],
+    "salt": 20261024,
+    "separation": 16,
+    "spacing": 40
+  },
+  "structures": [
+    {
+      "structure": "eam:lost_castle",
+      "weight": 1
+    }
+  ]
+}

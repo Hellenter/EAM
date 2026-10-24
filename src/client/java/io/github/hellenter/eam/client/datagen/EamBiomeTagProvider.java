@@ -10,6 +10,7 @@ import io.github.hellenter.eam.survival.thirst.ThirstModule;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMine;
 import io.github.hellenter.eam.world.structures.castle.CastleModule;
 import io.github.hellenter.eam.world.structures.koscheicastle.KoscheiCastleModule;
+import io.github.hellenter.eam.world.structures.lostcastle.LostCastleModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.swamp.SwampyForestBiomes;
 
@@ -47,6 +48,7 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 						Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.DAPPLED_FOREST, Biomes.DARK_FOREST);
 		builder(CastleModule.HAS_CASTLE).addTag(OutpostModule.HAS_OUTPOST);
 		builder(KoscheiCastleModule.HAS_CASTLE).add(UnderworldDimension.ICE_CAVES);
+		builder(LostCastleModule.HAS_CASTLE).add(UnderworldDimension.STONE_WASTES);
 		builder(SwampyForestBiomes.IS_SWAMPY_FOREST)
 				.add(SwampyForestBiomes.SWAMPY_FOREST, SwampyForestBiomes.SWAMPY_LAKES, SwampyForestBiomes.SWAMPY_HUMMOCKS);
 		// Temperate land biomes a swampy forest region takes over; rivers, beaches, oceans, mountains and caves stay.
