@@ -285,6 +285,14 @@ public class Lost extends SkeletonKnight {
 	record Squad(LostRole role, UUID leader) implements SpawnGroupData {
 	}
 
+	/**
+	 * Spawn data for one of a fortress's garrison: he comes alone in {@code role} and shares {@code garrison} with the
+	 * rest of it as his squad's id, which is no one's own, so the garrison shares targets but follows no leader.
+	 */
+	public static SpawnGroupData garrison(LostRole role, UUID garrison) {
+		return new Squad(role, garrison);
+	}
+
 	// ---- Squad ----
 
 	/** The id all members of his squad share: the leader's. */

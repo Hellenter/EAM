@@ -100,6 +100,7 @@ import io.github.hellenter.eam.world.structures.crypt.CryptModule;
 import io.github.hellenter.eam.world.structures.mine.UnderworldMineModule;
 import io.github.hellenter.eam.world.structures.castle.CastleModule;
 import io.github.hellenter.eam.world.structures.koscheicastle.KoscheiCastleModule;
+import io.github.hellenter.eam.world.structures.lostcastle.LostCastleModule;
 import io.github.hellenter.eam.world.structures.outpost.OutpostModule;
 import io.github.hellenter.eam.world.structures.yagahut.YagaHutModule;
 import io.github.hellenter.eam.world.structures.village.DuergarVillageModule;
@@ -192,6 +193,7 @@ public class Eam implements ModInitializer {
 		CastleModule.register();
 		YagaHutModule.register();
 		KoscheiCastleModule.register();
+		LostCastleModule.register();
 		DuergarVillageModule.register();
 		EmptyContainerLoot.register();
 		ConnectFences.register();
