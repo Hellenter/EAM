@@ -291,7 +291,7 @@ public class EamItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 		builder(CraftingTags.SAW_TIERS.get(2)).addAll(keys(EamItems.IRON_SAW, EamItems.ANCIENT_METAL_SAW));
 		builder(CraftingTags.SAW_TIERS.get(3)).add(EamItems.MITHRIL_SAW.builtInRegistryHolder().key());
 		builder(CraftingTags.SAW_TIERS.get(4)).add(EamItems.ADAMANTIUM_SAW.builtInRegistryHolder().key());
-		// Knives, saws and hammers go in the crafting table's tool slots in any mix.
+		// Knives, saws and hammers each have their own slot in the crafting table.
 		builder(CraftingTags.CRAFTING_TABLE_TOOLS)
 				.addTag(CraftingTags.KNIFE_TIERS.get(0)).addTag(CraftingTags.KNIFE_TIERS.get(1)).addTag(CraftingTags.KNIFE_TIERS.get(2))
 				.addTag(CraftingTags.KNIFE_TIERS.get(3)).addTag(CraftingTags.KNIFE_TIERS.get(4))

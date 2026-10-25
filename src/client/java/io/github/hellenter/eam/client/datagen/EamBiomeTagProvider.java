@@ -152,8 +152,31 @@ public class EamBiomeTagProvider extends FabricTagsProvider<Biome> {
 				.add(SwampyForestBiomes.SWAMPY_FOREST)
 				.add(SwampyForestBiomes.SWAMPY_LAKES)
 				.add(SwampyForestBiomes.SWAMPY_HUMMOCKS);
-		// Any biome: the feature itself only places sticks next to trees.
+		// Grassland, savannas, jungles, swamps and banks: half the forest's pebbles. No biome here is in a pebble tag above.
+		builder(EamWorldgen.HAS_OPEN_PEBBLES)
+				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.SWAMP, Biomes.BEACH, Biomes.RIVER)
+				.forceAddTag(BiomeTags.IS_SAVANNA)
+				.forceAddTag(BiomeTags.IS_JUNGLE)
+				.add(SwampyForestBiomes.SWAMPY_FOREST, SwampyForestBiomes.SWAMPY_LAKES);
+		builder(EamWorldgen.HAS_DRY_PEBBLES)
+				.add(Biomes.DESERT)
+				.forceAddTag(BiomeTags.IS_BADLANDS);
+		// Wooded biomes: a stick try in every chunk, kept only next to a tree trunk.
 		builder(EamWorldgen.HAS_GROUND_STICKS)
-				.forceAddTag(BiomeTags.IS_OVERWORLD);
+				.forceAddTag(BiomeTags.IS_FOREST)
+				.forceAddTag(BiomeTags.IS_TAIGA)
+				.forceAddTag(BiomeTags.IS_JUNGLE)
+				.add(Biomes.SWAMP, Biomes.MANGROVE_SWAMP, Biomes.WINDSWEPT_FOREST)
+				.addTag(SwampyForestBiomes.IS_SWAMPY_FOREST);
+		// Open biomes with a lone tree here and there: half the tries.
+		builder(EamWorldgen.HAS_SPARSE_GROUND_STICKS)
+				.add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.MEADOW, Biomes.CHERRY_GROVE, Biomes.SNOWY_PLAINS)
+				.add(Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WOODED_BADLANDS)
+				.add(Biomes.RIVER, Biomes.FROZEN_RIVER, Biomes.BEACH, Biomes.SNOWY_BEACH, Biomes.STONY_SHORE)
+				.forceAddTag(BiomeTags.IS_SAVANNA);
+		// Treeless dry land: twigs beside dead bushes.
+		builder(EamWorldgen.HAS_DRY_GROUND_STICKS)
+				.add(Biomes.DESERT)
+				.forceAddTag(BiomeTags.IS_BADLANDS);
 	}
 }
