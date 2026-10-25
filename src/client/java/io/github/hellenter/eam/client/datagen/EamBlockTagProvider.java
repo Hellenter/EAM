@@ -238,11 +238,15 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		builder(ThroughLeavesModule.ARROWS_PASS).forceAddTag(BlockTags.LEAVES);
 		// Wood a creeper blows out of a tree is lost, so explosions are no shortcut to logs.
 		builder(MobDropsModule.LOST_TO_CREEPERS).forceAddTag(BlockTags.LOGS).forceAddTag(BlockTags.PLANKS);
-		// Abandoned villages have been looted: no beds, chests, furnaces or hay.
+		// Abandoned villages have been looted: no beds, chests, furnaces, hay, job sites, crafting tables or crops.
+		// Farmland is left bare.
 		BlockItemTagAppender<Block> looted = builder(VillageModule.LOOTED);
-		looted.forceAddTag(BlockTags.BEDS);
+		looted.forceAddTag(BlockTags.BEDS).forceAddTag(BlockTags.CAULDRONS).forceAddTag(BlockTags.CROPS);
 		looted.add(BlockItemIds.CHEST, BlockItemIds.TRAPPED_CHEST, BlockItemIds.FURNACE, BlockItemIds.SMOKER, BlockItemIds.BLAST_FURNACE,
-				BlockItemIds.HAY_BLOCK);
+				BlockItemIds.HAY_BLOCK, BlockItemIds.CRAFTING_TABLE);
+		looted.add(BlockItemIds.COMPOSTER, BlockItemIds.BARREL, BlockItemIds.CARTOGRAPHY_TABLE, BlockItemIds.BREWING_STAND,
+				BlockItemIds.FLETCHING_TABLE, BlockItemIds.LECTERN, BlockItemIds.LOOM, BlockItemIds.SMITHING_TABLE, BlockItemIds.STONECUTTER,
+				BlockItemIds.GRINDSTONE);
 		looted.add(EamBlocks.OBSIDIAN_BLAST_FURNACE.builtInRegistryHolder().key());
 		// Mobs break these, but a wooden room is still safe to sleep in. Doors always count as walls.
 		// The Fallen Lord's dashes go through earth, wood, cobblestone and tuff.

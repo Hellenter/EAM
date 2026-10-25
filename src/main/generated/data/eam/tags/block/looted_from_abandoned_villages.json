@@ -1,12 +1,25 @@
 {
   "values": [
     "#minecraft:beds",
+    "#minecraft:cauldrons",
+    "#minecraft:crops",
     "minecraft:chest",
     "minecraft:trapped_chest",
     "minecraft:furnace",
     "minecraft:smoker",
     "minecraft:blast_furnace",
     "minecraft:hay_block",
+    "minecraft:crafting_table",
+    "minecraft:composter",
+    "minecraft:barrel",
+    "minecraft:cartography_table",
+    "minecraft:brewing_stand",
+    "minecraft:fletching_table",
+    "minecraft:lectern",
+    "minecraft:loom",
+    "minecraft:smithing_table",
+    "minecraft:stonecutter",
+    "minecraft:grindstone",
     "eam:obsidian_blast_furnace"
   ]
 }
