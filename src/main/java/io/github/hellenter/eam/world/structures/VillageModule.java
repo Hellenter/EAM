@@ -48,7 +48,7 @@ import java.util.function.Supplier;
  * piece. The unlock is saved with the world and only affects chunks generated after it. After it, the share of
  * villages the crypt's village rule asks for still start abandoned, since crypts generate by abandoned villages.
  * <p>
- * Abandoned village pieces are also looted: blocks in {@link #LOOTED} (beds, chests, furnaces, hay) are left out. The
+ * Abandoned village pieces are also looted: blocks in {@link #LOOTED} (beds, chests, furnaces, hay, job sites, crafting tables, crops) are left out. The
  * hay piles that decorate abandoned streets are removed from their decor pools in data.
  */
 public final class VillageModule {
