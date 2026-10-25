@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -17,6 +18,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -34,6 +36,8 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -43,7 +47,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -127,6 +136,7 @@ public final class ThirstModule {
 	 */
 	public static void register() {
 		RainWater.register();
+		CauldronBoiling.register();
 		PayloadTypeRegistry.serverboundPlay().register(DrinkFromSourcePayload.TYPE, DrinkFromSourcePayload.STREAM_CODEC);
 		DefaultItemComponentEvents.MODIFY.register(context -> {
 			DRINKS.forEach((item, water) -> context.modify(item, components -> components.set(HYDRATION, new Hydration(water))));
@@ -149,6 +159,8 @@ public final class ThirstModule {
 	public static void init() {
 		enabled = true;
 		RainWater.init();
+		CauldronBoiling.init();
+		UseBlockCallback.EVENT.register(ThirstModule::drinkFromCauldron);
 		ItemComponentTooltipProviderRegistry.addLast(RAW_WATER);
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(ThirstSettingsLoader.ID, new ThirstSettingsLoader());
 		ServerTickEvents.END_SERVER_TICK.register(ThirstModule::tick);
@@ -157,6 +169,10 @@ public final class ThirstModule {
 
 	static void setSettings(ThirstSettings value) {
 		settings = value;
+	}
+
+	static ThirstSettings settings() {
+		return settings;
 	}
 
 	private static void tick(MinecraftServer server) {
@@ -281,10 +297,42 @@ public final class ThirstModule {
 		drink(player, -water);
 	}
 
+	/** Restores {@code water} points and the saturation that comes with them; a negative amount only drains the bar. */
 	static void drink(ServerPlayer player, int water) {
 		if (enabled) {
-			player.setAttached(THIRST, player.getAttachedOrCreate(THIRST).add(water));
+			player.setAttached(THIRST, ThirstLogic.drink(player.getAttachedOrCreate(THIRST), water, settings));
 		}
+	}
+
+	/**
+	 * Right click on a water cauldron with an empty hand: one gulp, worth a bottle, takes one level of water. Rain water
+	 * and boiled water are safe; any other water may poison like a raw water bottle.
+	 */
+	private static InteractionResult drinkFromCauldron(Player player, Level level, InteractionHand hand, BlockHitResult hit) {
+		BlockPos pos = hit.getBlockPos();
+		BlockState state = level.getBlockState(pos);
+		if (hand != InteractionHand.MAIN_HAND || !player.getMainHandItem().isEmpty() || player.isSpectator()
+				|| !state.is(Blocks.WATER_CAULDRON) || !canDrink(player)) {
+			return InteractionResult.PASS;
+		}
+		if (!(player instanceof ServerPlayer serverPlayer)) {
+			return InteractionResult.SUCCESS;
+		}
+
+		ThirstCounters counters = serverPlayer.getAttachedOrCreate(COUNTERS);
+		if (counters.sipCooldown() > 0) {
+			return InteractionResult.SUCCESS;
+		}
+		boolean safe = RainWater.isRainWater(level, pos) || CauldronBoiling.isBoiled(level, pos);
+		drink(serverPlayer, settings.cauldron().drink());
+		serverPlayer.setAttached(COUNTERS, counters.withSipCooldown(settings.sipCooldown()));
+		LayeredCauldronBlock.lowerFillLevel(state, level, pos);
+		level.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 0.6F, level.getRandom().nextFloat() * 0.1F + 0.9F);
+		level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+		if (!safe && ThirstLogic.poisonsOnSip(counters, settings, false, level.getRandom().nextFloat())) {
+			poison(serverPlayer, settings.poisoning().duration());
+		}
+		return InteractionResult.SUCCESS;
 	}
 
 	private static void sipFromSource(ServerPlayer player) {
@@ -302,7 +350,7 @@ public final class ThirstModule {
 			return;
 		}
 
-		player.setAttached(THIRST, thirst.add(settings.sourceSip()));
+		player.setAttached(THIRST, ThirstLogic.drink(thirst, settings.sourceSip(), settings));
 		player.setAttached(COUNTERS, counters.withSipCooldown(settings.sipCooldown()));
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS,
 				0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);

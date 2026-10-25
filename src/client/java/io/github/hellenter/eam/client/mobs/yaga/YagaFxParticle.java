@@ -61,7 +61,9 @@ public class YagaFxParticle extends SingleQuadParticle {
 		CINDER(12, 24, 0.04F, 0.07F, 0.35F, 0.94F, 0.0F, true, true, false, -0.4F, true),
 		// Ember beetles: sparks off the cracks in their shell, and the coal crumbs they scatter as they eat.
 		BEETLE_SPARK(10, 20, 0.04F, 0.07F, -0.015F, 0.92F, 0.0F, true, true, false, -0.5F, false),
-		CRUMB(14, 24, 0.04F, 0.07F, 0.9F, 0.96F, 0.3F, false, false, false, 0.0F, true);
+		CRUMB(14, 24, 0.04F, 0.07F, 0.9F, 0.96F, 0.3F, false, false, false, 0.0F, true),
+		// Steam rising slowly off boiling water in a cauldron, swelling as it thins out.
+		STEAM(30, 50, 0.1F, 0.16F, -0.006F, 0.93F, 0.04F, true, false, true, 0.8F, false);
 
 		final int minLife;
 		final int maxLife;

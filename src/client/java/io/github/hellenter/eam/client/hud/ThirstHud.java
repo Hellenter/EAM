@@ -13,18 +13,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import org.jspecify.annotations.Nullable;
 
-/** Water droplets above the food bar, as many as the bar holds, drawn right to left like food. */
+/**
+ * Water droplets above the food bar, as many as the bar holds, drawn right to left like food. Like the food bar, the
+ * droplets shake once saturation is spent and the bar is about to drop.
+ */
 public final class ThirstHud {
 	private static final Identifier ID = Eam.id("thirst");
 	private static final Identifier FULL = Eam.id("hud/thirst_full");
 	private static final Identifier HALF = Eam.id("hud/thirst_half");
 	private static final Identifier EMPTY = Eam.id("hud/thirst_empty");
 	private static final int ROW_HEIGHT = 10;
+	private static final RandomSource RANDOM = RandomSource.create();
 
 	private ThirstHud() {
 	}
@@ -44,9 +49,11 @@ public final class ThirstHud {
 		}
 
 		int xRight = graphics.guiWidth() / 2 + 91;
-		int y = graphics.guiHeight() - HudStatusBarHeightRegistry.getHeight(ID);
+		int y0 = graphics.guiHeight() - HudStatusBarHeightRegistry.getHeight(ID);
+		boolean shaking = thirst.saturation() <= 0.0F && player.tickCount % (thirst.water() * 3 + 1) == 0;
 		for (int i = 0; i < (thirst.max() + 1) / 2; i++) {
 			int x = xRight - i * 8 - 9;
+			int y = shaking ? y0 + RANDOM.nextInt(3) - 1 : y0;
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, EMPTY, x, y, 9, 9);
 			if (i * 2 + 1 < thirst.water()) {
 				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, FULL, x, y, 9, 9);
