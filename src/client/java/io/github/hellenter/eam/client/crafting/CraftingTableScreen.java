@@ -15,8 +15,15 @@ import java.util.List;
 /** The vanilla crafting screen with the tool slots under the arrow and the craft progress on the arrow. */
 public class CraftingTableScreen extends CraftingScreen {
 	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
-	private static final List<Component> TOOL_HINT = List.of(Component.translatable("gui.eam.crafting_table.tool"),
-			Component.translatable("gui.eam.crafting_table.tool.tiers").withStyle(ChatFormatting.GRAY));
+	/** Hints for the empty knife, saw and hammer slots, in slot order. */
+	private static final List<List<Component>> TOOL_HINTS = List.of(
+			List.of(Component.translatable("gui.eam.crafting_table.knife"),
+					Component.translatable("gui.eam.crafting_table.knife.desc").withStyle(ChatFormatting.GRAY),
+					Component.translatable("gui.eam.crafting_table.knife.tiers").withStyle(ChatFormatting.GRAY)),
+			List.of(Component.translatable("gui.eam.crafting_table.saw"),
+					Component.translatable("gui.eam.crafting_table.saw.desc").withStyle(ChatFormatting.GRAY)),
+			List.of(Component.translatable("gui.eam.crafting_table.hammer"),
+					Component.translatable("gui.eam.crafting_table.hammer.desc").withStyle(ChatFormatting.GRAY)));
 
 	public CraftingTableScreen(CraftingTableMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -37,7 +44,7 @@ public class CraftingTableScreen extends CraftingScreen {
 		super.extractTooltip(graphics, mouseX, mouseY);
 		if (hoveredSlot != null && CraftingTableMenu.isToolSlot(hoveredSlot.index) && !hoveredSlot.hasItem()
 				&& menu.getCarried().isEmpty()) {
-			graphics.setComponentTooltipForNextFrame(font, TOOL_HINT, mouseX, mouseY);
+			graphics.setComponentTooltipForNextFrame(font, TOOL_HINTS.get(hoveredSlot.index - CraftingTableMenu.FIRST_TOOL_SLOT), mouseX, mouseY);
 		}
 	}
 }

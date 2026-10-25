@@ -699,8 +699,13 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
 			builder.add("gui.eam.nutrition.balanced", "Balanced diet: hunger is slower, regeneration is faster");
 			builder.add("gui.eam.nutrition.unbalanced", "Keep all three at %s or more for a bonus");
-			builder.add("gui.eam.crafting_table.tool", "Knives, saws and hammers: a knife is needed, each tool makes its crafts faster");
-			builder.add("gui.eam.crafting_table.tool.tiers", "Copper and silver need a flint knife, iron and ancient metal a copper or silver one, mithril an iron or ancient metal one, adamantium a mithril one");
+			builder.add("gui.eam.crafting_table.knife", "Knife");
+			builder.add("gui.eam.crafting_table.knife.desc", "Required, speeds up every craft");
+			builder.add("gui.eam.crafting_table.knife.tiers", "Metal needs a knife one tier lower");
+			builder.add("gui.eam.crafting_table.saw", "Saw");
+			builder.add("gui.eam.crafting_table.saw.desc", "Speeds up wooden crafts");
+			builder.add("gui.eam.crafting_table.hammer", "Hammer");
+			builder.add("gui.eam.crafting_table.hammer.desc", "Speeds up metal crafts");
 			mithril(builder);
 			adamantium(builder);
 			rusty(builder);
@@ -1618,9 +1623,13 @@ public final class EamLanguageProviders {
 			builder.add("gui.eam.nutrient.value", "%s: %s / %s");
 			builder.add("gui.eam.nutrition.balanced", "Питание сбалансировано: голод медленнее, регенерация быстрее");
 			builder.add("gui.eam.nutrition.unbalanced", "Держите все три шкалы на %s или выше для бонуса");
-			builder.add("gui.eam.crafting_table.tool", "Ножи, пилы и молотки: нужен хотя бы нож, каждый инструмент ускоряет свой крафт");
-			builder.add("gui.eam.crafting_table.tool.tiers",
-					"Для меди и серебра нужен кремнёвый нож, для железа и древнего металла медный или серебряный, для мифрила железный или из древнего металла, для адамантия мифриловый");
+			builder.add("gui.eam.crafting_table.knife", "Нож");
+			builder.add("gui.eam.crafting_table.knife.desc", "Обязателен, ускоряет любой крафт");
+			builder.add("gui.eam.crafting_table.knife.tiers", "Для металла нужен нож на ступень ниже");
+			builder.add("gui.eam.crafting_table.saw", "Пила");
+			builder.add("gui.eam.crafting_table.saw.desc", "Ускоряет крафт из дерева");
+			builder.add("gui.eam.crafting_table.hammer", "Молоток");
+			builder.add("gui.eam.crafting_table.hammer.desc", "Ускоряет крафт из металла");
 			mithril(builder);
 			adamantium(builder);
 			rusty(builder);

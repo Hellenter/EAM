@@ -14,14 +14,16 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 /**
- * The vanilla crafting menu plus three tool slots for knives, saws and hammers ({@link CraftingTags#CRAFTING_TABLE_TOOLS})
- * in any mix. Without a knife the table crafts nothing; each tool makes its crafts faster, tools below iron wear a little
+ * The vanilla crafting menu plus three tool slots: one for a knife, one for a saw and one for a hammer
+ * ({@link CraftingTags#CRAFTING_TABLE_TOOLS}). Without a knife the table crafts nothing; each tool makes its crafts faster, tools below iron wear a little
  * with each craft they help, and metal recipes need a knife of the tier below the metal ({@link CraftingTierLogic}). The tools live in the table's
  * block entity.
  */
@@ -34,7 +36,11 @@ public class CraftingTableMenu extends CraftingMenu {
 	public static final int TOOL_X = 93;
 	public static final int TOOL_Y = 53;
 	public static final int TOOL_SPACING = 18;
-	private static final Identifier EMPTY_TOOL_ICON = Eam.id("container/slot/knife");
+	/** Per tool slot: the tier tags of the tool it takes and its empty slot icon. */
+	private static final List<List<TagKey<Item>>> SLOT_TIERS = List.of(CraftingTags.KNIFE_TIERS, CraftingTags.SAW_TIERS,
+			ForgingTags.HAMMER_TIERS);
+	private static final List<Identifier> EMPTY_TOOL_ICONS = List.of(Eam.id("container/slot/knife"), Eam.id("container/slot/saw"),
+			Eam.id("container/slot/hammer"));
 
 	private final Container tools;
 
@@ -140,7 +146,7 @@ public class CraftingTableMenu extends CraftingMenu {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return CraftingModule.isCraftingTool(stack);
+			return CraftingModule.isCraftingTool(stack) && CraftingTiers.tier(stack, SLOT_TIERS.get(getContainerSlot())) > CraftingTierLogic.NONE;
 		}
 
 		@Override
@@ -150,7 +156,7 @@ public class CraftingTableMenu extends CraftingMenu {
 
 		@Override
 		public Identifier getNoItemIcon() {
-			return EMPTY_TOOL_ICON;
+			return EMPTY_TOOL_ICONS.get(getContainerSlot());
 		}
 
 		@Override
