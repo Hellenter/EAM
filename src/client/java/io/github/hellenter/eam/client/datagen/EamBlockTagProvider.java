@@ -13,6 +13,7 @@ import io.github.hellenter.eam.mobs.vanilla.drops.MobDropsModule;
 import io.github.hellenter.eam.mobs.vanilla.villager.BlueprintTemplate;
 import io.github.hellenter.eam.mobs.vanilla.leaves.ThroughLeavesModule;
 import io.github.hellenter.eam.mobs.vanilla.noise.NoiseModule;
+import io.github.hellenter.eam.survival.thirst.CauldronBoiling;
 import io.github.hellenter.eam.survival.sleep.SafeRoomModule;
 import io.github.hellenter.eam.world.mining.HandBreakingModule;
 import io.github.hellenter.eam.world.bluemoon.BlueMoonModule;
@@ -109,6 +110,9 @@ public class EamBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 		// What grows over the path behind a player a leshy leads astray.
 		builder(LeshyModule.OVERGROWTH).add(Blocks.BUSH.builtInRegistryHolder().key(), Blocks.FERN.builtInRegistryHolder().key(),
 				Blocks.SWEET_BERRY_BUSH.builtInRegistryHolder().key());
+		// What boils water in a cauldron standing right on top of it.
+		builder(CauldronBoiling.HEAT_SOURCES).forceAddTag(BlockTags.FIRE).forceAddTag(BlockTags.CAMPFIRES).add(Blocks.LAVA.builtInRegistryHolder().key(),
+				Blocks.MAGMA_BLOCK.builtInRegistryHolder().key(), EamBlocks.CAMP_FIRE.builtInRegistryHolder().key());
 		// Doors, trapdoors and gates bang when a player opens or closes them: mobs nearby hear it.
 		builder(NoiseModule.NOISY_WHEN_USED).forceAddTag(BlockTags.DOORS).forceAddTag(BlockTags.TRAPDOORS).forceAddTag(BlockTags.FENCE_GATES);
 

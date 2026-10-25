@@ -31,7 +31,7 @@ final class EncyclopediaTexts {
 		page(builder, "stone_age", "Stone Age", "Tier 1: flint",
 				"You start with 3 hearts, bare hands and nothing else. Wood and stone will not break by hand: pick up pebbles, sticks and flint shards lying in forests and on mountains, and dig gravel for more shards. Four shards make a flint.",
 				"A flint knife comes first: the crafting table works only with a knife in one of its slots. Then a flint hatchet and axe for wood. Crafting takes time, and the table is faster than the 2x2 grid.",
-				"Three sticks make a camp fire: cook food and boil water on it. Eight clay balls around a camp fire make a clay oven for food. A leather flask carries water; a filter keeps it clean. Watch thirst and the three nutrients in the inventory.");
+				"Three sticks make a camp fire: cook food and boil water on it. Eight clay balls around a camp fire make a clay oven for food. A cauldron of water on a fire boils: drink from it with an empty hand. A leather flask carries water; a filter keeps it clean. Watch thirst and the three nutrients in the inventory.");
 		page(builder, "copper_silver", "Copper and Silver", "Tier 2: copper = silver",
 				"Gravel and the sieve give copper nuggets: nine make an ingot. Metal cannot be crafted in the 2x2 grid; it needs the table with a flint knife.",
 				"Copper or silver tools mine iron ore. Knives, saws and hammers in the table's slots speed crafting up. The copper and silver anvils repair and forge tier 2 gear.",
@@ -84,7 +84,7 @@ final class EncyclopediaTexts {
 		page(builder, "stone_age", "Каменный век", "Тир 1: кремень",
 				"Ты начинаешь с 3 сердцами и пустыми руками. Дерево и камень руками не сломать: собирай камешки, палки и осколки кремня в лесах и горах, копай гравий ради осколков. Из четырёх осколков выходит кремень.",
 				"Первым делом кремнёвый нож: верстак работает только с ножом в одном из слотов. Потом кремнёвый топорик и топор для дерева. Крафт занимает время, на верстаке быстрее, чем в сетке 2x2.",
-				"Три палки дают костёр: на нём жарят еду и кипятят воду. Восемь комков глины вокруг костра дают глиняную печку для еды. Кожаная фляга носит воду, фильтр делает её чистой. Следи за жаждой и тремя нутриентами в инвентаре.");
+				"Три палки дают костёр: на нём жарят еду и кипятят воду. Восемь комков глины вокруг костра дают глиняную печку для еды. Котёл с водой на огне закипает: из него можно пить пустой рукой. Кожаная фляга носит воду, фильтр делает её чистой. Следи за жаждой и тремя нутриентами в инвентаре.");
 		page(builder, "copper_silver", "Медь и серебро", "Тир 2: медь = серебро",
 				"Гравий и сито дают медные самородки: из девяти выходит слиток. Металл в сетке 2x2 не крафтится, нужен верстак с кремнёвым ножом.",
 				"Медные и серебряные инструменты добывают железную руду. Ножи, пилы и молоты в слотах верстака ускоряют крафт. Медная и серебряная наковальни чинят и куют снаряжение 2 тира.",

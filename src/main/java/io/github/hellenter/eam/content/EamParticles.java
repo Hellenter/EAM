@@ -104,6 +104,9 @@ public final class EamParticles {
 	/** Embers drifting up out of a smoldering shambler's cracks. */
 	public static final SimpleParticleType SHAMBLER_EMBER = registerAmbient("shambler_ember");
 
+	/** Steam rising off boiling water in a cauldron over a fire. */
+	public static final SimpleParticleType CAULDRON_STEAM = registerAmbient("cauldron_steam");
+
 	private EamParticles() {
 	}
 
