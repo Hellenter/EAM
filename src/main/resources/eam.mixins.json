@@ -63,6 +63,7 @@
 		"survival.spoilage.ItemEntitySpoilageMixin",
 		"survival.spoilage.ItemStackSpoilageMixin",
 		"survival.thirst.BrewingStandBoilMixin",
+		"survival.thirst.CauldronBoilMixin",
 		"survival.thirst.CauldronRainMixin",
 		"survival.thirst.CauldronWaterChangeMixin",
 		"survival.thirst.PlayerThirstMixin",

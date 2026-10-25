@@ -61,7 +61,8 @@ public final class ThirstLogic {
 		float perPoint = settings.exhaustionPerPoint() / environment.drainFactor();
 		if (exhaustion >= perPoint) {
 			exhaustion -= perPoint;
-			next = thirst.add(-1);
+			// Like food: saturation goes first, the bar only once it is spent.
+			next = thirst.saturation() > 0.0F ? thirst.withSaturation(Math.max(thirst.saturation() - 1.0F, 0.0F)) : thirst.add(-1);
 		}
 
 		int timer = 0;
@@ -94,6 +95,28 @@ public final class ThirstLogic {
 		if (newLevel == 0) return false;
 		if (newLevel > oldLevel) return rain && (oldLevel == 0 || wasRainWater);
 		return wasRainWater;
+	}
+
+	/**
+	 * Heat of a cauldron after its water level changed from {@code oldLevel} to {@code newLevel} (0 is no water). Water
+	 * poured in is cold and raw, so boiling starts over; taking water out keeps it boiled.
+	 */
+	public static int boilHeatAfter(int heat, int oldLevel, int newLevel) {
+		return newLevel == 0 || newLevel > oldLevel ? 0 : heat;
+	}
+
+	/**
+	 * Heat of a water cauldron after {@code ticks} more ticks. Over a heat source it climbs to {@code boilTime} and stays
+	 * there; taken off the heat before it boils, the water cools and starts over. Boiled water stays boiled.
+	 */
+	public static int heatAfter(int heat, boolean heated, int ticks, int boilTime) {
+		if (heat >= boilTime) return boilTime;
+		return heated ? Math.min(heat + ticks, boilTime) : 0;
+	}
+
+	/** Drinking {@code water} points: the bar fills and saturation grows by {@code water} times the saturation ratio. */
+	public static Thirst drink(Thirst thirst, int water, ThirstSettings settings) {
+		return water > 0 ? thirst.drink(water, water * settings.saturationRatio()) : thirst.add(water);
 	}
 
 	/** Adds {@code factor} ticks' worth of passive thirst, for effects that make the player thirsty faster. */

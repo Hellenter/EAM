@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -50,7 +51,7 @@ public final class RainWater {
 		enabled = true;
 		((CauldronDispatcherInvoker) (Object) CauldronInteractions.WATER).eam$put(Items.GLASS_BOTTLE,
 				(state, level, pos, player, hand, itemInHand) -> takeWater(state, level, pos, player, hand, itemInHand,
-						isRainWater(level, pos) ? RawWater.rainWaterBottle() : RawWater.rawWaterBottle()));
+						bottleFrom(level, pos)));
 	}
 
 	/** Runs a rain fill of a cauldron so the water it adds counts as rain water. */
@@ -88,6 +89,15 @@ public final class RainWater {
 	public static boolean isRainWater(Level level, BlockPos pos) {
 		RainCauldrons cauldrons = level.getChunk(pos).getAttached(CAULDRONS);
 		return enabled && cauldrons != null && cauldrons.contains(pos.asLong());
+	}
+
+	/** A water bottle filled from the cauldron at {@code pos}: rain water, boiled water, or raw. */
+	private static ItemStack bottleFrom(Level level, BlockPos pos) {
+		if (isRainWater(level, pos)) return RawWater.rainWaterBottle();
+		if (!CauldronBoiling.isBoiled(level, pos)) return RawWater.rawWaterBottle();
+		ItemStack bottle = new ItemStack(Items.POTION);
+		bottle.set(DataComponents.POTION_CONTENTS, RawWater.boiledWater());
+		return bottle;
 	}
 
 	/** Takes one level of water out of a water cauldron into {@code filled}, the way vanilla fills a glass bottle. */

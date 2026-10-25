@@ -22,6 +22,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param sipCooldown               ticks between sips from a water source
  * @param poisoning                 food poisoning from sips at a water source
  * @param flask                     leather flasks
+ * @param saturationRatio           saturation a drink gives per point of water it restores; thirst spends saturation
+ *                                  before the bar, like food
+ * @param cauldron                  drinking and boiling water in a cauldron
  */
 public record ThirstSettings(
 		float exhaustionPerPoint,
@@ -37,10 +40,13 @@ public record ThirstSettings(
 		int sourceSip,
 		int sipCooldown,
 		PoisoningSettings poisoning,
-		FlaskSettings flask
+		FlaskSettings flask,
+		float saturationRatio,
+		CauldronSettings cauldron
 ) {
 	public static final ThirstSettings DEFAULT = new ThirstSettings(
-			8.0F, 1.0F, 0.003F, 2.0F, 1.5F, 0.6F, 0.15F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT, FlaskSettings.DEFAULT
+			8.0F, 1.0F, 0.003F, 2.0F, 1.5F, 0.6F, 0.15F, 80, 1.0F, 20, 2, 16, PoisoningSettings.DEFAULT, FlaskSettings.DEFAULT,
+			0.8F, CauldronSettings.DEFAULT
 	);
 
 	public static final Codec<ThirstSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -57,6 +63,8 @@ public record ThirstSettings(
 			Codec.intRange(0, Thirst.MAX).fieldOf("source_sip").orElse(DEFAULT.sourceSip).forGetter(ThirstSettings::sourceSip),
 			Codec.intRange(1, Integer.MAX_VALUE).fieldOf("sip_cooldown").orElse(DEFAULT.sipCooldown).forGetter(ThirstSettings::sipCooldown),
 			PoisoningSettings.CODEC.fieldOf("poisoning").orElse(DEFAULT.poisoning).forGetter(ThirstSettings::poisoning),
-			FlaskSettings.CODEC.fieldOf("flask").orElse(DEFAULT.flask).forGetter(ThirstSettings::flask)
+			FlaskSettings.CODEC.fieldOf("flask").orElse(DEFAULT.flask).forGetter(ThirstSettings::flask),
+			Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("saturation_ratio").orElse(DEFAULT.saturationRatio).forGetter(ThirstSettings::saturationRatio),
+			CauldronSettings.CODEC.fieldOf("cauldron").orElse(DEFAULT.cauldron).forGetter(ThirstSettings::cauldron)
 	).apply(instance, ThirstSettings::new));
 }

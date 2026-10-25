@@ -205,4 +205,46 @@ class ThirstLogicTest {
 		assertEquals(Thirst.MAX - 1, ThirstLogic.tick(Thirst.full(), full, SETTINGS, NORMAL).thirst().water());
 		assertEquals(Thirst.MAX, ThirstLogic.tick(Thirst.full(), full, SETTINGS, rested).thirst().water());
 	}
+
+	@Test
+	void saturationIsSpentBeforeTheBar() {
+		Thirst thirst = Thirst.full().withSaturation(2.0F);
+		ThirstCounters counters = ThirstCounters.ZERO.withExhaustion(SETTINGS.exhaustionPerPoint());
+		ThirstLogic.TickResult result = ThirstLogic.tick(thirst, counters, SETTINGS, NORMAL);
+		assertEquals(Thirst.MAX, result.thirst().water());
+		assertEquals(1.0F, result.thirst().saturation(), 1.0E-6F);
+
+		Thirst dry = Thirst.full();
+		assertEquals(Thirst.MAX - 1, ThirstLogic.tick(dry, counters, SETTINGS, NORMAL).thirst().water());
+	}
+
+	@Test
+	void drinkingFillsSaturationUpToTheWater() {
+		Thirst thirst = ThirstLogic.drink(new Thirst(4), 6, SETTINGS);
+		assertEquals(10, thirst.water());
+		assertEquals(6 * SETTINGS.saturationRatio(), thirst.saturation(), 1.0E-6F);
+
+		Thirst capped = ThirstLogic.drink(new Thirst(0), 2, ThirstSettings.DEFAULT);
+		assertTrue(capped.saturation() <= capped.water());
+		// Losing water trims saturation; eating dry food adds none.
+		assertEquals(3.0F, new Thirst(10, Thirst.MAX, 8.0F).add(-7).saturation(), 1.0E-6F);
+		assertEquals(0.0F, ThirstLogic.drink(new Thirst(10), -2, SETTINGS).saturation(), 1.0E-6F);
+	}
+
+	@Test
+	void cauldronBoilsOverHeatAndStaysBoiled() {
+		int boil = SETTINGS.cauldron().boilTime();
+		assertEquals(20, ThirstLogic.heatAfter(0, true, 20, boil));
+		assertEquals(boil, ThirstLogic.heatAfter(boil - 5, true, 20, boil));
+		// Off the heat before boiling the water cools; boiled water stays boiled.
+		assertEquals(0, ThirstLogic.heatAfter(boil - 5, false, 20, boil));
+		assertEquals(boil, ThirstLogic.heatAfter(boil, false, 20, boil));
+	}
+
+	@Test
+	void waterPouredInStartsTheBoilOver() {
+		assertEquals(0, ThirstLogic.boilHeatAfter(600, 2, 3));
+		assertEquals(600, ThirstLogic.boilHeatAfter(600, 3, 2));
+		assertEquals(0, ThirstLogic.boilHeatAfter(600, 1, 0));
+	}
 }
