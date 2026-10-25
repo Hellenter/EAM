@@ -50,8 +50,11 @@ import java.util.concurrent.CompletableFuture;
  * Pebbles, flint shards and sticks on the surface. In forests a pebble gets 0.53 tries per chunk on average
  * (8 tries, each kept 1 time in 15) and a flint shard 1 try in 20 chunks; in the mountains they lie only on
  * stone and gravel, with a flint shard 1 try in 10 chunks. Stony shores get 2.5 times the forest's pebbles
- * (1.33 tries per chunk) and one flint shard try for every 6 pebble tries. Sticks get 1 try per chunk
- * in any overworld biome and stay only where a tree trunk stands close by, on solid ground, never on water or ice.
+ * (1.33 tries per chunk) and one flint shard try for every 6 pebble tries. Open grassland, savannas, jungles, swamps,
+ * rivers and beaches get half the forest's pebbles and shards, deserts and badlands a quarter on sand and terracotta.
+ * Sticks get 1 try per chunk in wooded biomes and stay only where a tree trunk stands close by, on solid ground,
+ * never on water or ice; open biomes with lone trees get 1 try in 2 chunks, and deserts and badlands 1 try in 3 chunks
+ * kept only beside a dead bush. No biome gets more than before.
  * <p>
  * Copper ore: 12 veins per chunk instead of vanilla's 16, at vanilla heights, each the size of an average diamond vein
  * (vanilla diamond veins are size 4, 8 and 12, about 6 on average) instead of 10, or 20 in dripstone caves.
@@ -68,6 +71,19 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 	private static final int TREE_RADIUS = 3;
 	/** ...and at most this many blocks above the ground it lies on, so a tree's own trunk counts but its crown alone does not. */
 	private static final int TREE_TRUNK_HEIGHT = 4;
+	/** A desert twig needs a dead bush at most this many blocks away sideways, on its own level or one up. */
+	private static final int DEAD_BUSH_RADIUS = 2;
+	/** Tries per chunk on the forest floor and in the mountains, each kept 1 time in {@link #PEBBLE_FOREST_RARITY}. */
+	private static final int PEBBLE_TRIES = 8;
+	private static final int PEBBLE_FOREST_RARITY = 15;
+	/** Half the forest's pebbles and shards. */
+	private static final int PEBBLE_OPEN_RARITY = 30;
+	private static final int FLINT_SHARD_OPEN_RARITY = 40;
+	/** A quarter of the forest's pebbles and shards. */
+	private static final int PEBBLE_DRY_RARITY = 60;
+	private static final int FLINT_SHARD_DRY_RARITY = 80;
+	private static final int STICK_SPARSE_RARITY = 2;
+	private static final int STICK_DRY_RARITY = 3;
 	private static final int COPPER_VEIN_SIZE = 6;
 	private static final int COPPER_VEINS_PER_CHUNK = 12;
 	private static final int SILVER_VEIN_TRIES = 24;
@@ -140,23 +156,30 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		var silver = features.getOrThrow(EamWorldgen.ORE_SILVER);
 
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_FOREST, pebble,
-				onSurface(forestFloor(), CountPlacement.of(8), RarityFilter.onAverageOnceEvery(15)));
+				onSurface(forestFloor(), CountPlacement.of(PEBBLE_TRIES), RarityFilter.onAverageOnceEvery(PEBBLE_FOREST_RARITY)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_FOREST, flintShard,
 				onSurface(forestFloor(), RarityFilter.onAverageOnceEvery(20)));
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_MOUNTAIN, pebble,
-				onSurface(stoneOrGravel(), CountPlacement.of(8), RarityFilter.onAverageOnceEvery(15)));
+				onSurface(stoneOrGravel(), CountPlacement.of(PEBBLE_TRIES), RarityFilter.onAverageOnceEvery(PEBBLE_FOREST_RARITY)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_MOUNTAIN, flintShard,
 				onSurface(stoneOrGravel(), RarityFilter.onAverageOnceEvery(10)));
 		PlacementUtils.register(context, EamWorldgen.PEBBLE_SHORE, pebble,
 				onSurface(stoneOrGravel(), CountPlacement.of(4), RarityFilter.onAverageOnceEvery(3)));
 		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_SHORE, flintShard,
 				onSurface(stoneOrGravel(), CountPlacement.of(2), RarityFilter.onAverageOnceEvery(9)));
-		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_NEAR_TREES, stick, List.of(
-				CountPlacement.of(1),
-				InSquarePlacement.spread(),
-				PlacementUtils.HEIGHTMAP_NO_LEAVES,
-				BiomeFilter.biome(),
-				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(stickSpot(), solidDryGround(), nearTree()))));
+		PlacementUtils.register(context, EamWorldgen.PEBBLE_OPEN, pebble,
+				onSurface(openGround(), CountPlacement.of(PEBBLE_TRIES), RarityFilter.onAverageOnceEvery(PEBBLE_OPEN_RARITY)));
+		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_OPEN, flintShard,
+				onSurface(openGround(), RarityFilter.onAverageOnceEvery(FLINT_SHARD_OPEN_RARITY)));
+		PlacementUtils.register(context, EamWorldgen.PEBBLE_DRY, pebble,
+				onSurface(dryGround(), CountPlacement.of(PEBBLE_TRIES), RarityFilter.onAverageOnceEvery(PEBBLE_DRY_RARITY)));
+		PlacementUtils.register(context, EamWorldgen.FLINT_SHARD_DRY, flintShard,
+				onSurface(dryGround(), RarityFilter.onAverageOnceEvery(FLINT_SHARD_DRY_RARITY)));
+		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_NEAR_TREES, stick, stickPlacement(CountPlacement.of(1), nearTree()));
+		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_SPARSE, stick,
+				stickPlacement(RarityFilter.onAverageOnceEvery(STICK_SPARSE_RARITY), nearTree()));
+		PlacementUtils.register(context, EamWorldgen.GROUND_STICK_DEAD_BUSHES, stick,
+				stickPlacement(RarityFilter.onAverageOnceEvery(STICK_DRY_RARITY), nearDeadBush()));
 		PlacementUtils.register(context, EamWorldgen.ORE_COPPER_PLACED, copper, List.of(
 				CountPlacement.of(COPPER_VEINS_PER_CHUNK),
 				InSquarePlacement.spread(),
@@ -206,6 +229,16 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockStateProvider.of(block), GroundItemBlock.POSITION, UniformInt.of(0, GroundItemLogic.POSITIONS - 1)));
 	}
 
+	/** One stick try at a random surface spot, kept on solid dry ground where {@code near} holds. */
+	private static List<PlacementModifier> stickPlacement(PlacementModifier frequency, BlockPredicate near) {
+		return List.of(
+				frequency,
+				InSquarePlacement.spread(),
+				PlacementUtils.HEIGHTMAP_NO_LEAVES,
+				BiomeFilter.biome(),
+				BlockPredicateFilter.forPredicate(BlockPredicate.allOf(stickSpot(), solidDryGround(), near)));
+	}
+
 	/** {@code frequency} decides how many tries a chunk gets; each try lands on a random surface spot. */
 	private static List<PlacementModifier> onSurface(BlockPredicate ground, PlacementModifier... frequency) {
 		List<PlacementModifier> modifiers = new ArrayList<>(List.of(frequency));
@@ -233,6 +266,19 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.SUBSTRATE_OVERWORLD),
 				stoneOrGravel()
 		);
+	}
+
+	/** The forest floor plus sand, for beaches and river banks. */
+	private static BlockPredicate openGround() {
+		return BlockPredicate.anyOf(forestFloor(), BlockPredicate.matchesTag(Direction.DOWN, BlockTags.SAND));
+	}
+
+	/** Sand, terracotta, stone or gravel: deserts and badlands. */
+	private static BlockPredicate dryGround() {
+		return BlockPredicate.anyOf(
+				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.SAND),
+				BlockPredicate.matchesTag(Direction.DOWN, BlockTags.TERRACOTTA),
+				stoneOrGravel());
 	}
 
 	private static BlockPredicate stoneOrGravel() {
@@ -264,6 +310,15 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		return BlockPredicate.not(noLogs);
 	}
 
+	/** A dead bush within {@link #DEAD_BUSH_RADIUS} blocks sideways, on the twig's level or one block up. */
+	private static BlockPredicate nearDeadBush() {
+		BlockPredicate noBushes = BlockPredicate.volumeMatch(
+				new Vec3i(-DEAD_BUSH_RADIUS, 0, -DEAD_BUSH_RADIUS),
+				new Vec3i(DEAD_BUSH_RADIUS, 1, DEAD_BUSH_RADIUS),
+				BlockPredicate.not(BlockPredicate.matchesBlocks(Blocks.DEAD_BUSH)));
+		return BlockPredicate.not(noBushes);
+	}
+
 	@Override
 	protected void configure(HolderLookup.Provider registries, Entries entries) {
 		var features = registries.lookupOrThrow(Registries.FEATURE);
@@ -282,7 +337,13 @@ public class EamWorldgenProvider extends FabricDynamicRegistryProvider {
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_MOUNTAIN);
 		entries.add(placedFeatures, EamWorldgen.PEBBLE_SHORE);
 		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_SHORE);
+		entries.add(placedFeatures, EamWorldgen.PEBBLE_OPEN);
+		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_OPEN);
+		entries.add(placedFeatures, EamWorldgen.PEBBLE_DRY);
+		entries.add(placedFeatures, EamWorldgen.FLINT_SHARD_DRY);
 		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_NEAR_TREES);
+		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_SPARSE);
+		entries.add(placedFeatures, EamWorldgen.GROUND_STICK_DEAD_BUSHES);
 		entries.add(placedFeatures, EamWorldgen.WILD_GARLIC_PATCH);
 		entries.add(placedFeatures, EamWorldgen.ORE_COPPER_PLACED);
 		entries.add(placedFeatures, EamWorldgen.ORE_SILVER_PLACED);
