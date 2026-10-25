@@ -1,0 +1,13 @@
+{
+  "values": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:swamp",
+    "minecraft:beach",
+    "minecraft:river",
+    "#minecraft:is_savanna",
+    "#minecraft:is_jungle",
+    "eam:swampy_forest",
+    "eam:swampy_lakes"
+  ]
+}
