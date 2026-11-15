@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.mithril;
 
+import io.github.hellenter.eam.core.link.LinkState;
 import io.github.hellenter.eam.Eam;
 import io.github.hellenter.eam.content.furnace.ObsidianBlastFurnaceBlockEntity;
 
@@ -32,7 +33,7 @@ public final class MithrilModule {
 
 	/** Called from the block state mixin on both sides, so the client predicts the same break time as the server. */
 	public static float destroySpeed(BlockState state, float original) {
-		return enabled ? MithrilLogic.destroySpeed(state.is(Blocks.OBSIDIAN), original) : original;
+		return enabled && LinkState.active() ? MithrilLogic.destroySpeed(state.is(Blocks.OBSIDIAN), original) : original;
 	}
 
 	/** Server, when a furnace looks up a recipe for its input: false keeps a vanilla blast furnace off mithril. */
