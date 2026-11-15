@@ -24,6 +24,7 @@ import io.github.hellenter.eam.content.arrows.ArrowRecoveryModule;
 import io.github.hellenter.eam.content.silver.SilverModule;
 import io.github.hellenter.eam.content.underworld.GlowshroomModule;
 import io.github.hellenter.eam.core.config.EamConfig;
+import io.github.hellenter.eam.core.link.LinkModule;
 import io.github.hellenter.eam.dimension.UnderworldModule;
 import io.github.hellenter.eam.mobs.entity.bat.VampireBatModule;
 import io.github.hellenter.eam.mobs.entity.boar.BoarModule;
@@ -228,6 +229,7 @@ public class Eam implements ModInitializer {
 		TalismanModule.register();
 		HeartInJarModule.register();
 		UnderworldModule.register();
+		LinkModule.register();
 		DarknessModule.register();
 
 		// Each mechanic turns itself on here, guarded by its config flag.
@@ -306,6 +308,9 @@ public class Eam implements ModInitializer {
 		if (config.underworld()) UnderworldModule.init();
 		if (config.underworld()) GlowshroomModule.init();
 		if (config.rainDousesFires()) DarknessModule.init();
+
+		// Network play: client mod check and /hub. Settings in config/eam-server.json.
+		LinkModule.init();
 	}
 
 	public static EamConfig config() {
