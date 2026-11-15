@@ -4,7 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import io.github.hellenter.eam.Eam;
 
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
@@ -41,6 +43,10 @@ public final class LinkModule {
 	public static void register() {
 		PayloadTypeRegistry.clientboundConfiguration().register(HelloPayload.TYPE, HelloPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundConfiguration().register(HelloPayload.Reply.TYPE, HelloPayload.Reply.STREAM_CODEC);
+		VanillaComponents.register();
+		LinkState.setDedicatedServer(FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER);
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> LinkState.setLocalServer(true));
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> LinkState.setLocalServer(false));
 	}
 
 	public static void init() {
@@ -50,7 +56,7 @@ public final class LinkModule {
 		ServerConfigurationConnectionEvents.BEFORE_CONFIGURE.register(EARLY, LinkModule::onConfigure);
 		ServerConfigurationNetworking.registerGlobalReceiver(HelloPayload.Reply.TYPE, (reply, context) -> {
 			ServerConfigurationPacketListenerImpl listener = context.packetListener();
-			if (config.requireClientMod()
+			if (enforce(ServerConfigurationNetworking.getServer(listener))
 					&& HandshakeLogic.afterReply(HandshakeLogic.PROTOCOL, reply.protocol()) != HandshakeLogic.Result.OK) {
 				listener.disconnect(message(config.outdatedMessage(), reply.version()));
 				return;
@@ -62,15 +68,18 @@ public final class LinkModule {
 	}
 
 	private static void onConfigure(ServerConfigurationPacketListenerImpl listener, MinecraftServer server) {
-		if (!config.requireClientMod() || !server.isDedicatedServer()) {
-			return;
-		}
 		boolean hasChannel = ServerConfigurationNetworking.canSend(listener, HelloPayload.TYPE);
-		if (HandshakeLogic.beforeHello(hasChannel) == HandshakeLogic.Result.MISSING) {
+		if (hasChannel) {
+			// Always say hello, also in singleplayer and LAN: the client turns EAM rules on only after it.
+			listener.addTask(new HelloTask());
+		} else if (enforce(server) && HandshakeLogic.beforeHello(false) == HandshakeLogic.Result.MISSING) {
 			listener.disconnect(message(config.missingModMessage(), "-"));
-			return;
 		}
-		listener.addTask(new HelloTask());
+	}
+
+	/** Only a dedicated server turns players away; singleplayer and LAN stay open. */
+	private static boolean enforce(MinecraftServer server) {
+		return config.requireClientMod() && server.isDedicatedServer();
 	}
 
 	private static Component message(String template, String clientVersion) {

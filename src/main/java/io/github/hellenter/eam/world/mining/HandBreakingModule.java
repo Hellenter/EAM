@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.mining;
 
+import io.github.hellenter.eam.core.link.LinkState;
 import io.github.hellenter.eam.Eam;
 
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -53,7 +54,7 @@ public final class HandBreakingModule {
 
 	/** Called from the mixin on both sides, so the client does not show cracks the server rejects. */
 	public static float destroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos, float original) {
-		if (!enabled || original <= 0.0F) {
+		if (!enabled || original <= 0.0F || !LinkState.active()) {
 			return original;
 		}
 		float progress = HandBreakingLogic.destroyProgress(

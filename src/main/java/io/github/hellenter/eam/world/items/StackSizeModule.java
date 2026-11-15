@@ -1,5 +1,6 @@
 package io.github.hellenter.eam.world.items;
 
+import io.github.hellenter.eam.core.link.LinkState;
 import io.github.hellenter.eam.content.ground.GroundItemBlock;
 
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
@@ -45,7 +46,7 @@ public final class StackSizeModule {
 
 	/** Per-stack limit, for stacks whose limit depends on more than the item (water bottles). */
 	public static int maxStackSize(ItemInstance stack, int current) {
-		if (!enabled || !stack.is(Items.POTION)) {
+		if (!enabled || !LinkState.active() || !stack.is(Items.POTION)) {
 			return current;
 		}
 		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
