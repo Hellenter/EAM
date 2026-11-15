@@ -16,6 +16,7 @@ import io.github.hellenter.eam.client.encyclopedia.Encyclopedia;
 import io.github.hellenter.eam.client.forging.AnvilProgress;
 import io.github.hellenter.eam.client.forging.HotIronTooltip;
 import io.github.hellenter.eam.client.hud.NutritionPanel;
+import io.github.hellenter.eam.client.link.HandshakeClient;
 import io.github.hellenter.eam.client.mobs.crossbowman.EliteCrossbowmanRenderer;
 import io.github.hellenter.eam.client.mobs.crossbowman.KettleHelmetLayer;
 import io.github.hellenter.eam.client.mobs.crossbowman.RedBoltRenderer;
@@ -147,6 +148,7 @@ import java.util.List;
 public class EamClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		HandshakeClient.init();
 		NutritionPanel.register();
 		Encyclopedia.register();
 		NockedArrow.register();
